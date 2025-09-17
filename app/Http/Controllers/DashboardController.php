@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+
+        // Hitung data presensi bulan ini untuk user yang login
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        // Cari tanggal pertama user melakukan presensi
+        $firstPresensiDate = \App\Models\Presensi::where('user_id', $user->id)
+            ->orderBy('tanggal', 'asc')
+            ->value('tanggal');
+
+        if ($firstPresensiDate) {
+            $startDate = \Carbon\Carbon::parse($firstPresensiDate);
+        } else {
+            // Jika belum ada presensi, gunakan tanggal pertama user dibuat
+            $startDate = \Carbon\Carbon::parse($user->created_at);
+        }
+
+        // Hitung hari kerja mulai dari tanggal pertama presensi sampai hari ini
+        $today = now();
+
+        // Hitung hari kerja dari 1 Juli tahun berjalan sampai 30 Juni tahun berikutnya
+        $year = $today->month >= 7 ? $today->year : $today->year - 1;
+        $startFiscalYear = \Carbon\Carbon::create($year, 7, 1);
+        $endFiscalYear = \Carbon\Carbon::create($year + 1, 6, 30);
+
+        $workingDays = $this->calculateWorkingDaysInMonth($startFiscalYear, $endFiscalYear);
+
+        $presensiCounts = \App\Models\Presensi::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startDate, $today])
+            ->selectRaw("status, COUNT(*) as count")
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $hadir = $presensiCounts['hadir'] ?? 0;
+        $izin = $presensiCounts['izin'] ?? 0;
+        $sakit = $presensiCounts['sakit'] ?? 0;
+        $alpha = $presensiCounts['alpha'] ?? 0;
+
+        // Gunakan jumlah data presensi sebagai dasar perhitungan persentase
+        $totalBasis = array_sum($presensiCounts);
+
+        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
+        $izinSakitPercent = $totalBasis > 0 ? round((($izin + $sakit) / $totalBasis) * 100, 2) : 0;
+
+        // Pastikan alpha dihitung dari total presensi (hadir + izin + sakit + alpha)
+        $alphaCount = $alpha;
+        if ($alphaCount < 0) {
+            $alphaCount = 0;
+        }
+        $alphaPercent = $totalBasis > 0 ? round(($alphaCount / $totalBasis) * 100, 2) : 0;
+
+        $attendanceData = [
+            'kehadiran' => $kehadiranPercent,
+            'izin_sakit' => $izinSakitPercent,
+            'alpha' => $alphaCount > 0 ? round(($alphaCount / $totalBasis) * 100, 2) : 0,
+            'total_hari_kerja' => $workingDays,
+            'total_presensi' => $totalBasis,
+        ];
+
+if ($user->role === 'tenaga_pendidik') {
+    // Tenaga pendidik melihat data users
+    $users = User::with('madrasah', 'statusKepegawaian')
+        ->where('madrasah_id', $user->madrasah_id)
+        ->orderBy('name', 'asc')
+        ->paginate(10);
+
+    // Kirim data users dan attendance ke view
+    return view('dashboard.index', [
+        'users' => $users,
+        'showUsers' => true,
+        'attendanceData' => $attendanceData,
+    ]);
+}
+
+        // Untuk role lain, tampilkan dashboard default tanpa data users
+        return view('dashboard.index', [
+            'showUsers' => false,
+            'attendanceData' => $attendanceData,
+        ]);
+    }
+
+    /**
+     * Calculate working days in a month (Monday-Saturday, excluding holidays)
+     */
+    private function calculateWorkingDaysInMonth($startDate, $endDate)
+    {
+        $workingDays = 0;
+        $currentDate = $startDate->copy();
+
+        while ($currentDate <= $endDate) {
+            // Skip Sundays (day 0 in Carbon)
+            if ($currentDate->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
+                // Check if it's not a holiday
+                if (!\App\Models\Holiday::isHoliday($currentDate)) {
+                    $workingDays++;
+                }
+            }
+            $currentDate->addDay();
+        }
+
+        return $workingDays;
+    }
+}
