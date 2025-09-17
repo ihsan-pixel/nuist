@@ -6,11 +6,10 @@
 
 @section('css')
 <!-- owl.carousel css -->
-<link rel="stylesheet" href="{{ asset('assets/libs/owl.carousel/assets/owl.carousel.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/icons.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/app.min.css') }}">
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
+
+@vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss'])
 @endsection
 
 @section('body')
@@ -46,8 +45,8 @@
                         <div class="d-flex flex-column h-100">
                             <div class="mb-4 mb-md-5">
                                 <a href="" class="d-block auth-logo">
-                                    <img src="{{ asset('assets/images/logo-1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
-                                    <img src="{{ asset('assets/images/logo-1.png') }}" alt="Logo" height="70" class="auth-logo-light">
+                                    <img src="{{ asset('build/images/logo-1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
+                                    <img src="{{ asset('build/images/logo-1.png') }}" alt="Logo" height="70" class="auth-logo-light">
                                 </a>
                             </div>
                             <div class="my-auto">
@@ -117,7 +116,7 @@
 
 <style>
     .auth-full-bg {
-        background: url("{{ asset('assets/images/a.png') }}") no-repeat center center !important;
+        background: url("{{ asset('build/images/a.png') }}") no-repeat center center !important;
         background-size: cover !important;
     }
     .bg-overlay {
@@ -128,7 +127,13 @@
 
 @section('script')
 <!-- JS -->
-<script src="{{ asset('assets/libs/owl.carousel/owl.carousel.min.js') }}"></script>
-<script src="{{ asset('assets/js/pages/auth-2-carousel.init.js') }}"></script>
-<script src="{{ asset('assets/js/app.js') }}"></script>
+<script src="{{ asset('build/libs/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('build/libs/metismenu/metisMenu.min.js') }}"></script>
+<script src="{{ asset('build/libs/simplebar/simplebar.min.js') }}"></script>
+<script src="{{ asset('build/libs/node-waves/waves.min.js') }}"></script>
+
+<script src="{{ asset('build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('build/js/pages/auth-2-carousel.init.js') }}"></script>
+<script src="{{ asset('build/js/app.js') }}"></script>
 @endsection
