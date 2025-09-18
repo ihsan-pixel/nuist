@@ -1,30 +1,52 @@
 @extends('layouts.master')
 
+@section('title')
+    Upload Surat Izin
+@endsection
+
 @section('content')
-<div class="container">
-    <h1>Upload Surat Izin</h1>
+    @component('components.breadcrumb')
+        @slot('li_1')
+            Dashboard
+        @endslot
+        @slot('title')
+            Upload Surat Izin
+        @endslot
+    @endcomponent
 
-    @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="bx bx-upload me-2"></i>Upload Surat Izin
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-    <form action="{{ route('izin.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="form-group">
-            <label for="tanggal">Tanggal</label>
-            <input type="date" name="tanggal" id="tanggal" class="form-control" required>
+                    <form action="{{ route('izin.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="tanggal" class="form-label">Tanggal</label>
+                            <input type="date" name="tanggal" id="tanggal" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="keterangan" class="form-label">Keterangan</label>
+                            <textarea name="keterangan" id="keterangan" class="form-control" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="surat_izin" class="form-label">Upload Surat Izin (PDF, JPG, PNG)</label>
+                            <input type="file" name="surat_izin" id="surat_izin" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="keterangan">Keterangan</label>
-            <textarea name="keterangan" id="keterangan" class="form-control" required></textarea>
-        </div>
-        <div class="form-group">
-            <label for="surat_izin">Upload Surat Izin (PDF, JPG, PNG)</label>
-            <input type="file" name="surat_izin" id="surat_izin" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-</div>
+    </div>
 @endsection
