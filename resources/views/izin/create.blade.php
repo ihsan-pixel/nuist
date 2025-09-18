@@ -4,6 +4,12 @@
     Upload Surat Izin
 @endsection
 
+@section('css')
+    <link href="{{ URL::asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ URL::asset('build/css/icons.min.css') }}" rel="stylesheet" />
+    <link href="{{ URL::asset('build/css/app.min.css') }}" rel="stylesheet" />
+@endsection
+
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
