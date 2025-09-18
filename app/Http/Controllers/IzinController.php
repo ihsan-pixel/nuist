@@ -80,6 +80,7 @@ class IzinController extends Controller
 
         $presensi->update([
             'status_izin' => 'rejected',
+            'status' => 'alpha',
             'approved_by' => Auth::id(),
         ]);
 
