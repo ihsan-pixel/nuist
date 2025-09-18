@@ -27,13 +27,7 @@
             </div>
             <div class="card-body">
 
-                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
-                <div class="mb-3 d-flex justify-content-end">
-                    <a href="{{ route('izin.index') }}" class="btn btn-info">
-                        <i class="bx bx-mail-send"></i> Kelola Izin
-                    </a>
-                </div>
-                @endif
+
 
                 @if(auth()->user()->role === 'tenaga_pendidik')
                 <div class="mb-3 d-flex justify-content-end gap-2">

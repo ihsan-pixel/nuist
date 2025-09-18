@@ -42,6 +42,12 @@
                 </div>
                 @endif
 
+                <div class="mb-3 d-flex justify-content-end">
+                    <a href="{{ route('izin.index') }}" class="btn btn-info">
+                        <i class="bx bx-mail-send"></i> Kelola Izin
+                    </a>
+                </div>
+
                 <div class="table-responsive">
                     <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
                         <thead class="table-light">
