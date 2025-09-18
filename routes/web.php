@@ -11,6 +11,7 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\PresensiAdminController;
 use App\Http\Controllers\DevelopmentHistoryController;
 use App\Http\Controllers\PanduanController;
+use App\Http\Controllers\IzinController;
 
 
 /*
@@ -136,6 +137,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi/create', [PresensiController::class, 'create'])->name('presensi.create')->middleware('role:tenaga_pendidik,admin,super_admin');
     Route::post('/presensi/store', [PresensiController::class, 'store'])->name('presensi.store')->middleware('role:tenaga_pendidik,admin,super_admin');
     Route::get('/presensi/laporan', [PresensiController::class, 'laporan'])->name('presensi.laporan');
+});
+
+Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
+    Route::middleware(['role:tenaga_pendidik'])->group(function () {
+        Route::get('/create', [IzinController::class, 'create'])->name('create');
+        Route::post('/store', [IzinController::class, 'store'])->name('store');
+    });
+
+    Route::middleware(['role:admin,super_admin'])->group(function () {
+        Route::get('/', [IzinController::class, 'index'])->name('index');
+        Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('approve');
+        Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');
+    });
 });
 
 // Update User Details

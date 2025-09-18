@@ -13,22 +13,22 @@ class PresensiController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = auth()->user();
+        $query = Presensi::with(['user.madrasah']);
 
         if ($user->role === 'tenaga_pendidik') {
-            // Tenaga pendidik melihat presensinya sendiri
-            $presensis = Presensi::where('user_id', $user->id)
-                ->orderBy('tanggal', 'desc')
-                ->paginate(10);
-        } elseif (in_array($user->role, ['super_admin', 'admin'])) {
-            // Admin melihat semua presensi atau berdasarkan madrasah
-            $presensis = Presensi::with('user.madrasah')
-                ->orderBy('tanggal', 'desc')
-                ->paginate(10);
+            $query->where('user_id', $user->id);
+        } elseif ($user->role === 'admin') {
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            });
         }
+
+        $presensis = $query->latest('tanggal')->paginate(10);
 
         return view('presensi.index', compact('presensis'));
     }
+
 
     public function create()
     {

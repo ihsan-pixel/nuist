@@ -21,6 +21,9 @@ class Presensi extends Model
         'lokasi',
         'status',
         'keterangan',
+        'surat_izin_path',
+        'status_izin',
+        'approved_by',
     ];
 
     protected $casts = [
@@ -39,5 +42,10 @@ class Presensi extends Model
     public function madrasah()
     {
         return $this->hasOneThrough(Madrasah::class, User::class, 'id', 'id', 'user_id', 'madrasah_id');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

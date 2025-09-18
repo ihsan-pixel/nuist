@@ -27,10 +27,21 @@
             </div>
             <div class="card-body">
 
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+                <div class="mb-3 d-flex justify-content-end">
+                    <a href="{{ route('izin.index') }}" class="btn btn-info">
+                        <i class="bx bx-mail-send"></i> Kelola Izin
+                    </a>
+                </div>
+                @endif
+
                 @if(auth()->user()->role === 'tenaga_pendidik')
                 <div class="mb-3 d-flex justify-content-end gap-2">
                     <a href="{{ route('presensi.create') }}" class="btn btn-primary">
                         <i class="bx bx-plus"></i> Presensi Hari Ini
+                    </a>
+                    <a href="{{ route('izin.create') }}" class="btn btn-warning">
+                        <i class="bx bx-upload"></i> Upload Surat Izin
                     </a>
                 </div>
                 @endif
@@ -62,6 +73,7 @@
                                 <th>Waktu Masuk</th>
                                 <th>Waktu Keluar</th>
                                 <th>Status</th>
+                                <th>Detail Izin</th>
                                 <th>Lokasi</th>
                                 <th>Keterangan</th>
                             </tr>
@@ -82,12 +94,27 @@
                                             {{ ucfirst($presensi->status) }}
                                         </span>
                                     </td>
+                                    <td>
+                                        @if($presensi->status === 'izin')
+                                            @if($presensi->status_izin)
+                                                <span class="badge bg-{{ $presensi->status_izin === 'approved' ? 'success' : ($presensi->status_izin === 'rejected' ? 'danger' : 'secondary') }}">
+                                                    {{ ucfirst($presensi->status_izin) }}
+                                                </span>
+                                            @endif
+                                            @if($presensi->surat_izin_path)
+                                                <br>
+                                                <a href="{{ Storage::url($presensi->surat_izin_path) }}" target="_blank" class="text-info"><small>Lihat Surat</small></a>
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ $presensi->lokasi ?? '-' }}</td>
                                     <td>{{ $presensi->keterangan ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->role === 'tenaga_pendidik' ? '7' : '9' }}" class="text-center p-4">
+                                    <td colspan="{{ auth()->user()->role === 'tenaga_pendidik' ? '8' : '10' }}" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Belum ada data presensi</strong><br>
