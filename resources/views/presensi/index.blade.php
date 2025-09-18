@@ -97,7 +97,7 @@
                                             @endif
                                             @if($presensi->surat_izin_path)
                                                 <br>
-                                                <a href="{{ Storage::url($presensi->surat_izin_path) }}" target="_blank" class="text-info"><small>Lihat Surat</small></a>
+                                                <a href="{{ asset('storage/app/public/'.$presensi->surat_izin_path) }}" target="_blank" class="text-info"><small>Lihat Surat</small></a>
                                             @endif
                                         @else
                                             -
