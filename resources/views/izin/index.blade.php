@@ -28,7 +28,7 @@
                     <td>{{ $presensi->tanggal->format('d-m-Y') }}</td>
                     <td>{{ $presensi->keterangan }}</td>
                     <td>
-                        <a href="{{ Storage::url($presensi->surat_izin_path) }}" target="_blank">Lihat Surat</a>
+                        <a href="{{ asset('storage/app/public/'.$presensi->surat_izin_path) }}" target="_blank">Lihat Surat</a>
                     </td>
                     <td>{{ $presensi->status_izin }}</td>
                     <td>
