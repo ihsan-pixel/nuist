@@ -11,6 +11,8 @@
     <link href="{{ URL::asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ URL::asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ URL::asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 @endsection
 
 @section('content')
@@ -147,6 +149,12 @@
                             @enderror
                         </div>
                         <div class="mb-3">
+                            <label>Area Poligon Presensi</label>
+                            <div id="map-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
+                            <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
+                            <small class="text-muted">Gambarkan area poligon pada peta. Jika sudah ada, bisa diedit.</small>
+                        </div>
+                        <div class="mb-3">
                             <label>Logo</label>
                             <input type="file" name="logo" class="form-control" accept="image/*">
                             <small class="text-muted">Kosongkan jika tidak ingin diubah</small>
@@ -275,6 +283,9 @@
     <script src="{{ URL::asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
     <script>
         $(document).ready(function () {
             let table = $("#datatable-buttons").DataTable({
@@ -286,6 +297,85 @@
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            // --- Leaflet Map for Polygon Drawing ---
+            $('div.modal.fade').on('shown.bs.modal', function (event) {
+                let modal = $(this);
+                if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) {
+                    return; // Not an edit madrasah modal, do nothing
+                }
+
+                let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
+                let mapId = 'map-' + madrasahId;
+                let polygonInputId = 'polygon_koordinat-' + madrasahId;
+                let mapElement = document.getElementById(mapId);
+
+                if (mapElement && !mapElement._leaflet_id) { // Check if map is not already initialized
+                    let lat = modal.find('input[name="latitude"]').val() || -7.7956; // Default to a central location
+                    let lon = modal.find('input[name="longitude"]').val() || 110.3695;
+
+                    let map = L.map(mapId).setView([lat, lon], 16);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    let drawnItems = new L.FeatureGroup();
+                    map.addLayer(drawnItems);
+
+                    // Load existing polygon
+                    let existingPolygon = $('#' + polygonInputId).val();
+                    if (existingPolygon) {
+                        try {
+                            // The value is a JSON string of the geometry.
+                            let geometry = JSON.parse(existingPolygon);
+                            let layer = L.geoJSON(geometry);
+                            layer.eachLayer(l => drawnItems.addLayer(l));
+                            if (drawnItems.getLayers().length > 0) {
+                                map.fitBounds(drawnItems.getBounds());
+                            }
+                        } catch (e) {
+                            console.error("Invalid GeoJSON data for polygon:", e);
+                        }
+                    }
+
+                    let drawControl = new L.Control.Draw({
+                        edit: {
+                            featureGroup: drawnItems,
+                            poly: { allowIntersection: false }
+                        },
+                        draw: {
+                            polygon: {
+                                allowIntersection: false,
+                                showArea: true
+                            },
+                            polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false
+                        }
+                    });
+                    map.addControl(drawControl);
+
+                    const updatePolygonInput = () => {
+                        let geojson = drawnItems.toGeoJSON();
+                        if (geojson.features.length > 0) {
+                            // Store only the geometry of the first feature
+                            $('#' + polygonInputId).val(JSON.stringify(geojson.features[0].geometry));
+                        } else {
+                            $('#' + polygonInputId).val('');
+                        }
+                    };
+
+                    map.on(L.Draw.Event.CREATED, function (e) {
+                        drawnItems.clearLayers(); // Allow only one polygon
+                        drawnItems.addLayer(e.layer);
+                        updatePolygonInput();
+                    });
+
+                    map.on(L.Draw.Event.EDITED, updatePolygonInput);
+                    map.on(L.Draw.Event.DELETED, updatePolygonInput);
+
+                    // Fix map render issue in modal
+                    setTimeout(() => map.invalidateSize(), 400);
+                }
+            });
         });
     </script>
 @endsection

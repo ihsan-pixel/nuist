@@ -66,36 +66,43 @@ class PresensiController extends Controller
             ->where('tanggal', $today)
             ->first();
 
-        // Ambil koordinat madrasah dari data user yang sedang login
-        $user = Auth::user();
+        // Ambil data madrasah dari user yang sedang login
         $madrasah = $user->madrasah;
 
-        if (!$madrasah || !$madrasah->latitude || !$madrasah->longitude) {
+        if (!$madrasah || !$madrasah->polygon_koordinat) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lokasi madrasah belum diatur. Silakan hubungi administrator.'
+                'message' => 'Area presensi (poligon) untuk madrasah Anda belum diatur. Silakan hubungi administrator.'
             ], 400);
         }
 
-        // Gunakan koordinat madrasah yang sudah diatur
-        $madrasahLat = $madrasah->latitude;
-        $madrasahLng = $madrasah->longitude;
+        // Validasi lokasi user berada di dalam poligon
+        try {
+            $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
+            // GeoJSON Polygon coordinates are nested: [[ [lng, lat], [lng, lat], ... ]]
+            $polygon = $polygonGeometry['coordinates'][0];
+            $isWithinPolygon = $this->isPointInPolygon(
+                [$request->longitude, $request->latitude], // Point format: [lng, lat]
+                $polygon
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memvalidasi area presensi. Data poligon tidak valid.'
+            ], 500);
+        }
+
+        if (!$isWithinPolygon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi Anda berada di luar area presensi yang telah ditentukan.'
+            ], 400);
+        }
 
         // Ambil pengaturan presensi
         $settings = \App\Models\PresensiSettings::first();
-        $radius = $settings && $settings->radius_presensi ? $settings->radius_presensi : 100;
         $batasAkhirMasuk = $settings ? $settings->waktu_akhir_presensi_masuk : null;
         $batasPulang = $settings ? $settings->waktu_mulai_presensi_pulang : null;
-
-        // Hitung jarak menggunakan formula Haversine
-        $distance = $this->calculateDistance($request->latitude, $request->longitude, $madrasahLat, $madrasahLng);
-
-        if ($distance > $radius) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lokasi Anda berada di luar radius ' . $radius . ' meter dari madrasah.'
-            ], 400);
-        }
 
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
@@ -229,19 +236,32 @@ class PresensiController extends Controller
         return view('presensi.laporan', compact('presensis', 'madrasahs'));
     }
 
-    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
+    /**
+     * Checks if a point is inside a polygon using the ray-casting algorithm.
+     * @param array $point The point to check, in [longitude, latitude] format.
+     * @param array $polygon An array of polygon vertices, each in [longitude, latitude] format.
+     * @return bool True if the point is inside the polygon, false otherwise.
+     */
+    private function isPointInPolygon(array $point, array $polygon): bool
     {
-        $earthRadius = 6371000; // Radius bumi dalam meter
+        $pointLng = $point[0];
+        $pointLat = $point[1];
+        $isInside = false;
+        $j = count($polygon) - 1;
 
-        $latDelta = deg2rad($lat2 - $lat1);
-        $lngDelta = deg2rad($lng2 - $lng1);
+        for ($i = 0; $i < count($polygon); $j = $i++) {
+            $vertexiLat = $polygon[$i][1];
+            $vertexiLng = $polygon[$i][0];
+            $vertexjLat = $polygon[$j][1];
+            $vertexjLng = $polygon[$j][0];
 
-        $a = sin($latDelta / 2) * sin($latDelta / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($lngDelta / 2) * sin($lngDelta / 2);
+            // This is the core of the ray-casting algorithm
+            if ((($vertexiLat > $pointLat) != ($vertexjLat > $pointLat)) &&
+                ($pointLng < ($vertexjLng - $vertexiLng) * ($pointLat - $vertexiLat) / ($vertexjLat - $vertexiLat) + $vertexiLng)) {
+                $isInside = !$isInside;
+            }
+        }
 
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c;
+        return $isInside;
     }
 }

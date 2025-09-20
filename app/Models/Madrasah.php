@@ -16,6 +16,7 @@ class Madrasah extends Model
         'longitude',
         'map_link',
         'logo',
+        'polygon_koordinat',
     ];
 
     // Relasi: satu madrasah punya banyak admin

@@ -107,25 +107,6 @@
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <h5 class="text-info mb-3">
-                            <i class="bx bx-cog me-2"></i>Pengaturan Lainnya
-                        </h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="radius_presensi" class="form-label">
-                                        <i class="bx bx-radius me-1"></i>Radius Presensi (meter)
-                                    </label>
-                                    <input type="number" class="form-control" id="radius_presensi" name="radius_presensi" value="{{ old('radius_presensi', $settings->radius_presensi ?? '') }}" min="0" step="1">
-                                    @error('radius_presensi')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary">
                             <i class="bx bx-save me-1"></i>Simpan Pengaturan

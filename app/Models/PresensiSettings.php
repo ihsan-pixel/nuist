@@ -12,7 +12,6 @@ class PresensiSettings extends Model
     protected $table = 'presensi_settings';
 
     protected $fillable = [
-        'radius_presensi',
         'waktu_mulai_presensi_masuk',
         'waktu_akhir_presensi_masuk',
         'waktu_mulai_presensi_pulang',

@@ -29,6 +29,10 @@ class MadrasahController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->input('polygon_koordinat') === '') {
+            $request->merge(['polygon_koordinat' => null]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alamat' => 'nullable|string',
@@ -36,20 +40,22 @@ class MadrasahController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
+            'polygon_koordinat' => 'nullable|json',
         ]);
 
         $logoPath = $request->hasFile('logo')
             ? $request->file('logo')->store('madrasah', 'public')
             : null;
 
-        Madrasah::create([
-            'name' => $validated['name'],
-            'alamat' => $validated['alamat'],
-            'latitude' => $validated['latitude'],
-            'longitude' => $validated['longitude'],
-            'map_link' => $validated['map_link'],
-            'logo' => $logoPath, // bisa null
-        ]);
+        $madrasah = new Madrasah();
+        $madrasah->name = $validated['name'];
+        $madrasah->alamat = $validated['alamat'] ?? null;
+        $madrasah->latitude = $validated['latitude'] ?? null;
+        $madrasah->longitude = $validated['longitude'] ?? null;
+        $madrasah->map_link = $validated['map_link'] ?? null;
+        $madrasah->logo = $logoPath;
+        $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
+        $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil ditambahkan.');
     }
@@ -61,6 +67,10 @@ class MadrasahController extends Controller
     {
         $madrasah = Madrasah::findOrFail($id);
 
+        if ($request->input('polygon_koordinat') === '') {
+            $request->merge(['polygon_koordinat' => null]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'alamat' => 'nullable|string',
@@ -68,6 +78,7 @@ class MadrasahController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
+            'polygon_koordinat' => 'nullable|json',
         ]);
 
         // Jika ada file logo baru, hapus logo lama
@@ -83,6 +94,7 @@ class MadrasahController extends Controller
         $madrasah->latitude = $validated['latitude'];
         $madrasah->longitude = $validated['longitude'];
         $madrasah->map_link = $validated['map_link'];
+        $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
         $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil diperbarui.');

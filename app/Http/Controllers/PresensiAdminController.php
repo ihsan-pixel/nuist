@@ -54,7 +54,6 @@ class PresensiAdminController extends Controller
             'waktu_akhir_presensi_masuk' => 'nullable|date_format:H:i',
             'waktu_mulai_presensi_pulang' => 'nullable|date_format:H:i',
             'waktu_akhir_presensi_pulang' => 'nullable|date_format:H:i',
-            'radius_presensi' => 'nullable|integer|min:0',
         ]);
 
         $settings = PresensiSettings::first();
@@ -66,7 +65,6 @@ class PresensiAdminController extends Controller
         $settings->waktu_akhir_presensi_masuk = $request->waktu_akhir_presensi_masuk;
         $settings->waktu_mulai_presensi_pulang = $request->waktu_mulai_presensi_pulang;
         $settings->waktu_akhir_presensi_pulang = $request->waktu_akhir_presensi_pulang;
-        $settings->radius_presensi = $request->radius_presensi;
         $settings->singleton = true;
         $settings->save();
 
