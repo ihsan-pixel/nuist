@@ -69,10 +69,28 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
-                                    @if($madrasah->logo && file_exists(public_path('storage/' . $madrasah->logo)))
-                                        <img src="{{ asset('storage/' . $madrasah->logo) }}"
-                                            alt="Logo {{ $madrasah->name }}"
-                                            width="50" class="img-thumbnail" style="object-fit: contain;">
+                                    @if($madrasah->logo)
+                                        @php
+                                            // Cek 2 kemungkinan lokasi file
+                                            $logoPath = 'storage/' . $madrasah->logo;
+                                            $publicPath = public_path($logoPath);
+                                        @endphp
+
+                                        @if(file_exists($publicPath))
+                                            {{-- Akses normal via storage --}}
+                                            <img src="{{ asset($logoPath) }}"
+                                                alt="Logo {{ $madrasah->name }}"
+                                                width="50" class="img-thumbnail" style="object-fit: contain;">
+                                        @elseif(file_exists(public_path('public/' . $logoPath)))
+                                            {{-- Jika file tersimpan langsung di public/storage --}}
+                                            <img src="{{ asset('public/' . $logoPath) }}"
+                                                alt="Logo {{ $madrasah->name }}"
+                                                width="50" class="img-thumbnail" style="object-fit: contain;">
+                                        @else
+                                            <span class="text-danger">
+                                                <i class="bx bx-error-circle"></i> Logo tidak ditemukan
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="text-muted">
                                             <i class="bx bx-image-alt"></i> Tidak ada logo
