@@ -83,7 +83,7 @@
                                                 width="50" class="img-thumbnail" style="object-fit: contain;">
                                         @elseif(file_exists(public_path('public/' . $logoPath)))
                                             {{-- Jika file tersimpan langsung di public/storage --}}
-                                            <img src="{{ asset('storage/app/public/madrasah/' . $logoPath) }}"
+                                            <img src="{{ asset('storage/app/public/' . $logoPath) }}"
                                                 alt="Logo {{ $madrasah->name }}"
                                                 width="50" class="img-thumbnail" style="object-fit: contain;">
                                         @else
