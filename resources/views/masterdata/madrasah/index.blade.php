@@ -70,23 +70,9 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     @if($madrasah->logo)
-                                        @php
-                                            // Lokasi file di storage/app/public/madrasah/
-                                            $logoPath = 'storage/madrasah/' . $madrasah->logo;
-                                            $publicPath = public_path($logoPath);
-                                        @endphp
-
-                                        @if(file_exists($publicPath))
-                                            {{-- Akses normal via storage link --}}
-                                            <img src="{{ asset($logoPath) }}"
-                                                alt="Logo {{ $madrasah->name }}"
-                                                width="50" class="img-thumbnail" style="object-fit: contain;">
-                                        @else
-                                            {{-- Jika file tidak ditemukan --}}
-                                            <span class="text-danger">
-                                                <i class="bx bx-error-circle"></i> Logo tidak ditemukan
-                                            </span>
-                                        @endif
+                                        <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}"
+                                            alt="Logo {{ $madrasah->name }}"
+                                            width="50" class="img-thumbnail" style="object-fit: contain;">
                                     @else
                                         <span class="text-muted">
                                             <i class="bx bx-image-alt"></i> Tidak ada logo
