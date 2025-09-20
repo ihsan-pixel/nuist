@@ -71,22 +71,18 @@
                                 <td>
                                     @if($madrasah->logo)
                                         @php
-                                            // Cek 2 kemungkinan lokasi file
-                                            $logoPath = 'storage/' . $madrasah->logo;
+                                            // Lokasi file di storage/app/public/madrasah/
+                                            $logoPath = 'storage/madrasah/' . $madrasah->logo;
                                             $publicPath = public_path($logoPath);
                                         @endphp
 
                                         @if(file_exists($publicPath))
-                                            {{-- Akses normal via storage --}}
+                                            {{-- Akses normal via storage link --}}
                                             <img src="{{ asset($logoPath) }}"
                                                 alt="Logo {{ $madrasah->name }}"
                                                 width="50" class="img-thumbnail" style="object-fit: contain;">
-                                        @elseif(file_exists(public_path('public/' . $logoPath)))
-                                            {{-- Jika file tersimpan langsung di public/storage --}}
-                                            <img src="{{ asset('storage/app/public/madrasah/' . $logoPath) }}"
-                                                alt="Logo {{ $madrasah->name }}"
-                                                width="50" class="img-thumbnail" style="object-fit: contain;">
                                         @else
+                                            {{-- Jika file tidak ditemukan --}}
                                             <span class="text-danger">
                                                 <i class="bx bx-error-circle"></i> Logo tidak ditemukan
                                             </span>
