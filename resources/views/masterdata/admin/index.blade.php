@@ -228,7 +228,7 @@
                     <div class="mb-2">
                         <small class="text-muted">
                             Gunakan template file sesuai format data admin. Urutan kolom harus: nama, email, no_hp, madrasah_id.
-                            <a href="{{ asset('template/admin_template.xlsx') }}" download>Download Template Excel</a>
+                            <a href="{{ url('public/template/admin_template.xlsx') }}" download>Download Template Excel</a>
                         </small>
                     </div>
                 </div>
