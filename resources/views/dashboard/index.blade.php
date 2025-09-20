@@ -94,6 +94,137 @@
         @endif
     </div>
 
+    {{-- Admin Statistics Section --}}
+    @if(Auth::user()->role === 'admin' && isset($adminStats))
+    <div class="col-xl-8">
+        <div class="row">
+            {{-- Total Teachers Card --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-success-subtle text-success rounded-circle">
+                                    <i class="mdi mdi-account-school fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $adminStats['total_teachers'] }}</h5>
+                                <p class="text-muted mb-0">Total Tenaga Pendidik</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Madrasah Info Card --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-info-subtle text-info rounded-circle">
+                                    <i class="mdi mdi-school fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ Auth::user()->madrasah ? Auth::user()->madrasah->name : 'N/A' }}</h6>
+                                <p class="text-muted mb-0">Madrasah Saat Ini</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Employment Status Breakdown --}}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Ringkasan Berdasarkan Status Kepegawaian</h5>
+                <div class="row">
+                    @if($adminStats['total_by_status']->count() > 0)
+                        @foreach($adminStats['total_by_status'] as $status)
+                        <div class="col-md-4">
+                            <div class="card border">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                            <i class="mdi mdi-account-tie fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="mb-2">{{ $status['count'] }}</h6>
+                                    <p class="text-muted mb-0">{{ $status['status_name'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="col-12">
+                            <div class="text-center py-4">
+                                <i class="mdi mdi-information-outline text-muted fs-1"></i>
+                                <p class="text-muted mt-2">Belum ada data status kepegawaian</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Detailed Statistics Table --}}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Detail Statistik Tenaga Pendidik</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Status Kepegawaian</th>
+                                <th>Jumlah</th>
+                                <th>Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($adminStats['total_by_status']->count() > 0)
+                                @foreach($adminStats['total_by_status'] as $status)
+                                <tr>
+                                    <td>{{ $status['status_name'] }}</td>
+                                    <td>{{ $status['count'] }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ $adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100) : 0 }}%"
+                                                 aria-valuenow="{{ $status['count'] }}"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="{{ $adminStats['total_teachers'] }}">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ $adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100, 1) : 0 }}%
+                                        </small>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                <tr class="table-info">
+                                    <td><strong>Total</strong></td>
+                                    <td><strong>{{ $adminStats['total_teachers'] }}</strong></td>
+                                    <td><strong>100%</strong></td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <i class="mdi mdi-information-outline text-muted fs-4"></i>
+                                        <p class="text-muted mt-2">Belum ada data untuk ditampilkan</p>
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if(!in_array(Auth::user()->role, ['admin', 'super_admin']))
     <div class="col-xl-8">
         {{-- Tambah kartu info detail user di sebelah kanan --}}

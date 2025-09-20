@@ -71,25 +71,33 @@ class DashboardController extends Controller
             'total_presensi' => $totalBasis,
         ];
 
-if ($user->role === 'tenaga_pendidik') {
-    // Tenaga pendidik melihat data users
-    $users = User::with('madrasah', 'statusKepegawaian')
-        ->where('madrasah_id', $user->madrasah_id)
-        ->orderBy('name', 'asc')
-        ->paginate(10);
+        // Statistics untuk admin
+        $adminStats = null;
+        if ($user->role === 'admin') {
+            $adminStats = $this->getAdminStatistics($user->madrasah_id);
+        }
 
-    // Kirim data users dan attendance ke view
-    return view('dashboard.index', [
-        'users' => $users,
-        'showUsers' => true,
-        'attendanceData' => $attendanceData,
-    ]);
-}
+        if ($user->role === 'tenaga_pendidik') {
+            // Tenaga pendidik melihat data users
+            $users = User::with('madrasah', 'statusKepegawaian')
+                ->where('madrasah_id', $user->madrasah_id)
+                ->orderBy('name', 'asc')
+                ->paginate(10);
+
+            // Kirim data users dan attendance ke view
+            return view('dashboard.index', [
+                'users' => $users,
+                'showUsers' => true,
+                'attendanceData' => $attendanceData,
+                'adminStats' => $adminStats,
+            ]);
+        }
 
         // Untuk role lain, tampilkan dashboard default tanpa data users
         return view('dashboard.index', [
             'showUsers' => false,
             'attendanceData' => $attendanceData,
+            'adminStats' => $adminStats,
         ]);
     }
 
@@ -113,5 +121,40 @@ if ($user->role === 'tenaga_pendidik') {
         }
 
         return $workingDays;
+    }
+
+    /**
+     * Get statistics for admin dashboard
+     */
+    private function getAdminStatistics($madrasahId)
+    {
+        // Hitung total tenaga pendidik/guru berdasarkan madrasah_id
+        $totalTeachers = User::where('madrasah_id', $madrasahId)
+            ->whereIn('role', ['tenaga_pendidik', 'admin'])
+            ->count();
+
+        // Hitung berdasarkan status kepegawaian
+        $statusStats = User::where('madrasah_id', $madrasahId)
+            ->whereIn('role', ['tenaga_pendidik', 'admin'])
+            ->with('statusKepegawaian')
+            ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
+            ->groupBy('status_kepegawaian_id')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'status_id' => $item->status_kepegawaian_id,
+                    'status_name' => $item->statusKepegawaian ? $item->statusKepegawaian->name : 'Tidak Diketahui',
+                    'count' => $item->count
+                ];
+            });
+
+        // Hitung ringkasan data
+        $summary = [
+            'total_teachers' => $totalTeachers,
+            'total_by_status' => $statusStats,
+            'madrasah_id' => $madrasahId,
+        ];
+
+        return $summary;
     }
 }
