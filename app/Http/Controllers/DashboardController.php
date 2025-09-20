@@ -73,8 +73,10 @@ class DashboardController extends Controller
 
         // Statistics untuk admin
         $adminStats = null;
+        $madrasahData = null;
         if ($user->role === 'admin') {
             $adminStats = $this->getAdminStatistics($user->madrasah_id);
+            $madrasahData = $this->getMadrasahData($user->madrasah_id);
         }
 
         if ($user->role === 'tenaga_pendidik') {
@@ -90,6 +92,7 @@ class DashboardController extends Controller
                 'showUsers' => true,
                 'attendanceData' => $attendanceData,
                 'adminStats' => $adminStats,
+                'madrasahData' => $madrasahData,
             ]);
         }
 
@@ -98,6 +101,7 @@ class DashboardController extends Controller
             'showUsers' => false,
             'attendanceData' => $attendanceData,
             'adminStats' => $adminStats,
+            'madrasahData' => $madrasahData,
         ]);
     }
 
@@ -156,5 +160,15 @@ class DashboardController extends Controller
         ];
 
         return $summary;
+    }
+
+    /**
+     * Get madrasah data for map and address display
+     */
+    private function getMadrasahData($madrasahId)
+    {
+        return \App\Models\Madrasah::where('id', $madrasahId)
+            ->select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
+            ->first();
     }
 }

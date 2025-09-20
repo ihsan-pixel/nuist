@@ -222,6 +222,61 @@
                 </div>
             </div>
         </div>
+
+        {{-- Madrasah Location and Map --}}
+        @if($madrasahData)
+        <div class="row">
+            {{-- Address Information --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="mdi mdi-map-marker text-primary me-2"></i>
+                            Alamat Madrasah
+                        </h5>
+                        <div class="mb-3">
+                            <h6 class="mb-2">{{ $madrasahData->name }}</h6>
+                            <p class="text-muted mb-2">
+                                <i class="mdi mdi-map-marker-outline me-1"></i>
+                                {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
+                            </p>
+                            @if($madrasahData->map_link)
+                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="mdi mdi-google-maps me-1"></i>
+                                Lihat di Google Maps
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Map Display --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="mdi mdi-map text-success me-2"></i>
+                            Lokasi Madrasah
+                        </h5>
+                        <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                            @if($madrasahData->latitude && $madrasahData->longitude)
+                                <div id="map" style="height: 100%; width: 100%;"></div>
+                            @else
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
+                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
+                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
+                                    <p class="text-muted text-center small">
+                                        Koordinat latitude dan longitude belum diisi untuk menampilkan peta
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
     @endif
 
@@ -347,6 +402,11 @@
 @section('script')
 <!-- apexcharts -->
 <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+
+<!-- Leaflet CSS and JS for map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var attendanceData = @json($attendanceData ?? ['kehadiran' => 0, 'izin_sakit' => 0, 'alpha' => 0]);
@@ -402,6 +462,20 @@
 
             chart.render();
         }
+
+        // Initialize map if coordinates are available
+        @if(isset($madrasahData) && $madrasahData->latitude && $madrasahData->longitude)
+            var map = L.map('map').setView([{{ $madrasahData->latitude }}, {{ $madrasahData->longitude }}], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([{{ $madrasahData->latitude }}, {{ $madrasahData->longitude }}])
+                .addTo(map)
+                .bindPopup('<b>{{ $madrasahData->name }}</b><br>{{ $madrasahData->alamat ?? "Alamat tidak tersedia" }}')
+                .openPopup();
+        @endif
     });
 </script>
 @endsection
