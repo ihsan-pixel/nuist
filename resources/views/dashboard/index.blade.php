@@ -238,7 +238,7 @@
                     </ol>
                 </div>
                 <div class="d-grid gap-2">
-                    <form method="POST" action="{{ route('verification.send') }}">
+                    <form method="POST" action="{{ route('verification.resend') }}">
                         @csrf
                         <button type="submit" class="btn btn-primary">
                             <i class="mdi mdi-email-send me-2"></i>Kirim Ulang Email Verifikasi
@@ -317,7 +317,7 @@
         var chartElement = document.querySelector("#donut-chart");
         if (chartElement) {
             var chart = new ApexCharts(
-                chartElement,
+                element,
                 options
             );
 

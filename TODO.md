@@ -6,12 +6,14 @@
 - ✅ Updated `app/Models/User.php` to include `MustVerifyEmailTrait`
 - ✅ Modified `app/Http/Controllers/DashboardController.php` to check email verification status
 - ✅ Added logic to show popup only for admin and tenaga_pendidik roles with unverified emails
+- ✅ **Fixed**: Added missing email verification routes to `routes/web.php`
 
 ### 2. Frontend Changes
 - ✅ Created email verification modal in `resources/views/dashboard/index.blade.php`
-- ✅ Added JavaScript to automatically show modal for unverified users
+- ✅ Added automatic modal display using JavaScript
 - ✅ Included resend verification email functionality
 - ✅ Added refresh page option
+- ✅ **Fixed**: Corrected route name from `verification.send` to `verification.resend`
 
 ### 3. Features Implemented
 - ✅ Popup appears only for admin and tenaga_pendidik roles
@@ -20,6 +22,18 @@
 - ✅ Resend verification email button
 - ✅ Refresh page functionality
 - ✅ Automatic modal display on page load
+
+## Issues Fixed 🛠️
+
+### Route Error Resolution
+- **Problem**: `Route [verification.send] not defined` error
+- **Solution**:
+  - Added manual email verification routes to `routes/web.php`
+  - Changed route name from `verification.send` to `verification.resend` in the view
+  - Routes added:
+    - `verification.notice` - Show verification notice
+    - `verification.verify` - Handle email verification
+    - `verification.resend` - Resend verification email
 
 ## Testing Checklist 📋
 
@@ -49,6 +63,7 @@
 1. `app/Models/User.php` - Added MustVerifyEmailTrait
 2. `app/Http/Controllers/DashboardController.php` - Added email verification check
 3. `resources/views/dashboard/index.blade.php` - Added modal and JavaScript
+4. `routes/web.php` - Added email verification routes
 
 ## Notes 📝
 
@@ -56,3 +71,4 @@
 - Users can dismiss the modal but it will reappear on next login until email is verified
 - The system uses Laravel's built-in email verification functionality
 - Modal includes clear instructions in Indonesian language
+- **Fixed**: Route registration issue that was causing server errors
