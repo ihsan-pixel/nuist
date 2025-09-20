@@ -22,6 +22,7 @@
     - **Detailed Statistics Table**: Complete breakdown with percentages
     - **Address Information Card**: Displays madrasah address and Google Maps link
     - **Interactive Map**: Shows madrasah location using Leaflet.js
+  - **✅ REPOSITIONED**: Madrasah location and address moved to right after welcome card
   - Responsive design with Bootstrap components
   - Proper handling of empty data states
   - Added Leaflet.js for map functionality
@@ -36,14 +37,20 @@
 - ✅ **NEW**: Madrasah address display with Google Maps link
 - ✅ **NEW**: Interactive map showing madrasah location
 - ✅ **NEW**: Proper handling when coordinates are not available
+- ✅ **UPDATED**: Madrasah location section repositioned right after welcome card
 
-### 4. Database Queries
+### 4. Layout Changes
+- **✅ Position Update**: Madrasah address and map moved from bottom to right after "Selamat Datang!" card
+- **Better Flow**: More logical information hierarchy for admin users
+- **Improved UX**: Important location information visible immediately after login
+
+### 5. Database Queries
 - Count total users with same madrasah_id and appropriate roles
 - Group by status_kepegawaian_id for breakdown statistics
 - Efficient queries with proper relationships loaded
 - Fetch madrasah data including coordinates and address
 
-### 5. Map Integration
+### 6. Map Integration
 - Added Leaflet.js library for interactive maps
 - Map displays madrasah location with marker
 - Popup shows madrasah name and address
@@ -61,6 +68,7 @@ The implementation is ready for testing. The following should be verified:
 6. **Map Display**: Test map functionality with and without coordinates
 7. **Address Display**: Verify address information shows correctly
 8. **Google Maps Link**: Test external map link functionality
+9. **✅ Layout Test**: Verify madrasah location appears right after welcome card
 
 ## Next Steps (Optional)
 - Add charts/visualization for better data representation
@@ -72,7 +80,7 @@ The implementation is ready for testing. The following should be verified:
 
 ## Files Modified
 - `app/Http/Controllers/DashboardController.php` - Added statistics and madrasah data logic
-- `resources/views/dashboard/index.blade.php` - Added admin dashboard UI with map and address
+- `resources/views/dashboard/index.blade.php` - Added admin dashboard UI with map and address, repositioned layout
 
 ## Dependencies Added
 - Leaflet.js for interactive maps
@@ -80,7 +88,8 @@ The implementation is ready for testing. The following should be verified:
 
 The implementation is now complete and ready for use! 🎉
 
-**New Features Added:**
+**Latest Updates:**
 - 🗺️ Interactive map showing madrasah location
 - 📍 Address display with Google Maps integration
 - 🎯 Proper coordinate validation and fallback displays
+- 📐 **Layout repositioned**: Madrasah info now appears right after welcome card

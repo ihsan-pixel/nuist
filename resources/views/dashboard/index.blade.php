@@ -94,6 +94,63 @@
         @endif
     </div>
 
+    {{-- Madrasah Location and Map - Positioned right after welcome card --}}
+    @if(Auth::user()->role === 'admin' && isset($madrasahData))
+    <div class="col-xl-8">
+        <div class="row">
+            {{-- Address Information --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="mdi mdi-map-marker text-primary me-2"></i>
+                            Alamat Madrasah
+                        </h5>
+                        <div class="mb-3">
+                            <h6 class="mb-2">{{ $madrasahData->name }}</h6>
+                            <p class="text-muted mb-2">
+                                <i class="mdi mdi-map-marker-outline me-1"></i>
+                                {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
+                            </p>
+                            @if($madrasahData->map_link)
+                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="mdi mdi-google-maps me-1"></i>
+                                Lihat di Google Maps
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Map Display --}}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="mdi mdi-map text-success me-2"></i>
+                            Lokasi Madrasah
+                        </h5>
+                        <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                            @if($madrasahData->latitude && $madrasahData->longitude)
+                                <div id="map" style="height: 100%; width: 100%;"></div>
+                            @else
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
+                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
+                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
+                                    <p class="text-muted text-center small">
+                                        Koordinat latitude dan longitude belum diisi untuk menampilkan peta
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Admin Statistics Section --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
     <div class="col-xl-8">
@@ -222,61 +279,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- Madrasah Location and Map --}}
-        @if($madrasahData)
-        <div class="row">
-            {{-- Address Information --}}
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map-marker text-primary me-2"></i>
-                            Alamat Madrasah
-                        </h5>
-                        <div class="mb-3">
-                            <h6 class="mb-2">{{ $madrasahData->name }}</h6>
-                            <p class="text-muted mb-2">
-                                <i class="mdi mdi-map-marker-outline me-1"></i>
-                                {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
-                            </p>
-                            @if($madrasahData->map_link)
-                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="mdi mdi-google-maps me-1"></i>
-                                Lihat di Google Maps
-                            </a>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Map Display --}}
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map text-success me-2"></i>
-                            Lokasi Madrasah
-                        </h5>
-                        <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
-                            @if($madrasahData->latitude && $madrasahData->longitude)
-                                <div id="map" style="height: 100%; width: 100%;"></div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
-                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
-                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
-                                    <p class="text-muted text-center small">
-                                        Koordinat latitude dan longitude belum diisi untuk menampilkan peta
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
     </div>
     @endif
 
