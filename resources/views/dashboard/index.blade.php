@@ -56,47 +56,8 @@
             </div>
         </div>
 
-        @if(Auth::user()->role === 'tenaga_pendidik')
-        {{-- Keaktifan --}}
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-4">Keaktifan</h4>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <p class="text-muted">Bulan ini</p>
-                        <h3>{{ round($attendanceData['kehadiran'] ?? 0) }}%</h3>
-                        <p class="text-muted">
-                            <span class="text-success me-2"> {{ round($attendanceData['kehadiran'] ?? 0) }}% <i class="mdi mdi-arrow-up"></i> </span> Kehadiran
-                        </p>
-                        <div class="row mt-3">
-                            {{-- <div class="col-6">
-                                <small class="text-muted">Hari Kerja</small>
-                                <h6>{{ $attendanceData['total_hari_kerja'] ?? 0 }}</h6>
-                            </div> --}}
-                            <div class="col-6">
-                                <small class="text-muted">Total Presensi</small>
-                                <h6>{{ $attendanceData['total_presensi'] ?? 0 }}</h6>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <a href="{{ route('presensi.index') }}" class="btn btn-success waves-effect waves-light btn-sm">Lihat Detail <i class="mdi mdi-arrow-right ms-1"></i></a>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mt-4 mt-sm-0">
-                            <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts"></div>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-muted mb-0">Persentase kehadiran berdasarkan hari kerja (Senin-Sabtu, exclude hari libur).</p>
-            </div>
-        </div>
-        @endif
-    </div>
-
-    {{-- Madrasah Location and Map - Positioned right after welcome card --}}
-    @if(Auth::user()->role === 'admin' && isset($madrasahData))
-    <div class="col-xl-8">
+        {{-- Madrasah Location and Map - Positioned below welcome card on left side --}}
+        @if(Auth::user()->role === 'admin' && isset($madrasahData))
         <div class="row">
             {{-- Address Information --}}
             <div class="col-md-6">
@@ -148,10 +109,47 @@
                 </div>
             </div>
         </div>
-    </div>
-    @endif
+        @endif
 
-    {{-- Admin Statistics Section --}}
+        @if(Auth::user()->role === 'tenaga_pendidik')
+        {{-- Keaktifan --}}
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Keaktifan</h4>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p class="text-muted">Bulan ini</p>
+                        <h3>{{ round($attendanceData['kehadiran'] ?? 0) }}%</h3>
+                        <p class="text-muted">
+                            <span class="text-success me-2"> {{ round($attendanceData['kehadiran'] ?? 0) }}% <i class="mdi mdi-arrow-up"></i> </span> Kehadiran
+                        </p>
+                        <div class="row mt-3">
+                            {{-- <div class="col-6">
+                                <small class="text-muted">Hari Kerja</small>
+                                <h6>{{ $attendanceData['total_hari_kerja'] ?? 0 }}</h6>
+                            </div> --}}
+                            <div class="col-6">
+                                <small class="text-muted">Total Presensi</small>
+                                <h6>{{ $attendanceData['total_presensi'] ?? 0 }}</h6>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ route('presensi.index') }}" class="btn btn-success waves-effect waves-light btn-sm">Lihat Detail <i class="mdi mdi-arrow-right ms-1"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="mt-4 mt-sm-0">
+                            <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mb-0">Persentase kehadiran berdasarkan hari kerja (Senin-Sabtu, exclude hari libur).</p>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
     <div class="col-xl-8">
         <div class="row">
