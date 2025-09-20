@@ -208,58 +208,6 @@
     <div class="col-lg-12">@include('dashboard.partials.transactions')</div>
 </div> --}}
 
-{{-- Email Verification Modal --}}
-@if($showEmailVerificationModal ?? false)
-<div class="modal fade" id="emailVerificationModal" tabindex="-1" aria-labelledby="emailVerificationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title text-dark" id="emailVerificationModalLabel">
-                    <i class="mdi mdi-email-alert-outline me-2"></i>Verifikasi Email Diperlukan
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center mb-4">
-                    <i class="mdi mdi-email-off-outline text-warning" style="font-size: 4rem;"></i>
-                </div>
-                <h4 class="text-center mb-3">Email Anda Belum Terverifikasi</h4>
-                <p class="text-muted text-center mb-4">
-                    Untuk keamanan akun dan kelancaran penggunaan sistem, mohon verifikasi email Anda.
-                    Email verifikasi telah dikirim ke <strong>{{ Auth::user()->email }}</strong>
-                </p>
-                <div class="alert alert-info">
-                    <i class="mdi mdi-information-outline me-2"></i>
-                    <strong>Langkah-langkah verifikasi:</strong>
-                    <ol class="mb-0 mt-2">
-                        <li>Periksa kotak masuk email Anda</li>
-                        <li>Klik link verifikasi yang telah dikirim</li>
-                        <li>Kembali ke halaman ini dan refresh</li>
-                    </ol>
-                </div>
-                <div class="d-grid gap-2">
-                    <form method="POST" action="{{ route('verification.resend') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-primary">
-                            <i class="mdi mdi-email-send me-2"></i>Kirim Ulang Email Verifikasi
-                        </button>
-                    </form>
-                    <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
-                        <i class="mdi mdi-refresh me-2"></i>Refresh Halaman
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <small class="text-muted">
-                    <i class="mdi mdi-clock-outline me-1"></i>
-                    Modal ini akan muncul setiap kali Anda login sampai email terverifikasi
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
 {{-- Modals --}}
 {{-- @include('dashboard.partials.modals') --}}
 
@@ -317,18 +265,12 @@
         var chartElement = document.querySelector("#donut-chart");
         if (chartElement) {
             var chart = new ApexCharts(
-                element,
+                chartElement,
                 options
             );
 
             chart.render();
         }
-
-        // Show email verification modal if needed
-        @if($showEmailVerificationModal ?? false)
-        var emailVerificationModal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
-        emailVerificationModal.show();
-        @endif
     });
 </script>
 @endsection

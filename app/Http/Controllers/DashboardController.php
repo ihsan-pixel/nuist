@@ -12,12 +12,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user needs email verification popup
-        $showEmailVerificationModal = false;
-        if (in_array($user->role, ['admin', 'tenaga_pendidik']) && !$user->hasVerifiedEmail()) {
-            $showEmailVerificationModal = true;
-        }
-
         // Hitung data presensi bulan ini untuk user yang login
         $startOfMonth = now()->startOfMonth();
         $endOfMonth = now()->endOfMonth();
@@ -89,7 +83,6 @@ if ($user->role === 'tenaga_pendidik') {
         'users' => $users,
         'showUsers' => true,
         'attendanceData' => $attendanceData,
-        'showEmailVerificationModal' => $showEmailVerificationModal,
     ]);
 }
 
@@ -97,7 +90,6 @@ if ($user->role === 'tenaga_pendidik') {
         return view('dashboard.index', [
             'showUsers' => false,
             'attendanceData' => $attendanceData,
-            'showEmailVerificationModal' => $showEmailVerificationModal,
         ]);
     }
 
