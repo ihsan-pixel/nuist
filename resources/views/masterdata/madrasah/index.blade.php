@@ -69,18 +69,10 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
-                                    @if($madrasah->logo)
-                                        @php
-                                            $logoPath = 'storage/' . $madrasah->logo;
-                                            $fullPath = public_path($logoPath);
-                                        @endphp
-                                        @if(file_exists($fullPath))
-                                            <img src="{{ asset($logoPath) }}" alt="Logo {{ $madrasah->name }}" width="50" class="img-thumbnail" style="object-fit: contain;">
-                                        @else
-                                            <span class="text-danger" title="File logo tidak ditemukan: {{ $logoPath }}">
-                                                <i class="bx bx-error-circle"></i> Logo tidak ditemukan
-                                            </span>
-                                        @endif
+                                    @if($madrasah->logo && file_exists(public_path('storage/' . $madrasah->logo)))
+                                        <img src="{{ asset('storage/' . $madrasah->logo) }}"
+                                            alt="Logo {{ $madrasah->name }}"
+                                            width="50" class="img-thumbnail" style="object-fit: contain;">
                                     @else
                                         <span class="text-muted">
                                             <i class="bx bx-image-alt"></i> Tidak ada logo
