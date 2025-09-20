@@ -70,9 +70,21 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     @if($madrasah->logo)
-                                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Logo" width="50">
+                                        @php
+                                            $logoPath = 'storage/' . $madrasah->logo;
+                                            $fullPath = public_path($logoPath);
+                                        @endphp
+                                        @if(file_exists($fullPath))
+                                            <img src="{{ asset($logoPath) }}" alt="Logo {{ $madrasah->name }}" width="50" class="img-thumbnail" style="object-fit: contain;">
+                                        @else
+                                            <span class="text-danger" title="File logo tidak ditemukan: {{ $logoPath }}">
+                                                <i class="bx bx-error-circle"></i> Logo tidak ditemukan
+                                            </span>
+                                        @endif
                                     @else
-                                        -
+                                        <span class="text-muted">
+                                            <i class="bx bx-image-alt"></i> Tidak ada logo
+                                        </span>
                                     @endif
                                 </td>
                                 <td>{{ $madrasah->name }}</td>
@@ -156,8 +168,21 @@
                         </div>
                         <div class="mb-3">
                             <label>Logo</label>
-                            <input type="file" name="logo" class="form-control" accept="image/*">
-                            <small class="text-muted">Kosongkan jika tidak ingin diubah</small>
+                            <input type="file" name="logo" id="editLogoInput{{ $madrasah->id }}" class="form-control" accept="image/*">
+                            <small class="text-muted">Kosongkan jika tidak ingin diubah. Maksimal 2MB, format: JPG, PNG, JPEG</small>
+                            @if($madrasah->logo)
+                                <div class="mt-2">
+                                    <label class="form-label">Logo Saat Ini:</label><br>
+                                    <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                </div>
+                            @endif
+                            <div id="editLogoPreview{{ $madrasah->id }}" class="mt-2" style="display: none;">
+                                <label class="form-label">Preview Logo Baru:</label><br>
+                                <img id="editPreviewImage{{ $madrasah->id }}" src="" alt="Preview Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearEditLogoPreview({{ $madrasah->id }})">
+                                    <i class="bx bx-trash"></i> Hapus
+                                </button>
+                            </div>
                         </div>
                                             </div>
                                             <div class="modal-footer">
@@ -218,8 +243,14 @@
                         </div>
                         <div class="mb-3">
                             <label>Logo Madrasah/Sekolah</label>
-                            <input type="file" name="logo" class="form-control" accept="image/*">
-                            <small class="text-muted">Opsional, boleh dikosongkan</small>
+                            <input type="file" name="logo" id="logoInput" class="form-control" accept="image/*">
+                            <small class="text-muted">Opsional, boleh dikosongkan. Maksimal 2MB, format: JPG, PNG, JPEG</small>
+                            <div id="logoPreview" class="mt-2" style="display: none;">
+                                <img id="previewImage" src="" alt="Preview Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearLogoPreview()">
+                                    <i class="bx bx-trash"></i> Hapus
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -287,6 +318,84 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
     <script>
+        // Fungsi untuk preview logo di form tambah
+        document.getElementById('logoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('logoPreview');
+            const previewImage = document.getElementById('previewImage');
+
+            if (file) {
+                // Validasi ukuran file (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    this.value = '';
+                    return;
+                }
+
+                // Validasi tipe file
+                if (!file.type.match('image.*')) {
+                    alert('File harus berupa gambar.');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Fungsi untuk clear preview logo di form tambah
+        function clearLogoPreview() {
+            document.getElementById('logoInput').value = '';
+            document.getElementById('logoPreview').style.display = 'none';
+        }
+
+        // Fungsi untuk preview logo di form edit
+        @foreach($madrasahs as $madrasah)
+        document.getElementById('editLogoInput{{ $madrasah->id }}').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('editLogoPreview{{ $madrasah->id }}');
+            const previewImage = document.getElementById('editPreviewImage{{ $madrasah->id }}');
+
+            if (file) {
+                // Validasi ukuran file (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    this.value = '';
+                    return;
+                }
+
+                // Validasi tipe file
+                if (!file.type.match('image.*')) {
+                    alert('File harus berupa gambar.');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Fungsi untuk clear preview logo di form edit
+        function clearEditLogoPreview(madrasahId) {
+            document.getElementById('editLogoInput' + madrasahId).value = '';
+            document.getElementById('editLogoPreview' + madrasahId).style.display = 'none';
+        }
+        @endforeach
+
         $(document).ready(function () {
             let table = $("#datatable-buttons").DataTable({
                 responsive: true,

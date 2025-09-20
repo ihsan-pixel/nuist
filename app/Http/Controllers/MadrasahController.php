@@ -43,9 +43,26 @@ class MadrasahController extends Controller
             'polygon_koordinat' => 'nullable|json',
         ]);
 
-        $logoPath = $request->hasFile('logo')
-            ? $request->file('logo')->store('madrasah', 'public')
-            : null;
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            // Validasi ukuran file (maksimal 2MB)
+            if ($file->getSize() > 2 * 1024 * 1024) {
+                return redirect()->back()->with('error', 'Ukuran file logo terlalu besar. Maksimal 2MB.');
+            }
+
+            // Generate nama file yang unik
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $logoPath = $file->storeAs('madrasah', $filename, 'public');
+
+            // Debug logging
+            \Log::info('Logo uploaded successfully', [
+                'original_name' => $file->getClientOriginalName(),
+                'stored_path' => $logoPath,
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType()
+            ]);
+        }
 
         $madrasah = new Madrasah();
         $madrasah->name = $validated['name'];
@@ -83,10 +100,31 @@ class MadrasahController extends Controller
 
         // Jika ada file logo baru, hapus logo lama
         if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+
+            // Validasi ukuran file (maksimal 2MB)
+            if ($file->getSize() > 2 * 1024 * 1024) {
+                return redirect()->back()->with('error', 'Ukuran file logo terlalu besar. Maksimal 2MB.');
+            }
+
+            // Hapus logo lama jika ada
             if ($madrasah->logo && Storage::disk('public')->exists($madrasah->logo)) {
                 Storage::disk('public')->delete($madrasah->logo);
+                \Log::info('Old logo deleted', ['path' => $madrasah->logo]);
             }
-            $madrasah->logo = $request->file('logo')->store('madrasah', 'public');
+
+            // Generate nama file yang unik
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $madrasah->logo = $file->storeAs('madrasah', $filename, 'public');
+
+            // Debug logging
+            \Log::info('Logo updated successfully', [
+                'madrasah_id' => $madrasah->id,
+                'original_name' => $file->getClientOriginalName(),
+                'stored_path' => $madrasah->logo,
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType()
+            ]);
         }
 
         $madrasah->name = $validated['name'];
