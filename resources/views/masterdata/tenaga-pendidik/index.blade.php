@@ -406,7 +406,7 @@
                                            class="btn btn-outline-info btn-sm" target="_blank">
                                             <i class="bx bx-file-blank me-1"></i>Lihat Struktur Data
                                         </a>
-                                        <a href="{{ asset('template/test_import_tenaga_pendidik_updated.csv') }}"
+                                        <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
                                            class="btn btn-outline-success btn-sm" download>
                                             <i class="bx bx-data me-1"></i>Download Contoh CSV
                                         </a>
