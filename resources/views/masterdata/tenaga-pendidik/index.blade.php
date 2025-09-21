@@ -62,6 +62,7 @@
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
                         <th>Ketugasan</th>
+                        <th>Mengajar</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -84,6 +85,7 @@
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
+                            <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                 <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
@@ -204,6 +206,11 @@
                                                 </select>
                                             </div>
 
+                                            <div class="col-md-6">
+                                                <label>Mengajar</label>
+                                                <input type="text" name="mengajar" class="form-control" value="{{ old('mengajar', $tp->mengajar) }}">
+                                            </div>
+
                                             <div class="col-12">
                                                 <label>Alamat</label>
                                                 <textarea name="alamat" class="form-control" rows="2">{{ $tp->alamat }}</textarea>
@@ -221,7 +228,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center p-4">
+                            <td colspan="9" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
@@ -349,6 +356,11 @@
                         </select>
                     </div>
 
+                    <div class="col-md-6">
+                        <label>Mengajar</label>
+                        <input type="text" name="mengajar" class="form-control">
+                    </div>
+
                     <div class="col-12">
                         <label>Alamat</label>
                         <textarea name="alamat" class="form-control" rows="2"></textarea>
@@ -383,21 +395,111 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="file" class="form-label">
-                            <i class="bx bx-file me-1"></i>Pilih File Excel (.xlsx, .xls, .csv)
-                        </label>
-                        <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">
+                                    <i class="bx bx-file me-1"></i>Pilih File Excel (.xlsx, .xls, .csv)
+                                </label>
+                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <strong><i class="bx bx-info-circle me-1"></i>Catatan Penting:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>File Excel HARUS memiliki baris header dengan nama kolom yang sesuai</li>
+                                    <li>Password akan dibuat otomatis menggunakan NIP (jika ada) atau default 'nuist123'</li>
+                                    <li>Email harus unik dan belum terdaftar</li>
+                                    <li>Gunakan ID numerik untuk madrasah_id dan status_kepegawaian_id</li>
+                                    <li><strong>PERUBAHAN BARU:</strong> Kolom 'ketugasan' menggunakan enum: 'tenaga pendidik' atau 'kepala madrasah/sekolah'</li>
+                                    <li><strong>PERUBAHAN BARU:</strong> Kolom 'mengajar' wajib diisi</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="bx bx-download me-1"></i>Template & Panduan</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ asset('template/tenaga_pendidik_template.xlsx') }}"
+                                           class="btn btn-outline-primary btn-sm" download>
+                                            <i class="bx bx-download me-1"></i>Download Template Excel Kosong
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh_guru.xlsx') }}"
+                                           class="btn btn-outline-success btn-sm" download>
+                                            <i class="bx bx-user me-1"></i>Download Template Excel Guru
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh_kepala_madrasah.xlsx') }}"
+                                           class="btn btn-outline-danger btn-sm" download>
+                                            <i class="bx bx-crown me-1"></i>Download Template Excel Kepala Sekolah
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_import_structure.txt') }}"
+                                           class="btn btn-outline-info btn-sm" target="_blank">
+                                            <i class="bx bx-file-blank me-1"></i>Lihat Struktur Data
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
+                                           class="btn btn-outline-success btn-sm" download>
+                                            <i class="bx bx-data me-1"></i>Download Template CSV Kosong
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh.csv') }}"
+                                           class="btn btn-outline-warning btn-sm" download>
+                                            <i class="bx bx-file me-1"></i>Download Contoh Data Guru
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
+                                           class="btn btn-outline-danger btn-sm" download>
+                                            <i class="bx bx-crown me-1"></i>Download Contoh Data Kepala Sekolah
+                                        </a>
+                                        <a href="{{ asset('template/panduan_import_tenaga_pendidik.txt') }}"
+                                           class="btn btn-outline-secondary btn-sm" target="_blank">
+                                            <i class="bx bx-book me-1"></i>Baca Panduan Lengkap
+                                        </a>
+                                    </div>
+
+                                    <hr class="my-3">
+
+                                    <div class="text-muted small">
+                                        <strong>Kolom Wajib:</strong><br>
+                                        nama, email, tempat_lahir, tanggal_lahir, no_hp, kartanu, nip, nuptk, npk, madrasah_id, pendidikan_terakhir, tahun_lulus, program_studi, status_kepegawaian_id, tmt, ketugasan, mengajar, alamat
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="alert alert-info">
-                        <strong><i class="bx bx-info-circle me-1"></i>Catatan Penting:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>File Excel HARUS memiliki baris header dengan nama kolom yang sesuai</li>
-                            <li>Password akan dibuat otomatis menggunakan NIP (jika ada) atau default 'nuist123'</li>
-                            <li>Email harus unik dan belum terdaftar</li>
-                            <li>Gunakan ID numerik untuk madrasah_id dan status_kepegawaian_id</li>
-                        </ul>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="bx bx-list-ul me-1"></i>Referensi ID</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>ID Madrasah (Contoh):</strong>
+                                            <div class="small text-muted mt-1">
+                                                10 - SMA Ma'arif 1 Sleman<br>
+                                                16 - SMK Ma'arif 1 Sleman<br>
+                                                23 - SMK Ma'arif 1 Yogyakarta<br>
+                                                <em>...dan lainnya (lihat struktur data lengkap)</em>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>ID Status Kepegawaian:</strong>
+                                            <div class="small text-muted mt-1">
+                                                1 - PNS Sertifikasi<br>
+                                                3 - GTY Sertifikasi<br>
+                                                5 - GTY Non Sertifikasi<br>
+                                                6 - GTT<br>
+                                                <em>...dan lainnya (lihat struktur data lengkap)</em>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
