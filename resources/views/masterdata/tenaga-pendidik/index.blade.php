@@ -426,21 +426,21 @@
                                     <div class="d-grid gap-2">
                                         <a href="{{ asset('template/tenaga_pendidik_template.xlsx') }}"
                                            class="btn btn-outline-primary btn-sm" download>
-                                            <i class="bx bx-download me-1"></i>Download Template Excel Kosong
+                                            <i class="bx bx-download me-1"></i>Download Template Excel
                                         </a>
-                                        <a href="{{ asset('template/tenaga_pendidik_contoh.csv') }}"
+                                        <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
                                            class="btn btn-outline-success btn-sm" download>
-                                            <i class="bx bx-user me-1"></i>Download Template CSV Guru
+                                            <i class="bx bx-user me-1"></i>Download Template CSV
                                         </a>
-                                        <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
+                                        {{-- <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
                                            class="btn btn-outline-danger btn-sm" download>
                                             <i class="bx bx-crown me-1"></i>Download Template CSV Kepala Sekolah
-                                        </a>
+                                        </a> --}}
                                         <a href="{{ asset('template/tenaga_pendidik_import_structure.txt') }}"
                                            class="btn btn-outline-info btn-sm" target="_blank">
                                             <i class="bx bx-file-blank me-1"></i>Lihat Struktur Data
                                         </a>
-                                        <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
+                                        {{-- <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
                                            class="btn btn-outline-success btn-sm" download>
                                             <i class="bx bx-data me-1"></i>Download Template CSV Kosong
                                         </a>
@@ -451,7 +451,7 @@
                                         <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
                                            class="btn btn-outline-danger btn-sm" download>
                                             <i class="bx bx-crown me-1"></i>Download Contoh Data Kepala Sekolah
-                                        </a>
+                                        </a> --}}
                                         <a href="{{ asset('template/panduan_import_tenaga_pendidik.txt') }}"
                                            class="btn btn-outline-secondary btn-sm" target="_blank">
                                             <i class="bx bx-book me-1"></i>Baca Panduan Lengkap
