@@ -38,8 +38,21 @@ class User extends Authenticatable implements MustVerifyEmail
         'status_kepegawaian_id',
         'tmt',
         'ketugasan',
+        'mengajar',
         'avatar',
         'alamat',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'ketugasan' => 'string', // Enum will be handled as string
+        'tanggal_lahir' => 'date',
+        'tmt' => 'date',
+        'email_verified_at' => 'datetime',
     ];
 
     protected static function boot()

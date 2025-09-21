@@ -40,6 +40,8 @@ class TenagaPendidikController extends Controller
             'password' => 'required|string|min:6',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
+            'ketugasan' => 'nullable|in:tenaga pendidik,kepala madrasah/sekolah',
+            'mengajar' => 'nullable|string|max:255',
         ]);
 
         $avatarPath = $request->hasFile('avatar')
@@ -67,6 +69,7 @@ class TenagaPendidikController extends Controller
                 'status_kepegawaian_id' => $request->status_kepegawaian_id,
                 'tmt' => $request->tmt,
                 'ketugasan' => $request->ketugasan,
+                'mengajar' => $request->mengajar,
                 'avatar' => $avatarPath,
                 'alamat' => $request->alamat,
                 'role' => 'tenaga_pendidik',
@@ -86,6 +89,8 @@ class TenagaPendidikController extends Controller
             'password' => 'nullable|string|min:6',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
+            'ketugasan' => 'nullable|in:tenaga pendidik,kepala madrasah/sekolah',
+            'mengajar' => 'nullable|string|max:255',
         ]);
 
         if ($request->hasFile('avatar')) {
@@ -114,6 +119,7 @@ class TenagaPendidikController extends Controller
         $user->status_kepegawaian_id = $request->status_kepegawaian_id;
         $user->tmt = $request->tmt;
         $user->ketugasan = $request->ketugasan;
+        $user->mengajar = $request->mengajar;
         $user->alamat = $request->alamat;
         $user->save();
 

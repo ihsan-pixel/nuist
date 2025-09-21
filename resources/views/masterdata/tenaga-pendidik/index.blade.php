@@ -61,6 +61,8 @@
                         <th>Email</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
+                        <th>Ketugasan</th>
+                        <th>Mengajar</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -82,6 +84,8 @@
                             <td>{{ $tp->email }}</td>
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
+                            <td>{{ $tp->ketugasan ?? '-' }}</td>
+                            <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                 <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
@@ -195,8 +199,18 @@
 
                                             <div class="col-md-6">
                                                 <label>Ketugasan</label>
-                                                <input type="text" name="ketugasan" class="form-control" value="{{ old('ketugasan', $tp->ketugasan) }}">
+                                                <select name="ketugasan" class="form-control">
+                                                    <option value="">-- Pilih Ketugasan --</option>
+                                                    <option value="tenaga pendidik" {{ old('ketugasan', $tp->ketugasan) == 'tenaga pendidik' ? 'selected' : '' }}>Tenaga Pendidik</option>
+                                                    <option value="kepala madrasah/sekolah" {{ old('ketugasan', $tp->ketugasan) == 'kepala madrasah/sekolah' ? 'selected' : '' }}>Kepala Madrasah/Sekolah</option>
+                                                </select>
                                             </div>
+
+                                            <div class="col-md-6">
+                                                <label>Mengajar</label>
+                                                <input type="text" name="mengajar" class="form-control" value="{{ old('mengajar', $tp->mengajar) }}">
+                                            </div>
+
                                             <div class="col-12">
                                                 <label>Alamat</label>
                                                 <textarea name="alamat" class="form-control" rows="2">{{ $tp->alamat }}</textarea>
@@ -214,7 +228,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center p-4">
+                            <td colspan="9" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
@@ -335,8 +349,18 @@
 
                     <div class="col-md-6">
                         <label>Ketugasan</label>
-                        <input type="text" name="ketugasan" class="form-control">
+                        <select name="ketugasan" class="form-control">
+                            <option value="">-- Pilih Ketugasan --</option>
+                            <option value="tenaga pendidik">Tenaga Pendidik</option>
+                            <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
+                        </select>
                     </div>
+
+                    <div class="col-md-6">
+                        <label>Mengajar</label>
+                        <input type="text" name="mengajar" class="form-control">
+                    </div>
+
                     <div class="col-12">
                         <label>Alamat</label>
                         <textarea name="alamat" class="form-control" rows="2"></textarea>
@@ -416,7 +440,7 @@
 
                                     <div class="text-muted small">
                                         <strong>Kolom Wajib:</strong><br>
-                                        nama, email, tempat_lahir, tanggal_lahir, no_hp, kartanu, nip, nuptk, npk, madrasah_id, pendidikan_terakhir, tahun_lulus, program_studi, status_kepegawaian_id, tmt, ketugasan, alamat
+                                        nama, email, tempat_lahir, tanggal_lahir, no_hp, kartanu, nip, nuptk, npk, madrasah_id, pendidikan_terakhir, tahun_lulus, program_studi, status_kepegawaian_id, tmt, ketugasan, mengajar, alamat
                                     </div>
                                 </div>
                             </div>

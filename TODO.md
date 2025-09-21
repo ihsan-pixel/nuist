@@ -1,101 +1,68 @@
-# Admin Dashboard Statistics Implementation
+# Database Schema Changes for Users Table
 
 ## Completed Tasks ✅
 
-### 1. Backend Implementation
-- **Updated DashboardController** (`app/Http/Controllers/DashboardController.php`)
-  - Added `getAdminStatistics()` method to calculate teacher statistics
-  - Added `getMadrasahData()` method to fetch madrasah location and address data
-  - Added admin statistics logic in the `index()` method
-  - Statistics include:
-    - Total count of teachers/educational staff
-    - Breakdown by employment status (status kepegawaian)
-    - Filtered by madrasah_id of logged-in user
-  - Madrasah data includes:
-    - Name, address, coordinates, and map link
+### 1. Database Migrations Created
+- ✅ Created migration: `2025_09_21_025422_modify_ketugasan_column_to_enum.php`
+  - Modifies `ketugasan` column to use enum with values: 'tenaga pendidik', 'kepala madrasah/sekolah'
+- ✅ Created migration: `2025_09_21_025428_add_mengajar_column_to_users_table.php`
+  - Adds new `mengajar` column after `ketugasan` column
 
-### 2. Frontend Implementation
-- **Updated Dashboard View** (`resources/views/dashboard/index.blade.php`)
-  - Added admin statistics section with multiple components:
-    - **Summary Cards**: Total teachers count and current madrasah info
-    - **Employment Status Cards**: Visual breakdown of each employment status
-    - **Detailed Statistics Table**: Complete breakdown with percentages
-    - **Address Information Card**: Displays madrasah address and Google Maps link
-    - **Interactive Map**: Shows madrasah location using Leaflet.js
-  - **✅ REPOSITIONED**: Madrasah location and address moved to right after welcome card
-  - **✅ LAYOUT UPDATE**: Madrasah info now positioned below welcome card on left side
-  - Responsive design with Bootstrap components
-  - Proper handling of empty data states
-  - Added Leaflet.js for map functionality
+### 2. Model Updates
+- ✅ Updated `app/Models/User.php`
+  - Added `mengajar` to fillable array
+  - Added proper casting for enum fields
 
-### 3. Features Implemented
-- ✅ Display total number of teachers based on madrasah_id
-- ✅ Summary information about educational staff (tenaga pendidik)
-- ✅ Count breakdown by employment status (status kepegawaian) 1, 2, etc.
-- ✅ All data filtered by same madrasah_id as logged-in user
-- ✅ Visual representation with cards and progress bars
-- ✅ Proper error handling for empty data
-- ✅ **NEW**: Madrasah address display with Google Maps link
-- ✅ **NEW**: Interactive map showing madrasah location
-- ✅ **NEW**: Proper handling when coordinates are not available
-- ✅ **UPDATED**: Madrasah location section repositioned right after welcome card
-- ✅ **LAYOUT**: Madrasah info positioned below welcome card on left side
+### 3. Controller Updates
+- ✅ Updated `app/Http/Controllers/TenagaPendidikController.php`
+  - Added validation for `ketugasan` enum values
+  - Added `mengajar` field handling in store/update methods
 
-### 4. Layout Changes
-- **✅ Position Update**: Madrasah address and map moved from bottom to right after "Selamat Datang!" card
-- **✅ Left Side Layout**: Welcome card + Madrasah info stacked vertically on left
-- **✅ Right Side Layout**: All statistics content remains on right side
-- **Better Flow**: More logical information hierarchy for admin users
-- **Improved UX**: Important location information visible immediately after login
+### 4. View Updates
+- ✅ Updated `resources/views/masterdata/tenaga-pendidik/index.blade.php`
+  - Changed `ketugasan` from text input to dropdown with enum options
+  - Added `mengajar` field to both create and edit forms
+  - Updated table to display both `ketugasan` and `mengajar` columns
+  - Updated import documentation to include `mengajar` field
 
-### 5. Database Queries
-- Count total users with same madrasah_id and appropriate roles
-- Group by status_kepegawaian_id for breakdown statistics
-- Efficient queries with proper relationships loaded
-- Fetch madrasah data including coordinates and address
+## Pending Tasks ⏳
 
-### 6. Map Integration
-- Added Leaflet.js library for interactive maps
-- Map displays madrasah location with marker
-- Popup shows madrasah name and address
-- Fallback display when coordinates are not available
-- Google Maps integration link for external navigation
+### 1. Database Migration (Requires Database Connection)
+```bash
+php artisan migrate
+```
+**Note**: Migration failed due to no database connection. This needs to be run when database is available.
 
-## Testing Status
-The implementation is ready for testing. The following should be verified:
+### 2. Testing
+- Test form submission with new enum validation
+- Test data display in the updated table
+- Test import functionality with new `mengajar` column
+- Verify existing data compatibility with enum constraints
 
-1. **Admin Login Test**: Login as admin user and verify statistics display
-2. **Data Accuracy**: Check if counts match actual database records
-3. **Filtering Test**: Verify only users from same madrasah are counted
-4. **UI Responsiveness**: Test on different screen sizes
-5. **Empty Data Handling**: Test with madrasah that has no teachers
-6. **Map Display**: Test map functionality with and without coordinates
-7. **Address Display**: Verify address information shows correctly
-8. **Google Maps Link**: Test external map link functionality
-9. **✅ Layout Test**: Verify madrasah location appears right after welcome card on left side
-10. **✅ Side-by-side Layout**: Confirm statistics remain on right side
+### 3. Data Migration (If Needed)
+- If existing `ketugasan` data doesn't match enum values, update existing records
+- Ensure all existing data is compatible with the new enum constraints
 
-## Next Steps (Optional)
-- Add charts/visualization for better data representation
-- Add export functionality for statistics
-- Add date range filtering for historical data
-- Add comparison with previous periods
-- Add multiple map providers (Google Maps, OpenStreetMap)
-- Add directions/route planning feature
+## Summary of Changes
 
-## Files Modified
-- `app/Http/Controllers/DashboardController.php` - Added statistics and madrasah data logic
-- `resources/views/dashboard/index.blade.php` - Added admin dashboard UI with map and address, repositioned layout
+### Database Schema Changes:
+- `ketugasan` column: `string` → `enum('tenaga pendidik', 'kepala madrasah/sekolah')`
+- New `mengajar` column: `string` (nullable)
 
-## Dependencies Added
-- Leaflet.js for interactive maps
-- OpenStreetMap tiles for map display
+### Application Changes:
+- Form validation now restricts `ketugasan` to only two allowed values
+- UI provides dropdown selection instead of free text input
+- New `mengajar` field allows text input for teaching subjects
+- Table displays both fields for better data visibility
 
-The implementation is now complete and ready for use! 🎉
+### Files Modified:
+1. `database/migrations/2025_09_21_025422_modify_ketugasan_column_to_enum.php`
+2. `database/migrations/2025_09_21_025428_add_mengajar_column_to_users_table.php`
+3. `app/Models/User.php`
+4. `app/Http/Controllers/TenagaPendidikController.php`
+5. `resources/views/masterdata/tenaga-pendidik/index.blade.php`
 
-**Latest Updates:**
-- 🗺️ Interactive map showing madrasah location
-- 📍 Address display with Google Maps integration
-- 🎯 Proper coordinate validation and fallback displays
-- 📐 **Layout repositioned**: Madrasah info now appears right after welcome card on left side
-- 📊 **Statistics on right**: All admin statistics remain properly positioned on right side
+## Next Steps
+1. Run `php artisan migrate` when database is available
+2. Test the application functionality
+3. Update any existing data if needed to match enum constraints
