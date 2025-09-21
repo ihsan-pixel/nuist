@@ -74,9 +74,11 @@ class DashboardController extends Controller
         // Statistics untuk admin
         $adminStats = null;
         $madrasahData = null;
+        $schoolPrincipal = null;
         if ($user->role === 'admin') {
             $adminStats = $this->getAdminStatistics($user->madrasah_id);
             $madrasahData = $this->getMadrasahData($user->madrasah_id);
+            $schoolPrincipal = $this->getSchoolPrincipal($user->madrasah_id);
         }
 
         if ($user->role === 'tenaga_pendidik') {
@@ -93,6 +95,7 @@ class DashboardController extends Controller
                 'attendanceData' => $attendanceData,
                 'adminStats' => $adminStats,
                 'madrasahData' => $madrasahData,
+                'schoolPrincipal' => $schoolPrincipal,
             ]);
         }
 
@@ -102,6 +105,7 @@ class DashboardController extends Controller
             'attendanceData' => $attendanceData,
             'adminStats' => $adminStats,
             'madrasahData' => $madrasahData,
+            'schoolPrincipal' => $schoolPrincipal,
         ]);
     }
 
@@ -169,6 +173,17 @@ class DashboardController extends Controller
     {
         return \App\Models\Madrasah::where('id', $madrasahId)
             ->select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
+            ->first();
+    }
+
+    /**
+     * Get school principal data for the madrasah
+     */
+    private function getSchoolPrincipal($madrasahId)
+    {
+        return User::where('madrasah_id', $madrasahId)
+            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->select('id', 'name', 'avatar', 'nuist_id')
             ->first();
     }
 }

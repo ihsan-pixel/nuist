@@ -154,7 +154,7 @@
     <div class="col-xl-8">
         <div class="row">
             {{-- Total Teachers Card --}}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -172,8 +172,32 @@
                 </div>
             </div>
 
+            {{-- School Principal Card --}}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
+                                    <i class="mdi mdi-account-tie fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                @if($schoolPrincipal)
+                                    <h6 class="mb-1">{{ $schoolPrincipal->name }}</h6>
+                                    <p class="text-muted mb-0">Kepala Sekolah</p>
+                                @else
+                                    <h6 class="mb-1 text-muted">-</h6>
+                                    <p class="text-muted mb-0">Kepala Sekolah</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Madrasah Info Card --}}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
