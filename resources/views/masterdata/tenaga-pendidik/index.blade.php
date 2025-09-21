@@ -411,6 +411,8 @@
                                     <li>Password akan dibuat otomatis menggunakan NIP (jika ada) atau default 'nuist123'</li>
                                     <li>Email harus unik dan belum terdaftar</li>
                                     <li>Gunakan ID numerik untuk madrasah_id dan status_kepegawaian_id</li>
+                                    <li><strong>PERUBAHAN BARU:</strong> Kolom 'ketugasan' menggunakan enum: 'tenaga pendidik' atau 'kepala madrasah/sekolah'</li>
+                                    <li><strong>PERUBAHAN BARU:</strong> Kolom 'mengajar' wajib diisi</li>
                                 </ul>
                             </div>
                         </div>
@@ -424,7 +426,15 @@
                                     <div class="d-grid gap-2">
                                         <a href="{{ asset('template/tenaga_pendidik_template.xlsx') }}"
                                            class="btn btn-outline-primary btn-sm" download>
-                                            <i class="bx bx-download me-1"></i>Download Template Excel
+                                            <i class="bx bx-download me-1"></i>Download Template Excel Kosong
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh_guru.xlsx') }}"
+                                           class="btn btn-outline-success btn-sm" download>
+                                            <i class="bx bx-user me-1"></i>Download Template Excel Guru
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh_kepala_madrasah.xlsx') }}"
+                                           class="btn btn-outline-danger btn-sm" download>
+                                            <i class="bx bx-crown me-1"></i>Download Template Excel Kepala Sekolah
                                         </a>
                                         <a href="{{ asset('template/tenaga_pendidik_import_structure.txt') }}"
                                            class="btn btn-outline-info btn-sm" target="_blank">
@@ -432,7 +442,19 @@
                                         </a>
                                         <a href="{{ asset('template/tenaga_pendidik_template.csv') }}"
                                            class="btn btn-outline-success btn-sm" download>
-                                            <i class="bx bx-data me-1"></i>Download Contoh CSV
+                                            <i class="bx bx-data me-1"></i>Download Template CSV Kosong
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh.csv') }}"
+                                           class="btn btn-outline-warning btn-sm" download>
+                                            <i class="bx bx-file me-1"></i>Download Contoh Data Guru
+                                        </a>
+                                        <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
+                                           class="btn btn-outline-danger btn-sm" download>
+                                            <i class="bx bx-crown me-1"></i>Download Contoh Data Kepala Sekolah
+                                        </a>
+                                        <a href="{{ asset('template/panduan_import_tenaga_pendidik.txt') }}"
+                                           class="btn btn-outline-secondary btn-sm" target="_blank">
+                                            <i class="bx bx-book me-1"></i>Baca Panduan Lengkap
                                         </a>
                                     </div>
 
