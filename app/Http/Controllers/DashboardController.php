@@ -81,6 +81,14 @@ class DashboardController extends Controller
             $schoolPrincipal = $this->getSchoolPrincipal($user->madrasah_id);
         }
 
+        // Statistics untuk super_admin
+        $superAdminStats = null;
+        $foundationData = null;
+        if ($user->role === 'super_admin') {
+            $superAdminStats = $this->getSuperAdminStatistics();
+            $foundationData = $this->getFoundationData();
+        }
+
         if ($user->role === 'tenaga_pendidik') {
             // Tenaga pendidik melihat data users
             $users = User::with('madrasah', 'statusKepegawaian')
@@ -96,6 +104,8 @@ class DashboardController extends Controller
                 'adminStats' => $adminStats,
                 'madrasahData' => $madrasahData,
                 'schoolPrincipal' => $schoolPrincipal,
+                'superAdminStats' => $superAdminStats,
+                'foundationData' => $foundationData,
             ]);
         }
 
@@ -106,6 +116,8 @@ class DashboardController extends Controller
             'adminStats' => $adminStats,
             'madrasahData' => $madrasahData,
             'schoolPrincipal' => $schoolPrincipal,
+            'superAdminStats' => $superAdminStats,
+            'foundationData' => $foundationData,
         ]);
     }
 
@@ -184,6 +196,56 @@ class DashboardController extends Controller
         return User::where('madrasah_id', $madrasahId)
             ->where('ketugasan', 'kepala madrasah/sekolah')
             ->select('id', 'name', 'avatar', 'nuist_id')
+            ->first();
+    }
+
+    /**
+     * Get statistics for super_admin dashboard
+     */
+    private function getSuperAdminStatistics()
+    {
+        // Total madrasah/sekolah
+        $totalMadrasah = \App\Models\Madrasah::count();
+
+        // Total guru dan pegawai (admin + tenaga_pendidik)
+        $totalTeachers = User::whereIn('role', ['admin', 'tenaga_pendidik'])->count();
+
+        // Total by employment status
+        $statusStats = User::whereIn('role', ['admin', 'tenaga_pendidik'])
+            ->with('statusKepegawaian')
+            ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
+            ->groupBy('status_kepegawaian_id')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'status_id' => $item->status_kepegawaian_id,
+                    'status_name' => $item->statusKepegawaian ? $item->statusKepegawaian->name : 'Tidak Diketahui',
+                    'count' => $item->count
+                ];
+            });
+
+        // Total users by role
+        $totalAdmin = User::where('role', 'admin')->count();
+        $totalSuperAdmin = User::where('role', 'super_admin')->count();
+        $totalSchoolPrincipals = User::where('ketugasan', 'kepala madrasah/sekolah')->count();
+
+        return [
+            'total_madrasah' => $totalMadrasah,
+            'total_teachers' => $totalTeachers,
+            'total_by_status' => $statusStats,
+            'total_admin' => $totalAdmin,
+            'total_super_admin' => $totalSuperAdmin,
+            'total_school_principals' => $totalSchoolPrincipals,
+        ];
+    }
+
+    /**
+     * Get foundation data for map and address display
+     */
+    private function getFoundationData()
+    {
+        // Get the first madrasah as foundation data, or you can modify this to get specific foundation
+        return \App\Models\Madrasah::select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
             ->first();
     }
 }
