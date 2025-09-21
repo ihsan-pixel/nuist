@@ -15,10 +15,10 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class TenagaPendidikImport implements ToModel, WithHeadingRow
 {
     /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
+    * @param array $row
+    *
+    * @return \Illuminate\Database\Eloquent\Model|null
+    */
     public function model(array $row)
     {
         // Skip empty rows
@@ -37,7 +37,7 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
                 'nama', 'email', 'tempat_lahir', 'tanggal_lahir', 'no_hp',
                 'kartanu', 'nip', 'nuptk', 'npk', 'madrasah_id',
                 'pendidikan_terakhir', 'tahun_lulus', 'program_studi',
-                'status_kepegawaian_id', 'tmt', 'ketugasan', 'mengajar', 'alamat'
+                'status_kepegawaian_id', 'tmt', 'ketugasan', 'alamat'
             ];
 
             foreach ($requiredFields as $field) {
@@ -49,12 +49,6 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
             // Validate email format
             if (!filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new \Exception("Invalid email format: " . $row['email']);
-            }
-
-            // Validate ketugasan enum values
-            $allowedKetugasanValues = ['tenaga pendidik', 'kepala madrasah/sekolah'];
-            if (!in_array($row['ketugasan'], $allowedKetugasanValues)) {
-                throw new \Exception("Invalid ketugasan value: " . $row['ketugasan'] . ". Allowed values: " . implode(', ', $allowedKetugasanValues));
             }
 
             // Validate madrasah_id exists
@@ -86,7 +80,6 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
                 'status_kepegawaian_id' => $row['status_kepegawaian_id'],
                 'tmt' => $row['tmt'],
                 'ketugasan' => $row['ketugasan'],
-                'mengajar' => $row['mengajar'],
                 'alamat' => $row['alamat'],
                 'role' => 'tenaga_pendidik',
             ]);

@@ -38,7 +38,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'status_kepegawaian_id',
         'tmt',
         'ketugasan',
-        'mengajar',
         'avatar',
         'alamat',
     ];
