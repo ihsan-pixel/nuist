@@ -60,7 +60,7 @@
         @if(Auth::user()->role === 'admin' && isset($madrasahData))
         <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -85,7 +85,7 @@
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
