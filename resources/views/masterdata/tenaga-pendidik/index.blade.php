@@ -428,13 +428,13 @@
                                            class="btn btn-outline-primary btn-sm" download>
                                             <i class="bx bx-download me-1"></i>Download Template Excel Kosong
                                         </a>
-                                        <a href="{{ asset('template/tenaga_pendidik_contoh_guru.xlsx') }}"
+                                        <a href="{{ asset('template/tenaga_pendidik_contoh.csv') }}"
                                            class="btn btn-outline-success btn-sm" download>
-                                            <i class="bx bx-user me-1"></i>Download Template Excel Guru
+                                            <i class="bx bx-user me-1"></i>Download Template CSV Guru
                                         </a>
-                                        <a href="{{ asset('template/tenaga_pendidik_contoh_kepala_madrasah.xlsx') }}"
+                                        <a href="{{ asset('template/tenaga_pendidik_kepala_madrasah.csv') }}"
                                            class="btn btn-outline-danger btn-sm" download>
-                                            <i class="bx bx-crown me-1"></i>Download Template Excel Kepala Sekolah
+                                            <i class="bx bx-crown me-1"></i>Download Template CSV Kepala Sekolah
                                         </a>
                                         <a href="{{ asset('template/tenaga_pendidik_import_structure.txt') }}"
                                            class="btn btn-outline-info btn-sm" target="_blank">
