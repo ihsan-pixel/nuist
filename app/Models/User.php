@@ -49,7 +49,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<string, string>
      */
     protected $casts = [
-        'ketugasan' => 'string', // Enum will be handled as string
         'tanggal_lahir' => 'date',
         'tmt' => 'date',
         'email_verified_at' => 'datetime',
