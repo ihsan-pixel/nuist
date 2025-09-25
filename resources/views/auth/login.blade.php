@@ -5,11 +5,12 @@
 @endsection
 
 @section('css')
-<!-- owl.carousel css -->
-<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
-<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
+{{-- CSS dari Vite --}}
+@vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js'])
 
-@vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss'])
+{{-- CSS vendor (taruh file vendor di public/libs/) --}}
+<link rel="stylesheet" href="{{ asset('libs/owl.carousel/assets/owl.carousel.min.css') }}">
+<link rel="stylesheet" href="{{ asset('libs/owl.carousel/assets/owl.theme.default.min.css') }}">
 @endsection
 
 @section('body')
@@ -44,10 +45,10 @@
                     <div class="w-100">
                         <div class="d-flex flex-column h-100">
                             <div class="mb-4 mb-md-5">
-<a href="" class="d-block auth-logo">
-    <img src="{{ asset('build/images/logo1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
-    <img src="{{ asset('build/images/logo1.png') }}" alt="Logo" height="70" class="auth-logo-light">
-</a>
+                                <a href="" class="d-block auth-logo">
+                                    <img src="{{ asset('images/logo1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
+                                    <img src="{{ asset('images/logo1.png') }}" alt="Logo" height="70" class="auth-logo-light">
+                                </a>
                             </div>
                             <div class="my-auto">
                                 <div>
@@ -116,7 +117,7 @@
 
 <style>
     .auth-full-bg {
-        background: url("{{ asset('build/images/a.png') }}") no-repeat center center !important;
+        background: url("{{ asset('images/a.png') }}") no-repeat center center !important;
         background-size: cover !important;
     }
     .bg-overlay {
@@ -126,14 +127,14 @@
 @endsection
 
 @section('script')
-<!-- JS -->
-<script src="{{ asset('build/libs/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('build/libs/metismenu/metisMenu.min.js') }}"></script>
-<script src="{{ asset('build/libs/simplebar/simplebar.min.js') }}"></script>
-<script src="{{ asset('build/libs/node-waves/waves.min.js') }}"></script>
+{{-- JS vendor (taruh di public/libs/) --}}
+<script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('libs/metismenu/metisMenu.min.js') }}"></script>
+<script src="{{ asset('libs/simplebar/simplebar.min.js') }}"></script>
+<script src="{{ asset('libs/node-waves/waves.min.js') }}"></script>
+<script src="{{ asset('libs/owl.carousel/owl.carousel.min.js') }}"></script>
 
-<script src="{{ asset('build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
-<script src="{{ asset('build/js/pages/auth-2-carousel.init.js') }}"></script>
-<script src="{{ asset('build/js/app.js') }}"></script>
+{{-- JS custom --}}
+<script src="{{ asset('js/auth-2-carousel.init.js') }}"></script>
 @endsection
