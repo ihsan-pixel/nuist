@@ -4,7 +4,7 @@
 @lang('translation.Login')
 @endsection
 
-{{-- @section('css') --}}
+@section('css')
 {{-- CSS dari Vite --}}
 {{-- @vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js']) --}}
 
