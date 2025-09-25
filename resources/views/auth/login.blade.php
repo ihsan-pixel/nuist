@@ -4,9 +4,9 @@
 @lang('translation.Login')
 @endsection
 
-@section('css')
+{{-- @section('css') --}}
 {{-- CSS dari Vite --}}
-@vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js'])
+{{-- @vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js']) --}}
 
 {{-- CSS vendor (taruh file vendor di public/build/libs/) --}}
 <link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
