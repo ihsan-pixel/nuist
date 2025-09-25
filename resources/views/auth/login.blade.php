@@ -46,8 +46,8 @@
                         <div class="d-flex flex-column h-100">
                             <div class="mb-4 mb-md-5">
                                 <a href="" class="d-block auth-logo">
-                                    <img src="{{ asset('images/a.png') }}" alt="Logo" height="90" class="auth-logo-dark">
-                                    <img src="{{ asset('images/a.png') }}" alt="Logo" height="70" class="auth-logo-light">
+                                    <img src="{{ asset('images/logo 1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
+                                    <img src="{{ asset('images/logi 1.png') }}" alt="Logo" height="70" class="auth-logo-light">
                                 </a>
                             </div>
                             <div class="my-auto">
