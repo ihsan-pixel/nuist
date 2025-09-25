@@ -8,9 +8,9 @@
 {{-- CSS dari Vite --}}
 @vite(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js'])
 
-{{-- CSS vendor (taruh file vendor di public/libs/) --}}
-<link rel="stylesheet" href="{{ asset('libs/owl.carousel/assets/owl.carousel.min.css') }}">
-<link rel="stylesheet" href="{{ asset('libs/owl.carousel/assets/owl.theme.default.min.css') }}">
+{{-- CSS vendor (taruh file vendor di public/build/libs/) --}}
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
 @endsection
 
 @section('body')
@@ -127,13 +127,13 @@
 @endsection
 
 @section('script')
-{{-- JS vendor (taruh di public/libs/) --}}
-<script src="{{ asset('libs/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('libs/metismenu/metisMenu.min.js') }}"></script>
-<script src="{{ asset('libs/simplebar/simplebar.min.js') }}"></script>
-<script src="{{ asset('libs/node-waves/waves.min.js') }}"></script>
-<script src="{{ asset('libs/owl.carousel/owl.carousel.min.js') }}"></script>
+{{-- JS vendor (taruh di public/build/libs/) --}}
+<script src="{{ asset('build/libs/jquery/jquery.min.js') }}"></script>
+<script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('build/libs/metismenu/metisMenu.min.js') }}"></script>
+<script src="{{ asset('build/libs/simplebar/simplebar.min.js') }}"></script>
+<script src="{{ asset('build/libs/node-waves/waves.min.js') }}"></script>
+<script src="{{ asset('build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
 
 {{-- JS custom --}}
 <script src="{{ asset('js/auth-2-carousel.init.js') }}"></script>
