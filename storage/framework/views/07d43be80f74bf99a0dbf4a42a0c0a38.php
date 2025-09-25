@@ -3,11 +3,12 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('css'); ?>
-<!-- owl.carousel css -->
-<link rel="stylesheet" href="<?php echo e(asset('build/libs/owl.carousel/assets/owl.carousel.min.css')); ?>">
-<link rel="stylesheet" href="<?php echo e(asset('build/libs/owl.carousel/assets/owl.theme.default.min.css')); ?>">
 
-<?php echo app('Illuminate\Foundation\Vite')(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss']); ?>
+<?php echo app('Illuminate\Foundation\Vite')(['resources/scss/bootstrap.scss', 'resources/scss/icons.scss', 'resources/scss/app.scss', 'resources/js/app.js']); ?>
+
+
+<link rel="stylesheet" href="<?php echo e(asset('libs/owl.carousel/assets/owl.carousel.min.css')); ?>">
+<link rel="stylesheet" href="<?php echo e(asset('libs/owl.carousel/assets/owl.theme.default.min.css')); ?>">
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('body'); ?>
@@ -43,8 +44,8 @@
                         <div class="d-flex flex-column h-100">
                             <div class="mb-4 mb-md-5">
                                 <a href="" class="d-block auth-logo">
-                                    <img src="<?php echo e(asset('build/images/logo 1.png')); ?>" alt="Logo" height="90" class="auth-logo-dark">
-                                    <img src="<?php echo e(asset('build/images/logo 1.png')); ?>" alt="Logo" height="70" class="auth-logo-light">
+                                    <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" height="90" class="auth-logo-dark">
+                                    <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" height="70" class="auth-logo-light">
                                 </a>
                             </div>
                             <div class="my-auto">
@@ -149,7 +150,7 @@ unset($__errorArgs, $__bag); ?>
 
 <style>
     .auth-full-bg {
-        background: url("<?php echo e(asset('build/images/a.png')); ?>") no-repeat center center !important;
+        background: url("<?php echo e(asset('images/a.png')); ?>") no-repeat center center !important;
         background-size: cover !important;
     }
     .bg-overlay {
@@ -159,16 +160,16 @@ unset($__errorArgs, $__bag); ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
-<!-- JS -->
-<script src="<?php echo e(asset('build/libs/jquery/jquery.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/metismenu/metisMenu.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/simplebar/simplebar.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/node-waves/waves.min.js')); ?>"></script>
 
-<script src="<?php echo e(asset('build/libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/js/pages/auth-2-carousel.init.js')); ?>"></script>
-<script src="<?php echo e(asset('build/js/app.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/jquery/jquery.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/metismenu/metisMenu.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/simplebar/simplebar.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/node-waves/waves.min.js')); ?>"></script>
+<script src="<?php echo e(asset('libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
+
+
+<script src="<?php echo e(asset('js/auth-2-carousel.init.js')); ?>"></script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\apk_nuist\resources\views/auth/login.blade.php ENDPATH**/ ?>
