@@ -12,9 +12,9 @@
                     </span>
                 </a>
 
-                <a href="index" class="logo logo-light">
+                <a href="" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ asset('build/images/logo favicon 2 light.png') }}" alt="" height="30">
+                        <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="" height="30">
                     </span>
                     <span class="logo-lg">
                         <img src="{{ asset('build/images/logo favicon 2 light.png') }}" alt="" height="50">
