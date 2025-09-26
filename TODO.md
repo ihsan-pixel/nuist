@@ -1,7 +1,10 @@
-# TODO: Update Blade Asset Calls
+# TODO List for Dashboard Statistics Update
 
-## Tasks
-- [ ] Replace 'URL::asset' with 'asset' in all .blade.php files in resources/views/
-- [ ] Replace spaces with %20 in asset('...') strings in all .blade.php files
-- [ ] Verify changes in key files (topbar.blade.php, master.blade.php, dashboard/index.blade.php)
-- [ ] Test the application to ensure assets load correctly
+## Completed Tasks
+- [x] Updated getAdminStatistics method in DashboardController.php to count only 'tenaga_pendidik' role for total_teachers and status breakdowns
+- [x] Updated getSuperAdminStatistics method in DashboardController.php to count only 'tenaga_pendidik' role for total_teachers and status breakdowns
+- [x] Verified changes exclude 'admin' role from tenaga pendidik counts as per task requirements
+
+## Followup Steps
+- [ ] Test the dashboard for admin and super_admin roles to ensure counts only include 'tenaga_pendidik'
+- [ ] Verify that the "Total Tenaga Pendidik" and "Detail Statistik Tenaga Pendidik" sections display correct numbers

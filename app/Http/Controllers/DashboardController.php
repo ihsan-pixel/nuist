@@ -150,12 +150,12 @@ class DashboardController extends Controller
     {
         // Hitung total tenaga pendidik/guru berdasarkan madrasah_id
         $totalTeachers = User::where('madrasah_id', $madrasahId)
-            ->whereIn('role', ['tenaga_pendidik', 'admin'])
+            ->where('role', 'tenaga_pendidik')
             ->count();
 
         // Hitung berdasarkan status kepegawaian
         $statusStats = User::where('madrasah_id', $madrasahId)
-            ->whereIn('role', ['tenaga_pendidik', 'admin'])
+            ->where('role', 'tenaga_pendidik')
             ->with('statusKepegawaian')
             ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
             ->groupBy('status_kepegawaian_id')
@@ -207,11 +207,11 @@ class DashboardController extends Controller
         // Total madrasah/sekolah
         $totalMadrasah = \App\Models\Madrasah::count();
 
-        // Total guru dan pegawai (admin + tenaga_pendidik)
-        $totalTeachers = User::whereIn('role', ['admin', 'tenaga_pendidik'])->count();
+        // Total guru dan pegawai (tenaga_pendidik only)
+        $totalTeachers = User::where('role', 'tenaga_pendidik')->count();
 
         // Total by employment status
-        $statusStats = User::whereIn('role', ['admin', 'tenaga_pendidik'])
+        $statusStats = User::where('role', 'tenaga_pendidik')
             ->with('statusKepegawaian')
             ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
             ->groupBy('status_kepegawaian_id')
