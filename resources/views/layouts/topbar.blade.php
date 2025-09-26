@@ -17,7 +17,7 @@
                         <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="" height="30">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('build/images/logo favicon 2 light.png') }}" alt="" height="50">
+                        <img src="{{ asset('build/images/logo 1.png') }}" alt="" height="50">
                     </span>
                 </a>
             </div>
