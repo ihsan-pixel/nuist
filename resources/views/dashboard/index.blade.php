@@ -30,7 +30,7 @@
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="avatar-md profile-user-wid mb-4">
-<img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-1.jpg') }}" alt="" class="img-thumbnail rounded-circle">
+<img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="" class="img-thumbnail rounded-circle">
                         </div>
                         <h5 class="font-size-15">{{ Str::ucfirst(Auth::user()->name) }}</h5>
                         <p class="text-muted mb-0 text-truncate">Nuist ID : {{ Auth::user()->nuist_id ?? '-' }}</p>
