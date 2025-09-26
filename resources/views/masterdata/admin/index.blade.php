@@ -80,7 +80,7 @@
                         <td>{{ $admin->madrasah ? $admin->madrasah->name : '-' }}</td>
                         <td>
                             @if($admin->avatar)
-                                <img src="{{ asset('storage/' . $admin->avatar) }}" alt="Avatar" width="50">
+                                <img src="{{ asset('storage/app/public/' . $admin->avatar) }}" alt="Avatar" width="50">
                             @else
                                 -
                             @endif
