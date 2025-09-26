@@ -215,7 +215,7 @@
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm flex-shrink-0 me-3">
                                 <div class="avatar-title bg-success-subtle text-success rounded-circle">
-                                    <i class="mdi mdi-account-school fs-4"></i>
+                                    <i class="mdi mdi-account-tie fs-4"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1">
