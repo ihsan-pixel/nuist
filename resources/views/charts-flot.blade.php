@@ -138,15 +138,16 @@
 @endsection
 @section('script')
     <!-- flot plugins -->
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.time.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/jquery.flot.tooltip/js/jquery.flot.tooltip.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.resize.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.pie.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.selection.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.stack.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot.curvedLines/curvedLines.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/flot-charts/jquery.flot.crosshair.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.time.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery.flot.tooltip/js/jquery.flot.tooltip.min.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.resize.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.pie.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.selection.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.stack.js') }}"></script>
+    <script src="{{ asset('build/libs/flot.curvedLines/curvedLines.js') }}"></script>
+    <script src="{{ asset('build/libs/flot-charts/jquery.flot.crosshair.js') }}"></script>
     <!-- flot init -->
-    <script src="{{ URL::asset('build/js/pages/flot.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/flot.init.js') }}"></script>
 @endsection
+

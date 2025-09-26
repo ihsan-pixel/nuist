@@ -89,7 +89,8 @@
 
 @endsection
 @section('script')
-    <script src="{{ URL::asset('build/libs/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/pages/sparklines.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/sparklines.init.js') }}"></script>
 @endsection
+

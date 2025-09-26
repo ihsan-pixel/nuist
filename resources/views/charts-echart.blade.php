@@ -92,7 +92,8 @@
 @endsection
 @section('script')
     <!-- echarts js -->
-    <script src="{{ URL::asset('build/libs/echarts/echarts.min.js') }}"></script>
+    <script src="{{ asset('build/libs/echarts/echarts.min.js') }}"></script>
     <!-- echarts init -->
-    <script src="{{ URL::asset('build/js/pages/echarts.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/echarts.init.js') }}"></script>
 @endsection
+

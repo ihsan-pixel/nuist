@@ -45,7 +45,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-4">
-                        <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="">
+                        <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="">
                     </div>
                     <h5 class="font-size-15 mb-1"><a href="#" class="text-dark">Frank Kirk</a></h5>
                     <p class="text-muted">Frontend Developer</p>
@@ -75,7 +75,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-4">
-                        <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt="">
+                        <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-3.jpg') }}" alt="">
                     </div>
                     <h5 class="font-size-15 mb-1"><a href="#" class="text-dark">Rafael Morales</a></h5>
                     <p class="text-muted">Backend Developer</p>
@@ -141,7 +141,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-4">
-                        <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt="">
+                        <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-4.jpg') }}" alt="">
                     </div>
                     <h5 class="font-size-15 mb-1"><a href="#" class="text-dark">Minnie Walter</a></h5>
                     <p class="text-muted">Frontend Developer</p>
@@ -171,7 +171,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-4">
-                        <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt="">
+                        <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-5.jpg') }}" alt="">
                     </div>
                     <h5 class="font-size-15 mb-1"><a href="#" class="text-dark">Shirley Smith</a></h5>
                     <p class="text-muted">UI/UX Designer</p>
@@ -232,7 +232,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-4">
-                        <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-7.jpg') }}" alt="">
+                        <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-7.jpg') }}" alt="">
                     </div>
                     <h5 class="font-size-15 mb-1"><a href="#" class="text-dark">Colin Melton</a></h5>
                     <p class="text-muted">Backend Developer</p>
@@ -272,3 +272,4 @@
     <!-- end row -->
 
 @endsection
+

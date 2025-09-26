@@ -9,13 +9,13 @@
 @endcomponent
 
 @section('css')
-<link href="{{ URL::asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
-<link href="{{ URL::asset('build/css/icons.min.css') }}" rel="stylesheet" />
-<link href="{{ URL::asset('build/css/app.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 <!-- leaflet Css -->
-<link href="{{ URL::asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
 <!-- SweetAlert2 Css -->
-<link href="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 <div class="row">
@@ -163,8 +163,8 @@
 @endsection
 
 @section('script')
-<script src="{{ URL::asset('build/libs/leaflet/leaflet.js') }}"></script>
-<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script>
 $(document).ready(function() {
     let latitude, longitude, lokasi;
@@ -296,3 +296,4 @@ $(document).ready(function() {
 });
 </script>
 @endsection
+

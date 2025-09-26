@@ -4,8 +4,8 @@
 
 @section('css')
 <!-- owl.carousel css -->
-<link rel="stylesheet" href="{{ URL::asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
-<link rel="stylesheet" href="{{ URL::asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
+<link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
 @endsection
 
 @section('content')
@@ -212,8 +212,8 @@
 @endsection
 @section('script')
 <!-- owl.carousel js -->
-<script src="{{ URL::asset('build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
 
 <!-- timeline init js -->
-<script src="{{ URL::asset('build/js/pages/timeline.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/timeline.init.js') }}"></script>
 @endsection

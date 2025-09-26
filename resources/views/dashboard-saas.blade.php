@@ -17,7 +17,7 @@
                     <div class="col-lg-4">
                         <div class="d-flex">
                             <div class="flex-shrink-0 me-3">
-                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-md rounded-circle img-thumbnail">
+                                <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-md rounded-circle img-thumbnail">
                             </div>
                             <div class="flex-grow-1 align-self-center">
                                 <div class="text-muted">
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                     <div class="col-5 align-self-end">
-                        <img src="{{ URL::asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
+                        <img src="{{ asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -766,8 +766,8 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- Saas dashboard init -->
-<script src="{{ URL::asset('build/js/pages/saas-dashboard.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/saas-dashboard.init.js') }}"></script>
 @endsection

@@ -3,7 +3,7 @@
 @section('title') @lang('translation.Notifications') @endsection
 
 @section('css')
-<link rel="stylesheet" type="text/css" href="{{ URL::asset('build/libs/toastr/build/toastr.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('build/libs/toastr/build/toastr.min.css') }}">
 @endsection
 
 @section('content')
@@ -258,8 +258,9 @@
 @endsection
 @section('script')
 <!-- toastr plugin -->
-<script src="{{ URL::asset('build/libs/toastr/build/toastr.min.js') }}"></script>
+<script src="{{ asset('build/libs/toastr/build/toastr.min.js') }}"></script>
 
 <!-- toastr init -->
-<script src="{{ URL::asset('build/js/pages/toastr.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/toastr.init.js') }}"></script>
 @endsection
+

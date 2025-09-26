@@ -20,7 +20,7 @@
                         </div>
                     </div>
                     <div class="col-5 align-self-end">
-                        <img src="{{ URL::asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
+                        <img src="{{ asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -355,10 +355,10 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- profile init -->
-<script src="{{ URL::asset('build/js/pages/profile.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/profile.init.js') }}"></script>
 
 <script>
     $('#update-profile').on('submit', function(event) {

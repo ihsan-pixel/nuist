@@ -6,7 +6,7 @@
 
 @section('css')
     <link rel="stylesheet" type="text/css"
-        href="{{ URL::asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}">
+        href="{{ asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}">
 @endsection
 
 @section('content')
@@ -163,7 +163,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Steven Franklin</h6>
                         <p class="mb-0 text-muted">UI/UX Designer</p>
                     </div>
@@ -196,7 +196,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Dolores Minter</h6>
                         <p class="mb-0 text-muted">Assistant / Shope Keeper</p>
                     </div>
@@ -228,7 +228,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-3.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Charles Brown</h6>
                         <p class="mb-0 text-muted">Web Designer</p>
                     </div>
@@ -261,7 +261,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Bonnie Harney</h6>
                         <p class="mb-0 text-muted">Web Developer</p>
                     </div>
@@ -294,7 +294,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Stephen Hadley</h6>
                         <p class="mb-0 text-muted">Graphic Designer</p>
                     </div>
@@ -327,7 +327,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-6.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Henry Wells</h6>
                         <p class="mb-0 text-muted">Executive, HR Operations</p>
                     </div>
@@ -360,7 +360,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-7.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-7.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Adam Miller</h6>
                         <p class="mb-0 text-muted">Education Training</p>
                     </div>
@@ -393,7 +393,7 @@
                                 class="bx bx-heart"></i></button>
                     </div>
                     <div class="text-center mb-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-8.jpg') }}" alt="" class="avatar-sm rounded-circle" />
+                        <img src="{{ asset('build/images/users/avatar-8.jpg') }}" alt="" class="avatar-sm rounded-circle" />
                         <h6 class="font-size-15 mt-3 mb-1">Keith Gonzales</h6>
                         <p class="mb-0 text-muted">Product Manager</p>
                     </div>
@@ -421,7 +421,8 @@
 
 @section('script')
     <!-- bootstrap-datepicker js -->
-    <script src="{{ URL::asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <!-- candidate-list js -->
-    <script src="{{ URL::asset('build/js/pages/candidate-list.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/candidate-list.init.js') }}"></script>
 @endsection
+

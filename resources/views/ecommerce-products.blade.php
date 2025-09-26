@@ -6,7 +6,7 @@
 
 @section('css')
     <!-- ION Slider -->
-    <link href="{{ URL::asset('build/libs/ion-rangeslider/css/ion.rangeSlider.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/ion-rangeslider/css/ion.rangeSlider.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -158,7 +158,7 @@
                                         - 25 %
                                     </span>
                                 </div>
-                                <img src="{{ URL::asset('build/images/product/img-1.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-1.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -181,7 +181,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="product-img position-relative">
-                                <img src="{{ URL::asset('build/images/product/img-2.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-2.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -210,7 +210,7 @@
                                         - 20 %
                                     </span>
                                 </div>
-                                <img src="{{ URL::asset('build/images/product/img-3.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-3.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -234,7 +234,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="product-img position-relative">
-                                <img src="{{ URL::asset('build/images/product/img-4.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-4.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -264,7 +264,7 @@
                                         - 22 %
                                     </span>
                                 </div>
-                                <img src="{{ URL::asset('build/images/product/img-5.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-5.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -292,7 +292,7 @@
                                         - 28 %
                                     </span>
                                 </div>
-                                <img src="{{ URL::asset('build/images/product/img-6.png') }}" alt=""
+                                <img src="{{ asset('build/images/product/img-6.png') }}" alt=""
                                     class="img-fluid mx-auto d-block">
                             </div>
                             <div class="mt-4 text-center">
@@ -329,8 +329,9 @@
 @endsection
 @section('script')
     <!-- Ion Range Slider-->
-    <script src="{{ URL::asset('build/libs/ion-rangeslider/js/ion.rangeSlider.min.js') }}"></script>
+    <script src="{{ asset('build/libs/ion-rangeslider/js/ion.rangeSlider.min.js') }}"></script>
 
     <!-- init js -->
-    <script src="{{ URL::asset('build/js/pages/product-list.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/product-list.init.js') }}"></script>
 @endsection
+

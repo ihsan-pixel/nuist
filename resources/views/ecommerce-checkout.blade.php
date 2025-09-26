@@ -4,7 +4,7 @@
 
 @section('css')
     <!-- select2 css -->
-    <link href="{{ URL::asset('build/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -423,7 +423,7 @@
                                                 <tbody>
                                                     <tr>
                                                         <th scope="row"><img
-                                                                src="{{ URL::asset('build/images/product/img-1.png') }}"
+                                                                src="{{ asset('build/images/product/img-1.png') }}"
                                                                 alt="product-img" title="product-img" class="avatar-md">
                                                         </th>
                                                         <td>
@@ -436,7 +436,7 @@
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><img
-                                                                src="{{ URL::asset('build/images/product/img-7.png') }}"
+                                                                src="{{ asset('build/images/product/img-7.png') }}"
                                                                 alt="product-img" title="product-img" class="avatar-md">
                                                         </th>
                                                         <td>
@@ -503,8 +503,9 @@
 @endsection
 @section('script')
     <!-- select 2 plugin -->
-    <script src="{{ URL::asset('build/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('build/libs/select2/js/select2.min.js') }}"></script>
 
     <!-- init js -->
-    <script src="{{ URL::asset('build/js/pages/ecommerce-select2.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/ecommerce-select2.init.js') }}"></script>
 @endsection
+

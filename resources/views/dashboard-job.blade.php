@@ -12,7 +12,7 @@
 <div class="row mb-4">
     <div class="col-lg-12">
         <div class="d-flex align-items-center">
-            <img src="{{URL::asset('build/images/users/avatar-1.jpg')}}" alt="" class="avatar-sm rounded">
+            <img src="{{asset('build/images/users/avatar-1.jpg')}}" alt="" class="avatar-sm rounded">
             <div class="ms-3 flex-grow-1">
                 <h5 class="mb-2 card-title">Hello, Henry Franklin</h5>
                 <p class="text-muted mb-0">Ready to jump back in?</p>
@@ -148,7 +148,7 @@
                         </div>
                     </div>
                     <div>
-                        <img src="{{URL::asset('build/images/jobs.png')}}" alt="" height="130">
+                        <img src="{{asset('build/images/jobs.png')}}" alt="" height="130">
                     </div>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                     <div class="carousel-inner">
                         <div class="carousel-item active" data-bs-interval="3000">
                             <div class="bg-light p-3 d-flex mb-3 rounded">
-                                <img src="{{URL::asset('build/images/users/avatar-4.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-4.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Stephen Hadley</a> <span class="badge badge-soft-info">Freelance</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Germany</p>
@@ -179,7 +179,7 @@
                                 </div>
                             </div>
                             <div class="bg-light p-3 d-flex">
-                                <img src="{{URL::asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Charles Brown</a> <span class="badge badge-soft-success">Full Time</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Cambodia</p>
@@ -199,7 +199,7 @@
                         </div>
                         <div class="carousel-item" data-bs-interval="3000">
                             <div class="bg-light p-3 d-flex mb-3 rounded">
-                                <img src="{{URL::asset('build/images/users/avatar-1.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-1.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Adam Miller</a> <span class="badge badge-soft-warning">Internship</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Australia</p>
@@ -217,7 +217,7 @@
                                 </div>
                             </div>
                             <div class="bg-light p-3 d-flex">
-                                <img src="{{URL::asset('build/images/users/avatar-3.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-3.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Keith Gonzales</a> <span class="badge badge-soft-info">Freelance</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Belgium</p>
@@ -237,7 +237,7 @@
                         </div>
                         <div class="carousel-item" data-bs-interval="3000">
                             <div class="bg-light p-3 d-flex mb-3 rounded">
-                                <img src="{{URL::asset('build/images/users/avatar-4.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-4.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Bonnie Harney</a> <span class="badge badge-soft-success">Full Timer</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> Syria</p>
@@ -255,7 +255,7 @@
                                 </div>
                             </div>
                             <div class="bg-light p-3 d-flex">
-                                <img src="{{URL::asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-sm rounded me-3">
+                                <img src="{{asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-sm rounded me-3">
                                 <div class="flex-grow-1">
                                     <h5 class="font-size-15 mb-2"><a href="candidate-overview" class="text-body">Dolores Minter</a> <span class="badge badge-soft-danger">Part Time</span></h5>
                                     <p class="mb-0 text-muted"><i class="bx bx-map text-body align-middle"></i> San Marino</p>
@@ -297,7 +297,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/airbnb.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/airbnb.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Project Manager</h5>
                     </a>
@@ -317,7 +317,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/mailchimp.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/mailchimp.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Marketing Director</h5>
                     </a>
@@ -336,7 +336,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/reddit.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/reddit.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Product Designer</h5>
                     </a>
@@ -355,7 +355,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/amazon.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/amazon.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Magento Developer</h5>
                     </a>
@@ -374,7 +374,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/adobe-photoshop.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/adobe-photoshop.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Product Sales Specialist</h5>
                     </a>
@@ -393,7 +393,7 @@
         <div class="card">
             <div class="card-body p-4">
                 <div class="text-center mb-3">
-                    <img src="{{URL::asset('build/images/companies/line.svg')}}" alt="" class="avatar-sm">
+                    <img src="{{asset('build/images/companies/line.svg')}}" alt="" class="avatar-sm">
                     <a href="job-details" class="text-body">
                         <h5 class="mt-4 mb-2 font-size-15">Business Associate</h5>
                     </a>
@@ -450,7 +450,7 @@
                             </div>
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{URL::asset('build/images/users/avatar-5.jpg')}}" alt="" class="avatar-xs rounded-circle">
+                                    <img src="{{asset('build/images/users/avatar-5.jpg')}}" alt="" class="avatar-xs rounded-circle">
                                 </div>
                                 <div class="flex-grow-1">
                                     <div>
@@ -506,7 +506,7 @@
                             </div>
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{URL::asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-xs rounded-circle">
+                                    <img src="{{asset('build/images/users/avatar-2.jpg')}}" alt="" class="avatar-xs rounded-circle">
                                 </div>
                                 <div class="flex-grow-1">
                                     <div>
@@ -551,7 +551,7 @@
                 <div data-simplebar style="max-height: 376px;">
                     <div class="vstack gap-4">
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/wechat.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/wechat.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Marketing Director</a></h6>
                                 <p class="text-muted mb-0">Themesbrand, USA - <b>53</b> sec ago</p>
@@ -568,7 +568,7 @@
                         </div>
 
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/sass.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/sass.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Frontend Developer</a></h6>
                                 <p class="text-muted mb-0">Themesbrand, Hong-Kong - <b>47</b> min ago</p>
@@ -585,7 +585,7 @@
                         </div>
 
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/adobe.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/adobe.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">React Developer</a></h6>
                                 <p class="text-muted mb-0">Creative Agency, Danemark - <b>1</b> hrs ago</p>
@@ -601,7 +601,7 @@
                             </div>
                         </div>
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/airbnb.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/airbnb.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">NodeJs Developer</a></h6>
                                 <p class="text-muted mb-0">Skote Themes, Louisiana - <b>2</b> hrs ago</p>
@@ -617,7 +617,7 @@
                             </div>
                         </div>
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/flutter.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/flutter.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Digital Marketing</a></h6>
                                 <p class="text-muted mb-0">Web Technology pvt.Ltd, Danemark - <b>8</b> hrs ago</p>
@@ -633,7 +633,7 @@
                             </div>
                         </div>
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/mailchimp.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/mailchimp.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Marketing Director</a></h6>
                                 <p class="text-muted mb-0">Skote Technology, Dominica - <b>1</b> days ago</p>
@@ -649,7 +649,7 @@
                             </div>
                         </div>
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/spotify.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/spotify.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Business Associate</a></h6>
                                 <p class="text-muted mb-0">Themesbrand, Russia - <b>2</b> days ago</p>
@@ -665,7 +665,7 @@
                             </div>
                         </div>
                         <div class="d-flex">
-                            <img src="{{URL::asset('build/images/companies/reddit.svg')}}" alt="" height="40" class="rounded">
+                            <img src="{{asset('build/images/companies/reddit.svg')}}" alt="" height="40" class="rounded">
                             <div class="ms-2 flex-grow-1">
                                 <h6 class="mb-1 font-size-15"><a href="job-details" class="text-body">Backend Developer</a></h6>
                                 <p class="text-muted mb-0">Adobe Agency, Malaysia - <b>3</b> days ago</p>
@@ -693,9 +693,10 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 <!-- crypto dash init js -->
-<script src="{{ URL::asset('build/js/pages/dashboard-job.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/dashboard-job.init.js') }}"></script>
 <!-- app js -->
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
+<script src="{{ asset('build/js/app.js') }}"></script>
 @endsection
+

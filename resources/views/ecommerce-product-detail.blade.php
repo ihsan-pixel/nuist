@@ -20,16 +20,16 @@
                                 <div class="col-md-2 col-sm-3 col-4">
                                     <div class="nav flex-column nav-pills " id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                         <a class="nav-link active" id="product-1-tab" data-bs-toggle="pill" href="#product-1" role="tab" aria-controls="product-1" aria-selected="true">
-                                            <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
+                                            <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
                                         </a>
                                         <a class="nav-link" id="product-2-tab" data-bs-toggle="pill" href="#product-2" role="tab" aria-controls="product-2" aria-selected="false">
-                                            <img src="{{ URL::asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
+                                            <img src="{{ asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
                                         </a>
                                         <a class="nav-link" id="product-3-tab" data-bs-toggle="pill" href="#product-3" role="tab" aria-controls="product-3" aria-selected="false">
-                                            <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
+                                            <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
                                         </a>
                                         <a class="nav-link" id="product-4-tab" data-bs-toggle="pill" href="#product-4" role="tab" aria-controls="product-4" aria-selected="false">
-                                            <img src="{{ URL::asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
+                                            <img src="{{ asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block rounded">
                                         </a>
                                     </div>
                                 </div>
@@ -37,22 +37,22 @@
                                     <div class="tab-content" id="v-pills-tabContent">
                                         <div class="tab-pane fade show active" id="product-1" role="tabpanel" aria-labelledby="product-1-tab">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                                <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="product-2" role="tabpanel" aria-labelledby="product-2-tab">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                                <img src="{{ asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block">
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="product-3" role="tabpanel" aria-labelledby="product-3-tab">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                                <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="product-4" role="tabpanel" aria-labelledby="product-4-tab">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                                <img src="{{ asset('build/images/product/img-8.png') }}" alt="" class="img-fluid mx-auto d-block">
                                             </div>
                                         </div>
                                     </div>
@@ -107,19 +107,19 @@
                                 <h5 class="font-size-15">Color :</h5>
                                 <a href="javascript: void(0);" class="active">
                                     <div class="product-color-item border rounded">
-                                        <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
+                                        <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
                                     </div>
                                     <p>Black</p>
                                 </a>
                                 <a href="javascript: void(0);">
                                     <div class="product-color-item border rounded">
-                                        <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
+                                        <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
                                     </div>
                                     <p>Blue</p>
                                 </a>
                                 <a href="javascript: void(0);">
                                     <div class="product-color-item border rounded">
-                                        <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
+                                        <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="avatar-md">
                                     </div>
                                     <p>Gray</p>
                                 </a>
@@ -166,7 +166,7 @@
 
                     <div class="d-flex py-3 border-bottom">
                         <div class="flex-shrink-0 me-3">
-                            <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="avatar-xs rounded-circle" alt="img" />
+                            <img src="{{ asset('build/images/users/avatar-2.jpg') }}" class="avatar-xs rounded-circle" alt="img" />
                         </div>
 
                         <div class="flex-grow-1">
@@ -185,7 +185,7 @@
                     </div>
                     <div class="d-flex py-3 border-bottom">
                         <div class="flex-shrink-0 me-3">
-                            <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" class="avatar-xs rounded-circle" alt="img" />
+                            <img src="{{ asset('build/images/users/avatar-4.jpg') }}" class="avatar-xs rounded-circle" alt="img" />
                         </div>
 
                         <div class="flex-grow-1">
@@ -202,7 +202,7 @@
                             <div class="text-muted font-size-12"><i class="far fa-calendar-alt text-primary me-1"></i> 07 Oct, 2019</div>
                             <div class="d-flex mt-4">
                                 <div class="flex-shrink-0 me-2">
-                                    <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" class="avatar-xs me-3 rounded-circle" alt="img" />
+                                    <img src="{{ asset('build/images/users/avatar-5.jpg') }}" class="avatar-xs me-3 rounded-circle" alt="img" />
                                 </div>
 
                                 <div class="flex-grow-1">
@@ -265,7 +265,7 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-4">
-                                    <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                    <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="img-fluid mx-auto d-block">
                                 </div>
                                 <div class="col-md-8">
                                     <div class="text-center text-md-start pt-3 pt-md-0">
@@ -289,7 +289,7 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-4">
-                                    <img src="{{ URL::asset('build/images/product/img-4.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                    <img src="{{ asset('build/images/product/img-4.png') }}" alt="" class="img-fluid mx-auto d-block">
                                 </div>
                                 <div class="col-md-8">
                                     <div class="text-center text-md-start pt-3 pt-md-0">
@@ -313,7 +313,7 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col-md-4">
-                                    <img src="{{ URL::asset('build/images/product/img-6.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                    <img src="{{ asset('build/images/product/img-6.png') }}" alt="" class="img-fluid mx-auto d-block">
                                 </div>
                                 <div class="col-md-8">
                                     <div class="text-center text-md-start pt-3 pt-md-0">

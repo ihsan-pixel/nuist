@@ -31,8 +31,9 @@
 @endsection
 @section('script')
     <!--tinymce js-->
-    <script src="{{ URL::asset('build/libs/tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tinymce/tinymce.min.js') }}"></script>
 
     <!-- init js -->
-    <script src="{{ URL::asset('build/js/pages/form-editor.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/form-editor.init.js') }}"></script>
 @endsection
+

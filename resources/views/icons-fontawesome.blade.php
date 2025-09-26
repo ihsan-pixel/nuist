@@ -44,5 +44,6 @@
 @endsection
 @section('script')
     <!-- fontawesome init -->
-    <script src="{{ URL::asset('build/js/pages/fontawesome.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/fontawesome.init.js') }}"></script>
 @endsection
+

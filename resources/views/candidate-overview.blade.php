@@ -9,7 +9,7 @@
         <div class="card mx-n4 mt-n4 bg-info-subtle">
             <div class="card-body">
                 <div class="text-center mb-4">
-                    <img src="{{URL::asset('build/images/users/avatar-6.jpg')}}" alt="" class="avatar-md rounded-circle mx-auto d-block" />
+                    <img src="{{asset('build/images/users/avatar-6.jpg')}}" alt="" class="avatar-md rounded-circle mx-auto d-block" />
                     <h5 class="mt-3 mb-1">Steven Franklin</h5>
                     <p class="text-muted mb-3">UI/UX Designer</p>
                     <div class="mx-auto">
@@ -180,7 +180,7 @@
                             <div class="flex-shrink-0 me-4">
                                 <div class="avatar-md">
                                     <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-                                        <img src="{{URL::asset('build/images/companies/img-1.png')}}" alt="" height="30">
+                                        <img src="{{asset('build/images/companies/img-1.png')}}" alt="" height="30">
                                     </span>
                                 </div>
                             </div>
@@ -192,12 +192,12 @@
                                 <div class="avatar-group">
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-4.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-4.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-5.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-5.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                     <div class="avatar-group-item">
@@ -211,7 +211,7 @@
                                     </div>
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-2.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-2.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                 </div>
@@ -240,7 +240,7 @@
                             <div class="flex-shrink-0 me-4">
                                 <div class="avatar-md">
                                     <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-                                        <img src="{{URL::asset('build/images/companies/img-4.png')}}" alt="" height="30">
+                                        <img src="{{asset('build/images/companies/img-4.png')}}" alt="" height="30">
                                     </span>
                                 </div>
                             </div>
@@ -260,7 +260,7 @@
                                     </div>
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-2.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-2.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                 </div>
@@ -289,7 +289,7 @@
                             <div class="flex-shrink-0 me-4">
                                 <div class="avatar-md">
                                     <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-                                        <img src="{{URL::asset('build/images/companies/img-5.png')}}" alt="" height="30">
+                                        <img src="{{asset('build/images/companies/img-5.png')}}" alt="" height="30">
                                     </span>
                                 </div>
                             </div>
@@ -300,12 +300,12 @@
                                 <div class="avatar-group">
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-1.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-1.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                     <div class="avatar-group-item">
                                         <a href="javascript: void(0);" class="d-inline-block">
-                                            <img src="{{URL::asset('build/images/users/avatar-3.jpg')}}" alt="" class="rounded-circle avatar-xs">
+                                            <img src="{{asset('build/images/users/avatar-3.jpg')}}" alt="" class="rounded-circle avatar-xs">
                                         </a>
                                     </div>
                                     <div class="avatar-group-item">
@@ -365,6 +365,7 @@
 
 @section('script')
 
-<script src="{{URL::asset('build/js/app.js')}}"></script>
+<script src="{{asset('build/js/app.js')}}"></script>
 
 @endsection
+

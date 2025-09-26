@@ -4,7 +4,7 @@
 
 @section('css')
 <!-- Sweet Alert-->
-<link href="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -103,8 +103,8 @@
 @endsection
 @section('script')
 <!-- Sweet Alerts js -->
-<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <!-- Sweet alert init js-->
-<script src="{{ URL::asset('build/js/pages/sweet-alerts.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/sweet-alerts.init.js') }}"></script>
 @endsection

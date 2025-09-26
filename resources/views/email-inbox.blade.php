@@ -41,7 +41,7 @@
             <div class="mt-2">
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Scott Median</p>
@@ -51,7 +51,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-3.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Julian Rosa</p>
@@ -61,7 +61,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-4.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">David Medina</p>
@@ -71,7 +71,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-6.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Jay Baker</p>
@@ -459,8 +459,8 @@
 @endsection
 @section('script')
 <!--tinymce js-->
-<script src="{{ URL::asset('build/libs/tinymce/tinymce.min.js') }}"></script>
+<script src="{{ asset('build/libs/tinymce/tinymce.min.js') }}"></script>
 
 <!-- email editor init -->
-<script src="{{ URL::asset('build/js/pages/email-editor.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/email-editor.init.js') }}"></script>
 @endsection

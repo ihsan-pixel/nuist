@@ -124,7 +124,7 @@
 @endsection
 @section('script')
 <!-- form repeater js -->
-<script src="{{ URL::asset('build/libs/jquery.repeater/jquery.repeater.min.js') }}"></script>
+<script src="{{ asset('build/libs/jquery.repeater/jquery.repeater.min.js') }}"></script>
 
-<script src="{{ URL::asset('build/js/pages/form-repeater.int.js') }}"></script>
+<script src="{{ asset('build/js/pages/form-repeater.int.js') }}"></script>
 @endsection

@@ -5,9 +5,9 @@
 @endsection
 
 @section('css')
-    <link href="{{ URL::asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
-    <link href="{{ URL::asset('build/css/icons.min.css') }}" rel="stylesheet" />
-    <link href="{{ URL::asset('build/css/app.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -56,3 +56,4 @@
         </div>
     </div>
 @endsection
+

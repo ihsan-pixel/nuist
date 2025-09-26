@@ -138,3 +138,4 @@
 {{-- JS custom --}}
 <script src="{{ asset('js/auth-2-carousel.init.js') }}"></script>
 @endsection
+

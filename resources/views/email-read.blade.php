@@ -3,7 +3,7 @@
 @section('title') @lang('translation.Read_Email') @endsection
 @section('css')
     <!-- Summernote css -->
-        {{-- <link href="{{ URL::asset('build/libs/summernote/summernote-bs4.min.css') }}" rel="stylesheet" type="text/css" /> --}}
+        {{-- <link href="{{ asset('build/libs/summernote/summernote-bs4.min.css') }}" rel="stylesheet" type="text/css" /> --}}
 @endsection
 @section('content')
 
@@ -43,7 +43,7 @@
             <div class="mt-2">
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Scott Median</p>
@@ -53,7 +53,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-3.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Julian Rosa</p>
@@ -63,7 +63,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-4.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">David Medina</p>
@@ -73,7 +73,7 @@
 
                 <a href="javascript: void(0);" class="d-flex">
                     <div class="flex-shrink-0 me-3">
-                        <img class="rounded-circle" src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" alt="Generic placeholder image" height="36">
+                        <img class="rounded-circle" src="{{ asset('build/images/users/avatar-6.jpg') }}" alt="Generic placeholder image" height="36">
                     </div>
                     <div class="flex-grow-1 chat-user-box">
                         <p class="user-title m-0">Jay Baker</p>
@@ -133,7 +133,7 @@
                 <div class="card-body">
                     <div class="d-flex mb-4">
                         <div class="flex-shrink-0 me-3">
-                            <img class="rounded-circle avatar-sm" src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image">
+                            <img class="rounded-circle avatar-sm" src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="Generic placeholder image">
                         </div>
                         <div class="flex-grow-1">
                             <h5 class="font-size-14 mt-1">Humberto D. Champion</h5>
@@ -153,7 +153,7 @@
                     <div class="row">
                         <div class="col-xl-2 col-6">
                             <div class="card">
-                                <img class="card-img-top img-fluid" src="{{ URL::asset('build/images/small/img-3.jpg') }}" alt="Card image cap">
+                                <img class="card-img-top img-fluid" src="{{ asset('build/images/small/img-3.jpg') }}" alt="Card image cap">
                                 <div class="py-2 text-center">
                                     <a href="javascript: void(0);" class="fw-medium">Download</a>
                                 </div>
@@ -161,7 +161,7 @@
                         </div>
                         <div class="col-xl-2 col-6">
                             <div class="card">
-                                <img class="card-img-top img-fluid" src="{{ URL::asset('build/images/small/img-4.jpg') }}" alt="Card image cap">
+                                <img class="card-img-top img-fluid" src="{{ asset('build/images/small/img-4.jpg') }}" alt="Card image cap">
                                 <div class="py-2 text-center">
                                     <a href="javascript: void(0);" class="fw-medium">Download</a>
                                 </div>
@@ -218,8 +218,8 @@
 @endsection
 @section('script')
 <!--tinymce js-->
-<script src="{{ URL::asset('build/libs/tinymce/tinymce.min.js') }}"></script>
+<script src="{{ asset('build/libs/tinymce/tinymce.min.js') }}"></script>
 
 <!-- email editor init -->
-<script src="{{ URL::asset('build/js/pages/email-editor.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/email-editor.init.js') }}"></script>
 @endsection

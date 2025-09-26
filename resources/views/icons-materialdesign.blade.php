@@ -121,5 +121,5 @@
     @endsection
 @section('script')
     <!-- materialdesign init -->
-    <script src="{{ URL::asset('build/js/pages/materialdesign.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/materialdesign.init.js') }}"></script>
 @endsection

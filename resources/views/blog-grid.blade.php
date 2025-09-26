@@ -74,7 +74,7 @@
                                                 </div>
 
                                                 <div class="position-relative">
-                                                    <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
+                                                    <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
                                                 </div>
 
                                                 <div class="p-3">
@@ -111,7 +111,7 @@
                                                 </div>
 
                                                 <div class="position-relative">
-                                                    <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="img-thumbnail">
+                                                    <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="img-thumbnail">
 
                                                     <div class="blog-play-icon">
                                                         <a href="javascript: void(0);" class="avatar-sm d-block mx-auto">
@@ -156,7 +156,7 @@
                                                 </div>
 
                                                 <div class="position-relative">
-                                                    <img src="{{ URL::asset('build/images/small/img-1.jpg') }}" alt="" class="img-thumbnail">
+                                                    <img src="{{ asset('build/images/small/img-1.jpg') }}" alt="" class="img-thumbnail">
                                                 </div>
 
                                                 <div class="p-3">
@@ -192,7 +192,7 @@
                                                 </div>
 
                                                 <div class="position-relative">
-                                                    <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
+                                                    <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
 
                                                 </div>
 
@@ -399,7 +399,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-7.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-7.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Beautiful Day with Friends</h5>
@@ -411,7 +411,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-4.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-4.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Drawing a sketch</h5>
@@ -423,7 +423,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Project discussion with team</h5>

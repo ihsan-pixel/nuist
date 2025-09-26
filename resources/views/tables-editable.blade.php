@@ -97,7 +97,8 @@
 @endsection
 @section('script')
     <!-- Table Editable plugin -->
-    <script src="{{ URL::asset('build/libs/table-edits/build/table-edits.min.js') }}"></script>
+    <script src="{{ asset('build/libs/table-edits/build/table-edits.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/pages/table-editable.int.js') }}"></script>
+    <script src="{{ asset('build/js/pages/table-editable.int.js') }}"></script>
 @endsection
+

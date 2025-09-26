@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div class="col-5 align-self-end">
-                        {{-- <img src="{{ URL::asset('build/images/logo 1.png') }}" alt="" class="img-fluid"> --}}
+                        {{-- <img src="{{ asset('build/images/logo 1.png') }}" alt="" class="img-fluid"> --}}
                     </div>
                 </div>
             </div>
@@ -670,7 +670,7 @@
 
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- Leaflet CSS and JS for map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -762,3 +762,4 @@
     });
 </script>
 @endsection
+

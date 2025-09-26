@@ -25,7 +25,7 @@
                                         </div>
                                     </div>
                                     <div class="col-5 align-self-end">
-                                        <img src="{{ URL::asset('build/images/profile-img.png') }}" alt=""
+                                        <img src="{{ asset('build/images/profile-img.png') }}" alt=""
                                             class="img-fluid">
                                     </div>
                                 </div>
@@ -35,7 +35,7 @@
                                     <a href="index">
                                         <div class="avatar-md profile-user-wid mb-4">
                                             <span class="avatar-title rounded-circle bg-light">
-                                                <img src="{{ URL::asset('build/images/logo.svg') }}" alt=""
+                                                <img src="{{ asset('build/images/logo.svg') }}" alt=""
                                                     class="rounded-circle" height="34">
                                             </span>
                                         </div>
@@ -131,5 +131,6 @@
     @endsection
     @section('script')
         <!-- validation init -->
-        <script src="{{ URL::asset('build/js/pages/validation.init.js') }}"></script>
+        <script src="{{ asset('build/js/pages/validation.init.js') }}"></script>
     @endsection
+

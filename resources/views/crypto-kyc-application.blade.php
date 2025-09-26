@@ -6,7 +6,7 @@
 
 @section('css')
     <!-- Plugins css -->
-    <link href="{{ URL::asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -43,7 +43,7 @@
                         <div class="row justify-content-center mt-5 mb-2">
                             <div class="col-sm-6 col-8">
                                 <div>
-                                    <img src="{{ URL::asset('build/images/verification-img.png') }}" alt="" class="img-fluid">
+                                    <img src="{{ asset('build/images/verification-img.png') }}" alt="" class="img-fluid">
                                 </div>
                             </div>
                         </div>
@@ -238,11 +238,12 @@
 @endsection
 @section('script')
     <!-- jquery step -->
-    <script src="{{ URL::asset('build/libs/jquery-steps/build/jquery.steps.min.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery-steps/build/jquery.steps.min.js') }}"></script>
 
     <!-- dropzone js -->
-    <script src="{{ URL::asset('build/libs/dropzone/dropzone-min.js') }}"></script>
+    <script src="{{ asset('build/libs/dropzone/dropzone-min.js') }}"></script>
 
     <!-- init js -->
-    <script src="{{ URL::asset('build/js/pages/crypto-kyc-app.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/crypto-kyc-app.init.js') }}"></script>
 @endsection
+

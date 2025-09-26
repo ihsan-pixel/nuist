@@ -15,7 +15,7 @@
             <div class="py-4 border-bottom">
                 <div class="d-flex">
                     <div class="flex-shrink-0 align-self-center me-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="avatar-xs rounded-circle" alt="">
+                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" class="avatar-xs rounded-circle" alt="">
                     </div>
                     <div class="flex-grow-1">
                         <h5 class="font-size-15 mb-1">Henry Wells</h5>
@@ -77,7 +77,7 @@
                                                 <i class="mdi mdi-circle font-size-10"></i>
                                             </div>
                                             <div class="flex-shrink-0 align-self-center me-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="rounded-circle avatar-xs" alt="">
+                                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}" class="rounded-circle avatar-xs" alt="">
                                             </div>
 
                                             <div class="flex-grow-1 overflow-hidden">
@@ -96,7 +96,7 @@
                                                 <i class="mdi mdi-circle text-success font-size-10"></i>
                                             </div>
                                             <div class="flex-shrink-0 align-self-center me-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="rounded-circle avatar-xs" alt="">
+                                                <img src="{{ asset('build/images/users/avatar-3.jpg') }}" class="rounded-circle avatar-xs" alt="">
                                             </div>
 
                                             <div class="flex-grow-1 overflow-hidden">
@@ -135,7 +135,7 @@
                                                 <i class="mdi mdi-circle text-warning font-size-10"></i>
                                             </div>
                                             <div class="flex-shrink-0 align-self-center me-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" class="rounded-circle avatar-xs" alt="">
+                                                <img src="{{ asset('build/images/users/avatar-4.jpg') }}" class="rounded-circle avatar-xs" alt="">
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
                                                 <h5 class="text-truncate font-size-14 mb-1">Jose Vickery</h5>
@@ -177,7 +177,7 @@
                                                 <i class="mdi mdi-circle text-success font-size-10"></i>
                                             </div>
                                             <div class="flex-shrink-0 align-self-center me-3">
-                                                <img src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" class="rounded-circle avatar-xs" alt="">
+                                                <img src="{{ asset('build/images/users/avatar-6.jpg') }}" class="rounded-circle avatar-xs" alt="">
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
                                                 <h5 class="text-truncate font-size-14 mb-1">Stephen Hadley</h5>

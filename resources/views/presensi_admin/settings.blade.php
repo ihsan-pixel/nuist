@@ -3,9 +3,9 @@
 @section('title', 'Pengaturan Presensi')
 
 @section('css')
-<link href="{{ URL::asset('build/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ URL::asset('build/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ URL::asset('build/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -118,3 +118,4 @@
     </div>
 </div>
 @endsection
+

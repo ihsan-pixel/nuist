@@ -30,7 +30,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-1.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-1.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">New admin Design</a></h5>
@@ -42,13 +42,13 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -64,7 +64,7 @@
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -85,7 +85,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-2.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-2.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">Brand logo design</a></h5>
@@ -97,13 +97,13 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-3.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -124,7 +124,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-3.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-3.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">New Landing Design</a></h5>
@@ -136,19 +136,19 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-3.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-8.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-8.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-6.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -170,7 +170,7 @@
                             </tr>
 
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-4.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-4.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">Redesign - Landing page</a></h5>
@@ -182,7 +182,7 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -198,7 +198,7 @@
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -219,7 +219,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-5.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-5.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">Skote Dashboard UI</a></h5>
@@ -231,13 +231,13 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -258,7 +258,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-6.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-6.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">Blog Template UI</a></h5>
@@ -280,7 +280,7 @@
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -302,7 +302,7 @@
                             </tr>
 
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/companies/img-3.png') }}" alt="" class="avatar-sm"></td>
+                                <td><img src="{{ asset('build/images/companies/img-3.png') }}" alt="" class="avatar-sm"></td>
                                 <td>
                                     <h5 class="text-truncate font-size-14"><a href="javascript: void(0);"
                                             class="text-dark">Multipurpose Landing</a></h5>
@@ -314,19 +314,19 @@
                                     <div class="avatar-group">
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
                                         <div class="avatar-group-item">
                                             <a href="javascript: void(0);" class="d-inline-block">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                                     class="rounded-circle avatar-xs">
                                             </a>
                                         </div>
@@ -364,3 +364,4 @@
     </div>
     <!-- end row -->
 @endsection
+

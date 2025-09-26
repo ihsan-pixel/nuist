@@ -5,19 +5,19 @@
             <div class="navbar-brand-box">
                 <a href="index" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ URL::asset('build/images/logo favicon 1.png') }}" alt="" height="22">
+                        <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ URL::asset('build/images/logo 1.png') }}" alt="" height="40">
+                        <img src="{{ asset('build/images/logo 1.png') }}" alt="" height="40">
                     </span>
                 </a>
 
                 <a href="index" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ URL::asset('build/images/logo favicon 2 light.png') }}" alt="" height="30">
+                        <img src="{{ asset('build/images/logo favicon 2 light.png') }}" alt="" height="30">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ URL::asset('build/images/logo favicon 2 light.png') }}" alt="" height="50">
+                        <img src="{{ asset('build/images/logo favicon 2 light.png') }}" alt="" height="50">
                     </span>
                 </a>
             </div>
@@ -155,7 +155,7 @@
 
                             <div class="col-sm-5">
                                 <div>
-                                    <img src="{{ URL::asset ('build/images/megamenu-img.png') }}" alt="" class="img-fluid mx-auto d-block">
+                                    <img src="{{ asset ('build/images/megamenu-img.png') }}" alt="" class="img-fluid mx-auto d-block">
                                 </div>
                             </div>
                         </div>
@@ -239,3 +239,4 @@ aria-labelledby="myLargeModalLabel" aria-hidden="true">
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+

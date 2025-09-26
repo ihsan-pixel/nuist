@@ -203,8 +203,9 @@
 @endsection
 @section('script')
     <!-- apexcharts -->
-    <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
     <!-- dashboard init -->
-    <script src="{{ URL::asset('build/js/pages/apexcharts.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/apexcharts.init.js') }}"></script>
 @endsection
+

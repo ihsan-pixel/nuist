@@ -133,7 +133,7 @@
             <div class="card-body">
                 <div class="d-flex">
                     <div class="me-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-sm rounded-circle img-thumbnail">
+                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-sm rounded-circle img-thumbnail">
                     </div>
                     <div class="flex-grow-1">
                         <div class="d-flex">
@@ -281,7 +281,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -308,7 +308,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
                                         <div class="align-self-center overflow-hidden me-auto">
                                             <div>
@@ -334,7 +334,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -361,7 +361,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -395,7 +395,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -423,7 +423,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -450,7 +450,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -477,7 +477,7 @@
                                 <li class="list-group-item py-3">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
-                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                            <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                         </div>
 
                                         <div class="align-self-center overflow-hidden me-auto">
@@ -561,7 +561,7 @@
                             <div class="d-flex align-items-start">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar-xs">
-                                        <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="" class="img-fluid d-block rounded-circle">
+                                        <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="" class="img-fluid d-block rounded-circle">
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -841,7 +841,7 @@
                         </tr>
                         <tbody>
                             <tr>
-                                <td style="width: 100px;"><img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
+                                <td style="width: 100px;"><img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
                                 <td>
                                     <h5 class="font-size-13 text-truncate mb-1"><a href="javascript: void(0);" class="text-dark">Beautiful Day with Friends</a></h5>
                                     <p class="text-muted mb-0">10 Nov, 2020</p>
@@ -866,7 +866,7 @@
                             </tr>
 
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
+                                <td><img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
                                 <td>
                                     <h5 class="font-size-13 text-truncate mb-1"><a href="javascript: void(0);" class="text-dark">Drawing a sketch</a></h5>
                                     <p class="text-muted mb-0">02 Nov, 2020</p>
@@ -891,7 +891,7 @@
                             </tr>
 
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
+                                <td><img src="{{ asset('build/images/small/img-1.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
                                 <td>
                                     <h5 class="font-size-13 text-truncate mb-1"><a href="javascript: void(0);" class="text-dark">Riding bike on road</a></h5>
                                     <p class="text-muted mb-0">24 Oct, 2020</p>
@@ -916,7 +916,7 @@
                             </tr>
 
                             <tr>
-                                <td><img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
+                                <td><img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="avatar-md h-auto d-block rounded"></td>
                                 <td>
                                     <h5 class="font-size-13 text-truncate mb-1"><a href="javascript: void(0);" class="text-dark">Project discussion with team</a></h5>
                                     <p class="text-muted mb-0">15 Oct, 2020</p>
@@ -955,7 +955,7 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 <!-- blog dashboard init -->
-<script src="{{ URL::asset('build/js/pages/dashboard-blog.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/dashboard-blog.init.js') }}"></script>
 @endsection

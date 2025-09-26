@@ -108,7 +108,7 @@
                     </div>
                     <div class="col-lg-3 col-sm-4 align-self-center">
                         <div>
-                            <img src="{{ URL::asset('build/images/crypto/features-img/img-1.png') }}" alt="" class="img-fluid d-block">
+                            <img src="{{ asset('build/images/crypto/features-img/img-1.png') }}" alt="" class="img-fluid d-block">
                         </div>
                     </div>
                 </div>
@@ -916,7 +916,7 @@
                             <div class="flex-shrink-0 me-3">
                                 <div class="avatar-xs">
                                     <span class="avatar-title rounded-circle bg-light">
-                                        <img src="{{ URL::asset('build/images/companies/img-1.png') }}" alt="" height="18">
+                                        <img src="{{ asset('build/images/companies/img-1.png') }}" alt="" height="18">
                                     </span>
                                 </div>
                             </div>
@@ -936,7 +936,7 @@
                             <div class="flex-shrink-0 me-3">
                                 <div class="avatar-xs">
                                     <span class="avatar-title rounded-circle bg-light">
-                                        <img src="{{ URL::asset('build/images/companies/img-2.png') }}" alt="" height="18">
+                                        <img src="{{ asset('build/images/companies/img-2.png') }}" alt="" height="18">
                                     </span>
                                 </div>
                             </div>
@@ -957,7 +957,7 @@
                             <div class="flex-shrink-0 me-3">
                                 <div class="avatar-xs">
                                     <span class="avatar-title rounded-circle bg-light">
-                                        <img src="{{ URL::asset('build/images/companies/img-3.png') }}" alt="" height="18">
+                                        <img src="{{ asset('build/images/companies/img-3.png') }}" alt="" height="18">
                                     </span>
                                 </div>
                             </div>
@@ -978,7 +978,7 @@
                             <div class="flex-shrink-0 me-3">
                                 <div class="avatar-xs">
                                     <span class="avatar-title rounded-circle bg-light">
-                                        <img src="{{ URL::asset('build/images/companies/img-1.png') }}" alt="" height="18">
+                                        <img src="{{ asset('build/images/companies/img-1.png') }}" alt="" height="18">
                                     </span>
                                 </div>
                             </div>
@@ -1115,7 +1115,7 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 <!-- crypto dash init js -->
-<script src="{{ URL::asset('build/js/pages/crypto-dashboard.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/crypto-dashboard.init.js') }}"></script>
 @endsection

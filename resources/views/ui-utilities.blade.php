@@ -203,37 +203,37 @@
 
                         <div class="hstack gap-4">
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded d-block mx-auto">
                                 <code>.rounded</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded-top d-block mx-auto">
                                 <code>.rounded-top</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded-end d-block mx-auto">
                                 <code>.rounded-end</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded-bottom d-block mx-auto">
                                 <code>.rounded-bottom</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded-start d-block mx-auto">
                                 <code>.rounded-start</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                     class="avatar-md rounded-circle d-block mx-auto">
                                 <code>.rounded-circle</code>
                             </div>
                             <div class="text-center">
-                                <img src="{{ URL::asset('build/images/small/img-3.jpg') }}" alt="" height="72"
+                                <img src="{{ asset('build/images/small/img-3.jpg') }}" alt="" height="72"
                                     class="rounded-pill d-block mx-auto">
                                 <code>.rounded-pill</code>
                             </div>
@@ -243,32 +243,32 @@
                             <h6 class="mb-3">Border Radius Sizes</h6>
                             <div class="hstack gap-4">
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-0 d-block mx-auto">
                                     <code>.rounded-0</code>
                                 </div>
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-1 d-block mx-auto">
                                     <code>.rounded-1</code>
                                 </div>
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-2 d-block mx-auto">
                                     <code>.rounded-2</code>
                                 </div>
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-3 d-block mx-auto">
                                     <code>.rounded-3</code>
                                 </div>
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-4 d-block mx-auto">
                                     <code>.rounded-4</code>
                                 </div>
                                 <div class="text-center">
-                                    <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                    <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                         class="avatar-md rounded-5 d-block mx-auto">
                                     <code>.rounded-5</code>
                                 </div>
@@ -350,27 +350,27 @@
                     </p>
                     <div class="row text-center gy-3">
                         <div class="col">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}"
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}"
                                 class="object-fit-contain border rounded avatar-xl d-block mx-auto mb-2" alt="...">
                             <code>.object-fit-contain</code>
                         </div>
                         <div class="col">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}"
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}"
                                 class="object-fit-cover border rounded avatar-xl d-block mx-auto mb-2" alt="...">
                             <code>.object-fit-cover</code>
                         </div>
                         <div class="col">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}"
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}"
                                 class="object-fit-fill border rounded avatar-xl d-block mx-auto mb-2" alt="...">
                             <code>.object-fit-fill</code>
                         </div>
                         <div class="col">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}"
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}"
                                 class="object-fit-scale border rounded avatar-xl d-block mx-auto mb-2" alt="...">
                             <code>.object-fit-scale</code>
                         </div>
                         <div class="col">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}"
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}"
                                 class="object-fit-none border rounded avatar-xl d-block mx-auto mb-2" alt="...">
                             <code>.object-fit-none</code>
                         </div>
@@ -392,15 +392,15 @@
                             utilities</a>.</p>
 
                     <div class="position-relative z-1">
-                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt=""
+                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt=""
                             class="avatar-xxl rounded position-relative z-n1">
-                        <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                        <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                             class="avatar-xxl rounded position-relative z-0 ms-n5 mt-5">
-                        <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt=""
+                        <img src="{{ asset('build/images/users/avatar-3.jpg') }}" alt=""
                             class="avatar-xxl rounded position-relative z-1 ms-n5">
-                        <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt=""
+                        <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt=""
                             class="avatar-xxl rounded position-relative z-2 ms-n5 mt-5">
-                        <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                        <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                             class="avatar-xxl rounded position-relative z-3 ms-n5">
                     </div>
                 </div>
@@ -433,5 +433,6 @@
 @endsection
 @section('script')
     <!-- App js -->
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+    <script src="{{ asset('build/js/app.js') }}"></script>
 @endsection
+

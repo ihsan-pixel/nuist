@@ -20,7 +20,7 @@
                 <div class="card-body">
                     <div class="d-flex">
                         <div class="flex-shrink-0 me-4">
-                            <img src="{{ URL::asset('build/images/companies/img-1.png') }}" alt="" class="avatar-sm">
+                            <img src="{{ asset('build/images/companies/img-1.png') }}" alt="" class="avatar-sm">
                         </div>
 
                         <div class="flex-grow-1 overflow-hidden">
@@ -72,7 +72,7 @@
                         <table class="table align-middle table-nowrap">
                             <tbody>
                                 <tr>
-                                    <td style="width: 50px;"><img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                    <td style="width: 50px;"><img src="{{ asset('build/images/users/avatar-2.jpg') }}"
                                             class="rounded-circle avatar-xs" alt=""></td>
                                     <td>
                                         <h5 class="font-size-14 m-0"><a href="javascript: void(0);" class="text-dark">Daniel
@@ -88,7 +88,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="rounded-circle avatar-xs"
+                                    <td><img src="{{ asset('build/images/users/avatar-1.jpg') }}" class="rounded-circle avatar-xs"
                                             alt=""></td>
                                     <td>
                                         <h5 class="font-size-14 m-0"><a href="javascript: void(0);"
@@ -121,7 +121,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" class="rounded-circle avatar-xs"
+                                    <td><img src="{{ asset('build/images/users/avatar-4.jpg') }}" class="rounded-circle avatar-xs"
                                             alt=""></td>
                                     <td>
                                         <h5 class="font-size-14 m-0"><a href="javascript: void(0);" class="text-dark">Janice
@@ -284,7 +284,7 @@
                     <div class="d-flex mb-4">
                         <div class="flex-shrink-0 me-3">
                             <img class="d-flex-object rounded-circle avatar-xs" alt=""
-                                src="{{ URL::asset('build/images/users/avatar-2.jpg') }}">
+                                src="{{ asset('build/images/users/avatar-2.jpg') }}">
                         </div>
                         <div class="flex-grow-1">
                             <h5 class="font-size-13 mb-1">David Lambert</h5>
@@ -300,7 +300,7 @@
                     <div class="d-flex mb-4">
                         <div class="flex-shrink-0 me-3">
                             <img class="d-flex-object rounded-circle avatar-xs" alt=""
-                                src="{{ URL::asset('build/images/users/avatar-3.jpg') }}">
+                                src="{{ asset('build/images/users/avatar-3.jpg') }}">
                         </div>
                         <div class="flex-grow-1">
                             <h5 class="font-size-13 mb-1">Steve Foster</h5>
@@ -366,8 +366,9 @@
 @endsection
 @section('script')
     <!-- apexcharts -->
-    <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
     <!-- project-overview init -->
-    <script src="{{ URL::asset('build/js/pages/project-overview.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/project-overview.init.js') }}"></script>
 @endsection
+

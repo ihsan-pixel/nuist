@@ -179,6 +179,7 @@
 @endsection
 @section('script')
     <!-- Chart JS -->
-    <script src="{{ URL::asset('build/libs/chart.js/chart.umd.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/chartjs.init.js') }}"></script>
+    <script src="{{ asset('build/libs/chart.js/chart.umd.js') }}"></script>
+    <script src="{{ asset('build/js/pages/chartjs.init.js') }}"></script>
 @endsection
+

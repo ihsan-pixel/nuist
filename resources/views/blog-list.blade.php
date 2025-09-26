@@ -70,7 +70,7 @@
                                         <p class="text-muted">10 Apr, 2020</p>
 
                                         <div class="position-relative mb-3">
-                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
+                                            <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail">
                                         </div>
 
                                         <ul class="list-inline">
@@ -104,7 +104,7 @@
                                         <p class="text-muted">24 Mar, 2020</p>
 
                                         <div class="position-relative mb-3">
-                                            <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="img-thumbnail">
+                                            <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="img-thumbnail">
 
                                             <div class="blog-play-icon">
                                                 <a href="javascript: void(0);" class="avatar-sm d-block mx-auto">
@@ -313,7 +313,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-7.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-7.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Beautiful Day with Friends</h5>
@@ -325,7 +325,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-4.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-4.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Drawing a sketch</h5>
@@ -337,7 +337,7 @@
                         <a href="javascript: void(0);" class="list-group-item text-muted py-3 px-2">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <img src="{{ URL::asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
+                                    <img src="{{ asset('build/images/small/img-6.jpg') }}" alt="" class="avatar-md h-auto d-block rounded">
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <h5 class="font-size-13 text-truncate">Project discussion with team</h5>

@@ -4,7 +4,7 @@
 
 @section('css')
 <!-- Bootstrap Rating css -->
-<link href="{{ URL::asset('build/libs/bootstrap-rating/bootstrap-rating.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/bootstrap-rating/bootstrap-rating.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -167,7 +167,7 @@
 @endsection
 @section('script')
 <!-- Bootstrap rating js -->
-<script src="{{ URL::asset('build/libs/bootstrap-rating/bootstrap-rating.min.js') }}"></script>
+<script src="{{ asset('build/libs/bootstrap-rating/bootstrap-rating.min.js') }}"></script>
 
-<script src="{{ URL::asset('build/js/pages/rating-init.js') }}"></script>
+<script src="{{ asset('build/js/pages/rating-init.js') }}"></script>
 @endsection

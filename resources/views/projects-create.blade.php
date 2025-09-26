@@ -6,10 +6,10 @@
 
 @section('css')
     <!-- bootstrap datepicker -->
-    <link href="{{ URL::asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 
     <!-- dropzone css -->
-    <link href="{{ URL::asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -87,7 +87,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Tommie Metzler</div>
@@ -96,7 +96,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-3.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Paul Barone</div>
@@ -105,7 +105,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-4.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Chris Lucas</div>
@@ -114,7 +114,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Shirley North</div>
@@ -123,7 +123,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-5.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Patricia Pierce</div>
@@ -133,7 +133,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-6.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-6.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">William Max</div>
@@ -142,7 +142,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-7.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-7.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Johnnie Walton</div>
@@ -151,7 +151,7 @@
                                             <li>
                                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                                     <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-8.jpg') }}" alt=""
+                                                        <img src="{{ asset('build/images/users/avatar-8.jpg') }}" alt=""
                                                             class="img-fluid rounded-circle" />
                                                     </div>
                                                     <div class="flex-grow-1">Miriam Crum</div>
@@ -239,8 +239,9 @@
 @endsection
 @section('script')
     <!-- bootstrap datepicker -->
-    <script src="{{ URL::asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <!-- dropzone plugin -->
-    <script src="{{ URL::asset('build/libs/dropzone/dropzone-min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/project-create.init.js') }}"></script>
+    <script src="{{ asset('build/libs/dropzone/dropzone-min.js') }}"></script>
+    <script src="{{ asset('build/js/pages/project-create.init.js') }}"></script>
 @endsection
+

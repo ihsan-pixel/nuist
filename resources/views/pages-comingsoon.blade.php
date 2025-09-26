@@ -20,13 +20,13 @@
                     <div class="col-lg-12">
                         <div class="text-center">
                             <a href="index" class="d-block auth-logo">
-                                <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="20" class="auth-logo-dark mx-auto">
-                                <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="20" class="auth-logo-light mx-auto">
+                                <img src="{{ asset('build/images/logo-dark.png') }}" alt="" height="20" class="auth-logo-dark mx-auto">
+                                <img src="{{ asset('build/images/logo-light.png') }}" alt="" height="20" class="auth-logo-light mx-auto">
                             </a>
                             <div class="row justify-content-center mt-5">
                                 <div class="col-sm-4">
                                     <div class="maintenance-img">
-                                        <img src="{{ URL::asset('build/images/coming-soon.svg') }}" alt="" class="img-fluid mx-auto d-block">
+                                        <img src="{{ asset('build/images/coming-soon.svg') }}" alt="" class="img-fluid mx-auto d-block">
                                     </div>
                                 </div>
                             </div>
@@ -47,8 +47,9 @@
     @endsection
     @section('script')
         <!-- Plugins -->
-        <script src="{{ URL::asset('build/libs/jquery-countdown/jquery.countdown.min.js') }}"></script>
+        <script src="{{ asset('build/libs/jquery-countdown/jquery.countdown.min.js') }}"></script>
 
         <!-- oming-soon init -->
-        <script src="{{ URL::asset('build/js/pages/coming-soon.init.js') }}"></script>
+        <script src="{{ asset('build/js/pages/coming-soon.init.js') }}"></script>
     @endsection
+

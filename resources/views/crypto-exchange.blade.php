@@ -15,7 +15,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-start">
                     <div class="flex-shrink-0 me-3">
-                        <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-md rounded-circle img-thumbnail">
+                        <img src="{{ asset('build/images/users/avatar-1.jpg') }}" alt="" class="avatar-md rounded-circle img-thumbnail">
                     </div>
                     <div class="flex-grow-1 align-self-center">
                         <div class="text-muted">
@@ -469,8 +469,8 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- crypto exchange init -->
-<script src="{{ URL::asset('build/js/pages/crypto-exchange.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/crypto-exchange.init.js') }}"></script>
 @endsection

@@ -48,7 +48,7 @@
                             </div>
 
                             <div class="row justify-content-center mt-5">
-                                <img src="{{ URL::asset('build/images/verification-img.png') }}" alt="" class="img-fluid d-block">
+                                <img src="{{ asset('build/images/verification-img.png') }}" alt="" class="img-fluid d-block">
                             </div>
                         </div>
                     </div>
@@ -127,10 +127,11 @@
 
 @section('script')
     <!-- plugin js -->
-    <script src="{{ URL::asset('build/libs/moment/min/moment.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/jquery-ui-dist/jquery-ui.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/fullcalendar/index.global.min.js') }}"></script>
+    <script src="{{ asset('build/libs/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery-ui-dist/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('build/libs/fullcalendar/index.global.min.js') }}"></script>
     <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/locales-all.global.min.js'></script>
 
-    <script src="{{ URL::asset('build/js/pages/calendars-full.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/calendars-full.init.js') }}"></script>
 @endsection
+

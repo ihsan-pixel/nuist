@@ -4,7 +4,7 @@
 
 @section('css')
     <!-- Responsive Table css -->
-    <link href="{{ URL::asset('build/libs/admin-resources/rwd-table/rwd-table.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -443,8 +443,9 @@
 @endsection
 @section('script')
     <!-- Responsive Table js -->
-    <script src="{{ URL::asset('build/libs/admin-resources/rwd-table/rwd-table.min.js') }}"></script>
+    <script src="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.js') }}"></script>
 
     <!-- Init js -->
-    <script src="{{ URL::asset('build/js/pages/table-responsive.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/table-responsive.init.js') }}"></script>
 @endsection
+

@@ -19,7 +19,7 @@
                 <div class="row gap-4">
                     <div class="col-lg-5">
                         <div class="card shadow-none border mb-0">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}" class="card-img-top" alt="...">
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}" class="card-img-top" alt="...">
 
                             <div class="card-body">
                                 <h5 class="card-title">Card title</h5>
@@ -32,7 +32,7 @@
 
                     <div class="col-lg-5">
                         <div class="card shadow-none border mb-0" aria-hidden="true">
-                            <img src="{{ URL::asset('build/images/small/img-1.jpg') }}" class="card-img-top" alt="...">
+                            <img src="{{ asset('build/images/small/img-1.jpg') }}" class="card-img-top" alt="...">
                             <div class="card-body">
                                 <h5 class="card-title placeholder-glow">
                                     <span class="placeholder col-6"></span>

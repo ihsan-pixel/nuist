@@ -6,7 +6,7 @@
 
 @section('css')
     <!-- datepicker css -->
-    <link href="{{ URL::asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -108,13 +108,14 @@
 @endsection
 @section('script')
     <!-- bootstrap datepicker -->
-    <script src="{{ URL::asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 
     <!--tinymce js-->
-    <script src="{{ URL::asset('build/libs/tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tinymce/tinymce.min.js') }}"></script>
 
     <!-- form repeater js -->
-    <script src="{{ URL::asset('build/libs/jquery.repeater/jquery.repeater.min.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery.repeater/jquery.repeater.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/pages/task-create.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/task-create.init.js') }}"></script>
 @endsection
+

@@ -53,7 +53,7 @@
                                 <hr>
 
                                 <div class="my-5">
-                                    <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail mx-auto d-block">
+                                    <img src="{{ asset('build/images/small/img-2.jpg') }}" alt="" class="img-thumbnail mx-auto d-block">
                                 </div>
 
                                 <hr>
@@ -145,7 +145,7 @@
                                             <div class="d-flex py-3 border-top">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar-xs">
-                                                        <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" alt="" class="img-fluid d-block rounded-circle">
+                                                        <img src="{{ asset('build/images/users/avatar-2.jpg') }}" alt="" class="img-fluid d-block rounded-circle">
                                                     </div>
                                                 </div>
 

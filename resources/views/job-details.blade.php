@@ -59,7 +59,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="text-center">
-                    <img src="{{URL::asset('build/images/companies/adobe-photoshop.svg')}}" alt="" height="50" class="mx-auto d-block">
+                    <img src="{{asset('build/images/companies/adobe-photoshop.svg')}}" alt="" height="50" class="mx-auto d-block">
                     <h5 class="mt-3 mb-1">Themesbrand</h5>
                     <p class="text-muted mb-0">Since July 2017</p>
                 </div>
@@ -113,7 +113,7 @@
         <div class="card">
             <div class="card-body border-bottom">
                 <div class="d-flex">
-                    <img src="{{URL::asset('build/images/companies/wechat.svg')}}" alt="" height="50">
+                    <img src="{{asset('build/images/companies/wechat.svg')}}" alt="" height="50">
                     <div class="flex-grow-1 ms-3">
                         <h5 class="fw-semibold">Magento Developer</h5>
                         <ul class="list-unstyled hstack gap-2 mb-0">
@@ -252,5 +252,6 @@
 
 @endsection
 @section('script')
-<script src="{{URL::asset('build/js/app.js')}}"></script>
+<script src="{{asset('build/js/app.js')}}"></script>
 @endsection
+

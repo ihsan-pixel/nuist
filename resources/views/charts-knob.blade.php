@@ -86,8 +86,9 @@
 
 @endsection
 @section('script')
-    <script src="{{ URL::asset('build/libs/jquery-knob/jquery.knob.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/jquery-knob.init.js') }}"></script>
+    <script src="{{ asset('build/libs/jquery-knob/jquery.knob.min.js') }}"></script>
+    <script src="{{ asset('build/js/pages/jquery-knob.init.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/pages/jquery-knob.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/jquery-knob.init.js') }}"></script>
 @endsection
+

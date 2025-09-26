@@ -54,7 +54,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-2.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Francis Witte</h5>
@@ -90,7 +90,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-7.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-7.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Joseph Flint</h5>
@@ -127,7 +127,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-8.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-8.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Larry Nielsen</h5>
@@ -163,7 +163,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-5.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-5.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Mark Evans</h5>
@@ -238,7 +238,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-1.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Stanley Bland</h5>
@@ -312,7 +312,7 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="text-lg-center">
-                                <img src="{{ URL::asset('build/images/users/avatar-4.jpg') }}"
+                                <img src="{{ asset('build/images/users/avatar-4.jpg') }}"
                                     class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
                                     alt="img" />
                                 <h5 class="mb-1 font-size-15 text-truncate">Louis Brandon</h5>
@@ -357,3 +357,4 @@
     <!-- end row -->
 
 @endsection
+

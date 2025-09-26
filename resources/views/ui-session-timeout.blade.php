@@ -47,8 +47,8 @@
 @endsection
 @section('script')
 <!-- Session timeout js -->
-<script src="{{ URL::asset('build/libs/@curiosityx/bootstrap-session-timeout/index.js') }}"></script>
+<script src="{{ asset('build/libs/@curiosityx/bootstrap-session-timeout/index.js') }}"></script>
 
 <!-- Session timeout js -->
-<script src="{{ URL::asset('build/js/pages/session-timeout.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/session-timeout.init.js') }}"></script>
 @endsection

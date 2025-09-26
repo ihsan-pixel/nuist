@@ -4,7 +4,7 @@
 
 @section('css')
 <!-- ION Slider -->
-<link href="{{ URL::asset('build/libs/ion-rangeslider/css/ion.rangeSlider.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/ion-rangeslider/css/ion.rangeSlider.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -124,8 +124,8 @@
 @endsection
 @section('script')
 <!-- Ion Range Slider-->
-<script src="{{ URL::asset('build/libs/ion-rangeslider/js/ion.rangeSlider.min.js') }}"></script>
+<script src="{{ asset('build/libs/ion-rangeslider/js/ion.rangeSlider.min.js') }}"></script>
 
 <!-- Range slider init js-->
-<script src="{{ URL::asset('build/js/pages/range-sliders.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/range-sliders.init.js') }}"></script>
 @endsection

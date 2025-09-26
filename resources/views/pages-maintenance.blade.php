@@ -22,9 +22,9 @@
                         <div class="home-wrapper">
                             <div class="mb-5">
                                 <a href="index" class="d-block auth-logo">
-                                    <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="20"
+                                    <img src="{{ asset('build/images/logo-dark.png') }}" alt="" height="20"
                                         class="auth-logo-dark mx-auto">
-                                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="20"
+                                    <img src="{{ asset('build/images/logo-light.png') }}" alt="" height="20"
                                         class="auth-logo-light mx-auto">
                                 </a>
                             </div>
@@ -33,7 +33,7 @@
                             <div class="row justify-content-center">
                                 <div class="col-sm-4">
                                     <div class="maintenance-img">
-                                        <img src="{{ URL::asset('build/images/maintenance.svg') }}" alt="" class="img-fluid mx-auto d-block">
+                                        <img src="{{ asset('build/images/maintenance.svg') }}" alt="" class="img-fluid mx-auto d-block">
                                     </div>
                                 </div>
                             </div>
@@ -84,3 +84,4 @@
         </section>
 
     @endsection
+

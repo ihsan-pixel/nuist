@@ -21,8 +21,8 @@
                     <div class="invoice-title">
                         <h4 class="float-end font-size-16">Order # 12345</h4>
                         <div class="auth-logo mb-4">
-                            <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="logo" class="auth-logo-dark" height="20" />
-                            <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="logo" class="auth-logo-light" height="20" />
+                            <img src="{{ asset('build/images/logo-dark.png') }}" alt="logo" class="auth-logo-dark" height="20" />
+                            <img src="{{ asset('build/images/logo-light.png') }}" alt="logo" class="auth-logo-light" height="20" />
                         </div>
                     </div>
                     <hr>
@@ -125,3 +125,4 @@
     </div>
     <!-- end row -->
 @endsection
+

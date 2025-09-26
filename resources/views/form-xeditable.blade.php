@@ -4,7 +4,7 @@
 
 @section('css')
     <!-- Plugins css -->
-    <link href="{{ URL::asset('build/libs/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/bootstrap-editable/css/bootstrap-editable.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -86,9 +86,10 @@
 @endsection
 @section('script')
     <!-- Plugins js -->
-    <script src="{{ URL::asset('build/libs/bootstrap-editable/js/index.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('build/libs/bootstrap-editable/js/index.js') }}"></script>
+    <script src="{{ asset('build/libs/moment/min/moment.min.js') }}"></script>
 
     <!-- Init js-->
-    <script src="{{ URL::asset('build/js/pages/form-xeditable.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/form-xeditable.init.js') }}"></script>
 @endsection
+

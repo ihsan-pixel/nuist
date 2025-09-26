@@ -5,13 +5,13 @@
 @endsection
 @section('css')
     <!-- bootstrap-datepicker css -->
-    <link href="{{ URL::asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('build/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet" type="text/css">
 
     <!-- DataTables -->
-    <link href="{{ URL::asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link href="{{ URL::asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet"
+    <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet"
         type="text/css" />
 @endsection
 @section('content')
@@ -108,7 +108,7 @@
                                     <tr>
                                         <th scope="row">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="avatar-sm">
+                                                <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="avatar-sm">
                                             </div>
                                         </th>
                                         <td>
@@ -122,7 +122,7 @@
                                     <tr>
                                         <th scope="row">
                                             <div>
-                                                <img src="{{ URL::asset('build/images/product/img-4.png') }}" alt="" class="avatar-sm">
+                                                <img src="{{ asset('build/images/product/img-4.png') }}" alt="" class="avatar-sm">
                                             </div>
                                         </th>
                                         <td>
@@ -272,16 +272,17 @@
 @endsection
 @section('script')
     <!-- bootstrap-datepicker js -->
-    <script src="{{ URL::asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
 
     <!-- Required datatable js -->
-    <script src="{{ URL::asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <!-- Responsive examples -->
-    <script src="{{ URL::asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
     <!-- ecommerce-order-list init -->
-    <script src="{{ URL::asset('build/js/pages/ecommerce-order-list.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/ecommerce-order-list.init.js') }}"></script>
 @endsection
+

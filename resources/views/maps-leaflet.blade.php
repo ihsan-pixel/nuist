@@ -4,7 +4,7 @@
 
 @section('css')
     <!-- leaflet Css -->
-    <link href="{{ URL::asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -80,9 +80,10 @@
 @endsection
 @section('script')
     <!-- leaflet plugin -->
-    <script src="{{ URL::asset('build/libs/leaflet/leaflet.js') }}"></script>
+    <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 
     <!-- leaflet map.init -->
-    <script src="{{ URL::asset('build/js/pages/leaflet-us-states.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/leaflet-map.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/leaflet-us-states.js') }}"></script>
+    <script src="{{ asset('build/js/pages/leaflet-map.init.js') }}"></script>
 @endsection
+

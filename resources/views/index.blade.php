@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="col-5 align-self-end">
-                        <img src="{{ URL::asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
+                        <img src="{{ asset('build/images/profile-img.png') }}" alt="" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -596,7 +596,7 @@
                             <tr>
                                 <th scope="row">
                                     <div>
-                                        <img src="{{ URL::asset('build/images/product/img-7.png') }}" alt="" class="avatar-sm">
+                                        <img src="{{ asset('build/images/product/img-7.png') }}" alt="" class="avatar-sm">
                                     </div>
                                 </th>
                                 <td>
@@ -610,7 +610,7 @@
                             <tr>
                                 <th scope="row">
                                     <div>
-                                        <img src="{{ URL::asset('build/images/product/img-4.png') }}" alt="" class="avatar-sm">
+                                        <img src="{{ asset('build/images/product/img-4.png') }}" alt="" class="avatar-sm">
                                     </div>
                                 </th>
                                 <td>
@@ -699,8 +699,8 @@
 @endsection
 @section('script')
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- dashboard init -->
-<script src="{{ URL::asset('build/js/pages/dashboard.init.js') }}"></script>
+<script src="{{ asset('build/js/pages/dashboard.init.js') }}"></script>
 @endsection

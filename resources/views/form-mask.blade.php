@@ -81,8 +81,9 @@
 @endsection
 @section('script')
     <!-- form mask -->
-    <script src="{{ URL::asset('build/libs/inputmask/inputmask.min.js') }}"></script>
+    <script src="{{ asset('build/libs/inputmask/inputmask.min.js') }}"></script>
 
     <!-- form mask init -->
-    <script src="{{ URL::asset('build/js/pages/form-mask.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/form-mask.init.js') }}"></script>
 @endsection
+

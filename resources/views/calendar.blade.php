@@ -5,9 +5,9 @@
 @endsection
 
 @section('css')
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('build/libs/tui-time-picker/tui-time-picker.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('build/libs/tui-date-picker/tui-date-picker.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('build/libs/tui-calendar/tui-calendar.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('build/libs/tui-time-picker/tui-time-picker.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('build/libs/tui-date-picker/tui-date-picker.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('build/libs/tui-calendar/tui-calendar.min.css') }}" />
 @endsection
 
 @section('content')
@@ -135,17 +135,18 @@
 
 @section('script')
     <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
-    <script src="{{ URL::asset('build/libs/tui-dom/tui-dom.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tui-dom/tui-dom.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/libs/tui-time-picker/tui-time-picker.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/tui-date-picker/tui-date-picker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tui-time-picker/tui-time-picker.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tui-date-picker/tui-date-picker.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/libs//moment/min/moment.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/chance/chance.min.js') }}"></script>
+    <script src="{{ asset('build/libs//moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('build/libs/chance/chance.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/libs/tui-calendar/tui-calendar.min.js') }}"></script>
+    <script src="{{ asset('build/libs/tui-calendar/tui-calendar.min.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/pages/calendars.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/schedules.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/calendar.init.js') }}"></script>
+    <script src="{{ asset('build/js/pages/calendars.js') }}"></script>
+    <script src="{{ asset('build/js/pages/schedules.js') }}"></script>
+    <script src="{{ asset('build/js/pages/calendar.init.js') }}"></script>
 @endsection
+
