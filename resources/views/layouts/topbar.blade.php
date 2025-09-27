@@ -13,9 +13,9 @@
                 </a>
 
                 <a href="" class="logo logo-light">
-                    <span class="logo-sm">
-                        <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="" height="30">
-                    </span>
+<span class="logo-sm">
+<img src="{{ asset('build/images/logo%20favicon%201.png') }}" alt="" height="30">
+</span>
                     <span class="logo-lg">
                         <img src="{{ asset('build/images/logo1.png') }}" alt="" height="50">
                     </span>
@@ -178,13 +178,10 @@
             </button>
             <div class="dropdown-menu dropdown-menu-end">
                 <!-- item-->
-                {{-- <a class="dropdown-item" href="contacts-profile"><i class="bx bx-user font-size-16 align-middle me-1"></i> <span key="t-profile">@lang('translation.Profile')</span></a>
-                <a class="dropdown-item" href="#"><i class="bx bx-wallet font-size-16 align-middle me-1"></i> <span key="t-my-wallet">@lang('translation.My_Wallet')</span></a>
-                <a class="dropdown-item d-block" href="#" data-bs-toggle="modal" data-bs-target=".change-password"><span class="badge bg-success float-end">11</span><i class="bx bx-wrench font-size-16 align-middle me-1"></i> <span key="t-settings">@lang('translation.Settings')</span></a>
                 @if(Auth::user()->role === 'tenaga_pendidik' && !Auth::user()->password_changed)
                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target=".change-password"><i class="bx bx-key font-size-16 align-middle me-1"></i> Ubah Password</a>
-                <div class="dropdown-divider"></div>
                 @endif
+                <div class="dropdown-divider"></div>
                 <a class="dropdown-item text-danger" href="javascript:void();" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span key="t-logout">@lang('translation.Logout')</span></a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
