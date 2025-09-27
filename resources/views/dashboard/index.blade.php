@@ -631,7 +631,7 @@
                             <tr>
                                 <td>{{ $users->firstItem() + $index }}</td>
                                 <td>
-<img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-1.jpg') }}" alt="Foto {{ $user->name }}" class="rounded-circle" width="40" height="40">
+<img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Foto {{ $user->name }}" class="rounded-circle" width="40" height="40">
                                 </td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->ketugasan ?? '-' }}</td>
