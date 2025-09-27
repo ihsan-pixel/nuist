@@ -53,9 +53,9 @@
                                     <li>
                                         <a href="javascript:void(0);" key="t-range-slider">@lang('translation.Range_Slider')</a>
                                     </li>
-                                    <li>
-                                        <a href="javascript:void(0);" key="t-sweet-alert">@lang('translation.Sweet_Alert')</span>
-                                    </li>
+                            <li>
+                                <a href="javascript:void(0);" key="t-sweet-alert">@lang('translation.Sweet_Alert')</a>
+                            </li>
                                     <li>
                                         <a href="javascript:void(0);" key="t-rating">@lang('translation.Rating')</a>
                                     </li>
