@@ -62,7 +62,7 @@
     @slot('title') Pengguna Aktif @endslot
 @endcomponent
 
-<div class="row">
+{{-- <div class="row">
     <div class="col-12">
         <div class="card filter-card mb-4">
             <div class="card-body">
@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <!-- Statistics -->
 <div class="row mb-4">
