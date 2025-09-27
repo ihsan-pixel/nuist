@@ -61,8 +61,8 @@
                 @endif --}}
 
                 @php
-                    $presensiAllowed = in_array($userRole, ['tenaga_pendidik']);
-                    \Log::info('Sidebar Presensi userRole: [' . $userRole . '], presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
+                    $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
+                    \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 @endphp
                 @if($presensiAllowed)
                 <li>
