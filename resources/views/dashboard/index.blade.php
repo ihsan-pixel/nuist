@@ -198,7 +198,7 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-muted mb-0">Persentase kehadiran berdasarkan hari kerja (Senin-Sabtu, exclude hari libur).</p>
+                {{-- <p class="text-muted mb-0">Persentase kehadiran berdasarkan hari kerja (Senin-Sabtu, exclude hari libur).</p> --}}
             </div>
         </div>
         @endif
