@@ -41,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'mengajar',
         'avatar',
         'alamat',
+        'password_changed',
     ];
 
     /**

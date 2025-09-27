@@ -105,6 +105,7 @@ class HomeController extends Controller
         } else {
             $user = User::find($id);
             $user->password = Hash::make($request->get('password'));
+            $user->password_changed = true;
             $user->update();
             if ($user) {
                 Session::flash('message', 'Password updated successfully!');
