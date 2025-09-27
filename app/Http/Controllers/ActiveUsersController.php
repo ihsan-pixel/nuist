@@ -18,11 +18,8 @@ class ActiveUsersController extends Controller
             abort(403, 'Unauthorized access');
         }
 
-        // Get user IDs that have presensi records
-        $activeUserIds = Presensi::distinct('user_id')->pluck('user_id');
-
-        // Get active users grouped by role
-        $activeUsersByRole = User::whereIn('id', $activeUserIds)
+        // Get active users (last_seen within 5 minutes)
+        $activeUsersByRole = User::where('last_seen', '>=', now()->subMinutes(5))
             ->with(['madrasah', 'statusKepegawaian'])
             ->get()
             ->groupBy('role');

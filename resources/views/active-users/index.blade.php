@@ -154,6 +154,9 @@
                                         <i class="bx bx-building me-1"></i>{{ $user->madrasah->nama }}
                                     </p>
                                 @endif
+                                <p class="text-muted mb-0 small">
+                                    <i class="bx bx-time me-1"></i>Terakhir aktif: {{ $user->last_seen ? $user->last_seen->diffForHumans() : 'N/A' }}
+                                </p>
                             </div>
                             <div class="text-end">
                                 <small class="text-muted">{{ $user->nuist_id }}</small>
