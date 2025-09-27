@@ -14,6 +14,12 @@ class PresensiController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // Check if tenaga_pendidik and password not changed
+        if ($user->role === 'tenaga_pendidik' && !$user->password_changed) {
+            return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi.');
+        }
+
         $query = Presensi::with(['user.madrasah']);
 
         if ($user->role === 'tenaga_pendidik') {
@@ -33,6 +39,12 @@ class PresensiController extends Controller
     public function create()
     {
         $user = Auth::user();
+
+        // Check if tenaga_pendidik and password not changed
+        if ($user->role === 'tenaga_pendidik' && !$user->password_changed) {
+            return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi.');
+        }
+
         $today = Carbon::today();
 
         // Check if today is a holiday
@@ -202,6 +214,11 @@ class PresensiController extends Controller
     public function laporan(Request $request)
     {
         $user = Auth::user();
+
+        // Check if tenaga_pendidik and password not changed
+        if ($user->role === 'tenaga_pendidik' && !$user->password_changed) {
+            return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi.');
+        }
 
         $query = Presensi::with('user.madrasah');
 

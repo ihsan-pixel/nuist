@@ -6,6 +6,7 @@
 - [x] Modify topbar.blade.php to add change password button for 'tenaga_pendidik' if not password_changed
 - [x] Fix spaces in asset paths in master.blade.php and topbar.blade.php
 - [x] Update HomeController updatePassword to set password_changed = true after success
+- [x] Add check in PresensiController to prevent tenaga_pendidik access to presensi menu if password not changed
 
 ## Pending Steps
 - [ ] Run the migration: `php artisan migrate`
@@ -13,3 +14,4 @@
 - [ ] Verify that the button appears above logout
 - [ ] Change password and confirm button hides after
 - [ ] Check that asset paths load correctly without spaces
+- [ ] Test presensi access restriction for tenaga_pendidik without password change
