@@ -370,7 +370,7 @@
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm flex-shrink-0 me-3">
                                 <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                    <i class="mdi mdi-account-school fs-4"></i>
+                                    <i class="mdi mdi-school fs-4"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1">
@@ -389,7 +389,7 @@
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm flex-shrink-0 me-3">
                                 <div class="avatar-title bg-success-subtle text-success rounded-circle">
-                                    <i class="mdi mdi-account-school fs-4"></i>
+                                    <i class="mdi mdi-school fs-4"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1">
@@ -427,7 +427,7 @@
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm flex-shrink-0 me-3">
                                 <div class="avatar-title bg-info-subtle text-info rounded-circle">
-                                    <i class="mdi mdi-shield-account fs-4"></i>
+                                    <i class="mdi mdi-school fs-4"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1">
