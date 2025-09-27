@@ -54,6 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'tanggal_lahir' => 'date',
         'tmt' => 'date',
         'email_verified_at' => 'datetime',
+        'last_seen' => 'datetime',
     ];
 
     protected static function boot()
