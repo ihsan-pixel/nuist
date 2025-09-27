@@ -110,6 +110,13 @@
                         <span>Panduan</span>
                     </a>
                 </li>
+
+                <li>
+                    <a href="{{ route('active-users.index') }}" class="waves-effect">
+                        <i class="bx bx-user-check"></i>
+                        <span>Pengguna Aktif</span>
+                    </a>
+                </li>
                 @endif
 
             </ul>
