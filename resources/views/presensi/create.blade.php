@@ -131,7 +131,7 @@
                                 <div class="alert alert-warning">
                                     <i class="bx bx-error-circle me-2"></i>
                                     <strong>Penting!</strong><br>
-                                    Pastikan Anda berada dalam radius 20 meter dari lokasi madrasah untuk melakukan presensi.
+                                    Pastikan Anda berada dalam Lingkungan Madrasah/Sekolah untuk melakukan presensi & Waktu Presensi Mulai Pukul 06.00 WIB s/d 16.00 WIB.
                                 </div>
                             </div>
                         </div>
