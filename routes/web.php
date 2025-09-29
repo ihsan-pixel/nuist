@@ -69,6 +69,12 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->gro
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
     // Remove duplicate resource route below
     // Route::resource('admin', AdminController::class);
+
+    // Yayasan routes
+    Route::get('/yayasan', [App\Http\Controllers\YayasanController::class, 'index'])->name('yayasan.index');
+    Route::post('/yayasan/store', [App\Http\Controllers\YayasanController::class, 'store'])->name('yayasan.store');
+    Route::put('/yayasan/update/{id}', [App\Http\Controllers\YayasanController::class, 'update'])->name('yayasan.update');
+    Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
 });
 
 Route::prefix('admin-masterdata')->middleware(['auth', 'role:admin'])->group(function () {

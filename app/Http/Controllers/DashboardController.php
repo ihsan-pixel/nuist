@@ -244,8 +244,8 @@ class DashboardController extends Controller
      */
     private function getFoundationData()
     {
-        // Get the first madrasah as foundation data, or you can modify this to get specific foundation
-        return \App\Models\Madrasah::select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
+        // Get the first yayasan as foundation data
+        return \App\Models\Yayasan::select('id', 'name', 'alamat', 'latitude', 'longitude', 'map_link')
             ->first();
     }
 }

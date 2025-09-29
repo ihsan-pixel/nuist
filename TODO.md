@@ -1,18 +1,24 @@
-# TODO for Password Change Feature for Tenaga Pendidik
+# TODO: Implementasi Menu Data Yayasan
 
-## Completed Steps
-- [x] Create migration to add 'password_changed' boolean column to users table
-- [x] Update User model to include 'password_changed' in fillable
-- [x] Modify topbar.blade.php to add change password button for 'tenaga_pendidik' if not password_changed
-- [x] Fix spaces in asset paths in master.blade.php and topbar.blade.php
-- [x] Update HomeController updatePassword to set password_changed = true after success
-- [x] Add check in PresensiController to prevent tenaga_pendidik access to presensi menu if password not changed
-- [x] Hide presensi menu in sidebar for tenaga_pendidik if password not changed
+## Completed Tasks
+- [x] Create Yayasan model with fillable fields and relationships
+- [x] Create migration for yayasans table (name, alamat, latitude, longitude, map_link, visi, misi)
+- [x] Create migration to add yayasan_id foreign key to madrasahs table
+- [x] Update Madrasah model to add belongsTo Yayasan relationship
+- [x] Create YayasanController with index, store, update, destroy methods
+- [x] Add routes for yayasan CRUD under masterdata prefix
+- [x] Update sidebar to add "Data Yayasan" menu for super_admin
+- [x] Create view resources/views/masterdata/yayasan/index.blade.php with table, modals for add/edit
+- [x] Update DashboardController getFoundationData() to use Yayasan model instead of Madrasah
 
-## Pending Steps
-- [ ] Run the migration: `php artisan migrate` (attempted but failed due to database connection issue - no MySQL connection available)
-- [ ] Test the feature by logging in as a user with role 'tenaga_pendidik'
-- [ ] Verify that the button appears above logout
-- [ ] Change password and confirm button hides after
-- [ ] Check that asset paths load correctly without spaces
-- [ ] Test presensi access restriction for tenaga_pendidik without password change
+## Pending Tasks
+- [ ] Run `php artisan migrate` to apply database changes (requires DB connection)
+- [ ] Test the new menu and CRUD functionality
+- [ ] Seed initial yayasan data if needed
+- [ ] Verify dashboard shows yayasan info for super_admin
+
+## Notes
+- Yayasan is parent entity of madrasahs
+- Menu only visible to super_admin
+- No logo upload or Excel import for yayasan (simplified)
+- Dashboard foundation data now pulls from yayasan table

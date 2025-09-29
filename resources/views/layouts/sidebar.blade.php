@@ -30,6 +30,9 @@
                         <span>Master Data</span>
                     </a>
                     <ul class="sub-menu collapse" id="masterDataSubmenu">
+                        @if($userRole === 'super_admin')
+                        <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
+                        @endif
                         <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>

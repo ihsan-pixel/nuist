@@ -24,4 +24,10 @@ class Madrasah extends Model
     {
         return $this->hasMany(User::class, 'madrasah_id');
     }
+
+    // Relasi: satu madrasah belongs to satu yayasan
+    public function yayasan()
+    {
+        return $this->belongsTo(Yayasan::class);
+    }
 }
