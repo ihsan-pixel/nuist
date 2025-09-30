@@ -514,6 +514,18 @@
         </form>
     </div>
 </div>
+<script>
+        $(document).ready(function () {
+            let table = $("#datatable-buttons").DataTable({
+                responsive: true,
+                lengthChange: true,
+                autoWidth: false,
+                buttons: ["copy", "excel", "pdf", "print", "colvis"]
+            });
 
+            table.buttons().container()
+                .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+        });
+    </script>
 @endsection
 
