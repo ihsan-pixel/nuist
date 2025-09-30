@@ -98,7 +98,7 @@
 
                         <!-- Modal Edit Tenaga Pendidik -->
                         <div class="modal fade" id="modalEditTP{{ $tp->id }}" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-scrollable">
+                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                                 <form action="{{ route('tenaga-pendidik.update', $tp->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
@@ -246,7 +246,7 @@
 
 <!-- Modal Tambah -->
 <div class="modal fade" id="modalTambahTP" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
@@ -384,7 +384,7 @@
 
 <!-- Modal Import -->
 <div class="modal fade" id="modalImportTP" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <form action="{{ route('tenaga-pendidik.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
