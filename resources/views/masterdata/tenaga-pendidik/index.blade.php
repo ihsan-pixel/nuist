@@ -144,7 +144,7 @@
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label>NIP</label>
+                                                <label>NIP Ma'arif</label>
                                                 <input type="text" name="nip" class="form-control" value="{{ $tp->nip }}">
                                             </div>
 
@@ -292,7 +292,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label>NIP</label>
+                        <label>NIP Ma'arif</label>
                         <input type="text" name="nip" class="form-control">
                     </div>
 
