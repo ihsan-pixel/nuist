@@ -111,8 +111,8 @@
         </div>
         @endif
 
-        {{-- Foundation Location and Map for Super Admin and Pengurus --}}
-        @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData))
+        {{-- Foundation Location and Map for Super Admin --}}
+        @if(Auth::user()->role === 'super_admin' && isset($foundationData))
         <div class="row">
             {{-- Address Information --}}
             <div class="col-md-12">
