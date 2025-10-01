@@ -12,10 +12,9 @@ class PengurusController extends Controller
     public function index()
     {
         $user = auth()->user();
-        if ($user->role === 'admin') {
-            $penguruses = User::where('role', 'pengurus')
-                ->where('madrasah_id', $user->madrasah_id)
-                ->get();
+        if ($user && ($user->role === 'admin' || $user->role === 'super_admin' || $user->role === 'pengurus')) {
+            // Pengurus can access all data accessible by super_admin
+            $penguruses = User::all();
         } else {
             $penguruses = User::where('role', 'pengurus')->get();
         }
