@@ -1,7 +1,7 @@
-# TODO: Add TMT Column to Tenaga Pendidik Input and Edit Forms
+# TODO: Modify Dashboard for Tenaga Pendidik Users
 
-## Steps:
-1. [x] Add TMT column to the table header and display in table body.
-2. [x] Add TMT input field to the "Tambah Tenaga Pendidik" modal.
-3. [x] Add TMT input field to the "Edit Tenaga Pendidik" modal.
-4. Test the changes to ensure TMT is properly saved and displayed.
+## Tasks
+- [x] Analyze current dashboard implementation
+- [x] Identify query in DashboardController that needs filtering
+- [x] Edit DashboardController.php to add role filter and exclude current user
+- [ ] Test the dashboard for tenaga_pendidik user to verify only fellow tenaga_pendidik are shown

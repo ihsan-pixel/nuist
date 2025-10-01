@@ -93,6 +93,8 @@ class DashboardController extends Controller
             // Tenaga pendidik melihat data users
             $users = User::with('madrasah', 'statusKepegawaian')
                 ->where('madrasah_id', $user->madrasah_id)
+                ->where('role', 'tenaga_pendidik')
+                ->where('id', '!=', $user->id)
                 ->orderBy('name', 'asc')
                 ->paginate(10);
 
