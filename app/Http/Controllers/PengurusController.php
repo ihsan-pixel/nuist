@@ -1,4 +1,4 @@
-<?php
+yes<?php
 
 namespace App\Http\Controllers;
 
@@ -36,7 +36,7 @@ class PengurusController extends Controller
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role'     => 'pengurus',
-            'ketugasan' => $validated['jabatan'],
+            'jabatan' => $validated['jabatan'],
         ]);
 
         return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil ditambahkan.');
@@ -55,7 +55,7 @@ class PengurusController extends Controller
 
         $pengurus->name     = $validated['name'];
         $pengurus->email    = $validated['email'];
-        $pengurus->ketugasan = $validated['jabatan'];
+        $pengurus->jabatan = $validated['jabatan'];
 
         if (!empty($validated['password'])) {
             $pengurus->password = Hash::make($validated['password']);

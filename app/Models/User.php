@@ -43,6 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'alamat',
         'password_changed',
         'last_seen',
+        'jabatan',
     ];
 
     /**

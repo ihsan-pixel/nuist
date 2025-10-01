@@ -21,7 +21,7 @@
 @section('content')
 @php
     $userRole = trim(strtolower(auth()->user()->role));
-    $isAllowed = in_array($userRole, ['super_admin', 'admin']);
+    $isAllowed = in_array($userRole, ['super_admin', 'admin', 'pengurus']);
 @endphp
 @if($isAllowed)
 @component('components.breadcrumb')
@@ -33,7 +33,7 @@
     <div class="card-body">
 
         <!-- Tombol aksi -->
-        <div class="mb-3 d-flex justify-content-end gap-2">
+        <div class="mb-3 d-flex justify-content-end gap-2 @if($userRole == 'pengurus') d-none @endif">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahPengurus">
                 <i class="bx bx-plus"></i> Tambah Pengurus
             </button>
@@ -70,7 +70,7 @@
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $pengurus->name }}</td>
                         <td>{{ $pengurus->email }}</td>
-                        <td>{{ $pengurus->ketugasan }}</td>
+                        <td>{{ $pengurus->jabatan }}</td>
                         <td>
                             <!-- Tombol Edit -->
                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditPengurus{{ $pengurus->id }}">
@@ -108,7 +108,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label>Jabatan</label>
-                                            <input type="text" name="jabatan" class="form-control" value="{{ $pengurus->ketugasan }}" required>
+                                            <input type="text" name="jabatan" class="form-control" value="{{ $pengurus->jabatan }}" required>
                                         </div>
                                         <div class="mb-3">
                                             <label>Password (Kosongkan jika tidak ingin diubah)</label>
