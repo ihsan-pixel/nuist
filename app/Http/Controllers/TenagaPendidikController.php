@@ -50,6 +50,15 @@ class TenagaPendidikController extends Controller
 
         $inputPassword = $validated['password'];
 
+        $tmtDate = null;
+        if ($request->tmt) {
+            try {
+                $tmtDate = \Carbon\Carbon::createFromFormat('d/m/Y', $request->tmt)->format('Y-m-d');
+            } catch (\Exception $e) {
+                $tmtDate = $request->tmt;
+            }
+        }
+
         $user = User::updateOrCreate(
             ['email' => $validated['email']],
             [
@@ -67,7 +76,7 @@ class TenagaPendidikController extends Controller
                 'tahun_lulus' => $request->tahun_lulus,
                 'program_studi' => $request->program_studi,
                 'status_kepegawaian_id' => $request->status_kepegawaian_id,
-                'tmt' => $request->tmt,
+                'tmt' => $tmtDate,
                 'ketugasan' => $request->ketugasan,
                 'mengajar' => $request->mengajar,
                 'avatar' => $avatarPath,
