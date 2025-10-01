@@ -19,7 +19,7 @@
 
                 @php
                     $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                    $allowedRoles = ['super_admin', 'admin'];
+                    $allowedRoles = ['super_admin', 'admin', 'pengurus'];
                     $isAllowed = in_array($userRole, $allowedRoles);
                     \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
@@ -30,14 +30,14 @@
                         <span>Master Data</span>
                     </a>
                     <ul class="sub-menu collapse" id="masterDataSubmenu">
-                        @if($userRole === 'super_admin')
+                        @if(in_array($userRole, ['super_admin', 'pengurus']))
                         <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
                         <li><a href="{{ route('pengurus.index') }}">Data Pengurus</a></li>
                         @endif
                         <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
-                        @if($userRole === 'super_admin')
+                        @if(in_array($userRole, ['super_admin', 'pengurus']))
                         <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
                         <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
                         @endif
@@ -77,7 +77,7 @@
                 </li>
                 @endif
 
-                @if($userRole === 'super_admin')
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">
                         <i class="bx bx-check-square"></i>
@@ -100,7 +100,7 @@
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
 
-                @if($userRole === 'super_admin')
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="{{ route('development-history.index') }}" class="waves-effect">
                         <i class="bx bx-history"></i>

@@ -81,10 +81,10 @@ class DashboardController extends Controller
             $schoolPrincipal = $this->getSchoolPrincipal($user->madrasah_id);
         }
 
-        // Statistics untuk super_admin
+        // Statistics untuk super_admin dan pengurus
         $superAdminStats = null;
         $foundationData = null;
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
             $superAdminStats = $this->getSuperAdminStatistics();
             $foundationData = $this->getFoundationData();
         }
