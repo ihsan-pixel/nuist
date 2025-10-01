@@ -1,10 +1,10 @@
-# TODO: Update Dashboard for Pengurus Role
+# TODO: Update Dashboard for Pengurus Role - Reverted
 
 ## Tasks
 - [x] Edit resources/views/dashboard/index.blade.php to add statistics cards for super_admin and pengurus roles
 - [x] Add cards displaying total_madrasah, total_teachers, total_admin, total_super_admin, total_school_principals from superAdminStats
 - [x] Add breakdown section for status kepegawaian if needed
-- [ ] Test the dashboard display for pengurus role
+- [x] Revert changes as per user request
 
 ## Information Gathered
 - DashboardController already passes superAdminStats to both super_admin and pengurus
@@ -14,3 +14,4 @@
 ## Plan
 - Replace the empty card body with actual statistics display
 - Use similar structure as admin dashboard but with overall stats
+- Reverted to original state
