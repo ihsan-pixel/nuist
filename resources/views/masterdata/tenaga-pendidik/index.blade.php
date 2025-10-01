@@ -85,7 +85,7 @@
                             <td>{{ $tp->email }}</td>
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
-                            <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>
