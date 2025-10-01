@@ -1,9 +1,16 @@
-# Task: Make "pengurus" role have same dashboard and sidebar access as "super_admin"
+# TODO: Update Dashboard for Pengurus Role
 
-## Completed Tasks
-- [x] Edit DashboardController.php to include 'pengurus' in super_admin logic
-- [x] Edit dashboard/index.blade.php to show super_admin sections for 'pengurus'
-- [x] Edit sidebar.blade.php to include 'pengurus' in allowed roles and super_admin checks
+## Tasks
+- [x] Edit resources/views/dashboard/index.blade.php to add statistics cards for super_admin and pengurus roles
+- [x] Add cards displaying total_madrasah, total_teachers, total_admin, total_super_admin, total_school_principals from superAdminStats
+- [x] Add breakdown section for status kepegawaian if needed
+- [ ] Test the dashboard display for pengurus role
 
-## Pending Tasks
-- [ ] Test the changes by logging in as a pengurus user to verify dashboard and sidebar display correctly
+## Information Gathered
+- DashboardController already passes superAdminStats to both super_admin and pengurus
+- The view has a placeholder for the right side but no content in the cards
+- superAdminStats includes totals for madrasah, teachers, admins, super_admins, school principals, and status breakdown
+
+## Plan
+- Replace the empty card body with actual statistics display
+- Use similar structure as admin dashboard but with overall stats

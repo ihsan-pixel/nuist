@@ -367,7 +367,127 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                    <i class="mdi mdi-school fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_madrasah'] }}</h5>
+                                <p class="text-muted mb-0">Total Madrasah</p>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            {{-- Total Teachers Card --}}
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-success-subtle text-success rounded-circle">
+                                    <i class="mdi mdi-account-tie fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_teachers'] }}</h5>
+                                <p class="text-muted mb-0">Total Tenaga Pendidik</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total Admin Card --}}
+            <div class="col-md-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-info-subtle text-info rounded-circle">
+                                    <i class="mdi mdi-account-cog fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_admin'] }}</h5>
+                                <p class="text-muted mb-0">Total Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total Super Admin Card --}}
+            <div class="col-md-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
+                                    <i class="mdi mdi-account-star fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_super_admin'] }}</h5>
+                                <p class="text-muted mb-0">Total Super Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total School Principals Card --}}
+            <div class="col-md-2">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-danger-subtle text-danger rounded-circle">
+                                    <i class="mdi mdi-account-tie-hat fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_school_principals'] }}</h5>
+                                <p class="text-muted mb-0">Total Kepala Sekolah</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Employment Status Breakdown --}}
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Ringkasan Berdasarkan Status Kepegawaian</h5>
+                <div class="row">
+                    @if($superAdminStats['total_by_status']->count() > 0)
+                        @foreach($superAdminStats['total_by_status'] as $status)
+                        <div class="col-md-4">
+                            <div class="card border">
+                                <div class="card-body text-center">
+                                    <div class="avatar-sm mx-auto mb-3">
+                                        <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                            <i class="mdi mdi-account-tie fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="mb-2">{{ $status['count'] }}</h6>
+                                    <p class="text-muted mb-0">{{ $status['status_name'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @else
+                        <div class="col-12">
+                            <div class="text-center py-4">
+                                <i class="mdi mdi-information-outline text-muted fs-1"></i>
+                                <p class="text-muted mt-2">Belum ada data status kepegawaian</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
