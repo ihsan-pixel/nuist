@@ -65,6 +65,11 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->gro
     Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::delete('/admin/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
+    Route::get('/pengurus', [App\Http\Controllers\PengurusController::class, 'index'])->name('pengurus.index');
+    Route::post('/pengurus/store', [App\Http\Controllers\PengurusController::class, 'store'])->name('pengurus.store');
+    Route::put('/pengurus/update/{id}', [App\Http\Controllers\PengurusController::class, 'update'])->name('pengurus.update');
+    Route::delete('/pengurus/{pengurus}', [App\Http\Controllers\PengurusController::class, 'destroy'])->name('pengurus.destroy');
+
     Route::get('/madrasah', [App\Http\Controllers\MadrasahController::class, 'index'])->name('madrasah.index');
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
     // Remove duplicate resource route below
