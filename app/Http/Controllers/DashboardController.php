@@ -86,8 +86,6 @@ class DashboardController extends Controller
         $foundationData = null;
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
             $superAdminStats = $this->getSuperAdminStatistics();
-        }
-        if ($user->role === 'super_admin') {
             $foundationData = $this->getFoundationData();
         }
 
