@@ -367,6 +367,12 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     @if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
     <div class="col-xl-8">
