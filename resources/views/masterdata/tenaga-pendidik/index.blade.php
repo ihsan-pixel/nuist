@@ -61,6 +61,7 @@
                         <th>Email</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
+                        <th>TMT</th>
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
                         <th>Action</th>
@@ -84,6 +85,7 @@
                             <td>{{ $tp->email }}</td>
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
+                            <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->format('d/m/Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>
@@ -177,6 +179,11 @@
                                             </div>
 
                                             <div class="col-md-6">
+                                                <label>TMT</label>
+                                                <input type="date" name="tmt" class="form-control" value="{{ $tp->tmt }}">
+                                            </div>
+
+                                            <div class="col-md-6">
                                                 <label>Pendidikan Terakhir</label>
                                                 <input type="text" name="pendidikan_terakhir" class="form-control" value="{{ $tp->pendidikan_terakhir }}">
                                             </div>
@@ -228,7 +235,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center p-4">
+                            <td colspan="10" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
@@ -334,6 +341,11 @@
                     <div class="col-md-6">
                         <label>Tahun Lulus</label>
                         <input type="number" name="tahun_lulus" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>TMT</label>
+                        <input type="date" name="tmt" class="form-control">
                     </div>
 
                     <div class="col-md-6">
