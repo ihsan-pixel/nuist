@@ -10,6 +10,15 @@ use App\Imports\MadrasahImport;
 
 class MadrasahController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('can:viewAny,App\Policies\MadrasahPolicy')->only('index');
+        $this->middleware('can:create,App\Policies\MadrasahPolicy')->only('store');
+        $this->middleware('can:update,App\Policies\MadrasahPolicy')->only('update');
+        $this->middleware('can:delete,App\Policies\MadrasahPolicy')->only('destroy');
+    }
+
     /**
      * Tampilkan daftar madrasah
      */
