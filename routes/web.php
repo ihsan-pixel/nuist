@@ -26,14 +26,14 @@ use App\Http\Controllers\IzinController;
 */
 
 Route::middleware(['auth'])->group(function () {
-    Route::middleware(['role:super_admin,admin'])->group(function () {
+    Route::middleware(['role:super_admin,admin,pengurus'])->group(function () {
         Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings'])->name('presensi_admin.settings');
         Route::post('/presensi-admin/settings', [PresensiAdminController::class, 'updateSettings'])->name('presensi_admin.updateSettings');
         Route::get('/presensi-admin', [PresensiAdminController::class, 'index'])->name('presensi_admin.index');
     });
 
     // Development History Routes - Super Admin Only
-    Route::middleware(['role:super_admin'])->group(function () {
+    Route::middleware(['role:super_admin,pengurus'])->group(function () {
         Route::get('/development-history', [DevelopmentHistoryController::class, 'index'])->name('development-history.index');
         Route::get('/development-history/sync', [DevelopmentHistoryController::class, 'syncMigrations'])->name('development-history.sync');
         Route::get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'index'])->name('active-users.index');
@@ -55,8 +55,8 @@ Route::get('/', function () {
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
-// panduan route - accessible by super_admin only
-Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index')->middleware(['auth', 'role:super_admin']);
+// panduan route - accessible by super_admin and pengurus
+Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index')->middleware(['auth', 'role:super_admin,pengurus']);
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');

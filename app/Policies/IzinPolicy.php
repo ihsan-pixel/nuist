@@ -19,7 +19,7 @@ class IzinPolicy
      */
     public function approve(User $user, Presensi $presensi): bool
     {
-        if ($user->role === 'super_admin') {
+        if ($user->role === 'super_admin' || $user->role === 'pengurus') {
             return true;
         }
 
@@ -35,7 +35,7 @@ class IzinPolicy
      */
     public function reject(User $user, Presensi $presensi): bool
     {
-        if ($user->role === 'super_admin') {
+        if ($user->role === 'super_admin' || $user->role === 'pengurus') {
             return true;
         }
 
