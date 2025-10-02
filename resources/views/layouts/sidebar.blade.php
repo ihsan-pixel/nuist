@@ -19,7 +19,7 @@
 
                     @php
                         $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                        $allowedRoles = ['super_admin'];
+                        $allowedRoles = ['super_admin', 'admin', 'pengurus'];
                         $isAllowed = in_array($userRole, $allowedRoles);
                         \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                     @endphp
@@ -55,7 +55,6 @@
                         <span>Master Data</span>
                     </a>
                     <ul class="sub-menu collapse" id="adminMasterDataSubmenu">
-                        <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
                         <li><a href="{{ route('admin_masterdata.admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('admin_masterdata.madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('admin_masterdata.tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
