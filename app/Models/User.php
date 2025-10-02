@@ -84,4 +84,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Madrasah::class, 'madrasah_id');
     }
+
+    public function presensis()
+    {
+        return $this->hasMany(\App\Models\Presensi::class, 'user_id');
+    }
 }
