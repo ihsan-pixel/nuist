@@ -146,5 +146,16 @@
 <script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        var isSuperAdmin = "{{ auth()->user()->role }}" === "super_admin";
+        $('#datatable-buttons').DataTable({
+            pageLength: isSuperAdmin ? -1 : 10,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            responsive: true,
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
+        });
+    });
+</script>
 @endsection
 
