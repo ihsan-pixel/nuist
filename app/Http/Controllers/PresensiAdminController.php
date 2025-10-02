@@ -17,7 +17,7 @@ class PresensiAdminController extends Controller
         // Middleware to restrict access to super_admin and admin roles
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if (!in_array($user->role, ['super_admin', 'admin'])) {
+            if (!in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
                 abort(403, 'Unauthorized');
             }
             return $next($request);

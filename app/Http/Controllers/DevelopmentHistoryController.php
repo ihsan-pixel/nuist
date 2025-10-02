@@ -14,8 +14,8 @@ class DevelopmentHistoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Check if user is super_admin
-        if (auth()->user()->role !== 'super_admin') {
+        // Check if user is super_admin or pengurus
+        if (!in_array(auth()->user()->role, ['super_admin', 'pengurus'])) {
             abort(403, 'Unauthorized access');
         }
 
@@ -79,7 +79,7 @@ class DevelopmentHistoryController extends Controller
     public function syncMigrations()
     {
         // Check if user is super_admin
-        if (auth()->user()->role !== 'super_admin') {
+        if (!in_array(auth()->user()->role, ['super_admin', 'pengurus'])) {
             abort(403, 'Unauthorized access');
         }
 

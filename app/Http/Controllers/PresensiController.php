@@ -30,7 +30,7 @@ class PresensiController extends Controller
             });
         }
 
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
             $presensis = $query->latest('tanggal')->get();
         } else {
             $presensis = $query->latest('tanggal')->paginate(10);
@@ -246,7 +246,7 @@ class PresensiController extends Controller
                 });
             }
         }
-        // Super admin bisa melihat semua
+        // Super admin dan pengurus bisa melihat semua
 
         // Filter berdasarkan tanggal
         if ($request->filled('tanggal_mulai') && $request->filled('tanggal_akhir')) {
