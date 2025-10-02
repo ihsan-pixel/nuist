@@ -63,9 +63,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($presensis as $index => $presensi)
+                            @forelse ($presensis as $presensi)
                             <tr>
-                                <td>{{ $presensis->firstItem() + $index }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $presensi->user->name ?? '-' }}</td>
                                 <td>{{ $presensi->user->madrasah->name ?? '-' }}</td>
                                 <td>{{ $presensi->tanggal }}</td>

@@ -89,7 +89,7 @@ class PresensiAdminController extends Controller
         }
         // If user is super_admin, show all data (no additional filtering needed)
 
-        $presensis = $query->orderBy('tanggal', 'desc')->paginate(20);
+        $presensis = $query->orderBy('tanggal', 'desc')->get();
 
         return view('presensi_admin.index', compact('presensis'));
     }

@@ -1,3 +1,3 @@
-- [x] Modify PresensiController.php index method to show all data for super_admin without pagination
-- [x] Modify resources/views/presensi/index.blade.php to handle both paginated and non-paginated data
-- [x] Test the changes
+- [x] Modify PresensiAdminController index method to fetch all presensi data without pagination
+- [x] Update presensi_admin/index.blade.php to use proper numbering for non-paginated data
+- [ ] Test the changes to ensure all data is displayed correctly
