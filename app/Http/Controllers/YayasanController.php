@@ -12,7 +12,14 @@ class YayasanController extends Controller
      */
     public function index()
     {
-        $yayasans = Yayasan::all();
+        $user = auth()->user();
+        if ($user->role === 'admin') {
+            $yayasans = Yayasan::all(); // or filter by madrasah if needed
+        } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
+            $yayasans = Yayasan::all();
+        } else {
+            abort(403, 'Unauthorized access');
+        }
         return view('masterdata.yayasan.index', compact('yayasans'));
     }
 
