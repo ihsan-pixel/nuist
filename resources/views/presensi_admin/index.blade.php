@@ -108,6 +108,54 @@
         </div>
     </div>
 </div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-user-x me-2"></i>Belum Melakukan Presensi Hari Ini
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered dt-responsive nowrap w-100">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                @if($user->role === 'super_admin')
+                                <th>Madrasah</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($belumPresensi as $userBelum)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $userBelum->name }}</td>
+                                @if($user->role === 'super_admin')
+                                <td>{{ $userBelum->madrasah->name ?? '-' }}</td>
+                                @endif
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="{{ $user->role === 'super_admin' ? 3 : 2 }}" class="text-center p-4">
+                                    <div class="alert alert-info d-inline-block text-center" role="alert">
+                                        <i class="bx bx-info-circle bx-lg me-2"></i>
+                                        <strong>Semua tenaga pendidik sudah melakukan presensi hari ini</strong><br>
+                                        <small>Tidak ada data tenaga pendidik yang belum melakukan presensi.</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')

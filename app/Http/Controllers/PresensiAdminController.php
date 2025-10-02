@@ -6,6 +6,7 @@ use App\Models\PresensiSettings;
 use App\Models\Presensi;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 
@@ -91,6 +92,20 @@ class PresensiAdminController extends Controller
 
         $presensis = $query->orderBy('tanggal', 'desc')->get();
 
-        return view('presensi_admin.index', compact('presensis'));
+        // Get today's date
+        $today = Carbon::today();
+
+        // Query users with role 'tenaga_pendidik' who haven't done presensi today
+        $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
+
+        if ($user->role === 'admin' && $user->madrasah_id) {
+            $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
+        }
+
+        $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($today) {
+            $q->whereDate('tanggal', $today);
+        })->with('madrasah')->get();
+
+        return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user'));
     }
 }

@@ -1,3 +1,3 @@
-- [x] Modify PresensiAdminController index method to fetch all presensi data without pagination
-- [x] Update presensi_admin/index.blade.php to use proper numbering for non-paginated data
-- [ ] Test the changes to ensure all data is displayed correctly
+- [x] Modify PresensiAdminController@index to fetch $belumPresensi users
+- [x] Update presensi_admin/index.blade.php to add new table below existing one
+- [ ] Test the functionality
