@@ -30,9 +30,9 @@ class AutoInsertAbsence extends Command
      */
     public function handle()
     {
-        $date = $this->option('date') ? Carbon::parse($this->option('date')) : Carbon::yesterday();
+        $date = $this->option('date') ? Carbon::parse($this->option('date')) : Carbon::now('Asia/Jakarta')->subDay()->toDateString();
 
-        $this->info("Processing absences for date: {$date->format('Y-m-d')}");
+        $this->info("Processing absences for date: {$date}");
 
         // Skip if it's a holiday
         if (Holiday::isHoliday($date)) {

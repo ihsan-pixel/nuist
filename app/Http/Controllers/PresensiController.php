@@ -45,7 +45,7 @@ class PresensiController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi.');
         }
 
-        $today = Carbon::today();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         // Check if today is a holiday
         $isHoliday = \App\Models\Holiday::isHoliday($today);
@@ -71,7 +71,7 @@ class PresensiController extends Controller
         ]);
 
         $user = Auth::user();
-        $today = Carbon::today();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         // Cek apakah sudah presensi hari ini
         $presensi = Presensi::where('user_id', $user->id)
