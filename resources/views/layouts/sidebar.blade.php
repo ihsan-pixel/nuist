@@ -19,7 +19,7 @@
 
                     @php
                         $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                        $allowedRoles = ['super_admin', 'admin', 'pengurus'];
+                        $allowedRoles = ['super_admin'];
                         $isAllowed = in_array($userRole, $allowedRoles);
                         \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                     @endphp
@@ -46,15 +46,16 @@
                     @endif
 
                 @php
-                    $isAdminOnly = $userRole === 'admin';
+                    $isAdminOrPengurus = in_array($userRole, ['admin', 'pengurus']);
                 @endphp
-                {{-- @if($isAdminOnly)
+                @if($isAdminOrPengurus)
                 <li>
                     <a href="#adminMasterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-data"></i>
-                        <span>Master Data (Admin)</span>
+                        <span>Master Data</span>
                     </a>
                     <ul class="sub-menu collapse" id="adminMasterDataSubmenu">
+                        <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
                         <li><a href="{{ route('admin_masterdata.admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('admin_masterdata.madrasah.index') }}">Data Madrasah/Sekolah</a></li>
                         <li><a href="{{ route('admin_masterdata.tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
@@ -62,7 +63,7 @@
                         <li><a href="{{ route('admin_masterdata.tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
                     </ul>
                 </li>
-                @endif --}}
+                @endif
 
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
