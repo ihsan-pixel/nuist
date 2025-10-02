@@ -9,7 +9,6 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class IzinPolicy
 {
     use HandlesAuthorization;
-
     /**
      * Determine whether the user can approve the permission request.
      *

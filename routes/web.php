@@ -82,6 +82,11 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
 });
 
+// Pengurus Master Data Routes
+Route::middleware(['auth', 'role:pengurus'])->group(function () {
+    Route::get('/pengurus-masterdata', [App\Http\Controllers\PengurusMasterDataController::class, 'index'])->name('pengurus-masterdata.index');
+});
+
 Route::prefix('admin-masterdata')->middleware(['auth', 'role:admin,pengurus'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin_masterdata.admin.index');
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin_masterdata.admin.store');
