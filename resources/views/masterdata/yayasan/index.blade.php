@@ -16,7 +16,7 @@
 @section('content')
 @php
     $userRole = trim(strtolower(auth()->user()->role));
-    $isAllowed = $userRole === 'super_admin';
+    $isAllowed = in_array($userRole, ['super_admin', 'pengurus']);
 @endphp
 @if($isAllowed)
     @component('components.breadcrumb')
