@@ -46,13 +46,13 @@
                     @endif
 
                 @php
-                    $isAdminOrPengurus = in_array($userRole, ['admin', 'pengurus']);
+                    $isAdminOnly = $userRole === 'admin';
                 @endphp
-                @if($isAdminOrPengurus)
+                {{-- @if($isAdminOnly)
                 <li>
                     <a href="#adminMasterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
                         <i class="bx bx-data"></i>
-                        <span>Master Data</span>
+                        <span>Master Data (Admin)</span>
                     </a>
                     <ul class="sub-menu collapse" id="adminMasterDataSubmenu">
                         <li><a href="{{ route('admin_masterdata.admin.index') }}">Data Admin</a></li>
@@ -62,7 +62,7 @@
                         <li><a href="{{ route('admin_masterdata.tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
                     </ul>
                 </li>
-                @endif
+                @endif --}}
 
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
