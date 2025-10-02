@@ -76,7 +76,7 @@ class PresensiAdminController extends Controller
     }
 
     // Display all presensi data with user name, madrasah_id, and status
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
@@ -92,20 +92,20 @@ class PresensiAdminController extends Controller
 
         $presensis = $query->orderBy('tanggal', 'desc')->get();
 
-        // Get today's date
-        $today = Carbon::today();
+        // Get selected date or default to today
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        // Query users with role 'tenaga_pendidik' who haven't done presensi today
+        // Query users with role 'tenaga_pendidik' who haven't done presensi on selected date
         $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
 
         if ($user->role === 'admin' && $user->madrasah_id) {
             $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
         }
 
-        $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($today) {
-            $q->whereDate('tanggal', $today);
+        $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
+            $q->whereDate('tanggal', $selectedDate);
         })->with('madrasah')->get();
 
-        return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user'));
+        return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate'));
     }
 }

@@ -112,10 +112,13 @@
 <div class="row mt-4">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0">
-                    <i class="bx bx-user-x me-2"></i>Belum Melakukan Presensi Hari Ini
+                    <i class="bx bx-user-x me-2"></i>Belum Melakukan Presensi pada tanggal {{ $selectedDate->format('d-m-Y') }}
                 </h4>
+                <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
+                    <input type="date" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()">
+                </form>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -143,7 +146,7 @@
                                 <td colspan="{{ $user->role === 'super_admin' ? 3 : 2 }}" class="text-center p-4">
                                     <div class="alert alert-info d-inline-block text-center" role="alert">
                                         <i class="bx bx-info-circle bx-lg me-2"></i>
-                                        <strong>Semua tenaga pendidik sudah melakukan presensi hari ini</strong><br>
+                                        <strong>Semua tenaga pendidik sudah melakukan presensi pada tanggal ini</strong><br>
                                         <small>Tidak ada data tenaga pendidik yang belum melakukan presensi.</small>
                                     </div>
                                 </td>
