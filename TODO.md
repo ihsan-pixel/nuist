@@ -1,2 +1,2 @@
-- [x] Update IzinController@index method to show all izin requests for super_admin role, filtered for others
-- [ ] Test the changes to ensure super admin sees all, others see filtered
+- [x] Update IzinController@index method to show all izin requests for super_admin and pengurus roles, filtered for others
+- [x] Test the changes to ensure super admin and pengurus see all, others see filtered

@@ -58,7 +58,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // panduan route - accessible by super_admin only
 Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index')->middleware(['auth', 'role:super_admin']);
 
-Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->group(function () {
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
     Route::post('/admin/import', [AdminController::class, 'import'])->name('admin.import');
@@ -114,7 +114,7 @@ Route::prefix('admin-masterdata')->middleware(['auth', 'role:admin'])->group(fun
     Route::post('/tahun-pelajaran/import', [App\Http\Controllers\TahunPelajaranController::class, 'import'])->name('admin_masterdata.tahun-pelajaran.import');
 });
 
-Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->group(function () {
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     // Madrasah routes
     Route::get('/madrasah', [MadrasahController::class, 'index'])->name('madrasah.index');
     Route::post('/madrasah/store', [MadrasahController::class, 'store'])->name('madrasah.store');
@@ -123,7 +123,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->gro
     Route::post('/madrasah/import', [MadrasahController::class, 'import'])->name('madrasah.import');
 });
 
-Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin'])->group(function () {
+Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
     Route::get('/tenaga-pendidik', [TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
     Route::post('/tenaga-pendidik/store', [TenagaPendidikController::class, 'store'])->name('tenaga-pendidik.store');
     Route::put('/tenaga-pendidik/update/{id}', [TenagaPendidikController::class, 'update'])->name('tenaga-pendidik.update');
@@ -162,7 +162,7 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
         Route::post('/store', [IzinController::class, 'store'])->name('store');
     });
 
-    Route::middleware(['role:admin,super_admin'])->group(function () {
+    Route::middleware(['role:admin,super_admin,pengurus'])->group(function () {
         Route::get('/', [IzinController::class, 'index'])->name('index');
         Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('approve');
         Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');

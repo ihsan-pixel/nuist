@@ -54,7 +54,7 @@ class IzinController extends Controller
         $user = Auth::user();
         $query = Presensi::where('status', 'izin')->with('user');
 
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
             $query->whereHas('user', function ($q) use ($user) {
                 $q->where('madrasah_id', $user->madrasah_id);
             });
