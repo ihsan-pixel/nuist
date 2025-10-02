@@ -1,17 +1,9 @@
-# TODO: Make Pengurus Role Access Same as Super Admin
+# Task: Fix Development History Page Layout
 
-## Information Gathered:
-- Roles defined in migrations: 'super_admin', 'admin', 'tenaga_pendidik', 'pengurus', 'user'
-- Routes in routes/web.php use middleware like 'role:super_admin,admin' or 'role:super_admin'
-- IzinPolicy.php checks for 'super_admin' role in approve and reject methods
-
-## Plan:
-- Update routes/web.php to include 'pengurus' in middleware groups that currently allow 'super_admin'
-- Update app/Policies/IzinPolicy.php to allow 'pengurus' the same permissions as 'super_admin'
-
-## Dependent Files to be edited:
-- routes/web.php
-- app/Policies/IzinPolicy.php
-
-## Followup steps:
-- Test the changes to ensure 'pengurus' users have the same access as 'super_admin'
+## Steps:
+- [ ] Step 1: Update CSS for left-aligned timeline, fixed arrows, sidebar offset, and responsiveness in resources/views/development-history/index.blade.php.
+- [ ] Step 2: Uncomment and style filters section in index.blade.php.
+- [ ] Step 3: Adjust HTML structure (wrap timeline, add clearfix, polish empty state) in index.blade.php.
+- [ ] Step 4: Update script for filter auto-submit in index.blade.php.
+- [ ] Step 5: Test changes (start server, launch browser, verify layout, no empty spaces, clean arrows).
+- [ ] Step 6: Update TODO.md with completions and finalize.
