@@ -22,10 +22,12 @@ class TenagaPendidikController extends Controller
                 ->where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
                 ->get();
-        } else {
+        } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
             $tenagaPendidiks = User::with('madrasah')
                 ->where('role', 'tenaga_pendidik')
                 ->get();
+        } else {
+            abort(403, 'Unauthorized access');
         }
         $madrasahs = Madrasah::all();
         $statusKepegawaian = StatusKepegawaian::all();

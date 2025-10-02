@@ -18,8 +18,10 @@ class MadrasahController extends Controller
         $user = auth()->user();
         if ($user->role === 'admin') {
             $madrasahs = Madrasah::where('id', $user->madrasah_id)->get();
-        } else {
+        } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
             $madrasahs = Madrasah::all();
+        } else {
+            abort(403, 'Unauthorized access');
         }
         return view('masterdata.madrasah.index', compact('madrasahs'));
     }

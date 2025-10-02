@@ -21,8 +21,10 @@ class AdminController extends Controller
                 ->where('madrasah_id', $user->madrasah_id)
                 ->with('madrasah')
                 ->get();
-        } else {
+        } elseif ($user->role === 'pengurus' || $user->role === 'super_admin') {
             $admins = User::where('role', 'admin')->with('madrasah')->get();
+        } else {
+            abort(403, 'Unauthorized access');
         }
         $madrasahs = Madrasah::all(); // ambil semua madrasah
         return view('masterdata.admin.index', compact('admins', 'madrasahs'));
