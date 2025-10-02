@@ -13,15 +13,6 @@ use App\Imports\AdminImport;
 
 class AdminController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware('can:viewAny,App\Policies\AdminPolicy')->only('index');
-        $this->middleware('can:create,App\Policies\AdminPolicy')->only('store');
-        $this->middleware('can:update,App\Policies\AdminPolicy')->only('update');
-        $this->middleware('can:delete,App\Policies\AdminPolicy')->only('destroy');
-    }
-
     public function index()
     {
         $user = auth()->user();
