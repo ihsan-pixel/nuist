@@ -52,12 +52,15 @@ class IzinController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $izinRequests = Presensi::where('status', 'izin')
-            ->whereHas('user', function ($query) use ($user) {
-                $query->where('madrasah_id', $user->madrasah_id);
-            })
-            ->with('user')
-            ->get();
+        $query = Presensi::where('status', 'izin')->with('user');
+
+        if ($user->role !== 'super_admin') {
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            });
+        }
+
+        $izinRequests = $query->get();
 
         return view('izin.index', compact('izinRequests'));
     }

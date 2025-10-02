@@ -1,3 +1,2 @@
-- [x] Modify PresensiAdminController@index to fetch $belumPresensi users
-- [x] Update presensi_admin/index.blade.php to add new table below existing one
-- [ ] Test the functionality
+- [x] Update IzinController@index method to show all izin requests for super_admin role, filtered for others
+- [ ] Test the changes to ensure super admin sees all, others see filtered
