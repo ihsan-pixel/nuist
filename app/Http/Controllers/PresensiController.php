@@ -201,6 +201,15 @@ class PresensiController extends Controller
                     ], 400);
                 }
 
+                // Validasi tanggal presensi keluar harus sama dengan tanggal presensi masuk
+                $tanggalSekarang = Carbon::now('Asia/Jakarta')->toDateString();
+                if ($tanggalSekarang !== $presensi->tanggal->toDateString()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi keluar harus dilakukan pada tanggal yang sama dengan presensi masuk.'
+                    ], 400);
+                }
+
                 // Presensi keluar
                 $presensi->update([
                     'waktu_keluar' => $now,
