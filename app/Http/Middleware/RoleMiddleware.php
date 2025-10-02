@@ -24,20 +24,20 @@ class RoleMiddleware
         }
 
         $userRole = trim(strtolower(Auth::user()->role));
-        Log::info('RoleMiddleware raw roles parameter: [' . implode(',', $roles) . ']');
+        \Log::info('RoleMiddleware raw roles parameter: [' . implode(',', $roles) . ']');
 
         $rolesArray = array_map(function($role) {
             return trim(strtolower($role));
         }, $roles);
 
-        Log::info('RoleMiddleware check: User role: [' . $userRole . '], Allowed roles: [' . implode(',', $rolesArray) . '], URL: ' . $request->url());
+        \Log::info('RoleMiddleware check: User role: [' . $userRole . '], Allowed roles: [' . implode(',', $rolesArray) . '], URL: ' . $request->url());
 
         // Additional debug: log raw role from database
         $rawRole = Auth::user()->role;
-        Log::info('RoleMiddleware raw user role from DB: [' . $rawRole . ']');
+        \Log::info('RoleMiddleware raw user role from DB: [' . $rawRole . ']');
 
         if (!in_array($userRole, $rolesArray)) {
-            Log::warning('RoleMiddleware: Access denied for user role: [' . $userRole . '] on URL: ' . $request->url());
+            \Log::warning('RoleMiddleware: Access denied for user role: [' . $userRole . '] on URL: ' . $request->url());
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
