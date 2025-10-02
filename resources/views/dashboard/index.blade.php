@@ -423,7 +423,7 @@
 
         <div class="row">
             {{-- Total Super Admins Card --}}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -441,8 +441,27 @@
                 </div>
             </div>
 
+            {{-- Total Pengurus Card --}}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                    <i class="mdi mdi-account-group fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ $superAdminStats['total_pengurus'] }}</h5>
+                                <p class="text-muted mb-0">Total Pengurus</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Total School Principals Card --}}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">

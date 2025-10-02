@@ -229,6 +229,7 @@ class DashboardController extends Controller
         // Total users by role
         $totalAdmin = User::where('role', 'admin')->count();
         $totalSuperAdmin = User::where('role', 'super_admin')->count();
+        $totalPengurus = User::where('role', 'pengurus')->count();
         $totalSchoolPrincipals = User::where('ketugasan', 'kepala madrasah/sekolah')->count();
 
         return [
@@ -237,6 +238,7 @@ class DashboardController extends Controller
             'total_by_status' => $statusStats,
             'total_admin' => $totalAdmin,
             'total_super_admin' => $totalSuperAdmin,
+            'total_pengurus' => $totalPengurus,
             'total_school_principals' => $totalSchoolPrincipals,
         ];
     }
