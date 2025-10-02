@@ -108,12 +108,12 @@
                     </a>
                 </li>
 
-                <li>
+                {{-- <li>
                     <a href="{{ route('panduan.index') }}" class="waves-effect">
                         <i class="bx bx-help-circle"></i>
                         <span>Panduan</span>
                     </a>
-                </li>
+                </li> --}}
 
                 <li>
                     <a href="{{ route('active-users.index') }}" class="waves-effect">

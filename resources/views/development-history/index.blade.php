@@ -266,7 +266,7 @@
     </div>
 </div>
 
-<!-- Filters -->
+{{-- <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card">
@@ -308,7 +308,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <!-- Sync Button -->
 <div class="row mb-4">
