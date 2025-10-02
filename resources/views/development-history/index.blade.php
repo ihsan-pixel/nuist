@@ -6,9 +6,8 @@
 <style>
 .timeline {
     position: relative;
-    padding: 260px 0 0 0;
+    padding: 0;
     list-style: none;
-    margin: 0;
 }
 
 .timeline:before {
@@ -20,20 +19,12 @@
     margin-left: -1.5px;
     content: '';
     background-color: #e9ecef;
-    z-index: 1;
-}
-
-.timeline:after {
-    content: "";
-    display: table;
-    clear: both;
 }
 
 .timeline > li {
     position: relative;
     margin-bottom: 50px;
     min-height: 50px;
-    clear: both;
 }
 
 .timeline > li:before,
@@ -48,9 +39,8 @@
 
 .timeline > li .timeline-panel {
     position: relative;
-    float: left;
+    float: right;
     width: calc(100% - 90px);
-    margin-left: 90px;
     padding: 20px;
     border: 1px solid #d4edda;
     border-radius: 8px;
@@ -61,33 +51,31 @@
 .timeline > li .timeline-panel:before {
     position: absolute;
     top: 26px;
-    left: -15px;
+    right: -15px;
     display: inline-block;
     border-top: 15px solid transparent;
-    border-right: 15px solid #ccc;
-    border-left: 0 solid #ccc;
+    border-left: 15px solid #ccc;
+    border-right: 0 solid #ccc;
     border-bottom: 15px solid transparent;
     content: ' ';
-    z-index: 2;
 }
 
 .timeline > li .timeline-panel:after {
     position: absolute;
     top: 27px;
-    left: -14px;
+    right: -14px;
     display: inline-block;
     border-top: 14px solid transparent;
-    border-right: 14px solid #fff;
-    border-left: 0 solid #fff;
+    border-left: 14px solid #fff;
+    border-right: 0 solid #fff;
     border-bottom: 14px solid transparent;
     content: ' ';
-    z-index: 3;
 }
 
 .timeline > li .timeline-badge {
     position: absolute;
     top: 16px;
-    left: 10px;
+    left: 28px;
     z-index: 100;
     width: 25px;
     height: 25px;
@@ -96,7 +84,6 @@
     font-size: 1.4em;
     line-height: 25px;
     color: #fff;
-    border: 3px solid #fff;
 }
 
 .timeline-title {
@@ -118,11 +105,6 @@
     border-radius: 10px;
     border: none;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-
-.stats-card:hover {
-    transform: translateY(-2px);
 }
 
 .filter-card {
@@ -136,33 +118,16 @@
 }
 
 @media (max-width: 767px) {
-    .timeline {
-        padding-left: 0;
+    .timeline > li .timeline-panel {
+        width: calc(100% - 70px);
     }
 
     .timeline:before {
         left: 30px;
     }
 
-    .timeline > li .timeline-panel {
-        float: none;
-        width: 100%;
-        margin-left: 70px;
-    }
-
-    .timeline > li .timeline-panel:before,
-    .timeline > li .timeline-panel:after {
-        border: 0;
-        display: none;
-    }
-
     .timeline > li .timeline-badge {
         left: 18px;
-    }
-
-    .stats-row .col-xl-2 {
-        flex: 0 0 50%;
-        max-width: 50%;
     }
 }
 </style>
@@ -191,7 +156,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4 stats-row">
+<div class="row mb-4">
     <div class="col-xl-2 col-md-4 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
@@ -301,15 +266,10 @@
     </div>
 </div>
 
-<!-- Filters -->
+{{-- <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="card-title mb-0">
-                    <i class="bx bx-filter-alt me-2"></i>Filter Riwayat
-                </h5>
-            </div>
+        <div class="card">
             <div class="card-body">
                 <form method="GET" action="{{ route('development-history.index') }}">
                     <div class="row g-3">
@@ -348,7 +308,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <!-- Sync Button -->
 <div class="row mb-4">
@@ -367,46 +327,44 @@
         <div class="card">
             <div class="card-body">
                 @if($histories->count() > 0)
-                    <div class="timeline-wrapper clearfix">
-                        <ul class="timeline">
-                            @foreach($histories as $history)
-                            <li>
-                                <div class="timeline-badge {{ $history->getTypeBadgeClass() }}">
-                                    <i class="bx {{ $history->getTypeIcon() }}"></i>
+                    <ul class="timeline">
+                        @foreach($histories as $history)
+                        <li>
+                            <div class="timeline-badge {{ $history->getTypeBadgeClass() }}">
+                                <i class="bx {{ $history->getTypeIcon() }}"></i>
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h4 class="timeline-title">{{ $history->title }}</h4>
+                                    <p class="text-muted">
+                                        <small>
+                                            <i class="bx bx-calendar me-1"></i>
+                                            {{ $history->formatted_date }}
+                                            <span class="text-primary ms-2">({{ $history->relative_date }})</span>
+                                            @if($history->version)
+                                                <span class="badge bg-info ms-2">v{{ $history->version }}</span>
+                                            @endif
+                                            <span class="badge {{ $history->getTypeBadgeClass() }} ms-2">
+                                                {{ $types[$history->type] ?? $history->type }}
+                                            </span>
+                                        </small>
+                                    </p>
                                 </div>
-                                <div class="timeline-panel">
-                                    <div class="timeline-heading">
-                                        <h4 class="timeline-title">{{ $history->title }}</h4>
-                                        <p class="text-muted">
+                                <div class="timeline-body">
+                                    <p>{{ $history->description }}</p>
+                                    @if($history->migration_file)
+                                        <p class="text-muted mb-0">
                                             <small>
-                                                <i class="bx bx-calendar me-1"></i>
-                                                {{ $history->formatted_date }}
-                                                <span class="text-primary ms-2">({{ $history->relative_date }})</span>
-                                                @if($history->version)
-                                                    <span class="badge bg-info ms-2">v{{ $history->version }}</span>
-                                                @endif
-                                                <span class="badge {{ $history->getTypeBadgeClass() }} ms-2">
-                                                    {{ $types[$history->type] ?? $history->type }}
-                                                </span>
+                                                <i class="bx bx-file me-1"></i>
+                                                Migration: {{ $history->migration_file }}
                                             </small>
                                         </p>
-                                    </div>
-                                    <div class="timeline-body">
-                                        <p>{{ $history->description }}</p>
-                                        @if($history->migration_file)
-                                            <p class="text-muted mb-0">
-                                                <small>
-                                                    <i class="bx bx-file me-1"></i>
-                                                    Migration: {{ $history->migration_file }}
-                                                </small>
-                                            </p>
-                                        @endif
-                                    </div>
+                                    @endif
                                 </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                            </div>
+                        </li>
+                        @endforeach
+                    </ul>
 
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center">
@@ -419,11 +377,8 @@
                                 <i class="bx bx-history"></i>
                             </div>
                         </div>
-                        <h5 class="text-primary">Belum Ada Riwayat Pengembangan</h5>
+                        <h5>Belum Ada Riwayat Pengembangan</h5>
                         <p class="text-muted">Klik tombol "Sinkronisasi Migration" untuk memuat riwayat dari file migration.</p>
-                        <a href="{{ route('development-history.sync') }}" class="btn btn-outline-primary mt-3">
-                            <i class="bx bx-sync me-1"></i> Sinkronisasi Sekarang
-                        </a>
                     </div>
                 @endif
             </div>
