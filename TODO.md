@@ -1,3 +1,3 @@
-- [x] Edit PresensiController.php to use Jakarta date for $today in create() and store() methods
-- [x] Edit AutoInsertAbsence.php to use Jakarta yesterday for default $date
-- [ ] Test the fix by running presensi logic or command
+- [x] Modify PresensiController.php index method to show all data for super_admin without pagination
+- [x] Modify resources/views/presensi/index.blade.php to handle both paginated and non-paginated data
+- [x] Test the changes

@@ -75,7 +75,13 @@
                         <tbody>
                             @forelse($presensis as $index => $presensi)
                                 <tr>
-                                    <td>{{ $presensis->firstItem() + $index }}</td>
+                                    <td>
+                                        @if($presensis instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
+                                            {{ $presensis->firstItem() + $index }}
+                                        @else
+                                            {{ $index + 1 }}
+                                        @endif
+                                    </td>
                                     @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
                                     <td>{{ $presensi->user->name }}</td>
                                     <td>{{ $presensi->user->madrasah?->name ?? '-' }}</td>
@@ -121,7 +127,7 @@
                     </table>
                 </div>
 
-                @if($presensis->hasPages())
+                @if($presensis instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $presensis->hasPages())
                 <div class="d-flex justify-content-center">
                     {{ $presensis->links() }}
                 </div>

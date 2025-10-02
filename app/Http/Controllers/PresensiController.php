@@ -30,7 +30,11 @@ class PresensiController extends Controller
             });
         }
 
-        $presensis = $query->latest('tanggal')->paginate(10);
+        if ($user->role === 'super_admin') {
+            $presensis = $query->latest('tanggal')->get();
+        } else {
+            $presensis = $query->latest('tanggal')->paginate(10);
+        }
 
         return view('presensi.index', compact('presensis'));
     }
