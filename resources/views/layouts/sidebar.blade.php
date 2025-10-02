@@ -46,18 +46,6 @@
                     @endif
 
                 @php
-                    $isPengurusOnly = $userRole === 'pengurus';
-                @endphp
-                @if($isPengurusOnly)
-                <li>
-                    <a href="{{ route('pengurus-masterdata.index') }}" class="waves-effect">
-                        <i class="bx bx-data"></i>
-                        <span>Master Data Pengurus</span>
-                    </a>
-                </li>
-                @endif
-
-                @php
                     $isAdminOnly = $userRole === 'admin';
                 @endphp
                 {{-- @if($isAdminOnly)
