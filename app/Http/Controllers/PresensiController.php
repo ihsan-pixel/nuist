@@ -63,7 +63,13 @@ class PresensiController extends Controller
             ->where('tanggal', $today)
             ->first();
 
-        return view('presensi.create', compact('presensiHariIni', 'isHoliday', 'holiday'));
+        // Ambil pengaturan presensi berdasarkan status kepegawaian user
+        $presensiSettings = null;
+        if ($user->status_kepegawaian_id) {
+            $presensiSettings = \App\Models\PresensiSettings::where('status_kepegawaian_id', $user->status_kepegawaian_id)->first();
+        }
+
+        return view('presensi.create', compact('presensiHariIni', 'isHoliday', 'holiday', 'presensiSettings'));
     }
 
     public function store(Request $request)
