@@ -183,41 +183,156 @@
 
 <!-- Modal for Viewing Tenaga Pendidik Details -->
 <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="viewModalLabel">Detail Tenaga Pendidik</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewModalLabel">
+                    <i class="bx bx-user-circle me-2"></i>Detail Tenaga Pendidik
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img id="modal-avatar" src="" alt="Avatar" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <img id="modal-avatar" src="" alt="Avatar" class="img-fluid rounded-circle mb-3 border" style="width: 150px; height: 150px; object-fit: cover; border-width: 3px !important; border-color: #007bff !important;">
+                                <h5 id="modal-name" class="card-title text-primary fw-bold"></h5>
+                                <p class="text-muted mb-2"><i class="bx bx-envelope me-1"></i><span id="modal-email"></span></p>
+                                <span class="badge bg-success fs-6" id="modal-status"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-8">
-                        <h4 id="modal-name"></h4>
-                        <p><strong>Email:</strong> <span id="modal-email"></span></p>
-                        <p><strong>Status Kepegawaian:</strong> <span id="modal-status"></span></p>
-                        <p><strong>No HP:</strong> <span id="modal-no_hp"></span></p>
-                        <p><strong>NIP:</strong> <span id="modal-nip"></span></p>
-                        <p><strong>NUPTK:</strong> <span id="modal-nuptk"></span></p>
-                        <p><strong>NPK:</strong> <span id="modal-npk"></span></p>
-                        <p><strong>Tempat Lahir:</strong> <span id="modal-tempat_lahir"></span></p>
-                        <p><strong>Tanggal Lahir:</strong> <span id="modal-tanggal_lahir"></span></p>
-                        <p><strong>Alamat:</strong> <span id="modal-alamat"></span></p>
-                        <p><strong>Kartanu:</strong> <span id="modal-kartanu"></span></p>
-                        <p><strong>Pendidikan Terakhir:</strong> <span id="modal-pendidikan_terakhir"></span></p>
-                        <p><strong>Tahun Lulus:</strong> <span id="modal-tahun_lulus"></span></p>
-                        <p><strong>Program Studi:</strong> <span id="modal-program_studi"></span></p>
-                        <p><strong>TMT:</strong> <span id="modal-tmt"></span></p>
-                        <p><strong>Ketugasan:</strong> <span id="modal-ketugasan"></span></p>
-                        <p><strong>Mengajar:</strong> <span id="modal-mengajar"></span></p>
-                        <p><strong>Jabatan:</strong> <span id="modal-jabatan"></span></p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-phone me-1"></i>No HP</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-no_hp">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-id-card me-1"></i>NIP</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-nip">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-id-card me-1"></i>NUPTK</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-nuptk">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-id-card me-1"></i>NPK</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-npk">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-map-pin me-1"></i>Tempat Lahir</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-tempat_lahir">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-calendar me-1"></i>Tanggal Lahir</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-tanggal_lahir">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-home me-1"></i>Alamat</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-alamat">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-card me-1"></i>Kartanu</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-kartanu">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-graduation me-1"></i>Pendidikan Terakhir</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-pendidikan_terakhir">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-calendar-check me-1"></i>Tahun Lulus</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-tahun_lulus">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-book me-1"></i>Program Studi</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-program_studi">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-calendar-event me-1"></i>TMT</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-tmt">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-briefcase me-1"></i>Ketugasan</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-ketugasan">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-chalkboard me-1"></i>Mengajar</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-mengajar">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2"><i class="bx bx-crown me-1"></i>Jabatan</h6>
+                                        <p class="mb-0 fw-semibold" id="modal-jabatan">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bx bx-x me-1"></i>Close
+                </button>
             </div>
         </div>
     </div>
