@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MadrasahImport;
+use Illuminate\Support\Facades\DB;
 
 class MadrasahController extends Controller
 {
@@ -180,7 +181,7 @@ class MadrasahController extends Controller
     {
         $user = auth()->user();
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
-            $madrasahs = Madrasah::withCount('tenagaPendidik')->get();
+            $madrasahs = Madrasah::withCount('tenagaPendidikUsers')->get();
         } else {
             abort(403, 'Unauthorized access');
         }
@@ -197,7 +198,7 @@ class MadrasahController extends Controller
             abort(403, 'Unauthorized access');
         }
 
-        $madrasah = Madrasah::with(['tenagaPendidik.statusKepegawaian'])->findOrFail($id);
+        $madrasah = Madrasah::findOrFail($id);
 
         // Cari kepala sekolah berdasarkan ketugasan 'kepala_madrasah'
         $kepalaSekolah = \App\Models\User::where('madrasah_id', $id)
@@ -207,6 +208,9 @@ class MadrasahController extends Controller
         // Hitung jumlah TP berdasarkan status kepegawaian
         $tpByStatus = $madrasah->tenagaPendidik->groupBy('statusKepegawaian.name')->map->count();
 
-        return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus'));
+        // Hitung total tenaga pendidik
+        $totalTp = $madrasah->tenagaPendidik->count();
+
+        return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus', 'totalTp'));
     }
 }
