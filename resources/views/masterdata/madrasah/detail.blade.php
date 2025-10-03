@@ -252,7 +252,7 @@ $(document).ready(function () {
         .appendTo('#tenaga-pendidik-table_wrapper .col-md-6:eq(0)');
 
     // Handle View Button Click
-    $('.view-btn').on('click', function() {
+    $('#tenaga-pendidik-table').on('click', '.view-btn', function() {
         const data = $(this).data();
         $('#modal-name').text(data.name);
         $('#modal-email').text(data.email);

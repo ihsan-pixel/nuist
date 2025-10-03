@@ -7,4 +7,5 @@
 4. [x] Add Action column with View button
 5. [x] Add modal for displaying full tenaga pendidik details
 6. [x] Add JavaScript to populate modal on View button click
-7. [x] Test the madrasah detail page to ensure data displays correctly (server started, code changes applied correctly)
+7. [x] Fix event delegation for DataTables pagination
+8. [x] Test the madrasah detail page to ensure data displays correctly (server started, code changes applied correctly)
