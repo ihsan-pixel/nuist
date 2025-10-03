@@ -38,13 +38,13 @@
                 @endif
 
                     @foreach($statuses as $status)
-                    <div class="card mb-4 border-primary shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">
-                                <i class="bx bx-user me-2"></i>Pengaturan Presensi untuk Status: {{ $status->name }}
-                            </h5>
+                    <div class="card mb-3 border-primary shadow-sm">
+                        <div class="card-header bg-primary text-white py-2">
+                            <h6 class="card-title mb-0">
+                                <i class="bx bx-user me-2"></i>{{ $status->name }}
+                            </h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body py-3">
                             @php
                                 $setting = $settings->get($status->id);
                                 $prefix = "status_{$status->id}_";
@@ -54,73 +54,67 @@
                                 @csrf
                                 <input type="hidden" name="status_id" value="{{ $status->id }}">
 
-                                <!-- Presensi Masuk Settings -->
-                                <div class="mb-4">
-                                    <h6 class="text-primary mb-3 bg-light p-2 rounded">
-                                        <i class="bx bx-log-in-circle me-2"></i>Pengaturan Presensi Masuk
-                                    </h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label">
-                                                    <i class="bx bx-time-five me-1"></i>Waktu Mulai Presensi Masuk
+                                <div class="row">
+                                    <!-- Presensi Masuk Settings -->
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary mb-2">
+                                            <i class="bx bx-log-in-circle me-1"></i>Masuk
+                                        </h6>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label small">
+                                                    Mulai
                                                 </label>
-                                                <input type="time" class="form-control" id="{{ $prefix }}waktu_mulai_presensi_masuk" name="{{ $prefix }}waktu_mulai_presensi_masuk" value="{{ old($prefix . 'waktu_mulai_presensi_masuk', isset($setting->waktu_mulai_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_masuk)->format('H:i') : '06:30') }}" required>
+                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_masuk" name="{{ $prefix }}waktu_mulai_presensi_masuk" value="{{ old($prefix . 'waktu_mulai_presensi_masuk', isset($setting->waktu_mulai_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_masuk)->format('H:i') : '06:30') }}" required>
                                                 @error($prefix . 'waktu_mulai_presensi_masuk')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="{{ $prefix }}waktu_akhir_presensi_masuk" class="form-label">
-                                                    <i class="bx bx-time-five me-1"></i>Waktu Akhir Presensi Masuk
+                                            <div class="col-6">
+                                                <label for="{{ $prefix }}waktu_akhir_presensi_masuk" class="form-label small">
+                                                    Akhir
                                                 </label>
-                                                <input type="time" class="form-control" id="{{ $prefix }}waktu_akhir_presensi_masuk" name="{{ $prefix }}waktu_akhir_presensi_masuk" value="{{ old($prefix . 'waktu_akhir_presensi_masuk', isset($setting->waktu_akhir_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_masuk)->format('H:i') : '07:00') }}" required>
+                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_masuk" name="{{ $prefix }}waktu_akhir_presensi_masuk" value="{{ old($prefix . 'waktu_akhir_presensi_masuk', isset($setting->waktu_akhir_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_masuk)->format('H:i') : '07:00') }}" required>
                                                 @error($prefix . 'waktu_akhir_presensi_masuk')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
-                                                <small class="text-muted">Setelah waktu ini, presensi masih diperbolehkan namun terhitung terlambat</small>
                                             </div>
                                         </div>
+                                        <small class="text-muted small">Terlambat setelah akhir</small>
                                     </div>
-                                </div>
 
-                                <!-- Presensi Pulang Settings -->
-                                <div class="mb-4">
-                                    <h6 class="text-success mb-3 bg-light p-2 rounded">
-                                        <i class="bx bx-log-out-circle me-2"></i>Pengaturan Presensi Pulang
-                                    </h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label">
-                                                    <i class="bx bx-time-five me-1"></i>Waktu Mulai Presensi Pulang
+                                    <!-- Presensi Pulang Settings -->
+                                    <div class="col-md-6">
+                                        <h6 class="text-success mb-2">
+                                            <i class="bx bx-log-out-circle me-1"></i>Pulang
+                                        </h6>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label small">
+                                                    Mulai
                                                 </label>
-                                                <input type="time" class="form-control" id="{{ $prefix }}waktu_mulai_presensi_pulang" name="{{ $prefix }}waktu_mulai_presensi_pulang" value="{{ old($prefix . 'waktu_mulai_presensi_pulang', isset($setting->waktu_mulai_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_pulang)->format('H:i') : '13:00') }}" required>
+                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_pulang" name="{{ $prefix }}waktu_mulai_presensi_pulang" value="{{ old($prefix . 'waktu_mulai_presensi_pulang', isset($setting->waktu_mulai_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_pulang)->format('H:i') : '13:00') }}" required>
                                                 @error($prefix . 'waktu_mulai_presensi_pulang')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label">
-                                                    <i class="bx bx-time-five me-1"></i>Waktu Akhir Presensi Pulang
+                                            <div class="col-6">
+                                                <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label small">
+                                                    Akhir
                                                 </label>
-                                                <input type="time" class="form-control" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix }}waktu_akhir_presensi_pulang" value="{{ old($prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
+                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
                                                 @error($prefix . 'waktu_akhir_presensi_pulang')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
-                                                <small class="text-muted">Setelah waktu ini, presensi pulang tidak diperbolehkan</small>
                                             </div>
                                         </div>
+                                        <small class="text-muted small">Tidak boleh setelah akhir</small>
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-center mt-4">
-                                    <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        <i class="bx bx-save me-2"></i>Simpan Pengaturan {{ $status->name }}
+                                <div class="d-flex justify-content-center mt-3">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-save me-1"></i>Simpan
                                     </button>
                                 </div>
                             </form>
