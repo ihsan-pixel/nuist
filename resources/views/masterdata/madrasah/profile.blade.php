@@ -61,10 +61,10 @@
                                 <h5 class="card-title fw-semibold mb-2">{{ $madrasah->name }}</h5>
                                 <p class="card-text text-muted small mb-3">{{ Str::limit($madrasah->alamat ?? 'Alamat tidak tersedia', 100) }}</p>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-success rounded-pill px-3 py-2">
+                                    <a href="{{ route('madrasah.detail', $madrasah->id) }}" class="btn btn-success btn-sm rounded-pill px-3">
                                         <i class="bx bx-user me-1"></i>
-                                        {{ $madrasah->tenaga_pendidik_count }} TP
-                                    </span>
+                                        Lihat Profile ({{ $madrasah->tenaga_pendidik_count }} TP)
+                                    </a>
                                     <div class="d-flex gap-1">
                                         <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
                                     </div>

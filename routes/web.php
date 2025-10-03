@@ -125,6 +125,7 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
 
     // Profile Madrasah routes - restricted to super_admin and pengurus (controller handles authorization)
     Route::get('/madrasah/profile', [MadrasahController::class, 'profile'])->name('madrasah.profile');
+    Route::get('/madrasah/{id}/detail', [MadrasahController::class, 'detail'])->name('madrasah.detail');
 });
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {

@@ -186,4 +186,27 @@ class MadrasahController extends Controller
         }
         return view('masterdata.madrasah.profile', compact('madrasahs'));
     }
+
+    /**
+     * Tampilkan detail profile madrasah lengkap
+     */
+    public function detail($id)
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $madrasah = Madrasah::with(['tenagaPendidik.statusKepegawaian'])->findOrFail($id);
+
+        // Cari kepala sekolah (asumsi jabatan 'Kepala Sekolah' di users table)
+        $kepalaSekolah = \App\Models\User::where('madrasah_id', $id)
+            ->where('jabatan', 'Kepala Sekolah')
+            ->first();
+
+        // Hitung jumlah TP berdasarkan status kepegawaian
+        $tpByStatus = $madrasah->tenagaPendidik->groupBy('status_kepegawaian.name')->map->count();
+
+        return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus'));
+    }
 }
