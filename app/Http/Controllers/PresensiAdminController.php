@@ -37,9 +37,8 @@ class PresensiAdminController extends Controller
     {
         $statuses = \App\Models\StatusKepegawaian::all();
 
-        // Delete legacy singleton records and any existing per-status records to avoid duplicates
-        \App\Models\PresensiSettings::whereNull('status_kepegawaian_id')->delete();
-        \App\Models\PresensiSettings::truncate(); // Clear all to ensure clean state
+        // Clear all existing presensi settings to avoid any duplicates or conflicts
+        \App\Models\PresensiSettings::truncate();
 
         // Validate for each status
         $rules = [];
@@ -72,10 +71,7 @@ class PresensiAdminController extends Controller
                 }
             }
 
-            // Explicitly delete any existing for this status (safety)
-            \App\Models\PresensiSettings::where('status_kepegawaian_id', $status->id)->delete();
-
-            // Create new record
+            // Create new record (table is already cleared)
             \App\Models\PresensiSettings::create([
                 'status_kepegawaian_id' => $status->id,
                 'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
