@@ -37,12 +37,9 @@ class PresensiAdminController extends Controller
     {
         $statuses = \App\Models\StatusKepegawaian::all();
 
-        // Handle existing singleton record (legacy data without status_kepegawaian_id)
-        $existingSingleton = \App\Models\PresensiSettings::whereNull('status_kepegawaian_id')->first();
-        if ($existingSingleton) {
-            // Assign to first status or delete - here we delete to avoid conflicts
-            $existingSingleton->delete();
-        }
+        // Delete legacy singleton records and any existing per-status records to avoid duplicates
+        \App\Models\PresensiSettings::whereNull('status_kepegawaian_id')->delete();
+        \App\Models\PresensiSettings::truncate(); // Clear all to ensure clean state
 
         // Validate for each status
         $rules = [];
@@ -75,17 +72,17 @@ class PresensiAdminController extends Controller
                 }
             }
 
-            $settings = PresensiSettings::where('status_kepegawaian_id', $status->id)->first();
-            if (!$settings) {
-                $settings = new PresensiSettings();
-                $settings->status_kepegawaian_id = $status->id;
-            }
+            // Explicitly delete any existing for this status (safety)
+            \App\Models\PresensiSettings::where('status_kepegawaian_id', $status->id)->delete();
 
-            $settings->waktu_mulai_presensi_masuk = $request->input($prefix . 'waktu_mulai_presensi_masuk');
-            $settings->waktu_akhir_presensi_masuk = $request->input($prefix . 'waktu_akhir_presensi_masuk');
-            $settings->waktu_mulai_presensi_pulang = $request->input($prefix . 'waktu_mulai_presensi_pulang');
-            $settings->waktu_akhir_presensi_pulang = $request->input($prefix . 'waktu_akhir_presensi_pulang');
-            $settings->save();
+            // Create new record
+            \App\Models\PresensiSettings::create([
+                'status_kepegawaian_id' => $status->id,
+                'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
+                'waktu_akhir_presensi_masuk' => $request->input($prefix . 'waktu_akhir_presensi_masuk'),
+                'waktu_mulai_presensi_pulang' => $request->input($prefix . 'waktu_mulai_presensi_pulang'),
+                'waktu_akhir_presensi_pulang' => $request->input($prefix . 'waktu_akhir_presensi_pulang'),
+            ]);
         }
 
         // Jalankan perintah untuk membersihkan duplikat
