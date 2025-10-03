@@ -63,7 +63,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <a href="{{ route('madrasah.detail', $madrasah->id) }}" class="btn btn-success btn-sm rounded-pill px-3">
                                         <i class="bx bx-user me-1"></i>
-                                        Lihat Profile ({{ $madrasah->tenaga_pendidik_count }} TP)
+                                        Lihat Profile {{ $madrasah->tenaga_pendidik_count }}
                                     </a>
                                     <div class="d-flex gap-1">
                                         <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>

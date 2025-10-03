@@ -126,8 +126,7 @@
                                         <th>Nama</th>
                                         <th>Email</th>
                                         <th>Status Kepegawaian</th>
-                                        <th>No HP</th>
-                                        <th>NIP/NUPTK</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -137,12 +136,34 @@
                                         <td>{{ $tp->name }}</td>
                                         <td>{{ $tp->email }}</td>
                                         <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
-                                        <td>{{ $tp->no_hp ?? '-' }}</td>
-                                        <td>{{ $tp->nip ?? $tp->nuptk ?? '-' }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-btn"
+                                                    data-name="{{ $tp->name }}"
+                                                    data-email="{{ $tp->email }}"
+                                                    data-status="{{ $tp->statusKepegawaian->name ?? '-' }}"
+                                                    data-no_hp="{{ $tp->no_hp ?? '-' }}"
+                                                    data-nip="{{ $tp->nip ?? '-' }}"
+                                                    data-nuptk="{{ $tp->nuptk ?? '-' }}"
+                                                    data-avatar="{{ $tp->avatar ? asset('storage/' . $tp->avatar) : asset('build/images/users/avatar-1.jpg') }}"
+                                                    data-tempat_lahir="{{ $tp->tempat_lahir ?? '-' }}"
+                                                    data-tanggal_lahir="{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->format('d-m-Y') : '-' }}"
+                                                    data-alamat="{{ $tp->alamat ?? '-' }}"
+                                                    data-kartanu="{{ $tp->kartanu ?? '-' }}"
+                                                    data-npk="{{ $tp->npk ?? '-' }}"
+                                                    data-pendidikan_terakhir="{{ $tp->pendidikan_terakhir ?? '-' }}"
+                                                    data-tahun_lulus="{{ $tp->tahun_lulus ?? '-' }}"
+                                                    data-program_studi="{{ $tp->program_studi ?? '-' }}"
+                                                    data-tmt="{{ $tp->tmt ? $tp->tmt->format('d-m-Y') : '-' }}"
+                                                    data-ketugasan="{{ $tp->ketugasan ?? '-' }}"
+                                                    data-mengajar="{{ $tp->mengajar ?? '-' }}"
+                                                    data-jabatan="{{ $tp->jabatan ?? '-' }}">
+                                                <i class="bx bx-show"></i> View
+                                            </button>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="6" class="text-center p-4">
+                                        <td colspan="5" class="text-center p-4">
                                             <div class="alert alert-info d-inline-block text-center" role="alert">
                                                 <i class="bx bx-info-circle bx-lg me-2"></i>
                                                 <strong>Belum ada data tenaga pendidik</strong>
@@ -155,6 +176,48 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Viewing Tenaga Pendidik Details -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewModalLabel">Detail Tenaga Pendidik</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img id="modal-avatar" src="" alt="Avatar" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <h4 id="modal-name"></h4>
+                        <p><strong>Email:</strong> <span id="modal-email"></span></p>
+                        <p><strong>Status Kepegawaian:</strong> <span id="modal-status"></span></p>
+                        <p><strong>No HP:</strong> <span id="modal-no_hp"></span></p>
+                        <p><strong>NIP:</strong> <span id="modal-nip"></span></p>
+                        <p><strong>NUPTK:</strong> <span id="modal-nuptk"></span></p>
+                        <p><strong>NPK:</strong> <span id="modal-npk"></span></p>
+                        <p><strong>Tempat Lahir:</strong> <span id="modal-tempat_lahir"></span></p>
+                        <p><strong>Tanggal Lahir:</strong> <span id="modal-tanggal_lahir"></span></p>
+                        <p><strong>Alamat:</strong> <span id="modal-alamat"></span></p>
+                        <p><strong>Kartanu:</strong> <span id="modal-kartanu"></span></p>
+                        <p><strong>Pendidikan Terakhir:</strong> <span id="modal-pendidikan_terakhir"></span></p>
+                        <p><strong>Tahun Lulus:</strong> <span id="modal-tahun_lulus"></span></p>
+                        <p><strong>Program Studi:</strong> <span id="modal-program_studi"></span></p>
+                        <p><strong>TMT:</strong> <span id="modal-tmt"></span></p>
+                        <p><strong>Ketugasan:</strong> <span id="modal-ketugasan"></span></p>
+                        <p><strong>Mengajar:</strong> <span id="modal-mengajar"></span></p>
+                        <p><strong>Jabatan:</strong> <span id="modal-jabatan"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -187,6 +250,31 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#tenaga-pendidik-table_wrapper .col-md-6:eq(0)');
+
+    // Handle View Button Click
+    $('.view-btn').on('click', function() {
+        const data = $(this).data();
+        $('#modal-name').text(data.name);
+        $('#modal-email').text(data.email);
+        $('#modal-status').text(data.status);
+        $('#modal-no_hp').text(data.no_hp);
+        $('#modal-nip').text(data.nip);
+        $('#modal-nuptk').text(data.nuptk);
+        $('#modal-npk').text(data.npk);
+        $('#modal-tempat_lahir').text(data.tempat_lahir);
+        $('#modal-tanggal_lahir').text(data.tanggal_lahir);
+        $('#modal-alamat').text(data.alamat);
+        $('#modal-kartanu').text(data.kartanu);
+        $('#modal-pendidikan_terakhir').text(data.pendidikan_terakhir);
+        $('#modal-tahun_lulus').text(data.tahun_lulus);
+        $('#modal-program_studi').text(data.program_studi);
+        $('#modal-tmt').text(data.tmt);
+        $('#modal-ketugasan').text(data.ketugasan);
+        $('#modal-mengajar').text(data.mengajar);
+        $('#modal-jabatan').text(data.jabatan);
+        $('#modal-avatar').attr('src', data.avatar);
+        $('#viewModal').modal('show');
+    });
 
     @if(session('success'))
         Swal.fire({
