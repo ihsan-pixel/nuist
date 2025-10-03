@@ -36,9 +36,6 @@
                             @endif
                             <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
                             <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
-                            @if(in_array($userRole, ['super_admin', 'pengurus']))
-                            <li><a href="{{ route('madrasah.profile') }}">Profile Madrasah/Sekolah</a></li>
-                            @endif
                             <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
                             @if(in_array($userRole, ['super_admin', 'pengurus']))
                             <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
@@ -48,9 +45,18 @@
                     </li>
                     @endif
 
-                @php
-                    $isAdminOnly = $userRole === 'admin';
-                @endphp
+                    @if(in_array($userRole, ['super_admin', 'pengurus']))
+                    <li>
+                        <a href="{{ route('madrasah.profile') }}" class="waves-effect">
+                            <i class="bx bx-building"></i>
+                            <span>Profile Madrasah/Sekolah</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    @php
+                        $isAdminOnly = $userRole === 'admin';
+                    @endphp
                 {{-- @if($isAdminOnly)
                 <li>
                     <a href="#adminMasterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
