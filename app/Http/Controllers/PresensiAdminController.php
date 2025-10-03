@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 class PresensiAdminController extends Controller
 {
@@ -37,49 +38,53 @@ class PresensiAdminController extends Controller
     {
         $statuses = \App\Models\StatusKepegawaian::all();
 
-        // Clear all existing presensi settings to avoid any duplicates or conflicts
-        \App\Models\PresensiSettings::truncate();
+        DB::transaction(function () use ($request, $statuses) {
+            // Delete all existing per-status records to avoid duplicates
+            \App\Models\PresensiSettings::whereNotNull('status_kepegawaian_id')->delete();
 
-        // Validate for each status
-        $rules = [];
-        foreach ($statuses as $status) {
-            $prefix = "status_{$status->id}_";
-            $rules[$prefix . 'waktu_mulai_presensi_masuk'] = 'nullable|date_format:H:i';
-            $rules[$prefix . 'waktu_akhir_presensi_masuk'] = 'nullable|date_format:H:i';
-            $rules[$prefix . 'waktu_mulai_presensi_pulang'] = 'nullable|date_format:H:i';
-            $rules[$prefix . 'waktu_akhir_presensi_pulang'] = 'nullable|date_format:H:i';
-        }
-
-        $request->validate($rules);
-
-        foreach ($statuses as $status) {
-            $prefix = "status_{$status->id}_";
-
-            // Normalize time inputs: replace '.' with ':'
-            $timeFields = [
-                $prefix . 'waktu_mulai_presensi_masuk',
-                $prefix . 'waktu_akhir_presensi_masuk',
-                $prefix . 'waktu_mulai_presensi_pulang',
-                $prefix . 'waktu_akhir_presensi_pulang'
-            ];
-
-            foreach ($timeFields as $field) {
-                if ($request->has($field) && $request->$field) {
-                    $request->merge([
-                        $field => str_replace('.', ':', $request->$field),
-                    ]);
-                }
+            // Validate for each status
+            $rules = [];
+            foreach ($statuses as $status) {
+                $prefix = "status_{$status->id}_";
+                $rules[$prefix . 'waktu_mulai_presensi_masuk'] = 'nullable|date_format:H:i';
+                $rules[$prefix . 'waktu_akhir_presensi_masuk'] = 'nullable|date_format:H:i';
+                $rules[$prefix . 'waktu_mulai_presensi_pulang'] = 'nullable|date_format:H:i';
+                $rules[$prefix . 'waktu_akhir_presensi_pulang'] = 'nullable|date_format:H:i';
             }
 
-            // Create new record (table is already cleared)
-            \App\Models\PresensiSettings::create([
-                'status_kepegawaian_id' => $status->id,
-                'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
-                'waktu_akhir_presensi_masuk' => $request->input($prefix . 'waktu_akhir_presensi_masuk'),
-                'waktu_mulai_presensi_pulang' => $request->input($prefix . 'waktu_mulai_presensi_pulang'),
-                'waktu_akhir_presensi_pulang' => $request->input($prefix . 'waktu_akhir_presensi_pulang'),
-            ]);
-        }
+            $request->validate($rules);
+
+            foreach ($statuses as $status) {
+                $prefix = "status_{$status->id}_";
+
+                // Normalize time inputs: replace '.' with ':'
+                $timeFields = [
+                    $prefix . 'waktu_mulai_presensi_masuk',
+                    $prefix . 'waktu_akhir_presensi_masuk',
+                    $prefix . 'waktu_mulai_presensi_pulang',
+                    $prefix . 'waktu_akhir_presensi_pulang'
+                ];
+
+                foreach ($timeFields as $field) {
+                    if ($request->has($field) && $request->$field) {
+                        $request->merge([
+                            $field => str_replace('.', ':', $request->$field),
+                        ]);
+                    }
+                }
+
+                // Use updateOrCreate for safety
+                \App\Models\PresensiSettings::updateOrCreate(
+                    ['status_kepegawaian_id' => $status->id],
+                    [
+                        'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
+                        'waktu_akhir_presensi_masuk' => $request->input($prefix . 'waktu_akhir_presensi_masuk'),
+                        'waktu_mulai_presensi_pulang' => $request->input($prefix . 'waktu_mulai_presensi_pulang'),
+                        'waktu_akhir_presensi_pulang' => $request->input($prefix . 'waktu_akhir_presensi_pulang'),
+                    ]
+                );
+            }
+        });
 
         // Jalankan perintah untuk membersihkan duplikat
         Artisan::call('presensi:clean-duplicates');
