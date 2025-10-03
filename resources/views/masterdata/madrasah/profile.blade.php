@@ -39,7 +39,7 @@
 
                 <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-8">
                             <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ $search ?? '' }}">
                         </div>
                         {{-- <div class="col-md-4">
