@@ -14,9 +14,9 @@
     @slot('title') Pengaturan Presensi @endslot
 @endcomponent
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="card shadow border-0">
             <div class="card-header">
                 <h4 class="card-title mb-0">
                     <i class="bx bx-cog me-2"></i>Pengaturan Presensi
@@ -38,8 +38,8 @@
                 @endif
 
                     @foreach($statuses as $status)
-                    <div class="card mb-4">
-                        <div class="card-header">
+                    <div class="card mb-4 border-primary shadow-sm">
+                        <div class="card-header bg-primary text-white">
                             <h5 class="card-title mb-0">
                                 <i class="bx bx-user me-2"></i>Pengaturan Presensi untuk Status: {{ $status->name }}
                             </h5>
@@ -56,10 +56,10 @@
 
                                 <!-- Presensi Masuk Settings -->
                                 <div class="mb-4">
-                                    <h6 class="text-primary mb-3">
+                                    <h6 class="text-primary mb-3 bg-light p-2 rounded">
                                         <i class="bx bx-log-in-circle me-2"></i>Pengaturan Presensi Masuk
                                     </h6>
-                                    <div class="row">
+                                    <div class="row g-3">
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label">
@@ -88,10 +88,10 @@
 
                                 <!-- Presensi Pulang Settings -->
                                 <div class="mb-4">
-                                    <h6 class="text-success mb-3">
+                                    <h6 class="text-success mb-3 bg-light p-2 rounded">
                                         <i class="bx bx-log-out-circle me-2"></i>Pengaturan Presensi Pulang
                                     </h6>
-                                    <div class="row">
+                                    <div class="row g-3">
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label">
@@ -118,9 +118,9 @@
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bx bx-save me-1"></i>Simpan Pengaturan {{ $status->name }}
+                                <div class="d-flex justify-content-center mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="bx bx-save me-2"></i>Simpan Pengaturan {{ $status->name }}
                                     </button>
                                 </div>
                             </form>
