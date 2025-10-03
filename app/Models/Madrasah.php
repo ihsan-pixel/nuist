@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TenagaPendidik;
 
 class Madrasah extends Model
 {
@@ -23,6 +24,12 @@ class Madrasah extends Model
     public function admins()
     {
         return $this->hasMany(User::class, 'madrasah_id');
+    }
+
+    // Relasi: satu madrasah punya banyak tenaga pendidik
+    public function tenagaPendidik()
+    {
+        return $this->hasMany(TenagaPendidik::class, 'madrasah_id');
     }
 
     // Relasi: satu madrasah belongs to satu yayasan

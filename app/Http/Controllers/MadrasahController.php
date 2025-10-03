@@ -172,4 +172,18 @@ class MadrasahController extends Controller
             return redirect()->back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
     }
+
+    /**
+     * Tampilkan profile madrasah dengan data tenaga pendidik
+     */
+    public function profile()
+    {
+        $user = auth()->user();
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
+            $madrasahs = Madrasah::withCount('tenagaPendidik')->get();
+        } else {
+            abort(403, 'Unauthorized access');
+        }
+        return view('masterdata.madrasah.profile', compact('madrasahs'));
+    }
 }

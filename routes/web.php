@@ -122,6 +122,11 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::put('/madrasah/update/{id}', [MadrasahController::class, 'update'])->name('madrasah.update');
     Route::delete('/madrasah/destroy/{id}', [MadrasahController::class, 'destroy'])->name('madrasah.destroy');
     Route::post('/madrasah/import', [MadrasahController::class, 'import'])->name('madrasah.import');
+
+    // Profile Madrasah routes - restricted to super_admin and pengurus
+    Route::middleware(['role:super_admin,pengurus'])->group(function () {
+        Route::get('/madrasah/profile', [MadrasahController::class, 'profile'])->name('madrasah.profile');
+    });
 });
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {
