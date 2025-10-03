@@ -131,10 +131,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($madrasah->tenagaPendidik as $tp)
+                                    @forelse($madrasah->tenagaPendidikUsers as $tp)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $tp->nama }}</td>
+                                        <td>{{ $tp->name }}</td>
                                         <td>{{ $tp->email }}</td>
                                         <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
                                         <td>{{ $tp->no_hp ?? '-' }}</td>
