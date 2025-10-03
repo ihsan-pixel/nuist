@@ -201,7 +201,7 @@ class MadrasahController extends Controller
 
         // Cari kepala sekolah berdasarkan ketugasan 'kepala_madrasah'
         $kepalaSekolah = \App\Models\User::where('madrasah_id', $id)
-            ->where('ketugasan', 'kepala_madrasah')
+            ->where('ketugasan', 'kepala madrasah/sekolah')
             ->first();
 
         // Hitung jumlah TP berdasarkan status kepegawaian
