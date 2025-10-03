@@ -144,7 +144,7 @@
                                                     data-no_hp="{{ $tp->no_hp ?? '-' }}"
                                                     data-nip="{{ $tp->nip ?? '-' }}"
                                                     data-nuptk="{{ $tp->nuptk ?? '-' }}"
-                                                    data-avatar="{{ $tp->avatar ? asset('storage/' . $tp->avatar) : asset('build/images/users/avatar-11.png') }}"
+                                                    data-avatar="{{ $tp->avatar ? asset('storage/app/public/' . $tp->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                                                     data-tempat_lahir="{{ $tp->tempat_lahir ?? '-' }}"
                                                     data-tanggal_lahir="{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->format('d-m-Y') : '-' }}"
                                                     data-alamat="{{ $tp->alamat ?? '-' }}"
