@@ -58,8 +58,8 @@
 
                                         <div class="row">
                                             <!-- Presensi Masuk Settings -->
-                                            <div class="col-6 bg-primary text-white p-2 rounded">
-                                                <h6 class="text-white mb-2">
+                                            <div class="col-6">
+                                                <h6 class="text-white bg-primary p-1 rounded small mb-2">
                                                     <i class="bx bx-log-in-circle me-1"></i>Masuk
                                                 </h6>
                                                 <div class="row g-2">
@@ -86,8 +86,8 @@
                                             </div>
 
                                             <!-- Presensi Pulang Settings -->
-                                            <div class="col-6 bg-success text-white p-2 rounded">
-                                                <h6 class="text-white mb-2">
+                                            <div class="col-6">
+                                                <h6 class="text-white bg-success p-1 rounded small mb-2">
                                                     <i class="bx bx-log-out-circle me-1"></i>Pulang
                                                 </h6>
                                                 <div class="row g-2">
