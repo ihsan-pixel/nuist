@@ -96,14 +96,6 @@
                     <div class="col-12">
                         <h5 class="fw-semibold mb-3">Jumlah Tenaga Pendidik berdasarkan Status Kepegawaian</h5>
                         <div class="row">
-                            <div class="col-md-3 mb-2">
-                                <div class="card border-0 bg-primary text-white">
-                                    <div class="card-body text-center">
-                                        <h6 class="card-title mb-1">Total Tenaga Pendidik</h6>
-                                        <h4 class="fw-bold">{{ $totalTp }}</h4>
-                                    </div>
-                                </div>
-                            </div>
                             @forelse($tpByStatus as $status => $count)
                             <div class="col-md-3 mb-2">
                                 <div class="card border-0 bg-light">

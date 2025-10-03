@@ -11,5 +11,5 @@ This TODO tracks the implementation of the new "Profile Madrasah/Sekolah" menu, 
 
 # TODO for Displaying Total Tenaga Pendidik Count in Madrasah Detail
 
-- [x] Update app/Http/Controllers/MadrasahController.php detail method: Add $totalTp = $madrasah->tenagaPendidik->count(); and include in compact.
-- [x] Update resources/views/masterdata/madrasah/detail.blade.php: Add a card for total tenaga pendidik count before the status-based cards.
+- [ ] Update app/Http/Controllers/MadrasahController.php detail method: Add $totalTp = $madrasah->tenagaPendidik->count(); and include in compact.
+- [ ] Update resources/views/masterdata/madrasah/detail.blade.php: Add a card for total tenaga pendidik count before the status-based cards.

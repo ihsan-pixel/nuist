@@ -208,9 +208,6 @@ class MadrasahController extends Controller
         // Hitung jumlah TP berdasarkan status kepegawaian
         $tpByStatus = $madrasah->tenagaPendidik->groupBy('statusKepegawaian.name')->map->count();
 
-        // Hitung total tenaga pendidik
-        $totalTp = $madrasah->tenagaPendidik->count();
-
-        return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus', 'totalTp'));
+        return view('masterdata.madrasah.detail', compact('madrasah', 'kepalaSekolah', 'tpByStatus'));
     }
 }
