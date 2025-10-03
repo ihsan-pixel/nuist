@@ -119,6 +119,11 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label">Status Kepegawaian</label>
+                                    <input type="text" class="form-control" value="{{ auth()->user()->statusKepegawaian?->name ?? 'Belum diatur' }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label">Tanggal</label>
                                     <input type="text" class="form-control" value="{{ \Carbon\Carbon::now()->format('d F Y') }}" readonly>
                                 </div>
