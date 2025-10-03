@@ -42,7 +42,7 @@
                         <div class="col-md-6">
                             <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ $search ?? '' }}">
                         </div>
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <select name="yayasan_id" class="form-select">
                                 <option value="">Pilih Yayasan</option>
                                 @if(isset($yayasans))
@@ -51,7 +51,7 @@
                                 @endforeach
                                 @endif
                             </select>
-                        </div>
+                        </div> --}}
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Cari</button>
                         </div>
