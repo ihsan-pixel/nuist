@@ -37,6 +37,27 @@
                 </div>
                 @endif
 
+                <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ $search ?? '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <select name="yayasan_id" class="form-select">
+                                <option value="">Semua Yayasan</option>
+                                @if(isset($yayasans))
+                                @foreach($yayasans as $yayasan)
+                                <option value="{{ $yayasan->id }}" {{ ($yayasan_id ?? '') == $yayasan->id ? 'selected' : '' }}>{{ $yayasan->name }}</option>
+                                @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Cari</button>
+                        </div>
+                    </div>
+                </form>
+
                 @if($madrasahs->isEmpty())
                 <div class="text-center p-4">
                     <div class="alert alert-info d-inline-block" role="alert">

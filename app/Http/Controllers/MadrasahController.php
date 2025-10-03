@@ -177,15 +177,23 @@ class MadrasahController extends Controller
     /**
      * Tampilkan profile madrasah dengan data tenaga pendidik
      */
-    public function profile()
+    public function profile(Request $request)
     {
         $user = auth()->user();
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
-            $madrasahs = Madrasah::withCount('tenagaPendidikUsers')->get();
+            $search = $request->input('search');
+            $yayasan_id = $request->input('yayasan_id');
+
+            $madrasahs = Madrasah::withCount('tenagaPendidikUsers')
+                ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+                ->when($yayasan_id, fn($q) => $q->where('yayasan_id', $yayasan_id))
+                ->get();
+
+            $yayasans = \App\Models\Yayasan::all();
         } else {
             abort(403, 'Unauthorized access');
         }
-        return view('masterdata.madrasah.profile', compact('madrasahs'));
+        return view('masterdata.madrasah.profile', compact('madrasahs', 'yayasans', 'search', 'yayasan_id'));
     }
 
     /**

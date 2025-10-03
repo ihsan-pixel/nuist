@@ -1,13 +1,8 @@
-# TODO: Update Madrasah Detail Tenaga Pendidik Table
+# TODO: Add Search and Filter to Profile Madrasah/Sekolah
 
-## Steps:
-1. [x] Update MadrasahController.php detail method to use tenagaPendidikUsers relationship for $tpByStatus
-2. [x] Update detail.blade.php to use tenagaPendidikUsers instead of tenagaPendidik and adjust field names (nama -> name)
-3. [x] Remove No HP and NIP/NUPTK columns from the table
-4. [x] Add Action column with View button
-5. [x] Add modal for displaying full tenaga pendidik details
-6. [x] Add JavaScript to populate modal on View button click
-7. [x] Fix event delegation for DataTables pagination
-8. [x] Change default avatar to avatar-11.png
-9. [x] Simplify modal layout and remove jabatan field
-10. [x] Test the madrasah detail page to ensure data displays correctly (server started, code changes applied correctly)
+- [x] Update MadrasahController.php profile() method to handle search and filter parameters
+- [x] Modify the query in profile() to apply search by name and filter by yayasan_id
+- [x] Load all yayasans in profile() for the filter dropdown
+- [x] Update profile.blade.php to include search form with input for name and select for yayasan
+- [x] Ensure form preserves current parameters and submits via GET
+- [x] Test search and filter functionality (Laravel server started, functionality implemented)
