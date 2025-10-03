@@ -68,9 +68,21 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $presensi->user->name ?? '-' }}</td>
                                 <td>{{ $presensi->user->madrasah->name ?? '-' }}</td>
-                                <td>{{ $presensi->tanggal }}</td>
-                                <td>{{ $presensi->waktu_masuk ?? '-' }}</td>
-                                <td>{{ $presensi->waktu_keluar ?? '-' }}</td>
+                                    <td>{{ $presensi->tanggal }}</td>
+                                    <td>
+                                        @if($presensi->waktu_masuk)
+                                            {{ $presensi->tanggal->copy()->setTimeFromTimeString($presensi->waktu_masuk->format('H:i:s'))->format('Y-m-d H:i') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($presensi->waktu_keluar)
+                                            {{ $presensi->tanggal->copy()->setTimeFromTimeString($presensi->waktu_keluar->format('H:i:s'))->format('Y-m-d H:i') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 <td>
                                     @if($presensi->status == 'hadir')
                                         <span class="badge bg-success">Hadir</span>
