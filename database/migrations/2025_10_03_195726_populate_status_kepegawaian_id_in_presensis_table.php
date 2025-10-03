@@ -14,11 +14,10 @@ return new class extends Migration
     {
         // Populate status_kepegawaian_id for existing presensi records
         DB::statement('
-            UPDATE presensis
-            SET status_kepegawaian_id = users.status_kepegawaian_id
-            FROM users
-            WHERE presensis.user_id = users.id
-            AND presensis.status_kepegawaian_id IS NULL
+            UPDATE presensis p
+            JOIN users u ON p.user_id = u.id
+            SET p.status_kepegawaian_id = u.status_kepegawaian_id
+            WHERE p.status_kepegawaian_id IS NULL
         ');
     }
 
