@@ -27,47 +27,59 @@ class PresensiAdminController extends Controller
     // Show presensi settings form
     public function settings()
     {
-        $settings = PresensiSettings::first();
-        return view('presensi_admin.settings', compact('settings'));
+        $statuses = \App\Models\StatusKepegawaian::all();
+        $settings = PresensiSettings::with('statusKepegawaian')->get()->keyBy('status_kepegawaian_id');
+        return view('presensi_admin.settings', compact('statuses', 'settings'));
     }
 
     // Update presensi settings
     public function updateSettings(Request $request)
     {
-        // Normalize time inputs: replace '.' with ':'
-        $timeFields = [
-            'waktu_mulai_presensi_masuk',
-            'waktu_akhir_presensi_masuk',
-            'waktu_mulai_presensi_pulang',
-            'waktu_akhir_presensi_pulang'
-        ];
+        $statuses = \App\Models\StatusKepegawaian::all();
 
-        foreach ($timeFields as $field) {
-            if ($request->has($field) && $request->$field) {
-                $request->merge([
-                    $field => str_replace('.', ':', $request->$field),
-                ]);
+        // Validate for each status
+        $rules = [];
+        foreach ($statuses as $status) {
+            $prefix = "status_{$status->id}_";
+            $rules[$prefix . 'waktu_mulai_presensi_masuk'] = 'nullable|date_format:H:i';
+            $rules[$prefix . 'waktu_akhir_presensi_masuk'] = 'nullable|date_format:H:i';
+            $rules[$prefix . 'waktu_mulai_presensi_pulang'] = 'nullable|date_format:H:i';
+            $rules[$prefix . 'waktu_akhir_presensi_pulang'] = 'nullable|date_format:H:i';
+        }
+
+        $request->validate($rules);
+
+        foreach ($statuses as $status) {
+            $prefix = "status_{$status->id}_";
+
+            // Normalize time inputs: replace '.' with ':'
+            $timeFields = [
+                $prefix . 'waktu_mulai_presensi_masuk',
+                $prefix . 'waktu_akhir_presensi_masuk',
+                $prefix . 'waktu_mulai_presensi_pulang',
+                $prefix . 'waktu_akhir_presensi_pulang'
+            ];
+
+            foreach ($timeFields as $field) {
+                if ($request->has($field) && $request->$field) {
+                    $request->merge([
+                        $field => str_replace('.', ':', $request->$field),
+                    ]);
+                }
             }
+
+            $settings = PresensiSettings::where('status_kepegawaian_id', $status->id)->first();
+            if (!$settings) {
+                $settings = new PresensiSettings();
+                $settings->status_kepegawaian_id = $status->id;
+            }
+
+            $settings->waktu_mulai_presensi_masuk = $request->input($prefix . 'waktu_mulai_presensi_masuk');
+            $settings->waktu_akhir_presensi_masuk = $request->input($prefix . 'waktu_akhir_presensi_masuk');
+            $settings->waktu_mulai_presensi_pulang = $request->input($prefix . 'waktu_mulai_presensi_pulang');
+            $settings->waktu_akhir_presensi_pulang = $request->input($prefix . 'waktu_akhir_presensi_pulang');
+            $settings->save();
         }
-
-        $request->validate([
-            'waktu_mulai_presensi_masuk' => 'nullable|date_format:H:i',
-            'waktu_akhir_presensi_masuk' => 'nullable|date_format:H:i',
-            'waktu_mulai_presensi_pulang' => 'nullable|date_format:H:i',
-            'waktu_akhir_presensi_pulang' => 'nullable|date_format:H:i',
-        ]);
-
-        $settings = PresensiSettings::first();
-        if (!$settings) {
-            $settings = new PresensiSettings();
-        }
-
-        $settings->waktu_mulai_presensi_masuk = $request->waktu_mulai_presensi_masuk;
-        $settings->waktu_akhir_presensi_masuk = $request->waktu_akhir_presensi_masuk;
-        $settings->waktu_mulai_presensi_pulang = $request->waktu_mulai_presensi_pulang;
-        $settings->waktu_akhir_presensi_pulang = $request->waktu_akhir_presensi_pulang;
-        $settings->singleton = true;
-        $settings->save();
 
         // Jalankan perintah untuk membersihkan duplikat
         Artisan::call('presensi:clean-duplicates');

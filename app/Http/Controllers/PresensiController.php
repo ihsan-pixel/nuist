@@ -115,8 +115,14 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Ambil pengaturan presensi
-        $settings = \App\Models\PresensiSettings::first();
+        // Ambil pengaturan presensi berdasarkan status kepegawaian user
+        $settings = \App\Models\PresensiSettings::where('status_kepegawaian_id', $user->status_kepegawaian_id)->first();
+        if (!$settings) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengaturan presensi untuk status kepegawaian Anda belum diatur. Silakan hubungi administrator.'
+            ], 400);
+        }
         $batasAkhirMasuk = $settings ? $settings->waktu_akhir_presensi_masuk : null;
         $batasPulang = $settings ? $settings->waktu_mulai_presensi_pulang : null;
 
