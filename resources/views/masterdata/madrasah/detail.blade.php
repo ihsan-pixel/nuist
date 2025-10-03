@@ -68,7 +68,7 @@
                 <!-- Kepala Sekolah -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h5 class="fw-semibold mb-2">Kepala Sekolah</h5>
+                        <h5 class="fw-semibold mb-2">Kepala Sekolah/Madrasah</h5>
                         @if($kepalaSekolah)
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">

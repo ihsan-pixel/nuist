@@ -197,10 +197,12 @@ class MadrasahController extends Controller
             abort(403, 'Unauthorized access');
         }
 
-        $madrasah = Madrasah::with(['tenagaPendidik.statusKepegawaian', 'admins'])->findOrFail($id);
+        $madrasah = Madrasah::with(['tenagaPendidik.statusKepegawaian'])->findOrFail($id);
 
-        // Cari kepala sekolah (asumsi admin pertama sebagai kepala sekolah)
-        $kepalaSekolah = $madrasah->admins()->first();
+        // Cari kepala sekolah berdasarkan ketugasan 'kepala_madrasah'
+        $kepalaSekolah = \App\Models\User::where('madrasah_id', $id)
+            ->where('ketugasan', 'kepala_madrasah')
+            ->first();
 
         // Hitung jumlah TP berdasarkan status kepegawaian
         $tpByStatus = $madrasah->tenagaPendidik->groupBy('statusKepegawaian.name')->map->count();
