@@ -48,22 +48,27 @@
                 @else
                 <div class="row">
                     @forelse($madrasahs as $madrasah)
-                    <div class="col-md-3 mb-4">
-                        <div class="card shadow-sm rounded border-0 h-100">
-                            <div class="card-body text-center p-3">
-                                @if($madrasah->logo)
-                                <img src="{{ asset('storage/' . $madrasah->logo) }}" class="rounded-circle mx-auto d-block mb-3" alt="{{ $madrasah->name }}" style="width: 80px; height: 80px; object-fit: cover;">
-                                @else
-                                <div class="rounded-circle mx-auto d-block mb-3 bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                    <i class="bx bx-school bx-lg text-muted"></i>
+                    <div class="col-xxl-3 col-md-6">
+                        <div class="card project-card" style="border: none; box-shadow: 0 0.75rem 1.5rem rgba(18,38,63,.03); border-radius: 0.75rem; overflow: hidden;">
+                            @if($madrasah->logo)
+                            <img src="{{ asset('storage/' . $madrasah->logo) }}" class="card-img-top" alt="{{ $madrasah->name }}" style="height: 200px; object-fit: cover;">
+                            @else
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bx bx-school bx-lg text-muted"></i>
+                            </div>
+                            @endif
+                            <div class="card-body p-4">
+                                <h5 class="card-title fw-semibold mb-2">{{ $madrasah->name }}</h5>
+                                <p class="card-text text-muted small mb-3">{{ Str::limit($madrasah->alamat ?? 'Alamat tidak tersedia', 100) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-success rounded-pill px-3 py-2">
+                                        <i class="bx bx-user me-1"></i>
+                                        {{ $madrasah->tenaga_pendidik_count }} TP
+                                    </span>
+                                    <div class="d-flex gap-1">
+                                        <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                                    </div>
                                 </div>
-                                @endif
-                                <h5 class="card-title mb-2">{{ $madrasah->name }}</h5>
-                                <p class="card-text text-muted small mb-2">{{ Str::limit($madrasah->alamat ?? 'Alamat tidak tersedia', 50) }}</p>
-                                <span class="badge bg-success">
-                                    <i class="bx bx-user me-1"></i>
-                                    {{ $madrasah->tenaga_pendidik_count }} Tenaga Pendidik
-                                </span>
                             </div>
                         </div>
                     </div>
