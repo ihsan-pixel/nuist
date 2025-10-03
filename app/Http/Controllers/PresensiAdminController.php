@@ -38,7 +38,8 @@ class PresensiAdminController extends Controller
     {
         $statuses = \App\Models\StatusKepegawaian::all();
 
-        DB::transaction(function () use ($request, $statuses) {
+        $createdCount = 0;
+        DB::transaction(function () use ($request, $statuses, &$createdCount) {
             // Delete all existing per-status records to avoid duplicates
             \App\Models\PresensiSettings::whereNotNull('status_kepegawaian_id')->delete();
 
@@ -73,16 +74,16 @@ class PresensiAdminController extends Controller
                     }
                 }
 
-                // Use updateOrCreate for safety
-                \App\Models\PresensiSettings::updateOrCreate(
-                    ['status_kepegawaian_id' => $status->id],
-                    [
-                        'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
-                        'waktu_akhir_presensi_masuk' => $request->input($prefix . 'waktu_akhir_presensi_masuk'),
-                        'waktu_mulai_presensi_pulang' => $request->input($prefix . 'waktu_mulai_presensi_pulang'),
-                        'waktu_akhir_presensi_pulang' => $request->input($prefix . 'waktu_akhir_presensi_pulang'),
-                    ]
-                );
+                // Create record (since deleted, always create)
+                \App\Models\PresensiSettings::create([
+                    'status_kepegawaian_id' => $status->id,
+                    'waktu_mulai_presensi_masuk' => $request->input($prefix . 'waktu_mulai_presensi_masuk'),
+                    'waktu_akhir_presensi_masuk' => $request->input($prefix . 'waktu_akhir_presensi_masuk'),
+                    'waktu_mulai_presensi_pulang' => $request->input($prefix . 'waktu_mulai_presensi_pulang'),
+                    'waktu_akhir_presensi_pulang' => $request->input($prefix . 'waktu_akhir_presensi_pulang'),
+                ]);
+
+                $createdCount++;
             }
         });
 
