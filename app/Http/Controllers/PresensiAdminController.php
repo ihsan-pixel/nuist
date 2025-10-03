@@ -37,6 +37,13 @@ class PresensiAdminController extends Controller
     {
         $statuses = \App\Models\StatusKepegawaian::all();
 
+        // Handle existing singleton record (legacy data without status_kepegawaian_id)
+        $existingSingleton = \App\Models\PresensiSettings::whereNull('status_kepegawaian_id')->first();
+        if ($existingSingleton) {
+            // Assign to first status or delete - here we delete to avoid conflicts
+            $existingSingleton->delete();
+        }
+
         // Validate for each status
         $rules = [];
         foreach ($statuses as $status) {
