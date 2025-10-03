@@ -189,7 +189,7 @@ class MadrasahController extends Controller
                 ->when($yayasan_id, fn($q) => $q->where('yayasan_id', $yayasan_id))
                 ->get();
 
-            $yayasans = \App\Models\Yayasan::all();
+            $yayasans = \App\Models\Yayasan::has('madrasahs')->get();
         } else {
             abort(403, 'Unauthorized access');
         }

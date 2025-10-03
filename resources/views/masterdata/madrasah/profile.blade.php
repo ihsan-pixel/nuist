@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-md-4">
                             <select name="yayasan_id" class="form-select">
-                                <option value="">Semua Yayasan</option>
+                                <option value="">Pilih Yayasan</option>
                                 @if(isset($yayasans))
                                 @foreach($yayasans as $yayasan)
                                 <option value="{{ $yayasan->id }}" {{ ($yayasan_id ?? '') == $yayasan->id ? 'selected' : '' }}>{{ $yayasan->name }}</option>
