@@ -20,7 +20,7 @@ class PresensiController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi.');
         }
 
-        $query = Presensi::with(['user.madrasah']);
+        $query = Presensi::with(['user.madrasah', 'statusKepegawaian']);
 
         if ($user->role === 'tenaga_pendidik') {
             $query->where('user_id', $user->id);
@@ -160,6 +160,7 @@ class PresensiController extends Controller
                     'lokasi' => $request->lokasi,
                     'status' => 'hadir',
                     'keterangan' => "Terlambat {$terlambatMenit} menit",
+                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
 
                 return response()->json([
@@ -179,6 +180,7 @@ class PresensiController extends Controller
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'status' => 'hadir',
+                'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
             return response()->json([

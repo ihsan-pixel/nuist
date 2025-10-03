@@ -44,6 +44,7 @@ class IzinController extends Controller
             'keterangan' => $request->input('keterangan'),
             'surat_izin_path' => $filePath,
             'status_izin' => 'pending',
+            'status_kepegawaian_id' => $user->status_kepegawaian_id,
         ]);
 
         return redirect()->route('presensi.index')->with('success', 'Surat izin berhasil diunggah dan menunggu persetujuan.');

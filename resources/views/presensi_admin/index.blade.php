@@ -55,6 +55,7 @@
                                 <th>No</th>
                                 <th>Nama User</th>
                                 <th>Madrasah</th>
+                                <th>Status Kepegawaian</th>
                                 <th>Tanggal</th>
                                 <th>Waktu Masuk</th>
                                 <th>Waktu Keluar</th>
@@ -68,6 +69,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $presensi->user->name ?? '-' }}</td>
                                 <td>{{ $presensi->user->madrasah->name ?? '-' }}</td>
+                                <td>{{ $presensi->statusKepegawaian->name ?? '-' }}</td>
                                     <td>{{ $presensi->tanggal }}</td>
                                     <td>
                                         @if($presensi->waktu_masuk)
@@ -104,7 +106,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center p-4">
+                                <td colspan="9" class="text-center p-4">
                                     <div class="alert alert-info d-inline-block text-center" role="alert">
                                         <i class="bx bx-info-circle bx-lg me-2"></i>
                                         <strong>Belum ada data presensi</strong><br>

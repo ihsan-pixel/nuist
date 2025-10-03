@@ -24,6 +24,7 @@ class Presensi extends Model
         'surat_izin_path',
         'status_izin',
         'approved_by',
+        'status_kepegawaian_id',
     ];
 
     protected $casts = [
@@ -47,5 +48,10 @@ class Presensi extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function statusKepegawaian()
+    {
+        return $this->belongsTo(\App\Models\StatusKepegawaian::class, 'status_kepegawaian_id');
     }
 }

@@ -63,6 +63,7 @@
                                 <th>Nama Tenaga Pendidik</th>
                                 <th>Madrasah</th>
                                 @endif
+                                <th>Status Kepegawaian</th>
                                 <th>Tanggal</th>
                                 <th>Waktu Masuk</th>
                                 <th>Waktu Keluar</th>
@@ -86,6 +87,7 @@
                                     <td>{{ $presensi->user->name }}</td>
                                     <td>{{ $presensi->user->madrasah?->name ?? '-' }}</td>
                                     @endif
+                                    <td>{{ $presensi->statusKepegawaian->name ?? '-' }}</td>
                                     <td>{{ $presensi->tanggal->format('d/m/Y') }}</td>
                                     <td>{{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}</td>
                                     <td>{{ $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : '-' }}</td>
@@ -114,7 +116,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->role === 'tenaga_pendidik' ? '8' : '10' }}" class="text-center p-4">
+                                    <td colspan="{{ auth()->user()->role === 'tenaga_pendidik' ? '9' : '11' }}" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Belum ada data presensi</strong><br>

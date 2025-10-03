@@ -74,6 +74,7 @@ class AutoInsertAbsence extends Command
                     'tanggal' => $date,
                     'status' => 'alpha',
                     'keterangan' => 'Tidak hadir',
+                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
 
                 $absenceCount++;

@@ -142,7 +142,7 @@ class PresensiAdminController extends Controller
     {
         $user = Auth::user();
 
-        $query = Presensi::with('user.madrasah');
+        $query = Presensi::with('user.madrasah', 'statusKepegawaian');
 
         // If user is admin, filter by madrasah_id
         if ($user->role === 'admin' && $user->madrasah_id) {
