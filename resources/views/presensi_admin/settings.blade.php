@@ -102,7 +102,7 @@
                                                 <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label small">
                                                     Akhir
                                                 </label>
-                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
+                                                <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix }}waktu_akhir_presensi_pulang" value="{{ old($prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
                                                 @error($prefix . 'waktu_akhir_presensi_pulang')
                                                     <div class="text-danger small">{{ $message }}</div>
                                                 @enderror
