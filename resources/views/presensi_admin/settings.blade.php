@@ -58,13 +58,13 @@
 
                                         <div class="row">
                                             <!-- Presensi Masuk Settings -->
-                                            <div class="col-6">
-                                                <h6 class="text-primary mb-2">
+                                            <div class="col-6 bg-primary text-white p-2 rounded">
+                                                <h6 class="text-white mb-2">
                                                     <i class="bx bx-log-in-circle me-1"></i>Masuk
                                                 </h6>
                                                 <div class="row g-2">
                                                     <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label small">
+                                                        <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label small text-white">
                                                             Mulai
                                                         </label>
                                                         <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_masuk" name="{{ $prefix }}waktu_mulai_presensi_masuk" value="{{ old($prefix . 'waktu_mulai_presensi_masuk', isset($setting->waktu_mulai_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_masuk)->format('H:i') : '06:30') }}" required>
@@ -73,7 +73,7 @@
                                                         @enderror
                                                     </div>
                                                     <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_akhir_presensi_masuk" class="form-label small">
+                                                        <label for="{{ $prefix }}waktu_akhir_presensi_masuk" class="form-label small text-white">
                                                             Akhir
                                                         </label>
                                                         <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_masuk" name="{{ $prefix }}waktu_akhir_presensi_masuk" value="{{ old($prefix . 'waktu_akhir_presensi_masuk', isset($setting->waktu_akhir_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_masuk)->format('H:i') : '07:00') }}" required>
@@ -82,17 +82,17 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                <small class="text-muted small">Terlambat setelah akhir</small>
+                                                <small class="text-white small">Terlambat setelah akhir</small>
                                             </div>
 
                                             <!-- Presensi Pulang Settings -->
-                                            <div class="col-6">
-                                                <h6 class="text-success mb-2">
+                                            <div class="col-6 bg-success text-white p-2 rounded">
+                                                <h6 class="text-white mb-2">
                                                     <i class="bx bx-log-out-circle me-1"></i>Pulang
                                                 </h6>
                                                 <div class="row g-2">
                                                     <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label small">
+                                                        <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label small text-white">
                                                             Mulai
                                                         </label>
                                                         <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_pulang" name="{{ $prefix }}waktu_mulai_presensi_pulang" value="{{ old($prefix . 'waktu_mulai_presensi_pulang', isset($setting->waktu_mulai_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_pulang)->format('H:i') : '13:00') }}" required>
@@ -101,7 +101,7 @@
                                                         @enderror
                                                     </div>
                                                     <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label small">
+                                                        <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label small text-white">
                                                             Akhir
                                                         </label>
                                                         <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix }}waktu_akhir_presensi_pulang" value="{{ old($prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
@@ -110,7 +110,7 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                <small class="text-muted small">Tidak boleh setelah akhir</small>
+                                                <small class="text-white small">Tidak boleh setelah akhir</small>
                                             </div>
                                         </div>
 
