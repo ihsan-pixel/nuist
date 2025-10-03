@@ -9,5 +9,5 @@
 6. [x] Add JavaScript to populate modal on View button click
 7. [x] Fix event delegation for DataTables pagination
 8. [x] Change default avatar to avatar-11.png
-9. [x] Improve modal UI/UX with cards, icons, and better layout
+9. [x] Simplify modal layout and remove jabatan field
 10. [x] Test the madrasah detail page to ensure data displays correctly (server started, code changes applied correctly)
