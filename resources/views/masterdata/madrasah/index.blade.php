@@ -130,7 +130,14 @@
                         </div>
                         <div class="mb-3">
                             <label>Kabupaten</label>
-                            <input type="text" name="kabupaten" class="form-control" value="{{ $madrasah->kabupaten }}">
+                            <select name="kabupaten" class="form-select">
+                                <option value="">Pilih Kabupaten</option>
+                                <option value="Kabupaten Bantul" {{ $madrasah->kabupaten == 'Kabupaten Bantul' ? 'selected' : '' }}>Kabupaten Bantul</option>
+                                <option value="Kabupaten Gunungkidul" {{ $madrasah->kabupaten == 'Kabupaten Gunungkidul' ? 'selected' : '' }}>Kabupaten Gunungkidul</option>
+                                <option value="Kabupaten Kulon Progo" {{ $madrasah->kabupaten == 'Kabupaten Kulon Progo' ? 'selected' : '' }}>Kabupaten Kulon Progo</option>
+                                <option value="Kabupaten Sleman" {{ $madrasah->kabupaten == 'Kabupaten Sleman' ? 'selected' : '' }}>Kabupaten Sleman</option>
+                                <option value="Kota Yogyakarta" {{ $madrasah->kabupaten == 'Kota Yogyakarta' ? 'selected' : '' }}>Kota Yogyakarta</option>
+                            </select>
                             @error('kabupaten')
                                 <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
@@ -241,7 +248,14 @@
                         </div>
                         <div class="mb-3">
                             <label>Kabupaten</label>
-                            <input type="text" name="kabupaten" class="form-control">
+                            <select name="kabupaten" class="form-select">
+                                <option value="">Pilih Kabupaten</option>
+                                <option value="Kabupaten Bantul">Kabupaten Bantul</option>
+                                <option value="Kabupaten Gunungkidul">Kabupaten Gunungkidul</option>
+                                <option value="Kabupaten Kulon Progo">Kabupaten Kulon Progo</option>
+                                <option value="Kabupaten Sleman">Kabupaten Sleman</option>
+                                <option value="Kota Yogyakarta">Kota Yogyakarta</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label>Alamat</label>
