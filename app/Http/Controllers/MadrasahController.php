@@ -191,17 +191,19 @@ class MadrasahController extends Controller
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
             $search = $request->input('search');
             $yayasan_id = $request->input('yayasan_id');
+            $kabupaten = $request->input('kabupaten');
 
             $madrasahs = Madrasah::withCount('tenagaPendidikUsers')
                 ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
                 ->when($yayasan_id, fn($q) => $q->where('yayasan_id', $yayasan_id))
+                ->when($kabupaten, fn($q) => $q->where('kabupaten', $kabupaten))
                 ->get();
 
             $yayasans = \App\Models\Yayasan::has('madrasahs')->get();
         } else {
             abort(403, 'Unauthorized access');
         }
-        return view('masterdata.madrasah.profile', compact('madrasahs', 'yayasans', 'search', 'yayasan_id'));
+        return view('masterdata.madrasah.profile', compact('madrasahs', 'yayasans', 'search', 'yayasan_id', 'kabupaten'));
     }
 
     /**

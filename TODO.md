@@ -1,2 +1,3 @@
-- [x] Modify MadrasahController index method to sort madrasahs by kabupaten name
-- [x] Test the sorting on the madrasah index page
+- [x] Update resources/views/masterdata/madrasah/profile.blade.php: Adjust columns to col-md-6 for search, add col-md-2 kabupaten select, button col-md-2; add select with options and selected value.
+- [x] Update app/Http/Controllers/MadrasahController.php: Add kabupaten input, when clause for filter, pass to view.
+- [x] Test the kabupaten filter by running the app and verifying it works.

@@ -39,19 +39,19 @@
 
                 <form method="GET" action="{{ route('madrasah.profile') }}" class="mb-4">
                     <div class="row g-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ $search ?? '' }}">
                         </div>
-                        {{-- <div class="col-md-4">
-                            <select name="yayasan_id" class="form-select">
-                                <option value="">Pilih Yayasan</option>
-                                @if(isset($yayasans))
-                                @foreach($yayasans as $yayasan)
-                                <option value="{{ $yayasan->id }}" {{ ($yayasan_id ?? '') == $yayasan->id ? 'selected' : '' }}>{{ $yayasan->name }}</option>
-                                @endforeach
-                                @endif
+                        <div class="col-md-2">
+                            <select name="kabupaten" class="form-select">
+                                <option value="">Pilih Kabupaten</option>
+                                <option value="Kabupaten Bantul" {{ ($kabupaten ?? '') == 'Kabupaten Bantul' ? 'selected' : '' }}>Kabupaten Bantul</option>
+                                <option value="Kabupaten Gunungkidul" {{ ($kabupaten ?? '') == 'Kabupaten Gunungkidul' ? 'selected' : '' }}>Kabupaten Gunungkidul</option>
+                                <option value="Kabupaten Kulon Progo" {{ ($kabupaten ?? '') == 'Kabupaten Kulon Progo' ? 'selected' : '' }}>Kabupaten Kulon Progo</option>
+                                <option value="Kabupaten Sleman" {{ ($kabupaten ?? '') == 'Kabupaten Sleman' ? 'selected' : '' }}>Kabupaten Sleman</option>
+                                <option value="Kota Yogyakarta" {{ ($kabupaten ?? '') == 'Kota Yogyakarta' ? 'selected' : '' }}>Kota Yogyakarta</option>
                             </select>
-                        </div> --}}
+                        </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">Cari</button>
                         </div>
