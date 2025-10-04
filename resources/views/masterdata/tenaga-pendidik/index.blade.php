@@ -64,8 +64,6 @@
                         <th>TMT</th>
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
-                        <th>Pemenuhan Beban Kerja Lain</th>
-                        <th>Madrasah Tambahan</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -90,8 +88,6 @@
                             <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
-                            <td>{{ $tp->pemenuhan_beban_kerja_lain ? 'Iya' : 'Tidak' }}</td>
-                            <td>{{ $tp->madrasahTambahan?->name ?? '-' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                 <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
@@ -258,7 +254,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="12" class="text-center p-4">
+                            <td colspan="11" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
