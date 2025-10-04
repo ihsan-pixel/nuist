@@ -63,13 +63,13 @@ class PresensiController extends Controller
             ->where('tanggal', $today)
             ->first();
 
-        // Ambil pengaturan presensi berdasarkan status kepegawaian user
-        $presensiSettings = null;
-        if ($user->status_kepegawaian_id) {
-            $presensiSettings = \App\Models\PresensiSettings::where('status_kepegawaian_id', $user->status_kepegawaian_id)->first();
+        // Ambil pengaturan waktu berdasarkan hari_kbm madrasah user
+        $timeRanges = null;
+        if ($user->madrasah && $user->madrasah->hari_kbm) {
+            $timeRanges = $this->getPresensiTimeRanges($user->madrasah->hari_kbm, $today);
         }
 
-        return view('presensi.create', compact('presensiHariIni', 'isHoliday', 'holiday', 'presensiSettings'));
+        return view('presensi.create', compact('presensiHariIni', 'isHoliday', 'holiday', 'timeRanges'));
     }
 
     public function store(Request $request)
@@ -90,28 +90,39 @@ class PresensiController extends Controller
 
         // Ambil data madrasah dari user yang sedang login
         $madrasah = $user->madrasah;
+        $madrasahTambahan = $user->madrasahTambahan;
 
-        if (!$madrasah || !$madrasah->polygon_koordinat) {
+        // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
+        $isWithinPolygon = false;
+        $validMadrasah = null;
+
+        $madrasahsToCheck = [];
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            $madrasahsToCheck[] = $madrasah;
+        }
+        if ($user->pemenuhan_beban_kerja_lain && $madrasahTambahan && $madrasahTambahan->polygon_koordinat) {
+            $madrasahsToCheck[] = $madrasahTambahan;
+        }
+
+        if (empty($madrasahsToCheck)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Area presensi (poligon) untuk madrasah Anda belum diatur. Silakan hubungi administrator.'
             ], 400);
         }
 
-        // Validasi lokasi user berada di dalam poligon
-        try {
-            $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
-            // GeoJSON Polygon coordinates are nested: [[ [lng, lat], [lng, lat], ... ]]
-            $polygon = $polygonGeometry['coordinates'][0];
-            $isWithinPolygon = $this->isPointInPolygon(
-                [$request->longitude, $request->latitude], // Point format: [lng, lat]
-                $polygon
-            );
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memvalidasi area presensi. Data poligon tidak valid.'
-            ], 500);
+        foreach ($madrasahsToCheck as $m) {
+            try {
+                $polygonGeometry = json_decode($m->polygon_koordinat, true);
+                $polygon = $polygonGeometry['coordinates'][0];
+                if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                    $isWithinPolygon = true;
+                    $validMadrasah = $m;
+                    break;
+                }
+            } catch (\Exception $e) {
+                continue; // Skip invalid polygon
+            }
         }
 
         if (!$isWithinPolygon) {
@@ -121,16 +132,17 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Ambil pengaturan presensi berdasarkan status kepegawaian user
-        $settings = \App\Models\PresensiSettings::where('status_kepegawaian_id', $user->status_kepegawaian_id)->first();
-        if (!$settings) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pengaturan presensi untuk status kepegawaian Anda belum diatur. Silakan hubungi administrator.'
-            ], 400);
+        // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
+        if ($user->pemenuhan_beban_kerja_lain) {
+            $batasAkhirMasuk = null;
+            $batasPulang = null;
+        } else {
+            // Ambil pengaturan waktu berdasarkan hari_kbm madrasah yang valid
+            $hariKbm = $validMadrasah ? $validMadrasah->hari_kbm : null;
+            $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
+            $batasAkhirMasuk = $timeRanges['masuk_end'];
+            $batasPulang = $timeRanges['pulang_start'];
         }
-        $batasAkhirMasuk = $settings ? $settings->waktu_akhir_presensi_masuk : null;
-        $batasPulang = $settings ? $settings->waktu_mulai_presensi_pulang : null;
 
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
@@ -278,6 +290,42 @@ class PresensiController extends Controller
         $madrasahs = Madrasah::all();
 
         return view('presensi.laporan', compact('presensis', 'madrasahs'));
+    }
+
+    /**
+     * Get presensi time ranges based on madrasah hari_kbm and current day.
+     * @param string|null $hariKbm
+     * @param string $today
+     * @return array
+     */
+    private function getPresensiTimeRanges($hariKbm, $today)
+    {
+        $dayOfWeek = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 5=Friday
+
+        if ($hariKbm == '5') {
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30'; // Friday starts at 14:00
+            $pulangEnd = '17:00';
+        } elseif ($hariKbm == '6') {
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = '13:00';
+            $pulangEnd = '17:00';
+        } else {
+            // Default or fallback
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = '13:00';
+            $pulangEnd = '17:00';
+        }
+
+        return [
+            'masuk_start' => $masukStart,
+            'masuk_end' => $masukEnd,
+            'pulang_start' => $pulangStart,
+            'pulang_end' => $pulangEnd,
+        ];
     }
 
     /**

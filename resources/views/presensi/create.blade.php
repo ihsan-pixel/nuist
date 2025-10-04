@@ -133,21 +133,21 @@
                                     <input type="text" id="current-time" class="form-control" readonly>
                                 </div>
 
-                                @if(isset($presensiSettings) && $presensiSettings)
+                                @if(isset($timeRanges) && $timeRanges)
                                 <div class="mb-3">
-                                    <label class="form-label">Jadwal Presensi Sesuai Status Kepegawaian</label>
+                                    <label class="form-label">Jadwal Presensi Berdasarkan Hari KBM Madrasah</label>
                                     <div class="card bg-light">
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <h6 class="text-primary"><i class="bx bx-log-in-circle me-2"></i>Presensi Masuk</h6>
-                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $presensiSettings->waktu_mulai_presensi_masuk ? \Carbon\Carbon::parse($presensiSettings->waktu_mulai_presensi_masuk)->format('H:i') : 'Belum diatur' }}</p>
-                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $presensiSettings->waktu_akhir_presensi_masuk ? \Carbon\Carbon::parse($presensiSettings->waktu_akhir_presensi_masuk)->format('H:i') : 'Belum diatur' }} (Terlambat setelah ini)</p>
+                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['masuk_start'] }}</p>
+                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $timeRanges['masuk_end'] }} (Terlambat setelah ini)</p>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <h6 class="text-success"><i class="bx bx-log-out-circle me-2"></i>Presensi Pulang</h6>
-                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $presensiSettings->waktu_mulai_presensi_pulang ? \Carbon\Carbon::parse($presensiSettings->waktu_mulai_presensi_pulang)->format('H:i') : 'Belum diatur' }}</p>
-                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $presensiSettings->waktu_akhir_presensi_pulang ? \Carbon\Carbon::parse($presensiSettings->waktu_akhir_presensi_pulang)->format('H:i') : 'Belum diatur' }}</p>
+                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['pulang_start'] }}</p>
+                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $timeRanges['pulang_end'] }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -156,7 +156,7 @@
                                 @else
                                 <div class="alert alert-warning mb-3">
                                     <i class="bx bx-info-circle me-2"></i>
-                                    <strong>Pengaturan Presensi:</strong> Pengaturan waktu presensi untuk status kepegawaian Anda belum diatur oleh administrator. Silakan hubungi administrator untuk mengaturnya.
+                                    <strong>Pengaturan Presensi:</strong> Hari KBM madrasah Anda belum diatur. Silakan hubungi administrator untuk mengaturnya.
                                 </div>
                                 @endif
 
