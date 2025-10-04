@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'alamat',
         'pemenuhan_beban_kerja_lain',
+        'madrasah_id_tambahan',
         'password_changed',
         'last_seen',
         'jabatan',
@@ -84,6 +85,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function madrasah()
     {
         return $this->belongsTo(Madrasah::class, 'madrasah_id');
+    }
+
+    public function madrasahTambahan()
+    {
+        return $this->belongsTo(Madrasah::class, 'madrasah_id_tambahan');
     }
 
     public function presensis()

@@ -65,6 +65,7 @@
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
                         <th>Pemenuhan Beban Kerja Lain</th>
+                        <th>Madrasah Tambahan</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -90,6 +91,7 @@
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>{{ $tp->pemenuhan_beban_kerja_lain ? 'Iya' : 'Tidak' }}</td>
+                            <td>{{ $tp->madrasahTambahan?->name ?? '-' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                 <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
@@ -222,10 +224,20 @@
 
                                             <div class="col-md-6">
                                                 <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
-                                                <select name="pemenuhan_beban_kerja_lain" class="form-control">
+                                                <select name="pemenuhan_beban_kerja_lain" id="pemenuhan_beban_kerja_lain_edit{{ $tp->id }}" class="form-control">
                                                     <option value="">-- Pilih --</option>
                                                     <option value="1" {{ $tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Iya</option>
                                                     <option value="0" {{ !$tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Tidak</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6" id="madrasah_tambahan_edit_container{{ $tp->id }}" style="display: {{ $tp->pemenuhan_beban_kerja_lain ? 'block' : 'none' }};">
+                                                <label>Madrasah Tambahan</label>
+                                                <select name="madrasah_id_tambahan" class="form-control">
+                                                    <option value="">-- Pilih Madrasah --</option>
+                                                    @foreach($madrasahs as $madrasah)
+                                                        <option value="{{ $madrasah->id }}" {{ $tp->madrasah_id_tambahan == $madrasah->id ? 'selected' : '' }}>{{ $madrasah->name }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
 
@@ -246,7 +258,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center p-4">
+                            <td colspan="12" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
@@ -386,10 +398,20 @@
 
                                             <div class="col-md-6">
                                                 <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
-                                                <select name="pemenuhan_beban_kerja_lain" class="form-control">
+                                                <select name="pemenuhan_beban_kerja_lain" id="pemenuhan_beban_kerja_lain_add" class="form-control">
                                                     <option value="">-- Pilih --</option>
                                                     <option value="1">Iya</option>
                                                     <option value="0">Tidak</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6" id="madrasah_tambahan_add_container" style="display: none;">
+                                                <label>Madrasah Tambahan</label>
+                                                <select name="madrasah_id_tambahan" class="form-control">
+                                                    <option value="">-- Pilih Madrasah --</option>
+                                                    @foreach($madrasahs as $madrasah)
+                                                        <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
 
@@ -574,6 +596,26 @@
 
             table.buttons().container()
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            // Handle add modal
+            $('#pemenuhan_beban_kerja_lain_add').change(function() {
+                if ($(this).val() == '1') {
+                    $('#madrasah_tambahan_add_container').show();
+                } else {
+                    $('#madrasah_tambahan_add_container').hide();
+                }
+            });
+
+            // Handle edit modals
+            @foreach($tenagaPendidiks as $tp)
+                $('#pemenuhan_beban_kerja_lain_edit{{ $tp->id }}').change(function() {
+                    if ($(this).val() == '1') {
+                        $('#madrasah_tambahan_edit_container{{ $tp->id }}').show();
+                    } else {
+                        $('#madrasah_tambahan_edit_container{{ $tp->id }}').hide();
+                    }
+                });
+            @endforeach
         });
     </script>
 @endsection

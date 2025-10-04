@@ -37,7 +37,7 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
                 'nama', 'email', 'tempat_lahir', 'tanggal_lahir', 'no_hp',
                 'kartanu', 'nip', 'nuptk', 'npk', 'madrasah_id',
                 'pendidikan_terakhir', 'tahun_lulus', 'program_studi',
-                'status_kepegawaian_id', 'tmt', 'ketugasan', 'mengajar', 'alamat', 'pemenuhan_beban_kerja_lain'
+                'status_kepegawaian_id', 'tmt', 'ketugasan', 'mengajar', 'alamat', 'pemenuhan_beban_kerja_lain', 'madrasah_id_tambahan'
             ];
 
             foreach ($requiredFields as $field) {
@@ -89,6 +89,7 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
                 'mengajar' => $row['mengajar'],
                 'alamat' => $row['alamat'],
                 'pemenuhan_beban_kerja_lain' => $row['pemenuhan_beban_kerja_lain'],
+                'madrasah_id_tambahan' => $row['madrasah_id_tambahan'],
                 'role' => 'tenaga_pendidik',
             ]);
 
