@@ -56,6 +56,7 @@
                     </div>
                     <div class="col-md-8">
                         <h3 class="fw-bold">{{ $madrasah->name }}</h3>
+                        <p class="text-muted">{{ $madrasah->kabupaten ? 'Kabupaten ' . $madrasah->kabupaten : '' }}</p>
                         <p class="text-muted">{{ $madrasah->alamat ?? 'Alamat tidak tersedia' }}</p>
                         <p class="text-muted"><strong>Hari KBM:</strong> {{ $madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : 'Tidak ditentukan' }}</p>
                         @if($madrasah->map_link)

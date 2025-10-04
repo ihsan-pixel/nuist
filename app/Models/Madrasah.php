@@ -12,6 +12,7 @@ class Madrasah extends Model
 
     protected $fillable = [
         'name',
+        'kabupaten',
         'alamat',
         'latitude',
         'longitude',

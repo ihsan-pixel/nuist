@@ -59,6 +59,7 @@
                             <th>No</th>
                             <th>Logo</th>
                             <th>Nama Madrasah/Sekolah</th>
+                            <th>Kabupaten</th>
                             <th>Alamat</th>
                             <th>Hari KBM</th>
                             <th>Lokasi</th>
@@ -81,6 +82,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $madrasah->name }}</td>
+                                <td>{{ $madrasah->kabupaten ?? '-' }}</td>
                                 <td>{{ $madrasah->alamat ?? '-' }}</td>
                                 <td>{{ $madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : '-' }}</td>
                                 <td>
@@ -119,10 +121,17 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
-                            <div class="mb-3">
-                                <label>Nama Madrasah/Sekolah</label>
+                        <div class="mb-3">
+                            <label>Nama Madrasah/Sekolah</label>
                             <input type="text" name="name" class="form-control" value="{{ $madrasah->name }}" required>
                             @error('name')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label>Kabupaten</label>
+                            <input type="text" name="kabupaten" class="form-control" value="{{ $madrasah->kabupaten }}">
+                            @error('kabupaten')
                                 <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -229,6 +238,10 @@
                         <div class="mb-3">
                             <label>Nama Madrasah/Sekolah</label>
                             <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Kabupaten</label>
+                            <input type="text" name="kabupaten" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label>Alamat</label>
