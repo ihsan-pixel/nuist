@@ -44,6 +44,7 @@ class MadrasahController extends Controller
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
             'polygon_koordinat' => 'nullable|json',
+            'hari_kbm' => 'nullable|in:5,6',
         ]);
 
         $logoPath = null;
@@ -75,6 +76,7 @@ class MadrasahController extends Controller
         $madrasah->map_link = $validated['map_link'] ?? null;
         $madrasah->logo = $logoPath;
         $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
+        $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
         $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil ditambahkan.');
@@ -99,6 +101,7 @@ class MadrasahController extends Controller
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
             'polygon_koordinat' => 'nullable|json',
+            'hari_kbm' => 'nullable|in:5,6',
         ]);
 
         // Jika ada file logo baru, hapus logo lama
@@ -136,6 +139,7 @@ class MadrasahController extends Controller
         $madrasah->longitude = $validated['longitude'];
         $madrasah->map_link = $validated['map_link'];
         $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
+        $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
         $madrasah->save();
 
         return redirect()->route('madrasah.index')->with('success', 'Madrasah berhasil diperbarui.');

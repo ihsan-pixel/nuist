@@ -60,6 +60,7 @@
                             <th>Logo</th>
                             <th>Nama Madrasah/Sekolah</th>
                             <th>Alamat</th>
+                            <th>Hari KBM</th>
                             <th>Lokasi</th>
                             <th>Action</th>
                         </tr>
@@ -81,6 +82,7 @@
                                 </td>
                                 <td>{{ $madrasah->name }}</td>
                                 <td>{{ $madrasah->alamat ?? '-' }}</td>
+                                <td>{{ $madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : '-' }}</td>
                                 <td>
                                     @if($madrasah->latitude && $madrasah->longitude)
                                         <small>{{ $madrasah->latitude }}, {{ $madrasah->longitude }}</small>
@@ -149,6 +151,17 @@
                             <label>Link Map</label>
                             <input type="text" name="map_link" class="form-control" value="{{ $madrasah->map_link }}">
                             @error('map_link')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label>Hari KBM</label>
+                            <select name="hari_kbm" class="form-select">
+                                <option value="">Pilih Hari KBM</option>
+                                <option value="5" {{ $madrasah->hari_kbm == '5' ? 'selected' : '' }}>5 Hari</option>
+                                <option value="6" {{ $madrasah->hari_kbm == '6' ? 'selected' : '' }}>6 Hari</option>
+                            </select>
+                            @error('hari_kbm')
                                 <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -232,6 +245,14 @@
                         <div class="mb-3">
                             <label>Link Map</label>
                             <input type="text" name="map_link" class="form-control" placeholder="https://maps.app.goo.gl/xxxx">
+                        </div>
+                        <div class="mb-3">
+                            <label>Hari KBM</label>
+                            <select name="hari_kbm" class="form-select">
+                                <option value="">Pilih Hari KBM</option>
+                                <option value="5">5 Hari</option>
+                                <option value="6">6 Hari</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label>Logo Madrasah/Sekolah</label>
