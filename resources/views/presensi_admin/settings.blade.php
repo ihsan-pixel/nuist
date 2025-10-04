@@ -37,89 +37,79 @@
                 </div>
                 @endif
 
-                    <div class="row gx-0">
-                    @foreach($statuses as $status)
+                <div class="alert alert-info">
+                    <i class="bx bx-info-circle me-2"></i>
+                    <strong>Informasi:</strong> Sistem presensi sekarang menggunakan jadwal waktu tetap berdasarkan Hari KBM madrasah. Pengaturan waktu tidak lagi dapat diubah secara manual.
+                </div>
+
+                <div class="row gx-0">
+                    @foreach($hariKbmOptions as $key => $label)
                         <div class="col-md-6 mb-3 px-1">
                             <div class="card border-primary shadow-sm h-100">
                                 <div class="card-header bg-primary text-white py-2">
                                     <h6 class="card-title mb-0">
-                                        <i class="bx bx-user me-2"></i>{{ $status->name }}
+                                        <i class="bx bx-calendar me-2"></i>{{ $label }}
                                     </h6>
                                 </div>
                                 <div class="card-body py-3">
                                     @php
-                                        $setting = $settings->get($status->id);
-                                        $prefix = "status_{$status->id}_";
+                                        $timeRanges = ($key == '5') ? $timeRanges5 : $timeRanges6;
                                     @endphp
 
-                                    <form action="{{ route('presensi_admin.updateSettings') }}" method="POST" class="needs-validation" novalidate>
-                                        @csrf
-                                        <input type="hidden" name="status_id" value="{{ $status->id }}">
-
-                                        <div class="row">
-                                            <!-- Presensi Masuk Settings -->
-                                            <div class="col-6">
-                                                <h6 class="text-primary mb-2">
-                                                    <i class="bx bx-log-in-circle me-1"></i>Masuk
-                                                </h6>
-                                                <div class="row g-2">
-                                                    <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_mulai_presensi_masuk" class="form-label small">
-                                                            Mulai
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_masuk" name="{{ $prefix }}waktu_mulai_presensi_masuk" value="{{ old($prefix . 'waktu_mulai_presensi_masuk', isset($setting->waktu_mulai_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_masuk)->format('H:i') : '06:30') }}" required>
-                                                        @error($prefix . 'waktu_mulai_presensi_masuk')
-                                                            <div class="text-danger small">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_akhir_presensi_masuk" class="form-label small">
-                                                            Akhir
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_masuk" name="{{ $prefix }}waktu_akhir_presensi_masuk" value="{{ old($prefix . 'waktu_akhir_presensi_masuk', isset($setting->waktu_akhir_presensi_masuk) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_masuk)->format('H:i') : '07:00') }}" required>
-                                                        @error($prefix . 'waktu_akhir_presensi_masuk')
-                                                            <div class="text-danger small">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                    <div class="row">
+                                        <!-- Presensi Masuk Settings -->
+                                        <div class="col-6">
+                                            <h6 class="text-primary mb-2">
+                                                <i class="bx bx-log-in-circle me-1"></i>Masuk
+                                            </h6>
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <label class="form-label small">
+                                                        Mulai
+                                                    </label>
+                                                    <input type="time" class="form-control form-control-sm" value="{{ $timeRanges['masuk_start'] }}" readonly>
                                                 </div>
-                                                <small class="text-muted small">Terlambat setelah akhir</small>
-                                            </div>
-
-                                            <!-- Presensi Pulang Settings -->
-                                            <div class="col-6">
-                                                <h6 class="text-success mb-2">
-                                                    <i class="bx bx-log-out-circle me-1"></i>Pulang
-                                                </h6>
-                                                <div class="row g-2">
-                                                    <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_mulai_presensi_pulang" class="form-label small">
-                                                            Mulai
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_mulai_presensi_pulang" name="{{ $prefix }}waktu_mulai_presensi_pulang" value="{{ old($prefix . 'waktu_mulai_presensi_pulang', isset($setting->waktu_mulai_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_mulai_presensi_pulang)->format('H:i') : '13:00') }}" required>
-                                                        @error($prefix . 'waktu_mulai_presensi_pulang')
-                                                            <div class="text-danger small">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <label for="{{ $prefix }}waktu_akhir_presensi_pulang" class="form-label small">
-                                                            Akhir
-                                                        </label>
-                                                        <input type="time" class="form-control form-control-sm" id="{{ $prefix }}waktu_akhir_presensi_pulang" name="{{ $prefix }}waktu_akhir_presensi_pulang" value="{{ old($prefix . 'waktu_akhir_presensi_pulang', isset($setting->waktu_akhir_presensi_pulang) ? \Carbon\Carbon::parse($setting->waktu_akhir_presensi_pulang)->format('H:i') : '15:00') }}" required>
-                                                        @error($prefix . 'waktu_akhir_presensi_pulang')
-                                                            <div class="text-danger small">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                                <div class="col-6">
+                                                    <label class="form-label small">
+                                                        Akhir
+                                                    </label>
+                                                    <input type="time" class="form-control form-control-sm" value="{{ $timeRanges['masuk_end'] }}" readonly>
                                                 </div>
-                                                <small class="text-muted small">Tidak boleh setelah akhir</small>
                                             </div>
+                                            <small class="text-muted small">Terlambat setelah akhir</small>
                                         </div>
 
-                                        <div class="d-flex justify-content-center mt-3">
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="bx bx-save me-1"></i>Simpan
-                                            </button>
+                                        <!-- Presensi Pulang Settings -->
+                                        <div class="col-6">
+                                            <h6 class="text-success mb-2">
+                                                <i class="bx bx-log-out-circle me-1"></i>Pulang
+                                            </h6>
+                                            <div class="row g-2">
+                                                <div class="col-6">
+                                                    <label class="form-label small">
+                                                        Mulai
+                                                    </label>
+                                                    <input type="time" class="form-control form-control-sm" value="{{ $timeRanges['pulang_start'] }}" readonly>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label small">
+                                                        Akhir
+                                                    </label>
+                                                    <input type="time" class="form-control form-control-sm" value="{{ $timeRanges['pulang_end'] }}" readonly>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted small">Tidak boleh setelah akhir</small>
                                         </div>
-                                    </form>
+                                    </div>
+
+                                    @if($key == '5')
+                                    <div class="mt-3">
+                                        <small class="text-warning">
+                                            <i class="bx bx-info-circle me-1"></i>
+                                            <strong>Catatan:</strong> Untuk hari Jumat, waktu mulai presensi pulang adalah 14:00.
+                                        </small>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -127,7 +117,12 @@
                             </div><div class="row gx-0">
                         @endif
                     @endforeach
-                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Pengecualian:</strong> Pengguna dengan "Pemenuhan Beban Kerja Lain" = Ya dapat melakukan presensi masuk dan keluar tanpa batasan waktu dan dapat presensi di madrasah tambahan.
+                </div>
             </div>
         </div>
     </div>

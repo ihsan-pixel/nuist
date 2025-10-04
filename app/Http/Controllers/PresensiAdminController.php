@@ -28,9 +28,54 @@ class PresensiAdminController extends Controller
     // Show presensi settings form
     public function settings()
     {
-        $statuses = \App\Models\StatusKepegawaian::all();
-        $settings = PresensiSettings::with('statusKepegawaian')->get()->keyBy('status_kepegawaian_id');
-        return view('presensi_admin.settings', compact('statuses', 'settings'));
+        // Since times are now based on hari_kbm, show the fixed time ranges
+        $hariKbmOptions = [
+            '5' => '5 Hari KBM',
+            '6' => '6 Hari KBM'
+        ];
+
+        // Calculate time ranges for today (to show Friday exception if applicable)
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        $timeRanges5 = $this->getPresensiTimeRanges('5', $today);
+        $timeRanges6 = $this->getPresensiTimeRanges('6', $today);
+
+        return view('presensi_admin.settings', compact('hariKbmOptions', 'timeRanges5', 'timeRanges6'));
+    }
+
+    /**
+     * Get presensi time ranges based on hari_kbm and current day.
+     * @param string|null $hariKbm
+     * @param string $today
+     * @return array
+     */
+    private function getPresensiTimeRanges($hariKbm, $today)
+    {
+        $dayOfWeek = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 5=Friday
+
+        if ($hariKbm == '5') {
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30'; // Friday starts at 14:00
+            $pulangEnd = '17:00';
+        } elseif ($hariKbm == '6') {
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = '13:00';
+            $pulangEnd = '17:00';
+        } else {
+            // Default or fallback
+            $masukStart = '06:00';
+            $masukEnd = '07:00';
+            $pulangStart = '13:00';
+            $pulangEnd = '17:00';
+        }
+
+        return [
+            'masuk_start' => $masukStart,
+            'masuk_end' => $masukEnd,
+            'pulang_start' => $pulangStart,
+            'pulang_end' => $pulangEnd,
+        ];
     }
 
     // Update presensi settings
