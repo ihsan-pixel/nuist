@@ -41,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'mengajar',
         'avatar',
         'alamat',
+        'pemenuhan_beban_kerja_lain',
         'password_changed',
         'last_seen',
         'jabatan',

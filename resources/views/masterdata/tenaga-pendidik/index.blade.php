@@ -64,6 +64,7 @@
                         <th>TMT</th>
                         <th>Ketugasan</th>
                         <th>Mengajar</th>
+                        <th>Pemenuhan Beban Kerja Lain</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -88,6 +89,7 @@
                             <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
+                            <td>{{ $tp->pemenuhan_beban_kerja_lain ? 'Iya' : 'Tidak' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                 <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
@@ -218,6 +220,15 @@
                                                 <input type="text" name="mengajar" class="form-control" value="{{ old('mengajar', $tp->mengajar) }}">
                                             </div>
 
+                                            <div class="col-md-6">
+                                                <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                                                <select name="pemenuhan_beban_kerja_lain" class="form-control">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="1" {{ $tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Iya</option>
+                                                    <option value="0" {{ !$tp->pemenuhan_beban_kerja_lain ? 'selected' : '' }}>Tidak</option>
+                                                </select>
+                                            </div>
+
                                             <div class="col-12">
                                                 <label>Alamat</label>
                                                 <textarea name="alamat" class="form-control" rows="2">{{ $tp->alamat }}</textarea>
@@ -235,7 +246,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center p-4">
+                            <td colspan="11" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>
@@ -373,12 +384,21 @@
                         <input type="text" name="mengajar" class="form-control">
                     </div>
 
-                    <div class="col-12">
-                        <label>Alamat</label>
-                        <textarea name="alamat" class="form-control" rows="2"></textarea>
-                    </div>
+                                            <div class="col-md-6">
+                                                <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                                                <select name="pemenuhan_beban_kerja_lain" class="form-control">
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="1">Iya</option>
+                                                    <option value="0">Tidak</option>
+                                                </select>
+                                            </div>
 
-                </div>
+                                            <div class="col-12">
+                                                <label>Alamat</label>
+                                                <textarea name="alamat" class="form-control" rows="2"></textarea>
+                                            </div>
+
+                                        </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>

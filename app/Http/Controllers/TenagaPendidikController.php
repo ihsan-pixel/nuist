@@ -83,6 +83,7 @@ class TenagaPendidikController extends Controller
                 'mengajar' => $request->mengajar,
                 'avatar' => $avatarPath,
                 'alamat' => $request->alamat,
+                'pemenuhan_beban_kerja_lain' => $request->pemenuhan_beban_kerja_lain,
                 'role' => 'tenaga_pendidik',
             ]
         );
@@ -132,6 +133,7 @@ class TenagaPendidikController extends Controller
         $user->ketugasan = $request->ketugasan;
         $user->mengajar = $request->mengajar;
         $user->alamat = $request->alamat;
+        $user->pemenuhan_beban_kerja_lain = $request->pemenuhan_beban_kerja_lain;
         $user->save();
 
         return redirect()->route('tenaga-pendidik.index')->with('success', 'Tenaga pendidik berhasil diperbarui.');
