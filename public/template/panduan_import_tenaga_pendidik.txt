@@ -1,87 +1,42 @@
 PANDUAN IMPORT DATA TENAGA PENDIDIK
-==================================
 
-Setelah migrasi database terbaru, ada perubahan struktur data yang perlu diperhatikan:
+1. PERSIAPAN FILE:
+   - Download template CSV dari sistem
+   - Buka file dengan Microsoft Excel atau Google Sheets
+   - JANGAN ubah baris header (baris pertama)
+   - Isi data mulai dari baris kedua
 
-PERUBAHAN PENTING:
-==================
-1. Kolom 'ketugasan' sekarang menggunakan ENUM dengan nilai:
-   - 'tenaga pendidik' (untuk guru/staf pengajar biasa)
-   - 'kepala madrasah/sekolah' (untuk kepala sekolah/madrasah)
+2. PENGISIAN DATA:
+   - Pastikan semua kolom WAJIB terisi
+   - Email harus unik dan valid
+   - Format tanggal: YYYY-MM-DD (contoh: 1990-01-01)
+   - Ketugasan: pilih 'tenaga pendidik' atau 'kepala madrasah/sekolah'
+   - ID madrasah dan status kepegawaian harus sesuai referensi
 
-2. Kolom 'mengajar' adalah field BARU dan WAJIB diisi
+3. KOLOM OPSIONAL:
+   - pemenuhan_beban_kerja_lain: isi 1 jika ya, kosongkan jika tidak
+   - madrasah_id_tambahan: isi ID madrasah jika ada beban kerja di madrasah lain
 
-FIELD YANG WAJIB DIISI:
-======================
-- nama
-- email
-- tempat_lahir
-- tanggal_lahir
-- no_hp
-- kartanu
-- nip
-- nuptk
-- npk
-- madrasah_id
-- pendidikan_terakhir
-- tahun_lulus
-- program_studi
-- status_kepegawaian_id
-- tmt
-- ketugasan (gunakan nilai enum yang benar)
-- mengajar (field baru, wajib diisi)
-- alamat
+4. VALIDASI DATA:
+   - Periksa kembali data sebelum import
+   - Pastikan tidak ada email duplikat
+   - ID madrasah dan status kepegawaian harus ada di sistem
 
-CARA MENGGUNAKAN TEMPLATE:
-==========================
+5. PROSES IMPORT:
+   - Upload file Excel/CSV melalui menu Import
+   - Sistem akan memvalidasi data otomatis
+   - Jika ada error, perbaiki dan upload ulang
+   - Password akan dibuat otomatis
 
-1. TEMPLATE KOSONG (tenaga_pendidik_template.csv)
-   - Gunakan sebagai dasar untuk membuat file import baru
-   - Copy header dan isi dengan data Anda
+6. SETELAH IMPORT:
+   - Data akan tersimpan sebagai user dengan role 'tenaga_pendidik'
+   - Password default: NIP atau 'nuist123'
+   - Sarankan user mengubah password setelah login pertama
 
-2. CONTOH DATA TENAGA PENDIDIK (tenaga_pendidik_contoh.csv)
-   - Berisi 10 contoh data tenaga pendidik biasa
-   - Semua menggunakan ketugasan: 'tenaga pendidik'
-   - Field mengajar diisi sesuai mata pelajaran
+7. TROUBLESHOOTING:
+   - Jika import gagal, periksa pesan error
+   - Pastikan format file benar (.xlsx, .xls, .csv)
+   - Periksa referensi ID yang digunakan
 
-3. CONTOH DATA KEPALA MADRASAH (tenaga_pendidik_kepala_madrasah.csv)
-   - Berisi 5 contoh data kepala madrasah/sekolah
-   - Semua menggunakan ketugasan: 'kepala madrasah/sekolah'
-   - Field mengajar diisi: 'Kepala Sekolah'
-
-VALIDASI DATA:
-==============
-Sebelum import, pastikan:
-
-1. Email harus unik dan belum terdaftar di sistem
-2. Madrasah_id harus ada di tabel madrasahs
-3. Status_kepegawaian_id harus ada di tabel status_kepegawaians
-4. Ketugasan hanya boleh: 'tenaga pendidik' atau 'kepala madrasah/sekolah'
-5. Field mengajar harus diisi (tidak boleh kosong)
-6. Format tanggal: YYYY-MM-DD (contoh: 1990-01-15)
-7. NIP harus berupa angka (tanpa spasi atau tanda hubung)
-
-ERROR YANG MUNGKIN TERJADI:
-===========================
-1. "Field mengajar is required but empty" - Field mengajar kosong
-2. "Invalid ketugasan value: Guru Matematika" - Menggunakan nilai lama
-3. "Invalid email format" - Format email salah
-4. "Madrasah ID X not found" - Madrasah_id tidak ada di database
-5. "Status Kepegawaian ID X not found" - Status_kepegawaian_id tidak ada
-
-CARA MENDAPATKAN ID REFERENSI:
-==============================
-1. Madrasah ID: Lihat di menu Master Data > Madrasah
-2. Status Kepegawaian ID: Lihat di menu Master Data > Status Kepegawaian
-
-CONTOH PENGGUNAAN:
-==================
-Untuk import data guru matematika:
-- ketugasan: 'tenaga pendidik'
-- mengajar: 'Guru Matematika'
-
-Untuk import data kepala sekolah:
-- ketugasan: 'kepala madrasah/sekolah'
-- mengajar: 'Kepala Sekolah'
-
-TANGGAL UPDATE: 2025-01-21
+8. KONTAK SUPPORT:
+   - Jika ada kendala, hubungi administrator sistem

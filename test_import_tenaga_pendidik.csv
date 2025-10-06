@@ -1,3 +1,3 @@
-nama,email,tempat_lahir,tanggal_lahir,no_hp,kartanu,nip,nuptk,npk,madrasah_id,pendidikan_terakhir,tahun_lulus,program_studi,status_kepegawaian_id,tmt,ketugasan,mengajar,alamat
-John Doe,john@example.com,Jakarta,1990-01-01,08123456789,123456,1987654321,9876543210,112233,1,S1 Pendidikan,2012,Matematika,1,2020-01-01,tenaga pendidik,Guru Matematika,Jl. Contoh No. 1
-Jane Smith,jane@example.com,Bandung,1985-05-05,08198765432,654321,1234567890,0123456789,445566,1,S1 Bahasa,2007,Bahasa Indonesia,2,2015-06-01,tenaga pendidik,Guru Bahasa,Jl. Sample No. 2
+nama,email,tempat_lahir,tanggal_lahir,no_hp,kartanu,nip,nuptk,npk,madrasah_id,pendidikan_terakhir,tahun_lulus,program_studi,status_kepegawaian_id,tmt,ketugasan,mengajar,alamat,pemenuhan_beban_kerja_lain,madrasah_id_tambahan
+John Doe,john@example.com,Jakarta,1990-01-01,08123456789,123456,1987654321,9876543210,112233,1,S1 Pendidikan,2012,Matematika,1,2020-01-01,tenaga pendidik,Guru Matematika,Jl. Contoh No. 1,,
+Jane Smith,jane@example.com,Bandung,1985-05-05,08198765432,654321,1234567890,0123456789,445566,1,S1 Bahasa,2007,Bahasa Indonesia,2,2015-06-01,tenaga pendidik,Guru Bahasa,Jl. Sample No. 2,,

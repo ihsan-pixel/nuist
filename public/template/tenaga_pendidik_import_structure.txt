@@ -1,70 +1,45 @@
-Susunan Data Import Tenaga Pendidik
+STRUKTUR DATA IMPORT TENAGA PENDIDIK
 
-Kolom-kolom yang harus ada dalam file Excel (.xlsx) untuk import tenaga pendidik, dengan header kolom sebagai berikut:
+Kolom yang WAJIB diisi:
+- nama: Nama lengkap tenaga pendidik
+- email: Alamat email unik
+- tempat_lahir: Tempat lahir
+- tanggal_lahir: Tanggal lahir (format: YYYY-MM-DD)
+- no_hp: Nomor handphone
+- kartanu: Nomor kartu NU
+- nip: NIP Ma'arif
+- nuptk: NUPTK
+- npk: NPK
+- madrasah_id: ID madrasah (lihat referensi di bawah)
+- pendidikan_terakhir: Pendidikan terakhir
+- tahun_lulus: Tahun lulus
+- program_studi: Program studi
+- status_kepegawaian_id: ID status kepegawaian (lihat referensi di bawah)
+- tmt: Tanggal mulai tugas (format: YYYY-MM-DD)
+- ketugasan: 'tenaga pendidik' atau 'kepala madrasah/sekolah'
+- mengajar: Mata pelajaran yang diajarkan
+- alamat: Alamat lengkap
 
-1. nama (Nama Lengkap Beserta Gelar) - Wajib
-2. email (Email) - Wajib,
-3. tempat_lahir (Tempat Lahir) - wajib
-4. tanggal_lahir (Tanggal Lahir, format: YYYY-MM-DD) - wajib
-5. no_hp (Nomor HP) - wajib
-6. kartanu (Kartu NU) - wajib
-7. nip (NIP) - wajib
-8. nuptk (NUPTK) - wajib
-9. npk (NPK) - wajib
-10. madrasah_id (ID Madrasah) - wajib, harus sesuai dengan ID di database
-11. pendidikan_terakhir (Pendidikan Terakhir) - wajib
-12. tahun_lulus (Tahun Lulus) - wajib
-13. program_studi (Program Studi) - wajib
-14. status_kepegawaian_id (ID Status Kepegawaian) - wajib, harus sesuai dengan ID di database
-15. tmt (TMT) - wajib
-16. ketugasan (Ketugasan) - wajib
-17. alamat (Alamat) - wajib
+Kolom yang OPSIONAL (boleh kosong):
+- pemenuhan_beban_kerja_lain: 1 jika ya, 0 jika tidak (kosongkan jika tidak ada)
+- madrasah_id_tambahan: ID madrasah tambahan (kosongkan jika tidak ada)
 
-Catatan:
-- File Excel HARUS memiliki baris header dengan nama kolom yang sesuai seperti di atas.
-- Password akan dibuat secara otomatis menggunakan NIP (jika ada) atau default 'nuist123'.
-- Role akan diset ke 'tenaga_pendidik'.
-- Avatar/Foto Profile tidak diisi melalui import.
-- Pastikan email aktif dan tidak ada duplikasi.
-- Untuk madrasah_id dan status_kepegawaian_id, gunakan ID numerik dari database.
-
-Referensi ID Madrasah:
-6 - MA Ma'arif Nglipar
-7 - MA YAPPI Gubukrubuh
-8 - SLB Bhakti Pertiwi
-9 - SLB Ma'arif Bantul
+REFERENSI ID MADRA SAH (Contoh):
 10 - SMA Ma'arif 1 Sleman
-11 - SMA Ma'arif Wates
-12 - SMA Pembangunan 1 Wonosari
-13 - SMA Pembangunan 2 Karangmojo
-14 - SMA Sunan Kalijaga Cangkringan
-15 - SMK Diponegoro Depok
 16 - SMK Ma'arif 1 Sleman
-17 - SMK Ma'arif 1 Wates
-18 - SMK Ma'arif 2 Sleman
-19 - SMK Ma'arif 1 Kalibawang
-20 - SMK Ma'arif 1 Nanggulan
-21 - SMK Ma'arif 1 Piyungan
-22 - SMK Ma'arif 1 Temon
 23 - SMK Ma'arif 1 Yogyakarta
-24 - SMK Ma'arif 2 Piyungan
-25 - SMK Ma'arif 2 Temon
-26 - SMK Ma'arif 3 Wates
-27 - SMK Ma'arif Ngawen
-28 - SMK Ma'arif Nurul Haromain Sentolo
-29 - SMK Ma'arif Playen
-30 - SMK Ma'arif Semanu
-31 - SMK Ma'arif Wonosari
-32 - SMK Pembangunan Dlingo
-33 - SMK Pembangunan Karangmojo
-34 - SMK YAPPI Wonosari
+...dan lainnya (lihat data madrasah lengkap)
 
-Referensi ID Status Kepegawaian:
-1 - PNS Sertifkasi
-2 - PNS Non Sertifkasi
+REFERENSI ID STATUS KEPEGAWAIAN:
+1 - PNS Sertifikasi
 3 - GTY Sertifikasi
-4 - GTY Sertifikasi Inpassing
 5 - GTY Non Sertifikasi
 6 - GTT
-7 - PTY
-8 - PTT
+...dan lainnya (lihat data status kepegawaian lengkap)
+
+CATATAN PENTING:
+- Email harus unik dan belum terdaftar
+- Password akan dibuat otomatis menggunakan NIP (jika ada) atau default 'nuist123'
+- Format tanggal: YYYY-MM-DD
+- Ketugasan hanya menerima: 'tenaga pendidik' atau 'kepala madrasah/sekolah'
+- File Excel HARUS memiliki baris header dengan nama kolom yang sesuai
