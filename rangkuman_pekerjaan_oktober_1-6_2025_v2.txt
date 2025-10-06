@@ -1,0 +1,228 @@
+================================================================================
+                    RANGKUMAN PEKERJAAN BLACKBOX AI
+                    TANGGAL 1 - 6 OKTOBER 2025
+================================================================================
+
+PERIODE: 1 Oktober 2025 - 6 Oktober 2025
+PROYEK: Sistem Manajemen Madrasah/Presensi (Laravel Application)
+LOKASI: c:/laragon/www/apk_nuist
+
+================================================================================
+RINGKASAN UMUM
+================================================================================
+
+Selama periode 1-6 Oktober 2025, pengembangan aplikasi sistem manajemen madrasah
+dan presensi fokus pada:
+- Penyempurnaan struktur database untuk mendukung fitur yang lebih kompleks
+- Penambahan field-field baru untuk data tenaga pendidik dan madrasah
+- Optimasi sistem presensi berdasarkan status kepegawaian
+- Pembersihan dan restrukturisasi data presensi settings
+
+================================================================================
+DETAIL PEKERJAAN PER TANGGAL
+================================================================================
+
+TANGGAL 1 OKTOBER 2025
+----------------------
+1. PENAMBAHAN ROLE PENGURUS
+   - File: database/migrations/2025_10_01_060238_add_pengurus_to_users_role_enum.php
+   - Deskripsi: Menambahkan role 'pengurus' ke dalam enum role users
+   - Dampak: Mendukung hierarki pengguna yang lebih lengkap dalam sistem
+
+2. REVERT KETUGASAN KE STRING
+   - File: database/migrations/2025_10_01_061628_revert_ketugasan_enum_to_string.php
+   - Deskripsi: Mengubah kolom ketugasan dari enum kembali ke string
+   - Alasan: Memberikan fleksibilitas input yang lebih besar untuk jenis ketugasan
+
+3. PENAMBAHAN FIELD JABATAN
+   - File: database/migrations/2025_10_01_062802_add_jabatan_to_users_table.php
+   - Deskripsi: Menambahkan kolom jabatan pada tabel users
+   - Tujuan: Menyimpan informasi jabatan spesifik tenaga pendidik
+
+TANGGAL 3 OKTOBER 2025
+----------------------
+1. INTEGRASI STATUS KEPEGAWAIAN DENGAN PRESENSI SETTINGS
+   - File: database/migrations/2025_10_03_165952_add_status_kepegawaian_id_to_presensi_settings_table.php
+   - Deskripsi: Menambahkan foreign key status_kepegawaian_id ke presensi_settings
+   - Fitur: Constraint unique untuk memastikan satu setting per status kepegawaian
+
+2. PENGHAPUSAN SINGLETON CONSTRAINT
+   - File: database/migrations/2025_10_03_181902_drop_singleton_from_presensi_settings_table.php
+   - Deskripsi: Menghapus constraint singleton dan kolom singleton
+   - Dampak: Memungkinkan multiple presensi settings berdasarkan status kepegawaian
+
+3. PENAMBAHAN STATUS KEPEGAWAIAN KE PRESENSI
+   - File: database/migrations/2025_10_03_195444_add_status_kepegawaian_id_to_presensis_table.php
+   - Deskripsi: Menambahkan foreign key status_kepegawaian_id ke tabel presensis
+   - Tujuan: Melacak presensi berdasarkan status kepegawaian
+
+4. POPULASI DATA STATUS KEPEGAWAIAN
+   - File: database/migrations/2025_10_03_195726_populate_status_kepegawaian_id_in_presensis_table.php
+   - Deskripsi: Mengisi status_kepegawaian_id pada data presensi yang sudah ada
+   - Metode: Menggunakan JOIN dengan tabel users untuk mendapatkan data
+
+5. PEMBERSIHAN PRESENSI SETTINGS
+   - File: database/migrations/2025_10_04_000000_clean_presensi_settings_table.php
+   - Deskripsi: Menghapus semua record di presensi_settings
+   - Alasan: Membersihkan data legacy sebelum implementasi sistem baru
+
+TANGGAL 4 OKTOBER 2025
+----------------------
+1. PENAMBAHAN HARI KBM KE MADRASAH
+   - File: database/migrations/2025_10_04_094123_add_hari_kbm_to_madrasahs_table.php
+   - Deskripsi: Menambahkan enum hari_kbm ('5' atau '6') ke tabel madrasahs
+   - Tujuan: Mendukung sistem 5 hari atau 6 hari kerja belajar mengajar
+
+2. PENAMBAHAN PEMENUHAN BEBAN KERJA LAIN
+   - File: database/migrations/2025_10_04_103843_add_pemenuhan_beban_kerja_lain_to_users_table.php
+   - Deskripsi: Menambahkan kolom boolean pemenuhan_beban_kerja_lain
+   - Kegunaan: Menandai apakah tenaga pendidik memenuhi beban kerja tambahan
+
+3. PENAMBAHAN MADRASAH TAMBAHAN
+   - File: database/migrations/2025_10_04_105403_add_madrasah_id_tambahan_to_users_table.php
+   - Deskripsi: Menambahkan foreign key madrasah_id_tambahan ke users
+   - Fungsi: Mendukung tenaga pendidik yang mengajar di lebih dari satu madrasah
+
+4. PENAMBAHAN KABUPATEN KE MADRASAH
+   - File: database/migrations/2025_10_04_112402_add_kabupaten_to_madrasahs_table.php
+   - Deskripsi: Menambahkan kolom kabupaten pada tabel madrasahs
+   - Tujuan: Mendukung klasifikasi geografis madrasah
+
+================================================================================
+PENGATURAN PRESENSI SISTEM
+================================================================================
+
+SISTEM PRESENSI BERBASIS HARI KBM
+---------------------------------
+- Sistem menggunakan jadwal waktu tetap berdasarkan hari KBM madrasah
+- Tidak lagi menggunakan pengaturan waktu manual per status kepegawaian
+- Waktu presensi ditentukan otomatis berdasarkan hari_kbm (5 atau 6 hari)
+
+JADWAL WAKTU PRESENSI:
+
+UNTUK MADRASAH 5 HARI KBM:
+- PRESENSI MASUK: 06:00 - 07:00
+- PRESENSI PULANG:
+  - Senin-Kamis: 14:30 - 17:00
+  - Jumat: 14:00 - 17:00 (mulai lebih awal)
+
+UNTUK MADRASAH 6 HARI KBM:
+- PRESENSI MASUK: 06:00 - 07:00
+- PRESENSI PULANG: 13:00 - 17:00
+
+PENGEECUALIAN KHUSUS:
+- Tenaga pendidik dengan "Pemenuhan Beban Kerja Lain" = Ya:
+  - Dapat presensi masuk dan keluar tanpa batasan waktu
+  - Dapat melakukan presensi di madrasah tambahan
+  - Fleksibilitas waktu kerja yang lebih besar
+
+================================================================================
+DATA TENAGA PENDIDIK YANG DIINPUTKAN
+================================================================================
+
+FIELD WAJIB (REQUIRED):
+----------------------
+1. nama - Nama lengkap tenaga pendidik
+2. email - Alamat email unik (harus belum terdaftar)
+3. tempat_lahir - Tempat lahir
+4. tanggal_lahir - Tanggal lahir (format: YYYY-MM-DD)
+5. no_hp - Nomor handphone
+6. kartanu - Nomor kartu NU
+7. nip - NIP Ma'arif
+8. nuptk - NUPTK
+9. npk - NPK
+10. madrasah_id - ID madrasah utama (foreign key ke tabel madrasahs)
+11. pendidikan_terakhir - Pendidikan terakhir (S1, S2, dll)
+12. tahun_lulus - Tahun lulus
+13. program_studi - Program studi yang ditempuh
+14. status_kepegawaian_id - ID status kepegawaian (foreign key)
+15. tmt - Tanggal mulai tugas (format: YYYY-MM-DD)
+16. ketugasan - Jenis ketugasan ('tenaga pendidik' atau 'kepala madrasah/sekolah')
+17. mengajar - Mata pelajaran yang diajarkan
+18. alamat - Alamat lengkap
+
+FIELD OPSIONAL (OPTIONAL):
+-------------------------
+19. pemenuhan_beban_kerja_lain - Boolean (1=Ya, 0=Tidak, kosong=Tidak)
+20. madrasah_id_tambahan - ID madrasah tambahan (foreign key, kosong jika tidak ada)
+
+FIELD SISTEM (AUTO-GENERATED):
+-----------------------------
+- nuist_id - ID unik sistem (6 digit, auto-generated)
+- role - Otomatis diisi 'tenaga_pendidik'
+- password - Auto-generated dari NIP atau default 'nuist123'
+- password_changed - Boolean untuk tracking perubahan password
+- last_seen - Timestamp terakhir login
+- jabatan - Field tambahan untuk jabatan spesifik
+
+CONTOH DATA IMPORT (dari test_import_tenaga_pendidik_updated.csv):
+-----------------------------------------------------------------
+- Dr. Ahmad Fauzii, S.Pd., M.Pd. - Guru Matematika, SMA Ma'arif 1 Sleman
+- Siti Nurhaliza, S.Pd. - Guru Bahasa Indonesia, SMK Ma'arif 1 Sleman
+- Muhammad Rizki, S.Kom. - Guru TIK, SMK Ma'arif 1 Yogyakarta
+
+================================================================================
+PEKERJAAN TAMBAHAN (DARI TODO.md)
+================================================================================
+
+UPDATE IMPORT TEMPLATE TENAGA PENDIDIK
+-------------------------------------
+- Status: Dalam pengerjaan
+- Tujuan: Menyesuaikan template import dengan schema database terbaru
+- Masalah: Field pemenuhan_beban_kerja_lain dan madrasah_id_tambahan belum ada di template
+- Solusi: Membuat field tersebut optional dalam import process
+
+================================================================================
+DAMPAK TEKNIS PENGEMBANGAN
+================================================================================
+
+1. STRUKTUR DATABASE:
+   - Tabel users: Ditambahkan jabatan, pemenuhan_beban_kerja_lain, madrasah_id_tambahan
+   - Tabel madrasahs: Ditambahkan hari_kbm, kabupaten
+   - Tabel presensis: Ditambahkan status_kepegawaian_id
+   - Tabel presensi_settings: Diubah dari singleton menjadi multi-record
+
+2. SISTEM PRESENSI:
+   - Presensi sekarang dapat dikonfigurasi per status kepegawaian
+   - Mendukung fleksibilitas jadwal kerja (5/6 hari)
+   - Tenaga pendidik dapat terdaftar di multiple madrasah
+
+3. MANAJEMEN TENAGA PENDIDIK:
+   - Informasi jabatan yang lebih detail
+   - Tracking beban kerja tambahan
+   - Dukungan untuk tenaga pendidik lintas madrasah
+
+================================================================================
+FILE-RELATED DEVELOPMENT HISTORY
+================================================================================
+
+Berdasarkan DevelopmentHistorySeeder, pengembangan sebelum Oktober 2025 meliputi:
+- Foundation Laravel (2014-2019): Authentication, Queue, API Sanctum
+- Customer Module (2023): Sistem manajemen customer
+- Major Development (September 2025):
+  - Sistem administrasi dan role management
+  - Manajemen madrasah, tenaga pendidik, dan presensi
+  - Integrasi lokasi dan pengaturan presensi
+  - Sistem izin dan approval
+
+================================================================================
+KONDISI PROYEK SAAT INI
+================================================================================
+
+- Framework: Laravel (dengan berbagai package tambahan)
+- Database: MySQL (berdasarkan migration files)
+- Status: Dalam pengembangan aktif
+- Fokus: Sistem manajemen presensi untuk institusi pendidikan Islam
+
+================================================================================
+CATATAN PENTING
+================================================================================
+
+1. Semua migration menggunakan format Laravel standard
+2. Foreign key constraints diterapkan untuk menjaga data integrity
+3. Beberapa field dibuat nullable untuk fleksibilitas input
+4. Sistem dirancang untuk scalable dan maintainable
+
+================================================================================
+END OF SUMMARY - Oktober 1-6, 2025
+================================================================================
