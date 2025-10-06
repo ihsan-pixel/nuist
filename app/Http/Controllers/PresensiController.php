@@ -67,6 +67,10 @@ class PresensiController extends Controller
         $timeRanges = null;
         if ($user->madrasah && $user->madrasah->hari_kbm) {
             $timeRanges = $this->getPresensiTimeRanges($user->madrasah->hari_kbm, $today);
+            // Adjust for special users
+            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
+                $timeRanges['masuk_end'] = '08:00';
+            }
         }
 
         return view('presensi.create', compact('presensiHariIni', 'isHoliday', 'holiday', 'timeRanges'));
@@ -142,6 +146,10 @@ class PresensiController extends Controller
             $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
             $batasAkhirMasuk = $timeRanges['masuk_end'];
             $batasPulang = $timeRanges['pulang_start'];
+            // Adjust for special users
+            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
+                $batasAkhirMasuk = '08:00';
+            }
         }
 
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
