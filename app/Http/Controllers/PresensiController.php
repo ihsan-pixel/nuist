@@ -148,7 +148,7 @@ class PresensiController extends Controller
             $batasPulang = $timeRanges['pulang_start'];
             // Adjust for special users
             if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '08:00';
+                $batasAkhirMasuk = '07:00';
             }
         }
 
