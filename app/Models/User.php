@@ -66,11 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         static::creating(function ($user) {
             if (empty($user->nuist_id)) {
-                do {
-                    $nuistId = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                } while (self::where('nuist_id', $nuistId)->exists());
-
-                $user->nuist_id = $nuistId;
+                $user->nuist_id = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
             }
         });
     }
