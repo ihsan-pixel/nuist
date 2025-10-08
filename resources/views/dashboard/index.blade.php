@@ -607,7 +607,7 @@
                     </div>
                     <div class="col-md-3">
                         <small class="text-muted">NIP Ma'arif</small>
-                        <h6>{{ Auth::user()->nip_maarif ?? '-' }}</h6>
+                        <h6>{{ Auth::user()->nip ?? '-' }}</h6>
                     </div>
                     <div class="col-md-3">
                         <small class="text-muted text-success">Status Kepegawaian</small>
