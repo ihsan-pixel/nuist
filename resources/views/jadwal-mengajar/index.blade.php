@@ -48,7 +48,7 @@
                                     <option value="">Pilih Madrasah</option>
                                     @if($madrasahs && $madrasahs->count() > 0)
                                         @foreach($madrasahs as $madrasah)
-                                            <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
+                                            <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->name }}</option>
                                         @endforeach
                                     @else
                                         <option disabled>Tidak ada data madrasah</option>
@@ -101,36 +101,5 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const madrasahSelect = document.getElementById('madrasah_id');
-    const tenagaPendidikSelect = document.getElementById('tenaga_pendidik_id');
-
-    madrasahSelect.addEventListener('change', function () {
-        const madrasahId = this.value;
-
-        if (!madrasahId) {
-            tenagaPendidikSelect.innerHTML = '<option value="">Pilih Tenaga Pendidik</option>';
-            return;
-        }
-
-        fetch(`/jadwal-mengajar/tenaga-pendidik/${madrasahId}`)
-            .then(response => response.json())
-            .then(data => {
-                tenagaPendidikSelect.innerHTML = '<option value="">Pilih Tenaga Pendidik</option>';
-                data.forEach(tp => {
-                    const option = document.createElement('option');
-                    option.value = tp.id;
-                    option.textContent = tp.nama + ' (' + (tp.madrasah ? tp.madrasah.nama : 'Madrasah tidak diketahui') + ')';
-                    tenagaPendidikSelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching tenaga pendidik:', error);
-            });
-    });
-});
-</script>
 
 @endsection
