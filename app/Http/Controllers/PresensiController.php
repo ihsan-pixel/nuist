@@ -148,7 +148,7 @@ class PresensiController extends Controller
             $batasPulang = $timeRanges['pulang_start'];
             // Adjust for special users
             if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '07:00';
+                $batasAkhirMasuk = '08:00';
             }
         }
 
@@ -157,8 +157,18 @@ class PresensiController extends Controller
         if (!$presensi) {
             // Validasi batas akhir presensi masuk
             if ($batasAkhirMasuk && $now > $batasAkhirMasuk) {
-                // Hitung keterlambatan dalam menit
-                $batas = Carbon::createFromFormat('H:i:s', $batasAkhirMasuk, 'Asia/Jakarta');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Waktu presensi masuk telah berakhir.'
+                ], 400);
+            }
+
+            $waktuMasuk = $request->input('waktu_masuk') ?? $now;
+            $keterangan = null;
+
+            // Jika waktu presensi setelah 07:00, hitung keterlambatan
+            if ($now > '07:00:00') {
+                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
                 $sekarang = Carbon::now('Asia/Jakarta');
                 $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
 
@@ -169,29 +179,12 @@ class PresensiController extends Controller
                     $terlambatMenit = abs(round($terlambatMenit));
                 }
 
-                // Presensi masuk dengan keterangan keterlambatan
-                $waktuMasuk = $request->input('waktu_masuk') ?? $now;
-                $presensi = Presensi::create([
-                    'user_id' => $user->id,
-                    'tanggal' => $today,
-                    'waktu_masuk' => $waktuMasuk,
-                    'latitude' => $request->latitude,
-                    'longitude' => $request->longitude,
-                    'lokasi' => $request->lokasi,
-                    'status' => 'hadir',
-                    'keterangan' => "Terlambat {$terlambatMenit} menit",
-                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => "Presensi masuk berhasil dicatat dengan keterlambatan {$terlambatMenit} menit.",
-                    'data' => $presensi
-                ]);
+                $keterangan = "Terlambat {$terlambatMenit} menit";
+            } else {
+                $keterangan = "tidak terlambat";
             }
 
             // Presensi masuk
-            $waktuMasuk = $request->input('waktu_masuk') ?? $now;
             $presensi = Presensi::create([
                 'user_id' => $user->id,
                 'tanggal' => $today,
@@ -200,30 +193,55 @@ class PresensiController extends Controller
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'status' => 'hadir',
+                'keterangan' => $keterangan,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
+            $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
+
             return response()->json([
                 'success' => true,
-                'message' => 'Presensi masuk berhasil dicatat.',
+                'message' => $message,
                 'data' => $presensi
             ]);
         } else {
             if ($presensi->status === 'alpha') {
                 // Update alpha to hadir, set waktu_masuk
                 $waktuMasuk = $request->input('waktu_masuk') ?? $now;
+                $keterangan = null;
+
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    if ($sekarang->lessThan($batas)) {
+                        $terlambatMenit = 0;
+                    } else {
+                        $terlambatMenit = abs(round($terlambatMenit));
+                    }
+
+                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                } else {
+                    $keterangan = "tidak terlambat";
+                }
+
                 $presensi->update([
                     'status' => 'hadir',
                     'waktu_masuk' => $waktuMasuk,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                     'lokasi' => $request->lokasi,
-                    'keterangan' => null,
+                    'keterangan' => $keterangan,
                 ]);
+
+                $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Presensi masuk berhasil dicatat.',
+                    'message' => $message,
                     'data' => $presensi
                 ]);
             } else {
