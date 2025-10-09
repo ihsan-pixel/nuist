@@ -10,6 +10,12 @@
                 <h4 class="card-title">Tambah Jadwal Mengajar</h4>
             </div>
             <div class="card-body">
+                @if(session('alert'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('alert') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
                 <form action="{{ route('teaching-schedules.store') }}" method="POST">
                     @csrf
                     <div class="row align-items-center">
