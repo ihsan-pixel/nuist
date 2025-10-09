@@ -34,15 +34,11 @@ class DataMadrasahController extends Controller
                 ->where('role', 'tenaga_pendidik')
                 ->exists();
 
-            if ($hasTeacher) {
-                $filled++;
-                $fieldStatus['status_guru'] = '✅';
-            } else {
-                $fieldStatus['status_guru'] = '❌';
-            }
+            // Status guru column is not changed, so just show check or cross based on existence
+            $fieldStatus['status_guru'] = $hasTeacher ? '✅' : '❌';
 
-            // Calculate percentage
-            $percentage = round(($filled / 8) * 100);
+            // Calculate percentage only based on madrasah fields (7 fields)
+            $percentage = round(($filled / count($fields)) * 100);
             if ($percentage > 100) {
                 $percentage = 100;
             }
