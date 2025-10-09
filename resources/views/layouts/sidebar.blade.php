@@ -130,14 +130,7 @@
                     </a>
                 </li>
                 @endif
-                @if($userRole === 'super_admin')
-                <li>
-                    <a href="{{ route('jadwal-mengajar.index') }}" class="waves-effect">
-                        <i class="bx bx-calendar"></i>
-                        <span>Jadwal Mengajar</span>
-                    </a>
-                </li>
-                @endif
+                {{-- Jadwal Mengajar menu removed as per user request --}}
 
             </ul>
         </div>

@@ -40,11 +40,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Jadwal Mengajar Routes - Super Admin and Admin
-    Route::middleware(['role:super_admin,admin'])->group(function () {
-        Route::get('/jadwal-mengajar', [App\Http\Controllers\JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
-        Route::post('/jadwal-mengajar/store', [App\Http\Controllers\JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store');
-        Route::post('/jadwal-mengajar/import', [App\Http\Controllers\JadwalMengajarController::class, 'import'])->name('jadwal-mengajar.import');
-    });
+    // Removed as per user request
 });
 
 Auth::routes(['verify' => true]);
