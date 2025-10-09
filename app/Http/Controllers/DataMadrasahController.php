@@ -18,9 +18,14 @@ class DataMadrasahController extends Controller
             $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm'];
 
             $filled = 0;
+            $fieldStatus = [];
+
             foreach ($fields as $field) {
                 if (!is_null($madrasah->$field)) {
                     $filled++;
+                    $fieldStatus[$field] = '✅';
+                } else {
+                    $fieldStatus[$field] = '❌';
                 }
             }
 
@@ -31,17 +36,20 @@ class DataMadrasahController extends Controller
 
             if ($hasTeacher) {
                 $filled++;
+                $fieldStatus['status_guru'] = '✅';
+            } else {
+                $fieldStatus['status_guru'] = '❌';
             }
 
             // Calculate percentage
-            $percentage = round(($filled / 9) * 100);
-
-            // Status guru
-            $statusGuru = $hasTeacher ? '✅' : '❌';
+            $percentage = round(($filled / 8) * 100);
+            if ($percentage > 100) {
+                $percentage = 100;
+            }
 
             // Add calculated data to madrasah object
             $madrasah->completeness_percentage = $percentage;
-            $madrasah->status_guru = $statusGuru;
+            $madrasah->field_status = $fieldStatus;
 
             return $madrasah;
         });
