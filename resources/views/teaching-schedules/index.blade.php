@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Daftar Jadwal Mengajar</h4>
                 @if(Auth::user()->role !== 'tenaga_pendidik')
                 <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
