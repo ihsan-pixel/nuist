@@ -71,4 +71,13 @@ class JadwalMengajarController extends Controller
 
         return redirect()->route('jadwal-mengajar.index')->with('success', 'File jadwal mengajar berhasil diimport.');
     }
+
+    public function getTenagaPendidikByMadrasah($madrasahId)
+    {
+        $tenagaPendidiks = \App\Models\User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasahId)
+            ->get(['id', 'name']);
+
+        return response()->json($tenagaPendidiks);
+    }
 }
