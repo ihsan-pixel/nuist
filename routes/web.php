@@ -12,6 +12,7 @@ use App\Http\Controllers\PresensiAdminController;
 use App\Http\Controllers\DevelopmentHistoryController;
 use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\IzinController;
+use App\Http\Controllers\TeachingScheduleController;
 
 
 /*
