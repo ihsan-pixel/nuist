@@ -42,13 +42,12 @@ Route::middleware(['auth'])->group(function () {
     // Jadwal Mengajar Routes - Super Admin and Admin
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::get('/jadwal-mengajar', [App\Http\Controllers\JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
-        Route::get('/jadwal-mengajar/create', [App\Http\Controllers\JadwalMengajarController::class, 'create'])->name('jadwal-mengajar.create');
         Route::post('/jadwal-mengajar/store', [App\Http\Controllers\JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store');
+        Route::post('/jadwal-mengajar/import', [App\Http\Controllers\JadwalMengajarController::class, 'import'])->name('jadwal-mengajar.import');
     });
 });
 
 Auth::routes(['verify' => true]);
-
 
 // Email Verification Routes
 Route::get('/email/verify', 'Auth\VerificationController@show')->name('verification.notice');
@@ -80,8 +79,6 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
 
     Route::get('/madrasah', [App\Http\Controllers\MadrasahController::class, 'index'])->name('madrasah.index');
     Route::get('/tenaga-pendidik', [App\Http\Controllers\TenagaPendidikController::class, 'index'])->name('tenaga-pendidik.index');
-    // Remove duplicate resource route below
-    // Route::resource('admin', AdminController::class);
 
     // Yayasan routes
     Route::get('/yayasan', [App\Http\Controllers\YayasanController::class, 'index'])->name('yayasan.index');
@@ -89,7 +86,6 @@ Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,penguru
     Route::put('/yayasan/update/{id}', [App\Http\Controllers\YayasanController::class, 'update'])->name('yayasan.update');
     Route::delete('/yayasan/destroy/{id}', [App\Http\Controllers\YayasanController::class, 'destroy'])->name('yayasan.destroy');
 });
-
 
 Route::prefix('admin-masterdata')->middleware(['auth', 'role:admin,pengurus'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin_masterdata.admin.index');
