@@ -42,30 +42,36 @@
                     @endphp
 
                     @foreach($days as $index => $day)
-                    <h5>{{ $day }}</h5>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="subject_{{ $index }}">Mata Pelajaran</label>
-                                <input type="text" name="schedules[{{ $index }}][subject]" id="subject_{{ $index }}" class="form-control">
-                            </div>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ $day }}</h5>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="class_name_{{ $index }}">Kelas</label>
-                                <input type="text" name="schedules[{{ $index }}][class_name]" id="class_name_{{ $index }}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="start_time_{{ $index }}">Jam Mulai</label>
-                                <input type="time" name="schedules[{{ $index }}][start_time]" id="start_time_{{ $index }}" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="end_time_{{ $index }}">Jam Selesai</label>
-                                <input type="time" name="schedules[{{ $index }}][end_time]" id="end_time_{{ $index }}" class="form-control">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="subject_{{ $index }}">Mata Pelajaran</label>
+                                        <input type="text" name="schedules[{{ $index }}][subject]" id="subject_{{ $index }}" class="form-control" placeholder="Contoh: Matematika">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="class_name_{{ $index }}">Kelas</label>
+                                        <input type="text" name="schedules[{{ $index }}][class_name]" id="class_name_{{ $index }}" class="form-control" placeholder="Contoh: VII A">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="start_time_{{ $index }}">Jam Mulai</label>
+                                        <input type="time" name="schedules[{{ $index }}][start_time]" id="start_time_{{ $index }}" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="end_time_{{ $index }}">Jam Selesai</label>
+                                        <input type="time" name="schedules[{{ $index }}][end_time]" id="end_time_{{ $index }}" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
