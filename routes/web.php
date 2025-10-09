@@ -42,10 +42,19 @@ Route::middleware(['auth'])->group(function () {
     // Jadwal Mengajar Routes - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/jadwal-mengajar', [App\Http\Controllers\JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
+        Route::get('/jadwal-mengajar/create', [App\Http\Controllers\JadwalMengajarController::class, 'create'])->name('jadwal-mengajar.create');
+        Route::post('/jadwal-mengajar/store', [App\Http\Controllers\JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store');
     });
 });
 
 Auth::routes(['verify' => true]);
+
+// Jadwal Mengajar Routes - Admin
+Route::middleware(['role:admin'])->group(function () {
+    Route::get('/jadwal-mengajar', [App\Http\Controllers\JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
+    Route::get('/jadwal-mengajar/create', [App\Http\Controllers\JadwalMengajarController::class, 'create'])->name('jadwal-mengajar.create');
+    Route::post('/jadwal-mengajar/store', [App\Http\Controllers\JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store');
+});
 
 // Email Verification Routes
 Route::get('/email/verify', 'Auth\VerificationController@show')->name('verification.notice');

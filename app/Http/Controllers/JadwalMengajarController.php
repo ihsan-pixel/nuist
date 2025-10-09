@@ -38,13 +38,20 @@ class JadwalMengajarController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin') {
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
             abort(403, 'Unauthorized');
         }
 
-        $tenagaPendidiks = TenagaPendidik::where('madrasah_id', $user->madrasah_id)->get();
+        if ($user->role === 'admin') {
+            $tenagaPendidiks = TenagaPendidik::where('madrasah_id', $user->madrasah_id)->get();
+            $madrasahId = $user->madrasah_id;
+        } else {
+            // super_admin can see all tenaga pendidik
+            $tenagaPendidiks = TenagaPendidik::all();
+            $madrasahId = null;
+        }
 
-        return view('jadwal-mengajar.create', compact('tenagaPendidiks'));
+        return view('jadwal-mengajar.create', compact('tenagaPendidiks', 'madrasahId'));
     }
 
     /**
@@ -54,7 +61,7 @@ class JadwalMengajarController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin') {
+        if (!in_array($user->role, ['admin', 'super_admin'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -64,9 +71,17 @@ class JadwalMengajarController extends Controller
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
             'mata_pelajaran' => 'required|string|max:255',
+            'madrasah_id' => 'nullable|exists:madrasahs,id',
         ]);
 
-        $validated['madrasah_id'] = $user->madrasah_id;
+        if ($user->role === 'admin') {
+            $validated['madrasah_id'] = $user->madrasah_id;
+        } else {
+            // super_admin can set madrasah_id from input
+            if (empty($validated['madrasah_id'])) {
+                return back()->withErrors(['madrasah_id' => 'Madrasah harus dipilih untuk super admin'])->withInput();
+            }
+        }
 
         JadwalMengajar::create($validated);
 

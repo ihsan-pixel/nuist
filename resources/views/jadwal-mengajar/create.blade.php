@@ -27,6 +27,20 @@
                         </select>
                     </div>
 
+                    @if(auth()->user()->role === 'super_admin')
+                    <div class="mb-3">
+                        <label for="madrasah_id" class="form-label">Madrasah</label>
+                        <select name="madrasah_id" id="madrasah_id" class="form-select" required>
+                            <option value="">Pilih Madrasah</option>
+                            @foreach(App\Models\Madrasah::all() as $madrasah)
+                                <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @else
+                    <input type="hidden" name="madrasah_id" value="{{ $madrasahId }}">
+                    @endif
+
                     <div class="mb-3">
                         <label for="hari" class="form-label">Hari</label>
                         <input type="text" name="hari" id="hari" class="form-control" placeholder="Senin, Selasa, dll." required>
