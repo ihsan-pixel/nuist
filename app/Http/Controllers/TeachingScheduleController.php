@@ -118,7 +118,7 @@ class TeachingScheduleController extends Controller
             }
 
             // Check overlap
-            $overlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
+            $overlap = TeachingSchedule::where('school_id', $request->school_id)
                 ->where('day', $scheduleData['day'])
                 ->where(function ($query) use ($scheduleData) {
                     $query->where('start_time', '<', $scheduleData['end_time'])
@@ -127,7 +127,7 @@ class TeachingScheduleController extends Controller
                 ->exists();
 
             if ($overlap) {
-                return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari ' . $scheduleData['day'] . '.'])->withInput();
+                return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari ' . $scheduleData['day'] . ' di sekolah yang sama.'])->withInput();
             }
 
             TeachingSchedule::create([
