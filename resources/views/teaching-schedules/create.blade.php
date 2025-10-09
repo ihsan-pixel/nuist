@@ -96,7 +96,7 @@ document.getElementById('loadTeachersBtn').addEventListener('click', function() 
     var teacherSelect = document.getElementById('teacher_id');
 
     if (schoolId) {
-        fetch('{{ url("teaching-schedules/get-teachers") }}/' + schoolId)
+        fetch('{{ route("teaching-schedules.get-teachers", ":schoolId") }}'.replace(':schoolId', schoolId))
             .then(response => response.json())
             .then(data => {
                 teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
