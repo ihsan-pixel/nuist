@@ -22,6 +22,7 @@
                                     <option value="{{ $school->id }}" {{ Auth::user()->role === 'admin' && Auth::user()->madrasah_id == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
                                     @endforeach
                                 </select>
+                                <button type="button" id="loadTeachersBtn" class="btn btn-info mt-2">Cari Nama Guru</button>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -89,8 +90,9 @@
 </div>
 
 <script>
-document.getElementById('school_id').addEventListener('change', function() {
-    var schoolId = this.value;
+document.getElementById('loadTeachersBtn').addEventListener('click', function() {
+    var schoolSelect = document.getElementById('school_id');
+    var schoolId = schoolSelect.value;
     var teacherSelect = document.getElementById('teacher_id');
 
     if (schoolId) {
