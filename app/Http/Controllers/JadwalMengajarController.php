@@ -15,9 +15,9 @@ class JadwalMengajarController extends Controller
         $madrasahId = Auth::user()->madrasah_id ?? null;
 
         if ($madrasahId) {
-            $tenagaPendidiks = TenagaPendidik::where('madrasah_id', $madrasahId)->get();
+            $tenagaPendidiks = TenagaPendidik::with('madrasah')->where('madrasah_id', $madrasahId)->get();
         } else {
-            $tenagaPendidiks = TenagaPendidik::all();
+            $tenagaPendidiks = TenagaPendidik::with('madrasah')->get();
         }
 
         return view('jadwal-mengajar.index', [
