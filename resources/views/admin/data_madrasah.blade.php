@@ -30,15 +30,15 @@
                             @foreach($madrasahs as $madrasah)
                             <tr>
                                 <td>{{ $madrasah->name }}</td>
-                                <td>{{ $madrasah->alamat ?? '-' }}</td>
-                                <td>{{ $madrasah->logo ? 'Uploaded' : '-' }}</td>
-                                <td>{{ $madrasah->latitude ?? '-' }}</td>
-                                <td>{{ $madrasah->longitude ?? '-' }}</td>
-                                <td>{{ $madrasah->map_link ? 'Defined' : '-' }}</td>
-                                <td>{{ $madrasah->polygon_koordinat ? 'Defined' : '-' }}</td>
-                                <td>{{ $madrasah->hari_kbm ?? '-' }}</td>
-                                <td>{{ $madrasah->status_guru }}</td>
-                                <td>{{ $madrasah->completeness_percentage }}%</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['alamat'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['logo'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['latitude'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['longitude'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['map_link'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['hari_kbm'] ?? '❌' !!}</td>
+                                <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['status_guru'] ?? '❌' !!}</td>
+                                <td style="font-weight: bold; text-align: center;">{{ $madrasah->completeness_percentage }}%</td>
                             </tr>
                             @endforeach
                         </tbody>
