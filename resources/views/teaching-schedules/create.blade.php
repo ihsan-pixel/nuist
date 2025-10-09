@@ -12,8 +12,8 @@
             <div class="card-body">
                 <form action="{{ route('teaching-schedules.store') }}" method="POST">
                     @csrf
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label for="school_id">Sekolah</label>
                                 <select name="school_id" id="school_id" class="form-control" required>
@@ -22,19 +22,16 @@
                                     <option value="{{ $school->id }}" {{ Auth::user()->role === 'admin' && Auth::user()->madrasah_id == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
                                     @endforeach
                                 </select>
-                                <button type="button" id="loadTeachersBtn" class="btn btn-info mt-2">Cari Nama Guru</button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-2 text-center">
+                            <button type="button" id="loadTeachersBtn" class="btn btn-info mt-4">Cari Nama Guru</button>
+                        </div>
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label for="teacher_id">Guru</label>
                                 <select name="teacher_id" id="teacher_id" class="form-control" required>
                                     <option value="">Pilih Guru</option>
-                                    @if(Auth::user()->role === 'admin')
-                                        @foreach($teachers as $teacher)
-                                        <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                                        @endforeach
-                                    @endif
                                 </select>
                             </div>
                         </div>
