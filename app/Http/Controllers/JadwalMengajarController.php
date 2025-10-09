@@ -74,9 +74,15 @@ class JadwalMengajarController extends Controller
 
     public function getTenagaPendidikByMadrasah($madrasahId)
     {
-        $tenagaPendidiks = \App\Models\User::where('role', 'tenaga_pendidik')
+        $tenagaPendidiks = \App\Models\User::with('madrasah')->where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $madrasahId)
-            ->get(['id', 'name']);
+            ->get(['id', 'name as nama', 'madrasah_id']);
+
+        // Append madrasah name to each tenaga pendidik
+        $tenagaPendidiks->transform(function ($tp) {
+            $tp->madrasah->nama = $tp->madrasah ? $tp->madrasah->name : 'Madrasah tidak diketahui';
+            return $tp;
+        });
 
         return response()->json($tenagaPendidiks);
     }
