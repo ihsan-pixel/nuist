@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class TeachingScheduleController extends Controller
@@ -69,6 +70,10 @@ class TeachingScheduleController extends Controller
         $teachers = User::where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $schoolId)
             ->get(['id', 'name']);
+
+        // Debug log to check data
+        \Log::info('getTeachersBySchool: schoolId=' . $schoolId . ', teachers=' . $teachers->count());
+
         return response()->json($teachers);
     }
 
