@@ -50,7 +50,7 @@
                             <td>{{ $schedule->class_name }}</td>
                             <td>{{ $schedule->start_time }}</td>
                             <td>{{ $schedule->end_time }}</td>
-                            <td>{{ $schedule->school->nama ?? 'N/A' }}</td>
+                            <td>{{ $schedule->school->name ?? 'N/A' }}</td>
                             @if(Auth::user()->role !== 'tenaga_pendidik')
                             <td>
                                 <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-sm btn-warning">Edit</a>

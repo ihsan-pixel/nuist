@@ -19,7 +19,7 @@
                                 <select name="school_id" id="school_id" class="form-control" required>
                                     <option value="">Pilih Sekolah</option>
                                     @foreach($schools as $school)
-                                    <option value="{{ $school->id }}" {{ Auth::user()->role === 'admin' && Auth::user()->madrasah_id == $school->id ? 'selected' : '' }}>{{ $school->nama }}</option>
+                                    <option value="{{ $school->id }}" {{ Auth::user()->role === 'admin' && Auth::user()->madrasah_id == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
