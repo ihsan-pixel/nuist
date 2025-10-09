@@ -1,17 +1,29 @@
-# TODO: Allow Empty NPK in Tenaga Pendidik Import
+# Teaching Schedule Menu Implementation
 
-## Tasks
-- [x] Remove 'npk' from requiredFields in app/Imports/TenagaPendidikImport.php
-- [x] Update resources/views/masterdata/tenaga-pendidik/index.blade.php to move 'npk' from required to optional columns
-- [ ] Test the import functionality with empty NPK
+## Completed Tasks
+- [x] Created migration for `teaching_schedules` table with fields: school_id, teacher_id, day (enum), subject, class_name, start_time, end_time, created_by
+- [x] Created TeachingSchedule model with relations to User (teacher, creator) and Madrasah (school)
+- [x] Created TeachingScheduleController with CRUD methods, role-based access, and overlap validation
+- [x] Added resource routes for teaching-schedules with role middleware
+- [x] Created Blade views:
+  - index.blade.php: Admin view with tables grouped by teacher
+  - teacher-index.blade.php: Teacher view with schedules per day
+  - create.blade.php: Form to add schedule
+  - edit.blade.php: Form to edit schedule
+- [x] Added menu item to sidebar for Jadwal Mengajar
+- [x] Implemented role-based access:
+  - Super Admin: All schedules
+  - Admin: Only their school's schedules
+  - Tenaga Pendidik: Only their own schedules
 
-## TODO: Modify Presensi Logic for Extended Time and Keterangan
+## Next Steps
+- [ ] Run `php artisan migrate` to create the table (ensure database is connected)
+- [ ] Test the functionality by logging in as different roles
+- [ ] Verify overlap validation works correctly
+- [ ] Check that forms validate inputs properly
 
-## Tasks
-- [x] Extend presensi masuk time until 08:00 for tenaga_pendidik
-- [x] Add keterangan "tidak terlambat" if presensi before 07:00
-- [x] Add keterangan "Terlambat X menit" if presensi after 07:00, calculated from 07:00
-- [x] Reject presensi after 08:00
-- [x] Reject presensi before 06:00
-- [x] Apply same logic for updating alpha status to hadir
-- [ ] Test the presensi functionality with different times
+## Notes
+- The existing JadwalMengajar model and controller are separate and not modified.
+- New table is `teaching_schedules` instead of updating the existing `jadwal_mengajar`.
+- Access control is handled in the controller methods.
+- Views use Bootstrap classes for styling.

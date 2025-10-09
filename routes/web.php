@@ -39,8 +39,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'index'])->name('active-users.index');
     });
 
-    // Jadwal Mengajar Routes - Super Admin and Admin
-    // Removed as per user request
+    // Teaching Schedules Routes
+    Route::middleware(['role:super_admin,admin,tenaga_pendidik'])->group(function () {
+        Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
+    });
 });
 
 Auth::routes(['verify' => true]);

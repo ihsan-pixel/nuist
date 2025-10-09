@@ -130,7 +130,15 @@
                     </a>
                 </li>
                 @endif
-                {{-- Jadwal Mengajar menu removed as per user request --}}
+
+                @if(in_array($userRole, ['super_admin', 'admin', 'tenaga_pendidik']))
+                <li>
+                    <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar"></i>
+                        <span>Jadwal Mengajar</span>
+                    </a>
+                </li>
+                @endif
 
             </ul>
         </div>
