@@ -36,48 +36,42 @@
                             </div>
                         </div>
                     </div>
+
+                    @php
+                    $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    @endphp
+
+                    @foreach($days as $index => $day)
+                    <h5>{{ $day }}</h5>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="day">Hari</label>
-                                <select name="day" id="day" class="form-control" required>
-                                    <option value="">Pilih Hari</option>
-                                    <option value="Senin">Senin</option>
-                                    <option value="Selasa">Selasa</option>
-                                    <option value="Rabu">Rabu</option>
-                                    <option value="Kamis">Kamis</option>
-                                    <option value="Jumat">Jumat</option>
-                                    <option value="Sabtu">Sabtu</option>
-                                </select>
+                                <label for="subject_{{ $index }}">Mata Pelajaran</label>
+                                <input type="text" name="schedules[{{ $index }}][subject]" id="subject_{{ $index }}" class="form-control">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="subject">Mata Pelajaran</label>
-                                <input type="text" name="subject" id="subject" class="form-control" required>
+                                <label for="class_name_{{ $index }}">Kelas</label>
+                                <input type="text" name="schedules[{{ $index }}][class_name]" id="class_name_{{ $index }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="start_time_{{ $index }}">Jam Mulai</label>
+                                <input type="time" name="schedules[{{ $index }}][start_time]" id="start_time_{{ $index }}" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="end_time_{{ $index }}">Jam Selesai</label>
+                                <input type="time" name="schedules[{{ $index }}][end_time]" id="end_time_{{ $index }}" class="form-control">
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="class_name">Kelas</label>
-                                <input type="text" name="class_name" id="class_name" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="start_time">Jam Mulai</label>
-                                <input type="time" name="start_time" id="start_time" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="end_time">Jam Selesai</label>
-                                <input type="time" name="end_time" id="end_time" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
+                    <input type="hidden" name="schedules[{{ $index }}][day]" value="{{ $day }}">
+                    @endforeach
+
                     <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">Batal</a>
                 </form>

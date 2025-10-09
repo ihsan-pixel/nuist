@@ -72,11 +72,12 @@ class TeachingScheduleController extends Controller
         $request->validate([
             'school_id' => 'required|exists:madrasahs,id',
             'teacher_id' => 'required|exists:users,id',
-            'day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
-            'subject' => 'required|string|max:255',
-            'class_name' => 'required|string|max:255',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'schedules' => 'required|array',
+            'schedules.*.day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
+            'schedules.*.subject' => 'nullable|string|max:255',
+            'schedules.*.class_name' => 'nullable|string|max:255',
+            'schedules.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.end_time' => 'nullable|date_format:H:i',
         ]);
 
         $user = Auth::user();
@@ -86,31 +87,55 @@ class TeachingScheduleController extends Controller
             abort(403);
         }
 
-        // Check overlap
-        $overlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
-            ->where('day', $request->day)
-            ->where(function ($query) use ($request) {
-                $query->where('start_time', '<', $request->end_time)
-                      ->where('end_time', '>', $request->start_time);
-            })
-            ->exists();
+        $createdCount = 0;
 
-        if ($overlap) {
-            return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari yang sama.'])->withInput();
+        foreach ($request->schedules as $scheduleData) {
+            // Skip if subject is empty
+            if (empty($scheduleData['subject'])) {
+                continue;
+            }
+
+            // Validate required fields for this schedule
+            if (empty($scheduleData['class_name']) || empty($scheduleData['start_time']) || empty($scheduleData['end_time'])) {
+                return back()->withErrors(['incomplete' => 'Semua field harus diisi untuk jadwal yang memiliki mata pelajaran.'])->withInput();
+            }
+
+            if ($scheduleData['start_time'] >= $scheduleData['end_time']) {
+                return back()->withErrors(['time' => 'Jam selesai harus setelah jam mulai.'])->withInput();
+            }
+
+            // Check overlap
+            $overlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
+                ->where('day', $scheduleData['day'])
+                ->where(function ($query) use ($scheduleData) {
+                    $query->where('start_time', '<', $scheduleData['end_time'])
+                          ->where('end_time', '>', $scheduleData['start_time']);
+                })
+                ->exists();
+
+            if ($overlap) {
+                return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari ' . $scheduleData['day'] . '.'])->withInput();
+            }
+
+            TeachingSchedule::create([
+                'school_id' => $request->school_id,
+                'teacher_id' => $request->teacher_id,
+                'day' => $scheduleData['day'],
+                'subject' => $scheduleData['subject'],
+                'class_name' => $scheduleData['class_name'],
+                'start_time' => $scheduleData['start_time'],
+                'end_time' => $scheduleData['end_time'],
+                'created_by' => $user->id,
+            ]);
+
+            $createdCount++;
         }
 
-        TeachingSchedule::create([
-            'school_id' => $request->school_id,
-            'teacher_id' => $request->teacher_id,
-            'day' => $request->day,
-            'subject' => $request->subject,
-            'class_name' => $request->class_name,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'created_by' => $user->id,
-        ]);
+        if ($createdCount == 0) {
+            return back()->withErrors(['none' => 'Tidak ada jadwal yang ditambahkan.'])->withInput();
+        }
 
-        return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil ditambahkan.');
+        return redirect()->route('teaching-schedules.index')->with('success', $createdCount . ' jadwal mengajar berhasil ditambahkan.');
     }
 
     /**
