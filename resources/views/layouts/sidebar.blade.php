@@ -130,7 +130,6 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
-
                 @if($userRole === 'super_admin')
                 <li>
                     <a href="{{ route('jadwal-mengajar.index') }}" class="waves-effect">
@@ -138,6 +137,7 @@
                         <span>Jadwal Mengajar</span>
                     </a>
                 </li>
+                @endif
                 @endif
 
             </ul>
