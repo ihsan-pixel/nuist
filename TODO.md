@@ -20,9 +20,9 @@
 
 ## Completed Tasks
 - [x] Created DataMadrasahController with index method to calculate data completeness for each madrasah
-- [x] Added route in admin-masterdata group with role middleware for admin and pengurus
+- [x] Added route in admin-masterdata group with role middleware for super_admin, admin and pengurus
 - [x] Created Blade view resources/views/admin/data_madrasah.blade.php with Bootstrap table displaying madrasah data and completeness
-- [x] Added menu item "Kelengkapan Data Madrasah" to sidebar Master Data submenu for admin and pengurus roles
+- [x] Added menu item "Kelengkapan Data Madrasah" to sidebar Master Data submenu for super_admin, admin and pengurus roles
 
 ## Next Steps
 - [ ] Run `php artisan migrate` to create the table (ensure database is connected)
