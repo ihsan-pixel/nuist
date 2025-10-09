@@ -138,12 +138,14 @@ class PresensiController extends Controller
 
         // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
         if ($user->pemenuhan_beban_kerja_lain) {
+            $batasAwalMasuk = null;
             $batasAkhirMasuk = null;
             $batasPulang = null;
         } else {
             // Ambil pengaturan waktu berdasarkan hari_kbm madrasah yang valid
             $hariKbm = $validMadrasah ? $validMadrasah->hari_kbm : null;
             $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
+            $batasAwalMasuk = $timeRanges['masuk_start'];
             $batasAkhirMasuk = $timeRanges['masuk_end'];
             $batasPulang = $timeRanges['pulang_start'];
             // Adjust for special users
@@ -155,6 +157,14 @@ class PresensiController extends Controller
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
         if (!$presensi) {
+            // Validasi batas awal presensi masuk
+            if ($batasAwalMasuk && $now < $batasAwalMasuk) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Belum waktunya presensi masuk.'
+                ], 400);
+            }
+
             // Validasi batas akhir presensi masuk
             if ($batasAkhirMasuk && $now > $batasAkhirMasuk) {
                 return response()->json([

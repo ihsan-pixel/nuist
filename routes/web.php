@@ -38,6 +38,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/development-history/sync', [DevelopmentHistoryController::class, 'syncMigrations'])->name('development-history.sync');
         Route::get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'index'])->name('active-users.index');
     });
+
+    // Jadwal Mengajar Routes - Super Admin Only
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/jadwal-mengajar', [App\Http\Controllers\JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
+    });
 });
 
 Auth::routes(['verify' => true]);

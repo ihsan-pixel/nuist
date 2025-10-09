@@ -12,5 +12,6 @@
 - [x] Add keterangan "tidak terlambat" if presensi before 07:00
 - [x] Add keterangan "Terlambat X menit" if presensi after 07:00, calculated from 07:00
 - [x] Reject presensi after 08:00
+- [x] Reject presensi before 06:00
 - [x] Apply same logic for updating alpha status to hadir
 - [ ] Test the presensi functionality with different times
