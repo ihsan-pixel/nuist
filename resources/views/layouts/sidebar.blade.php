@@ -138,7 +138,6 @@
                     </a>
                 </li>
                 @endif
-                @endif
 
             </ul>
         </div>
