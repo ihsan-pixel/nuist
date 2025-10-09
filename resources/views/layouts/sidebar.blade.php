@@ -16,47 +16,46 @@
                     </a>
                 </li>
 
+                @php
+                    $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
+                    $allowedRoles = ['super_admin', 'admin', 'pengurus'];
+                    $isAllowed = in_array($userRole, $allowedRoles);
+                    \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
+                @endphp
+                @if($isAllowed)
+                <li>
+                    <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-data"></i>
+                        <span>Master Data</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="masterDataSubmenu">
+                        @if(in_array($userRole, ['super_admin', 'pengurus']))
+                        <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
+                        <li><a href="{{ route('pengurus.index') }}">Data Pengurus</a></li>
+                        @endif
+                        <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
+                        <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
+                        <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
+                        @if(in_array($userRole, ['super_admin', 'pengurus']))
+                        <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
+                        <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
+                        @endif
+                    </ul>
+                </li>
+                @endif
 
-                    @php
-                        $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                        $allowedRoles = ['super_admin', 'admin', 'pengurus'];
-                        $isAllowed = in_array($userRole, $allowedRoles);
-                        \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
-                    @endphp
-                    @if($isAllowed)
-                    <li>
-                        <a href="#masterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                            <i class="bx bx-data"></i>
-                            <span>Master Data</span>
-                        </a>
-                        <ul class="sub-menu collapse" id="masterDataSubmenu">
-                            @if(in_array($userRole, ['super_admin', 'pengurus']))
-                            <li><a href="{{ route('yayasan.index') }}">Data Yayasan</a></li>
-                            <li><a href="{{ route('pengurus.index') }}">Data Pengurus</a></li>
-                            @endif
-                            <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
-                            <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
-                            <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
-                            @if(in_array($userRole, ['super_admin', 'pengurus']))
-                            <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
-                            <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
-                            @endif
-                        </ul>
-                    </li>
-                    @endif
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
+                <li>
+                    <a href="{{ route('madrasah.profile') }}" class="waves-effect">
+                        <i class="bx bx-building"></i>
+                        <span>Profile Madrasah/Sekolah</span>
+                    </a>
+                </li>
+                @endif
 
-                    @if(in_array($userRole, ['super_admin', 'pengurus']))
-                    <li>
-                        <a href="{{ route('madrasah.profile') }}" class="waves-effect">
-                            <i class="bx bx-building"></i>
-                            <span>Profile Madrasah/Sekolah</span>
-                        </a>
-                    </li>
-                    @endif
-
-                    @php
-                        $isAdminOnly = $userRole === 'admin';
-                    @endphp
+                @php
+                    $isAdminOnly = $userRole === 'admin';
+                @endphp
                 {{-- @if($isAdminOnly)
                 <li>
                     <a href="#adminMasterDataSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
@@ -130,6 +129,7 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
+                @endif
                 @if(in_array($userRole, ['super_admin', 'admin']))
                 <li>
                     <a href="{{ route('jadwal-mengajar.index') }}" class="waves-effect">
@@ -145,4 +145,3 @@
     </div>
 </div>
 <!-- Left Sidebar End -->
-
