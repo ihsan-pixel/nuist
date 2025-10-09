@@ -16,7 +16,7 @@ class JadwalMengajarController extends Controller
 
         if ($user->role === 'super_admin') {
             $madrasahs = \App\Models\Madrasah::all();
-            $tenagaPendidiks = \App\Models\User::where('role', 'tenaga_pendidik')->get();
+            $tenagaPendidiks = \App\Models\User::with('madrasah')->where('role', 'tenaga_pendidik')->get();
             $madrasahId = null;
             $madrasahName = null;
         } else {
