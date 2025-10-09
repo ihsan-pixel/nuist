@@ -12,8 +12,13 @@ class JadwalMengajarController extends Controller
 {
     public function index()
     {
-        $tenagaPendidiks = TenagaPendidik::all();
         $madrasahId = Auth::user()->madrasah_id ?? null;
+
+        if ($madrasahId) {
+            $tenagaPendidiks = TenagaPendidik::where('madrasah_id', $madrasahId)->get();
+        } else {
+            $tenagaPendidiks = TenagaPendidik::all();
+        }
 
         return view('jadwal-mengajar.index', [
             'tenagaPendidiks' => $tenagaPendidiks,
