@@ -12,21 +12,24 @@ class JadwalMengajarController extends Controller
 {
     public function index()
     {
-        $madrasahId = Auth::user()->madrasah_id ?? null;
+        $user = Auth::user();
 
-        if ($madrasahId) {
-            $tenagaPendidiks = TenagaPendidik::with('madrasah')->where('madrasah_id', $madrasahId)->get();
+        if ($user->role === 'super_admin') {
+            $madrasahs = \App\Models\Madrasah::all();
+            $tenagaPendidiks = \App\Models\User::where('role', 'tenaga_pendidik')->get();
+            $madrasahId = null;
+            $madrasahName = null;
         } else {
-            $tenagaPendidiks = TenagaPendidik::with('madrasah')->get();
-        }
+            $madrasahId = $user->madrasah_id ?? null;
+            $madrasahs = \App\Models\Madrasah::all();
+            $tenagaPendidiks = \App\Models\TenagaPendidik::with('madrasah')->where('madrasah_id', $madrasahId)->get();
 
-        $madrasahName = null;
-        if ($madrasahId) {
-            $madrasah = \App\Models\Madrasah::find($madrasahId);
-            $madrasahName = $madrasah ? $madrasah->nama : null;
+            $madrasahName = null;
+            if ($madrasahId) {
+                $madrasah = \App\Models\Madrasah::find($madrasahId);
+                $madrasahName = $madrasah ? $madrasah->nama : null;
+            }
         }
-
-        $madrasahs = \App\Models\Madrasah::all();
 
         return view('jadwal-mengajar.index', [
             'tenagaPendidiks' => $tenagaPendidiks,
