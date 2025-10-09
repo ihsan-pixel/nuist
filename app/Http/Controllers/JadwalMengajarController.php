@@ -27,7 +27,7 @@ class JadwalMengajarController extends Controller
             $madrasahName = null;
             if ($madrasahId) {
                 $madrasah = \App\Models\Madrasah::find($madrasahId);
-                $madrasahName = $madrasah ? $madrasah->nama : null;
+                $madrasahName = $madrasah ? $madrasah->name : null;
             }
         }
 

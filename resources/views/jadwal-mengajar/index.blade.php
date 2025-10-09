@@ -48,7 +48,7 @@
                                     <option value="">Pilih Madrasah</option>
                                     @if($madrasahs && $madrasahs->count() > 0)
                                         @foreach($madrasahs as $madrasah)
-                                            <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
+                                            <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->name }}</option>
                                         @endforeach
                                     @else
                                         <option disabled>Tidak ada data madrasah</option>
