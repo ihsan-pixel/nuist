@@ -46,9 +46,13 @@
                                 <label for="madrasah_id" class="form-label">Madrasah</label>
                                 <select name="madrasah_id" id="madrasah_id" class="form-select" required>
                                     <option value="">Pilih Madrasah</option>
-                                    @foreach($madrasahs as $madrasah)
-                                        <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
-                                    @endforeach
+                                    @if($madrasahs && $madrasahs->count() > 0)
+                                        @foreach($madrasahs as $madrasah)
+                                            <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
+                                        @endforeach
+                                    @else
+                                        <option disabled>Tidak ada data madrasah</option>
+                                    @endif
                                 </select>
                             </div>
                             @else
