@@ -17,6 +17,8 @@ class JadwalMengajarController extends Controller
     {
         $user = Auth::user();
 
+        \Log::info('JadwalMengajarController@index accessed by user role: ' . $user->role);
+
         if ($user->role === 'super_admin') {
             $jadwals = JadwalMengajar::with(['tenagaPendidik', 'madrasah'])->get();
         } elseif ($user->role === 'admin') {
