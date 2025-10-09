@@ -29,9 +29,11 @@
                                 <label for="teacher_id">Guru</label>
                                 <select name="teacher_id" id="teacher_id" class="form-control" required>
                                     <option value="">Pilih Guru</option>
-                                    @foreach($teachers as $teacher)
-                                    <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                                    @endforeach
+                                    @if(Auth::user()->role === 'admin')
+                                        @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -85,4 +87,28 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('school_id').addEventListener('change', function() {
+    var schoolId = this.value;
+    var teacherSelect = document.getElementById('teacher_id');
+
+    if (schoolId) {
+        fetch('{{ url("teaching-schedules/get-teachers") }}/' + schoolId)
+            .then(response => response.json())
+            .then(data => {
+                teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+                data.forEach(teacher => {
+                    teacherSelect.innerHTML += '<option value="' + teacher.id + '">' + teacher.name + '</option>';
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+            });
+    } else {
+        teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+    }
+});
+</script>
 @endsection

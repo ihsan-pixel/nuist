@@ -50,18 +50,26 @@ class TeachingScheduleController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'admin') {
+            $schools = Madrasah::where('id', $user->madrasah_id)->get();
             $teachers = User::where('role', 'tenaga_pendidik')
                 ->where('madrasah_id', $user->madrasah_id)
                 ->get();
         } elseif ($user->role === 'super_admin') {
-            $teachers = User::where('role', 'tenaga_pendidik')->get();
+            $schools = Madrasah::all();
+            $teachers = collect(); // Load via AJAX
         } else {
             abort(403);
         }
 
-        $schools = Madrasah::all();
-
         return view('teaching-schedules.create', compact('teachers', 'schools'));
+    }
+
+    public function getTeachersBySchool($schoolId)
+    {
+        $teachers = User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $schoolId)
+            ->get(['id', 'name']);
+        return response()->json($teachers);
     }
 
     /**
