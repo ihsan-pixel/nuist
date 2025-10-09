@@ -18,11 +18,13 @@
                     Halaman untuk mengelola jadwal mengajar tenaga pendidik.
                 </p>
 
-                <!-- Placeholder content -->
-                <div class="alert alert-info">
-                    <i class="mdi mdi-information-outline me-2"></i>
-                    Fitur Jadwal Mengajar sedang dalam pengembangan.
+                @if(in_array(auth()->user()->role, ['admin', 'super_admin']))
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="{{ route('jadwal-mengajar.create') }}" class="btn btn-primary">
+                        <i class="bx bx-plus me-1"></i> Tambah Jadwal
+                    </a>
                 </div>
+                @endif
 
                 <!-- TODO: Implement jadwal mengajar functionality -->
                 <div class="text-center py-5">
