@@ -512,9 +512,9 @@
 
                                     <div class="text-muted small">
                                         <strong>Kolom Wajib:</strong><br>
-                                        nama, email, tempat_lahir, tanggal_lahir, no_hp, kartanu, nip, nuptk, npk, madrasah_id, pendidikan_terakhir, tahun_lulus, program_studi, status_kepegawaian_id, tmt, ketugasan, mengajar, alamat<br>
+                                        nama, email, tempat_lahir, tanggal_lahir, no_hp, kartanu, nip, nuptk, madrasah_id, pendidikan_terakhir, tahun_lulus, program_studi, status_kepegawaian_id, tmt, ketugasan, mengajar, alamat<br>
                                         <strong>Kolom Opsional:</strong><br>
-                                        pemenuhan_beban_kerja_lain, madrasah_id_tambahan
+                                        npk, pemenuhan_beban_kerja_lain, madrasah_id_tambahan
                                     </div>
                                 </div>
                             </div>

@@ -35,7 +35,7 @@ class TenagaPendidikImport implements ToModel, WithHeadingRow
             // Validate required fields
             $requiredFields = [
                 'nama', 'email', 'tempat_lahir', 'tanggal_lahir', 'no_hp',
-                'kartanu', 'nip', 'nuptk', 'npk', 'madrasah_id',
+                'kartanu', 'nip', 'nuptk', 'madrasah_id',
                 'pendidikan_terakhir', 'tahun_lulus', 'program_studi',
                 'status_kepegawaian_id', 'tmt', 'ketugasan', 'mengajar', 'alamat'
             ];

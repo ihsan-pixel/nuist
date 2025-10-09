@@ -1,2 +1,6 @@
-- [x] Update the edit modal in resources/views/masterdata/tenaga-pendidik/index.blade.php to properly display existing "tanggal_lahir" and "tmt" values from the database, using old() for validation error handling and explicit formatting.
-- [ ] Test the edit form to ensure dates are displayed correctly.
+# TODO: Allow Empty NPK in Tenaga Pendidik Import
+
+## Tasks
+- [x] Remove 'npk' from requiredFields in app/Imports/TenagaPendidikImport.php
+- [x] Update resources/views/masterdata/tenaga-pendidik/index.blade.php to move 'npk' from required to optional columns
+- [ ] Test the import functionality with empty NPK
