@@ -35,15 +35,21 @@
                         @endif
                         <li><a href="{{ route('admin.index') }}">Data Admin</a></li>
                         <li><a href="{{ route('madrasah.index') }}">Data Madrasah/Sekolah</a></li>
-                        @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']))
-                        <li><a href="{{ route('admin.data_madrasah') }}">Kelengkapan Data Madrasah</a></li>
-                        @endif
                         <li><a href="{{ route('tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
                         @if(in_array($userRole, ['super_admin', 'pengurus']))
                         <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
                         <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
                         @endif
                     </ul>
+                </li>
+                @endif
+
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
+                <li>
+                    <a href="{{ route('admin.data_madrasah') }}" class="waves-effect">
+                        <i class="bx bx-bar-chart"></i>
+                        <span>Kelengkapan Data Madrasah</span>
+                    </a>
                 </li>
                 @endif
 
