@@ -16,14 +16,24 @@
   - Admin: Only their school's schedules
   - Tenaga Pendidik: Only their own schedules
 
+## Kelengkapan Data Madrasah Menu Implementation
+
+## Completed Tasks
+- [x] Created DataMadrasahController with index method to calculate data completeness for each madrasah
+- [x] Added route in admin-masterdata group with role middleware for admin and pengurus
+- [x] Created Blade view resources/views/admin/data_madrasah.blade.php with Bootstrap table displaying madrasah data and completeness
+- [x] Added menu item "Kelengkapan Data Madrasah" to sidebar Master Data submenu for admin and pengurus roles
+
 ## Next Steps
 - [ ] Run `php artisan migrate` to create the table (ensure database is connected)
 - [ ] Test the functionality by logging in as different roles
 - [ ] Verify overlap validation works correctly
 - [ ] Check that forms validate inputs properly
+- [ ] Test the Kelengkapan Data Madrasah menu access and data display
 
 ## Notes
 - The existing JadwalMengajar model and controller are separate and not modified.
 - New table is `teaching_schedules` instead of updating the existing `jadwal_mengajar`.
 - Access control is handled in the controller methods.
 - Views use Bootstrap classes for styling.
+- Kelengkapan Data Madrasah shows completeness percentage based on 9 criteria (8 fields + tenaga pendidik existence).
