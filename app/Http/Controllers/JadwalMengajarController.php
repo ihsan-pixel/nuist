@@ -26,10 +26,13 @@ class JadwalMengajarController extends Controller
             $madrasahName = $madrasah ? $madrasah->nama : null;
         }
 
+        $madrasahs = \App\Models\Madrasah::all();
+
         return view('jadwal-mengajar.index', [
             'tenagaPendidiks' => $tenagaPendidiks,
             'madrasahId' => $madrasahId,
             'madrasahName' => $madrasahName,
+            'madrasahs' => $madrasahs,
         ]);
     }
 

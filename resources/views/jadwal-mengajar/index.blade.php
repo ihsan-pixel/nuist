@@ -46,7 +46,7 @@
                                 <label for="madrasah_id" class="form-label">Madrasah</label>
                                 <select name="madrasah_id" id="madrasah_id" class="form-select" required>
                                     <option value="">Pilih Madrasah</option>
-                                    @foreach(App\Models\Madrasah::all() as $madrasah)
+                                    @foreach($madrasahs as $madrasah)
                                         <option value="{{ $madrasah->id }}" {{ (isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : '' }}>{{ $madrasah->nama }}</option>
                                     @endforeach
                                 </select>
