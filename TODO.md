@@ -1,2 +1,2 @@
-- [x] Edit PresensiController.php to change late threshold from 08:00 to 07:00 for tenaga_pendidik without pemenuhan_beban_kerja_lain
-- [ ] Test the change to ensure presensi after 07:00 is marked as terlambat
+- [x] Update the edit modal in resources/views/masterdata/tenaga-pendidik/index.blade.php to properly display existing "tanggal_lahir" and "tmt" values from the database, using old() for validation error handling and explicit formatting.
+- [ ] Test the edit form to ensure dates are displayed correctly.

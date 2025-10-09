@@ -132,7 +132,7 @@
 
                                             <div class="col-md-6">
                                                 <label>Tanggal Lahir</label>
-                                                <input type="date" name="tanggal_lahir" class="form-control" value="{{ $tp->tanggal_lahir }}">
+                                                <input type="date" name="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $tp->tanggal_lahir ? $tp->tanggal_lahir->format('Y-m-d') : '') }}">
                                             </div>
 
                                             <div class="col-md-6">
@@ -180,7 +180,7 @@
 
                                             <div class="col-md-6">
                                                 <label>TMT</label>
-                                                <input type="date" name="tmt" class="form-control" value="{{ $tp->tmt }}">
+                                                <input type="date" name="tmt" class="form-control" value="{{ old('tmt', $tp->tmt ? $tp->tmt->format('Y-m-d') : '') }}">
                                             </div>
 
                                             <div class="col-md-6">
