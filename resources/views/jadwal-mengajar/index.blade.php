@@ -9,6 +9,12 @@
     @slot('title') Jadwal Mengajar @endslot
 @endcomponent
 
+@if($madrasahName)
+<div class="alert alert-info">
+    Madrasah terpilih: <strong>{{ $madrasahName }}</strong>
+</div>
+@endif
+
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -30,7 +36,7 @@
                                 <select name="tenaga_pendidik_id" id="tenaga_pendidik_id" class="form-select" required>
                                     <option value="">Pilih Tenaga Pendidik</option>
                                     @foreach($tenagaPendidiks as $tp)
-                                        <option value="{{ $tp->id }}">{{ $tp->nama }}</option>
+                                        <option value="{{ $tp->id }}">{{ $tp->nama }} ({{ $tp->madrasah->nama ?? 'Madrasah tidak diketahui' }})</option>
                                     @endforeach
                                 </select>
                             </div>

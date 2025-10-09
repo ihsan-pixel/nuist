@@ -20,9 +20,16 @@ class JadwalMengajarController extends Controller
             $tenagaPendidiks = TenagaPendidik::with('madrasah')->get();
         }
 
+        $madrasahName = null;
+        if ($madrasahId) {
+            $madrasah = \App\Models\Madrasah::find($madrasahId);
+            $madrasahName = $madrasah ? $madrasah->nama : null;
+        }
+
         return view('jadwal-mengajar.index', [
             'tenagaPendidiks' => $tenagaPendidiks,
             'madrasahId' => $madrasahId,
+            'madrasahName' => $madrasahName,
         ]);
     }
 
