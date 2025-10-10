@@ -11,7 +11,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                    <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
                         <thead class="table-dark">
                             <tr>
                                 <th>Nama Madrasah</th>
