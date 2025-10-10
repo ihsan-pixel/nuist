@@ -155,6 +155,12 @@
                                                 <input type="text" name="nuptk" class="form-control" value="{{ $tp->nuptk }}">
                                             </div>
 
+                                            <div class="col-12">
+                                                <label>NPK</label>
+                                                <input type="text" name="npk" class="form-control" value="{{ $tp->npk }}">
+                                            </div>
+                                            </div>
+
                                             <div class="col-md-6">
                                                 <label>NPK</label>
                                                 <input type="text" name="npk" class="form-control" value="{{ $tp->npk }}">
@@ -163,6 +169,12 @@
                                             <div class="col-md-6">
                                                 <label>Madrasah</label>
                                                 <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
+                                                <input type="hidden" name="madrasah_id" value="{{ $tp->madrasah_id }}">
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label>Status Kepegawaian</label>
+                                                <select name="status_kepegawaian_id" class="form-control">
                                                 <input type="hidden" name="madrasah_id" value="{{ $tp->madrasah_id }}">
                                             </div>
 
@@ -177,6 +189,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+                                                <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
 
                                             <div class="col-md-6">
                                                 <label>TMT</label>
@@ -188,6 +201,7 @@
                                                 <input type="text" name="pendidikan_terakhir" class="form-control" value="{{ $tp->pendidikan_terakhir }}">
                                             </div>
 
+                                            <div class="col-12">
                                             <div class="col-md-6">
                                                 <label>Tahun Lulus</label>
                                                 <input type="number" name="tahun_lulus" class="form-control" value="{{ $tp->tahun_lulus }}">
@@ -271,8 +285,8 @@
 </div>
 
 <!-- Modal Tambah -->
-<div class="modal fade" id="modalTambahTP" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style="max-height: 90vh; overflow-y: auto;">
+<div class="modal fade" idog m=dal-l"modalTambahTP" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-height: 90vh; overflow-y: auto;">
         <form action="{{ route('tenaga-pendidik.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
@@ -433,8 +447,8 @@
 @endif
 
 <!-- Modal Import -->
-<div class="modal fade" id="modalImportTP" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style="max-height: 90vh; overflow-y: auto;">
+<div class="modal fade" idog m=dal-l"modalImportTP" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-height: 90vh; overflow-y: auto;">
         <form action="{{ route('tenaga-pendidik.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
@@ -617,4 +631,5 @@
         });
     </script>
 @endsection
+
 
