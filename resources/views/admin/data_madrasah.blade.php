@@ -59,6 +59,10 @@
 <script>
     function exportTableToExcel(tableID, filename = ''){
         var tableSelect = document.getElementById(tableID);
+        if(!tableSelect){
+            alert('Table not found: ' + tableID);
+            return;
+        }
         var workbook = XLSX.utils.book_new();
         var worksheet = XLSX.utils.table_to_sheet(tableSelect);
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
