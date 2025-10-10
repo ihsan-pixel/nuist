@@ -48,7 +48,7 @@
                 <li>
                     <a href="{{ route('admin.data_madrasah') }}" class="waves-effect">
                         <i class="bx bx-bar-chart"></i>
-                        <span>Kelengkapan Data Madrasah</span>
+                        <span>Kelengkapan Data</span>
                     </a>
                 </li>
                 @endif
