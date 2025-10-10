@@ -11,8 +11,9 @@
             </div>
             <div class="card-body">
                 <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
-                    <thead class="table-dark">
+                    <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Nama Madrasah</th>
                             <th>Alamat</th>
                             <th>Logo</th>
@@ -26,8 +27,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($madrasahs as $madrasah)
+                        @foreach($madrasahs as $index => $madrasah)
                         <tr>
+                            <td>{{ $index + 1 }}</td>
                             <td>{{ $madrasah->name }}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['alamat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['logo'] ?? '❌' !!}</td>
@@ -53,9 +55,10 @@
         $('#datatable').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
+                'copy', 'excel', 'pdf', 'print', 'colvis'
             ],
-            responsive: true
+            responsive: true,
+            order: [[0, 'asc']]
         });
     });
 </script>
