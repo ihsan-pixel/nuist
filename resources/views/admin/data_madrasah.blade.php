@@ -7,8 +7,11 @@
 <div class="row">
     <div class="col-12">
         <div class="card mb-4">
-            <div class="card-header bg-secondary text-white">
-                <h4 class="card-title mb-0">Kabupaten: {{ $kabupaten }}</h4>
+            <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0 text-white">Kabupaten: {{ $kabupaten }}</h4>
+                <button class="btn btn-success btn-sm" onclick="exportTableToExcel('datatable-{{ Str::slug($kabupaten) }}', 'Kelengkapan_Data_{{ Str::slug($kabupaten) }}')">
+                    Export Excel
+                </button>
             </div>
             <div class="card-body">
                 <table id="datatable-{{ Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
