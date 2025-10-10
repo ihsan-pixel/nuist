@@ -55,15 +55,27 @@
 @endforeach
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+    function exportTableToExcel(tableID, filename = ''){
+        var tableSelect = document.getElementById(tableID);
+        var workbook = XLSX.utils.book_new();
+        var worksheet = XLSX.utils.table_to_sheet(tableSelect);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        XLSX.writeFile(workbook, filename ? filename + ".xlsx" : "excel_data.xlsx");
+    }
+
     $(document).ready(function() {
-        $('#datatable').DataTable({
+        @foreach($kabupatenOrder as $kabupaten)
+        $('#datatable-{{ Str::slug($kabupaten) }}').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
+                'copy', 'excel', 'pdf', 'print', 'colvis'
             ],
-            responsive: true
+            responsive: true,
+            order: [[0, 'asc']]
         });
+        @endforeach
     });
 </script>
 @endpush
