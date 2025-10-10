@@ -3,14 +3,15 @@
 @section('title', 'Kelengkapan Data Madrasah')
 
 @section('content')
+@foreach($kabupatenOrder as $kabupaten)
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">Kelengkapan Data Madrasah</h4>
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="card-title mb-0">Kabupaten: {{ $kabupaten }}</h4>
             </div>
             <div class="card-body">
-                <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
+                <table id="datatable-{{ Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
                     <thead class="table-dark">
                         <tr>
                             <th>Nama Madrasah</th>
@@ -26,7 +27,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($madrasahs as $madrasah)
+                        @foreach($madrasahs[$kabupaten] ?? [] as $madrasah)
                         <tr>
                             <td>{{ $madrasah->name }}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['alamat'] ?? '❌' !!}</td>
@@ -46,6 +47,7 @@
         </div>
     </div>
 </div>
+@endforeach
 
 @push('scripts')
 <script>
