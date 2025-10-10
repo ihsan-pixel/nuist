@@ -58,6 +58,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
     function exportTableToExcel(tableID, filename = ''){
+        if(typeof XLSX === 'undefined'){
+            alert('SheetJS library is not loaded. Please check your internet connection or script inclusion.');
+            return;
+        }
         var tableSelect = document.getElementById(tableID);
         if(!tableSelect){
             alert('Table not found: ' + tableID);
