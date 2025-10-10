@@ -38,7 +38,13 @@
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['map_link'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['hari_kbm'] ?? '❌' !!}</td>
-                            <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['status_guru'] ?? '❌' !!}</td>
+                            <td style="font-size: 20px; text-align: center;">
+                                @if($madrasah->field_status['status_guru'] == '✅')
+                                    <span class="badge bg-success"><i class="mdi mdi-check"></i></span>
+                                @else
+                                    <span class="badge bg-danger"><i class="mdi mdi-close"></i></span>
+                                @endif
+                            </td>
                             <td style="font-weight: bold; text-align: center;">{{ $madrasah->completeness_percentage }}%</td>
                         </tr>
                         @endforeach
