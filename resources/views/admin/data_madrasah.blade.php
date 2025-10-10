@@ -11,9 +11,8 @@
             </div>
             <div class="card-body">
                 <table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
-                            <th>No</th>
                             <th>Nama Madrasah</th>
                             <th>Alamat</th>
                             <th>Logo</th>
@@ -27,9 +26,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($madrasahs as $index => $madrasah)
+                        @foreach($madrasahs as $madrasah)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
                             <td>{{ $madrasah->name }}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['alamat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['logo'] ?? '❌' !!}</td>
@@ -38,13 +36,7 @@
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['map_link'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['hari_kbm'] ?? '❌' !!}</td>
-                            <td style="font-size: 20px; text-align: center;">
-                                @if($madrasah->field_status['status_guru'] == '✅')
-                                    <span class="badge bg-success"><i class="mdi mdi-check"></i></span>
-                                @else
-                                    <span class="badge bg-danger"><i class="mdi mdi-close"></i></span>
-                                @endif
-                            </td>
+                            <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['status_guru'] ?? '❌' !!}</td>
                             <td style="font-weight: bold; text-align: center;">{{ $madrasah->completeness_percentage }}%</td>
                         </tr>
                         @endforeach
@@ -61,10 +53,9 @@
         $('#datatable').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'excel', 'pdf', 'print', 'colvis'
+                'copy', 'csv', 'excel', 'pdf', 'print'
             ],
-            responsive: true,
-            order: [[0, 'asc']]
+            responsive: true
         });
     });
 </script>
