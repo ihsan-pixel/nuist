@@ -9,9 +9,9 @@
         <div class="card mb-4">
             <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
                 <h4 class="card-title mb-0 text-white">Kabupaten: {{ $kabupaten }}</h4>
-                <button class="btn btn-success btn-sm" onclick="exportTableToExcel('datatable-{{ Str::slug($kabupaten) }}', 'Kelengkapan_Data_{{ Str::slug($kabupaten) }}')">
+                <a href="{{ route('admin.data_madrasah.export', ['kabupaten' => $kabupaten]) }}" class="btn btn-success btn-sm">
                     Export Excel
-                </button>
+                </a>
             </div>
             <div class="card-body">
                 <table id="datatable-{{ Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
@@ -55,30 +55,13 @@
 @endforeach
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-    function exportTableToExcel(tableID, filename = ''){
-        if(typeof XLSX === 'undefined'){
-            alert('SheetJS library is not loaded. Please check your internet connection or script inclusion.');
-            return;
-        }
-        var tableSelect = document.getElementById(tableID);
-        if(!tableSelect){
-            alert('Table not found: ' + tableID);
-            return;
-        }
-        var workbook = XLSX.utils.book_new();
-        var worksheet = XLSX.utils.table_to_sheet(tableSelect);
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-        XLSX.writeFile(workbook, filename ? filename + ".xlsx" : "excel_data.xlsx");
-    }
-
     $(document).ready(function() {
         @foreach($kabupatenOrder as $kabupaten)
         $('#datatable-{{ Str::slug($kabupaten) }}').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                'copy', 'excel', 'pdf', 'print', 'colvis'
+                'copy', 'pdf', 'print', 'colvis'
             ],
             responsive: true,
             order: [[0, 'asc']]

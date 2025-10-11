@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Madrasah;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MadrasahCompletenessExport;
+use Illuminate\Support\Str;
 
 class DataMadrasahController extends Controller
 {
@@ -64,5 +67,22 @@ class DataMadrasahController extends Controller
             });
 
         return view('admin.data_madrasah', compact('madrasahs', 'kabupatenOrder'));
+    }
+
+    /**
+     * Export madrasah completeness data for a specific kabupaten to Excel
+     */
+    public function export(Request $request)
+    {
+        $kabupaten = $request->query('kabupaten');
+
+        if (!$kabupaten) {
+            abort(400, 'Kabupaten parameter is required.');
+        }
+
+        return Excel::download(
+            new MadrasahCompletenessExport($kabupaten),
+            'Kelengkapan_Data_' . Str::slug($kabupaten) . '.xlsx'
+        );
     }
 }

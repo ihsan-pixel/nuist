@@ -1,33 +1,34 @@
-# TODO for Updating Tenaga Pendidik Details Modal
+# TODO: Make Export Excel Button Functional in Data Madrasah View
 
-## Breakdown of Approved Plan
+## Steps to Complete:
 
-1. **Add necessary CSS and JS resources**:
-   - Include Lucide Icons CDN in `@section('css')`.
-   - Add Google Fonts for "Poppins" in `@section('css')`.
-   - Add custom CSS styles for modal (fullscreen, blur, colors, animations, hover effects, gradients) in `@section('css')`.
+1. **[ ] Create app/Exports/MadrasahCompletenessExport.php**  
+   - Implement an Excel export class using Maatwebsite/Excel's FromCollection concern.  
+   - Replicate the logic from DataMadrasahController@index to fetch and process madrasah data for a specific kabupaten, including field_status (✅/❌) and completeness_percentage.  
+   - Columns: No, Nama Madrasah, Alamat (status), Logo (status), Latitude (status), Longitude (status), Map Link (status), Polygon (koordinat) (status), Hari KBM (status), Status Guru (status), Kelengkapan (%).  
+   - Use the same kabupaten order and grouping logic.
 
-2. **Update modal HTML structure**:
-   - Replace the existing Bootstrap modal with a custom fullscreen modal using fixed positioning and overlay.
-   - Implement header with green background (#16A085), title, and Lucide X close button.
-   - Update body: Left column (photo with gradient border and shadow, name, email with icon, status badge with tooltip).
-   - Right column: Two-column grid for all data fields with Lucide icons.
-   - Add footer with "Edit Data" (green button with gradient hover) and "Tutup" (light gray button) buttons.
-   - Ensure responsive design: Flex on desktop, stack on mobile.
+2. **[ ] Update app/Http/Controllers/DataMadrasahController.php**  
+   - Add a new public method `export(Request $request)` that:  
+     - Validates the 'kabupaten' query parameter.  
+     - Fetches data similar to index() but filtered by the specific kabupaten.  
+     - Returns an instance of MadrasahCompletenessExport with the data.  
+     - Uses Excel::download() to generate and download the file with filename like "Kelengkapan_Data_{kabupaten}.xlsx".  
+   - Import necessary classes: use Maatwebsite\Excel\Facades\Excel; use App\Exports\MadrasahCompletenessExport;
 
-3. **Update JavaScript**:
-   - Keep existing data population logic.
-   - Add copy-to-clipboard functionality for NIP and NUPTK using `navigator.clipboard`.
-   - Add tooltip for status badge (using Bootstrap Tooltip or custom).
-   - Implement modal animations (fade-in + slide-up) on show/hide.
-   - Add hover effects for photo (zoom + glow) and buttons.
+3. **[ ] Add route in routes/web.php**  
+   - In the 'admin-masterdata' prefix group (middleware: auth, role:super_admin,pengurus), add:  
+     - Route::get('/data-madrasah/export', [DataMadrasahController::class, 'export'])->name('admin.data_madrasah.export');  
+   - This will handle GET requests with ?kabupaten=... query param.
 
-4. **Verify and complete**:
-   - Ensure all data attributes from the table button are used.
-   - Test responsiveness and features (to be done after edits via browser if needed).
-   - Use `attempt_completion` once all changes are applied.
+4. **[ ] Update resources/views/admin/data_madrasah.blade.php**  
+   - Replace the custom onclick button with a link: <a href="{{ route('admin.data_madrasah.export', ['kabupaten' => $kabupaten]) }}" class="btn btn-success btn-sm">Export Excel</a>  
+   - Remove the XLSX CDN script tag.  
+   - Remove the custom exportTableToExcel() JavaScript function.  
+   - In DataTable initialization, remove or disable the 'excel' button from buttons array to avoid conflicts (keep others like copy, pdf, etc., or disable all if not needed).  
+   - Ensure the table ID remains for DataTables functionality.
 
-Progress: Step 1 completed - Added CSS and JS resources (Lucide, Google Fonts, custom styles).
-Step 2 completed - Updated modal HTML structure with new design.
-Step 3 completed - Updated JavaScript for modal functionality, copy-to-clipboard, tooltips, and animations.
-Step 4 completed - Verified all changes; modal is now fullscreen with blur, responsive, and includes all required features.
+## Followup After Edits:
+- [ ] Test the export: Navigate to /admin-masterdata/data-madrasah, click export for a kabupaten, verify download with correct data and ✅/❌ statuses.  
+- [ ] Clear any route cache if needed: php artisan route:clear  
+- [ ] Update this TODO.md by marking steps as completed after each one.
