@@ -111,7 +111,7 @@
                                         </div>
                                         <div class="modal-body row g-3">
                                             <div class="col-md-6">
-                                                <label>Nama Lengkap</label>
+                                                <label>Nama Lengkap & Gelars</label>
                                                 <input type="text" name="nama" class="form-control" value="{{ $tp->name }}" required>
                                             </div>
 
