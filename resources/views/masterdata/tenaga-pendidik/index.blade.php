@@ -72,14 +72,14 @@
                         <tr>
                             <td>{{ $index + 1 }}</td>
                             <td>
-@if($tp->avatar)
-    <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
-        alt="Avatar {{ $tp->name }}"
-        class="rounded-circle"
-        width="50" height="50">
-@else
-    <span class="text-muted">-</span>
-@endif
+                            @if($tp->avatar)
+                                <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
+                                    alt="Avatar {{ $tp->name }}"
+                                    class="rounded-circle"
+                                    width="50" height="50">
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                             </td>
                             <td>{{ $tp->name }}</td>
                             <td>{{ $tp->email }}</td>
