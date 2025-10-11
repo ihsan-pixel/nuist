@@ -1,39 +1,33 @@
-# Teaching Schedule Menu Implementation
+# TODO for Updating Tenaga Pendidik Details Modal
 
-## Completed Tasks
-- [x] Created migration for `teaching_schedules` table with fields: school_id, teacher_id, day (enum), subject, class_name, start_time, end_time, created_by
-- [x] Created TeachingSchedule model with relations to User (teacher, creator) and Madrasah (school)
-- [x] Created TeachingScheduleController with CRUD methods, role-based access, and overlap validation
-- [x] Added resource routes for teaching-schedules with role middleware
-- [x] Created Blade views:
-  - index.blade.php: Admin view with tables grouped by teacher
-  - teacher-index.blade.php: Teacher view with schedules per day
-  - create.blade.php: Form to add schedule
-  - edit.blade.php: Form to edit schedule
-- [x] Added menu item to sidebar for Jadwal Mengajar
-- [x] Implemented role-based access:
-  - Super Admin: All schedules
-  - Admin: Only their school's schedules
-  - Tenaga Pendidik: Only their own schedules
+## Breakdown of Approved Plan
 
-## Kelengkapan Data Madrasah Menu Implementation
+1. **Add necessary CSS and JS resources**:
+   - Include Lucide Icons CDN in `@section('css')`.
+   - Add Google Fonts for "Poppins" in `@section('css')`.
+   - Add custom CSS styles for modal (fullscreen, blur, colors, animations, hover effects, gradients) in `@section('css')`.
 
-## Completed Tasks
-- [x] Created DataMadrasahController with index method to calculate data completeness for each madrasah
-- [x] Added route in admin-masterdata group with role middleware for super_admin and pengurus
-- [x] Created Blade view resources/views/admin/data_madrasah.blade.php with Bootstrap table displaying madrasah data and completeness
-- [x] Added menu item "Kelengkapan Data Madrasah" as top-level sidebar item for super_admin and pengurus roles
+2. **Update modal HTML structure**:
+   - Replace the existing Bootstrap modal with a custom fullscreen modal using fixed positioning and overlay.
+   - Implement header with green background (#16A085), title, and Lucide X close button.
+   - Update body: Left column (photo with gradient border and shadow, name, email with icon, status badge with tooltip).
+   - Right column: Two-column grid for all data fields with Lucide icons.
+   - Add footer with "Edit Data" (green button with gradient hover) and "Tutup" (light gray button) buttons.
+   - Ensure responsive design: Flex on desktop, stack on mobile.
 
-## Next Steps
-- [ ] Run `php artisan migrate` to create the table (ensure database is connected)
-- [ ] Test the functionality by logging in as different roles
-- [ ] Verify overlap validation works correctly
-- [ ] Check that forms validate inputs properly
-- [ ] Test the Kelengkapan Data Madrasah menu access and data display
+3. **Update JavaScript**:
+   - Keep existing data population logic.
+   - Add copy-to-clipboard functionality for NIP and NUPTK using `navigator.clipboard`.
+   - Add tooltip for status badge (using Bootstrap Tooltip or custom).
+   - Implement modal animations (fade-in + slide-up) on show/hide.
+   - Add hover effects for photo (zoom + glow) and buttons.
 
-## Notes
-- The existing JadwalMengajar model and controller are separate and not modified.
-- New table is `teaching_schedules` instead of updating the existing `jadwal_mengajar`.
-- Access control is handled in the controller methods.
-- Views use Bootstrap classes for styling.
-- Kelengkapan Data Madrasah shows completeness percentage based on 9 criteria (8 fields + tenaga pendidik existence).
+4. **Verify and complete**:
+   - Ensure all data attributes from the table button are used.
+   - Test responsiveness and features (to be done after edits via browser if needed).
+   - Use `attempt_completion` once all changes are applied.
+
+Progress: Step 1 completed - Added CSS and JS resources (Lucide, Google Fonts, custom styles).
+Step 2 completed - Updated modal HTML structure with new design.
+Step 3 completed - Updated JavaScript for modal functionality, copy-to-clipboard, tooltips, and animations.
+Step 4 completed - Verified all changes; modal is now fullscreen with blur, responsive, and includes all required features.
