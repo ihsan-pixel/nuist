@@ -1,34 +1,13 @@
-# TODO: Make Export Excel Button Functional in Data Madrasah View
+# TODO: Add SCOD Column to Madrasahs Table
 
-## Steps to Complete:
+## Completed Steps
+- [x] Create migration file: database/migrations/2025_10_05_000000_add_scod_to_madrasahs_table.php
+- [x] Update Madrasah model: add 'scod' to fillable array
+- [x] Update DataMadrasahController: add 'scod' to fields for completeness check
+- [x] Update data_madrasah.blade.php view: add SCOD column header and data cell
+- [x] Update MadrasahCompletenessExport: add SCOD to headings and data
 
-1. **[ ] Create app/Exports/MadrasahCompletenessExport.php**  
-   - Implement an Excel export class using Maatwebsite/Excel's FromCollection concern.  
-   - Replicate the logic from DataMadrasahController@index to fetch and process madrasah data for a specific kabupaten, including field_status (✅/❌) and completeness_percentage.  
-   - Columns: No, Nama Madrasah, Alamat (status), Logo (status), Latitude (status), Longitude (status), Map Link (status), Polygon (koordinat) (status), Hari KBM (status), Status Guru (status), Kelengkapan (%).  
-   - Use the same kabupaten order and grouping logic.
-
-2. **[ ] Update app/Http/Controllers/DataMadrasahController.php**  
-   - Add a new public method `export(Request $request)` that:  
-     - Validates the 'kabupaten' query parameter.  
-     - Fetches data similar to index() but filtered by the specific kabupaten.  
-     - Returns an instance of MadrasahCompletenessExport with the data.  
-     - Uses Excel::download() to generate and download the file with filename like "Kelengkapan_Data_{kabupaten}.xlsx".  
-   - Import necessary classes: use Maatwebsite\Excel\Facades\Excel; use App\Exports\MadrasahCompletenessExport;
-
-3. **[ ] Add route in routes/web.php**  
-   - In the 'admin-masterdata' prefix group (middleware: auth, role:super_admin,pengurus), add:  
-     - Route::get('/data-madrasah/export', [DataMadrasahController::class, 'export'])->name('admin.data_madrasah.export');  
-   - This will handle GET requests with ?kabupaten=... query param.
-
-4. **[ ] Update resources/views/admin/data_madrasah.blade.php**  
-   - Replace the custom onclick button with a link: <a href="{{ route('admin.data_madrasah.export', ['kabupaten' => $kabupaten]) }}" class="btn btn-success btn-sm">Export Excel</a>  
-   - Remove the XLSX CDN script tag.  
-   - Remove the custom exportTableToExcel() JavaScript function.  
-   - In DataTable initialization, remove or disable the 'excel' button from buttons array to avoid conflicts (keep others like copy, pdf, etc., or disable all if not needed).  
-   - Ensure the table ID remains for DataTables functionality.
-
-## Followup After Edits:
-- [ ] Test the export: Navigate to /admin-masterdata/data-madrasah, click export for a kabupaten, verify download with correct data and ✅/❌ statuses.  
-- [ ] Clear any route cache if needed: php artisan route:clear  
-- [ ] Update this TODO.md by marking steps as completed after each one.
+## Pending Steps
+- [ ] Run composer install (resolve PHP version issue if needed)
+- [ ] Run php artisan migrate to apply the migration
+- [ ] Test the application to ensure SCOD column displays correctly

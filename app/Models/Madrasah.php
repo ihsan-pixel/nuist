@@ -20,6 +20,7 @@ class Madrasah extends Model
         'logo',
         'polygon_koordinat',
         'hari_kbm',
+        'scod',
     ];
 
     // Relasi: satu madrasah punya banyak admin

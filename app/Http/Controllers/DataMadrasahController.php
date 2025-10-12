@@ -30,7 +30,7 @@ class DataMadrasahController extends Controller
             ->map(function ($group) use ($kabupatenOrder) {
                 return $group->map(function ($madrasah) {
                     // Fields to check for completeness
-                    $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm'];
+                    $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
 
                     $filled = 0;
                     $fieldStatus = [];

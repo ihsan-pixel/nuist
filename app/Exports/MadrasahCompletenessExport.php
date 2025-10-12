@@ -29,6 +29,7 @@ class MadrasahCompletenessExport implements FromCollection, WithHeadings
             'Map Link',
             'Polygon (koordinat)',
             'Hari KBM',
+            'SCOD',
             'Status Guru',
             'Kelengkapan (%)'
         ];
@@ -43,7 +44,7 @@ class MadrasahCompletenessExport implements FromCollection, WithHeadings
 
         foreach ($madrasahs as $index => $madrasah) {
             // Fields to check for completeness
-            $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm'];
+            $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
 
             $filled = 0;
             $fieldStatus = [];
@@ -77,6 +78,7 @@ class MadrasahCompletenessExport implements FromCollection, WithHeadings
                 $fieldStatus['map_link'],
                 $fieldStatus['polygon_koordinat'],
                 $fieldStatus['hari_kbm'],
+                $madrasah->scod,
                 $fieldStatus['status_guru'],
                 $percentage . '%'
             ]);
