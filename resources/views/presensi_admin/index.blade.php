@@ -29,7 +29,7 @@
                         <i class="bx bx-calendar me-2"></i>Data Presensi per Tanggal: {{ $selectedDate->format('d-m-Y') }}
                     </h4>
                     <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
-                        <input type="date" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()">
+                        <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
                     </form>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-sm table-bordered">
+                        <table id="madrasah-table-{{ $loop->index }}" class="table table-sm table-bordered">
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama</th>
@@ -262,6 +262,7 @@
 
 <script>
 $(document).ready(function () {
+    @if($user->role !== 'super_admin')
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
         lengthChange: true,
@@ -271,6 +272,7 @@ $(document).ready(function () {
 
     table.buttons().container()
         .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    @endif
 
     // Replace alert notifications with SweetAlert2
     @if(session('success'))
@@ -291,6 +293,73 @@ $(document).ready(function () {
             timer: 3000,
             showConfirmButton: false
         });
+    @endif
+
+    @if($user->role === 'super_admin')
+    // Real-time update for super admin
+    let currentDate = '{{ $selectedDate->format('Y-m-d') }}';
+    let updateInterval;
+
+    function updatePresensiData() {
+        $.ajax({
+            url: '{{ route('presensi_admin.data') }}',
+            type: 'GET',
+            data: { date: currentDate },
+            success: function(data) {
+                updateTables(data);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error updating data:', error);
+            }
+        });
+    }
+
+    function updateTables(data) {
+        data.forEach(function(madrasahData, index) {
+            let tableBody = $('#madrasah-table-' + index + ' tbody');
+            tableBody.empty();
+
+            if (madrasahData.presensi.length > 0) {
+                madrasahData.presensi.forEach(function(presensi) {
+                    let statusBadge = '';
+                    if (presensi.status === 'hadir') {
+                        statusBadge = '<span class="badge bg-success">Hadir</span>';
+                    } else if (presensi.status === 'terlambat') {
+                        statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                    } else if (presensi.status === 'izin') {
+                        statusBadge = '<span class="badge bg-info">Izin</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
+                    }
+
+                    let row = '<tr>' +
+                        '<td class="small">' + presensi.nama + '</td>' +
+                        '<td class="small">' + statusBadge + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            } else {
+                let emptyRow = '<tr>' +
+                    '<td colspan="2" class="text-center text-muted small">' +
+                    '<small>Tidak ada tenaga pendidik</small>' +
+                    '</td>' +
+                    '</tr>';
+                tableBody.append(emptyRow);
+            }
+        });
+    }
+
+    // Update data every 30 seconds
+    updateInterval = setInterval(updatePresensiData, 30000);
+
+    // Handle date change
+    $('#date-picker').on('change', function() {
+        currentDate = $(this).val();
+        updatePresensiData();
+    });
+
+    // Initial update
+    updatePresensiData();
     @endif
 });
 </script>

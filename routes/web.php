@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/presensi-admin/settings', [PresensiAdminController::class, 'settings'])->name('presensi_admin.settings');
         Route::post('/presensi-admin/settings', [PresensiAdminController::class, 'updateSettings'])->name('presensi_admin.updateSettings');
         Route::get('/presensi-admin', [PresensiAdminController::class, 'index'])->name('presensi_admin.index');
+        Route::get('/presensi-admin/data', [PresensiAdminController::class, 'getData'])->name('presensi_admin.data');
     });
 
     // Development History Routes - Super Admin Only

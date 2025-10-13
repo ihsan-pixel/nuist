@@ -249,4 +249,46 @@ class PresensiAdminController extends Controller
             return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate'));
         }
     }
+
+    // API endpoint for real-time data
+    public function getData(Request $request)
+    {
+        $user = Auth::user();
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        if ($user->role === 'super_admin') {
+            $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
+
+            $madrasahData = [];
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->with(['presensis' => function ($q) use ($selectedDate) {
+                        $q->whereDate('tanggal', $selectedDate);
+                    }])
+                    ->get();
+
+                $presensiData = [];
+                foreach ($tenagaPendidik as $tp) {
+                    $presensi = $tp->presensis->first();
+                    $presensiData[] = [
+                        'nama' => $tp->name,
+                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
+                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
+                        'keterangan' => $presensi ? $presensi->keterangan : null,
+                    ];
+                }
+
+                $madrasahData[] = [
+                    'madrasah' => $madrasah,
+                    'presensi' => $presensiData,
+                ];
+            }
+
+            return response()->json($madrasahData);
+        }
+
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
 }
