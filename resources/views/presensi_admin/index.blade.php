@@ -217,6 +217,7 @@
                             <div class="mb-2"><strong>Latitude:</strong> <span id="madrasah-detail-latitude"></span></div>
                             <div class="mb-2"><strong>Longitude:</strong> <span id="madrasah-detail-longitude"></span></div>
                             <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
+                            <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
                         </div>
                     </div>
                     <h6>Daftar Tenaga Pendidik:</h6>
@@ -654,6 +655,11 @@ $(document).ready(function () {
                     $('#madrasah-detail-map-link').attr('href', data.madrasah.map_link).show();
                 } else {
                     $('#madrasah-detail-map-link').hide();
+                }
+                if (data.madrasah.polygon_koordinat) {
+                    $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
+                } else {
+                    $('#madrasah-detail-polygon').text('Tidak Ada');
                 }
 
                 // Populate guru list
