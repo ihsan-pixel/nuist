@@ -14,6 +14,7 @@
 
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 @endsection
 
 @section('content')
@@ -462,6 +463,7 @@
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -761,6 +763,46 @@ $(document).ready(function () {
 
         let drawnItems = new L.FeatureGroup();
         window.madrasahMap.addLayer(drawnItems);
+
+        // Add draw control for drawing/editing polygon like edit mode
+        let drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems,
+                poly: { allowIntersection: false }
+            },
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true
+                },
+                polyline: false,
+                rectangle: false,
+                circle: false,
+                marker: false,
+                circlemarker: false
+            }
+        });
+        window.madrasahMap.addControl(drawControl);
+
+        // Event listeners for polygon changes (like edit mode)
+        const updatePolygonInput = () => {
+            let geojson = drawnItems.toGeoJSON();
+            if (geojson.features.length > 0) {
+                // Store only the geometry of the first feature (temporary, no save)
+                console.log('Polygon updated:', JSON.stringify(geojson.features[0].geometry));
+            } else {
+                console.log('Polygon cleared');
+            }
+        };
+
+        window.madrasahMap.on(L.Draw.Event.CREATED, function (e) {
+            drawnItems.clearLayers(); // Allow only one polygon
+            drawnItems.addLayer(e.layer);
+            updatePolygonInput();
+        });
+
+        window.madrasahMap.on(L.Draw.Event.EDITED, updatePolygonInput);
+        window.madrasahMap.on(L.Draw.Event.DELETED, updatePolygonInput);
 
         // Add marker if coordinates exist
         if (madrasah.latitude && madrasah.longitude) {
