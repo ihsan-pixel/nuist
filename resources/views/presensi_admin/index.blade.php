@@ -384,65 +384,96 @@ $(document).ready(function () {
         let presensiRows = '';
         data.presensi_history.forEach(function(presensi) {
             let statusBadge = '';
+            let statusClass = '';
             if (presensi.status === 'hadir') {
-                statusBadge = '<span class="badge bg-success">Hadir</span>';
+                statusBadge = '<i class="bx bx-check-circle text-success me-1"></i>Hadir';
+                statusClass = 'table-success';
             } else if (presensi.status === 'terlambat') {
-                statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                statusBadge = '<i class="bx bx-time-five text-warning me-1"></i>Terlambat';
+                statusClass = 'table-warning';
             } else if (presensi.status === 'izin') {
-                statusBadge = '<span class="badge bg-info">Izin</span>';
+                statusBadge = '<i class="bx bx-calendar text-info me-1"></i>Izin';
+                statusClass = 'table-info';
             } else {
-                statusBadge = '<span class="badge bg-secondary">' + presensi.status + '</span>';
+                statusBadge = '<i class="bx bx-x-circle text-secondary me-1"></i>' + presensi.status;
+                statusClass = 'table-secondary';
             }
 
-            presensiRows += '<tr>' +
-                '<td>' + presensi.tanggal + '</td>' +
-                '<td>' + (presensi.waktu_masuk || '-') + '</td>' +
-                '<td>' + (presensi.waktu_keluar || '-') + '</td>' +
-                '<td>' + statusBadge + '</td>' +
-                '<td>' + (presensi.keterangan || '-') + '</td>' +
-                '<td>' + (presensi.lokasi || '-') + '</td>' +
+            presensiRows += '<tr class="' + statusClass + '">' +
+                '<td class="text-center fw-bold">' + presensi.tanggal + '</td>' +
+                '<td class="text-center">' + (presensi.waktu_masuk || '<span class="text-muted">-</span>') + '</td>' +
+                '<td class="text-center">' + (presensi.waktu_keluar || '<span class="text-muted">-</span>') + '</td>' +
+                '<td class="text-center">' + statusBadge + '</td>' +
+                '<td class="small">' + (presensi.keterangan || '<span class="text-muted">-</span>') + '</td>' +
+                '<td class="small text-truncate" style="max-width: 120px;" title="' + (presensi.lokasi || '-') + '">' + (presensi.lokasi || '<span class="text-muted">-</span>') + '</td>' +
                 '</tr>';
         });
 
-        let content = '<div class="row">' +
-            '<div class="col-md-6">' +
-            '<h6>Informasi Pengguna</h6>' +
-            '<table class="table table-sm">' +
-            '<tr><td><strong>Nama:</strong></td><td>' + data.user.name + '</td></tr>' +
-            '<tr><td><strong>Email:</strong></td><td>' + data.user.email + '</td></tr>' +
-            '<tr><td><strong>Madrasah:</strong></td><td>' + data.user.madrasah + '</td></tr>' +
-            '<tr><td><strong>Status:</strong></td><td>' + data.user.status_kepegawaian + '</td></tr>' +
-            '<tr><td><strong>NIP:</strong></td><td>' + (data.user.nip || '-') + '</td></tr>' +
-            '<tr><td><strong>NUPTK:</strong></td><td>' + (data.user.nuptk || '-') + '</td></tr>' +
-            '<tr><td><strong>No HP:</strong></td><td>' + (data.user.no_hp || '-') + '</td></tr>' +
-            '</table>' +
+        let content = '<div class="container-fluid">' +
+            '<div class="row g-3">' +
+            '<div class="col-lg-5">' +
+            '<div class="card border-primary">' +
+            '<div class="card-header bg-primary text-white">' +
+            '<h6 class="card-title mb-0"><i class="bx bx-user me-2"></i>Informasi Pengguna</h6>' +
             '</div>' +
-            '<div class="col-md-6">' +
-            '<h6>Riwayat Presensi (10 Terakhir)</h6>' +
-            '<div style="max-height: 300px; overflow-y: auto;">' +
-            '<table class="table table-sm table-bordered">' +
-            '<thead class="table-light">' +
+            '<div class="card-body p-3">' +
+            '<div class="row g-2">' +
+            '<div class="col-4"><strong>Nama:</strong></div>' +
+            '<div class="col-8">' + data.user.name + '</div>' +
+            '<div class="col-4"><strong>Email:</strong></div>' +
+            '<div class="col-8"><small>' + data.user.email + '</small></div>' +
+            '<div class="col-4"><strong>Madrasah:</strong></div>' +
+            '<div class="col-8">' + data.user.madrasah + '</div>' +
+            '<div class="col-4"><strong>Status:</strong></div>' +
+            '<div class="col-8"><span class="badge bg-secondary">' + data.user.status_kepegawaian + '</span></div>' +
+            '<div class="col-4"><strong>NIP:</strong></div>' +
+            '<div class="col-8"><code>' + (data.user.nip || '<span class="text-muted">-</span>') + '</code></div>' +
+            '<div class="col-4"><strong>NUPTK:</strong></div>' +
+            '<div class="col-8"><code>' + (data.user.nuptk || '<span class="text-muted">-</span>') + '</code></div>' +
+            '<div class="col-4"><strong>No HP:</strong></div>' +
+            '<div class="col-8"><i class="bx bx-phone me-1"></i>' + (data.user.no_hp || '<span class="text-muted">-</span>') + '</div>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-lg-7">' +
+            '<div class="card border-success">' +
+            '<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">' +
+            '<h6 class="card-title mb-0"><i class="bx bx-history me-2"></i>Riwayat Presensi</h6>' +
+            '<small class="text-white-50">10 data terakhir</small>' +
+            '</div>' +
+            '<div class="card-body p-0">' +
+            '<div style="max-height: 400px; overflow-y: auto;">' +
+            '<table class="table table-hover table-sm mb-0">' +
+            '<thead class="table-dark sticky-top">' +
             '<tr>' +
-            '<th>Tanggal</th>' +
-            '<th>Masuk</th>' +
-            '<th>Keluar</th>' +
-            '<th>Status</th>' +
-            '<th>Keterangan</th>' +
-            '<th>Lokasi</th>' +
+            '<th class="text-center" style="width: 100px;"><i class="bx bx-calendar me-1"></i>Tanggal</th>' +
+            '<th class="text-center" style="width: 70px;"><i class="bx bx-log-in me-1"></i>Masuk</th>' +
+            '<th class="text-center" style="width: 70px;"><i class="bx bx-log-out me-1"></i>Keluar</th>' +
+            '<th class="text-center" style="width: 100px;"><i class="bx bx-check-circle me-1"></i>Status</th>' +
+            '<th class="text-center"><i class="bx bx-note me-1"></i>Keterangan</th>' +
+            '<th class="text-center" style="width: 120px;"><i class="bx bx-map me-1"></i>Lokasi</th>' +
             '</tr>' +
             '</thead>' +
             '<tbody>' + presensiRows + '</tbody>' +
             '</table>' +
             '</div>' +
             '</div>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
             '</div>';
 
         Swal.fire({
-            title: 'Detail Presensi: ' + userName,
+            title: '<i class="bx bx-detail me-2"></i>Detail Presensi: ' + userName,
             html: content,
-            width: '800px',
+            width: '95%',
+            maxWidth: '1200px',
             showCloseButton: true,
-            showConfirmButton: false
+            showConfirmButton: false,
+            customClass: {
+                popup: 'swal-wide'
+            }
         });
     }
 
