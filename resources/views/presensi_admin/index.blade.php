@@ -221,6 +221,7 @@
                             <div class="mb-2"><strong>Longitude:</strong> <span id="madrasah-detail-longitude"></span></div>
                             <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
                             <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
+                            <div class="mb-2"><strong>Koordinat Polygon:</strong> <div id="madrasah-detail-polygon-coords" style="max-height: 100px; overflow-y: auto; font-size: 12px; background-color: #f8f9fa; padding: 8px; border-radius: 4px;"></div></div>
                         </div>
                     </div>
                     <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
@@ -665,8 +666,25 @@ $(document).ready(function () {
                 }
                 if (data.madrasah.polygon_koordinat) {
                     $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
+
+                    // Display polygon coordinates
+                    try {
+                        let polygonGeometry = JSON.parse(data.madrasah.polygon_koordinat);
+                        if (polygonGeometry && polygonGeometry.coordinates && polygonGeometry.coordinates[0]) {
+                            let coords = polygonGeometry.coordinates[0];
+                            let coordsText = coords.map((coord, index) =>
+                                `${index + 1}. Lat: ${coord[1].toFixed(6)}, Lng: ${coord[0].toFixed(6)}`
+                            ).join('<br>');
+                            $('#madrasah-detail-polygon-coords').html(coordsText);
+                        } else {
+                            $('#madrasah-detail-polygon-coords').html('Format koordinat tidak valid');
+                        }
+                    } catch (e) {
+                        $('#madrasah-detail-polygon-coords').html('Error parsing koordinat: ' + e.message);
+                    }
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
+                    $('#madrasah-detail-polygon-coords').html('Tidak ada koordinat polygon');
                 }
 
                 // Initialize map for polygon display
