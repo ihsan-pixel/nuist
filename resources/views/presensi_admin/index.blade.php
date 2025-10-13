@@ -421,6 +421,7 @@ $(document).ready(function () {
     // Handle user detail modal
     $(document).on('click', '.user-detail-link', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         let userId = $(this).data('user-id');
         let userName = $(this).data('user-name');
         $('#userDetailModalLabel').text('Detail Presensi: ' + userName);
@@ -475,6 +476,7 @@ $(document).ready(function () {
                 });
             }
         });
+        return false;
     });
 
     // Update data every 30 seconds
