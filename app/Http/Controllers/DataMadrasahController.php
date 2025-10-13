@@ -28,7 +28,9 @@ class DataMadrasahController extends Controller
             ->get()
             ->groupBy('kabupaten')
             ->map(function ($group) use ($kabupatenOrder) {
-                return $group->map(function ($madrasah) {
+                return $group->sortBy(function ($madrasah) {
+                    return $madrasah->scod ?? PHP_INT_MAX;
+                })->map(function ($madrasah) {
                     // Fields to check for completeness
                     $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
 
