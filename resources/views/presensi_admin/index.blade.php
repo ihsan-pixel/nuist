@@ -665,8 +665,17 @@ $(document).ready(function () {
                 }
                 if (data.madrasah.polygon_koordinat) {
                     $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
+
+                    // Display polygon pattern (GeoJSON structure)
+                    try {
+                        let polygonGeometry = JSON.parse(data.madrasah.polygon_koordinat);
+                        $('#madrasah-detail-polygon-pattern').html('<pre style="margin: 0; font-size: 11px;">' + JSON.stringify(polygonGeometry, null, 2) + '</pre>');
+                    } catch (e) {
+                        $('#madrasah-detail-polygon-pattern').html('Error parsing pola poligon: ' + e.message);
+                    }
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
+                    $('#madrasah-detail-polygon-pattern').html('Tidak ada pola poligon');
                 }
 
                 // Initialize map for polygon display
@@ -784,16 +793,6 @@ $(document).ready(function () {
                 console.error("Invalid GeoJSON data for polygon:", e);
             }
         }
-
-        // Add draw control for viewing polygon pattern
-        let drawControl = new L.Control.Draw({
-            edit: {
-                featureGroup: drawnItems,
-                poly: { allowIntersection: false }
-            },
-            draw: false // Disable drawing, only for viewing
-        });
-        window.madrasahMap.addControl(drawControl);
 
         // Fit map to show all elements
         setTimeout(() => {
