@@ -792,6 +792,9 @@ $(document).ready(function () {
         setTimeout(() => {
             window.madrasahMap.invalidateSize();
 
+            // Force a resize to ensure proper rendering
+            window.madrasahMap._onResize();
+
             // If we have both marker and polygon, fit bounds to show everything
             if (drawnItems.getLayers().length > 0 && madrasah.latitude && madrasah.longitude) {
                 // Create a group with both marker and polygon layers
@@ -817,6 +820,11 @@ $(document).ready(function () {
                 // No specific location, use default view
                 window.madrasahMap.setView([defaultLat, defaultLon], 13);
             }
+
+            // Additional invalidateSize after bounds fitting to ensure polygon renders
+            setTimeout(() => {
+                window.madrasahMap.invalidateSize();
+            }, 200);
         }, 100);
     }
     @endif
