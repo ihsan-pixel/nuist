@@ -33,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/presensi-admin', [PresensiAdminController::class, 'index'])->name('presensi_admin.index');
         Route::get('/presensi-admin/data', [PresensiAdminController::class, 'getData'])->name('presensi_admin.data');
         Route::get('/presensi-admin/detail/{userId}', [PresensiAdminController::class, 'getDetail'])->name('presensi_admin.detail');
+        Route::get('/presensi-admin/madrasah-detail/{madrasahId}', [PresensiAdminController::class, 'getMadrasahDetail'])->name('presensi_admin.madrasah_detail');
+        Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export'])->name('presensi_admin.export');
     });
 
     // Development History Routes - Super Admin Only

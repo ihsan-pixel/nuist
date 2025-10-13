@@ -28,9 +28,14 @@
                     <h4 class="card-title mb-0">
                         <i class="bx bx-calendar me-2"></i>Data Presensi per Tanggal: {{ $selectedDate->format('d-m-Y') }}
                     </h4>
-                    <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
-                        <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
-                    </form>
+                    <div class="d-flex align-items-center gap-2">
+                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
+                            <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
+                        </form>
+                        <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}" class="btn btn-success btn-sm">
+                            <i class="bx bx-download"></i> Export Excel
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -77,10 +82,14 @@
         @foreach($madrasahData as $data)
         <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
             <div class="card h-100">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="card-title mb-0">
-                        <i class="bx bx-building me-1"></i>{{ $data['madrasah']->name }}
+                        <i class="bx bx-building me-1"></i>
+                        <span class="madrasah-detail-link" style="cursor: pointer; text-decoration: underline;" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                            {{ $data['madrasah']->name }}
+                        </span>
                     </h6>
+                    <small class="text-muted">{{ count($data['presensi']) }} guru</small>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
@@ -178,6 +187,54 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Madrasah Detail Modal -->
+    <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="madrasahDetailModalLabel">Detail Madrasah</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2"><strong>Nama Madrasah:</strong> <span id="madrasah-detail-name"></span></div>
+                            <div class="mb-2"><strong>SCOD:</strong> <span id="madrasah-detail-scod"></span></div>
+                            <div class="mb-2"><strong>Kabupaten:</strong> <span id="madrasah-detail-kabupaten"></span></div>
+                            <div class="mb-2"><strong>Alamat:</strong> <span id="madrasah-detail-alamat"></span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2"><strong>Hari KBM:</strong> <span id="madrasah-detail-hari-kbm"></span></div>
+                            <div class="mb-2"><strong>Latitude:</strong> <span id="madrasah-detail-latitude"></span></div>
+                            <div class="mb-2"><strong>Longitude:</strong> <span id="madrasah-detail-longitude"></span></div>
+                            <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
+                        </div>
+                    </div>
+                    <h6>Daftar Tenaga Pendidik:</h6>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Status Kepegawaian</th>
+                                    <th>Status Presensi</th>
+                                    <th>Waktu Masuk</th>
+                                    <th>Waktu Keluar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="madrasah-detail-guru-body">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -547,6 +604,72 @@ $(document).ready(function () {
                     icon: 'error',
                     title: 'Error',
                     text: 'Gagal memuat detail pengguna'
+                });
+            }
+        });
+        return false;
+    });
+
+    // Handle madrasah detail modal
+    $(document).on('click', '.madrasah-detail-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let madrasahId = $(this).data('madrasah-id');
+        let madrasahName = $(this).data('madrasah-name');
+        $('#madrasahDetailModalLabel').text('Detail Madrasah: ' + madrasahName);
+
+        $.ajax({
+            url: '{{ route('presensi_admin.madrasah_detail', ':madrasahId') }}'.replace(':madrasahId', madrasahId),
+            type: 'GET',
+            data: { date: currentDate },
+            success: function(data) {
+                // Populate madrasah info
+                $('#madrasah-detail-name').text(data.madrasah.name);
+                $('#madrasah-detail-scod').text(data.madrasah.scod || '-');
+                $('#madrasah-detail-kabupaten').text(data.madrasah.kabupaten || '-');
+                $('#madrasah-detail-alamat').text(data.madrasah.alamat || '-');
+                $('#madrasah-detail-hari-kbm').text(data.madrasah.hari_kbm || '-');
+                $('#madrasah-detail-latitude').text(data.madrasah.latitude || '-');
+                $('#madrasah-detail-longitude').text(data.madrasah.longitude || '-');
+                if (data.madrasah.map_link) {
+                    $('#madrasah-detail-map-link').attr('href', data.madrasah.map_link).show();
+                } else {
+                    $('#madrasah-detail-map-link').hide();
+                }
+
+                // Populate guru list
+                let guruRows = '';
+                data.tenaga_pendidik.forEach(function(guru) {
+                    let statusBadge = '';
+                    if (guru.status === 'hadir') {
+                        statusBadge = '<span class="badge bg-success">Hadir</span>';
+                    } else if (guru.status === 'terlambat') {
+                        statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                    } else if (guru.status === 'izin') {
+                        statusBadge = '<span class="badge bg-info">Izin</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
+                    }
+
+                    guruRows += '<tr>' +
+                        '<td>' + guru.nama + '</td>' +
+                        '<td>' + (guru.status_kepegawaian || '-') + '</td>' +
+                        '<td>' + statusBadge + '</td>' +
+                        '<td>' + (guru.waktu_masuk || '-') + '</td>' +
+                        '<td>' + (guru.waktu_keluar || '-') + '</td>' +
+                        '</tr>';
+                });
+                $('#madrasah-detail-guru-body').html(guruRows);
+
+                // Show modal
+                $('#madrasahDetailModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.log('Error loading madrasah detail:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat detail madrasah'
                 });
             }
         });

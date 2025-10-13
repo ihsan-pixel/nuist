@@ -335,6 +335,130 @@ class PresensiAdminController extends Controller
         ]);
     }
 
+    // API endpoint for madrasah detail popup
+    public function getMadrasahDetail($madrasahId, Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'super_admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasahId)
+            ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate);
+            }])
+            ->get();
+
+        $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
+            $presensi = $tp->presensis->first();
+            return [
+                'nama' => $tp->name,
+                'status_kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                'waktu_masuk' => $presensi ? $presensi->waktu_masuk->format('H:i') : null,
+                'waktu_keluar' => $presensi ? $presensi->waktu_keluar->format('H:i') : null,
+            ];
+        });
+
+        return response()->json([
+            'madrasah' => [
+                'name' => $madrasah->name,
+                'scod' => $madrasah->scod,
+                'kabupaten' => $madrasah->kabupaten,
+                'alamat' => $madrasah->alamat,
+                'hari_kbm' => $madrasah->hari_kbm,
+                'latitude' => $madrasah->latitude,
+                'longitude' => $madrasah->longitude,
+                'map_link' => $madrasah->map_link,
+            ],
+            'tenaga_pendidik' => $tenagaPendidikData
+        ]);
+    }
+
+    // Export presensi data to Excel
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        // Get all madrasah with their presensi data
+        $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
+
+        $data = [];
+        foreach ($madrasahs as $madrasah) {
+            $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $madrasah->id)
+                ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
+                    $q->whereDate('tanggal', $selectedDate);
+                }])
+                ->get();
+
+            foreach ($tenagaPendidik as $tp) {
+                $presensi = $tp->presensis->first();
+                $data[] = [
+                    'Madrasah' => $madrasah->name,
+                    'SCOD' => $madrasah->scod,
+                    'Kabupaten' => $madrasah->kabupaten,
+                    'Nama Guru' => $tp->name,
+                    'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                    'NIP' => $tp->nip,
+                    'NUPTK' => $tp->nuptk,
+                    'Status Presensi' => $presensi ? $presensi->status : 'tidak_hadir',
+                    'Waktu Masuk' => $presensi ? $presensi->waktu_masuk->format('H:i:s') : null,
+                    'Waktu Keluar' => $presensi ? $presensi->waktu_keluar->format('H:i:s') : null,
+                    'Keterangan' => $presensi ? $presensi->keterangan : null,
+                    'Lokasi' => $presensi ? $presensi->lokasi : null,
+                    'Tanggal' => $selectedDate->format('Y-m-d'),
+                ];
+            }
+        }
+
+        // Create Excel file
+        $filename = 'Data_Presensi_' . $selectedDate->format('Y-m-d') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return $this->data;
+            }
+
+            public function headings(): array
+            {
+                return [
+                    'Madrasah',
+                    'SCOD',
+                    'Kabupaten',
+                    'Nama Guru',
+                    'Status Kepegawaian',
+                    'NIP',
+                    'NUPTK',
+                    'Status Presensi',
+                    'Waktu Masuk',
+                    'Waktu Keluar',
+                    'Keterangan',
+                    'Lokasi',
+                    'Tanggal'
+                ];
+            }
+        }, $filename);
+    }
+
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */
