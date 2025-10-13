@@ -228,7 +228,6 @@
                         <label>Area Poligon Presensi</label>
                         <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
                         <small class="text-muted">Area poligon presensi madrasah ini.</small>
-                        <div id="madrasah-detail-polygon-pattern" class="mt-2 p-2 bg-light border rounded" style="font-size: 12px; max-height: 150px; overflow-y: auto;"></div>
                     </div>
 
                     <h6>Daftar Tenaga Pendidik:</h6>
@@ -673,17 +672,8 @@ $(document).ready(function () {
                 }
                 if (data.madrasah.polygon_koordinat) {
                     $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
-
-                    // Display polygon pattern (GeoJSON structure)
-                    try {
-                        let polygonGeometry = JSON.parse(data.madrasah.polygon_koordinat);
-                        $('#madrasah-detail-polygon-pattern').html('<strong>Pola Koordinat:</strong><br><pre style="margin: 5px 0 0 0; font-size: 11px;">' + JSON.stringify(polygonGeometry, null, 2) + '</pre>');
-                    } catch (e) {
-                        $('#madrasah-detail-polygon-pattern').html('<strong>Error:</strong> Tidak dapat memparsing pola poligon: ' + e.message);
-                    }
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
-                    $('#madrasah-detail-polygon-pattern').html('<em>Tidak ada pola poligon tersimpan untuk madrasah ini.</em>');
                 }
 
 
@@ -787,26 +777,51 @@ $(document).ready(function () {
             try {
                 let geometry = JSON.parse(madrasah.polygon_koordinat);
                 let layer = L.geoJSON(geometry, {
-                    style: {
-                        color: 'blue',
-                        weight: 3,
-                        opacity: 0.9,
-                        fillColor: 'blue',
-                        fillOpacity: 0.2
+                    style: function(feature) {
+                        return {
+                            color: 'red',
+                            weight: 3,
+                            opacity: 0.9,
+                            fillColor: 'red',
+                            fillOpacity: 0.3
+                        };
                     },
                     // Make polygon non-editable by disabling interactive features
-                    interactive: false
+                    interactive: true,
+                    onEachFeature: function(feature, layer) {
+                        // Add vertex markers to show polygon pattern
+                        if (feature.geometry.type === 'Polygon') {
+                            feature.geometry.coordinates[0].forEach(function(coord, index) {
+                                let marker = L.circleMarker([coord[1], coord[0]], {
+                                    color: 'red',
+                                    fillColor: 'white',
+                                    fillOpacity: 1,
+                                    weight: 2,
+                                    radius: 6
+                                }).addTo(window.madrasahMap);
+
+                                // Add popup showing coordinate index
+                                marker.bindPopup('Titik ' + (index + 1) + '<br>Koordinat: ' + coord[1].toFixed(6) + ', ' + coord[0].toFixed(6));
+                                drawnItems.addLayer(marker);
+                            });
+                        }
+                    }
                 });
                 layer.eachLayer(function(l) {
                     drawnItems.addLayer(l);
-                    // Add popup but make it non-interactive for editing
-                    l.bindPopup('Area Presensi - ' + madrasah.name, {
+                    // Add popup for the polygon area
+                    l.bindPopup('Area Presensi - ' + madrasah.name + '<br><small>Klik titik merah untuk melihat koordinat</small>', {
                         closeButton: true,
                         autoClose: true
                     });
                 });
             } catch (e) {
                 console.error("Invalid GeoJSON data for polygon:", e);
+                // Add error marker if polygon can't be loaded
+                L.marker([lat, lon])
+                    .addTo(window.madrasahMap)
+                    .bindPopup('Error: Tidak dapat memuat area poligon')
+                    .openPopup();
             }
         }
 
