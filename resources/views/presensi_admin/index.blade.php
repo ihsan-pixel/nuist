@@ -578,7 +578,7 @@ $(document).ready(function () {
         $('#userDetailModalLabel').text('Detail Presensi: ' + userName);
 
         $.ajax({
-            url: '{{ route('presensi_admin.detail', ':userId') }}'.replace(':userId', userId),
+            url: '{{ url('/presensi-admin/detail') }}/' + userId,
             type: 'GET',
             success: function(data) {
                 // Populate user info tab
@@ -638,7 +638,7 @@ $(document).ready(function () {
         $('#madrasahDetailModalLabel').text('Detail Madrasah: ' + madrasahName);
 
         $.ajax({
-            url: '{{ route('presensi_admin.madrasah_detail', ':madrasahId') }}'.replace(':madrasahId', madrasahId),
+            url: '{{ url('/presensi-admin/madrasah-detail') }}/' + madrasahId,
             type: 'GET',
             data: { date: currentDate },
             success: function(data) {
@@ -685,10 +685,15 @@ $(document).ready(function () {
             },
             error: function(xhr, status, error) {
                 console.log('Error loading madrasah detail:', error);
+                console.log('Response:', xhr.responseText);
+                let errorMessage = 'Gagal memuat detail madrasah';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Gagal memuat detail madrasah'
+                    text: errorMessage
                 });
             }
         });

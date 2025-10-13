@@ -356,7 +356,10 @@ class PresensiAdminController extends Controller
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+        $madrasah = \App\Models\Madrasah::find($madrasahId);
+        if (!$madrasah) {
+            return response()->json(['error' => 'Madrasah not found'], 404);
+        }
 
         $tenagaPendidik = User::where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $madrasahId)
@@ -369,22 +372,22 @@ class PresensiAdminController extends Controller
             $presensi = $tp->presensis->first();
             return [
                 'nama' => $tp->name,
-                'status_kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
                 'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                'waktu_masuk' => $presensi ? $presensi->waktu_masuk->format('H:i') : null,
-                'waktu_keluar' => $presensi ? $presensi->waktu_keluar->format('H:i') : null,
+                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : null,
+                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : null,
             ];
         });
 
         return response()->json([
             'madrasah' => [
                 'name' => $madrasah->name,
-                'scod' => $madrasah->scod,
-                'kabupaten' => $madrasah->kabupaten,
-                'alamat' => $madrasah->alamat,
-                'hari_kbm' => $madrasah->hari_kbm,
-                'latitude' => $madrasah->latitude,
-                'longitude' => $madrasah->longitude,
+                'scod' => $madrasah->scod ?? '-',
+                'kabupaten' => $madrasah->kabupaten ?? '-',
+                'alamat' => $madrasah->alamat ?? '-',
+                'hari_kbm' => $madrasah->hari_kbm ?? '-',
+                'latitude' => $madrasah->latitude ?? '-',
+                'longitude' => $madrasah->longitude ?? '-',
                 'map_link' => $madrasah->map_link,
             ],
             'tenaga_pendidik' => $tenagaPendidikData
