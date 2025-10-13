@@ -133,7 +133,6 @@
                                             <th style="width: 80px;">Keluar</th>
                                             <th style="width: 80px;">Status</th>
                                             <th>Keterangan</th>
-                                            <th style="width: 150px;">Lokasi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detail-history-body">
@@ -461,7 +460,6 @@ $(document).ready(function () {
                         '<td>' + (presensi.waktu_keluar || '-') + '</td>' +
                         '<td>' + statusBadge + '</td>' +
                         '<td>' + (presensi.keterangan || '-') + '</td>' +
-                        '<td title="' + (presensi.lokasi || '-') + '">' + (presensi.lokasi || '-') + '</td>' +
                         '</tr>';
                 });
                 $('#detail-history-body').html(presensiRows);
