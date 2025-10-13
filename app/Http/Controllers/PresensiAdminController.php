@@ -195,7 +195,17 @@ class PresensiAdminController extends Controller
 
         if ($user->role === 'super_admin') {
             // For super_admin, show all madrasah tables (5 per row)
-            $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
+            $kabupatenOrder = [
+                'Kabupaten Gunungkidul',
+                'Kabupaten Bantul',
+                'Kabupaten Kulon Progo',
+                'Kabupaten Sleman',
+                'Kota Yogyakarta'
+            ];
+
+            $madrasahs = \App\Models\Madrasah::orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
 
             $madrasahData = [];
             foreach ($madrasahs as $madrasah) {
