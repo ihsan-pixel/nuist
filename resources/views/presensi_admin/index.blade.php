@@ -300,6 +300,67 @@ $(document).ready(function () {
     @endif
 
     @if($user->role === 'super_admin')
+    <!-- User Detail Modal -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailModalLabel">Detail Presensi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="userDetailTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Informasi Pengguna</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Riwayat Presensi</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="userDetailTabContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="mb-2"><strong>Nama:</strong> <span id="detail-name"></span></div>
+                                    <div class="mb-2"><strong>Email:</strong> <span id="detail-email" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>Madrasah:</strong> <span id="detail-madrasah"></span></div>
+                                    <div class="mb-2"><strong>Status Kepegawaian:</strong> <span id="detail-status"></span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2"><strong>NIP:</strong> <span id="detail-nip" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>NUPTK:</strong> <span id="detail-nuptk" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>No HP:</strong> <span id="detail-phone"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="history" role="tabpanel">
+                            <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">Tanggal</th>
+                                            <th style="width: 80px;">Masuk</th>
+                                            <th style="width: 80px;">Keluar</th>
+                                            <th style="width: 80px;">Status</th>
+                                            <th>Keterangan</th>
+                                            <th style="width: 150px;">Lokasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detail-history-body">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     // Real-time update for super admin
     let currentDate = '{{ $selectedDate->format('Y-m-d') }}';
     let updateInterval;
@@ -357,17 +418,53 @@ $(document).ready(function () {
         });
     }
 
-    // Handle user detail popup
+    // Handle user detail modal
     $(document).on('click', '.user-detail-link', function(e) {
         e.preventDefault();
         let userId = $(this).data('user-id');
         let userName = $(this).data('user-name');
+        $('#userDetailModalLabel').text('Detail Presensi: ' + userName);
 
         $.ajax({
             url: '{{ route('presensi_admin.detail', ':userId') }}'.replace(':userId', userId),
             type: 'GET',
             success: function(data) {
-                showUserDetailPopup(data, userName);
+                // Populate user info tab
+                $('#detail-name').text(data.user.name);
+                $('#detail-email').text(data.user.email);
+                $('#detail-madrasah').text(data.user.madrasah);
+                $('#detail-status').text(data.user.status_kepegawaian);
+                $('#detail-nip').text(data.user.nip || '-');
+                $('#detail-nuptk').text(data.user.nuptk || '-');
+                $('#detail-phone').text(data.user.no_hp || '-');
+
+                // Populate history tab
+                let presensiRows = '';
+                data.presensi_history.forEach(function(presensi) {
+                    let statusBadge = '';
+                    if (presensi.status === 'hadir') {
+                        statusBadge = '<span class="badge bg-success">Hadir</span>';
+                    } else if (presensi.status === 'terlambat') {
+                        statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                    } else if (presensi.status === 'izin') {
+                        statusBadge = '<span class="badge bg-info">Izin</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-secondary">' + presensi.status + '</span>';
+                    }
+
+                    presensiRows += '<tr>' +
+                        '<td>' + presensi.tanggal + '</td>' +
+                        '<td>' + (presensi.waktu_masuk || '-') + '</td>' +
+                        '<td>' + (presensi.waktu_keluar || '-') + '</td>' +
+                        '<td>' + statusBadge + '</td>' +
+                        '<td>' + (presensi.keterangan || '-') + '</td>' +
+                        '<td title="' + (presensi.lokasi || '-') + '">' + (presensi.lokasi || '-') + '</td>' +
+                        '</tr>';
+                });
+                $('#detail-history-body').html(presensiRows);
+
+                // Show modal
+                $('#userDetailModal').modal('show');
             },
             error: function(xhr, status, error) {
                 console.log('Error loading user detail:', error);
@@ -379,108 +476,6 @@ $(document).ready(function () {
             }
         });
     });
-
-    function showUserDetailPopup(data, userName) {
-        let presensiRows = '';
-        data.presensi_history.forEach(function(presensi) {
-            let statusBadge = '';
-            let statusClass = '';
-            if (presensi.status === 'hadir') {
-                statusBadge = '<i class="bx bx-check-circle text-success me-1"></i>Hadir';
-                statusClass = 'table-success';
-            } else if (presensi.status === 'terlambat') {
-                statusBadge = '<i class="bx bx-time-five text-warning me-1"></i>Terlambat';
-                statusClass = 'table-warning';
-            } else if (presensi.status === 'izin') {
-                statusBadge = '<i class="bx bx-calendar text-info me-1"></i>Izin';
-                statusClass = 'table-info';
-            } else {
-                statusBadge = '<i class="bx bx-x-circle text-secondary me-1"></i>' + presensi.status;
-                statusClass = 'table-secondary';
-            }
-
-            presensiRows += '<tr class="' + statusClass + '">' +
-                '<td class="text-center fw-bold">' + presensi.tanggal + '</td>' +
-                '<td class="text-center">' + (presensi.waktu_masuk || '<span class="text-muted">-</span>') + '</td>' +
-                '<td class="text-center">' + (presensi.waktu_keluar || '<span class="text-muted">-</span>') + '</td>' +
-                '<td class="text-center">' + statusBadge + '</td>' +
-                '<td class="small">' + (presensi.keterangan || '<span class="text-muted">-</span>') + '</td>' +
-                '<td class="small text-truncate" style="max-width: 120px;" title="' + (presensi.lokasi || '-') + '">' + (presensi.lokasi || '<span class="text-muted">-</span>') + '</td>' +
-                '</tr>';
-        });
-
-        let avatarUrl = data.user.avatar ? '{{ asset('storage/') }}/' + data.user.avatar : '{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}';
-
-        let content = '<div class="container-fluid">' +
-            '<div class="row g-2">' +
-            '<div class="col-lg-5">' +
-            '<div class="card shadow-sm">' +
-            '<div class="card-header bg-light">' +
-            '<small class="text-muted mb-0"><i class="bx bx-user me-1"></i>Informasi Pengguna</small>' +
-            '</div>' +
-            '<div class="card-body p-2">' +
-            '<div class="text-center mb-2">' +
-            '<img src="' + avatarUrl + '" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #dee2e6;" alt="Avatar">' +
-            '</div>' +
-            '<div class="row g-1">' +
-            '<div class="col-4"><small class="fw-bold">Nama:</small></div>' +
-            '<div class="col-8"><small>' + data.user.name + '</small></div>' +
-            '<div class="col-4"><small class="fw-bold">Email:</small></div>' +
-            '<div class="col-8"><small class="text-muted">' + data.user.email + '</small></div>' +
-            '<div class="col-4"><small class="fw-bold">Madrasah:</small></div>' +
-            '<div class="col-8"><small>' + data.user.madrasah + '</small></div>' +
-            '<div class="col-4"><small class="fw-bold">Status:</small></div>' +
-            '<div class="col-8"><small>' + data.user.status_kepegawaian + '</small></div>' +
-            '<div class="col-4"><small class="fw-bold">NIP:</small></div>' +
-            '<div class="col-8"><small><code class="text-muted">' + (data.user.nip || '-') + '</code></small></div>' +
-            '<div class="col-4"><small class="fw-bold">NUPTK:</small></div>' +
-            '<div class="col-8"><small><code class="text-muted">' + (data.user.nuptk || '-') + '</code></small></div>' +
-            '<div class="col-4"><small class="fw-bold">No HP:</small></div>' +
-            '<div class="col-8"><small>' + (data.user.no_hp || '-') + '</small></div>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '<div class="col-lg-7">' +
-            '<div class="card shadow-sm">' +
-            '<div class="card-header bg-light d-flex justify-content-between align-items-center">' +
-            '<small class="text-muted mb-0"><i class="bx bx-history me-1"></i>Riwayat Presensi</small>' +
-            '<small class="text-muted">10 data terakhir</small>' +
-            '</div>' +
-            '<div class="card-body p-0">' +
-            '<div style="max-height: 280px; overflow-y: auto;">' +
-            '<table class="table table-sm mb-0">' +
-            '<thead class="table-light">' +
-            '<tr>' +
-            '<th class="text-center" style="width: 70px; font-size: 11px;">Tanggal</th>' +
-            '<th class="text-center" style="width: 50px; font-size: 11px;">Masuk</th>' +
-            '<th class="text-center" style="width: 50px; font-size: 11px;">Keluar</th>' +
-            '<th class="text-center" style="width: 70px; font-size: 11px;">Status</th>' +
-            '<th class="text-center" style="font-size: 11px;">Keterangan</th>' +
-            '<th class="text-center" style="width: 90px; font-size: 11px;">Lokasi</th>' +
-            '</tr>' +
-            '</thead>' +
-            '<tbody>' + presensiRows + '</tbody>' +
-            '</table>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</div>' +
-            '</div>';
-
-        Swal.fire({
-            title: '<i class="bx bx-detail me-2"></i>Detail Presensi: ' + userName,
-            html: content,
-            width: '95%',
-            maxWidth: '1200px',
-            showCloseButton: true,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'swal-wide'
-            }
-        });
-    }
 
     // Update data every 30 seconds
     updateInterval = setInterval(updatePresensiData, 30000);
