@@ -12,7 +12,9 @@
 <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 
-
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 @endsection
 
 @section('content')
@@ -221,6 +223,11 @@
                             <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
                             <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Area Poligon Presensi</label>
+                        <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                        <small class="text-muted">Area poligon presensi madrasah ini.</small>
                     </div>
 
                     <h6>Daftar Tenaga Pendidik:</h6>
@@ -459,7 +466,9 @@
 <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <script>
 $(document).ready(function () {
@@ -678,6 +687,9 @@ $(document).ready(function () {
 
 
 
+                // Initialize map for polygon display
+                initializeMadrasahMap(data.madrasah);
+
                 // Populate guru list
                 let guruRows = '';
                 data.tenaga_pendidik.forEach(function(guru) {
@@ -740,6 +752,63 @@ $(document).ready(function () {
     updatePresensiData();
 
 
+    // Function to initialize map for madrasah detail
+    function initializeMadrasahMap(madrasah) {
+        // Clear any existing map
+        if (window.madrasahMap) {
+            window.madrasahMap.remove();
+        }
+
+        // Initialize Leaflet map
+        let lat = madrasah.latitude || -7.7956;
+        let lon = madrasah.longitude || 110.3695;
+        window.madrasahMap = L.map('madrasah-detail-map').setView([lat, lon], 16);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(window.madrasahMap);
+
+        let drawnItems = new L.FeatureGroup();
+        window.madrasahMap.addLayer(drawnItems);
+
+        // Add marker if coordinates exist
+        if (madrasah.latitude && madrasah.longitude) {
+            L.marker([lat, lon])
+                .addTo(window.madrasahMap)
+                .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
+        }
+
+        // Load existing polygon like in edit mode
+        if (madrasah.polygon_koordinat) {
+            try {
+                let geometry = JSON.parse(madrasah.polygon_koordinat);
+                let layer = L.geoJSON(geometry, {
+                    style: {
+                        color: 'blue',
+                        weight: 2,
+                        opacity: 0.8,
+                        fillColor: 'blue',
+                        fillOpacity: 0.1
+                    }
+                });
+                layer.eachLayer(function(l) {
+                    drawnItems.addLayer(l);
+                    l.bindPopup('Area Presensi');
+                });
+                if (drawnItems.getLayers().length > 0) {
+                    window.madrasahMap.fitBounds(drawnItems.getBounds());
+                }
+            } catch (e) {
+                console.error("Invalid GeoJSON data for polygon:", e);
+            }
+        }
+
+        // Fit map to show all elements
+        setTimeout(() => {
+            window.madrasahMap.invalidateSize();
+        }, 100);
+    }
     @endif
 });
 </script>
