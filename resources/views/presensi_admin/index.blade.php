@@ -221,7 +221,7 @@
                             <div class="mb-2"><strong>Longitude:</strong> <span id="madrasah-detail-longitude"></span></div>
                             <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
                             <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
-                            <div class="mb-2"><strong>Koordinat Polygon:</strong> <div id="madrasah-detail-polygon-coords" style="max-height: 100px; overflow-y: auto; font-size: 12px; background-color: #f8f9fa; padding: 8px; border-radius: 4px;"></div></div>
+                            <div class="mb-2"><strong>Pola Poligon:</strong> <div id="madrasah-detail-polygon-pattern" style="max-height: 100px; overflow-y: auto; font-size: 12px; background-color: #f8f9fa; padding: 8px; border-radius: 4px;"></div></div>
                         </div>
                     </div>
                     <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
@@ -667,24 +667,16 @@ $(document).ready(function () {
                 if (data.madrasah.polygon_koordinat) {
                     $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
 
-                    // Display polygon coordinates
+                    // Display polygon pattern (GeoJSON structure)
                     try {
                         let polygonGeometry = JSON.parse(data.madrasah.polygon_koordinat);
-                        if (polygonGeometry && polygonGeometry.coordinates && polygonGeometry.coordinates[0]) {
-                            let coords = polygonGeometry.coordinates[0];
-                            let coordsText = coords.map((coord, index) =>
-                                `${index + 1}. Lat: ${coord[1].toFixed(6)}, Lng: ${coord[0].toFixed(6)}`
-                            ).join('<br>');
-                            $('#madrasah-detail-polygon-coords').html(coordsText);
-                        } else {
-                            $('#madrasah-detail-polygon-coords').html('Format koordinat tidak valid');
-                        }
+                        $('#madrasah-detail-polygon-pattern').html('<pre style="margin: 0; font-size: 11px;">' + JSON.stringify(polygonGeometry, null, 2) + '</pre>');
                     } catch (e) {
-                        $('#madrasah-detail-polygon-coords').html('Error parsing koordinat: ' + e.message);
+                        $('#madrasah-detail-polygon-pattern').html('Error parsing pola poligon: ' + e.message);
                     }
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
-                    $('#madrasah-detail-polygon-coords').html('Tidak ada koordinat polygon');
+                    $('#madrasah-detail-polygon-pattern').html('Tidak ada pola poligon');
                 }
 
                 // Initialize map for polygon display
@@ -759,36 +751,47 @@ $(document).ready(function () {
         }
 
         // Initialize Leaflet map
-        window.madrasahMap = L.map('madrasah-detail-map').setView([madrasah.latitude || -7.7956, madrasah.longitude || 110.3695], 15);
+        let lat = madrasah.latitude || -7.7956;
+        let lon = madrasah.longitude || 110.3695;
+        window.madrasahMap = L.map('madrasah-detail-map').setView([lat, lon], 16);
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(window.madrasahMap);
+
+        let drawnItems = new L.FeatureGroup();
+        window.madrasahMap.addLayer(drawnItems);
 
         // Add marker if coordinates exist
         if (madrasah.latitude && madrasah.longitude) {
-            L.marker([madrasah.latitude, madrasah.longitude])
+            L.marker([lat, lon])
                 .addTo(window.madrasahMap)
                 .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
         }
 
-        // Add polygon if exists
+        // Load existing polygon like in edit mode
         if (madrasah.polygon_koordinat) {
             try {
-                let polygonGeometry = JSON.parse(madrasah.polygon_koordinat);
-                if (polygonGeometry && polygonGeometry.coordinates && polygonGeometry.coordinates[0]) {
-                    let coordinates = polygonGeometry.coordinates[0].map(coord => [coord[1], coord[0]]); // Swap lat/lng
-                    L.polygon(coordinates, {
+                let geometry = JSON.parse(madrasah.polygon_koordinat);
+                let layer = L.geoJSON(geometry, {
+                    style: {
                         color: 'blue',
                         weight: 2,
                         opacity: 0.8,
                         fillColor: 'blue',
                         fillOpacity: 0.1
-                    }).addTo(window.madrasahMap).bindPopup('Area Presensi');
+                    }
+                });
+                layer.eachLayer(function(l) {
+                    drawnItems.addLayer(l);
+                    l.bindPopup('Area Presensi');
+                });
+                if (drawnItems.getLayers().length > 0) {
+                    window.madrasahMap.fitBounds(drawnItems.getBounds());
                 }
             } catch (e) {
-                console.error('Error parsing polygon data:', e);
+                console.error("Invalid GeoJSON data for polygon:", e);
             }
         }
 
