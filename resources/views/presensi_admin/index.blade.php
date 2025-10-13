@@ -11,6 +11,9 @@
 <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @endsection
 
 @section('content')
@@ -220,6 +223,7 @@
                             <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
                         </div>
                     </div>
+                    <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
                     <h6>Daftar Tenaga Pendidik:</h6>
                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-sm table-bordered">
@@ -456,6 +460,9 @@
 <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 $(document).ready(function () {
     @if($user->role !== 'super_admin')
@@ -662,6 +669,9 @@ $(document).ready(function () {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
                 }
 
+                // Initialize map for polygon display
+                initializeMadrasahMap(data.madrasah);
+
                 // Populate guru list
                 let guruRows = '';
                 data.tenaga_pendidik.forEach(function(guru) {
@@ -722,6 +732,53 @@ $(document).ready(function () {
 
     // Initial update
     updatePresensiData();
+
+    // Function to initialize map for madrasah detail
+    function initializeMadrasahMap(madrasah) {
+        // Clear any existing map
+        if (window.madrasahMap) {
+            window.madrasahMap.remove();
+        }
+
+        // Initialize Leaflet map
+        window.madrasahMap = L.map('madrasah-detail-map').setView([madrasah.latitude || -7.7956, madrasah.longitude || 110.3695], 15);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(window.madrasahMap);
+
+        // Add marker if coordinates exist
+        if (madrasah.latitude && madrasah.longitude) {
+            L.marker([madrasah.latitude, madrasah.longitude])
+                .addTo(window.madrasahMap)
+                .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
+        }
+
+        // Add polygon if exists
+        if (madrasah.polygon_koordinat) {
+            try {
+                let polygonGeometry = JSON.parse(madrasah.polygon_koordinat);
+                if (polygonGeometry && polygonGeometry.coordinates && polygonGeometry.coordinates[0]) {
+                    let coordinates = polygonGeometry.coordinates[0].map(coord => [coord[1], coord[0]]); // Swap lat/lng
+                    L.polygon(coordinates, {
+                        color: 'blue',
+                        weight: 2,
+                        opacity: 0.8,
+                        fillColor: 'blue',
+                        fillOpacity: 0.1
+                    }).addTo(window.madrasahMap).bindPopup('Area Presensi');
+                }
+            } catch (e) {
+                console.error('Error parsing polygon data:', e);
+            }
+        }
+
+        // Fit map to show all elements
+        setTimeout(() => {
+            window.madrasahMap.invalidateSize();
+        }, 100);
+    }
     @endif
 });
 </script>
