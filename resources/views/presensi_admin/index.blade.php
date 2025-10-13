@@ -410,49 +410,49 @@ $(document).ready(function () {
         });
 
         let content = '<div class="container-fluid">' +
-            '<div class="row g-3">' +
-            '<div class="col-lg-5">' +
-            '<div class="card border-primary">' +
-            '<div class="card-header bg-primary text-white">' +
-            '<h6 class="card-title mb-0"><i class="bx bx-user me-2"></i>Informasi Pengguna</h6>' +
-            '</div>' +
-            '<div class="card-body p-3">' +
             '<div class="row g-2">' +
-            '<div class="col-4"><strong>Nama:</strong></div>' +
-            '<div class="col-8">' + data.user.name + '</div>' +
-            '<div class="col-4"><strong>Email:</strong></div>' +
-            '<div class="col-8"><small>' + data.user.email + '</small></div>' +
-            '<div class="col-4"><strong>Madrasah:</strong></div>' +
-            '<div class="col-8">' + data.user.madrasah + '</div>' +
-            '<div class="col-4"><strong>Status:</strong></div>' +
-            '<div class="col-8"><span class="badge bg-secondary">' + data.user.status_kepegawaian + '</span></div>' +
-            '<div class="col-4"><strong>NIP:</strong></div>' +
-            '<div class="col-8"><code>' + (data.user.nip || '<span class="text-muted">-</span>') + '</code></div>' +
-            '<div class="col-4"><strong>NUPTK:</strong></div>' +
-            '<div class="col-8"><code>' + (data.user.nuptk || '<span class="text-muted">-</span>') + '</code></div>' +
-            '<div class="col-4"><strong>No HP:</strong></div>' +
-            '<div class="col-8"><i class="bx bx-phone me-1"></i>' + (data.user.no_hp || '<span class="text-muted">-</span>') + '</div>' +
+            '<div class="col-lg-5">' +
+            '<div class="card">' +
+            '<div class="card-header">' +
+            '<small class="text-muted mb-0"><i class="bx bx-user me-1"></i>Informasi Pengguna</small>' +
+            '</div>' +
+            '<div class="card-body p-2">' +
+            '<div class="row g-1">' +
+            '<div class="col-4"><small><strong>Nama:</strong></small></div>' +
+            '<div class="col-8"><small>' + data.user.name + '</small></div>' +
+            '<div class="col-4"><small><strong>Email:</strong></small></div>' +
+            '<div class="col-8"><small class="text-muted">' + data.user.email + '</small></div>' +
+            '<div class="col-4"><small><strong>Madrasah:</strong></small></div>' +
+            '<div class="col-8"><small>' + data.user.madrasah + '</small></div>' +
+            '<div class="col-4"><small><strong>Status:</strong></small></div>' +
+            '<div class="col-8"><small>' + data.user.status_kepegawaian + '</small></div>' +
+            '<div class="col-4"><small><strong>NIP:</strong></small></div>' +
+            '<div class="col-8"><small><code>' + (data.user.nip || '-') + '</code></small></div>' +
+            '<div class="col-4"><small><strong>NUPTK:</strong></small></div>' +
+            '<div class="col-8"><small><code>' + (data.user.nuptk || '-') + '</code></small></div>' +
+            '<div class="col-4"><small><strong>No HP:</strong></small></div>' +
+            '<div class="col-8"><small>' + (data.user.no_hp || '-') + '</small></div>' +
             '</div>' +
             '</div>' +
             '</div>' +
             '</div>' +
             '<div class="col-lg-7">' +
-            '<div class="card border-success">' +
-            '<div class="card-header bg-success text-white d-flex justify-content-between align-items-center">' +
-            '<h6 class="card-title mb-0"><i class="bx bx-history me-2"></i>Riwayat Presensi</h6>' +
-            '<small class="text-white-50">10 data terakhir</small>' +
+            '<div class="card">' +
+            '<div class="card-header d-flex justify-content-between align-items-center">' +
+            '<small class="text-muted mb-0"><i class="bx bx-history me-1"></i>Riwayat Presensi</small>' +
+            '<small class="text-muted">10 data terakhir</small>' +
             '</div>' +
             '<div class="card-body p-0">' +
-            '<div style="max-height: 400px; overflow-y: auto;">' +
-            '<table class="table table-hover table-sm mb-0">' +
-            '<thead class="table-dark sticky-top">' +
+            '<div style="max-height: 300px; overflow-y: auto;">' +
+            '<table class="table table-sm mb-0">' +
+            '<thead class="table-light">' +
             '<tr>' +
-            '<th class="text-center" style="width: 100px;"><i class="bx bx-calendar me-1"></i>Tanggal</th>' +
-            '<th class="text-center" style="width: 70px;"><i class="bx bx-log-in me-1"></i>Masuk</th>' +
-            '<th class="text-center" style="width: 70px;"><i class="bx bx-log-out me-1"></i>Keluar</th>' +
-            '<th class="text-center" style="width: 100px;"><i class="bx bx-check-circle me-1"></i>Status</th>' +
-            '<th class="text-center"><i class="bx bx-note me-1"></i>Keterangan</th>' +
-            '<th class="text-center" style="width: 120px;"><i class="bx bx-map me-1"></i>Lokasi</th>' +
+            '<th class="text-center" style="width: 80px;"><small>Tanggal</small></th>' +
+            '<th class="text-center" style="width: 60px;"><small>Masuk</small></th>' +
+            '<th class="text-center" style="width: 60px;"><small>Keluar</small></th>' +
+            '<th class="text-center" style="width: 80px;"><small>Status</small></th>' +
+            '<th class="text-center"><small>Keterangan</small></th>' +
+            '<th class="text-center" style="width: 100px;"><small>Lokasi</small></th>' +
             '</tr>' +
             '</thead>' +
             '<tbody>' + presensiRows + '</tbody>' +
