@@ -187,32 +187,66 @@ class PresensiAdminController extends Controller
     {
         $user = Auth::user();
 
-        $query = Presensi::with('user.madrasah', 'statusKepegawaian');
-
-        // If user is admin, filter by madrasah_id
-        if ($user->role === 'admin' && $user->madrasah_id) {
-            $query->whereHas('user', function ($q) use ($user) {
-                $q->where('madrasah_id', $user->madrasah_id);
-            });
-        }
-        // If user is super_admin, show all data (no additional filtering needed)
-
-        $presensis = $query->orderBy('tanggal', 'desc')->get();
-
         // Get selected date or default to today
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        // Query users with role 'tenaga_pendidik' who haven't done presensi on selected date
-        $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
+        if ($user->role === 'super_admin') {
+            // For super_admin, show 5 tables per madrasah
+            $madrasahs = \App\Models\Madrasah::orderBy('id')->limit(5)->get();
 
-        if ($user->role === 'admin' && $user->madrasah_id) {
-            $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
+            $madrasahData = [];
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->with(['presensis' => function ($q) use ($selectedDate) {
+                        $q->whereDate('tanggal', $selectedDate);
+                    }])
+                    ->get();
+
+                $presensiData = [];
+                foreach ($tenagaPendidik as $tp) {
+                    $presensi = $tp->presensis->first();
+                    $presensiData[] = [
+                        'nama' => $tp->name,
+                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
+                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
+                        'keterangan' => $presensi ? $presensi->keterangan : null,
+                    ];
+                }
+
+                $madrasahData[] = [
+                    'madrasah' => $madrasah,
+                    'presensi' => $presensiData,
+                ];
+            }
+
+            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate'));
+        } else {
+            // For admin and others, show original view
+            $query = Presensi::with('user.madrasah', 'statusKepegawaian');
+
+            // If user is admin, filter by madrasah_id
+            if ($user->role === 'admin' && $user->madrasah_id) {
+                $query->whereHas('user', function ($q) use ($user) {
+                    $q->where('madrasah_id', $user->madrasah_id);
+                });
+            }
+
+            $presensis = $query->orderBy('tanggal', 'desc')->get();
+
+            // Query users with role 'tenaga_pendidik' who haven't done presensi on selected date
+            $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
+
+            if ($user->role === 'admin' && $user->madrasah_id) {
+                $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
+            }
+
+            $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate);
+            })->with('madrasah')->get();
+
+            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate'));
         }
-
-        $belumPresensi = $belumPresensiQuery->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
-            $q->whereDate('tanggal', $selectedDate);
-        })->with('madrasah')->get();
-
-        return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate'));
     }
 }
