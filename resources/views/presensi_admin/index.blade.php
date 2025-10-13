@@ -58,9 +58,9 @@
                                 @forelse($data['presensi'] as $presensi)
                                 <tr>
                                     <td class="small">
-                                        <a href="#" class="text-decoration-none user-detail-link" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
+                                        <span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
                                             {{ $presensi['nama'] }}
-                                        </a>
+                                        </span>
                                     </td>
                                     <td class="small">
                                         @if($presensi['status'] == 'hadir')
@@ -399,9 +399,9 @@ $(document).ready(function () {
 
                     let row = '<tr>' +
                         '<td class="small">' +
-                        '<a href="#" class="text-decoration-none user-detail-link" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
+                        '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
                         presensi.nama +
-                        '</a>' +
+                        '</span>' +
                         '</td>' +
                         '<td class="small">' + statusBadge + '</td>' +
                         '</tr>';
