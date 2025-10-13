@@ -226,7 +226,7 @@
                     </div>
                     <div class="mb-3">
                         <label>Area Poligon Presensi</label>
-                        <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                        <div id="madrasah-detail-map" style="height: 250px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
                         <small class="text-muted">Area poligon presensi madrasah ini.</small>
                     </div>
 
