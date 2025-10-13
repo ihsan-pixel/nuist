@@ -297,6 +297,17 @@ class PresensiAdminController extends Controller
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
+    // API endpoint for summary data
+    public function getSummary(Request $request)
+    {
+        $user = Auth::user();
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        $summary = $this->calculatePresensiSummary($selectedDate, $user);
+
+        return response()->json($summary);
+    }
+
     // API endpoint for user detail popup
     public function getDetail($userId)
     {

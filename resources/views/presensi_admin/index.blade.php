@@ -29,7 +29,7 @@
                         <i class="bx bx-calendar me-2"></i>Data Presensi per Tanggal: {{ $selectedDate->format('d-m-Y') }}
                     </h4>
                     <div class="d-flex align-items-center gap-2">
-                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
+                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center" id="date-form">
                             <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
                         </form>
                         <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}" class="btn btn-success btn-sm">
@@ -503,9 +503,28 @@ $(document).ready(function () {
             data: { date: currentDate },
             success: function(data) {
                 updateTables(data);
+                // Update summary cards
+                updateSummaryCards();
             },
             error: function(xhr, status, error) {
                 console.log('Error updating data:', error);
+            }
+        });
+    }
+
+    function updateSummaryCards() {
+        $.ajax({
+            url: '{{ route('presensi_admin.summary') }}',
+            type: 'GET',
+            data: { date: currentDate },
+            success: function(data) {
+                // Update summary cards with JSON data
+                $('.row.mb-4 .card .card-text').eq(0).text(data.users_presensi);
+                $('.row.mb-4 .card .card-text').eq(1).text(data.sekolah_presensi);
+                $('.row.mb-4 .card .card-text').eq(2).text(data.guru_tidak_presensi);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error updating summary:', error);
             }
         });
     }
@@ -680,9 +699,14 @@ $(document).ready(function () {
     updateInterval = setInterval(updatePresensiData, 30000);
 
     // Handle date change
-    $('#date-picker').on('change', function() {
+    $('#date-picker').on('change', function(e) {
+        e.preventDefault();
         currentDate = $(this).val();
+        // Update export link
+        let exportLink = '{{ route('presensi_admin.export', ['date' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', currentDate);
+        $('a[href*="presensi_admin.export"]').attr('href', exportLink);
         updatePresensiData();
+        return false;
     });
 
     // Initial update
