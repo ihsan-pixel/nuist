@@ -228,6 +228,7 @@
                         <label>Area Poligon Presensi</label>
                         <div id="madrasah-detail-map" style="height: 300px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
                         <small class="text-muted">Area poligon presensi madrasah ini.</small>
+                        <div id="madrasah-detail-polygon-pattern" class="mt-2 p-2 bg-light border rounded" style="font-size: 12px; max-height: 150px; overflow-y: auto;"></div>
                     </div>
 
                     <h6>Daftar Tenaga Pendidik:</h6>
@@ -676,13 +677,13 @@ $(document).ready(function () {
                     // Display polygon pattern (GeoJSON structure)
                     try {
                         let polygonGeometry = JSON.parse(data.madrasah.polygon_koordinat);
-                        $('#madrasah-detail-polygon-pattern').html('<pre style="margin: 0; font-size: 11px;">' + JSON.stringify(polygonGeometry, null, 2) + '</pre>');
+                        $('#madrasah-detail-polygon-pattern').html('<strong>Pola Koordinat:</strong><br><pre style="margin: 5px 0 0 0; font-size: 11px;">' + JSON.stringify(polygonGeometry, null, 2) + '</pre>');
                     } catch (e) {
-                        $('#madrasah-detail-polygon-pattern').html('Error parsing pola poligon: ' + e.message);
+                        $('#madrasah-detail-polygon-pattern').html('<strong>Error:</strong> Tidak dapat memparsing pola poligon: ' + e.message);
                     }
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
-                    $('#madrasah-detail-polygon-pattern').html('Tidak ada pola poligon');
+                    $('#madrasah-detail-polygon-pattern').html('<em>Tidak ada pola poligon tersimpan untuk madrasah ini.</em>');
                 }
 
 
