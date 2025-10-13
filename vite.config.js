@@ -1,30 +1,12 @@
-
 // import { defineConfig } from 'vite';
-const vite = require('vite');
+import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import react from '@vitejs/plugin-react'
 
-export default vite.defineConfig({
-    build: {
-        manifest: true,
-        // assetsDir: 'js',
-        rtl: true,
-        outDir: 'public/build/',
-        cssCodeSplit: true,
-        rollupOptions: {
-            output: {
-              assetFileNames: (css) => {
-                if(css.name.split('.').pop() == 'css') {
-                    return 'css/' + `[name]` + '.min.' + 'css';
-                } else {
-                    return 'icons/' + css.name;
-                }
-            },
-                entryFileNames: 'js/' + `[name]` + `.js`,
-            },
-        },
-      },
+export default defineConfig({
     plugins: [
+        react(),
         laravel(
             {
                 input: [
@@ -32,6 +14,7 @@ export default vite.defineConfig({
                     'resources/scss/icons.scss',
                     'resources/scss/app.scss',
                     'resources/js/app.js',
+                    'resources/js/presensi-admin/PresensiApp.jsx',
                 ],
                 refresh: true,
             }
@@ -61,4 +44,23 @@ export default vite.defineConfig({
             ]
          }),
     ],
+    build: {
+        manifest: true,
+        // assetsDir: 'js',
+        rtl: true,
+        outDir: 'public/build/',
+        cssCodeSplit: true,
+        rollupOptions: {
+            output: {
+              assetFileNames: (css) => {
+                if(css.name.split('.').pop() == 'css') {
+                    return 'css/' + `[name]` + '.min.' + 'css';
+                } else {
+                    return 'icons/' + css.name;
+                }
+            },
+                entryFileNames: 'js/' + `[name]` + `.js`,
+            },
+        },
+      },
 });
