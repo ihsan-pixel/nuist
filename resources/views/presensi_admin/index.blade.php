@@ -360,6 +360,7 @@ $(document).ready(function () {
             </div>
         </div>
     </div>
+    @endif
 
     // Real-time update for super admin
     let currentDate = '{{ $selectedDate->format('Y-m-d') }}';
