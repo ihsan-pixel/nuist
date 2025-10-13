@@ -82,63 +82,92 @@
         </div>
     </div>
 
-    <div class="row">
-        @foreach($madrasahData as $data)
-        <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0 small">
-                        <i class="bx bx-building me-1"></i>
-                        <span class="madrasah-detail-link" style="cursor: pointer; text-decoration: underline;" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
-                            {{ $data['madrasah']->name }}
-                        </span>
-                    </h6>
-                    <small class="text-muted">{{ count($data['presensi']) }} guru</small>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table id="madrasah-table-{{ $loop->index }}" class="table table-sm table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nama</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($data['presensi'] as $presensi)
-                                <tr>
-                                    <td class="small">
-                                        <span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
-                                            {{ $presensi['nama'] }}
-                                        </span>
-                                    </td>
-                                    <td class="small">
-                                        @if($presensi['status'] == 'hadir')
-                                            <span class="badge bg-success">Hadir</span>
-                                        @elseif($presensi['status'] == 'terlambat')
-                                            <span class="badge bg-warning">Terlambat</span>
-                                        @elseif($presensi['status'] == 'izin')
-                                            <span class="badge bg-info">Izin</span>
-                                        @else
-                                            <span class="badge bg-secondary">Tidak Hadir</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="2" class="text-center text-muted small">
-                                        <small>Tidak ada tenaga pendidik</small>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+    @php
+        $kabupatenOrder = [
+            'Kabupaten Gunungkidul',
+            'Kabupaten Bantul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta'
+        ];
+        $currentKabupaten = '';
+    @endphp
+
+    @foreach($kabupatenOrder as $kabupaten)
+        @php
+            $kabupatenMadrasahData = collect($madrasahData)->filter(function($data) use ($kabupaten) {
+                return $data['madrasah']->kabupaten === $kabupaten;
+            });
+        @endphp
+
+        @if($kabupatenMadrasahData->count() > 0)
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h5 class="text-primary mb-3">
+                        <i class="bx bx-map-pin me-2"></i>{{ $kabupaten }}
+                    </h5>
                 </div>
             </div>
-        </div>
-        @endforeach
-    </div>
+
+            <div class="row mb-4">
+                @foreach($kabupatenMadrasahData as $data)
+                <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="card-title mb-0 small">
+                                <i class="bx bx-building me-1"></i>
+                                <span class="madrasah-detail-link" style="cursor: pointer; text-decoration: underline;" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                    {{ $data['madrasah']->name }}
+                                </span>
+                            </h6>
+                            <small class="text-muted">{{ count($data['presensi']) }} guru</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                <table id="madrasah-table-{{ $loop->parent->index }}-{{ $loop->index }}" class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($data['presensi'] as $presensi)
+                                        <tr>
+                                            <td class="small">
+                                                <span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
+                                                    {{ $presensi['nama'] }}
+                                                </span>
+                                            </td>
+                                            <td class="small">
+                                                @if($presensi['status'] == 'hadir')
+                                                    <span class="badge bg-success">Hadir</span>
+                                                @elseif($presensi['status'] == 'terlambat')
+                                                    <span class="badge bg-warning">Terlambat</span>
+                                                @elseif($presensi['status'] == 'izin')
+                                                    <span class="badge bg-info">Izin</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Tidak Hadir</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted small">
+                                                <small>Tidak ada tenaga pendidik</small>
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    @endforeach
 
     <!-- User Detail Modal -->
     <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
@@ -545,41 +574,56 @@ $(document).ready(function () {
     }
 
     function updateTables(data) {
-        data.forEach(function(madrasahData, index) {
-            let tableBody = $('#madrasah-table-' + index + ' tbody');
-            tableBody.empty();
+        let globalIndex = 0;
+        let kabupatenOrder = [
+            'Kabupaten Gunungkidul',
+            'Kabupaten Bantul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta'
+        ];
 
-            if (madrasahData.presensi.length > 0) {
-                madrasahData.presensi.forEach(function(presensi) {
-                    let statusBadge = '';
-                    if (presensi.status === 'hadir') {
-                        statusBadge = '<span class="badge bg-success">Hadir</span>';
-                    } else if (presensi.status === 'terlambat') {
-                        statusBadge = '<span class="badge bg-warning">Terlambat</span>';
-                    } else if (presensi.status === 'izin') {
-                        statusBadge = '<span class="badge bg-info">Izin</span>';
-                    } else {
-                        statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
-                    }
+        kabupatenOrder.forEach(function(kabupaten, kabupatenIndex) {
+            let kabupatenData = data.filter(function(madrasahData) {
+                return madrasahData.madrasah && madrasahData.madrasah.kabupaten === kabupaten;
+            });
 
-                    let row = '<tr>' +
-                        '<td class="small">' +
-                        '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
-                        presensi.nama +
-                        '</span>' +
+            kabupatenData.forEach(function(madrasahData, localIndex) {
+                let tableBody = $('#madrasah-table-' + kabupatenIndex + '-' + localIndex + ' tbody');
+                tableBody.empty();
+
+                if (madrasahData.presensi && madrasahData.presensi.length > 0) {
+                    madrasahData.presensi.forEach(function(presensi) {
+                        let statusBadge = '';
+                        if (presensi.status === 'hadir') {
+                            statusBadge = '<span class="badge bg-success">Hadir</span>';
+                        } else if (presensi.status === 'terlambat') {
+                            statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                        } else if (presensi.status === 'izin') {
+                            statusBadge = '<span class="badge bg-info">Izin</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
+                        }
+
+                        let row = '<tr>' +
+                            '<td class="small">' +
+                            '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
+                            presensi.nama +
+                            '</span>' +
+                            '</td>' +
+                            '<td class="small">' + statusBadge + '</td>' +
+                            '</tr>';
+                        tableBody.append(row);
+                    });
+                } else {
+                    let emptyRow = '<tr>' +
+                        '<td colspan="2" class="text-center text-muted small">' +
+                        '<small>Tidak ada tenaga pendidik</small>' +
                         '</td>' +
-                        '<td class="small">' + statusBadge + '</td>' +
                         '</tr>';
-                    tableBody.append(row);
-                });
-            } else {
-                let emptyRow = '<tr>' +
-                    '<td colspan="2" class="text-center text-muted small">' +
-                    '<small>Tidak ada tenaga pendidik</small>' +
-                    '</td>' +
-                    '</tr>';
-                tableBody.append(emptyRow);
-            }
+                    tableBody.append(emptyRow);
+                }
+            });
         });
     }
 
