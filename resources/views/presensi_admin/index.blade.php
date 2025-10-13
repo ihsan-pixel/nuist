@@ -772,56 +772,19 @@ $(document).ready(function () {
                 .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
         }
 
-        // Load existing polygon as read-only display (not editable)
+        // Load existing polygon like in edit modal (read-only)
         if (madrasah.polygon_koordinat) {
             try {
                 let geometry = JSON.parse(madrasah.polygon_koordinat);
-                let layer = L.geoJSON(geometry, {
-                    style: function(feature) {
-                        return {
-                            color: 'red',
-                            weight: 3,
-                            opacity: 0.9,
-                            fillColor: 'red',
-                            fillOpacity: 0.3
-                        };
-                    },
-                    // Make polygon non-editable by disabling interactive features
-                    interactive: true,
-                    onEachFeature: function(feature, layer) {
-                        // Add vertex markers to show polygon pattern
-                        if (feature.geometry.type === 'Polygon') {
-                            feature.geometry.coordinates[0].forEach(function(coord, index) {
-                                let marker = L.circleMarker([coord[1], coord[0]], {
-                                    color: 'red',
-                                    fillColor: 'white',
-                                    fillOpacity: 1,
-                                    weight: 2,
-                                    radius: 6
-                                }).addTo(window.madrasahMap);
-
-                                // Add popup showing coordinate index
-                                marker.bindPopup('Titik ' + (index + 1) + '<br>Koordinat: ' + coord[1].toFixed(6) + ', ' + coord[0].toFixed(6));
-                                drawnItems.addLayer(marker);
-                            });
-                        }
-                    }
-                });
+                let layer = L.geoJSON(geometry);
                 layer.eachLayer(function(l) {
                     drawnItems.addLayer(l);
-                    // Add popup for the polygon area
-                    l.bindPopup('Area Presensi - ' + madrasah.name + '<br><small>Klik titik merah untuk melihat koordinat</small>', {
-                        closeButton: true,
-                        autoClose: true
-                    });
                 });
+                if (drawnItems.getLayers().length > 0) {
+                    window.madrasahMap.fitBounds(drawnItems.getBounds());
+                }
             } catch (e) {
                 console.error("Invalid GeoJSON data for polygon:", e);
-                // Add error marker if polygon can't be loaded
-                L.marker([lat, lon])
-                    .addTo(window.madrasahMap)
-                    .bindPopup('Error: Tidak dapat memuat area poligon')
-                    .openPopup();
             }
         }
 
