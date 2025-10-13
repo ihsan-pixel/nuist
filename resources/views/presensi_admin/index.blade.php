@@ -782,26 +782,29 @@ $(document).ready(function () {
                 .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
         }
 
-        // Load existing polygon like in edit mode
+        // Load existing polygon as read-only display (not editable)
         if (madrasah.polygon_koordinat) {
             try {
                 let geometry = JSON.parse(madrasah.polygon_koordinat);
                 let layer = L.geoJSON(geometry, {
                     style: {
                         color: 'blue',
-                        weight: 2,
-                        opacity: 0.8,
+                        weight: 3,
+                        opacity: 0.9,
                         fillColor: 'blue',
-                        fillOpacity: 0.1
-                    }
+                        fillOpacity: 0.2
+                    },
+                    // Make polygon non-editable by disabling interactive features
+                    interactive: false
                 });
                 layer.eachLayer(function(l) {
                     drawnItems.addLayer(l);
-                    l.bindPopup('Area Presensi');
+                    // Add popup but make it non-interactive for editing
+                    l.bindPopup('Area Presensi - ' + madrasah.name, {
+                        closeButton: true,
+                        autoClose: true
+                    });
                 });
-                if (drawnItems.getLayers().length > 0) {
-                    window.madrasahMap.fitBounds(drawnItems.getBounds());
-                }
             } catch (e) {
                 console.error("Invalid GeoJSON data for polygon:", e);
             }
