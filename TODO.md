@@ -1,13 +1,25 @@
-# TODO: Add SCOD Column to Madrasahs Table
+# TODO List for Presensi Summary Feature
 
-## Completed Steps
-- [x] Create migration file: database/migrations/2025_10_05_000000_add_scod_to_madrasahs_table.php
-- [x] Update Madrasah model: add 'scod' to fillable array
-- [x] Update DataMadrasahController: add 'scod' to fields for completeness check
-- [x] Update data_madrasah.blade.php view: add SCOD column header and data cell
-- [x] Update MadrasahCompletenessExport: add SCOD to headings and data
+## Completed Tasks
+- [x] Analyze existing presensi admin page structure
+- [x] Add calculatePresensiSummary method to PresensiAdminController
+- [x] Pass summary data to both super_admin and admin views
+- [x] Add summary cards to super_admin view
+- [x] Add summary cards to admin view
 
-## Pending Steps
-- [ ] Run composer install (resolve PHP version issue if needed)
-- [ ] Run php artisan migrate to apply the migration
-- [ ] Test the application to ensure SCOD column displays correctly
+## Summary of Changes
+- Modified `app/Http/Controllers/PresensiAdminController.php`:
+  - Added `calculatePresensiSummary` method to compute metrics based on user role
+  - Updated `index` method to calculate and pass summary data
+- Modified `resources/views/presensi_admin/index.blade.php`:
+  - Added summary cards displaying:
+    - Jumlah Users yang Melakukan Presensi
+    - Jumlah Sekolah yang Sudah Melakukan Presensi
+    - Jumlah Guru yang Tidak Melakukan Presensi
+  - Cards are shown for both super_admin and admin roles
+
+## Testing Notes
+- For super_admin: Shows global metrics across all madrasahs
+- For admin: Shows metrics filtered by their madrasah
+- Metrics update based on selected date
+- Cards use Bootstrap styling with icons for visual appeal

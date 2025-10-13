@@ -190,6 +190,9 @@ class PresensiAdminController extends Controller
         // Get selected date or default to today
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
+        // Calculate summary metrics
+        $summary = $this->calculatePresensiSummary($selectedDate, $user);
+
         if ($user->role === 'super_admin') {
             // For super_admin, show all madrasah tables (5 per row)
             $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
@@ -222,7 +225,7 @@ class PresensiAdminController extends Controller
                 ];
             }
 
-            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate'));
+            return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary'));
         } else {
             // For admin and others, show original view
             $query = Presensi::with('user.madrasah', 'statusKepegawaian');
@@ -247,7 +250,7 @@ class PresensiAdminController extends Controller
                 $q->whereDate('tanggal', $selectedDate);
             })->with('madrasah')->get();
 
-            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate'));
+            return view('presensi_admin.index', compact('presensis', 'belumPresensi', 'user', 'selectedDate', 'summary'));
         }
     }
 
@@ -330,5 +333,60 @@ class PresensiAdminController extends Controller
             ],
             'presensi_history' => $presensiHistory
         ]);
+    }
+
+    /**
+     * Calculate presensi summary metrics based on user role and selected date.
+     */
+    private function calculatePresensiSummary($selectedDate, $user)
+    {
+        $summary = [
+            'users_presensi' => 0,
+            'sekolah_presensi' => 0,
+            'guru_tidak_presensi' => 0,
+        ];
+
+        if ($user->role === 'super_admin') {
+            // For super_admin: all data
+            $presensiUsers = Presensi::whereDate('tanggal', $selectedDate)
+                ->distinct('user_id')
+                ->count('user_id');
+            $summary['users_presensi'] = $presensiUsers;
+
+            $sekolahPresensi = Presensi::whereDate('tanggal', $selectedDate)
+                ->join('users', 'presensis.user_id', '=', 'users.id')
+                ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
+                ->distinct('madrasahs.id')
+                ->count('madrasahs.id');
+            $summary['sekolah_presensi'] = $sekolahPresensi;
+
+            $totalGuru = User::where('role', 'tenaga_pendidik')->count();
+            $summary['guru_tidak_presensi'] = $totalGuru - $presensiUsers;
+        } else {
+            // For admin/pengurus: filter by madrasah
+            if ($user->madrasah_id) {
+                $presensiUsers = Presensi::whereDate('tanggal', $selectedDate)
+                    ->whereHas('user', function ($q) use ($user) {
+                        $q->where('madrasah_id', $user->madrasah_id);
+                    })
+                    ->distinct('user_id')
+                    ->count('user_id');
+                $summary['users_presensi'] = $presensiUsers;
+
+                $hasPresensi = Presensi::whereDate('tanggal', $selectedDate)
+                    ->whereHas('user', function ($q) use ($user) {
+                        $q->where('madrasah_id', $user->madrasah_id);
+                    })
+                    ->exists();
+                $summary['sekolah_presensi'] = $hasPresensi ? 1 : 0;
+
+                $totalGuru = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $user->madrasah_id)
+                    ->count();
+                $summary['guru_tidak_presensi'] = $totalGuru - $presensiUsers;
+            }
+        }
+
+        return $summary;
     }
 }

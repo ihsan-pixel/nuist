@@ -36,6 +36,43 @@
         </div>
     </div>
 
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">
+                        <i class="bx bx-user-check bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['users_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Users yang Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">
+                        <i class="bx bx-building bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['sekolah_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Sekolah yang Sudah Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-danger">
+                        <i class="bx bx-user-x bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['guru_tidak_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Guru yang Tidak Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         @foreach($madrasahData as $data)
         <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
@@ -151,6 +188,43 @@
     </div>
 @else
     <!-- Admin and other roles: Original view -->
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">
+                        <i class="bx bx-user-check bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['users_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Users yang Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">
+                        <i class="bx bx-building bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['sekolah_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Sekolah yang Sudah Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-danger">
+                        <i class="bx bx-user-x bx-lg"></i>
+                    </h5>
+                    <h3 class="card-text">{{ $summary['guru_tidak_presensi'] }}</h3>
+                    <p class="card-text">Jumlah Guru yang Tidak Melakukan Presensi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card">
