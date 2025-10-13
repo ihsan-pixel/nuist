@@ -89,6 +89,67 @@
         </div>
         @endforeach
     </div>
+
+    <!-- User Detail Modal -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailModalLabel">Detail Presensi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="userDetailTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Informasi Pengguna</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Riwayat Presensi</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="userDetailTabContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="mb-2"><strong>Nama:</strong> <span id="detail-name"></span></div>
+                                    <div class="mb-2"><strong>Email:</strong> <span id="detail-email" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>Madrasah:</strong> <span id="detail-madrasah"></span></div>
+                                    <div class="mb-2"><strong>Status Kepegawaian:</strong> <span id="detail-status"></span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-2"><strong>NIP:</strong> <span id="detail-nip" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>NUPTK:</strong> <span id="detail-nuptk" class="text-muted"></span></div>
+                                    <div class="mb-2"><strong>No HP:</strong> <span id="detail-phone"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="history" role="tabpanel">
+                            <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">Tanggal</th>
+                                            <th style="width: 80px;">Masuk</th>
+                                            <th style="width: 80px;">Keluar</th>
+                                            <th style="width: 80px;">Status</th>
+                                            <th>Keterangan</th>
+                                            <th style="width: 150px;">Lokasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detail-history-body">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @else
     <!-- Admin and other roles: Original view -->
     <div class="row">
@@ -299,68 +360,7 @@ $(document).ready(function () {
         });
     @endif
 
-    @if($user->role === 'super_admin')
-    <!-- User Detail Modal -->
-    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="userDetailModalLabel">Detail Presensi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs" id="userDetailTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Informasi Pengguna</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Riwayat Presensi</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="userDetailTabContent">
-                        <div class="tab-pane fade show active" id="info" role="tabpanel">
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="mb-2"><strong>Nama:</strong> <span id="detail-name"></span></div>
-                                    <div class="mb-2"><strong>Email:</strong> <span id="detail-email" class="text-muted"></span></div>
-                                    <div class="mb-2"><strong>Madrasah:</strong> <span id="detail-madrasah"></span></div>
-                                    <div class="mb-2"><strong>Status Kepegawaian:</strong> <span id="detail-status"></span></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-2"><strong>NIP:</strong> <span id="detail-nip" class="text-muted"></span></div>
-                                    <div class="mb-2"><strong>NUPTK:</strong> <span id="detail-nuptk" class="text-muted"></span></div>
-                                    <div class="mb-2"><strong>No HP:</strong> <span id="detail-phone"></span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="history" role="tabpanel">
-                            <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
-                                <table class="table table-sm table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 100px;">Tanggal</th>
-                                            <th style="width: 80px;">Masuk</th>
-                                            <th style="width: 80px;">Keluar</th>
-                                            <th style="width: 80px;">Status</th>
-                                            <th>Keterangan</th>
-                                            <th style="width: 150px;">Lokasi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="detail-history-body">
-                                        <!-- Data will be populated here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
+
 
     // Real-time update for super admin
     let currentDate = '{{ $selectedDate->format('Y-m-d') }}';
