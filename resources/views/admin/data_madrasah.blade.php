@@ -17,7 +17,7 @@
                 <table id="datatable-{{ Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
                     <thead class="table-light">
                         <tr>
-                            <th>No</th>
+                            <th>SCOD</th>
                             <th>Nama Madrasah</th>
                             <th>Alamat</th>
                             <th>Logo</th>
@@ -26,7 +26,6 @@
                             <th>Map Link</th>
                             <th>Polygon (koordinat)</th>
                             <th>Hari KBM</th>
-                            <th>SCOD</th>
                             <th>Status Guru</th>
                             <th>Kelengkapan (%)</th>
                         </tr>
@@ -34,7 +33,7 @@
                     <tbody>
                         @foreach($madrasahs[$kabupaten] ?? [] as $index => $madrasah)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $madrasah->scod }}</td>
                             <td>{{ $madrasah->name }}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['alamat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['logo'] ?? '❌' !!}</td>
@@ -43,7 +42,6 @@
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['map_link'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['hari_kbm'] ?? '❌' !!}</td>
-                            <td>{{ $madrasah->scod }}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['status_guru'] ?? '❌' !!}</td>
                             <td style="font-weight: bold; text-align: center;">{{ $madrasah->completeness_percentage }}%</td>
                         </tr>
