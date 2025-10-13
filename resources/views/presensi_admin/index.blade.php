@@ -759,9 +759,11 @@ $(document).ready(function () {
             window.madrasahMap.remove();
         }
 
-        // Initialize Leaflet map
-        let lat = madrasah.latitude || -7.7956;
-        let lon = madrasah.longitude || 110.3695;
+        // Initialize Leaflet map with default center
+        let defaultLat = -7.7956;
+        let defaultLon = 110.3695;
+        let lat = madrasah.latitude || defaultLat;
+        let lon = madrasah.longitude || defaultLon;
         window.madrasahMap = L.map('madrasah-detail-map').setView([lat, lon], 16);
 
         // Add OpenStreetMap tiles
@@ -804,9 +806,35 @@ $(document).ready(function () {
             }
         }
 
-        // Fit map to show all elements
+        // Fit map to show all elements and adjust zoom for better view
         setTimeout(() => {
             window.madrasahMap.invalidateSize();
+
+            // If we have both marker and polygon, fit bounds to show everything
+            if (drawnItems.getLayers().length > 0 && madrasah.latitude && madrasah.longitude) {
+                // Create a group with both marker and polygon layers
+                let allLayers = new L.FeatureGroup();
+                drawnItems.eachLayer(layer => allLayers.addLayer(layer));
+
+                // Add a temporary marker to the group for bounds calculation
+                let tempMarker = L.marker([madrasah.latitude, madrasah.longitude]);
+                allLayers.addLayer(tempMarker);
+
+                // Fit bounds to show all elements
+                window.madrasahMap.fitBounds(allLayers.getBounds(), { padding: [20, 20] });
+
+                // Remove temporary marker
+                allLayers.removeLayer(tempMarker);
+            } else if (drawnItems.getLayers().length > 0) {
+                // Only polygon exists, fit to polygon bounds
+                window.madrasahMap.fitBounds(drawnItems.getBounds(), { padding: [20, 20] });
+            } else if (madrasah.latitude && madrasah.longitude) {
+                // Only marker exists, center on marker with appropriate zoom
+                window.madrasahMap.setView([madrasah.latitude, madrasah.longitude], 18);
+            } else {
+                // No specific location, use default view
+                window.madrasahMap.setView([defaultLat, defaultLon], 13);
+            }
         }, 100);
     }
     @endif
