@@ -87,7 +87,7 @@
         <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="card-title mb-0">
+                    <h6 class="card-title mb-0 small">
                         <i class="bx bx-building me-1"></i>
                         <span class="madrasah-detail-link" style="cursor: pointer; text-decoration: underline;" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
                             {{ $data['madrasah']->name }}
