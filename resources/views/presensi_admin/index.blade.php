@@ -409,50 +409,55 @@ $(document).ready(function () {
                 '</tr>';
         });
 
+        let avatarUrl = data.user.avatar ? '{{ asset('storage/avatars/') }}/' + data.user.avatar : '{{ asset('build/images/users/avatar-1.jpg') }}';
+
         let content = '<div class="container-fluid">' +
             '<div class="row g-2">' +
             '<div class="col-lg-5">' +
-            '<div class="card">' +
-            '<div class="card-header">' +
+            '<div class="card shadow-sm">' +
+            '<div class="card-header bg-light">' +
             '<small class="text-muted mb-0"><i class="bx bx-user me-1"></i>Informasi Pengguna</small>' +
             '</div>' +
             '<div class="card-body p-2">' +
+            '<div class="text-center mb-2">' +
+            '<img src="' + avatarUrl + '" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #dee2e6;" alt="Avatar">' +
+            '</div>' +
             '<div class="row g-1">' +
-            '<div class="col-4"><small><strong>Nama:</strong></small></div>' +
+            '<div class="col-4"><small class="fw-bold">Nama:</small></div>' +
             '<div class="col-8"><small>' + data.user.name + '</small></div>' +
-            '<div class="col-4"><small><strong>Email:</strong></small></div>' +
+            '<div class="col-4"><small class="fw-bold">Email:</small></div>' +
             '<div class="col-8"><small class="text-muted">' + data.user.email + '</small></div>' +
-            '<div class="col-4"><small><strong>Madrasah:</strong></small></div>' +
+            '<div class="col-4"><small class="fw-bold">Madrasah:</small></div>' +
             '<div class="col-8"><small>' + data.user.madrasah + '</small></div>' +
-            '<div class="col-4"><small><strong>Status:</strong></small></div>' +
+            '<div class="col-4"><small class="fw-bold">Status:</small></div>' +
             '<div class="col-8"><small>' + data.user.status_kepegawaian + '</small></div>' +
-            '<div class="col-4"><small><strong>NIP:</strong></small></div>' +
-            '<div class="col-8"><small><code>' + (data.user.nip || '-') + '</code></small></div>' +
-            '<div class="col-4"><small><strong>NUPTK:</strong></small></div>' +
-            '<div class="col-8"><small><code>' + (data.user.nuptk || '-') + '</code></small></div>' +
-            '<div class="col-4"><small><strong>No HP:</strong></small></div>' +
+            '<div class="col-4"><small class="fw-bold">NIP:</small></div>' +
+            '<div class="col-8"><small><code class="text-muted">' + (data.user.nip || '-') + '</code></small></div>' +
+            '<div class="col-4"><small class="fw-bold">NUPTK:</small></div>' +
+            '<div class="col-8"><small><code class="text-muted">' + (data.user.nuptk || '-') + '</code></small></div>' +
+            '<div class="col-4"><small class="fw-bold">No HP:</small></div>' +
             '<div class="col-8"><small>' + (data.user.no_hp || '-') + '</small></div>' +
             '</div>' +
             '</div>' +
             '</div>' +
             '</div>' +
             '<div class="col-lg-7">' +
-            '<div class="card">' +
-            '<div class="card-header d-flex justify-content-between align-items-center">' +
+            '<div class="card shadow-sm">' +
+            '<div class="card-header bg-light d-flex justify-content-between align-items-center">' +
             '<small class="text-muted mb-0"><i class="bx bx-history me-1"></i>Riwayat Presensi</small>' +
             '<small class="text-muted">10 data terakhir</small>' +
             '</div>' +
             '<div class="card-body p-0">' +
-            '<div style="max-height: 300px; overflow-y: auto;">' +
+            '<div style="max-height: 280px; overflow-y: auto;">' +
             '<table class="table table-sm mb-0">' +
             '<thead class="table-light">' +
             '<tr>' +
-            '<th class="text-center" style="width: 80px;"><small>Tanggal</small></th>' +
-            '<th class="text-center" style="width: 60px;"><small>Masuk</small></th>' +
-            '<th class="text-center" style="width: 60px;"><small>Keluar</small></th>' +
-            '<th class="text-center" style="width: 80px;"><small>Status</small></th>' +
-            '<th class="text-center"><small>Keterangan</small></th>' +
-            '<th class="text-center" style="width: 100px;"><small>Lokasi</small></th>' +
+            '<th class="text-center" style="width: 70px; font-size: 11px;">Tanggal</th>' +
+            '<th class="text-center" style="width: 50px; font-size: 11px;">Masuk</th>' +
+            '<th class="text-center" style="width: 50px; font-size: 11px;">Keluar</th>' +
+            '<th class="text-center" style="width: 70px; font-size: 11px;">Status</th>' +
+            '<th class="text-center" style="font-size: 11px;">Keterangan</th>' +
+            '<th class="text-center" style="width: 90px; font-size: 11px;">Lokasi</th>' +
             '</tr>' +
             '</thead>' +
             '<tbody>' + presensiRows + '</tbody>' +

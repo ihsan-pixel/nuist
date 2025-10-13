@@ -321,6 +321,7 @@ class PresensiAdminController extends Controller
             'user' => [
                 'name' => $userDetail->name,
                 'email' => $userDetail->email,
+                'avatar' => $userDetail->avatar,
                 'madrasah' => $userDetail->madrasah->name ?? '-',
                 'status_kepegawaian' => $userDetail->statusKepegawaian->name ?? '-',
                 'nip' => $userDetail->nip,
