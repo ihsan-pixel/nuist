@@ -419,6 +419,7 @@ $(document).ready(function () {
         });
     }
 
+    @if($user->role === 'super_admin')
     // Handle user detail modal
     $(document).on('click', '.user-detail-link', function(e) {
         e.preventDefault();
