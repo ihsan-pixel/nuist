@@ -57,7 +57,11 @@
                             <tbody>
                                 @forelse($data['presensi'] as $presensi)
                                 <tr>
-                                    <td class="small">{{ $presensi['nama'] }}</td>
+                                    <td class="small">
+                                        <a href="#" class="text-decoration-none user-detail-link" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
+                                            {{ $presensi['nama'] }}
+                                        </a>
+                                    </td>
                                     <td class="small">
                                         @if($presensi['status'] == 'hadir')
                                             <span class="badge bg-success">Hadir</span>
@@ -333,7 +337,11 @@ $(document).ready(function () {
                     }
 
                     let row = '<tr>' +
-                        '<td class="small">' + presensi.nama + '</td>' +
+                        '<td class="small">' +
+                        '<a href="#" class="text-decoration-none user-detail-link" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
+                        presensi.nama +
+                        '</a>' +
+                        '</td>' +
                         '<td class="small">' + statusBadge + '</td>' +
                         '</tr>';
                     tableBody.append(row);
@@ -346,6 +354,95 @@ $(document).ready(function () {
                     '</tr>';
                 tableBody.append(emptyRow);
             }
+        });
+    }
+
+    // Handle user detail popup
+    $(document).on('click', '.user-detail-link', function(e) {
+        e.preventDefault();
+        let userId = $(this).data('user-id');
+        let userName = $(this).data('user-name');
+
+        $.ajax({
+            url: '{{ route('presensi_admin.detail', ':userId') }}'.replace(':userId', userId),
+            type: 'GET',
+            success: function(data) {
+                showUserDetailPopup(data, userName);
+            },
+            error: function(xhr, status, error) {
+                console.log('Error loading user detail:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat detail pengguna'
+                });
+            }
+        });
+    });
+
+    function showUserDetailPopup(data, userName) {
+        let presensiRows = '';
+        data.presensi_history.forEach(function(presensi) {
+            let statusBadge = '';
+            if (presensi.status === 'hadir') {
+                statusBadge = '<span class="badge bg-success">Hadir</span>';
+            } else if (presensi.status === 'terlambat') {
+                statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+            } else if (presensi.status === 'izin') {
+                statusBadge = '<span class="badge bg-info">Izin</span>';
+            } else {
+                statusBadge = '<span class="badge bg-secondary">' + presensi.status + '</span>';
+            }
+
+            presensiRows += '<tr>' +
+                '<td>' + presensi.tanggal + '</td>' +
+                '<td>' + (presensi.waktu_masuk || '-') + '</td>' +
+                '<td>' + (presensi.waktu_keluar || '-') + '</td>' +
+                '<td>' + statusBadge + '</td>' +
+                '<td>' + (presensi.keterangan || '-') + '</td>' +
+                '<td>' + (presensi.lokasi || '-') + '</td>' +
+                '</tr>';
+        });
+
+        let content = '<div class="row">' +
+            '<div class="col-md-6">' +
+            '<h6>Informasi Pengguna</h6>' +
+            '<table class="table table-sm">' +
+            '<tr><td><strong>Nama:</strong></td><td>' + data.user.name + '</td></tr>' +
+            '<tr><td><strong>Email:</strong></td><td>' + data.user.email + '</td></tr>' +
+            '<tr><td><strong>Madrasah:</strong></td><td>' + data.user.madrasah + '</td></tr>' +
+            '<tr><td><strong>Status:</strong></td><td>' + data.user.status_kepegawaian + '</td></tr>' +
+            '<tr><td><strong>NIP:</strong></td><td>' + (data.user.nip || '-') + '</td></tr>' +
+            '<tr><td><strong>NUPTK:</strong></td><td>' + (data.user.nuptk || '-') + '</td></tr>' +
+            '<tr><td><strong>No HP:</strong></td><td>' + (data.user.no_hp || '-') + '</td></tr>' +
+            '</table>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+            '<h6>Riwayat Presensi (10 Terakhir)</h6>' +
+            '<div style="max-height: 300px; overflow-y: auto;">' +
+            '<table class="table table-sm table-bordered">' +
+            '<thead class="table-light">' +
+            '<tr>' +
+            '<th>Tanggal</th>' +
+            '<th>Masuk</th>' +
+            '<th>Keluar</th>' +
+            '<th>Status</th>' +
+            '<th>Keterangan</th>' +
+            '<th>Lokasi</th>' +
+            '</tr>' +
+            '</thead>' +
+            '<tbody>' + presensiRows + '</tbody>' +
+            '</table>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+
+        Swal.fire({
+            title: 'Detail Presensi: ' + userName,
+            html: content,
+            width: '800px',
+            showCloseButton: true,
+            showConfirmButton: false
         });
     }
 

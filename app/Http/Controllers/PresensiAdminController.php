@@ -207,6 +207,7 @@ class PresensiAdminController extends Controller
                 foreach ($tenagaPendidik as $tp) {
                     $presensi = $tp->presensis->first();
                     $presensiData[] = [
+                        'user_id' => $tp->id,
                         'nama' => $tp->name,
                         'status' => $presensi ? $presensi->status : 'tidak_hadir',
                         'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
@@ -272,6 +273,7 @@ class PresensiAdminController extends Controller
                 foreach ($tenagaPendidik as $tp) {
                     $presensi = $tp->presensis->first();
                     $presensiData[] = [
+                        'user_id' => $tp->id,
                         'nama' => $tp->name,
                         'status' => $presensi ? $presensi->status : 'tidak_hadir',
                         'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
@@ -290,5 +292,42 @@ class PresensiAdminController extends Controller
         }
 
         return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    // API endpoint for user detail popup
+    public function getDetail($userId)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'super_admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $userDetail = User::with(['madrasah', 'statusKepegawaian', 'presensis' => function($q) {
+            $q->orderBy('tanggal', 'desc')->limit(10);
+        }])->findOrFail($userId);
+
+        $presensiHistory = $userDetail->presensis->map(function($presensi) {
+            return [
+                'tanggal' => $presensi->tanggal->format('d-m-Y'),
+                'waktu_masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : null,
+                'waktu_keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : null,
+                'status' => $presensi->status,
+                'keterangan' => $presensi->keterangan,
+                'lokasi' => $presensi->lokasi,
+            ];
+        });
+
+        return response()->json([
+            'user' => [
+                'name' => $userDetail->name,
+                'email' => $userDetail->email,
+                'madrasah' => $userDetail->madrasah->name ?? '-',
+                'status_kepegawaian' => $userDetail->statusKepegawaian->name ?? '-',
+                'nip' => $userDetail->nip,
+                'nuptk' => $userDetail->nuptk,
+                'no_hp' => $userDetail->no_hp,
+            ],
+            'presensi_history' => $presensiHistory
+        ]);
     }
 }
