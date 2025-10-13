@@ -409,7 +409,7 @@ $(document).ready(function () {
                 '</tr>';
         });
 
-        let avatarUrl = data.user.avatar ? '{{ asset('storage/avatars/') }}/' + data.user.avatar : '{{ asset('build/images/users/avatar-1.jpg') }}';
+        let avatarUrl = data.user.avatar ? '{{ asset('storage/') }}/' + data.user.avatar : '{{ asset('build/images/users/avatar-11.jpg') }}';
 
         let content = '<div class="container-fluid">' +
             '<div class="row g-2">' +
