@@ -48,35 +48,35 @@
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-primary">
-                        <i class="bx bx-user-check bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['users_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Users yang Melakukan Presensi</p>
+            <div class="card border-primary">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-user-check bx-md text-primary me-2"></i>
+                        <h4 class="card-title mb-0 text-primary">{{ $summary['users_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Users yang Melakukan Presensi</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-success">
-                        <i class="bx bx-building bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['sekolah_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Sekolah yang Sudah Melakukan Presensi</p>
+            <div class="card border-success">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-building bx-md text-success me-2"></i>
+                        <h4 class="card-title mb-0 text-success">{{ $summary['sekolah_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Sekolah yang Sudah Melakukan Presensi</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-danger">
-                        <i class="bx bx-user-x bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['guru_tidak_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Guru yang Tidak Melakukan Presensi</p>
+            <div class="card border-danger">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-user-x bx-md text-danger me-2"></i>
+                        <h4 class="card-title mb-0 text-danger">{{ $summary['guru_tidak_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Guru yang Tidak Melakukan Presensi</p>
                 </div>
             </div>
         </div>
@@ -259,35 +259,35 @@
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-primary">
-                        <i class="bx bx-user-check bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['users_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Users yang Melakukan Presensi</p>
+            <div class="card border-primary">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-user-check bx-md text-primary me-2"></i>
+                        <h4 class="card-title mb-0 text-primary">{{ $summary['users_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Users yang Melakukan Presensi</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-success">
-                        <i class="bx bx-building bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['sekolah_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Sekolah yang Sudah Melakukan Presensi</p>
+            <div class="card border-success">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-building bx-md text-success me-2"></i>
+                        <h4 class="card-title mb-0 text-success">{{ $summary['sekolah_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Sekolah yang Sudah Melakukan Presensi</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title text-danger">
-                        <i class="bx bx-user-x bx-lg"></i>
-                    </h5>
-                    <h3 class="card-text">{{ $summary['guru_tidak_presensi'] }}</h3>
-                    <p class="card-text">Jumlah Guru yang Tidak Melakukan Presensi</p>
+            <div class="card border-danger">
+                <div class="card-body text-center py-3">
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <i class="bx bx-user-x bx-md text-danger me-2"></i>
+                        <h4 class="card-title mb-0 text-danger">{{ $summary['guru_tidak_presensi'] }}</h4>
+                    </div>
+                    <p class="card-text small mb-0">Guru yang Tidak Melakukan Presensi</p>
                 </div>
             </div>
         </div>
