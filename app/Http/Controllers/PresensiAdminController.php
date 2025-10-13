@@ -191,8 +191,8 @@ class PresensiAdminController extends Controller
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
         if ($user->role === 'super_admin') {
-            // For super_admin, show 5 tables per madrasah
-            $madrasahs = \App\Models\Madrasah::orderBy('id')->limit(5)->get();
+            // For super_admin, show all madrasah tables (5 per row)
+            $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
 
             $madrasahData = [];
             foreach ($madrasahs as $madrasah) {

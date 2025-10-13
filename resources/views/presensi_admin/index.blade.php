@@ -38,15 +38,15 @@
 
     <div class="row">
         @foreach($madrasahData as $data)
-        <div class="col-lg-6 col-xl-4 mb-4">
-            <div class="card">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
+            <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bx bx-building me-2"></i>{{ $data['madrasah']->name }}
-                    </h5>
+                    <h6 class="card-title mb-0">
+                        <i class="bx bx-building me-1"></i>{{ $data['madrasah']->name }}
+                    </h6>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                         <table class="table table-sm table-bordered">
                             <thead class="table-light">
                                 <tr>
@@ -57,8 +57,8 @@
                             <tbody>
                                 @forelse($data['presensi'] as $presensi)
                                 <tr>
-                                    <td>{{ $presensi['nama'] }}</td>
-                                    <td>
+                                    <td class="small">{{ $presensi['nama'] }}</td>
+                                    <td class="small">
                                         @if($presensi['status'] == 'hadir')
                                             <span class="badge bg-success">Hadir</span>
                                         @elseif($presensi['status'] == 'terlambat')
@@ -72,7 +72,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="2" class="text-center text-muted">
+                                    <td colspan="2" class="text-center text-muted small">
                                         <small>Tidak ada tenaga pendidik</small>
                                     </td>
                                 </tr>
