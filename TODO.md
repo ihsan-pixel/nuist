@@ -14,15 +14,15 @@
 
 ## 3. Configure Vite for React
 - [x] Install `@vitejs/plugin-react` plugin.
-- [x] Update `vite.config.js` to include React plugin and PresensiApp.jsx in build inputs.
-- [x] Fix ESM import issues in vite.config.js.
+- [x] Update `vite.config.mjs` to include React plugin and PresensiApp.jsx in build inputs.
+- [x] Fix ESM import issues in vite.config.mjs.
 
 ## 4. Update Blade Template
 - [x] Modify `resources/views/presensi_admin/index.blade.php` to conditionally render React app for super_admin role.
 - [x] Add script section to load React components for super_admin users.
 
 ## 5. Test Integration
-- [ ] Run `npm run build` to ensure assets compile correctly.
+- [x] Run `npm run build` to ensure assets compile correctly.
 - [ ] Test the super admin dashboard to verify React components render properly.
 - [ ] Verify modal functionality for user and madrasah details.
 - [ ] Test real-time updates and date filtering.

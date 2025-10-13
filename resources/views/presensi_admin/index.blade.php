@@ -1,6 +1,10 @@
 @if($user->role === 'super_admin')
     <!-- Super Admin View: React App -->
     <div id="presensi-react-app"></div>
+
+    @push('scripts')
+    @vite('resources/js/presensi-admin/PresensiApp.jsx')
+    @endpush
 @else
     <!-- Admin and other roles: Original view -->
     <!-- Summary Cards -->

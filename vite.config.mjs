@@ -1,25 +1,22 @@
-// import { defineConfig } from 'vite';
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import { viteStaticCopy } from 'vite-plugin-static-copy'
-import react from '@vitejs/plugin-react'
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
         react(),
-        laravel(
-            {
-                input: [
-                    'resources/scss/bootstrap.scss',
-                    'resources/scss/icons.scss',
-                    'resources/scss/app.scss',
-                    'resources/js/app.js',
-                    'resources/js/presensi-admin/PresensiApp.jsx',
-                ],
-                refresh: true,
-            }
-        ),
-         viteStaticCopy({
+        laravel({
+            input: [
+                'resources/scss/bootstrap.scss',
+                'resources/scss/icons.scss',
+                'resources/scss/app.scss',
+                'resources/js/app.js',
+                'resources/js/presensi-admin/PresensiApp.jsx',
+            ],
+            refresh: true,
+        }),
+        viteStaticCopy({
             targets: [
                 {
                     src: 'resources/fonts',
@@ -42,25 +39,24 @@ export default defineConfig({
                     dest: ''
                 },
             ]
-         }),
+        }),
     ],
     build: {
         manifest: true,
-        // assetsDir: 'js',
         rtl: true,
         outDir: 'public/build/',
         cssCodeSplit: true,
         rollupOptions: {
             output: {
-              assetFileNames: (css) => {
-                if(css.name.split('.').pop() == 'css') {
-                    return 'css/' + `[name]` + '.min.' + 'css';
-                } else {
-                    return 'icons/' + css.name;
-                }
-            },
+                assetFileNames: (css) => {
+                    if (css.name.split('.').pop() == 'css') {
+                        return 'css/' + `[name]` + '.min.' + 'css';
+                    } else {
+                        return 'icons/' + css.name;
+                    }
+                },
                 entryFileNames: 'js/' + `[name]` + `.js`,
             },
         },
-      },
+    },
 });

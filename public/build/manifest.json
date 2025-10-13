@@ -1,4 +1,16 @@
 {
+  "node_modules/leaflet/dist/images/layers-2x.png": {
+    "file": "icons/layers-2x.png",
+    "src": "node_modules/leaflet/dist/images/layers-2x.png"
+  },
+  "node_modules/leaflet/dist/images/layers.png": {
+    "file": "icons/layers.png",
+    "src": "node_modules/leaflet/dist/images/layers.png"
+  },
+  "node_modules/leaflet/dist/images/marker-icon.png": {
+    "file": "icons/marker-icon.png",
+    "src": "node_modules/leaflet/dist/images/marker-icon.png"
+  },
   "resources/fonts/boxicons.eot": {
     "file": "icons/boxicons.eot",
     "src": "resources/fonts/boxicons.eot"
@@ -123,6 +135,23 @@
     "file": "js/app2.js",
     "isEntry": true,
     "src": "resources/js/app.js"
+  },
+  "resources/js/presensi-admin/PresensiApp.css": {
+    "file": "css/PresensiApp.min.css",
+    "src": "resources/js/presensi-admin/PresensiApp.css"
+  },
+  "resources/js/presensi-admin/PresensiApp.jsx": {
+    "assets": [
+      "icons/layers.png",
+      "icons/layers-2x.png",
+      "icons/marker-icon.png"
+    ],
+    "css": [
+      "css/PresensiApp.min.css"
+    ],
+    "file": "js/PresensiApp.js",
+    "isEntry": true,
+    "src": "resources/js/presensi-admin/PresensiApp.jsx"
   },
   "resources/scss/app.scss": {
     "file": "css/app.min.css",
