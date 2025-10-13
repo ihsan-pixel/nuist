@@ -203,36 +203,38 @@ class PresensiAdminController extends Controller
                 'Kota Yogyakarta'
             ];
 
-            $madrasahs = \App\Models\Madrasah::orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
-                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
-                ->get();
-
             $madrasahData = [];
-            foreach ($madrasahs as $madrasah) {
-                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $madrasah->id)
-                    ->with(['presensis' => function ($q) use ($selectedDate) {
-                        $q->whereDate('tanggal', $selectedDate);
-                    }])
+            foreach ($kabupatenOrder as $kabupaten) {
+                $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                    ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                     ->get();
 
-                $presensiData = [];
-                foreach ($tenagaPendidik as $tp) {
-                    $presensi = $tp->presensis->first();
-                    $presensiData[] = [
-                        'user_id' => $tp->id,
-                        'nama' => $tp->name,
-                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
-                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
-                        'keterangan' => $presensi ? $presensi->keterangan : null,
+                foreach ($madrasahs as $madrasah) {
+                    $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                        ->where('madrasah_id', $madrasah->id)
+                        ->with(['presensis' => function ($q) use ($selectedDate) {
+                            $q->whereDate('tanggal', $selectedDate);
+                        }])
+                        ->get();
+
+                    $presensiData = [];
+                    foreach ($tenagaPendidik as $tp) {
+                        $presensi = $tp->presensis->first();
+                        $presensiData[] = [
+                            'user_id' => $tp->id,
+                            'nama' => $tp->name,
+                            'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                            'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
+                            'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
+                            'keterangan' => $presensi ? $presensi->keterangan : null,
+                        ];
+                    }
+
+                    $madrasahData[] = [
+                        'madrasah' => $madrasah,
+                        'presensi' => $presensiData,
                     ];
                 }
-
-                $madrasahData[] = [
-                    'madrasah' => $madrasah,
-                    'presensi' => $presensiData,
-                ];
             }
 
             return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary'));
