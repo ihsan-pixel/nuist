@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class TeachingScheduleController extends Controller
@@ -72,7 +71,7 @@ class TeachingScheduleController extends Controller
             ->get(['id', 'name']);
 
         // Debug log to check data
-        \Log::info('getTeachersBySchool: schoolId=' . $schoolId . ', teachers=' . $teachers->count());
+        \Illuminate\Support\Facades\Log::info('getTeachersBySchool: schoolId=' . $schoolId . ', teachers=' . $teachers->count());
 
         return response()->json($teachers);
     }
@@ -117,8 +116,8 @@ class TeachingScheduleController extends Controller
                 return back()->withErrors(['time' => 'Jam selesai harus setelah jam mulai.'])->withInput();
             }
 
-            // Check overlap for teacher schedule
-            $overlap = TeachingSchedule::where('school_id', $request->school_id)
+            // Check overlap for teacher schedule (same teacher, same day, overlapping time)
+            $teacherOverlap = TeachingSchedule::where('teacher_id', $request->teacher_id)
                 ->where('day', $scheduleData['day'])
                 ->where(function ($query) use ($scheduleData) {
                     $query->where('start_time', '<', $scheduleData['end_time'])
@@ -126,8 +125,8 @@ class TeachingScheduleController extends Controller
                 })
                 ->exists();
 
-            if ($overlap) {
-                return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari ' . $scheduleData['day'] . ' di sekolah yang sama.'])->withInput()->with('alert', 'Jam mengajar pada kelas sudah terisi.');
+            if ($teacherOverlap) {
+                return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain guru yang sama pada hari ' . $scheduleData['day'] . '.'])->withInput()->with('alert', 'Jam mengajar guru sudah terisi.');
             }
 
             // Check if class schedule already exists for the same school, day, and time
