@@ -14,7 +14,6 @@
         "build-rtl": "rtlcss public/build/css/app.min.css & rtlcss public/build/css/bootstrap.min.css"
     },
     "devDependencies": {
-        "@vitejs/plugin-react": "^5.0.4",
         "axios": "^0.21",
         "laravel-vite-plugin": "^0.7.4",
         "lodash": "^4.17.19",
@@ -28,10 +27,6 @@
     },
     "dependencies": {
         "bootstrap": "5.3.5",
-        "leaflet": "^1.9.4",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0",
-        "react-leaflet": "^5.0.0",
         "vite-plugin-static-copy": "^0.13.1"
     }
 }
