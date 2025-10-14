@@ -17,8 +17,9 @@
                                 <div>
                     @if(Auth::user()->role !== 'tenaga_pendidik')
                     <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
-                    
-                    
+                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                    <a href="{{ route('teaching-schedules.import') }}" class="btn btn-secondary">Import Jadwal</a>
+                    @endif
                     @endif
                 </div>
                 @endif

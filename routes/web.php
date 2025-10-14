@@ -49,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,admin,tenaga_pendidik'])->group(function () {
         Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
         Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool'])->name('teaching-schedules.get-teachers');
+        Route::get('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'import'])->name('teaching-schedules.import');
+        Route::post('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'processImport'])->name('teaching-schedules.process-import');
     });
 
     // Teaching Attendances Routes

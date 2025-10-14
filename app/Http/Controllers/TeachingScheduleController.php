@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\TeachingSchedule;
 use App\Models\User;
 use App\Models\Madrasah;
+use App\Imports\TeachingScheduleImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TeachingScheduleController extends Controller
 {
@@ -282,5 +284,51 @@ class TeachingScheduleController extends Controller
         $schedule->delete();
 
         return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil dihapus.');
+    }
+
+    /**
+     * Show the import form.
+     */
+    public function import()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        return view('teaching-schedules.import');
+    }
+
+    /**
+     * Process the import.
+     */
+    public function processImport(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240', // 10MB max
+        ]);
+
+        try {
+            $import = new TeachingScheduleImport($user->id);
+            Excel::import($import, $request->file('file'));
+
+            $errors = $import->getErrors();
+
+            if (!empty($errors)) {
+                return redirect()->back()->withErrors($errors)->withInput();
+            }
+
+            return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil diimpor.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['import' => 'Gagal mengimpor data: ' . $e->getMessage()])->withInput();
+        }
     }
 }
