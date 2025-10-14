@@ -298,7 +298,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        {{-- <div class="col-md-4">
             <div class="card border-success">
                 <div class="card-body text-center py-2">
                     <div class="d-flex align-items-center justify-content-center">
@@ -308,7 +308,7 @@
                     <small class="text-muted d-block mt-1">Sekolah Presensi</small>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-4">
             <div class="card border-danger">
                 <div class="card-body text-center py-2">
