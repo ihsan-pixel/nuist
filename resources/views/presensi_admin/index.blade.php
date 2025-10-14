@@ -287,7 +287,7 @@
     <!-- Admin and other roles: Original view -->
     <!-- Summary Cards -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card border-primary">
                 <div class="card-body text-center py-2">
                     <div class="d-flex align-items-center justify-content-center">
@@ -309,7 +309,7 @@
                 </div>
             </div>
         </div> --}}
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card border-danger">
                 <div class="card-body text-center py-2">
                     <div class="d-flex align-items-center justify-content-center">
