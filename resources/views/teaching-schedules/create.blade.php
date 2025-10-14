@@ -30,14 +30,21 @@
                                 </select>
                             </div>
                         </div>
+                        @if(Auth::user()->role !== 'admin')
                         <div class="col-md-2 text-center">
                             <button type="button" id="loadTeachersBtn" class="btn btn-info mt-4">Cari Nama Guru</button>
                         </div>
+                        @endif
                         <div class="col-md-5">
                             <div class="form-group">
                                 <label for="teacher_id">Guru</label>
                                 <select name="teacher_id" id="teacher_id" class="form-control" required>
                                     <option value="">Pilih Guru</option>
+                                    @if(Auth::user()->role === 'admin')
+                                        @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
