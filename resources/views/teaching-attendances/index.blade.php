@@ -1,6 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.master')
 
 @section('title', 'Presensi Mengajar')
+
+@section('vendor-script')
+<!-- SweetAlert2 -->
+<link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 
 @section('content')
 <div class="row">
@@ -32,7 +37,7 @@
                                 <tr>
                                     <td>{{ $schedule->subject }}</td>
                                     <td>{{ $schedule->class_name }}</td>
-                                    <td>{{ $schedule->school->nama_sekolah ?? 'N/A' }}</td>
+                            <td>{{ $schedule->school->name ?? 'N/A' }}</td>
                                     <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
                                     <td>
                                         @if($schedule->attendance)
@@ -88,7 +93,7 @@
 
 @endsection
 
-@section('scripts')
+@section('page-script')
 <script>
 let currentScheduleId = null;
 let userLocation = null;

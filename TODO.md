@@ -7,5 +7,6 @@
 - [x] Create view: resources/views/teaching-attendances/index.blade.php to list schedules with attendance buttons.
 - [x] Add routes for teaching-attendances resource in routes/web.php (middleware for tenaga_pendidik).
 - [x] Update sidebar.blade.php to include "Presensi Mengajar" menu for tenaga_pendidik role.
+- [x] Fix view layout issues (changed to layouts.master, fixed school name field, added vendor-script and page-script sections).
 - [ ] Run the migration (Database connection issue - needs to be run manually).
 - [ ] Test: Login as tenaga_pendidik, check menu, view schedules, attempt attendance inside/outside time/location.
