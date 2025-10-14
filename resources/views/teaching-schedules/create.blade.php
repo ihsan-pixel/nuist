@@ -56,39 +56,52 @@
 
                     @foreach($days as $index => $day)
                     <div class="card mb-3">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">{{ $day }}</h5>
+                            <button type="button" class="btn btn-sm btn-success" onclick="addSchedule({{ $index }})">
+                                <i class="bx bx-plus"></i> Tambah Mata Pelajaran
+                            </button>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="subject_{{ $index }}">Mata Pelajaran</label>
-                                        <input type="text" name="schedules[{{ $index }}][subject]" id="subject_{{ $index }}" class="form-control" placeholder="Contoh: Matematika">
+                            <div id="schedules-container-{{ $index }}">
+                                <!-- Default schedule row -->
+                                <div class="schedule-row mb-3 border-bottom pb-3">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="subject_{{ $index }}_0">Mata Pelajaran</label>
+                                                <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control" placeholder="Contoh: Matematika">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="class_name_{{ $index }}_0">Kelas</label>
+                                                <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control" placeholder="Contoh: VII A">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="start_time_{{ $index }}_0">Jam Mulai</label>
+                                                <input type="time" name="schedules[{{ $index }}][0][start_time]" id="start_time_{{ $index }}_0" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="end_time_{{ $index }}_0">Jam Selesai</label>
+                                                <input type="time" name="schedules[{{ $index }}][0][end_time]" id="end_time_{{ $index }}_0" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="removeSchedule(this)" style="display: none;">
+                                                <i class="bx bx-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="class_name_{{ $index }}">Kelas</label>
-                                        <input type="text" name="schedules[{{ $index }}][class_name]" id="class_name_{{ $index }}" class="form-control" placeholder="Contoh: VII A">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label for="start_time_{{ $index }}">Jam Mulai</label>
-                                        <input type="time" name="schedules[{{ $index }}][start_time]" id="start_time_{{ $index }}" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label for="end_time_{{ $index }}">Jam Selesai</label>
-                                        <input type="time" name="schedules[{{ $index }}][end_time]" id="end_time_{{ $index }}" class="form-control">
-                                    </div>
+                                    <input type="hidden" name="schedules[{{ $index }}][0][day]" value="{{ $day }}">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="schedules[{{ $index }}][day]" value="{{ $day }}">
                     @endforeach
 
                     <button type="submit" class="btn btn-primary">Simpan</button>
@@ -100,6 +113,76 @@
 </div>
 
 <script>
+let scheduleCounters = {};
+@foreach($days as $index => $day)
+scheduleCounters[{{ $index }}] = 1;
+@endforeach
+
+function addSchedule(dayIndex) {
+    const container = document.getElementById(`schedules-container-${dayIndex}`);
+    const counter = scheduleCounters[dayIndex]++;
+    const dayName = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][dayIndex];
+
+    const scheduleRow = document.createElement('div');
+    scheduleRow.className = 'schedule-row mb-3 border-bottom pb-3';
+    scheduleRow.innerHTML = `
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="subject_${dayIndex}_${counter}">Mata Pelajaran</label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][subject]" id="subject_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: Matematika">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="class_name_${dayIndex}_${counter}">Kelas</label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][class_name]" id="class_name_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: VII A">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="start_time_${dayIndex}_${counter}">Jam Mulai</label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][start_time]" id="start_time_${dayIndex}_${counter}" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="end_time_${dayIndex}_${counter}">Jam Selesai</label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][end_time]" id="end_time_${dayIndex}_${counter}" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeSchedule(this)">
+                    <i class="bx bx-trash"></i>
+                </button>
+            </div>
+        </div>
+        <input type="hidden" name="schedules[${dayIndex}][${counter}][day]" value="${dayName}">
+    `;
+
+    container.appendChild(scheduleRow);
+
+    // Show remove button for first row if there are multiple rows
+    const rows = container.querySelectorAll('.schedule-row');
+    if (rows.length > 1) {
+        rows[0].querySelector('.btn-danger').style.display = 'block';
+    }
+}
+
+function removeSchedule(button) {
+    const scheduleRow = button.closest('.schedule-row');
+    const container = scheduleRow.parentElement;
+    const dayIndex = container.id.split('-')[2];
+
+    scheduleRow.remove();
+
+    // Hide remove button for first row if only one row remains
+    const rows = container.querySelectorAll('.schedule-row');
+    if (rows.length === 1) {
+        rows[0].querySelector('.btn-danger').style.display = 'none';
+    }
+}
+
 document.getElementById('loadTeachersBtn').addEventListener('click', function() {
     var schoolSelect = document.getElementById('school_id');
     var schoolId = schoolSelect.value;
