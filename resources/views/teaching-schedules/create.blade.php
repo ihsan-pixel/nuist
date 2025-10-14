@@ -59,7 +59,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">{{ $day }}</h5>
                             <button type="button" class="btn btn-sm btn-success" onclick="addSchedule({{ $index }})">
-                                <i class="bx bx-plus"></i> Tambah Mata Pelajaran
+                                <i class="bx bx-plus"></i> Tambah Jam Pelajaran
                             </button>
                         </div>
                         <div class="card-body">
