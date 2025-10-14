@@ -1,7 +1,11 @@
-# TODO: Hide "Sekolah Presensi" from Admin Role in Presensi Data
+# TODO: Implement Teaching Attendance for Teachers
 
 ## Steps:
-- [ ] Edit resources/views/presensi_admin/index.blade.php: Conditionally hide the "Sekolah Presensi" summary card for users with 'admin' role by wrapping it in @if($user->role !== 'admin') ... @endif.
-- [ ] Update TODO.md: Mark the edit as completed.
-- [ ] Test: Reload the presensi admin index page as an 'admin' user to confirm the card is hidden, while other elements remain visible.
-- [ ] Complete task: Confirm functionality for 'super_admin' (unaffected) and finalize.
+- [x] Create migration for teaching_attendances table with fields: teaching_schedule_id (foreign key), user_id (foreign key), tanggal (date), waktu (time), status (enum: hadir, alpha), latitude (decimal), longitude (decimal), lokasi (string nullable).
+- [x] Create TeachingAttendance model with relationships to TeachingSchedule and User.
+- [x] Create TeachingAttendanceController with index (show today's schedules for teacher) and store (mark attendance with location/time validation).
+- [x] Create view: resources/views/teaching-attendances/index.blade.php to list schedules with attendance buttons.
+- [x] Add routes for teaching-attendances resource in routes/web.php (middleware for tenaga_pendidik).
+- [x] Update sidebar.blade.php to include "Presensi Mengajar" menu for tenaga_pendidik role.
+- [ ] Run the migration (Database connection issue - needs to be run manually).
+- [ ] Test: Login as tenaga_pendidik, check menu, view schedules, attempt attendance inside/outside time/location.

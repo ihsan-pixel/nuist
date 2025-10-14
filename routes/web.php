@@ -50,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
         Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool'])->name('teaching-schedules.get-teachers');
     });
+
+    // Teaching Attendances Routes
+    Route::middleware(['role:tenaga_pendidik'])->group(function () {
+        Route::get('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'index'])->name('teaching-attendances.index');
+        Route::post('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'store'])->name('teaching-attendances.store');
+    });
 });
 
 Auth::routes(['verify' => true]);

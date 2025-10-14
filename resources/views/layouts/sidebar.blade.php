@@ -92,6 +92,12 @@
                         <span>Presensi</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('teaching-attendances.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar-check"></i>
+                        <span>Presensi Mengajar</span>
+                    </a>
+                </li>
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
