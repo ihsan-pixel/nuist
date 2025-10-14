@@ -273,34 +273,46 @@ class PresensiAdminController extends Controller
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
         if ($user->role === 'super_admin') {
-            $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
+            $kabupatenOrder = [
+                'Kabupaten Gunungkidul',
+                'Kabupaten Bantul',
+                'Kabupaten Kulon Progo',
+                'Kabupaten Sleman',
+                'Kota Yogyakarta'
+            ];
 
             $madrasahData = [];
-            foreach ($madrasahs as $madrasah) {
-                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $madrasah->id)
-                    ->with(['presensis' => function ($q) use ($selectedDate) {
-                        $q->whereDate('tanggal', $selectedDate);
-                    }])
+            foreach ($kabupatenOrder as $kabupaten) {
+                $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                    ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                     ->get();
 
-                $presensiData = [];
-                foreach ($tenagaPendidik as $tp) {
-                    $presensi = $tp->presensis->first();
-                    $presensiData[] = [
-                        'user_id' => $tp->id,
-                        'nama' => $tp->name,
-                        'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                        'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
-                        'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
-                        'keterangan' => $presensi ? $presensi->keterangan : null,
+                foreach ($madrasahs as $madrasah) {
+                    $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                        ->where('madrasah_id', $madrasah->id)
+                        ->with(['presensis' => function ($q) use ($selectedDate) {
+                            $q->whereDate('tanggal', $selectedDate);
+                        }])
+                        ->get();
+
+                    $presensiData = [];
+                    foreach ($tenagaPendidik as $tp) {
+                        $presensi = $tp->presensis->first();
+                        $presensiData[] = [
+                            'user_id' => $tp->id,
+                            'nama' => $tp->name,
+                            'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                            'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
+                            'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
+                            'keterangan' => $presensi ? $presensi->keterangan : null,
+                        ];
+                    }
+
+                    $madrasahData[] = [
+                        'madrasah' => $madrasah,
+                        'presensi' => $presensiData,
                     ];
                 }
-
-                $madrasahData[] = [
-                    'madrasah' => $madrasah,
-                    'presensi' => $presensiData,
-                ];
             }
 
             return response()->json($madrasahData);
@@ -417,35 +429,47 @@ class PresensiAdminController extends Controller
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        // Get all madrasah with their presensi data
-        $madrasahs = \App\Models\Madrasah::orderBy('id')->get();
+        // Get all madrasah with their presensi data ordered by kabupaten and scod
+        $kabupatenOrder = [
+            'Kabupaten Gunungkidul',
+            'Kabupaten Bantul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta'
+        ];
 
         $data = [];
-        foreach ($madrasahs as $madrasah) {
-            $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                ->where('madrasah_id', $madrasah->id)
-                ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
-                    $q->whereDate('tanggal', $selectedDate);
-                }])
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
                 ->get();
 
-            foreach ($tenagaPendidik as $tp) {
-                $presensi = $tp->presensis->first();
-                $data[] = [
-                    'Madrasah' => $madrasah->name,
-                    'SCOD' => $madrasah->scod,
-                    'Kabupaten' => $madrasah->kabupaten,
-                    'Nama Guru' => $tp->name,
-                    'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
-                    'NIP' => $tp->nip,
-                    'NUPTK' => $tp->nuptk,
-                    'Status Presensi' => $presensi ? $presensi->status : 'tidak_hadir',
-                    'Waktu Masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
-                    'Waktu Keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
-                    'Keterangan' => $presensi ? $presensi->keterangan : null,
-                    'Lokasi' => $presensi ? $presensi->lokasi : null,
-                    'Tanggal' => $selectedDate->format('Y-m-d'),
-                ];
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
+                        $q->whereDate('tanggal', $selectedDate);
+                    }])
+                    ->get();
+
+                foreach ($tenagaPendidik as $tp) {
+                    $presensi = $tp->presensis->first();
+                    $data[] = [
+                        'Madrasah' => $madrasah->name,
+                        'SCOD' => $madrasah->scod,
+                        'Kabupaten' => $madrasah->kabupaten,
+                        'Nama Guru' => $tp->name,
+                        'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                        'NIP' => $tp->nip,
+                        'NUPTK' => $tp->nuptk,
+                        'Status Presensi' => $presensi ? $presensi->status : 'tidak_hadir',
+                        'Waktu Masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                        'Waktu Keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                        'Keterangan' => $presensi ? $presensi->keterangan : null,
+                        'Lokasi' => $presensi ? $presensi->lokasi : null,
+                        'Tanggal' => $selectedDate->format('Y-m-d'),
+                    ];
+                }
             }
         }
 
