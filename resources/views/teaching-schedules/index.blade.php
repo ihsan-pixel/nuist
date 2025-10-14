@@ -2,6 +2,11 @@
 
 @section('title', 'Jadwal Mengajar')
 
+@section('vendor-script')
+<!-- SweetAlert2 -->
+<link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -54,11 +59,7 @@
                             @if(Auth::user()->role !== 'tenaga_pendidik')
                             <td>
                                 <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="{{ route('teaching-schedules.destroy', $schedule->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{ $schedule->id }}" data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}">Hapus</button>
                             </td>
                             @endif
                         </tr>
@@ -70,4 +71,39 @@
         </div>
     </div>
 </div>
+
+@section('script')
+<!-- SweetAlert2 -->
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+    $('.delete-btn').on('click', function() {
+        var scheduleId = $(this).data('id');
+        var scheduleName = $(this).data('name');
+
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Anda akan menghapus jadwal: " + scheduleName,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Create and submit form
+                var form = $('<form>', {
+                    'method': 'POST',
+                    'action': '{{ route("teaching-schedules.destroy", ":id") }}'.replace(':id', scheduleId)
+                });
+                form.append('<input type="hidden" name="_token" value="{{ csrf_token() }}">');
+                form.append('<input type="hidden" name="_method" value="DELETE">');
+                $('body').append(form);
+                form.submit();
+            }
+        });
+    });
+});
+</script>
 @endsection
