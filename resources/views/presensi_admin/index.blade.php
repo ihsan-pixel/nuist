@@ -3,7 +3,7 @@
     <div id="presensi-react-app"></div>
 
     @push('scripts')
-    @vite('resources/js/presensi-admin/PresensiApp.jsx')
+    @vite('resources/js/presensi-admin/mount.js')
     @endpush
 @else
     <!-- Admin and other roles: Original view -->

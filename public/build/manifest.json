@@ -153,6 +153,14 @@
     "isEntry": true,
     "src": "resources/js/presensi-admin/PresensiApp.jsx"
   },
+  "resources/js/presensi-admin/mount.js": {
+    "file": "js/mount.js",
+    "imports": [
+      "resources/js/presensi-admin/PresensiApp.jsx"
+    ],
+    "isEntry": true,
+    "src": "resources/js/presensi-admin/mount.js"
+  },
   "resources/scss/app.scss": {
     "file": "css/app.min.css",
     "isEntry": true,

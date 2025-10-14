@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/scss/app.scss',
                 'resources/js/app.js',
                 'resources/js/presensi-admin/PresensiApp.jsx',
+                'resources/js/presensi-admin/mount.js',
             ],
             refresh: true,
         }),
