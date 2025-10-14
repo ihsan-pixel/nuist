@@ -81,15 +81,18 @@ class TeachingScheduleController extends Controller
      */
     public function store(Request $request)
     {
+        // Debug: Log the incoming request data
+        \Illuminate\Support\Facades\Log::info('TeachingSchedule store request:', $request->all());
+
         $request->validate([
             'school_id' => 'required|exists:madrasahs,id',
             'teacher_id' => 'required|exists:users,id',
             'schedules' => 'required|array',
-            'schedules.*.day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
-            'schedules.*.subject' => 'nullable|string|max:255',
-            'schedules.*.class_name' => 'nullable|string|max:255',
-            'schedules.*.start_time' => 'nullable|date_format:H:i',
-            'schedules.*.end_time' => 'nullable|date_format:H:i',
+            'schedules.*.*.day' => ['required', Rule::in(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])],
+            'schedules.*.*.subject' => 'nullable|string|max:255',
+            'schedules.*.*.class_name' => 'nullable|string|max:255',
+            'schedules.*.*.start_time' => 'nullable|date_format:H:i',
+            'schedules.*.*.end_time' => 'nullable|date_format:H:i',
         ]);
 
         $user = Auth::user();
@@ -101,7 +104,19 @@ class TeachingScheduleController extends Controller
 
         $createdCount = 0;
 
-        foreach ($request->schedules as $scheduleData) {
+        // Flatten the nested schedules array
+        $flattenedSchedules = [];
+        foreach ($request->schedules as $dayIndex => $daySchedules) {
+            foreach ($daySchedules as $scheduleIndex => $scheduleData) {
+                if (!empty($scheduleData['subject'])) {
+                    $flattenedSchedules[] = $scheduleData;
+                }
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info('Flattened schedules:', $flattenedSchedules);
+
+        foreach ($flattenedSchedules as $scheduleData) {
             // Skip if subject is empty
             if (empty($scheduleData['subject'])) {
                 continue;
