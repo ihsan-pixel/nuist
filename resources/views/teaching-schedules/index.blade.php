@@ -14,7 +14,13 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Daftar Jadwal Mengajar</h4>
                 @if(Auth::user()->role !== 'tenaga_pendidik')
-                <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
+                                <div>
+                    @if(Auth::user()->role !== 'tenaga_pendidik')
+                    <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">Import Excel</button>
+                    <a href="{{ asset('template_jadwal_mengajar.xlsx') }}" class="btn btn-info" download>Download Template</a>
+                    @endif
+                </div>
                 @endif
             </div>
             <div class="card-body">
