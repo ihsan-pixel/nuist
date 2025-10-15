@@ -52,11 +52,11 @@ class GenerateTeachingScheduleTemplate extends Command
             $sheet->setCellValueByColumnAndRow($col + 1, 1, $header);
         }
 
-        // Add example data
+        // Add example data using generic examples (database connection not available during command execution)
         $exampleData = [
-            [1, 'Dr. Ahmad Fauzi, S.Pd., M.Pd.', 'Senin', 'Matematika', 'Kelas 1A', '08:00', '09:00'],
-            [1, 'Siti Nurhaliza, S.Pd.', 'Selasa', 'Bahasa Indonesia', 'Kelas 1B', '09:00', '10:00'],
-            [2, 'Muhammad Rizki, S.Kom.', 'Rabu', 'TIK', 'Kelas 2A', '10:00', '11:00']
+            ['SCOD001', 'Nama Guru 1', 'Senin', 'Matematika', 'Kelas 1A', '08:00', '09:00'],
+            ['SCOD001', 'Nama Guru 2', 'Selasa', 'Bahasa Indonesia', 'Kelas 1B', '09:00', '10:00'],
+            ['SCOD002', 'Nama Guru 3', 'Rabu', 'TIK', 'Kelas 2A', '10:00', '11:00']
         ];
 
         foreach ($exampleData as $rowIndex => $rowData) {

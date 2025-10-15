@@ -35,10 +35,10 @@
                         <div class="alert alert-info">
                             <h6><i class="bx bx-info-circle"></i> Instruksi:</h6>
                             <ol>
-                                <li>Unduh template file CSV dengan mengklik tombol "Unduh Template" di bawah ini.</li>
+                                <li>Unduh template file Excel dengan mengklik tombol "Unduh Template" di bawah ini.</li>
                                 <li>Buka file template menggunakan Microsoft Excel atau aplikasi spreadsheet lainnya.</li>
                                 <li>Isi data jadwal mengajar sesuai dengan format yang telah ditentukan.</li>
-                                <li>Simpan file dalam format CSV atau Excel (.xlsx/.xls).</li>
+                                <li>Simpan file dalam format Excel (.xlsx/.xls).</li>
                                 <li>Upload file yang telah diisi menggunakan form di bawah ini.</li>
                             </ol>
                         </div>
@@ -55,15 +55,15 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><code>school_id</code></td>
-                                    <td>Angka</td>
-                                    <td>ID Madrasah (lihat di master data madrasah)</td>
+                                    <td><code>school_scod</code></td>
+                                    <td>Teks</td>
+                                    <td>Kode SCOD Madrasah (lihat di master data madrasah)</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>
-                                    <td><code>teacher_id</code></td>
-                                    <td>Angka</td>
-                                    <td>ID Guru (lihat di master data tenaga pendidik)</td>
+                                    <td><code>teacher_name</code></td>
+                                    <td>Teks</td>
+                                    <td>Nama lengkap guru (lihat di master data tenaga pendidik)</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>
@@ -102,7 +102,7 @@
                         <div class="alert alert-warning">
                             <h6><i class="bx bx-error"></i> Catatan Penting:</h6>
                             <ul>
-                                <li>Pastikan ID Madrasah dan ID Guru sudah terdaftar dalam sistem.</li>
+                                <li>Pastikan Kode SCOD Madrasah dan Nama Guru sudah terdaftar dalam sistem.</li>
                                 <li>Jam selesai harus lebih besar dari jam mulai.</li>
                                 <li>Sistem akan mengecek konflik jadwal otomatis (guru yang sama pada hari dan jam yang sama).</li>
                                 <li>Data yang tidak valid akan dilewati dengan pesan error.</li>
