@@ -322,13 +322,15 @@ class TeachingScheduleController extends Controller
             $errors = $import->getErrors();
 
             if (!empty($errors)) {
-                return redirect()->back()->withErrors($errors)->withInput();
+                $errorMessage = 'Import gagal dengan ' . count($errors) . ' error(s):\n' . implode('\n', $errors);
+                return redirect()->back()->with('import_errors', $errors)->with('error', $errorMessage)->withInput();
             }
 
             return redirect()->route('teaching-schedules.index')->with('success', 'Jadwal mengajar berhasil diimpor.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['import' => 'Gagal mengimpor data: ' . $e->getMessage()])->withInput();
+            $errorMessage = 'Gagal mengimpor data: ' . $e->getMessage();
+            return redirect()->back()->with('error', $errorMessage)->withInput();
         }
     }
 }

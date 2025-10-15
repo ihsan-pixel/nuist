@@ -11,6 +11,8 @@
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
 @endsection
 
 @section('content')
@@ -106,6 +108,19 @@
             <div class="modal-body">
                 @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+                @if(session('import_errors'))
+                <div class="alert alert-danger">
+                    <strong>Import gagal dengan {{ count(session('import_errors')) }} error(s):</strong>
+                    <ul class="mt-2 mb-0">
+                        @foreach(session('import_errors') as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
                 @endif
                 @if($errors->any())
                 <div class="alert alert-danger">
@@ -243,4 +258,45 @@
     </div>
 </div>
 
+@endsection
+
+@section('script-bottom')
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Import Gagal',
+            text: '{{ session("error") }}',
+            confirmButtonText: 'Tutup'
+        });
+    @endif
+
+    @if(session('import_errors'))
+        var errorList = '';
+        @foreach(session('import_errors') as $error)
+            errorList += '{{ $error }}\n';
+        @endforeach
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Import Gagal',
+            html: '<div style="text-align: left; white-space: pre-line;">' + errorList + '</div>',
+            confirmButtonText: 'Tutup'
+        });
+    @endif
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '{{ session("success") }}',
+            confirmButtonText: 'OK'
+        });
+    @endif
+});
+</script>
 @endsection
