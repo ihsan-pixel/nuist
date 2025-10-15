@@ -99,7 +99,7 @@
 
 <!-- Enhanced Modal for Attendance -->
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="attendanceModalLabel">
@@ -108,69 +108,118 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Schedule Info -->
-                <div class="card border-primary mb-3">
-                    <div class="card-header bg-light">
-                        <h6 class="card-title mb-0">
-                            <i class="bx bx-info-circle me-2"></i>Detail Jadwal Mengajar
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-2"><strong>Mata Pelajaran:</strong> <span id="modal-subject"></span></p>
-                                <p class="mb-2"><strong>Kelas:</strong> <span id="modal-class"></span></p>
+                <div class="row">
+                    <!-- Left Column - Schedule Info and Location -->
+                    <div class="col-md-6">
+                        <!-- Schedule Info -->
+                        <div class="card border-primary mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="card-title mb-0">
+                                    <i class="bx bx-info-circle me-2"></i>Detail Jadwal Mengajar
+                                </h6>
                             </div>
-                            <div class="col-md-6">
-                                <p class="mb-2"><strong>Sekolah:</strong> <span id="modal-school"></span></p>
-                                <p class="mb-0"><strong>Waktu:</strong> <span id="modal-time"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Location Section -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h6 class="card-title mb-0">
-                            <i class="bx bx-map me-2"></i>Verifikasi Lokasi
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
-                                <i class="bx bx-refresh me-1"></i> Refresh Lokasi
-                            </button>
-                        </div>
-
-                        <div id="locationStatus" class="alert alert-info mb-3">
-                            <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
-                        </div>
-
-                        <!-- Mini Map -->
-                        <div class="mb-3">
-                            <label class="form-label">Peta Lokasi Anda</label>
-                            <div id="miniMap" style="height: 150px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
-                        </div>
-
-                        <!-- Coordinates -->
-                        <div class="row">
-                            <div class="col-6">
-                                <label class="form-label">Latitude</label>
-                                <input type="text" id="currentLatitude" class="form-control" readonly>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Longitude</label>
-                                <input type="text" id="currentLongitude" class="form-control" readonly>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Mata Pelajaran</label>
+                                    <input type="text" id="modal-subject" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kelas</label>
+                                    <input type="text" id="modal-class" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sekolah</label>
+                                    <input type="text" id="modal-school" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Waktu</label>
+                                    <input type="text" id="modal-time" class="form-control" readonly>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Warning -->
-                <div class="alert alert-warning">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
+                        <!-- Location Section -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="bx bx-map me-2"></i>Verifikasi Lokasi
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
+                                        <i class="bx bx-refresh me-1"></i> Refresh Lokasi
+                                    </button>
+                                </div>
+
+                                <div id="locationStatus" class="alert alert-info mb-3">
+                                    <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                                </div>
+
+                                <!-- Mini Map -->
+                                <div class="mb-3">
+                                    <label class="form-label">Peta Lokasi Anda</label>
+                                    <div id="miniMap" style="height: 200px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
+                                </div>
+
+                                <!-- Coordinates -->
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="text" id="currentLatitude" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="text" id="currentLongitude" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - User Info -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    <i class="bx bx-user me-2"></i>Informasi Pengguna
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama</label>
+                                    <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Madrasah</label>
+                                    <input type="text" class="form-control" value="{{ auth()->user()->madrasah?->name ?? 'Tidak ada data' }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Status Kepegawaian</label>
+                                    <input type="text" class="form-control" value="{{ auth()->user()->statusKepegawaian?->name ?? 'Belum diatur' }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal</label>
+                                    <input type="text" class="form-control" value="{{ \Carbon\Carbon::now()->format('d F Y') }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Waktu Sekarang</label>
+                                    <input type="text" id="current-time-modal" class="form-control" readonly>
+                                </div>
+
+                                <!-- Warning -->
+                                <div class="alert alert-warning">
+                                    <i class="bx bx-error-circle me-2"></i>
+                                    <strong>Penting!</strong><br>
+                                    Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -274,10 +323,18 @@ function markAttendance(scheduleId, subject, className, schoolName) {
     userLocation = null;
 
     // Update modal content
-    $('#modal-subject').text(subject);
-    $('#modal-class').text(className);
-    $('#modal-school').text(schoolName);
-    $('#modal-time').text('{{ \Carbon\Carbon::now()->format("H:i:s") }}');
+    $('#modal-subject').val(subject);
+    $('#modal-class').val(className);
+    $('#modal-school').val(schoolName);
+    $('#modal-time').val('{{ \Carbon\Carbon::now()->format("H:i:s") }}');
+
+    // Update current time in modal
+    function updateModalTime() {
+        const now = new Date();
+        $('#current-time-modal').val(now.toLocaleTimeString('id-ID'));
+    }
+    updateModalTime();
+    setInterval(updateModalTime, 1000);
 
     $('#attendanceModal').modal('show');
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
