@@ -216,7 +216,7 @@
                                         <button type="submit" class="btn btn-primary">
                                             <i class="bx bx-upload"></i> Import Data
                                         </button>
-                                        <a href="{{ asset('templates/teaching_schedule_import_template.csv') }}" class="btn btn-outline-secondary" download>
+                                        <a href="{{ asset('template/teaching_schedule_import_template.csv') }}" class="btn btn-outline-secondary" download>
                                             <i class="bx bx-download"></i> Unduh Template
                                         </a>
                                     </div>
