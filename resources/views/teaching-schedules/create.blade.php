@@ -2,26 +2,56 @@
 
 @section('title', 'Tambah Jadwal Mengajar')
 
+@component('components.breadcrumb')
+    @slot('li_1') Master Data @endslot
+    @slot('title') Tambah Jadwal Mengajar @endslot
+@endcomponent
+
+@section('css')
+<link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Tambah Jadwal Mengajar</h4>
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-plus me-2"></i>Tambah Jadwal Mengajar
+                </h4>
             </div>
             <div class="card-body">
-                @if(session('alert'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('alert') }}
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+
+                @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+
+                @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
                 @endif
                 <form action="{{ route('teaching-schedules.store') }}" method="POST">
                     @csrf
                     <div class="row align-items-center">
                         <div class="col-md-5">
-                            <div class="form-group">
-                                <label for="school_id">Sekolah</label>
+                            <div class="form-group mb-3">
+                                <label for="school_id" class="form-label">Sekolah <span class="text-danger">*</span></label>
                                 <select name="school_id" id="school_id" class="form-control" required>
                                     <option value="">Pilih Sekolah</option>
                                     @foreach($schools as $school)
@@ -32,12 +62,14 @@
                         </div>
                         @if(Auth::user()->role !== 'admin')
                         <div class="col-md-2 text-center">
-                            <button type="button" id="loadTeachersBtn" class="btn btn-info mt-4">Cari Nama Guru</button>
+                            <button type="button" id="loadTeachersBtn" class="btn btn-info mt-4">
+                                <i class="bx bx-search"></i> Cari Guru
+                            </button>
                         </div>
                         @endif
                         <div class="col-md-5">
-                            <div class="form-group">
-                                <label for="teacher_id">Guru</label>
+                            <div class="form-group mb-3">
+                                <label for="teacher_id" class="form-label">Guru <span class="text-danger">*</span></label>
                                 <select name="teacher_id" id="teacher_id" class="form-control" required>
                                     <option value="">Pilih Guru</option>
                                     @if(Auth::user()->role === 'admin')
@@ -65,30 +97,30 @@
                         <div class="card-body">
                             <div id="schedules-container-{{ $index }}">
                                 <!-- Default schedule row -->
-                                <div class="schedule-row mb-3 border-bottom pb-3">
+                                    <div class="schedule-row mb-3 border-bottom pb-3">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="subject_{{ $index }}_0">Mata Pelajaran</label>
-                                                <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control" placeholder="Contoh: Matematika">
+                                            <div class="form-group mb-3">
+                                                <label for="subject_{{ $index }}_0" class="form-label">Mata Pelajaran <span class="text-danger">*</span></label>
+                                                <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control" placeholder="Contoh: Matematika" required>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="class_name_{{ $index }}_0">Kelas</label>
-                                                <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control" placeholder="Contoh: VII A">
+                                            <div class="form-group mb-3">
+                                                <label for="class_name_{{ $index }}_0" class="form-label">Kelas <span class="text-danger">*</span></label>
+                                                <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control" placeholder="Contoh: VII A" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="start_time_{{ $index }}_0">Jam Mulai</label>
-                                                <input type="time" name="schedules[{{ $index }}][0][start_time]" id="start_time_{{ $index }}_0" class="form-control">
+                                            <div class="form-group mb-3">
+                                                <label for="start_time_{{ $index }}_0" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
+                                                <input type="time" name="schedules[{{ $index }}][0][start_time]" id="start_time_{{ $index }}_0" class="form-control" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="end_time_{{ $index }}_0">Jam Selesai</label>
-                                                <input type="time" name="schedules[{{ $index }}][0][end_time]" id="end_time_{{ $index }}_0" class="form-control">
+                                            <div class="form-group mb-3">
+                                                <label for="end_time_{{ $index }}_0" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
+                                                <input type="time" name="schedules[{{ $index }}][0][end_time]" id="end_time_{{ $index }}_0" class="form-control" required>
                                             </div>
                                         </div>
                                         <div class="col-md-1 d-flex align-items-end">
@@ -104,8 +136,14 @@
                     </div>
                     @endforeach
 
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                    <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">Batal</a>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save"></i> Simpan
+                        </button>
+                        <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
+                            <i class="bx bx-arrow-back"></i> Kembali
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -128,27 +166,27 @@ function addSchedule(dayIndex) {
     scheduleRow.innerHTML = `
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
-                    <label for="subject_${dayIndex}_${counter}">Mata Pelajaran</label>
-                    <input type="text" name="schedules[${dayIndex}][${counter}][subject]" id="subject_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: Matematika">
+                <div class="form-group mb-3">
+                    <label for="subject_${dayIndex}_${counter}" class="form-label">Mata Pelajaran <span class="text-danger">*</span></label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][subject]" id="subject_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: Matematika" required>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="form-group">
-                    <label for="class_name_${dayIndex}_${counter}">Kelas</label>
-                    <input type="text" name="schedules[${dayIndex}][${counter}][class_name]" id="class_name_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: VII A">
+                <div class="form-group mb-3">
+                    <label for="class_name_${dayIndex}_${counter}" class="form-label">Kelas <span class="text-danger">*</span></label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][class_name]" id="class_name_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: VII A" required>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="form-group">
-                    <label for="start_time_${dayIndex}_${counter}">Jam Mulai</label>
-                    <input type="time" name="schedules[${dayIndex}][${counter}][start_time]" id="start_time_${dayIndex}_${counter}" class="form-control">
+                <div class="form-group mb-3">
+                    <label for="start_time_${dayIndex}_${counter}" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][start_time]" id="start_time_${dayIndex}_${counter}" class="form-control" required>
                 </div>
             </div>
             <div class="col-md-2">
-                <div class="form-group">
-                    <label for="end_time_${dayIndex}_${counter}">Jam Selesai</label>
-                    <input type="time" name="schedules[${dayIndex}][${counter}][end_time]" id="end_time_${dayIndex}_${counter}" class="form-control">
+                <div class="form-group mb-3">
+                    <label for="end_time_${dayIndex}_${counter}" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][end_time]" id="end_time_${dayIndex}_${counter}" class="form-control" required>
                 </div>
             </div>
             <div class="col-md-1 d-flex align-items-end">
