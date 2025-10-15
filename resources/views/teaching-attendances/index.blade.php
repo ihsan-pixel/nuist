@@ -6,60 +6,90 @@
 <!-- SweetAlert2 -->
 <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<!-- Leaflet CSS -->
+<link href="{{ asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('title') Presensi Mengajar @endslot
+@endcomponent
+
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Presensi Mengajar Hari Ini ({{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }})</h4>
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-book me-2"></i>Presensi Mengajar Hari Ini
+                </h4>
+                <p class="card-title-desc mb-0">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
             <div class="card-body">
                 @if($schedules->isEmpty())
-                    <div class="alert alert-info">
-                        <i class="bx bx-info-circle"></i> Tidak ada jadwal mengajar hari ini.
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bx bx-info-circle bx-lg me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Tidak ada jadwal mengajar hari ini</h5>
+                            <p class="mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
+                        </div>
                     </div>
                 @else
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Mata Pelajaran</th>
-                                    <th>Kelas</th>
-                                    <th>Sekolah</th>
-                                    <th>Waktu</th>
-                                    <th>Status Presensi</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($schedules as $schedule)
-                                <tr>
-                                    <td>{{ $schedule->subject }}</td>
-                                    <td>{{ $schedule->class_name }}</td>
-                            <td>{{ $schedule->school->name ?? 'N/A' }}</td>
-                                    <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
-                                    <td>
+                    <div class="row">
+                        @foreach($schedules as $schedule)
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 border {{ $schedule->attendance ? 'border-success' : 'border-warning' }}">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="card-title mb-0">
+                                            <i class="bx bx-book-open me-2"></i>{{ $schedule->subject }}
+                                        </h6>
                                         @if($schedule->attendance)
-                                            <span class="badge bg-success">Hadir ({{ $schedule->attendance->waktu }})</span>
+                                            <span class="badge bg-success">
+                                                <i class="bx bx-check"></i> Sudah Presensi
+                                            </span>
                                         @else
-                                            <span class="badge bg-warning">Belum Presensi</span>
+                                            <span class="badge bg-warning">
+                                                <i class="bx bx-time"></i> Belum Presensi
+                                            </span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        @if(!$schedule->attendance)
-                                            <button type="button" class="btn btn-primary btn-sm" onclick="markAttendance({{ $schedule->id }})">
-                                                <i class="bx bx-check"></i> Presensi
-                                            </button>
-                                        @else
-                                            <span class="text-muted">Sudah Presensi</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bx bx-building-house text-primary me-2"></i>
+                                            <strong>{{ $schedule->school->name ?? 'N/A' }}</strong>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bx bx-group text-info me-2"></i>
+                                            <span>Kelas: {{ $schedule->class_name }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx bx-time text-warning me-2"></i>
+                                            <span>{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
+                                        </div>
+                                    </div>
+
+                                    @if($schedule->attendance)
+                                        <div class="alert alert-success p-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bx bx-check-circle bx-lg me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1">Presensi Berhasil</h6>
+                                                    <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ $schedule->subject }}', '{{ $schedule->class_name }}', '{{ $schedule->school->name ?? 'N/A' }}')">
+                                            <i class="bx bx-check-circle me-2"></i> Lakukan Presensi
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
@@ -67,30 +97,88 @@
     </div>
 </div>
 
-<!-- Modal for Attendance -->
+<!-- Enhanced Modal for Attendance -->
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="attendanceModalLabel">Konfirmasi Presensi Mengajar</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="attendanceModalLabel">
+                    <i class="bx bx-check-circle me-2"></i>Konfirmasi Presensi Mengajar
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Apakah Anda yakin ingin melakukan presensi mengajar untuk jadwal ini?</p>
-                <p><strong>Pastikan Anda berada di lokasi sekolah dan dalam waktu mengajar.</strong></p>
-                <div class="mb-3">
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
-                        <i class="bx bx-refresh"></i> Refresh Lokasi
-                    </button>
+                <!-- Schedule Info -->
+                <div class="card border-primary mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="bx bx-info-circle me-2"></i>Detail Jadwal Mengajar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Mata Pelajaran:</strong> <span id="modal-subject"></span></p>
+                                <p class="mb-2"><strong>Kelas:</strong> <span id="modal-class"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Sekolah:</strong> <span id="modal-school"></span></p>
+                                <p class="mb-0"><strong>Waktu:</strong> <span id="modal-time"></span></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="locationStatus" class="alert alert-info">
-                    <i class="bx bx-loader-alt bx-spin"></i> Mendapatkan lokasi Anda...
+
+                <!-- Location Section -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bx bx-map me-2"></i>Verifikasi Lokasi
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
+                                <i class="bx bx-refresh me-1"></i> Refresh Lokasi
+                            </button>
+                        </div>
+
+                        <div id="locationStatus" class="alert alert-info mb-3">
+                            <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                        </div>
+
+                        <!-- Mini Map -->
+                        <div class="mb-3">
+                            <label class="form-label">Peta Lokasi Anda</label>
+                            <div id="miniMap" style="height: 200px; border-radius: 5px; border: 1px solid #ddd;"></div>
+                        </div>
+
+                        <!-- Coordinates -->
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Latitude</label>
+                                <input type="text" id="currentLatitude" class="form-control" readonly>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Longitude</label>
+                                <input type="text" id="currentLongitude" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning -->
+                <div class="alert alert-warning">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="confirmAttendanceBtn" disabled>
-                    <i class="bx bx-check"></i> Ya, Presensi
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bx bx-x me-1"></i> Batal
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" id="confirmAttendanceBtn" disabled>
+                    <i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi
                 </button>
             </div>
         </div>
@@ -100,9 +188,12 @@
 @endsection
 
 @section('script')
+<script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
 let currentScheduleId = null;
 let userLocation = null;
+let miniMap = null;
+let userMarker = null;
 
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -128,7 +219,7 @@ function getUserLocation() {
                 let errorMessage = '';
                 switch(error.code) {
                     case error.PERMISSION_DENIED:
-                        errorMessage = 'Akses lokasi ditolak. Pastikan Anda mengizinkan akses lokasi di browser.';
+                        errorMessage = 'Akses lokasi ditolak. Pastikan Anda mengizinkan akses lokasi di browser dan GPS aktif.';
                         break;
                     case error.POSITION_UNAVAILABLE:
                         errorMessage = 'Lokasi tidak tersedia. Pastikan GPS aktif dan sinyal GPS cukup kuat.';
@@ -152,7 +243,6 @@ function updateLocationStatus(status, message, isSuccess = false) {
     if (isSuccess) {
         $('#locationStatus').addClass('alert-success').html('<i class="bx bx-check-circle"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', false);
-        console.log('Location obtained successfully:', userLocation);
     } else if (status === 'loading') {
         $('#locationStatus').addClass('alert-info').html('<i class="bx bx-loader-alt bx-spin"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
@@ -160,19 +250,48 @@ function updateLocationStatus(status, message, isSuccess = false) {
         $('#locationStatus').addClass('alert-danger').html('<i class="bx bx-error"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
     }
-    console.log('Button disabled state:', $('#confirmAttendanceBtn').prop('disabled'));
 }
 
-function markAttendance(scheduleId) {
+function initializeMiniMap(lat, lng) {
+    if (miniMap) {
+        miniMap.remove();
+    }
+
+    miniMap = L.map('miniMap').setView([lat, lng], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(miniMap);
+
+    userMarker = L.marker([lat, lng]).addTo(miniMap)
+        .bindPopup('Lokasi Anda saat ini')
+        .openPopup();
+}
+
+function markAttendance(scheduleId, subject, className, schoolName) {
     currentScheduleId = scheduleId;
     userLocation = null;
+
+    // Update modal content
+    $('#modal-subject').text(subject);
+    $('#modal-class').text(className);
+    $('#modal-school').text(schoolName);
+    $('#modal-time').text('{{ \Carbon\Carbon::now()->format("H:i:s") }}');
+
     $('#attendanceModal').modal('show');
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
     // Get user location
     getUserLocation().then(location => {
         userLocation = location;
-        updateLocationStatus('success', 'Lokasi berhasil didapatkan: ' + location.latitude.toFixed(6) + ', ' + location.longitude.toFixed(6), true);
+        $('#currentLatitude').val(location.latitude.toFixed(6));
+        $('#currentLongitude').val(location.longitude.toFixed(6));
+
+        // Initialize mini map
+        initializeMiniMap(location.latitude, location.longitude);
+
+        updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
     }).catch(error => {
         updateLocationStatus('error', error);
     });
@@ -183,17 +302,24 @@ function refreshLocation() {
 
     getUserLocation().then(location => {
         userLocation = location;
-        updateLocationStatus('success', 'Lokasi berhasil diperbarui: ' + location.latitude.toFixed(6) + ', ' + location.longitude.toFixed(6), true);
+        $('#currentLatitude').val(location.latitude.toFixed(6));
+        $('#currentLongitude').val(location.longitude.toFixed(6));
+
+        // Update mini map
+        if (miniMap && userMarker) {
+            userMarker.setLatLng([location.latitude, location.longitude]);
+            miniMap.setView([location.latitude, location.longitude], 16);
+        } else {
+            initializeMiniMap(location.latitude, location.longitude);
+        }
+
+        updateLocationStatus('success', 'Lokasi berhasil diperbarui dan berada dalam area sekolah.', true);
     }).catch(error => {
         updateLocationStatus('error', error);
     });
 }
 
 $('#confirmAttendanceBtn').click(function() {
-    console.log('Confirm button clicked');
-    console.log('userLocation:', userLocation);
-    console.log('currentScheduleId:', currentScheduleId);
-
     if (!userLocation || !currentScheduleId) {
         Swal.fire({
             icon: 'warning',
@@ -204,7 +330,7 @@ $('#confirmAttendanceBtn').click(function() {
     }
 
     // Disable button to prevent double submission
-    $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Memproses...');
+    $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i> Memproses...');
 
     // Send AJAX request
     $.ajax({
@@ -218,8 +344,7 @@ $('#confirmAttendanceBtn').click(function() {
             lokasi: 'Presensi Mengajar'
         },
         success: function(response) {
-            console.log('AJAX success response:', response);
-            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check"></i> Ya, Presensi');
+            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
 
             if (response.success) {
                 $('#attendanceModal').modal('hide');
@@ -241,8 +366,7 @@ $('#confirmAttendanceBtn').click(function() {
             }
         },
         error: function(xhr, status, error) {
-            console.log('AJAX error:', xhr, status, error);
-            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check"></i> Ya, Presensi');
+            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
 
             let message = 'Terjadi kesalahan saat melakukan presensi.';
             if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -255,6 +379,15 @@ $('#confirmAttendanceBtn').click(function() {
             });
         }
     });
+});
+
+// Cleanup map when modal is hidden
+$('#attendanceModal').on('hidden.bs.modal', function () {
+    if (miniMap) {
+        miniMap.remove();
+        miniMap = null;
+        userMarker = null;
+    }
 });
 </script>
 @endsection
