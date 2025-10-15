@@ -150,7 +150,7 @@
                         <!-- Mini Map -->
                         <div class="mb-3">
                             <label class="form-label">Peta Lokasi Anda</label>
-                            <div id="miniMap" style="height: 200px; border-radius: 5px; border: 1px solid #ddd;"></div>
+                            <div id="miniMap" style="height: 200px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
                         </div>
 
                         <!-- Coordinates -->
