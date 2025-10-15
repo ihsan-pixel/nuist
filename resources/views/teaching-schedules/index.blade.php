@@ -2,7 +2,7 @@
 
 @section('title', 'Jadwal Mengajar')
 
-@section('vendor-script')
+@section('css')
 <!-- SweetAlert2 -->
 <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
@@ -277,6 +277,3 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Format File Tidak Didukung!',
                     text: 'Hanya file CSV dan Excel yang diperbolehkan'
-                });
-                this.value = '';
-                return;
