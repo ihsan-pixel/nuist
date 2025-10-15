@@ -150,7 +150,7 @@
                         <!-- Mini Map -->
                         <div class="mb-3">
                             <label class="form-label">Peta Lokasi Anda</label>
-                            <div id="miniMap" style="height: 200px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
+                            <div id="miniMap" style="height: 150px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
                         </div>
 
                         <!-- Coordinates -->
@@ -252,7 +252,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
     }
 }
 
-function initializeMiniMap(lat, lng) {
+function initializeMiniMap(lat = -6.2088, lng = 106.8456) {
     if (miniMap) {
         miniMap.remove();
     }
@@ -282,14 +282,20 @@ function markAttendance(scheduleId, subject, className, schoolName) {
     $('#attendanceModal').modal('show');
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
+    // Initialize mini map immediately with default location
+    initializeMiniMap();
+
     // Get user location
     getUserLocation().then(location => {
         userLocation = location;
         $('#currentLatitude').val(location.latitude.toFixed(6));
         $('#currentLongitude').val(location.longitude.toFixed(6));
 
-        // Initialize mini map
-        initializeMiniMap(location.latitude, location.longitude);
+        // Update mini map with actual location
+        if (miniMap && userMarker) {
+            userMarker.setLatLng([location.latitude, location.longitude]);
+            miniMap.setView([location.latitude, location.longitude], 16);
+        }
 
         updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
     }).catch(error => {
