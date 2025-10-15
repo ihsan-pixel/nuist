@@ -113,6 +113,7 @@
 @endsection
 
 @section('script')
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script>
 function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime) {
     Swal.fire({
