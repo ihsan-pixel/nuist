@@ -1,0 +1,3 @@
+school_id,teacher_id,day,subject,class_name,start_time,end_time
+1,2,Senin,Matematika,Kelas 1A,08:00,09:00
+1,3,Selasa,Bahasa Indonesia,Kelas 1B,09:00,10:00
