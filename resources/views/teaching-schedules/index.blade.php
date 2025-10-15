@@ -144,13 +144,13 @@
                             <tbody>
                                 <tr>
                                     <td><code>school_scod</code></td>
-                                    <td>Teks</td>
+                                    <td>Angka</td>
                                     <td>Kode SCOD Madrasah (lihat di master data madrasah)</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
                                 <tr>
                                     <td><code>teacher_nuist_id</code></td>
-                                    <td>Teks</td>
+                                    <td>Angka</td>
                                     <td>NUist ID guru (lihat di master data tenaga pendidik)</td>
                                     <td><span class="badge bg-danger">Ya</span></td>
                                 </tr>
