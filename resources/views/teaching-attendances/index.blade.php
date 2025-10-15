@@ -6,8 +6,6 @@
 <!-- SweetAlert2 -->
 <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-<!-- Leaflet CSS -->
-<link href="{{ asset('build/libs/leaflet/leaflet.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -147,7 +145,7 @@
                     </div>
                 </div>
 
-                <!-- Location Section -->
+                <!-- Location Status -->
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="mb-3">
@@ -158,29 +156,6 @@
 
                         <div id="locationStatus" class="alert alert-info mb-3">
                             <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
-                        </div>
-
-                        <!-- Map Section -->
-                        <div class="mb-3">
-                            <label class="form-label">Lokasi Anda Saat Ini</label>
-                            <div id="miniMap" style="height: 300px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Koordinat Lokasi</label>
-                            <div class="row">
-                                <div class="col-6">
-                                    <input type="text" id="currentLatitude" class="form-control" placeholder="Latitude" readonly>
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" id="currentLongitude" class="form-control" placeholder="Longitude" readonly>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Alamat Lokasi</label>
-                            <input type="text" id="currentAddress" class="form-control" placeholder="Alamat akan muncul otomatis" readonly>
                         </div>
 
                         <div class="alert alert-warning">
@@ -211,13 +186,9 @@
 @endsection
 
 @section('script')
-<script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
 let currentScheduleId = null;
 let userLocation = null;
-let miniMap = null;
-let userMarker = null;
-let currentAddress = null;
 
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -280,32 +251,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
     }
 }
 
-function initializeMiniMap(lat = -6.2088, lng = 106.8456) {
-    if (miniMap) {
-        miniMap.remove();
-    }
 
-    miniMap = L.map('miniMap').setView([lat, lng], 15);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(miniMap);
-
-    userMarker = L.marker([lat, lng]).addTo(miniMap)
-        .bindPopup('Lokasi Anda saat ini')
-        .openPopup();
-
-    // Add accuracy circle if available
-    if (userLocation && userLocation.accuracy) {
-        L.circle([lat, lng], {
-            color: 'red',
-            fillColor: 'red',
-            fillOpacity: 0.1,
-            radius: userLocation.accuracy
-        }).addTo(miniMap);
-    }
-}
 
 function markAttendance(scheduleId, subject, className, schoolName) {
     currentScheduleId = scheduleId;
@@ -320,24 +266,9 @@ function markAttendance(scheduleId, subject, className, schoolName) {
     $('#attendanceModal').modal('show');
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
-    // Initialize mini map immediately with default location
-    initializeMiniMap();
-
     // Get user location
     getUserLocation().then(location => {
         userLocation = location;
-        $('#currentLatitude').val(location.latitude.toFixed(6));
-        $('#currentLongitude').val(location.longitude.toFixed(6));
-        $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
-
-        // Get address from coordinates
-        getAddressFromCoordinates(location.latitude, location.longitude);
-
-        // Update mini map with actual location
-        if (miniMap && userMarker) {
-            userMarker.setLatLng([location.latitude, location.longitude]);
-            miniMap.setView([location.latitude, location.longitude], 15);
-        }
 
         // Check if location is within school polygon
         checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
@@ -359,20 +290,6 @@ function refreshLocation() {
 
     getUserLocation().then(location => {
         userLocation = location;
-        $('#currentLatitude').val(location.latitude.toFixed(6));
-        $('#currentLongitude').val(location.longitude.toFixed(6));
-        $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
-
-        // Get address from coordinates
-        getAddressFromCoordinates(location.latitude, location.longitude);
-
-        // Update mini map
-        if (miniMap && userMarker) {
-            userMarker.setLatLng([location.latitude, location.longitude]);
-            miniMap.setView([location.latitude, location.longitude], 15);
-        } else {
-            initializeMiniMap(location.latitude, location.longitude);
-        }
 
         // Check if location is within school polygon
         checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
@@ -495,39 +412,8 @@ function checkLocationInPolygon(lat, lng, scheduleId) {
     });
 }
 
-// Function to get address from coordinates
-function getAddressFromCoordinates(lat, lng) {
-    return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.display_name) {
-                currentAddress = data.display_name;
-                $('#currentAddress').val(currentAddress);
-            } else {
-                $('#currentAddress').val('Tidak dapat mendapatkan alamat');
-            }
-        })
-        .catch(error => {
-            console.error('Error getting address:', error);
-            $('#currentAddress').val('Tidak dapat mendapatkan alamat');
-        });
-}
 
-// Update waktu sekarang setiap detik
-function updateTime() {
-    const now = new Date();
-    $('#current-time').val(now.toLocaleTimeString('id-ID'));
-}
-updateTime();
-setInterval(updateTime, 1000);
 
-// Cleanup map when modal is hidden
-$('#attendanceModal').on('hidden.bs.modal', function () {
-    if (miniMap) {
-        miniMap.remove();
-        miniMap = null;
-        userMarker = null;
-    }
-});
+
 </script>
 @endsection
