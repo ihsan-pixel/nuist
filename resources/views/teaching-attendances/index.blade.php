@@ -5,6 +5,7 @@
 @section('vendor-script')
 <!-- SweetAlert2 -->
 <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 @endsection
 
 @section('content')
@@ -93,7 +94,7 @@
 
 @endsection
 
-@section('page-script')
+@section('script')
 <script>
 let currentScheduleId = null;
 let userLocation = null;
