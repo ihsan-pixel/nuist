@@ -78,6 +78,11 @@
             <div class="modal-body">
                 <p>Apakah Anda yakin ingin melakukan presensi mengajar untuk jadwal ini?</p>
                 <p><strong>Pastikan Anda berada di lokasi sekolah dan dalam waktu mengajar.</strong></p>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
+                        <i class="bx bx-refresh"></i> Refresh Lokasi
+                    </button>
+                </div>
                 <div id="locationStatus" class="alert alert-info">
                     <i class="bx bx-loader-alt bx-spin"></i> Mendapatkan lokasi Anda...
                 </div>
@@ -99,27 +104,87 @@
 let currentScheduleId = null;
 let userLocation = null;
 
+function getUserLocation() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject('Browser tidak mendukung geolokasi.');
+            return;
+        }
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 15000, // 15 seconds
+            maximumAge: 300000 // 5 minutes
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                });
+            },
+            (error) => {
+                let errorMessage = '';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage = 'Akses lokasi ditolak. Pastikan Anda mengizinkan akses lokasi di browser.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage = 'Lokasi tidak tersedia. Pastikan GPS aktif dan sinyal GPS cukup kuat.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage = 'Waktu habis mendapatkan lokasi. Coba lagi atau pastikan koneksi internet stabil.';
+                        break;
+                    default:
+                        errorMessage = 'Gagal mendapatkan lokasi. Pastikan GPS aktif dan browser diizinkan akses lokasi.';
+                        break;
+                }
+                reject(errorMessage);
+            },
+            options
+        );
+    });
+}
+
+function updateLocationStatus(status, message, isSuccess = false) {
+    $('#locationStatus').removeClass('alert-info alert-success alert-danger');
+    if (isSuccess) {
+        $('#locationStatus').addClass('alert-success').html('<i class="bx bx-check-circle"></i> ' + message);
+        $('#confirmAttendanceBtn').prop('disabled', false);
+    } else if (status === 'loading') {
+        $('#locationStatus').addClass('alert-info').html('<i class="bx bx-loader-alt bx-spin"></i> ' + message);
+        $('#confirmAttendanceBtn').prop('disabled', true);
+    } else {
+        $('#locationStatus').addClass('alert-danger').html('<i class="bx bx-error"></i> ' + message);
+        $('#confirmAttendanceBtn').prop('disabled', true);
+    }
+}
+
 function markAttendance(scheduleId) {
     currentScheduleId = scheduleId;
+    userLocation = null;
     $('#attendanceModal').modal('show');
-    $('#locationStatus').html('<i class="bx bx-loader-alt bx-spin"></i> Mendapatkan lokasi Anda...');
-    $('#confirmAttendanceBtn').prop('disabled', true);
+    updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
     // Get user location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            userLocation = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            };
-            $('#locationStatus').removeClass('alert-info').addClass('alert-success').html('<i class="bx bx-check-circle"></i> Lokasi berhasil didapatkan.');
-            $('#confirmAttendanceBtn').prop('disabled', false);
-        }, function(error) {
-            $('#locationStatus').removeClass('alert-info').addClass('alert-danger').html('<i class="bx bx-error"></i> Gagal mendapatkan lokasi. Pastikan GPS aktif.');
-        });
-    } else {
-        $('#locationStatus').removeClass('alert-info').addClass('alert-danger').html('<i class="bx bx-error"></i> Browser tidak mendukung geolokasi.');
-    }
+    getUserLocation().then(location => {
+        userLocation = location;
+        updateLocationStatus('success', 'Lokasi berhasil didapatkan: ' + location.latitude.toFixed(6) + ', ' + location.longitude.toFixed(6), true);
+    }).catch(error => {
+        updateLocationStatus('error', error);
+    });
+}
+
+function refreshLocation() {
+    updateLocationStatus('loading', 'Memperbarui lokasi Anda...');
+
+    getUserLocation().then(location => {
+        userLocation = location;
+        updateLocationStatus('success', 'Lokasi berhasil diperbarui: ' + location.latitude.toFixed(6) + ', ' + location.longitude.toFixed(6), true);
+    }).catch(error => {
+        updateLocationStatus('error', error);
+    });
 }
 
 $('#confirmAttendanceBtn').click(function() {
