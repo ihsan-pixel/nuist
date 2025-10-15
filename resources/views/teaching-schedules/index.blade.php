@@ -2,7 +2,7 @@
 
 @section('title', 'Jadwal Mengajar')
 
-@section('css')
+@section('vendor-script')
 <!-- SweetAlert2 -->
 <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
@@ -277,3 +277,25 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Format File Tidak Didukung!',
                     text: 'Hanya file CSV dan Excel yang diperbolehkan'
+                });
+                this.value = '';
+                return;
+            }
+        }
+    });
+
+    // Form submission with loading
+    $('#importForm').on('submit', function() {
+        const submitBtn = $(this).find('button[type="submit"]');
+        const originalText = submitBtn.html();
+
+        submitBtn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Memproses...');
+
+        // Re-enable button after 30 seconds as fallback
+        setTimeout(function() {
+            submitBtn.prop('disabled', false).html(originalText);
+        }, 30000);
+    });
+});
+</script>
+@endsection
