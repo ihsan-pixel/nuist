@@ -236,12 +236,15 @@ function getUserLocation() {
 }
 
 function updateLocationStatus(status, message, isSuccess = false) {
-    $('#locationStatus').removeClass('alert-info alert-success alert-danger');
+    $('#locationStatus').removeClass('alert-info alert-success alert-danger alert-warning');
     if (isSuccess) {
         $('#locationStatus').addClass('alert-success').html('<i class="bx bx-check-circle"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', false);
     } else if (status === 'loading') {
         $('#locationStatus').addClass('alert-info').html('<i class="bx bx-loader-alt bx-spin"></i> ' + message);
+        $('#confirmAttendanceBtn').prop('disabled', true);
+    } else if (status === 'warning') {
+        $('#locationStatus').addClass('alert-warning').html('<i class="bx bx-error-circle"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
     } else {
         $('#locationStatus').addClass('alert-danger').html('<i class="bx bx-error"></i> ' + message);
@@ -294,7 +297,16 @@ function markAttendance(scheduleId, subject, className, schoolName) {
             miniMap.setView([location.latitude, location.longitude], 16);
         }
 
-        updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
+        // Check if location is within school polygon
+        checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
+            if (isValid) {
+                updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
+            } else {
+                updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.', false);
+            }
+        }).catch(error => {
+            updateLocationStatus('error', 'Gagal memverifikasi lokasi dalam area sekolah: ' + error, false);
+        });
     }).catch(error => {
         updateLocationStatus('error', error);
     });
@@ -316,7 +328,16 @@ function refreshLocation() {
             initializeMiniMap(location.latitude, location.longitude);
         }
 
-        updateLocationStatus('success', 'Lokasi berhasil diperbarui dan berada dalam area sekolah.', true);
+        // Check if location is within school polygon
+        checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
+            if (isValid) {
+                updateLocationStatus('success', 'Lokasi berhasil diperbarui dan berada dalam area sekolah.', true);
+            } else {
+                updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.', false);
+            }
+        }).catch(error => {
+            updateLocationStatus('error', 'Gagal memverifikasi lokasi dalam area sekolah: ' + error, false);
+        });
     }).catch(error => {
         updateLocationStatus('error', error);
     });
@@ -332,57 +353,101 @@ $('#confirmAttendanceBtn').click(function() {
         return;
     }
 
-    // Disable button to prevent double submission
-    $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i> Memproses...');
+    // Check location in polygon before submitting
+    checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
+        if (!isValid) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Lokasi Tidak Valid!',
+                text: 'Lokasi Anda berada di luar area sekolah. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
+            });
+            return;
+        }
 
-    // Send AJAX request
-    $.ajax({
-        url: '{{ route("teaching-attendances.store") }}',
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            teaching_schedule_id: currentScheduleId,
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            lokasi: 'Presensi Mengajar'
-        },
-        success: function(response) {
-            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
+        // Disable button to prevent double submission
+        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i> Memproses...');
 
-            if (response.success) {
-                $('#attendanceModal').modal('hide');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: response.message,
-                    timer: 3000,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
+        // Send AJAX request
+        $.ajax({
+            url: '{{ route("teaching-attendances.store") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                teaching_schedule_id: currentScheduleId,
+                latitude: userLocation.latitude,
+                longitude: userLocation.longitude,
+                lokasi: 'Presensi Mengajar'
+            },
+            success: function(response) {
+                $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
+
+                if (response.success) {
+                    $('#attendanceModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: response.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
+
+                let message = 'Terjadi kesalahan saat melakukan presensi.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: response.message
+                    text: message
                 });
             }
-        },
-        error: function(xhr, status, error) {
-            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi');
-
-            let message = 'Terjadi kesalahan saat melakukan presensi.';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                message = xhr.responseJSON.message;
-            }
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: message
-            });
-        }
+        });
+    }).catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Gagal memverifikasi lokasi: ' + error
+        });
     });
 });
+
+// Function to check location in polygon via AJAX
+function checkLocationInPolygon(lat, lng, scheduleId) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: '{{ route("teaching-attendances.check-location") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                latitude: lat,
+                longitude: lng,
+                teaching_schedule_id: scheduleId
+            },
+            success: function(response) {
+                if (response.success) {
+                    resolve(response.is_within_polygon);
+                } else {
+                    reject(response.message || 'Gagal memverifikasi lokasi');
+                }
+            },
+            error: function(xhr, status, error) {
+                reject('Gagal memverifikasi lokasi: ' + error);
+            }
+        });
+    });
+}
 
 // Cleanup map when modal is hidden
 $('#attendanceModal').on('hidden.bs.modal', function () {

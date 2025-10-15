@@ -144,6 +144,51 @@ class TeachingAttendanceController extends Controller
         ]);
     }
 
+    public function checkLocation(Request $request)
+    {
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'teaching_schedule_id' => 'required|exists:teaching_schedules,id',
+        ]);
+
+        $user = Auth::user();
+
+        // Get the schedule
+        $schedule = TeachingSchedule::findOrFail($request->teaching_schedule_id);
+
+        // Check if the schedule belongs to the user
+        if ($schedule->teacher_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jadwal tidak valid.'
+            ], 403);
+        }
+
+        // Location validation using polygon from madrasah
+        $madrasah = $schedule->school;
+        $isWithinPolygon = false;
+
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            try {
+                $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
+                if (isset($polygonGeometry['coordinates'][0])) {
+                    $polygon = $polygonGeometry['coordinates'][0];
+                    if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                        $isWithinPolygon = true;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Handle error silently for frontend
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_within_polygon' => $isWithinPolygon
+        ]);
+    }
+
     /**
      * Checks if a point is inside a polygon using the ray-casting algorithm.
      * @param array $point The point to check, in [longitude, latitude] format.
