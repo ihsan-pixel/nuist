@@ -82,7 +82,7 @@
                                             </div>
                                         </div>
                                     @else
-                                        <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ $schedule->subject }}', '{{ $schedule->class_name }}', '{{ $schedule->school->name ?? 'N/A' }}')">
+                                        <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}')">
                                             <i class="bx bx-check-circle me-2"></i> Lakukan Presensi
                                         </button>
                                     @endif
