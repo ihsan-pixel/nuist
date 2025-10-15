@@ -27,14 +27,14 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Skip empty rows
-        if (empty($row['school_id']) || empty($row['teacher_id']) || empty($row['day'])) {
+        if (empty($row['school_scod']) || empty($row['teacher_name']) || empty($row['day'])) {
             return null;
         }
 
         try {
             // Validate required fields
             $requiredFields = [
-                'school_id', 'teacher_id', 'day', 'subject', 'class_name', 'start_time', 'end_time'
+                'school_scod', 'teacher_name', 'day', 'subject', 'class_name', 'start_time', 'end_time'
             ];
 
             foreach ($requiredFields as $field) {
@@ -49,15 +49,16 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
                 throw new \Exception("Invalid day value: " . $row['day'] . ". Allowed values: " . implode(', ', $allowedDays));
             }
 
-            // Validate school_id exists
-            if (!Madrasah::find($row['school_id'])) {
-                throw new \Exception("School ID {$row['school_id']} not found");
+            // Validate school_scod exists
+            $madrasah = Madrasah::where('scod', $row['school_scod'])->first();
+            if (!$madrasah) {
+                throw new \Exception("School SCOD {$row['school_scod']} not found");
             }
 
-            // Validate teacher_id exists and is tenaga_pendidik
-            $teacher = User::where('id', $row['teacher_id'])->where('role', 'tenaga_pendidik')->first();
+            // Validate teacher_name exists and is tenaga_pendidik
+            $teacher = User::where('name', $row['teacher_name'])->where('role', 'tenaga_pendidik')->first();
             if (!$teacher) {
-                throw new \Exception("Teacher ID {$row['teacher_id']} not found or not a tenaga_pendidik");
+                throw new \Exception("Teacher name '{$row['teacher_name']}' not found or not a tenaga_pendidik");
             }
 
             // Validate time format
@@ -70,7 +71,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
             }
 
             // Check teacher schedule overlap
-            $teacherOverlap = TeachingSchedule::where('teacher_id', $row['teacher_id'])
+            $teacherOverlap = TeachingSchedule::where('teacher_id', $teacher->id)
                 ->where('day', $row['day'])
                 ->where(function ($query) use ($row) {
                     $query->where('start_time', '<', $row['end_time'])
@@ -83,7 +84,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
             }
 
             // Check class schedule overlap
-            $classOverlap = TeachingSchedule::where('school_id', $row['school_id'])
+            $classOverlap = TeachingSchedule::where('school_id', $madrasah->id)
                 ->where('class_name', $row['class_name'])
                 ->where('day', $row['day'])
                 ->where(function ($query) use ($row) {
@@ -99,8 +100,8 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
             Log::info('Successfully importing teaching schedule for teacher: ' . $teacher->name . ' - ' . $row['subject']);
 
             return new TeachingSchedule([
-                'school_id' => $row['school_id'],
-                'teacher_id' => $row['teacher_id'],
+                'school_id' => $madrasah->id,
+                'teacher_id' => $teacher->id,
                 'day' => $row['day'],
                 'subject' => $row['subject'],
                 'class_name' => $row['class_name'],
