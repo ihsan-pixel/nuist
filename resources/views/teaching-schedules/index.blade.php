@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-12">
+    <div class="col-lg-10 col-xl-8 mx-auto">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Daftar Jadwal Mengajar</h4>
