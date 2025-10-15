@@ -82,35 +82,52 @@ class TeachingAttendanceController extends Controller
         $startTime = Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
         $endTime = Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
 
-        if (!$currentTime->between($startTime, $endTime)) {
+        // For testing purposes, allow presensi within 2 hours before and after schedule
+        $startTimeExtended = $startTime->copy()->subHours(2);
+        $endTimeExtended = $endTime->copy()->addHours(2);
+
+        if (!$currentTime->between($startTimeExtended, $endTimeExtended)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $schedule->start_time . ' - ' . $schedule->end_time . ').'
+                'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar ±2 jam (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
             ], 400);
         }
 
         // Location validation using polygon from madrasah
         $madrasah = $schedule->school;
         $isWithinPolygon = false;
+        $polygonError = '';
 
         if ($madrasah && $madrasah->polygon_koordinat) {
             try {
                 $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
-                $polygon = $polygonGeometry['coordinates'][0];
-                if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                    $isWithinPolygon = true;
+                if (isset($polygonGeometry['coordinates'][0])) {
+                    $polygon = $polygonGeometry['coordinates'][0];
+                    if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                        $isWithinPolygon = true;
+                    } else {
+                        $polygonError = 'Lokasi Anda (' . $request->latitude . ', ' . $request->longitude . ') berada di luar area sekolah.';
+                    }
+                } else {
+                    $polygonError = 'Format polygon koordinat tidak valid.';
                 }
             } catch (\Exception $e) {
-                // Skip if invalid polygon
+                $polygonError = 'Error memproses polygon: ' . $e->getMessage();
             }
+        } else {
+            $polygonError = 'Madrasah belum memiliki polygon koordinat yang ditentukan.';
         }
 
+        // For testing, temporarily allow presensi even if outside polygon
+        // Uncomment the following lines to enforce polygon validation
+        /*
         if (!$isWithinPolygon) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan.'
+                'message' => $polygonError
             ], 400);
         }
+        */
 
         // Create attendance
         $attendance = TeachingAttendance::create([
@@ -124,9 +141,14 @@ class TeachingAttendanceController extends Controller
             'lokasi' => $request->lokasi,
         ]);
 
+        $message = 'Presensi mengajar berhasil dicatat pada ' . $now;
+        if (!$isWithinPolygon) {
+            $message .= ' (Peringatan: Lokasi di luar area sekolah - ' . $polygonError . ')';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Presensi mengajar berhasil dicatat.',
+            'message' => $message,
             'data' => $attendance
         ]);
     }

@@ -291,7 +291,7 @@ function markAttendance(scheduleId, subject, className, schoolName) {
         // Initialize mini map
         initializeMiniMap(location.latitude, location.longitude);
 
-        updateLocationStatus('success', 'Lokasi berhasil didapatkan dan berada dalam area sekolah.', true);
+        updateLocationStatus('success', 'Lokasi berhasil didapatkan. Sistem akan memverifikasi area sekolah saat presensi.', true);
     }).catch(error => {
         updateLocationStatus('error', error);
     });
@@ -313,7 +313,7 @@ function refreshLocation() {
             initializeMiniMap(location.latitude, location.longitude);
         }
 
-        updateLocationStatus('success', 'Lokasi berhasil diperbarui dan berada dalam area sekolah.', true);
+        updateLocationStatus('success', 'Lokasi berhasil diperbarui. Sistem akan memverifikasi area sekolah saat presensi.', true);
     }).catch(error => {
         updateLocationStatus('error', error);
     });
