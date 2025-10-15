@@ -152,6 +152,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
     if (isSuccess) {
         $('#locationStatus').addClass('alert-success').html('<i class="bx bx-check-circle"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', false);
+        console.log('Location obtained successfully:', userLocation);
     } else if (status === 'loading') {
         $('#locationStatus').addClass('alert-info').html('<i class="bx bx-loader-alt bx-spin"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
@@ -159,6 +160,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
         $('#locationStatus').addClass('alert-danger').html('<i class="bx bx-error"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
     }
+    console.log('Button disabled state:', $('#confirmAttendanceBtn').prop('disabled'));
 }
 
 function markAttendance(scheduleId) {
@@ -188,10 +190,21 @@ function refreshLocation() {
 }
 
 $('#confirmAttendanceBtn').click(function() {
+    console.log('Confirm button clicked');
+    console.log('userLocation:', userLocation);
+    console.log('currentScheduleId:', currentScheduleId);
+
     if (!userLocation || !currentScheduleId) {
-        alert('Lokasi belum didapatkan atau jadwal tidak valid.');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan!',
+            text: 'Lokasi belum didapatkan atau jadwal tidak valid. Pastikan lokasi sudah berhasil didapatkan terlebih dahulu.'
+        });
         return;
     }
+
+    // Disable button to prevent double submission
+    $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Memproses...');
 
     // Send AJAX request
     $.ajax({
@@ -205,6 +218,9 @@ $('#confirmAttendanceBtn').click(function() {
             lokasi: 'Presensi Mengajar'
         },
         success: function(response) {
+            console.log('AJAX success response:', response);
+            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check"></i> Ya, Presensi');
+
             if (response.success) {
                 $('#attendanceModal').modal('hide');
                 Swal.fire({
@@ -224,7 +240,10 @@ $('#confirmAttendanceBtn').click(function() {
                 });
             }
         },
-        error: function(xhr) {
+        error: function(xhr, status, error) {
+            console.log('AJAX error:', xhr, status, error);
+            $('#confirmAttendanceBtn').prop('disabled', false).html('<i class="bx bx-check"></i> Ya, Presensi');
+
             let message = 'Terjadi kesalahan saat melakukan presensi.';
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 message = xhr.responseJSON.message;
