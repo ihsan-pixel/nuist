@@ -82,9 +82,22 @@
                                             </div>
                                         </div>
                                     @else
-                                        <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}')">
-                                            <i class="bx bx-check-circle me-2"></i> Lakukan Presensi
-                                        </button>
+                                        @php
+                                            $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
+                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
+                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+                                            $isWithinTime = $currentTime->between($startTime, $endTime);
+                                        @endphp
+                                        @if($isWithinTime)
+                                            <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}')">
+                                                <i class="bx bx-check-circle me-2"></i> Lakukan Presensi
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-secondary w-100" disabled>
+                                                <i class="bx bx-time me-2"></i> Diluar Waktu Mengajar
+                                            </button>
+                                            <small class="text-muted d-block text-center mt-1">Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
+                                        @endif
                                     @endif
                                 </div>
                             </div>
@@ -161,6 +174,12 @@
                                 <input type="text" id="currentLongitude" class="form-control form-control-sm" placeholder="Longitude" readonly>
                             </div>
                         </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bx bx-info-circle me-1"></i>
+                                Akurasi: <span id="currentAccuracy">Menunggu...</span>
+                            </small>
+                        </div>
                     </div>
                 </div>
 
@@ -209,7 +228,8 @@ function getUserLocation() {
             (position) => {
                 resolve({
                     latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy
                 });
             },
             (error) => {
@@ -267,6 +287,16 @@ function initializeMiniMap(lat = -6.2088, lng = 106.8456) {
     userMarker = L.marker([lat, lng]).addTo(miniMap)
         .bindPopup('Lokasi Anda saat ini')
         .openPopup();
+
+    // Add accuracy circle if available
+    if (userLocation && userLocation.accuracy) {
+        L.circle([lat, lng], {
+            color: 'red',
+            fillColor: 'red',
+            fillOpacity: 0.1,
+            radius: userLocation.accuracy
+        }).addTo(miniMap);
+    }
 }
 
 function markAttendance(scheduleId, subject, className, schoolName) {
@@ -290,6 +320,7 @@ function markAttendance(scheduleId, subject, className, schoolName) {
         userLocation = location;
         $('#currentLatitude').val(location.latitude.toFixed(6));
         $('#currentLongitude').val(location.longitude.toFixed(6));
+        $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
 
         // Update mini map with actual location
         if (miniMap && userMarker) {
@@ -319,6 +350,7 @@ function refreshLocation() {
         userLocation = location;
         $('#currentLatitude').val(location.latitude.toFixed(6));
         $('#currentLongitude').val(location.longitude.toFixed(6));
+        $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
 
         // Update mini map
         if (miniMap && userMarker) {
