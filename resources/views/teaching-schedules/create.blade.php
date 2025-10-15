@@ -101,26 +101,26 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group mb-3">
-                                                <label for="subject_{{ $index }}_0" class="form-label">Mata Pelajaran <span class="text-danger">*</span></label>
-                                                <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control" placeholder="Contoh: Matematika" required>
+                                                <label for="subject_{{ $index }}_0" class="form-label">Mata Pelajaran</label>
+                                                <input type="text" name="schedules[{{ $index }}][0][subject]" id="subject_{{ $index }}_0" class="form-control" placeholder="Contoh: Matematika">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group mb-3">
-                                                <label for="class_name_{{ $index }}_0" class="form-label">Kelas <span class="text-danger">*</span></label>
-                                                <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control" placeholder="Contoh: VII A" required>
+                                                <label for="class_name_{{ $index }}_0" class="form-label">Kelas</label>
+                                                <input type="text" name="schedules[{{ $index }}][0][class_name]" id="class_name_{{ $index }}_0" class="form-control" placeholder="Contoh: VII A">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group mb-3">
-                                                <label for="start_time_{{ $index }}_0" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
-                                                <input type="time" name="schedules[{{ $index }}][0][start_time]" id="start_time_{{ $index }}_0" class="form-control" required>
+                                                <label for="start_time_{{ $index }}_0" class="form-label">Jam Mulai</label>
+                                                <input type="time" name="schedules[{{ $index }}][0][start_time]" id="start_time_{{ $index }}_0" class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group mb-3">
-                                                <label for="end_time_{{ $index }}_0" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
-                                                <input type="time" name="schedules[{{ $index }}][0][end_time]" id="end_time_{{ $index }}_0" class="form-control" required>
+                                                <label for="end_time_{{ $index }}_0" class="form-label">Jam Selesai</label>
+                                                <input type="time" name="schedules[{{ $index }}][0][end_time]" id="end_time_{{ $index }}_0" class="form-control">
                                             </div>
                                         </div>
                                         <div class="col-md-1 d-flex align-items-end">
@@ -167,26 +167,26 @@ function addSchedule(dayIndex) {
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group mb-3">
-                    <label for="subject_${dayIndex}_${counter}" class="form-label">Mata Pelajaran <span class="text-danger">*</span></label>
-                    <input type="text" name="schedules[${dayIndex}][${counter}][subject]" id="subject_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: Matematika" required>
+                    <label for="subject_${dayIndex}_${counter}" class="form-label">Mata Pelajaran</label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][subject]" id="subject_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: Matematika">
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-group mb-3">
-                    <label for="class_name_${dayIndex}_${counter}" class="form-label">Kelas <span class="text-danger">*</span></label>
-                    <input type="text" name="schedules[${dayIndex}][${counter}][class_name]" id="class_name_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: VII A" required>
+                    <label for="class_name_${dayIndex}_${counter}" class="form-label">Kelas</label>
+                    <input type="text" name="schedules[${dayIndex}][${counter}][class_name]" id="class_name_${dayIndex}_${counter}" class="form-control" placeholder="Contoh: VII A">
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-group mb-3">
-                    <label for="start_time_${dayIndex}_${counter}" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
-                    <input type="time" name="schedules[${dayIndex}][${counter}][start_time]" id="start_time_${dayIndex}_${counter}" class="form-control" required>
+                    <label for="start_time_${dayIndex}_${counter}" class="form-label">Jam Mulai</label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][start_time]" id="start_time_${dayIndex}_${counter}" class="form-control">
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-group mb-3">
-                    <label for="end_time_${dayIndex}_${counter}" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
-                    <input type="time" name="schedules[${dayIndex}][${counter}][end_time]" id="end_time_${dayIndex}_${counter}" class="form-control" required>
+                    <label for="end_time_${dayIndex}_${counter}" class="form-label">Jam Selesai</label>
+                    <input type="time" name="schedules[${dayIndex}][${counter}][end_time]" id="end_time_${dayIndex}_${counter}" class="form-control">
                 </div>
             </div>
             <div class="col-md-1 d-flex align-items-end">
