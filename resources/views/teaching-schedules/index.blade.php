@@ -1,42 +1,54 @@
 @extends('layouts.master')
 
-@section('title', 'Jadwal Mengajar')
+@section('title') Jadwal Mengajar @endsection
 
-@section('vendor-script')
-<!-- SweetAlert2 -->
-<link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+@component('components.breadcrumb')
+    @slot('li_1') Master Data @endslot
+    @slot('title') Jadwal Mengajar @endslot
+@endcomponent
+
+@section('css')
+<link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
+<link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 @endsection
 
 @section('content')
 <div class="row">
-    <div class="col-lg-10 col-xl-8 mx-auto">
+    <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">Daftar Jadwal Mengajar</h4>
-                @if(Auth::user()->role !== 'tenaga_pendidik')
-                                <div>
-                    @if(Auth::user()->role !== 'tenaga_pendidik')
-                    <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
-                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">Import Jadwal</button>
-                    @endif
-                    @endif
-                </div>
-                @endif
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-calendar me-2"></i>Daftar Jadwal Mengajar
+                </h4>
             </div>
             <div class="card-body">
                 @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 @endif
+
+                @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+
+                <div class="mb-3 d-flex justify-content-end gap-2">
+                    @if(Auth::user()->role !== 'tenaga_pendidik')
+                    <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">
+                        <i class="bx bx-plus"></i> Tambah Jadwal
+                    </a>
+                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <i class="bx bx-upload"></i> Import Jadwal
+                    </button>
+                    @endif
+                    @endif
+                </div>
 
                 @foreach($grouped as $teacherName => $schedules)
                 <h5>{{ $teacherName }}</h5>
@@ -231,71 +243,4 @@
     </div>
 </div>
 
-@section('script')
-<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-<script>
-$(document).ready(function() {
-    // SweetAlert for success/error messages
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            timer: 3000,
-            showConfirmButton: false
-        });
-    @endif
-
-    @if($errors->any())
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            html: '{{ implode('<br>', $errors->all()) }}',
-            confirmButtonText: 'OK'
-        });
-    @endif
-
-    // File input validation
-    $('#file').on('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const fileSize = file.size / 1024 / 1024; // in MB
-            const allowedTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-
-            if (fileSize > 10) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'File Terlalu Besar!',
-                    text: 'Ukuran file maksimal 10MB'
-                });
-                this.value = '';
-                return;
-            }
-
-            if (!allowedTypes.includes(file.type) && !file.name.endsWith('.csv') && !file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Format File Tidak Didukung!',
-                    text: 'Hanya file CSV dan Excel yang diperbolehkan'
-                });
-                this.value = '';
-                return;
-            }
-        }
-    });
-
-    // Form submission with loading
-    $('#importForm').on('submit', function() {
-        const submitBtn = $(this).find('button[type="submit"]');
-        const originalText = submitBtn.html();
-
-        submitBtn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin"></i> Memproses...');
-
-        // Re-enable button after 30 seconds as fallback
-        setTimeout(function() {
-            submitBtn.prop('disabled', false).html(originalText);
-        }, 30000);
-    });
-});
-</script>
 @endsection
