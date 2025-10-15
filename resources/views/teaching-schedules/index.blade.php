@@ -14,12 +14,10 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">Daftar Jadwal Mengajar</h4>
                 @if(Auth::user()->role !== 'tenaga_pendidik')
-                                <div>
-                    @if(Auth::user()->role !== 'tenaga_pendidik')
+                <div>
                     <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">Tambah Jadwal</a>
                     @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">Import Jadwal</button>
-                    @endif
                     @endif
                 </div>
                 @endif
