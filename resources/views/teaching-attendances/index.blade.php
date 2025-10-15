@@ -148,37 +148,89 @@
                 </div>
 
                 <!-- Location Section -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
-                                <i class="bx bx-refresh me-1"></i> Refresh Lokasi
-                            </button>
-                        </div>
-
-                        <div id="locationStatus" class="alert alert-info mb-3">
-                            <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
-                        </div>
-
-                        <!-- Mini Map -->
-                        <div class="mb-3">
-                            <div id="miniMap" style="height: 150px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
-                        </div>
-
-                        <!-- Coordinates -->
-                        <div class="row">
-                            <div class="col-6">
-                                <input type="text" id="currentLatitude" class="form-control form-control-sm" placeholder="Latitude" readonly>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="card-title mb-0">
+                                    <i class="bx bx-map-pin me-2"></i>Lokasi Anda Saat Ini
+                                </h6>
                             </div>
-                            <div class="col-6">
-                                <input type="text" id="currentLongitude" class="form-control form-control-sm" placeholder="Longitude" readonly>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
+                                        <i class="bx bx-refresh me-1"></i> Refresh Lokasi
+                                    </button>
+                                </div>
+
+                                <div id="locationStatus" class="alert alert-info mb-3">
+                                    <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                                </div>
+
+                                <!-- Mini Map -->
+                                <div class="mb-3">
+                                    <div id="miniMap" style="height: 200px; width: 100%; border-radius: 5px; border: 1px solid #ddd; position: relative; overflow: hidden;"></div>
+                                </div>
+
+                                <!-- Coordinates -->
+                                <div class="mb-3">
+                                    <label class="form-label">Koordinat Lokasi</label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <input type="text" id="currentLatitude" class="form-control form-control-sm" placeholder="Latitude" readonly>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" id="currentLongitude" class="form-control form-control-sm" placeholder="Longitude" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Alamat Lokasi</label>
+                                    <input type="text" id="currentAddress" class="form-control form-control-sm" placeholder="Alamat akan muncul otomatis" readonly>
+                                </div>
+
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bx bx-info-circle me-1"></i>
+                                        Akurasi: <span id="currentAccuracy">Menunggu...</span>
+                                    </small>
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                <i class="bx bx-info-circle me-1"></i>
-                                Akurasi: <span id="currentAccuracy">Menunggu...</span>
-                            </small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Informasi Presensi</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ auth()->user()->name }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Madrasah</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ auth()->user()->madrasah?->name ?? 'Tidak ada data' }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tanggal</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ \Carbon\Carbon::now()->format('d F Y') }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Waktu Sekarang</label>
+                                    <input type="text" id="current-time" class="form-control form-control-sm" readonly>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <i class="bx bx-error-circle me-2"></i>
+                                    <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -210,6 +262,7 @@ let currentScheduleId = null;
 let userLocation = null;
 let miniMap = null;
 let userMarker = null;
+let currentAddress = null;
 
 function getUserLocation() {
     return new Promise((resolve, reject) => {
@@ -322,6 +375,9 @@ function markAttendance(scheduleId, subject, className, schoolName) {
         $('#currentLongitude').val(location.longitude.toFixed(6));
         $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
 
+        // Get address from coordinates
+        getAddressFromCoordinates(location.latitude, location.longitude);
+
         // Update mini map with actual location
         if (miniMap && userMarker) {
             userMarker.setLatLng([location.latitude, location.longitude]);
@@ -351,6 +407,9 @@ function refreshLocation() {
         $('#currentLatitude').val(location.latitude.toFixed(6));
         $('#currentLongitude').val(location.longitude.toFixed(6));
         $('#currentAccuracy').text(location.accuracy ? location.accuracy.toFixed(0) + ' meter' : 'Tidak tersedia');
+
+        // Get address from coordinates
+        getAddressFromCoordinates(location.latitude, location.longitude);
 
         // Update mini map
         if (miniMap && userMarker) {
@@ -480,6 +539,32 @@ function checkLocationInPolygon(lat, lng, scheduleId) {
         });
     });
 }
+
+// Function to get address from coordinates
+function getAddressFromCoordinates(lat, lng) {
+    return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.display_name) {
+                currentAddress = data.display_name;
+                $('#currentAddress').val(currentAddress);
+            } else {
+                $('#currentAddress').val('Tidak dapat mendapatkan alamat');
+            }
+        })
+        .catch(error => {
+            console.error('Error getting address:', error);
+            $('#currentAddress').val('Tidak dapat mendapatkan alamat');
+        });
+}
+
+// Update waktu sekarang setiap detik
+function updateTime() {
+    const now = new Date();
+    $('#current-time').val(now.toLocaleTimeString('id-ID'));
+}
+updateTime();
+setInterval(updateTime, 1000);
 
 // Cleanup map when modal is hidden
 $('#attendanceModal').on('hidden.bs.modal', function () {
