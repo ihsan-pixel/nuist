@@ -53,24 +53,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="school_id" class="form-label">Sekolah <span class="text-danger">*</span></label>
-                                <select name="school_id" id="school_id" class="form-control" required>
-                                    <option value="">Pilih Sekolah</option>
-                                    @foreach($schools as $school)
-                                    <option value="{{ $school->id }}" {{ $schedule->school_id == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
-                                    @endforeach
-                                </select>
+                                <label for="school_id" class="form-label">Sekolah</label>
+                                <input type="text" class="form-control" value="{{ $schedule->school->name ?? 'N/A' }}" readonly>
+                                <input type="hidden" name="school_id" value="{{ $schedule->school_id }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="teacher_id" class="form-label">Guru <span class="text-danger">*</span></label>
-                                <select name="teacher_id" id="teacher_id" class="form-control" required>
-                                    <option value="">Pilih Guru</option>
-                                    @foreach($teachers as $teacher)
-                                    <option value="{{ $teacher->id }}" {{ $schedule->teacher_id == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }}</option>
-                                    @endforeach
-                                </select>
+                                <label for="teacher_id" class="form-label">Guru</label>
+                                <input type="text" class="form-control" value="{{ $schedule->teacher->name ?? 'N/A' }}" readonly>
+                                <input type="hidden" name="teacher_id" value="{{ $schedule->teacher_id }}">
                             </div>
                         </div>
                     </div>
@@ -106,13 +98,13 @@
                         <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label for="start_time" class="form-label">Jam Mulai <span class="text-danger">*</span></label>
-                                <input type="time" name="start_time" id="start_time" class="form-control" value="{{ $schedule->start_time }}" required>
+                                <input type="time" name="start_time" id="start_time" class="form-control" value="{{ $schedule->start_time ? date('H:i', strtotime($schedule->start_time)) : '' }}" required>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label for="end_time" class="form-label">Jam Selesai <span class="text-danger">*</span></label>
-                                <input type="time" name="end_time" id="end_time" class="form-control" value="{{ $schedule->end_time }}" required>
+                                <input type="time" name="end_time" id="end_time" class="form-control" value="{{ $schedule->end_time ? date('H:i', strtotime($schedule->end_time)) : '' }}" required>
                             </div>
                         </div>
                     </div>
