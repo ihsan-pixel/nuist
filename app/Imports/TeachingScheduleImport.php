@@ -27,14 +27,14 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Skip empty rows
-        if (empty($row['school_scod']) || empty($row['teacher_name']) || empty($row['day'])) {
+        if (empty($row['school_scod']) || empty($row['teacher_nuist_id']) || empty($row['day'])) {
             return null;
         }
 
         try {
             // Validate required fields
             $requiredFields = [
-                'school_scod', 'teacher_name', 'day', 'subject', 'class_name', 'start_time', 'end_time'
+                'school_scod', 'teacher_nuist_id', 'day', 'subject', 'class_name', 'start_time', 'end_time'
             ];
 
             foreach ($requiredFields as $field) {
@@ -55,10 +55,10 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
                 throw new \Exception("School SCOD {$row['school_scod']} not found");
             }
 
-            // Validate teacher_name exists and is tenaga_pendidik
-            $teacher = User::where('name', $row['teacher_name'])->where('role', 'tenaga_pendidik')->first();
+            // Validate teacher_nuist_id exists and is tenaga_pendidik
+            $teacher = User::where('nuist_id', $row['teacher_nuist_id'])->where('role', 'tenaga_pendidik')->first();
             if (!$teacher) {
-                throw new \Exception("Teacher name '{$row['teacher_name']}' not found or not a tenaga_pendidik");
+                throw new \Exception("Teacher NUist ID '{$row['teacher_nuist_id']}' not found or not a tenaga_pendidik");
             }
 
             // Validate time format
@@ -97,7 +97,7 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
                 throw new \Exception("Schedule overlap for class {$row['class_name']} on {$row['day']}");
             }
 
-            Log::info('Successfully importing teaching schedule for teacher: ' . $teacher->name . ' - ' . $row['subject']);
+            Log::info('Successfully importing teaching schedule for teacher NUist ID: ' . $teacher->nuist_id . ' (' . $teacher->name . ') - ' . $row['subject']);
 
             return new TeachingSchedule([
                 'school_id' => $madrasah->id,

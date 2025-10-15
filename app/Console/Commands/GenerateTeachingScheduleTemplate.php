@@ -39,7 +39,7 @@ class GenerateTeachingScheduleTemplate extends Command
         // Set headers
         $headers = [
             'school_scod',
-            'teacher_name',
+            'teacher_nuist_id',
             'day',
             'subject',
             'class_name',
@@ -54,9 +54,9 @@ class GenerateTeachingScheduleTemplate extends Command
 
         // Add example data using generic examples (database connection not available during command execution)
         $exampleData = [
-            ['SCOD001', 'Nama Guru 1', 'Senin', 'Matematika', 'Kelas 1A', '08:00', '09:00'],
-            ['SCOD001', 'Nama Guru 2', 'Selasa', 'Bahasa Indonesia', 'Kelas 1B', '09:00', '10:00'],
-            ['SCOD002', 'Nama Guru 3', 'Rabu', 'TIK', 'Kelas 2A', '10:00', '11:00']
+            ['SCOD001', '000001', 'Senin', 'Matematika', 'Kelas 1A', '08:00', '09:00'],
+            ['SCOD001', '000002', 'Selasa', 'Bahasa Indonesia', 'Kelas 1B', '09:00', '10:00'],
+            ['SCOD002', '000003', 'Rabu', 'TIK', 'Kelas 2A', '10:00', '11:00']
         ];
 
         foreach ($exampleData as $rowIndex => $rowData) {
