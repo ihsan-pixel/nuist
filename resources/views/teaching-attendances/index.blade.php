@@ -162,7 +162,8 @@
 
                         <div class="alert alert-warning">
                             <i class="bx bx-error-circle me-2"></i>
-                            <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
+                            <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.<br>
+                            <small class="text-muted">Presensi hanya bisa dilakukan sesuai jam mengajar.</small>
                         </div>
                     </div>
                 </div>
@@ -239,7 +240,7 @@ function updateLocationStatus(status, message, isSuccess = false) {
         $('#locationStatus').addClass('alert-info').html('<i class="bx bx-loader-alt bx-spin"></i> ' + message);
         $('#confirmAttendanceBtn').prop('disabled', true);
     } else if (status === 'warning') {
-        $('#locationStatus').addClass('alert-warning').html('<i class="bx bx-error-circle"></i> ' + message);
+        $('#locationStatus').addClass('alert-warning').html('<i class="bx bx-error-circle"></i> ' + message + '<br><small class="text-muted">Presensi hanya bisa dilakukan sesuai jam mengajar.</small>');
         $('#confirmAttendanceBtn').prop('disabled', true);
     } else {
         $('#locationStatus').addClass('alert-danger').html('<i class="bx bx-error"></i> ' + message);
