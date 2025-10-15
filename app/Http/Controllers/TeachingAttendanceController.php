@@ -82,14 +82,11 @@ class TeachingAttendanceController extends Controller
         $startTime = Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
         $endTime = Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
 
-        // For testing purposes, allow presensi within 2 hours before and after schedule
-        $startTimeExtended = $startTime->copy()->subHours(2);
-        $endTimeExtended = $endTime->copy()->addHours(2);
-
-        if (!$currentTime->between($startTimeExtended, $endTimeExtended)) {
+        // Strict time validation: only within schedule time
+        if (!$currentTime->between($startTime, $endTime)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar ±2 jam (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
+                'message' => 'Waktu presensi harus dilakukan dalam rentang waktu mengajar (' . $schedule->start_time . ' - ' . $schedule->end_time . '). Waktu sekarang: ' . $now
             ], 400);
         }
 
@@ -118,16 +115,13 @@ class TeachingAttendanceController extends Controller
             $polygonError = 'Madrasah belum memiliki polygon koordinat yang ditentukan.';
         }
 
-        // For testing, temporarily allow presensi even if outside polygon
-        // Uncomment the following lines to enforce polygon validation
-        /*
+        // Strict polygon validation: must be within madrasah polygon
         if (!$isWithinPolygon) {
             return response()->json([
                 'success' => false,
-                'message' => $polygonError
+                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
             ], 400);
         }
-        */
 
         // Create attendance
         $attendance = TeachingAttendance::create([
@@ -141,10 +135,7 @@ class TeachingAttendanceController extends Controller
             'lokasi' => $request->lokasi,
         ]);
 
-        $message = 'Presensi mengajar berhasil dicatat pada ' . $now;
-        if (!$isWithinPolygon) {
-            $message .= ' (Peringatan: Lokasi di luar area sekolah - ' . $polygonError . ')';
-        }
+        $message = 'Presensi mengajar berhasil dicatat pada ' . $now . '.';
 
         return response()->json([
             'success' => true,
