@@ -119,23 +119,24 @@ function markAttendance(scheduleId, subject, className, schoolName, startTime, e
     Swal.fire({
         title: 'Konfirmasi Presensi Mengajar',
         html: `
-            <div class="text-left">
+            <div class="text-left" style="max-width: 100%; word-wrap: break-word;">
                 <div class="mb-3">
-                    <strong>Mata Pelajaran:</strong> ${subject}<br>
-                    <strong>Kelas:</strong> ${className}<br>
-                    <strong>Sekolah:</strong> ${schoolName}<br>
-                    <strong>Waktu Mengajar:</strong> ${startTime} - ${endTime}
+                    <p class="mb-2"><strong>Mata Pelajaran:</strong> <span class="text-primary">${subject}</span></p>
+                    <p class="mb-2"><strong>Kelas:</strong> <span class="text-info">${className}</span></p>
+                    <p class="mb-2"><strong>Sekolah:</strong> <span class="text-success">${schoolName}</span></p>
+                    <p class="mb-3"><strong>Waktu Mengajar:</strong> <span class="text-warning">${startTime} - ${endTime}</span></p>
                 </div>
-                <div class="alert alert-info">
-                    <i class="bx bx-info-circle me-2"></i>
+                <div class="alert alert-info p-2 mb-3" style="font-size: 14px;">
+                    <i class="bx bx-info-circle me-1"></i>
                     Sistem sedang memverifikasi lokasi Anda...
                 </div>
-                <div class="alert alert-warning">
-                    <i class="bx bx-error-circle me-2"></i>
+                <div class="alert alert-warning p-2" style="font-size: 14px;">
+                    <i class="bx bx-error-circle me-1"></i>
                     <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.
                 </div>
             </div>
         `,
+        width: '600px',
         showCancelButton: true,
         confirmButtonText: 'Ya, Lakukan Presensi',
         cancelButtonText: 'Batal',
