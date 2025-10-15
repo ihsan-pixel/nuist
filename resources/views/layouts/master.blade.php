@@ -13,7 +13,9 @@
     @include('layouts.head-css')
 </head>
 
-<body data-topbar="light" data-layout-mode="light">
+@section('body')
+    <body data-topbar="light" data-layout-mode="light">
+@show
     <!-- Begin page -->
     <div id="layout-wrapper">
         @include('layouts.topbar')
