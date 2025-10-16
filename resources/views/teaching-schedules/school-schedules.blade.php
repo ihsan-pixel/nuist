@@ -87,7 +87,7 @@
                     @endif
                 @endforelse
 
-                @if($grouped->isEmpty())
+                @if($grouped->flatten()->isEmpty())
                 <div class="text-center py-5">
                     <div class="avatar-md mx-auto mb-3">
                         <div class="avatar-title bg-light rounded-circle">
