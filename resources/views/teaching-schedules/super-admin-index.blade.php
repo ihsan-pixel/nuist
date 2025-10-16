@@ -37,38 +37,64 @@
                 </div>
                 @endif
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Kabupaten</th>
-                                <th>SCOD</th>
-                                <th>Nama Madrasah</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($schools as $school)
-                            <tr>
-                                <td>{{ $school->kabupaten }}</td>
-                                <td>{{ $school->scod }}</td>
-                                <td>{{ $school->name }}</td>
-                                <td>
-                                    <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-sm btn-primary">
-                                        <i class="bx bx-calendar"></i> Lihat Jadwal
+                <div class="row">
+                    @forelse($schools as $school)
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 border">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar-sm me-3">
+                                        <div class="avatar-title bg-primary rounded-circle">
+                                            <i class="bx bx-building-house font-size-18"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-1">{{ $school->name }}</h5>
+                                        <p class="text-muted mb-0">
+                                            <i class="bx bx-map-pin me-1"></i>{{ $school->kabupaten }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <p class="text-muted mb-1">SCOD</p>
+                                            <h6 class="mb-0">{{ $school->scod }}</h6>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <p class="text-muted mb-1">Kabupaten</p>
+                                            <h6 class="mb-0">{{ $school->kabupaten }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-primary btn-sm">
+                                        <i class="bx bx-calendar me-1"></i> Lihat Jadwal
                                     </a>
-                                    <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-sm btn-info">
-                                        <i class="bx bx-group"></i> Lihat Kelas Berjalan
+                                    <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info btn-sm">
+                                        <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
                                     </a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center">Tidak ada data madrasah.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <div class="avatar-md mx-auto mb-3">
+                                <div class="avatar-title bg-light rounded-circle">
+                                    <i class="bx bx-building-house font-size-24 text-muted"></i>
+                                </div>
+                            </div>
+                            <h5 class="text-muted">Tidak ada data madrasah</h5>
+                            <p class="text-muted">Belum ada madrasah yang terdaftar dalam sistem.</p>
+                        </div>
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
