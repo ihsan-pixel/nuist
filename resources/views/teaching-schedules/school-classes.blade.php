@@ -31,43 +31,82 @@
                     </a>
                 </div>
 
-                @forelse($classesByDay as $day => $classes)
-                <h5>{{ $day }}</h5>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Kelas</th>
-                            <th>Status</th>
-                            <th>Guru</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Waktu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($classes as $className => $schedules)
-                        @foreach($schedules as $schedule)
-                        <tr>
-                            <td>{{ $className }}</td>
-                            <td>
-                                @if($schedule->teacher)
-                                <span class="badge bg-success">Terisi</span>
-                                @else
-                                <span class="badge bg-warning">Kosong</span>
-                                @endif
-                            </td>
-                            <td>{{ $schedule->teacher ? $schedule->teacher->name : '-' }}</td>
-                            <td>{{ $schedule->subject }}</td>
-                            <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
-                        </tr>
-                        @endforeach
-                        @endforeach
-                    </tbody>
-                </table>
-                @empty
-                <div class="alert alert-info">
-                    <i class="bx bx-info-circle"></i> Belum ada kelas berjalan untuk madrasah ini.
+                <div class="row">
+                    @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $day)
+                        @php
+                            $dayClasses = $classesByDay[$day] ?? collect();
+                        @endphp
+
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 border">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">
+                                        <i class="bx bx-calendar-week me-2"></i>{{ $day }}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    @if($dayClasses->isNotEmpty())
+                                        @foreach($dayClasses as $className => $schedules)
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="bx bx-group me-2 text-muted"></i>
+                                                <strong class="text-success">{{ $className }}</strong>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-borderless mb-0">
+                                                    <tbody>
+                                                        @foreach($schedules as $schedule)
+                                                        <tr>
+                                                            <td class="ps-0">
+                                                                <div class="d-flex align-items-center">
+                                                                    @if($schedule->teacher)
+                                                                        <span class="badge bg-success me-2">Terisi</span>
+                                                                    @else
+                                                                        <span class="badge bg-warning me-2">Kosong</span>
+                                                                    @endif
+                                                                    <span class="badge bg-primary">{{ $schedule->subject }}</span>
+                                                                </div>
+                                                                <div class="mt-1">
+                                                                    <small class="text-muted">
+                                                                        <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
+                                                                    </small>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-end pe-0">
+                                                                <small class="text-muted">
+                                                                    {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                                                </small>
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    @else
+                                        <div class="text-center py-3">
+                                            <i class="bx bx-calendar-x text-muted" style="font-size: 2rem;"></i>
+                                            <p class="text-muted mb-0 mt-2">Tidak ada kelas</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endforelse
+
+                @if($classesByDay->isEmpty())
+                <div class="text-center py-5">
+                    <div class="avatar-md mx-auto mb-3">
+                        <div class="avatar-title bg-light rounded-circle">
+                            <i class="bx bx-group font-size-24 text-muted"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-muted">Belum ada kelas berjalan</h5>
+                    <p class="text-muted">Belum ada kelas berjalan untuk madrasah ini.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
