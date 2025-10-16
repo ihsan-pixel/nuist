@@ -1,0 +1,26 @@
+    /**
+     * Filter schools for super_admin index (AJAX).
+     */
+    public function filter(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        $query = Madrasah::orderBy('kabupaten')->orderBy('scod');
+
+        if ($request->search) {
+            $query->where('name', 'like', '%'' . - . \%');
+        }
+
+        if ($request->kabupaten) {
+            $query->where('kabupaten', $request->kabupaten);
+        }
+
+        $schools = $query->get();
+        $schoolsByKabupaten = $schools->groupBy('kabupaten');
+
+        return response()->json(['schoolsByKabupaten' => $schoolsByKabupaten]);
+    }

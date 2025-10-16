@@ -38,10 +38,20 @@ class TeachingScheduleController extends Controller
             $grouped = $schedules->groupBy('day');
             return view('teaching-schedules.teacher-index', compact('grouped'));
         } elseif ($user->role === 'super_admin') {
-            // Super admin view: list all schools grouped by kabupaten, then sorted by scod
-            $schools = Madrasah::orderBy('kabupaten')->orderBy('scod')->get();
+            // Super admin view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
+            $query = Madrasah::orderBy('kabupaten')->orderBy('scod');
+
+            if (request('search')) {
+                $query->where('name', 'like', '%' . request('search') . '%');
+            }
+
+            if (request('kabupaten')) {
+                $query->where('kabupaten', request('kabupaten'));
+            }
+
+            $schools = $query->get();
             $schoolsByKabupaten = $schools->groupBy('kabupaten');
-            return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten'));
+            return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten', 'kabupatens'));
         } else {
             // Admin view: group by teacher
             $grouped = $schedules->groupBy('teacher.name');
@@ -387,4 +397,32 @@ class TeachingScheduleController extends Controller
 
         return view('teaching-schedules.school-classes', compact('school', 'classesByDay'));
     }
+}
+    /**
+     * Filter schools for super_admin index (AJAX).
+     */
+    public function filter(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        $query = Madrasah::orderBy('kabupaten')->orderBy('scod');
+
+        if ($request->search) {
+            $query->where('name', 'like', '%'' . - . \%');
+        }
+
+        if ($request->kabupaten) {
+            $query->where('kabupaten', $request->kabupaten);
+        }
+
+        $schools = $query->get();
+        $schoolsByKabupaten = $schools->groupBy('kabupaten');
+
+        return response()->json(['schoolsByKabupaten' => $schoolsByKabupaten]);
+    }
+}
 }

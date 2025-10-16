@@ -207,3 +207,5 @@ Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang'
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
+        Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
+leController::class, 'filter'])->name('teaching-schedules.filter');
