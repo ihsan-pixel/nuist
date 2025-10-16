@@ -61,9 +61,17 @@ class TeachingScheduleController extends Controller
             $kabupatens = Madrasah::distinct()->pluck('kabupaten')->sort();
             return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten', 'kabupatens'));
         } else {
-            // Admin view: group by teacher
+            // Admin view: show school schedules view for their own school
+            $school = Madrasah::findOrFail($user->madrasah_id);
+            $schedules = TeachingSchedule::with(['teacher', 'school', 'creator'])
+                ->where('school_id', $user->madrasah_id)
+                ->orderBy('day')
+                ->orderBy('start_time')
+                ->get();
+
             $grouped = $schedules->groupBy('teacher.name');
-            return view('teaching-schedules.index', compact('grouped'));
+
+            return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
         }
     }
 
@@ -358,13 +366,15 @@ class TeachingScheduleController extends Controller
     }
 
     /**
-     * Show schedules for a specific school (for super_admin).
+     * Show schedules for a specific school (for super_admin and admin).
      */
     public function showSchoolSchedules($schoolId)
     {
         $user = Auth::user();
 
-        if ($user->role !== 'super_admin') {
+        if ($user->role === 'admin' && $user->madrasah_id != $schoolId) {
+            abort(403);
+        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin') {
             abort(403);
         }
 
@@ -381,13 +391,15 @@ class TeachingScheduleController extends Controller
     }
 
     /**
-     * Show class status for a specific school (for super_admin).
+     * Show class status for a specific school (for super_admin and admin).
      */
     public function showSchoolClasses($schoolId, Request $request)
     {
         $user = Auth::user();
 
-        if ($user->role !== 'super_admin') {
+        if ($user->role === 'admin' && $user->madrasah_id != $schoolId) {
+            abort(403);
+        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin') {
             abort(403);
         }
 

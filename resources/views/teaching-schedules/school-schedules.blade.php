@@ -25,10 +25,15 @@
                 <p class="mb-0 text-muted">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
             </div>
             <div class="card-body">
-                <div class="mb-3">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
                     <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
                         <i class="bx bx-arrow-back"></i> Kembali ke Daftar Madrasah
                     </a>
+                    @if(Auth::user()->role === 'super_admin' || Auth::user()->role === 'admin')
+                    <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info">
+                        <i class="bx bx-group me-1"></i> Lihat Kelas
+                    </a>
+                    @endif
                 </div>
 
                 @php
