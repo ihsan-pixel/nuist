@@ -69,7 +69,7 @@
                         </h4>
                         <div class="row">
                             @foreach($schools as $school)
-                            <div class="mb-4" style="width: 20%;">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
                                 <div class="card h-100 border">
                                     <div class="card-body">
                                         <div class="d-flex align-items-center mb-3">
@@ -201,7 +201,7 @@ $(document).ready(function() {
 
                 schools.forEach(function(school) {
                     html += `
-                        <div class="mb-4" style="width: 20%;">
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
                             <div class="card h-100 border">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
