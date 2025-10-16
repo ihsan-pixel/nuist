@@ -31,35 +31,73 @@
                     </a>
                 </div>
 
-                @forelse($grouped as $teacherName => $schedules)
-                <h5>{{ $teacherName }}</h5>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Hari</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Kelas</th>
-                            <th>Jam Mulai</th>
-                            <th>Jam Selesai</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($schedules as $schedule)
-                        <tr>
-                            <td>{{ $schedule->day }}</td>
-                            <td>{{ $schedule->subject }}</td>
-                            <td>{{ $schedule->class_name }}</td>
-                            <td>{{ $schedule->start_time }}</td>
-                            <td>{{ $schedule->end_time }}</td>
-                        </tr>
+                @php
+                    $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                @endphp
+
+                @forelse($days as $day)
+                    @php
+                        $daySchedules = $grouped->flatten()->where('day', $day)->groupBy('teacher.name');
+                    @endphp
+
+                    @if($daySchedules->isNotEmpty())
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="bx bx-calendar-week me-2"></i>{{ $day }}
+                        </h5>
+
+                        @foreach($daySchedules as $teacherName => $schedules)
+                        <div class="card border mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="bx bx-user me-2"></i>{{ $teacherName }}
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-striped mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">Mata Pelajaran</th>
+                                                <th class="border-0">Kelas</th>
+                                                <th class="border-0">Jam Mulai</th>
+                                                <th class="border-0">Jam Selesai</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($schedules as $schedule)
+                                            <tr>
+                                                <td>
+                                                    <span class="badge bg-primary">{{ $schedule->subject }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">{{ $schedule->class_name }}</span>
+                                                </td>
+                                                <td>{{ $schedule->start_time }}</td>
+                                                <td>{{ $schedule->end_time }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
-                    </tbody>
-                </table>
-                @empty
-                <div class="alert alert-info">
-                    <i class="bx bx-info-circle"></i> Belum ada jadwal mengajar untuk madrasah ini.
-                </div>
+                    </div>
+                    @endif
                 @endforelse
+
+                @if($grouped->isEmpty())
+                <div class="text-center py-5">
+                    <div class="avatar-md mx-auto mb-3">
+                        <div class="avatar-title bg-light rounded-circle">
+                            <i class="bx bx-calendar font-size-24 text-muted"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-muted">Belum ada jadwal mengajar</h5>
+                    <p class="text-muted">Belum ada jadwal mengajar untuk madrasah ini.</p>
+                </div>
+                @endif
             </div>
         </div>
     </div>
