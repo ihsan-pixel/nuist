@@ -38,224 +38,79 @@
                 @endif
 
                 <!-- Search and Filter Section -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bx bx-search"></i></span>
-                            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama madrasah..." value="{{ request('search') }}">
+                <form method="GET" action="{{ route('teaching-schedules.index') }}" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama madrasah..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <select name="kabupaten" class="form-select">
+                                <option value="">Semua Kabupaten</option>
+                                @foreach($kabupatens as $kabupaten)
+                                <option value="{{ $kabupaten }}" {{ request('kabupaten') == $kabupaten ? 'selected' : '' }}>{{ $kabupaten }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Cari</button>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <select id="kabupatenFilter" class="form-select">
-                            <option value="">Semua Kabupaten</option>
-                            @foreach($kabupatens as $kabupaten)
-                            <option value="{{ $kabupaten }}" {{ request('kabupaten') == $kabupaten ? 'selected' : '' }}>{{ $kabupaten }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" id="filterBtn" class="btn btn-primary w-100">
-                            <i class="bx bx-filter-alt me-1"></i>Filter
-                        </button>
+                </form>
+
+                @if($schoolsByKabupaten->isEmpty())
+                <div class="text-center p-4">
+                    <div class="alert alert-info d-inline-block" role="alert">
+                        <i class="bx bx-info-circle bx-lg me-2"></i>
+                        <strong>Belum ada data madrasah</strong><br>
+                        <small>Silakan tambahkan data madrasah terlebih dahulu melalui menu Master Data.</small>
                     </div>
                 </div>
-
-                <div id="schoolsContainer">
-                    <div class="row">
+                @else
+                <div class="row">
                     @forelse($schoolsByKabupaten as $kabupaten => $schools)
-                    <div class="col-12 mb-4">
-                        <h4 class="mb-3">
-                            <i class="bx bx-map-pin me-2"></i>{{ $kabupaten }}
-                        </h4>
-                        <div class="row">
-                            @foreach($schools as $school)
-                            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                                <div class="card h-100 border">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="avatar-sm me-3">
-                                                <div class="avatar-title bg-primary rounded-circle">
-                                                    <i class="bx bx-building-house font-size-18"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h5 class="card-title mb-1">{{ $school->name }}</h5>
-                                                <p class="text-muted mb-0">
-                                                    <i class="bx bx-map-pin me-1"></i>{{ $school->kabupaten }}
-                                                </p>
-                                            </div>
+                    @foreach($schools as $school)
+                    <div class="col-xxl-3 col-md-6 mb-4">
+                        <div class="card project-card" style="border: none; box-shadow: 0 0.75rem 1.5rem rgba(18,38,63,.03); border-radius: 0.75rem; overflow: hidden;">
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                <i class="bx bx-building-house bx-lg text-muted"></i>
+                            </div>
+                            <div class="card-body p-4">
+                                <h5 class="card-title fw-semibold mb-2">{{ $school->name }}</h5>
+                                <p class="card-text text-muted small mb-3">{{ $school->kabupaten }}</p>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <p class="text-muted mb-1 small">SCOD</p>
+                                            <h6 class="mb-0">{{ $school->scod }}</h6>
                                         </div>
-
-                                        <div class="row mb-3">
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <p class="text-muted mb-1">SCOD</p>
-                                                    <h6 class="mb-0">{{ $school->scod }}</h6>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <p class="text-muted mb-1">Kabupaten</p>
-                                                    <h6 class="mb-0">{{ $school->kabupaten }}</h6>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-grid gap-2">
-                                            <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-warning btn-sm">
-                                                <i class="bx bx-calendar me-1"></i> Lihat Jadwal
-                                            </a>
-                                            <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info btn-sm">
-                                                <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
-                                            </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <p class="text-muted mb-1 small">Kabupaten</p>
+                                            <h6 class="mb-0">{{ $school->kabupaten }}</h6>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @empty
-                    <div class="col-12">
-                        <div class="text-center py-5">
-                            <div class="avatar-md mx-auto mb-3">
-                                <div class="avatar-title bg-light rounded-circle">
-                                    <i class="bx bx-building-house font-size-24 text-muted"></i>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-warning btn-sm rounded-pill px-3">
+                                        <i class="bx bx-calendar me-1"></i> Lihat Jadwal
+                                    </a>
+                                    <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info btn-sm rounded-pill px-3">
+                                        <i class="bx bx-group me-1"></i> Lihat Kelas
+                                    </a>
                                 </div>
                             </div>
-                            <h5 class="text-muted">Tidak ada data madrasah</h5>
-                            <p class="text-muted">Belum ada madrasah yang terdaftar dalam sistem.</p>
                         </div>
                     </div>
+                    @endforeach
+                    @empty
                     @endforelse
-                    </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    $('#filterBtn').on('click', function() {
-        filterSchools();
-    });
 
-    $('#searchInput').on('keypress', function(e) {
-        if (e.which == 13) { // Enter key
-            filterSchools();
-        }
-    });
-
-    $('#kabupatenFilter').on('change', function() {
-        filterSchools();
-    });
-
-    function filterSchools() {
-        const search = $('#searchInput').val();
-        const kabupaten = $('#kabupatenFilter').val();
-
-        $.ajax({
-            url: '{{ route("teaching-schedules.filter") }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                search: search,
-                kabupaten: kabupaten
-            },
-            success: function(data) {
-                updateSchoolsList(data);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error filtering schools:', error);
-            }
-        });
-    }
-
-    function updateSchoolsList(schoolsByKabupaten) {
-        let html = '';
-
-        if (Object.keys(schoolsByKabupaten).length === 0) {
-            html = `
-                <div class="col-12">
-                    <div class="text-center py-5">
-                        <div class="avatar-md mx-auto mb-3">
-                            <div class="avatar-title bg-light rounded-circle">
-                                <i class="bx bx-building-house font-size-24 text-muted"></i>
-                            </div>
-                        </div>
-                        <h5 class="text-muted">Tidak ada data madrasah</h5>
-                        <p class="text-muted">Tidak ada madrasah yang sesuai dengan filter.</p>
-                    </div>
-                </div>
-            `;
-        } else {
-            for (const [kabupaten, schools] of Object.entries(schoolsByKabupaten)) {
-                html += `
-                    <div class="col-12 mb-4">
-                        <h4 class="mb-3">
-                            <i class="bx bx-map-pin me-2"></i>${kabupaten}
-                        </h4>
-                        <div class="row">
-                `;
-
-                schools.forEach(function(school) {
-                    html += `
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card h-100 border">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="avatar-sm me-3">
-                                            <div class="avatar-title bg-primary rounded-circle">
-                                                <i class="bx bx-building-house font-size-18"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h5 class="card-title mb-1">${school.name}</h5>
-                                            <p class="text-muted mb-0">
-                                                <i class="bx bx-map-pin me-1"></i>${school.kabupaten}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <div class="col-6">
-                                            <div class="text-center">
-                                                <p class="text-muted mb-1">SCOD</p>
-                                                <h6 class="mb-0">${school.scod}</h6>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-center">
-                                                <p class="text-muted mb-1">Kabupaten</p>
-                                                <h6 class="mb-0">${school.kabupaten}</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-grid gap-2">
-                                        <a href="/teaching-schedules/school/${school.id}/schedules" class="btn btn-warning btn-sm">
-                                            <i class="bx bx-calendar me-1"></i> Lihat Jadwal
-                                        </a>
-                                        <a href="/teaching-schedules/school/${school.id}/classes" class="btn btn-info btn-sm">
-                                            <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += `
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        $('#schoolsContainer .row').html(html);
-    }
-});
-</script>
 @endsection
