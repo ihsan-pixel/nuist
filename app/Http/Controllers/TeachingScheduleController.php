@@ -388,16 +388,12 @@ class TeachingScheduleController extends Controller
         // Get all schedules for the school
         $schedules = TeachingSchedule::with(['teacher'])
             ->where('school_id', $schoolId)
-            ->orderBy('day')
-            ->orderBy('start_time')
             ->get();
-
-        // Group by day and class
         $classesByDay = $schedules->groupBy(['day', 'class_name']);
 
         return view('teaching-schedules.school-classes', compact('school', 'classesByDay'));
     }
-}
+
     /**
      * Filter schools for super_admin index (AJAX).
      */
@@ -412,7 +408,7 @@ class TeachingScheduleController extends Controller
         $query = Madrasah::orderBy('kabupaten')->orderBy('scod');
 
         if ($request->search) {
-            $query->where('name', 'like', '%'' . - . \%');
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         if ($request->kabupaten) {
@@ -422,7 +418,6 @@ class TeachingScheduleController extends Controller
         $schools = $query->get();
         $schoolsByKabupaten = $schools->groupBy('kabupaten');
 
-        return response()->json(['schoolsByKabupaten' => $schoolsByKabupaten]);
+        return response()->json($schoolsByKabupaten);
     }
-}
 }
