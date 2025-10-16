@@ -37,6 +37,10 @@ class TeachingScheduleController extends Controller
             // Group by day for teacher view
             $grouped = $schedules->groupBy('day');
             return view('teaching-schedules.teacher-index', compact('grouped'));
+        } elseif ($user->role === 'super_admin') {
+            // Super admin view: list all schools sorted by kabupaten and scod
+            $schools = Madrasah::orderBy('kabupaten')->orderBy('scod')->get();
+            return view('teaching-schedules.super-admin-index', compact('schools'));
         } else {
             // Admin view: group by teacher
             $grouped = $schedules->groupBy('teacher.name');
@@ -332,5 +336,54 @@ class TeachingScheduleController extends Controller
             $errorMessage = 'Gagal mengimpor data: ' . $e->getMessage();
             return redirect()->back()->with('error', $errorMessage)->withInput();
         }
+    }
+
+    /**
+     * Show schedules for a specific school (for super_admin).
+     */
+    public function showSchoolSchedules($schoolId)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        $school = Madrasah::findOrFail($schoolId);
+        $schedules = TeachingSchedule::with(['teacher', 'school', 'creator'])
+            ->where('school_id', $schoolId)
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        $grouped = $schedules->groupBy('teacher.name');
+
+        return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
+    }
+
+    /**
+     * Show class status for a specific school (for super_admin).
+     */
+    public function showSchoolClasses($schoolId)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'super_admin') {
+            abort(403);
+        }
+
+        $school = Madrasah::findOrFail($schoolId);
+
+        // Get all schedules for the school
+        $schedules = TeachingSchedule::with(['teacher'])
+            ->where('school_id', $schoolId)
+            ->orderBy('day')
+            ->orderBy('start_time')
+            ->get();
+
+        // Group by day and class
+        $classesByDay = $schedules->groupBy(['day', 'class_name']);
+
+        return view('teaching-schedules.school-classes', compact('school', 'classesByDay'));
     }
 }
