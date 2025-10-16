@@ -37,7 +37,13 @@
 
                 @forelse($days as $day)
                     @php
-                        $daySchedules = $grouped->flatten()->where('day', $day)->groupBy('teacher.name');
+                        $daySchedules = collect();
+                        foreach ($grouped as $teacherName => $schedules) {
+                            $teacherDaySchedules = $schedules->where('day', $day);
+                            if ($teacherDaySchedules->isNotEmpty()) {
+                                $daySchedules[$teacherName] = $teacherDaySchedules;
+                            }
+                        }
                     @endphp
 
                     @if($daySchedules->isNotEmpty())
