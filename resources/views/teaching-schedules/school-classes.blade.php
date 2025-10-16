@@ -46,66 +46,58 @@
 
                         <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-4">
                             <div class="card h-100 border">
-                                <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0">
+                                <div class="card-header bg-success text-white py-2">
+                                    <h6 class="mb-0" style="font-size: 0.9rem;">
                                         <i class="bx bx-calendar-week me-2"></i>{{ $day }}
                                     </h6>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     @if($dayClasses->isNotEmpty())
                                         @foreach($dayClasses as $className => $schedules)
                                         <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
-                                                <i class="bx bx-group me-2 text-muted"></i>
-                                                <strong class="text-success">{{ $className }}</strong>
+                                                <i class="bx bx-group me-2 text-muted" style="font-size: 0.9rem;"></i>
+                                                <strong class="text-success" style="font-size: 0.9rem;">{{ $className }}</strong>
                                             </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-borderless mb-0">
-                                                    <tbody>
-                                                        @foreach($schedules as $schedule)
-                                                        <tr>
-                                                            <td class="ps-0 py-2">
-                                                                <div class="d-flex flex-column">
-                                                                    <div class="d-flex align-items-center flex-wrap mb-1">
-                                                                        @if($schedule->teacher)
-                                                                            <span class="badge bg-success me-1 mb-1" style="font-size: 0.75rem;">Terisi</span>
-                                                                        @else
-                                                                            <span class="badge bg-warning me-1 mb-1" style="font-size: 0.75rem;">Kosong</span>
-                                                                        @endif
-                                                                        <span class="badge bg-primary me-1 mb-1" style="font-size: 0.75rem;">{{ $schedule->subject }}</span>
-                                                                        @if($schedule->has_attendance_today)
-                                                                            <span class="badge bg-info me-1 mb-1" style="font-size: 0.75rem;">
-                                                                                <i class="bx bx-check me-1"></i>Hadir
-                                                                            </span>
-                                                                        @else
-                                                                            <span class="badge bg-secondary me-1 mb-1" style="font-size: 0.75rem;">
-                                                                                <i class="bx bx-time me-1"></i>Belum Presensi
-                                                                            </span>
-                                                                        @endif
-                                                                    </div>
-                                                                    <div>
-                                                                        <small class="text-muted" style="font-size: 0.8rem;">
-                                                                            <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-end pe-0 py-2">
-                                                                <small class="text-muted" style="font-size: 0.8rem;">
-                                                                    {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                                                </small>
-                                                            </td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                            @foreach($schedules as $schedule)
+                                            <div class="d-flex justify-content-between align-items-start mb-2 p-2 border rounded" style="background-color: #f8f9fa;">
+                                                <div class="flex-grow-1 me-2">
+                                                    <div class="d-flex align-items-center flex-wrap mb-1">
+                                                        @if($schedule->teacher)
+                                                            <span class="badge bg-success me-1" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">Terisi</span>
+                                                        @else
+                                                            <span class="badge bg-warning me-1" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">Kosong</span>
+                                                        @endif
+                                                        <span class="badge bg-primary me-1" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">{{ $schedule->subject }}</span>
+                                                        @if($schedule->has_attendance_today)
+                                                            <span class="badge bg-info me-1" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
+                                                                <i class="bx bx-check me-1"></i>Hadir
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-secondary me-1" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;">
+                                                                <i class="bx bx-time me-1"></i>Belum Presensi
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                                            <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                                        {{ $schedule->start_time }}<br>{{ $schedule->end_time }}
+                                                    </small>
+                                                </div>
                                             </div>
+                                            @endforeach
                                         </div>
                                         @endforeach
                                     @else
-                                        <div class="text-center py-3">
-                                            <i class="bx bx-calendar-x text-muted" style="font-size: 2rem;"></i>
-                                            <p class="text-muted mb-0 mt-2">Tidak ada kelas</p>
+                                        <div class="text-center py-4">
+                                            <i class="bx bx-calendar-x text-muted" style="font-size: 1.5rem;"></i>
+                                            <p class="text-muted mb-0 mt-2" style="font-size: 0.8rem;">Tidak ada kelas</p>
                                         </div>
                                     @endif
                                 </div>
