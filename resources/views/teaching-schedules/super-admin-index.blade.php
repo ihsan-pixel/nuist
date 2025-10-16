@@ -38,48 +38,57 @@
                 @endif
 
                 <div class="row">
-                    @forelse($schools as $school)
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card h-100 border">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar-sm me-3">
-                                        <div class="avatar-title bg-primary rounded-circle">
-                                            <i class="bx bx-building-house font-size-18"></i>
+                    @forelse($schoolsByKabupaten as $kabupaten => $schools)
+                    <div class="col-12 mb-4">
+                        <h4 class="mb-3">
+                            <i class="bx bx-map-pin me-2"></i>{{ $kabupaten }}
+                        </h4>
+                        <div class="row">
+                            @foreach($schools as $school)
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100 border">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="avatar-sm me-3">
+                                                <div class="avatar-title bg-primary rounded-circle">
+                                                    <i class="bx bx-building-house font-size-18"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h5 class="card-title mb-1">{{ $school->name }}</h5>
+                                                <p class="text-muted mb-0">
+                                                    <i class="bx bx-map-pin me-1"></i>{{ $school->kabupaten }}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="card-title mb-1">{{ $school->name }}</h5>
-                                        <p class="text-muted mb-0">
-                                            <i class="bx bx-map-pin me-1"></i>{{ $school->kabupaten }}
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <div class="row mb-3">
-                                    <div class="col-6">
-                                        <div class="text-center">
-                                            <p class="text-muted mb-1">SCOD</p>
-                                            <h6 class="mb-0">{{ $school->scod }}</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <p class="text-muted mb-1">SCOD</p>
+                                                    <h6 class="mb-0">{{ $school->scod }}</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <p class="text-muted mb-1">Kabupaten</p>
+                                                    <h6 class="mb-0">{{ $school->kabupaten }}</h6>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-center">
-                                            <p class="text-muted mb-1">Kabupaten</p>
-                                            <h6 class="mb-0">{{ $school->kabupaten }}</h6>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="d-grid gap-2">
-                                    <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-primary btn-sm">
-                                        <i class="bx bx-calendar me-1"></i> Lihat Jadwal
-                                    </a>
-                                    <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info btn-sm">
-                                        <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
-                                    </a>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-warning btn-sm">
+                                                <i class="bx bx-calendar me-1"></i> Lihat Jadwal
+                                            </a>
+                                            <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info btn-sm">
+                                                <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
                     </div>
                     @empty

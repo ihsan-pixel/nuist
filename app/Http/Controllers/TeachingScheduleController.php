@@ -38,9 +38,10 @@ class TeachingScheduleController extends Controller
             $grouped = $schedules->groupBy('day');
             return view('teaching-schedules.teacher-index', compact('grouped'));
         } elseif ($user->role === 'super_admin') {
-            // Super admin view: list all schools sorted by kabupaten and scod
+            // Super admin view: list all schools grouped by kabupaten, then sorted by scod
             $schools = Madrasah::orderBy('kabupaten')->orderBy('scod')->get();
-            return view('teaching-schedules.super-admin-index', compact('schools'));
+            $schoolsByKabupaten = $schools->groupBy('kabupaten');
+            return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten'));
         } else {
             // Admin view: group by teacher
             $grouped = $schedules->groupBy('teacher.name');
