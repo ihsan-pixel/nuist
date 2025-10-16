@@ -18,11 +18,18 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-group me-2"></i>Kelas Berjalan - {{ $school->name }}
-                </h4>
-                <p class="mb-0 text-muted">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="card-title mb-0">
+                        <i class="bx bx-group me-2"></i>Kelas Berjalan - {{ $school->name }}
+                    </h4>
+                    <p class="mb-0 text-muted">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="d-flex align-items-center" id="date-form">
+                        <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
+                    </form>
+                </div>
             </div>
             <div class="card-body">
                 <div class="mb-3">
@@ -120,4 +127,16 @@
         </div>
     </div>
 </div>
+
+@section('script')
+<script>
+$(document).ready(function() {
+    // Handle date change
+    $('#date-picker').on('change', function(e) {
+        e.preventDefault();
+        $('#date-form').submit();
+        return false;
+    });
+});
+</script>
 @endsection

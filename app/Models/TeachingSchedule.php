@@ -34,4 +34,9 @@ class TeachingSchedule extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function teachingAttendances()
+    {
+        return $this->hasMany(TeachingAttendance::class);
+    }
 }

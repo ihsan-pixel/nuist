@@ -383,7 +383,7 @@ class TeachingScheduleController extends Controller
     /**
      * Show class status for a specific school (for super_admin).
      */
-    public function showSchoolClasses($schoolId)
+    public function showSchoolClasses($schoolId, Request $request)
     {
         $user = Auth::user();
 
@@ -392,10 +392,12 @@ class TeachingScheduleController extends Controller
         }
 
         $school = Madrasah::findOrFail($schoolId);
+        $selectedDate = $request->get('date', today()->format('Y-m-d'));
+        $selectedDate = \Carbon\Carbon::parse($selectedDate);
 
-        // Get all schedules for the school with attendance info
-        $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function($query) {
-            $query->where('tanggal', today());
+        // Get all schedules for the school with attendance info for selected date
+        $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function($query) use ($selectedDate) {
+            $query->where('tanggal', $selectedDate);
         }])
             ->where('school_id', $schoolId)
             ->get();
@@ -419,7 +421,7 @@ class TeachingScheduleController extends Controller
             $classesByDay[$day][$className]->push($schedule);
         }
 
-        return view('teaching-schedules.school-classes', compact('school', 'classesByDay'));
+        return view('teaching-schedules.school-classes', compact('school', 'classesByDay', 'selectedDate'));
     }
 
     /**
