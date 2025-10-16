@@ -39,7 +39,7 @@ class TeachingScheduleController extends Controller
             return view('teaching-schedules.teacher-index', compact('grouped'));
         } elseif ($user->role === 'super_admin') {
             // Super admin view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
-            $query = Madrasah::orderBy('kabupaten')->orderBy('scod');
+            $query = Madrasah::with(['teachingSchedules', 'teachingAttendances'])->orderBy('kabupaten')->orderBy('scod');
 
             if (request('search')) {
                 $query->where('name', 'like', '%' . request('search') . '%');
@@ -50,6 +50,13 @@ class TeachingScheduleController extends Controller
             }
 
             $schools = $query->get();
+
+            // Add status information for each school
+            $schools->each(function ($school) {
+                $school->has_schedules = $school->teachingSchedules->isNotEmpty();
+                $school->has_attendances = $school->teachingAttendances->isNotEmpty();
+            });
+
             $schoolsByKabupaten = $schools->groupBy('kabupaten');
             $kabupatens = Madrasah::distinct()->pluck('kabupaten')->sort();
             return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten', 'kabupatens'));

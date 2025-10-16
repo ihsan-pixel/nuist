@@ -46,4 +46,16 @@ class Madrasah extends Model
     {
         return $this->belongsTo(Yayasan::class);
     }
+
+    // Relasi: satu madrasah punya banyak teaching schedules
+    public function teachingSchedules()
+    {
+        return $this->hasMany(TeachingSchedule::class, 'school_id');
+    }
+
+    // Relasi: satu madrasah punya banyak teaching attendances
+    public function teachingAttendances()
+    {
+        return $this->hasMany(TeachingAttendance::class, 'school_id');
+    }
 }

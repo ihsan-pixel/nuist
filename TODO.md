@@ -6,4 +6,5 @@
 - [x] Change from AJAX filtering to form-based search like madrasah profile page
 - [x] Make school cards responsive for mobile devices and match madrasah profile design
 - [x] Remove unnecessary JavaScript and AJAX functionality
+- [x] Add status indicators for teaching schedules and attendances
 - [ ] Test the search and filter functionality

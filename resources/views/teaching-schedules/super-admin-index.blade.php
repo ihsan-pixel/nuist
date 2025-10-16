@@ -91,6 +91,24 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <small class="text-muted">Status Jadwal:</small>
+                                        @if($school->has_schedules)
+                                            <span class="badge bg-success">Sudah Input</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark">Belum Input</span>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Status Presensi:</small>
+                                        @if($school->has_attendances)
+                                            <span class="badge bg-success">Sudah Presensi</span>
+                                        @else
+                                            <span class="badge bg-danger">Belum Presensi</span>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <a href="{{ route('teaching-schedules.school-schedules', $school->id) }}" class="btn btn-warning btn-sm rounded-pill px-3">
                                         <i class="bx bx-calendar me-1"></i> Lihat Jadwal
