@@ -44,7 +44,7 @@
                             $dayClasses = $classesByDay[$day] ?? collect();
                         @endphp
 
-                        <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-4">
+                        <div class="col-lg-6 col-xl-4 mb-4">
                             <div class="card h-100 border">
                                 <div class="card-header bg-success text-white py-2">
                                     <h6 class="mb-0" style="font-size: 0.9rem;">
