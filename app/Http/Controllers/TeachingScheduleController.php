@@ -51,6 +51,7 @@ class TeachingScheduleController extends Controller
 
             $schools = $query->get();
             $schoolsByKabupaten = $schools->groupBy('kabupaten');
+            $kabupatens = Madrasah::distinct()->pluck('kabupaten')->sort();
             return view('teaching-schedules.super-admin-index', compact('schoolsByKabupaten', 'kabupatens'));
         } else {
             // Admin view: group by teacher
