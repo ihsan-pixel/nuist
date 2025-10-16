@@ -35,63 +35,60 @@
                     $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 @endphp
 
-                @forelse($days as $day)
-                    @php
-                        $daySchedules = collect();
-                        foreach ($grouped as $teacherName => $schedules) {
-                            $teacherDaySchedules = $schedules->where('day', $day);
-                            if ($teacherDaySchedules->isNotEmpty()) {
-                                $daySchedules[$teacherName] = $teacherDaySchedules;
+                <div class="row">
+                    @foreach($days as $day)
+                        @php
+                            $daySchedules = collect();
+                            foreach ($grouped as $teacherName => $schedules) {
+                                $teacherDaySchedules = $schedules->where('day', $day);
+                                if ($teacherDaySchedules->isNotEmpty()) {
+                                    $daySchedules[$teacherName] = $teacherDaySchedules;
+                                }
                             }
-                        }
-                    @endphp
+                        @endphp
 
-                    @if($daySchedules->isNotEmpty())
-                    <div class="mb-4">
-                        <h5 class="mb-3">
-                            <i class="bx bx-calendar-week me-2"></i>{{ $day }}
-                        </h5>
-
-                        @foreach($daySchedules as $teacherName => $schedules)
-                        <div class="card border mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0">
-                                    <i class="bx bx-user me-2"></i>{{ $teacherName }}
-                                </h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-striped mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="border-0">Mata Pelajaran</th>
-                                                <th class="border-0">Kelas</th>
-                                                <th class="border-0">Jam Mulai</th>
-                                                <th class="border-0">Jam Selesai</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($schedules as $schedule)
-                                            <tr>
-                                                <td>
-                                                    <span class="badge bg-primary">{{ $schedule->subject }}</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-info">{{ $schedule->class_name }}</span>
-                                                </td>
-                                                <td>{{ $schedule->start_time }}</td>
-                                                <td>{{ $schedule->end_time }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                        @if($daySchedules->isNotEmpty())
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100 border">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">
+                                        <i class="bx bx-calendar-week me-2"></i>{{ $day }}
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    @foreach($daySchedules as $teacherName => $schedules)
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bx bx-user me-2 text-muted"></i>
+                                            <strong class="text-primary">{{ $teacherName }}</strong>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-borderless mb-0">
+                                                <tbody>
+                                                    @foreach($schedules as $schedule)
+                                                    <tr>
+                                                        <td class="ps-0">
+                                                            <span class="badge bg-primary me-2">{{ $schedule->subject }}</span>
+                                                            <span class="badge bg-info">{{ $schedule->class_name }}</span>
+                                                        </td>
+                                                        <td class="text-end pe-0">
+                                                            <small class="text-muted">
+                                                                {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                                            </small>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
-                        @endforeach
-                    </div>
-                    @endif
-                @endforelse
+                        @endif
+                    @endforeach
+                </div>
 
                 @if($grouped->flatten()->isEmpty())
                 <div class="text-center py-5">
