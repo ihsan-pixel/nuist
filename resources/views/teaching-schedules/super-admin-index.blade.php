@@ -234,10 +234,10 @@ $(document).ready(function() {
                                     </div>
 
                                     <div class="d-grid gap-2">
-                                        <a href="{{ route('teaching-schedules.school-schedules', ':schoolId') }}".replace(':schoolId', school.id) class="btn btn-warning btn-sm">
+                                        <a href="/teaching-schedules/school/${school.id}/schedules" class="btn btn-warning btn-sm">
                                             <i class="bx bx-calendar me-1"></i> Lihat Jadwal
                                         </a>
-                                        <a href="{{ route('teaching-schedules.school-classes', ':schoolId') }}".replace(':schoolId', school.id) class="btn btn-info btn-sm">
+                                        <a href="/teaching-schedules/school/${school.id}/classes" class="btn btn-info btn-sm">
                                             <i class="bx bx-group me-1"></i> Lihat Kelas Berjalan
                                         </a>
                                     </div>
