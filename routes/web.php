@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
         // Super admin specific routes
         Route::get('teaching-schedules/school/{schoolId}/schedules', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolSchedules'])->name('teaching-schedules.school-schedules');
         Route::get('teaching-schedules/school/{schoolId}/classes', [App\Http\Controllers\TeachingScheduleController::class, 'showSchoolClasses'])->name('teaching-schedules.school-classes');
+        Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
     });
 
     // Teaching Attendances Routes
@@ -207,5 +208,3 @@ Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang'
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
-        Route::post('teaching-schedules/filter', [App\Http\Controllers\TeachingScheduleController::class, 'filter'])->name('teaching-schedules.filter');
-leController::class, 'filter'])->name('teaching-schedules.filter');
