@@ -1,9 +1,7 @@
-# TODO: Implement Super Admin View for Teaching Schedules
+# TODO: Add Search and Filter to Super Admin Teaching Schedules
 
 ## Tasks
-- [x] Modify TeachingScheduleController::index() to handle super_admin role
-- [x] Create new view: resources/views/teaching-schedules/super-admin-index.blade.php
-- [x] Add showSchoolSchedules($schoolId) method to controller
-- [x] Add showSchoolClasses($schoolId) method to controller
-- [x] Add routes for new methods in routes/web.php
-- [x] Test the new functionality - Server started successfully
+- [x] Add search input field for school name in super-admin-index.blade.php
+- [x] Add dropdown select for kabupaten filter in super-admin-index.blade.php
+- [x] Add JavaScript to handle AJAX filtering and update the school list dynamically
+- [ ] Test the search and filter functionality
