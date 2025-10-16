@@ -44,7 +44,7 @@
                             $dayClasses = $classesByDay[$day] ?? collect();
                         @endphp
 
-                        <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="col-12 col-md-6 col-lg-4 mb-4">
                             <div class="card h-100 border">
                                 <div class="card-header bg-success text-white">
                                     <h6 class="mb-0">
@@ -65,19 +65,19 @@
                                                         @foreach($schedules as $schedule)
                                                         <tr>
                                                             <td class="ps-0">
-                                                                <div class="d-flex align-items-center mb-1">
+                                                                <div class="d-flex align-items-center mb-1 flex-wrap">
                                                                     @if($schedule->teacher)
-                                                                        <span class="badge bg-success me-2">Terisi</span>
+                                                                        <span class="badge bg-success me-1 mb-1">Terisi</span>
                                                                     @else
-                                                                        <span class="badge bg-warning me-2">Kosong</span>
+                                                                        <span class="badge bg-warning me-1 mb-1">Kosong</span>
                                                                     @endif
-                                                                    <span class="badge bg-primary">{{ $schedule->subject }}</span>
+                                                                    <span class="badge bg-primary me-1 mb-1">{{ $schedule->subject }}</span>
                                                                     @if($schedule->has_attendance_today)
-                                                                        <span class="badge bg-info ms-2">
+                                                                        <span class="badge bg-info me-1 mb-1">
                                                                             <i class="bx bx-check me-1"></i>Hadir
                                                                         </span>
                                                                     @else
-                                                                        <span class="badge bg-secondary ms-2">
+                                                                        <span class="badge bg-secondary me-1 mb-1">
                                                                             <i class="bx bx-time me-1"></i>Belum Presensi
                                                                         </span>
                                                                     @endif
