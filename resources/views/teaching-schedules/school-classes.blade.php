@@ -1,6 +1,8 @@
 @extends('layouts.master')
 
-@section('title') Kelas Berjalan - {{ $school->name }} @endsection
+@section('title')
+    Kelas Berjalan - {{ $school->name }}
+@endsection
 
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
@@ -12,26 +14,80 @@
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
+
+{{-- ✅ Fix CSS agar layout tidak terpotong dan responsif --}}
+<style>
+    /* Pastikan konten bisa di-scroll dan tidak terpotong */
+    .main-content,
+    .page-content,
+    body,
+    html {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        min-height: 100vh;
+    }
+
+    /* Pastikan grid membungkus (wrap) semua kolom hari */
+    .row {
+        flex-wrap: wrap !important;
+    }
+
+    /* Jarak antar kolom agar tidak dempet */
+    .row > [class*='col-'] {
+        margin-bottom: 1rem;
+    }
+
+    /* Sidebar handling: beri margin ke konten */
+    .content-page {
+        margin-left: 260px;
+        transition: all 0.3s ease;
+    }
+
+    /* Responsif untuk layar kecil */
+    @media (max-width: 992px) {
+        .content-page {
+            margin-left: 0;
+        }
+    }
+
+    /* Card header styling */
+    .card-header.bg-success {
+        background-color: #007b5e !important;
+    }
+
+    /* Scroll halus */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
 @endsection
 
 @section('content')
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center bg-light">
                     <div>
                         <h4 class="card-title mb-0">
                             <i class="bx bx-group me-2"></i>Kelas Berjalan - {{ $school->name }}
                         </h4>
-                        <p class="mb-0 text-muted">Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}</p>
+                        <p class="mb-0 text-muted">
+                            Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}
+                        </p>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="d-flex align-items-center" id="date-form">
-                            <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
+                            <input
+                                type="date"
+                                id="date-picker"
+                                name="date"
+                                class="form-control form-control-sm"
+                                value="{{ $selectedDate->format('Y-m-d') }}">
                         </form>
                     </div>
                 </div>
+
                 <div class="card-body">
                     <div class="mb-3">
                         <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
@@ -45,8 +101,8 @@
                                 $dayClasses = $classesByDay[$day] ?? collect();
                             @endphp
 
-                            <div class="col-lg-6 col-xl-4 mb-4">
-                                <div class="card h-100 border">
+                            <div class="col-lg-6 col-xl-4 col-md-6 col-sm-12">
+                                <div class="card h-100 border shadow-sm">
                                     <div class="card-header bg-success text-white py-2">
                                         <h6 class="mb-0" style="font-size: 0.9rem;">
                                             <i class="bx bx-calendar-week me-2"></i>{{ $day }}
@@ -61,7 +117,7 @@
                                                     <strong class="text-success" style="font-size: 0.9rem;">{{ $className }}</strong>
                                                 </div>
                                                 @foreach($schedules as $schedule)
-                                                <div class="d-flex justify-content-between align-items-start mb-2 p-2 border rounded" style="background-color: #f8f9fa;">
+                                                <div class="d-flex justify-content-between align-items-start mb-2 p-2 border rounded bg-light">
                                                     <div class="flex-grow-1 me-2">
                                                         <div class="d-flex align-items-center flex-wrap mb-1">
                                                             @if($schedule->teacher)
@@ -123,6 +179,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @section('script')
 <script>
