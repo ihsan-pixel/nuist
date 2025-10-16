@@ -393,11 +393,31 @@ class TeachingScheduleController extends Controller
 
         $school = Madrasah::findOrFail($schoolId);
 
-        // Get all schedules for the school
-        $schedules = TeachingSchedule::with(['teacher'])
+        // Get all schedules for the school with attendance info
+        $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function($query) {
+            $query->where('tanggal', today());
+        }])
             ->where('school_id', $schoolId)
             ->get();
-        $classesByDay = $schedules->groupBy(['day', 'class_name']);
+
+        // Group by day and class, and add attendance status
+        $classesByDay = collect();
+        foreach ($schedules as $schedule) {
+            $day = $schedule->day;
+            $className = $schedule->class_name;
+
+            if (!isset($classesByDay[$day])) {
+                $classesByDay[$day] = collect();
+            }
+
+            if (!isset($classesByDay[$day][$className])) {
+                $classesByDay[$day][$className] = collect();
+            }
+
+            // Add attendance status to schedule
+            $schedule->has_attendance_today = $schedule->teachingAttendances->isNotEmpty();
+            $classesByDay[$day][$className]->push($schedule);
+        }
 
         return view('teaching-schedules.school-classes', compact('school', 'classesByDay'));
     }

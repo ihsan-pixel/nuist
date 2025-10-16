@@ -58,15 +58,24 @@
                                                         @foreach($schedules as $schedule)
                                                         <tr>
                                                             <td class="ps-0">
-                                                                <div class="d-flex align-items-center">
+                                                                <div class="d-flex align-items-center mb-1">
                                                                     @if($schedule->teacher)
                                                                         <span class="badge bg-success me-2">Terisi</span>
                                                                     @else
                                                                         <span class="badge bg-warning me-2">Kosong</span>
                                                                     @endif
                                                                     <span class="badge bg-primary">{{ $schedule->subject }}</span>
+                                                                    @if($schedule->has_attendance_today)
+                                                                        <span class="badge bg-info ms-2">
+                                                                            <i class="bx bx-check me-1"></i>Hadir
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary ms-2">
+                                                                            <i class="bx bx-time me-1"></i>Belum Presensi
+                                                                        </span>
+                                                                    @endif
                                                                 </div>
-                                                                <div class="mt-1">
+                                                                <div>
                                                                     <small class="text-muted">
                                                                         <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
                                                                     </small>
