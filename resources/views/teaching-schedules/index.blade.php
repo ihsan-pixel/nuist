@@ -44,7 +44,7 @@
                     <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">
                         <i class="bx bx-plus"></i> Tambah Jadwal
                     </a>
-                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
                         <i class="bx bx-upload"></i> Import Jadwal
                     </button>
