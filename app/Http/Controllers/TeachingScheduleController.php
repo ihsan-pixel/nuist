@@ -26,6 +26,8 @@ class TeachingScheduleController extends Controller
         } elseif ($user->role === 'admin') {
             // Only their school
             $query->where('school_id', $user->madrasah_id);
+        } elseif ($user->role === 'pengurus') {
+            // See all, same as super_admin
         } elseif ($user->role === 'tenaga_pendidik') {
             // Only their own
             $query->where('teacher_id', $user->id);
@@ -37,8 +39,8 @@ class TeachingScheduleController extends Controller
             // Group by day for teacher view
             $grouped = $schedules->groupBy('day');
             return view('teaching-schedules.teacher-index', compact('grouped'));
-        } elseif ($user->role === 'super_admin') {
-            // Super admin view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
+        } elseif ($user->role === 'super_admin' || $user->role === 'pengurus') {
+            // Super admin and pengurus view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
             $query = Madrasah::with(['teachingSchedules', 'teachingAttendances'])->orderBy('kabupaten')->orderBy('scod');
 
             if (request('search')) {
@@ -324,7 +326,7 @@ class TeachingScheduleController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+        if ($user->role !== 'admin' && $user->role !== 'super_admin' && $user->role !== 'pengurus') {
             abort(403);
         }
 
@@ -338,7 +340,7 @@ class TeachingScheduleController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin' && $user->role !== 'super_admin') {
+        if ($user->role !== 'admin' && $user->role !== 'super_admin' && $user->role !== 'pengurus') {
             abort(403);
         }
 
@@ -366,7 +368,7 @@ class TeachingScheduleController extends Controller
     }
 
     /**
-     * Show schedules for a specific school (for super_admin and admin).
+     * Show schedules for a specific school (for super_admin, admin, and pengurus).
      */
     public function showSchoolSchedules($schoolId)
     {
@@ -374,7 +376,7 @@ class TeachingScheduleController extends Controller
 
         if ($user->role === 'admin' && $user->madrasah_id != $schoolId) {
             abort(403);
-        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin') {
+        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin' && $user->role !== 'pengurus') {
             abort(403);
         }
 
@@ -391,7 +393,7 @@ class TeachingScheduleController extends Controller
     }
 
     /**
-     * Show class status for a specific school (for super_admin and admin).
+     * Show class status for a specific school (for super_admin, admin, and pengurus).
      */
     public function showSchoolClasses($schoolId, Request $request)
     {
@@ -399,7 +401,7 @@ class TeachingScheduleController extends Controller
 
         if ($user->role === 'admin' && $user->madrasah_id != $schoolId) {
             abort(403);
-        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin') {
+        } elseif ($user->role !== 'super_admin' && $user->role !== 'admin' && $user->role !== 'pengurus') {
             abort(403);
         }
 
@@ -437,13 +439,13 @@ class TeachingScheduleController extends Controller
     }
 
     /**
-     * Filter schools for super_admin index (AJAX).
+     * Filter schools for super_admin and pengurus index (AJAX).
      */
     public function filter(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->role !== 'super_admin') {
+        if ($user->role !== 'super_admin' && $user->role !== 'pengurus') {
             abort(403);
         }
 
