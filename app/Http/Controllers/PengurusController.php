@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class PengurusController extends Controller
 {
@@ -22,17 +23,23 @@ class PengurusController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email',
-            'jabatan'  => 'required|string|max:255',
+            'jabatan'  => 'nullable|string|max:255',
             'password' => 'required|string|min:6',
         ]);
 
-        User::create([
+        $userData = [
             'name'     => $validated['name'],
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role'     => 'pengurus',
-            'jabatan' => $validated['jabatan'],
-        ]);
+        ];
+
+        // Only add jabatan if column exists
+        if (Schema::hasColumn('users', 'jabatan')) {
+            $userData['jabatan'] = $validated['jabatan'];
+        }
+
+        User::create($userData);
 
         return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil ditambahkan.');
     }
@@ -44,13 +51,17 @@ class PengurusController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email,' . $pengurus->id,
-            'jabatan'  => 'required|string|max:255',
+            'jabatan'  => 'nullable|string|max:255',
             'password' => 'nullable|string|min:6',
         ]);
 
         $pengurus->name     = $validated['name'];
         $pengurus->email    = $validated['email'];
-        $pengurus->jabatan = $validated['jabatan'];
+
+        // Only update jabatan if column exists
+        if (Schema::hasColumn('users', 'jabatan')) {
+            $pengurus->jabatan = $validated['jabatan'];
+        }
 
         if (!empty($validated['password'])) {
             $pengurus->password = Hash::make($validated['password']);
