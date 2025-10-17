@@ -59,6 +59,7 @@
                         <th>Foto</th>
                         <th>Nama</th>
                         <th>Email</th>
+                        <th>NUist ID</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
                         <th>TMT</th>
@@ -83,18 +84,25 @@
                             </td>
                             <td>{{ $tp->name }}</td>
                             <td>{{ $tp->email }}</td>
+                            <td>{{ $tp->nuist_id ?? '-' }}</td>
                             <td>{{ $tp->madrasah?->name ?? '-' }}</td>
                             <td>{{ $tp->statusKepegawaian->name ?? '-' }}</td>
                             <td>{{ $tp->tmt ? \Carbon\Carbon::parse($tp->tmt)->translatedFormat('j F Y') : '-' }}</td>
                             <td>{{ $tp->ketugasan ?? '-' }}</td>
                             <td>{{ $tp->mengajar ?? '-' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
-                                <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger @if(strtolower(auth()->user()->role) == 'admin') d-none @endif" onclick="return confirm('Yakin hapus data ini?')">Delete</button>
-                                </form>
+                                @if(strtolower(auth()->user()->role) == 'admin')
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalViewTP{{ $tp->id }}">
+                                        <i class="bx bx-show"></i> View
+                                    </button>
+                                @else
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
+                                    <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus data ini?')">Delete</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
 
@@ -252,9 +260,145 @@
                             </div>
                         </div>
 
+                        <!-- Modal View Tenaga Pendidik -->
+                        <div class="modal fade" id="modalViewTP{{ $tp->id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detail Tenaga Pendidik</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body row g-3">
+                                        <div class="col-md-6">
+                                            <label>Nama Lengkap & Gelar</label>
+                                            <input type="text" class="form-control" value="{{ $tp->name }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Email</label>
+                                            <input type="email" class="form-control" value="{{ $tp->email }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>NUist ID</label>
+                                            <input type="text" class="form-control" value="{{ $tp->nuist_id ?? '-' }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Tempat Lahir</label>
+                                            <input type="text" class="form-control" value="{{ $tp->tempat_lahir }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Tanggal Lahir</label>
+                                            <input type="date" class="form-control" value="{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->format('Y-m-d') : '' }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>No HP</label>
+                                            <input type="text" class="form-control" value="{{ $tp->no_hp }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Kartu NU</label>
+                                            <input type="text" class="form-control" value="{{ $tp->kartanu }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>NIP Ma'arif</label>
+                                            <input type="text" class="form-control" value="{{ $tp->nip }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>NUPTK</label>
+                                            <input type="text" class="form-control" value="{{ $tp->nuptk }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>NPK</label>
+                                            <input type="text" class="form-control" value="{{ $tp->npk }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Madrasah</label>
+                                            <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Status Kepegawaian</label>
+                                            <input type="text" class="form-control" value="{{ $tp->statusKepegawaian->name ?? '-' }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>TMT</label>
+                                            <input type="date" class="form-control" value="{{ $tp->tmt ? $tp->tmt->format('Y-m-d') : '' }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Pendidikan Terakhir</label>
+                                            <input type="text" class="form-control" value="{{ $tp->pendidikan_terakhir }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Tahun Lulus</label>
+                                            <input type="number" class="form-control" value="{{ $tp->tahun_lulus }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Program Studi</label>
+                                            <input type="text" class="form-control" value="{{ $tp->program_studi }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Ketugasan</label>
+                                            <input type="text" class="form-control" value="{{ $tp->ketugasan }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Mengajar</label>
+                                            <input type="text" class="form-control" value="{{ $tp->mengajar }}" readonly>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                                            <input type="text" class="form-control" value="{{ $tp->pemenuhan_beban_kerja_lain ? 'Iya' : 'Tidak' }}" readonly>
+                                        </div>
+
+                                        @if($tp->pemenuhan_beban_kerja_lain)
+                                        <div class="col-md-6">
+                                            <label>Madrasah Tambahan</label>
+                                            <input type="text" class="form-control" value="{{ $tp->madrasahTambahan ? $tp->madrasahTambahan->name : '-' }}" readonly>
+                                        </div>
+                                        @endif
+
+                                        <div class="col-12">
+                                            <label>Alamat</label>
+                                            <textarea class="form-control" rows="2" readonly>{{ $tp->alamat }}</textarea>
+                                        </div>
+
+                                        @if($tp->avatar)
+                                        <div class="col-12">
+                                            <label>Foto Profile</label>
+                                            <div>
+                                                <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
+                                                    alt="Avatar {{ $tp->name }}"
+                                                    class="rounded"
+                                                    width="100" height="100">
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center p-4">
+                            <td colspan="12" class="text-center p-4">
                                 <div class="alert alert-info d-inline-block text-center" role="alert">
                                     <i class="bx bx-info-circle bx-lg me-2"></i>
                                     <strong>Belum ada data Tenaga Pendidik</strong><br>

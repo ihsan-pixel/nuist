@@ -1,10 +1,12 @@
-# TODO: Implement Admin Teaching Schedule Features
+# TODO: Modify Tenaga Pendidik Index Page for Admin Role
 
-## Tasks
-- [x] Modify TeachingScheduleController@index for admin role to display school-schedules view for their own school
-- [x] Add "Lihat Kelas" button to admin view (school-schedules.blade.php)
-- [x] Update showSchoolClasses method to allow admin access for their own school
-- [x] Update showSchoolSchedules method to allow admin access for their own school
-- [x] Update routes middleware if needed to allow admin access
-- [x] Test the changes for admin role
-- [x] Ensure proper authorization
+## Completed Tasks
+- [x] Add "NUist ID" column header between Email and Madrasah in table header
+- [x] Add NUist ID data cell in table body after Email column
+- [x] Modify Action column: show only "View" button for admin role, Edit/Delete for others
+- [x] Create readonly "View" modal with all tenaga pendidik fields
+- [x] Update empty state colspan from 11 to 12
+
+## Pending Tasks
+- [ ] Test the page for admin role to ensure View button works and modal displays correctly
+- [ ] Verify table displays NUist ID properly
