@@ -38,10 +38,8 @@ class PengurusController extends Controller
                 'role'     => 'pengurus',
             ];
 
-            // Only add jabatan if column exists
-            if (Schema::hasColumn('users', 'jabatan')) {
-                $userData['jabatan'] = $validated['jabatan'];
-            }
+            // Use ketugasan column for jabatan since jabatan column doesn't exist
+            $userData['ketugasan'] = $validated['jabatan'];
 
             User::create($userData);
 
@@ -71,10 +69,8 @@ class PengurusController extends Controller
             $pengurus->name     = $validated['name'];
             $pengurus->email    = $validated['email'];
 
-            // Only update jabatan if column exists
-            if (Schema::hasColumn('users', 'jabatan')) {
-                $pengurus->jabatan = $validated['jabatan'];
-            }
+            // Use ketugasan column for jabatan since jabatan column doesn't exist
+            $pengurus->ketugasan = $validated['jabatan'];
 
             if (!empty($validated['password'])) {
                 $pengurus->password = Hash::make($validated['password']);

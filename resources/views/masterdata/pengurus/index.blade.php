@@ -70,7 +70,7 @@
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $pengurus->name }}</td>
                         <td>{{ $pengurus->email }}</td>
-                        <td>{{ $pengurus->jabatan ?? '-' }}</td>
+                        <td>{{ $pengurus->ketugasan ?? '-' }}</td>
                         <td>
                             <!-- Tombol Edit -->
                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditPengurus{{ $pengurus->id }}">
@@ -108,7 +108,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label>Jabatan</label>
-                                            <input type="text" name="jabatan" class="form-control" value="{{ $pengurus->jabatan ?? '' }}">
+                                            <input type="text" name="jabatan" class="form-control" value="{{ $pengurus->ketugasan ?? '' }}">
                                         </div>
                                         <div class="mb-3">
                                             <label>Password (Kosongkan jika tidak ingin diubah)</label>
@@ -161,7 +161,7 @@
                     </div>
                     <div class="mb-3">
                         <label>Jabatan</label>
-                        <input type="text" name="jabatan" class="form-control">
+                        <input type="text" name="jabatan" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
