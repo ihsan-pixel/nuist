@@ -193,8 +193,8 @@ class PresensiAdminController extends Controller
         // Calculate summary metrics
         $summary = $this->calculatePresensiSummary($selectedDate, $user);
 
-        if ($user->role === 'super_admin') {
-            // For super_admin, show all madrasah tables (5 per row)
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
+            // For super_admin and pengurus, show all madrasah tables (5 per row)
             $kabupatenOrder = [
                 'Kabupaten Gunungkidul',
                 'Kabupaten Bantul',
@@ -272,7 +272,7 @@ class PresensiAdminController extends Controller
         $user = Auth::user();
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
             $kabupatenOrder = [
                 'Kabupaten Gunungkidul',
                 'Kabupaten Bantul',
@@ -336,7 +336,7 @@ class PresensiAdminController extends Controller
     public function getDetail($userId)
     {
         $user = Auth::user();
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -374,7 +374,7 @@ class PresensiAdminController extends Controller
     public function getMadrasahDetail($madrasahId, Request $request)
     {
         $user = Auth::user();
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -423,7 +423,7 @@ class PresensiAdminController extends Controller
     public function export(Request $request)
     {
         $user = Auth::user();
-        if ($user->role !== 'super_admin') {
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -521,8 +521,8 @@ class PresensiAdminController extends Controller
             'guru_tidak_presensi' => 0,
         ];
 
-        if ($user->role === 'super_admin') {
-            // For super_admin: all data
+        if (in_array($user->role, ['super_admin', 'pengurus'])) {
+            // For super_admin and pengurus: all data
             $presensiUsers = Presensi::whereDate('tanggal', $selectedDate)
                 ->distinct('user_id')
                 ->count('user_id');
