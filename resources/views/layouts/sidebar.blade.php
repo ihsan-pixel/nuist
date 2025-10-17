@@ -18,7 +18,7 @@
 
                 @php
                     $userRole = auth()->user() ? trim(strtolower(auth()->user()->role)) : '';
-                    $allowedRoles = ['super_admin', 'admin', 'pengurus'];
+                    $allowedRoles = ['super_admin', 'admin'];
                     $isAllowed = in_array($userRole, $allowedRoles);
                     \Log::info('Sidebar MasterData userRole: [' . $userRole . '], isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
