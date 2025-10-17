@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class PengurusController extends Controller
 {
@@ -27,21 +28,30 @@ class PengurusController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        $userData = [
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => 'pengurus',
-        ];
+        try {
+            DB::beginTransaction();
 
-        // Only add jabatan if column exists
-        if (Schema::hasColumn('users', 'jabatan')) {
-            $userData['jabatan'] = $validated['jabatan'];
+            $userData = [
+                'name'     => $validated['name'],
+                'email'    => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role'     => 'pengurus',
+            ];
+
+            // Only add jabatan if column exists
+            if (Schema::hasColumn('users', 'jabatan')) {
+                $userData['jabatan'] = $validated['jabatan'];
+            }
+
+            User::create($userData);
+
+            DB::commit();
+            return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating pengurus: ' . $e->getMessage());
+            return redirect()->route('pengurus.index')->with('error', 'Gagal menambahkan pengurus: ' . $e->getMessage());
         }
-
-        User::create($userData);
-
-        return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)
@@ -55,21 +65,30 @@ class PengurusController extends Controller
             'password' => 'nullable|string|min:6',
         ]);
 
-        $pengurus->name     = $validated['name'];
-        $pengurus->email    = $validated['email'];
+        try {
+            DB::beginTransaction();
 
-        // Only update jabatan if column exists
-        if (Schema::hasColumn('users', 'jabatan')) {
-            $pengurus->jabatan = $validated['jabatan'];
+            $pengurus->name     = $validated['name'];
+            $pengurus->email    = $validated['email'];
+
+            // Only update jabatan if column exists
+            if (Schema::hasColumn('users', 'jabatan')) {
+                $pengurus->jabatan = $validated['jabatan'];
+            }
+
+            if (!empty($validated['password'])) {
+                $pengurus->password = Hash::make($validated['password']);
+            }
+
+            $pengurus->save();
+
+            DB::commit();
+            return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating pengurus: ' . $e->getMessage());
+            return redirect()->route('pengurus.index')->with('error', 'Gagal memperbarui pengurus: ' . $e->getMessage());
         }
-
-        if (!empty($validated['password'])) {
-            $pengurus->password = Hash::make($validated['password']);
-        }
-
-        $pengurus->save();
-
-        return redirect()->route('pengurus.index')->with('success', 'Pengurus berhasil diperbarui.');
     }
 
     public function destroy($id)
