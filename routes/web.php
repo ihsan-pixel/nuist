@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Teaching Schedules Routes
-    Route::middleware(['role:super_admin|admin|pengurus|tenaga_pendidik'])->group(function () {
+    Route::middleware(['role:super_admin,admin,pengurus,tenaga_pendidik'])->group(function () {
         Route::resource('teaching-schedules', App\Http\Controllers\TeachingScheduleController::class);
         Route::get('teaching-schedules/get-teachers/{schoolId}', [App\Http\Controllers\TeachingScheduleController::class, 'getTeachersBySchool'])->name('teaching-schedules.get-teachers');
         Route::get('teaching-schedules/import', [App\Http\Controllers\TeachingScheduleController::class, 'import'])->name('teaching-schedules.import');
