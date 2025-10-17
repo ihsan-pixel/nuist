@@ -268,126 +268,153 @@
                                         <h5 class="modal-title">Detail Tenaga Pendidik</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
-                                    <div class="modal-body row g-3">
-                                        <div class="col-md-6">
-                                            <label>Nama Lengkap & Gelar</label>
-                                            <input type="text" class="form-control" value="{{ $tp->name }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Email</label>
-                                            <input type="email" class="form-control" value="{{ $tp->email }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Nuist ID</label>
-                                            <input type="text" class="form-control" value="{{ $tp->nuist_id ?? '-' }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Tempat Lahir</label>
-                                            <input type="text" class="form-control" value="{{ $tp->tempat_lahir }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Tanggal Lahir</label>
-                                            <input type="date" class="form-control" value="{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->format('Y-m-d') : '' }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>No HP</label>
-                                            <input type="text" class="form-control" value="{{ $tp->no_hp }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Kartu NU</label>
-                                            <input type="text" class="form-control" value="{{ $tp->kartanu }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>NIP Ma'arif</label>
-                                            <input type="text" class="form-control" value="{{ $tp->nip }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>NUPTK</label>
-                                            <input type="text" class="form-control" value="{{ $tp->nuptk }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>NPK</label>
-                                            <input type="text" class="form-control" value="{{ $tp->npk }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Madrasah</label>
-                                            <input type="text" class="form-control" value="{{ $tp->madrasah ? $tp->madrasah->name : '-' }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Status Kepegawaian</label>
-                                            <input type="text" class="form-control" value="{{ $tp->statusKepegawaian->name ?? '-' }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>TMT</label>
-                                            <input type="date" class="form-control" value="{{ $tp->tmt ? $tp->tmt->format('Y-m-d') : '' }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Pendidikan Terakhir</label>
-                                            <input type="text" class="form-control" value="{{ $tp->pendidikan_terakhir }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Tahun Lulus</label>
-                                            <input type="number" class="form-control" value="{{ $tp->tahun_lulus }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Program Studi</label>
-                                            <input type="text" class="form-control" value="{{ $tp->program_studi }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Ketugasan</label>
-                                            <input type="text" class="form-control" value="{{ $tp->ketugasan }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Mengajar</label>
-                                            <input type="text" class="form-control" value="{{ $tp->mengajar }}" readonly>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
-                                            <input type="text" class="form-control" value="{{ $tp->pemenuhan_beban_kerja_lain ? 'Iya' : 'Tidak' }}" readonly>
-                                        </div>
-
-                                        @if($tp->pemenuhan_beban_kerja_lain)
-                                        <div class="col-md-6">
-                                            <label>Madrasah Tambahan</label>
-                                            <input type="text" class="form-control" value="{{ $tp->madrasahTambahan ? $tp->madrasahTambahan->name : '-' }}" readonly>
-                                        </div>
-                                        @endif
-
-                                        <div class="col-12">
-                                            <label>Alamat</label>
-                                            <textarea class="form-control" rows="2" readonly>{{ $tp->alamat }}</textarea>
-                                        </div>
-
-                                        @if($tp->avatar)
-                                        <div class="col-12">
-                                            <label>Foto Profile</label>
-                                            <div>
+                                    <div class="modal-body">
+                                        <!-- Profile Header -->
+                                        <div class="text-center mb-4">
+                                            @if($tp->avatar)
                                                 <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
-                                                    alt="Avatar {{ $tp->name }}"
-                                                    class="rounded"
-                                                    width="100" height="100">
+                                                    alt="Foto {{ $tp->name }}"
+                                                    class="rounded-circle border border-3 border-primary mb-3"
+                                                    width="120" height="120"
+                                                    style="object-fit: cover;">
+                                            @else
+                                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                                    style="width: 120px; height: 120px;">
+                                                    <i class="bx bx-user text-muted" style="font-size: 3rem;"></i>
+                                                </div>
+                                            @endif
+                                            <h4 class="mb-1">{{ $tp->name }}</h4>
+                                            <p class="text-muted mb-0">{{ $tp->email }}</p>
+                                            @if($tp->nuist_id)
+                                                <small class="text-primary fw-bold">NUist ID: {{ $tp->nuist_id }}</small>
+                                            @endif
+                                        </div>
+
+                                        <!-- Personal Information -->
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-bottom-0">
+                                                <h6 class="mb-0 text-primary">
+                                                    <i class="bx bx-user-circle me-2"></i>Informasi Pribadi
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Tempat Lahir</label>
+                                                        <p class="mb-0">{{ $tp->tempat_lahir ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Tanggal Lahir</label>
+                                                        <p class="mb-0">{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->translatedFormat('j F Y') : '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">No HP</label>
+                                                        <p class="mb-0">{{ $tp->no_hp ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Kartu NU</label>
+                                                        <p class="mb-0">{{ $tp->kartanu ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold text-muted small">Alamat</label>
+                                                        <p class="mb-0">{{ $tp->alamat ?? '-' }}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        @endif
 
+                                        <!-- Professional Information -->
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-bottom-0">
+                                                <h6 class="mb-0 text-primary">
+                                                    <i class="bx bx-briefcase me-2"></i>Informasi Kepegawaian
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">NIP Ma'arif</label>
+                                                        <p class="mb-0">{{ $tp->nip ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">NUPTK</label>
+                                                        <p class="mb-0">{{ $tp->nuptk ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">NPK</label>
+                                                        <p class="mb-0">{{ $tp->npk ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Status Kepegawaian</label>
+                                                        <p class="mb-0">{{ $tp->statusKepegawaian->name ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">TMT</label>
+                                                        <p class="mb-0">{{ $tp->tmt ? $tp->tmt->translatedFormat('j F Y') : '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Ketugasan</label>
+                                                        <p class="mb-0">{{ $tp->ketugasan ?? '-' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Education Information -->
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-bottom-0">
+                                                <h6 class="mb-0 text-primary">
+                                                    <i class="bx bx-graduation me-2"></i>Informasi Pendidikan
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Pendidikan Terakhir</label>
+                                                        <p class="mb-0">{{ $tp->pendidikan_terakhir ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Tahun Lulus</label>
+                                                        <p class="mb-0">{{ $tp->tahun_lulus ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Program Studi</label>
+                                                        <p class="mb-0">{{ $tp->program_studi ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Mengajar</label>
+                                                        <p class="mb-0">{{ $tp->mengajar ?? '-' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Assignment Information -->
+                                        <div class="card border-0 bg-light mb-3">
+                                            <div class="card-header bg-white border-bottom-0">
+                                                <h6 class="mb-0 text-primary">
+                                                    <i class="bx bx-building me-2"></i>Informasi Penugasan
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Madrasah Utama</label>
+                                                        <p class="mb-0">{{ $tp->madrasah ? $tp->madrasah->name : '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-bold text-muted small">Pemenuhan Beban Kerja Lain</label>
+                                                        <p class="mb-0">{{ $tp->pemenuhan_beban_kerja_lain ? 'Ya' : 'Tidak' }}</p>
+                                                    </div>
+                                                    @if($tp->pemenuhan_beban_kerja_lain)
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-bold text-muted small">Madrasah Tambahan</label>
+                                                        <p class="mb-0">{{ $tp->madrasahTambahan ? $tp->madrasahTambahan->name : '-' }}</p>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>

@@ -8,5 +8,5 @@
 - [x] Update empty state colspan from 11 to 12
 
 ## Pending Tasks
-- [ ] Test the page for admin role to ensure View button works and modal displays correctly
+- [ ] Test the page for admin role to ensure View button works and improved modal displays correctly
 - [ ] Verify table displays NUist ID properly
