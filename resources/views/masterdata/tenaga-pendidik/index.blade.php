@@ -59,7 +59,7 @@
                         <th>Foto</th>
                         <th>Nama</th>
                         <th>Email</th>
-                        <th>NUist ID</th>
+                        <th>Nuist ID</th>
                         <th>Madrasah</th>
                         <th>Status Kepegawaian</th>
                         <th>TMT</th>
@@ -280,7 +280,7 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label>NUist ID</label>
+                                            <label>Nuist ID</label>
                                             <input type="text" class="form-control" value="{{ $tp->nuist_id ?? '-' }}" readonly>
                                         </div>
 
