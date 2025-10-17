@@ -146,7 +146,7 @@
                 </li>
                 @endif
 
-                @if(in_array($userRole, ['super_admin', 'admin']))
+                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']))
                 <li>
                     <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
                         <i class="bx bx-calendar"></i>
