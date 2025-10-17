@@ -95,6 +95,18 @@
                                                                 {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                                             </small>
                                                         </td>
+                                                        @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin')
+                                                        <td class="text-end pe-0">
+                                                            <div class="btn-group" role="group">
+                                                                <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-outline-primary btn-sm" title="Edit Jadwal">
+                                                                    <i class="bx bx-edit"></i>
+                                                                </a>
+                                                                <button class="btn btn-outline-danger btn-sm delete-btn" data-id="{{ $schedule->id }}" data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}" title="Hapus Jadwal">
+                                                                    <i class="bx bx-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        @endif
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
