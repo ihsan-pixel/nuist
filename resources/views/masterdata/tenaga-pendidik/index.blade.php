@@ -95,6 +95,9 @@
                                     <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#modalViewTP{{ $tp->id }}">
                                         <i class="bx bx-show"></i> View
                                     </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">
+                                        <i class="bx bx-edit"></i> Edit
+                                    </button>
                                 @else
                                     <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditTP{{ $tp->id }}">Edit</button>
                                     <form action="{{ route('tenaga-pendidik.destroy', $tp->id) }}" method="POST" style="display:inline-block;">
