@@ -421,6 +421,8 @@ class PresensiAdminController extends Controller
                 'longitude' => $madrasah->longitude ?? '-',
                 'map_link' => $madrasah->map_link,
                 'polygon_koordinat' => $madrasah->polygon_koordinat,
+                'polygon_koordinat_2' => $madrasah->polygon_koordinat_2,
+                'enable_dual_polygon' => $madrasah->enable_dual_polygon,
             ],
             'tenaga_pendidik' => $tenagaPendidikData
         ]);

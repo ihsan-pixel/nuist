@@ -715,7 +715,11 @@ $(document).ready(function () {
                     $('#madrasah-detail-map-link').hide();
                 }
                 if (data.madrasah.polygon_koordinat) {
-                    $('#madrasah-detail-polygon').text('Ada (Tersimpan)');
+                    let polygonText = 'Ada (Tersimpan)';
+                    if (data.madrasah.enable_dual_polygon && data.madrasah.polygon_koordinat_2) {
+                        polygonText += ' + Dual Polygon';
+                    }
+                    $('#madrasah-detail-polygon').text(polygonText);
                 } else {
                     $('#madrasah-detail-polygon').text('Tidak Ada');
                 }

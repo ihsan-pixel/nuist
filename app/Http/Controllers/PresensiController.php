@@ -108,6 +108,11 @@ class PresensiController extends Controller
             $madrasahsToCheck[] = $madrasahTambahan;
         }
 
+        // Jika madrasah utama mengaktifkan dual polygon, tambahkan polygon kedua
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $madrasahsToCheck[] = (object)['polygon_koordinat' => $madrasah->polygon_koordinat_2];
+        }
+
         if (empty($madrasahsToCheck)) {
             return response()->json([
                 'success' => false,

@@ -19,6 +19,8 @@ class Madrasah extends Model
         'map_link',
         'logo',
         'polygon_koordinat',
+        'polygon_koordinat_2',
+        'enable_dual_polygon',
         'hari_kbm',
         'scod',
     ];

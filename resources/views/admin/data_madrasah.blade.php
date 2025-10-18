@@ -40,7 +40,12 @@
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['latitude'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['longitude'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['map_link'] ?? '❌' !!}</td>
-                            <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}</td>
+                            <td style="font-size: 20px; text-align: center;">
+                                {!! $madrasah->field_status['polygon_koordinat'] ?? '❌' !!}
+                                @if($madrasah->enable_dual_polygon && $madrasah->field_status['polygon_koordinat_2'] === '✅')
+                                    <br><small class="text-success">+ Dual</small>
+                                @endif
+                            </td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['hari_kbm'] ?? '❌' !!}</td>
                             <td style="font-size: 20px; text-align: center;">{!! $madrasah->field_status['status_guru'] ?? '❌' !!}</td>
                             <td style="font-weight: bold; text-align: center;">{{ $madrasah->completeness_percentage }}%</td>

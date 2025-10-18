@@ -44,7 +44,7 @@ class MadrasahCompletenessExport implements FromCollection, WithHeadings
 
         foreach ($madrasahs as $index => $madrasah) {
             // Fields to check for completeness
-            $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'hari_kbm', 'scod'];
+            $fields = ['alamat', 'logo', 'latitude', 'longitude', 'map_link', 'polygon_koordinat', 'polygon_koordinat_2', 'enable_dual_polygon', 'hari_kbm', 'scod'];
 
             $filled = 0;
             $fieldStatus = [];

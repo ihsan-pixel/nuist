@@ -95,21 +95,31 @@ class TeachingAttendanceController extends Controller
         $isWithinPolygon = false;
         $polygonError = '';
 
+        $polygonsToCheck = [];
         if ($madrasah && $madrasah->polygon_koordinat) {
-            try {
-                $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
-                if (isset($polygonGeometry['coordinates'][0])) {
-                    $polygon = $polygonGeometry['coordinates'][0];
-                    if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                        $isWithinPolygon = true;
-                    } else {
-                        $polygonError = 'Lokasi Anda (' . $request->latitude . ', ' . $request->longitude . ') berada di luar area sekolah.';
+            $polygonsToCheck[] = $madrasah->polygon_koordinat;
+        }
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
+        }
+
+        if (!empty($polygonsToCheck)) {
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinPolygon = true;
+                            break; // Jika sudah ada yang valid, tidak perlu cek yang lain
+                        }
                     }
-                } else {
-                    $polygonError = 'Format polygon koordinat tidak valid.';
+                } catch (\Exception $e) {
+                    continue; // Skip invalid polygon
                 }
-            } catch (\Exception $e) {
-                $polygonError = 'Error memproses polygon: ' . $e->getMessage();
+            }
+            if (!$isWithinPolygon) {
+                $polygonError = 'Lokasi Anda (' . $request->latitude . ', ' . $request->longitude . ') berada di luar area sekolah.';
             }
         } else {
             $polygonError = 'Madrasah belum memiliki polygon koordinat yang ditentukan.';

@@ -182,10 +182,25 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label>Area Poligon Presensi</label>
+                            <label>Area Poligon Presensi Utama</label>
                             <div id="map-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
                             <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
-                            <small class="text-muted">Gambarkan area poligon pada peta. Jika sudah ada, bisa diedit.</small>
+                            <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
+                                <label class="form-check-label" for="enable_dual_polygon-{{ $madrasah->id }}">
+                                    Aktifkan Poligon Kedua
+                                </label>
+                            </div>
+                            <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
+                        </div>
+                        <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
+                            <label>Area Poligon Presensi Kedua</label>
+                            <div id="map2-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
+                            <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
+                            <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
                         </div>
                         <div class="mb-3">
                             <label>Logo</label>
@@ -280,6 +295,27 @@
                                 <option value="5">5 Hari</option>
                                 <option value="6">6 Hari</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Area Poligon Presensi Utama</label>
+                            <div id="map-add" style="height: 300px; width: 100%;"></div>
+                            <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-add">
+                            <small class="text-muted">Gambarkan area poligon utama pada peta.</small>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-add" value="1">
+                                <label class="form-check-label" for="enable_dual_polygon-add">
+                                    Aktifkan Poligon Kedua
+                                </label>
+                            </div>
+                            <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
+                        </div>
+                        <div class="mb-3" id="polygon2-container-add" style="display: none;">
+                            <label>Area Poligon Presensi Kedua</label>
+                            <div id="map2-add" style="height: 300px; width: 100%;"></div>
+                            <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-add">
+                            <small class="text-muted">Gambarkan area poligon kedua pada peta.</small>
                         </div>
                         <div class="mb-3">
                             <label>Logo Madrasah/Sekolah</label>
@@ -448,21 +484,9 @@
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
 
             // --- Leaflet Map for Polygon Drawing ---
-            $('div.modal.fade').on('shown.bs.modal', function (event) {
-                let modal = $(this);
-                if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) {
-                    return; // Not an edit madrasah modal, do nothing
-                }
-
-                let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
-                let mapId = 'map-' + madrasahId;
-                let polygonInputId = 'polygon_koordinat-' + madrasahId;
+            const initializeMap = (mapId, polygonInputId, lat, lon, existingPolygon = null) => {
                 let mapElement = document.getElementById(mapId);
-
-                if (mapElement && !mapElement._leaflet_id) { // Check if map is not already initialized
-                    let lat = modal.find('input[name="latitude"]').val() || -7.7956; // Default to a central location
-                    let lon = modal.find('input[name="longitude"]').val() || 110.3695;
-
+                if (mapElement && !mapElement._leaflet_id) {
                     let map = L.map(mapId).setView([lat, lon], 16);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -472,10 +496,8 @@
                     map.addLayer(drawnItems);
 
                     // Load existing polygon
-                    let existingPolygon = $('#' + polygonInputId).val();
                     if (existingPolygon) {
                         try {
-                            // The value is a JSON string of the geometry.
                             let geometry = JSON.parse(existingPolygon);
                             let layer = L.geoJSON(geometry);
                             layer.eachLayer(l => drawnItems.addLayer(l));
@@ -505,7 +527,6 @@
                     const updatePolygonInput = () => {
                         let geojson = drawnItems.toGeoJSON();
                         if (geojson.features.length > 0) {
-                            // Store only the geometry of the first feature
                             $('#' + polygonInputId).val(JSON.stringify(geojson.features[0].geometry));
                         } else {
                             $('#' + polygonInputId).val('');
@@ -513,7 +534,7 @@
                     };
 
                     map.on(L.Draw.Event.CREATED, function (e) {
-                        drawnItems.clearLayers(); // Allow only one polygon
+                        drawnItems.clearLayers();
                         drawnItems.addLayer(e.layer);
                         updatePolygonInput();
                     });
@@ -521,8 +542,69 @@
                     map.on(L.Draw.Event.EDITED, updatePolygonInput);
                     map.on(L.Draw.Event.DELETED, updatePolygonInput);
 
-                    // Fix map render issue in modal
-                    setTimeout(() => map.invalidateSize(), 400);
+                    return map;
+                }
+                return null;
+            };
+
+            // Initialize map for add modal
+            $('#modalTambahMadrasah').on('shown.bs.modal', function () {
+                let lat = -7.7956;
+                let lon = 110.3695;
+                initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
+                setTimeout(() => {
+                    if (window.mapAdd) window.mapAdd.invalidateSize();
+                }, 400);
+            });
+
+            // Initialize maps for edit modals
+            $('div.modal.fade').on('shown.bs.modal', function (event) {
+                let modal = $(this);
+                if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) {
+                    return;
+                }
+
+                let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
+                let lat = modal.find('input[name="latitude"]').val() || -7.7956;
+                let lon = modal.find('input[name="longitude"]').val() || 110.3695;
+
+                // Initialize first map
+                let existingPolygon1 = $('#polygon_koordinat-' + madrasahId).val();
+                initializeMap('map-' + madrasahId, 'polygon_koordinat-' + madrasahId, lat, lon, existingPolygon1);
+
+                // Initialize second map if dual polygon is enabled
+                if ($('#enable_dual_polygon-' + madrasahId).is(':checked')) {
+                    let existingPolygon2 = $('#polygon_koordinat_2-' + madrasahId).val();
+                    initializeMap('map2-' + madrasahId, 'polygon_koordinat_2-' + madrasahId, lat, lon, existingPolygon2);
+                }
+
+                setTimeout(() => {
+                    if (window['map' + madrasahId]) window['map' + madrasahId].invalidateSize();
+                    if (window['map2' + madrasahId]) window['map2' + madrasahId].invalidateSize();
+                }, 400);
+            });
+
+            // Toggle dual polygon functionality
+            $(document).on('change', '[id^="enable_dual_polygon"]', function() {
+                let id = $(this).attr('id').replace('enable_dual_polygon-', '');
+                let container = $('#polygon2-container' + (id ? '-' + id : '-add'));
+                let mapId = 'map2' + (id ? '-' + id : '-add');
+                let polygonInputId = 'polygon_koordinat_2' + (id ? '-' + id : '-add');
+
+                if ($(this).is(':checked')) {
+                    container.show();
+                    // Initialize map if not already done
+                    if (!document.getElementById(mapId)._leaflet_id) {
+                        let lat = -7.7956;
+                        let lon = 110.3695;
+                        initializeMap(mapId, polygonInputId, lat, lon);
+                        setTimeout(() => {
+                            if (window['map2' + (id ? id : 'Add')]) window['map2' + (id ? id : 'Add')].invalidateSize();
+                        }, 400);
+                    }
+                } else {
+                    container.hide();
+                    $('#' + polygonInputId).val('');
                 }
             });
         });

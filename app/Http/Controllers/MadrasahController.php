@@ -35,6 +35,9 @@ class MadrasahController extends Controller
         if ($request->input('polygon_koordinat') === '') {
             $request->merge(['polygon_koordinat' => null]);
         }
+        if ($request->input('polygon_koordinat_2') === '') {
+            $request->merge(['polygon_koordinat_2' => null]);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -45,6 +48,8 @@ class MadrasahController extends Controller
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
             'polygon_koordinat' => 'nullable|json',
+            'polygon_koordinat_2' => 'nullable|json',
+            'enable_dual_polygon' => 'boolean',
             'hari_kbm' => 'nullable|in:5,6',
         ]);
 
@@ -78,6 +83,8 @@ class MadrasahController extends Controller
         $madrasah->map_link = $validated['map_link'] ?? null;
         $madrasah->logo = $logoPath;
         $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
+        $madrasah->polygon_koordinat_2 = $validated['polygon_koordinat_2'] ?? null;
+        $madrasah->enable_dual_polygon = $validated['enable_dual_polygon'] ?? false;
         $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
         $madrasah->save();
 
@@ -94,6 +101,9 @@ class MadrasahController extends Controller
         if ($request->input('polygon_koordinat') === '') {
             $request->merge(['polygon_koordinat' => null]);
         }
+        if ($request->input('polygon_koordinat_2') === '') {
+            $request->merge(['polygon_koordinat_2' => null]);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -104,6 +114,8 @@ class MadrasahController extends Controller
             'map_link' => 'nullable|url',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // opsional
             'polygon_koordinat' => 'nullable|json',
+            'polygon_koordinat_2' => 'nullable|json',
+            'enable_dual_polygon' => 'boolean',
             'hari_kbm' => 'nullable|in:5,6',
         ]);
 
@@ -143,6 +155,8 @@ class MadrasahController extends Controller
         $madrasah->longitude = $validated['longitude'];
         $madrasah->map_link = $validated['map_link'];
         $madrasah->polygon_koordinat = $validated['polygon_koordinat'] ?? null;
+        $madrasah->polygon_koordinat_2 = $validated['polygon_koordinat_2'] ?? null;
+        $madrasah->enable_dual_polygon = $validated['enable_dual_polygon'] ?? false;
         $madrasah->hari_kbm = $validated['hari_kbm'] ?? null;
         $madrasah->save();
 
