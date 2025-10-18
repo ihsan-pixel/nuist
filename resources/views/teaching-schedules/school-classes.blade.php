@@ -89,38 +89,7 @@
                         </div>
                     </div>
 
-                    <!-- Day Selection Buttons -->
-                    <div class="d-flex flex-wrap gap-2 mb-0">
-                        @php
-                            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                            $currentDate = $selectedDate->copy();
-                            $dayDates = [];
 
-                            // Calculate dates for each day going backwards from current date
-                            foreach ($days as $day) {
-                                $dayIndex = array_search($day, ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
-                                $currentDayIndex = $currentDate->dayOfWeek;
-                                $diff = $dayIndex - $currentDayIndex;
-
-                                if ($diff > 0) {
-                                    $diff -= 7; // Go to previous week
-                                }
-
-                                $dayDates[$day] = $currentDate->copy()->addDays($diff);
-                            }
-                        @endphp
-                        @foreach($days as $day)
-                            @php
-                                $dayDate = $dayDates[$day];
-                                $isSelected = $selectedDay === $day;
-                            @endphp
-                            <button type="button"
-                                    class="btn btn-sm {{ $isSelected ? 'btn-primary' : 'btn-outline-primary' }}"
-                                    onclick="selectDate('{{ $dayDate->format('Y-m-d') }}')">
-                                {{ $day }}
-                            </button>
-                        @endforeach
-                    </div>
                 </div>
 
                 <div class="card-body">
@@ -247,10 +216,6 @@ $(document).ready(function() {
     });
 });
 
-// Function to select specific date
-function selectDate(dateStr) {
-    $('#date-picker').val(dateStr);
-    $('#date-form').submit();
-}
+
 </script>
 @endsection
