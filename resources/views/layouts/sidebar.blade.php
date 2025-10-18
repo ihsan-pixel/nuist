@@ -125,12 +125,6 @@
                         <span>Data Presensi</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('izin.index') }}" class="waves-effect">
-                        <i class="bx bx-file"></i>
-                        <span>Kelola Izin</span>
-                    </a>
-                </li>
                 @endif
                 @php
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
