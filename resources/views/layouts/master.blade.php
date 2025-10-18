@@ -3,11 +3,19 @@
 
 <head>
     <meta charset="utf-8" />
-    <title> @yield('title') | Nuist - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY<</title>
+    <title> @yield('title') | Nuist - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</title>
     <base href="{{ url('/') }}/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesbrand" name="author" />
+    <meta name="description" content="Sistem Informasi Digital LP. Ma'arif NU PWNU DIY - Platform terintegrasi untuk manajemen madrasah, presensi, dan data pendidikan." />
+    <meta name="keywords" content="nuist, ma'arif, nu, pwnu diy, sistem informasi, madrasah, presensi, pendidikan" />
+    <meta name="author" content="LP. Ma'arif NU PWNU DIY" />
+    <link rel="canonical" href="{{ url()->current() }}" />
+    <!-- Open Graph for better social sharing -->
+    <meta property="og:title" content="@yield('title') | Nuist - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
+    <meta property="og:description" content="Sistem Informasi Digital LP. Ma'arif NU PWNU DIY - Platform terintegrasi untuk manajemen madrasah, presensi, dan data pendidikan." />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="{{ asset('build/images/logo%20favicon%201.png') }}" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('build/images/logo%20favicon%201.png') }}">
     @include('layouts.head-css')

@@ -1,7 +1,7 @@
 @extends('layouts.master-without-nav')
 
 @section('title')
-@lang('translation.Login')
+Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 @endsection
 
 @section('css')

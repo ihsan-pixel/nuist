@@ -1,7 +1,7 @@
 {{-- resources/views/dashboard/index.blade.php --}}
 @extends('layouts.master')
 
-@section('title') Dasbor @endsection
+@section('title') Dashboard - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY @endsection
 
 @section('content')
 

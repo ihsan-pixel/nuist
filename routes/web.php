@@ -205,5 +205,8 @@ Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class
 // Language Translation
 Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 
+// Sitemap route
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
