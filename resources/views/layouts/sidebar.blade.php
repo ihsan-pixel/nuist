@@ -100,7 +100,7 @@
                 </li>
                 @endif
 
-                @if(in_array($userRole, ['super_admin', 'pengurus']))
+                @if(in_array($userRole, ['pengurus']))
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">
                         <i class="bx bx-check-square"></i>
@@ -111,7 +111,7 @@
                         <li><a href="{{ route('presensi_admin.index') }}">Data Presensi</a></li>
                     </ul>
                 </li>
-                @elseif($userRole === 'admin' || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
+                @elseif(in_array($userRole, ['super_admin', 'admin']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
                 <li>
                     <a href="{{ route('presensi_admin.index') }}" class="waves-effect">
                         <i class="bx bx-check-square"></i>
