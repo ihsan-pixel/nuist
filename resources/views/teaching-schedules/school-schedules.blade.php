@@ -27,7 +27,7 @@
             <div class="card-body">
                 <div class="mb-3 d-flex justify-content-between align-items-center">
                     <div>
-                        @if(Auth::user()->role !== 'tenaga_pendidik' || Auth::user()->ketugasan !== 'kepala madrasah/sekolah')
+                        @if((Auth::user()->role !== 'tenaga_pendidik' || Auth::user()->ketugasan !== 'kepala madrasah/sekolah') && Auth::user()->role !== 'admin' && Auth::user()->role !== 'super_admin')
                         <a href="{{ route('teaching-schedules.index') }}" class="btn btn-secondary">
                             <i class="bx bx-arrow-back"></i> Kembali ke Daftar Madrasah
                         </a>
