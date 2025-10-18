@@ -439,7 +439,10 @@ class TeachingScheduleController extends Controller
         if ($user->role === 'admin' && $user->madrasah_id != $schoolId) {
             abort(403);
         } elseif ($user->role !== 'super_admin' && $user->role !== 'admin' && $user->role !== 'pengurus') {
-            abort(403);
+            // Allow tenaga_pendidik with ketugasan kepala madrasah/sekolah
+            if (!($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah' && $user->madrasah_id == $schoolId)) {
+                abort(403);
+            }
         }
 
         $school = Madrasah::findOrFail($schoolId);
