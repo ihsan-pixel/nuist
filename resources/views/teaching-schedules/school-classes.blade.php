@@ -95,11 +95,11 @@
                             $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                         @endphp
                         @foreach($days as $day)
-                            <a href="{{ route('teaching-schedules.school-classes', $school->id) }}?day={{ $day }}&date={{ $selectedDate->format('Y-m-d') }}"
-                               class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}"
-                               onclick="updateDateForDay('{{ $day }}')">
+                            <button type="button"
+                                    class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}"
+                                    onclick="selectDay('{{ $day }}')">
                                 {{ $day }}
-                            </a>
+                            </button>
                         @endforeach
                     </div>
                 </div>
@@ -228,15 +228,20 @@ $(document).ready(function() {
     });
 });
 
-// Function to update date when day button is clicked
-function updateDateForDay(selectedDay) {
+// Function to select day and update date accordingly
+function selectDay(selectedDay) {
     const currentDate = new Date('{{ $selectedDate->format('Y-m-d') }}');
     const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const targetDayIndex = daysOfWeek.indexOf(selectedDay);
 
     if (targetDayIndex !== -1) {
         const currentDayIndex = currentDate.getDay();
-        const diff = targetDayIndex - currentDayIndex;
+        let diff = targetDayIndex - currentDayIndex;
+
+        // If the target day is before current day, go to next week
+        if (diff <= 0) {
+            diff += 7;
+        }
 
         // Adjust date to match the selected day
         currentDate.setDate(currentDate.getDate() + diff);
@@ -244,6 +249,9 @@ function updateDateForDay(selectedDay) {
         // Update the date picker value
         const newDateStr = currentDate.toISOString().split('T')[0];
         $('#date-picker').val(newDateStr);
+
+        // Submit the form to update the view
+        $('#date-form').submit();
     }
 }
 </script>
