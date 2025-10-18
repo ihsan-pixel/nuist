@@ -42,7 +42,7 @@
                         </button>
                         @endif
                         @endif
-                        @if(Auth::user()->role === 'super_admin' || Auth::user()->role === 'admin')
+                        @if(Auth::user()->role === 'super_admin' || Auth::user()->role === 'admin' || (Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'))
                         <a href="{{ route('teaching-schedules.school-classes', $school->id) }}" class="btn btn-info">
                             <i class="bx bx-group me-1"></i> Lihat Kelas
                         </a>
