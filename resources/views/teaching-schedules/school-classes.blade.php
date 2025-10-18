@@ -96,7 +96,8 @@
                         @endphp
                         @foreach($days as $day)
                             <a href="{{ route('teaching-schedules.school-classes', $school->id) }}?day={{ $day }}&date={{ $selectedDate->format('Y-m-d') }}"
-                               class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}">
+                               class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}"
+                               onclick="updateDateForDay('{{ $day }}')">
                                 {{ $day }}
                             </a>
                         @endforeach
@@ -226,5 +227,24 @@ $(document).ready(function() {
         return false;
     });
 });
+
+// Function to update date when day button is clicked
+function updateDateForDay(selectedDay) {
+    const currentDate = new Date('{{ $selectedDate->format('Y-m-d') }}');
+    const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const targetDayIndex = daysOfWeek.indexOf(selectedDay);
+
+    if (targetDayIndex !== -1) {
+        const currentDayIndex = currentDate.getDay();
+        const diff = targetDayIndex - currentDayIndex;
+
+        // Adjust date to match the selected day
+        currentDate.setDate(currentDate.getDate() + diff);
+
+        // Update the date picker value
+        const newDateStr = currentDate.toISOString().split('T')[0];
+        $('#date-picker').val(newDateStr);
+    }
+}
 </script>
 @endsection

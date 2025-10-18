@@ -449,8 +449,8 @@ class TeachingScheduleController extends Controller
         $selectedDate = $request->get('date', today()->format('Y-m-d'));
         $selectedDate = \Carbon\Carbon::parse($selectedDate);
 
-        // Get selected day, default to current day in Indonesian
-        $selectedDay = $request->get('day', \Carbon\Carbon::now()->locale('id')->dayName);
+        // Get selected day: if explicitly set, use it; otherwise use the day of the selected date
+        $selectedDay = $request->get('day', $selectedDate->locale('id')->dayName);
 
         // Get all schedules for the school with attendance info for selected date
         $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function($query) use ($selectedDate) {
