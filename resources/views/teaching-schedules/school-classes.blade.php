@@ -117,10 +117,7 @@
                             <button type="button"
                                     class="btn btn-sm {{ $isSelected ? 'btn-primary' : 'btn-outline-primary' }}"
                                     onclick="selectDate('{{ $dayDate->format('Y-m-d') }}')">
-                                <div class="d-flex flex-column align-items-center">
-                                    <small class="fw-bold">{{ $day }}</small>
-                                    <small class="text-muted">{{ $dayDate->format('d/m') }}</small>
-                                </div>
+                                {{ $day }}
                             </button>
                         @endforeach
                     </div>
