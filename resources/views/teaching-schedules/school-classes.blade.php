@@ -1,13 +1,13 @@
 @extends('layouts.master')
 
 @section('title')
-    Kelas Berjalan - {{ $school->name }}
+    Kelas Berjalan - {{ $school->name }} ({{ $selectedDay }})
 @endsection
 
 @component('components.breadcrumb')
     @slot('li_1') Master Data @endslot
     @slot('li_2') <a href="{{ route('teaching-schedules.index') }}">Jadwal Mengajar</a> @endslot
-    @slot('title') Kelas Berjalan {{ $school->name }} @endslot
+    @slot('title') Kelas Berjalan {{ $school->name }} ({{ $selectedDay }}) @endslot
 @endcomponent
 
 @section('css')
@@ -67,24 +67,39 @@
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                    <div>
-                        <h4 class="card-title mb-0">
-                            <i class="bx bx-group me-2"></i>Kelas Berjalan - {{ $school->name }}
-                        </h4>
-                        <p class="mb-0 text-muted">
-                            Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}
-                        </p>
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="card-title mb-0">
+                                <i class="bx bx-group me-2"></i>Kelas Berjalan - {{ $school->name }}
+                            </h4>
+                            <p class="mb-0 text-muted">
+                                Kabupaten: {{ $school->kabupaten }} | SCOD: {{ $school->scod }}
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="d-flex align-items-center" id="date-form">
+                                <input
+                                    type="date"
+                                    id="date-picker"
+                                    name="date"
+                                    class="form-control form-control-sm"
+                                    value="{{ $selectedDate->format('Y-m-d') }}">
+                            </form>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <form method="GET" action="{{ route('teaching-schedules.school-classes', $school->id) }}" class="d-flex align-items-center" id="date-form">
-                            <input
-                                type="date"
-                                id="date-picker"
-                                name="date"
-                                class="form-control form-control-sm"
-                                value="{{ $selectedDate->format('Y-m-d') }}">
-                        </form>
+
+                    <!-- Day Selection Buttons -->
+                    <div class="d-flex flex-wrap gap-2 mb-0">
+                        @php
+                            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                        @endphp
+                        @foreach($days as $day)
+                            <a href="{{ route('teaching-schedules.school-classes', $school->id) }}?day={{ $day }}&date={{ $selectedDate->format('Y-m-d') }}"
+                               class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}">
+                                {{ $day }}
+                            </a>
+                        @endforeach
                     </div>
                 </div>
 
@@ -96,71 +111,91 @@
                     </div>
 
                     <div class="row">
-                        @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $day)
+                        @if($classesByDay->has($selectedDay))
                             @php
-                                $dayClasses = $classesByDay[$day] ?? collect();
+                                $dayClasses = $classesByDay[$selectedDay];
                             @endphp
 
-                            <div class="col-lg-6 col-xl-4 col-md-6 col-sm-12">
-                                <div class="card h-100 border shadow-sm">
-                                    <div class="card-header bg-success text-white py-2">
-                                        <h6 class="mb-0" style="font-size: 0.9rem;">
-                                            <i class="bx bx-calendar-week me-2"></i>{{ $day }}
-                                        </h6>
+                            <div class="col-12">
+                                <div class="card border shadow-sm">
+                                    <div class="card-header bg-success text-white py-3">
+                                        <h5 class="mb-0">
+                                            <i class="bx bx-calendar-week me-2"></i>{{ $selectedDay }}
+                                        </h5>
                                     </div>
-                                    <div class="card-body p-3">
+                                    <div class="card-body p-4">
                                         @if($dayClasses->isNotEmpty())
                                             @foreach($dayClasses as $className => $schedules)
-                                            <div class="mb-3">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <i class="bx bx-group me-2 text-muted" style="font-size: 0.9rem;"></i>
-                                                    <strong class="text-success" style="font-size: 0.9rem;">{{ $className }}</strong>
+                                            <div class="mb-4">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <i class="bx bx-group me-2 text-muted" style="font-size: 1.1rem;"></i>
+                                                    <strong class="text-success h5 mb-0">{{ $className }}</strong>
                                                 </div>
-                                                @foreach($schedules as $schedule)
-                                                <div class="d-flex justify-content-between align-items-start mb-2 p-2 border rounded bg-light">
-                                                    <div class="flex-grow-1 me-2">
-                                                        <div class="d-flex align-items-center flex-wrap mb-1">
-                                                            @if($schedule->teacher)
-                                                                <span class="badge bg-success me-1" style="font-size: 0.7rem;">Terisi</span>
-                                                            @else
-                                                                <span class="badge bg-warning me-1" style="font-size: 0.7rem;">Kosong</span>
-                                                            @endif
-                                                            <span class="badge bg-primary me-1" style="font-size: 0.7rem;">{{ $schedule->subject }}</span>
-                                                            @if($schedule->has_attendance_today)
-                                                                <span class="badge bg-info me-1" style="font-size: 0.7rem;">
-                                                                    <i class="bx bx-check me-1"></i>Hadir
-                                                                </span>
-                                                            @else
-                                                                <span class="badge bg-secondary me-1" style="font-size: 0.7rem;">
-                                                                    <i class="bx bx-time me-1"></i>Belum Presensi
-                                                                </span>
-                                                            @endif
-                                                        </div>
-                                                        <div>
-                                                            <small class="text-muted" style="font-size: 0.75rem;">
-                                                                <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
-                                                            </small>
+                                                <div class="row">
+                                                    @foreach($schedules as $schedule)
+                                                    <div class="col-lg-6 col-xl-4 col-md-6 col-sm-12 mb-3">
+                                                        <div class="d-flex justify-content-between align-items-start p-3 border rounded bg-light h-100">
+                                                            <div class="flex-grow-1 me-3">
+                                                                <div class="d-flex align-items-center flex-wrap mb-2">
+                                                                    @if($schedule->teacher)
+                                                                        <span class="badge bg-success me-1">Terisi</span>
+                                                                    @else
+                                                                        <span class="badge bg-warning me-1">Kosong</span>
+                                                                    @endif
+                                                                    <span class="badge bg-primary me-1">{{ $schedule->subject }}</span>
+                                                                    @if($schedule->has_attendance_today)
+                                                                        <span class="badge bg-info me-1">
+                                                                            <i class="bx bx-check me-1"></i>Hadir
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary me-1">
+                                                                            <i class="bx bx-time me-1"></i>Belum Presensi
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                                <div>
+                                                                    <small class="text-muted">
+                                                                        <i class="bx bx-user me-1"></i>{{ $schedule->teacher ? $schedule->teacher->name : 'Belum ada guru' }}
+                                                                    </small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-end">
+                                                                <small class="text-muted">
+                                                                    {{ $schedule->start_time }}<br>{{ $schedule->end_time }}
+                                                                </small>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="text-end">
-                                                        <small class="text-muted" style="font-size: 0.75rem;">
-                                                            {{ $schedule->start_time }}<br>{{ $schedule->end_time }}
-                                                        </small>
-                                                    </div>
+                                                    @endforeach
                                                 </div>
-                                                @endforeach
                                             </div>
                                             @endforeach
                                         @else
-                                            <div class="text-center py-4">
-                                                <i class="bx bx-calendar-x text-muted" style="font-size: 1.5rem;"></i>
-                                                <p class="text-muted mb-0 mt-2" style="font-size: 0.8rem;">Tidak ada kelas</p>
+                                            <div class="text-center py-5">
+                                                <i class="bx bx-calendar-x text-muted" style="font-size: 2rem;"></i>
+                                                <p class="text-muted mb-0 mt-3" style="font-size: 1rem;">Tidak ada kelas pada hari {{ $selectedDay }}</p>
                                             </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
+                        @else
+                            <div class="col-12">
+                                <div class="card border shadow-sm">
+                                    <div class="card-header bg-success text-white py-3">
+                                        <h5 class="mb-0">
+                                            <i class="bx bx-calendar-week me-2"></i>{{ $selectedDay }}
+                                        </h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="text-center py-5">
+                                            <i class="bx bx-calendar-x text-muted" style="font-size: 2rem;"></i>
+                                            <p class="text-muted mb-0 mt-3" style="font-size: 1rem;">Tidak ada kelas pada hari {{ $selectedDay }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     @if($classesByDay->isEmpty())
@@ -171,7 +206,7 @@
                             </div>
                         </div>
                         <h5 class="text-muted">Belum ada kelas berjalan</h5>
-                        <p class="text-muted">Belum ada kelas berjalan untuk madrasah ini.</p>
+                        <p class="text-muted">Belum ada kelas berjalan untuk madrasah ini pada hari {{ $selectedDay }}.</p>
                     </div>
                     @endif
                 </div>
