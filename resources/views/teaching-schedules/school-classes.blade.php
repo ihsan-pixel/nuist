@@ -93,12 +93,34 @@
                     <div class="d-flex flex-wrap gap-2 mb-0">
                         @php
                             $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                            $currentDate = $selectedDate->copy();
+                            $dayDates = [];
+
+                            // Calculate dates for each day going backwards from current date
+                            foreach ($days as $day) {
+                                $dayIndex = array_search($day, ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
+                                $currentDayIndex = $currentDate->dayOfWeek;
+                                $diff = $dayIndex - $currentDayIndex;
+
+                                if ($diff > 0) {
+                                    $diff -= 7; // Go to previous week
+                                }
+
+                                $dayDates[$day] = $currentDate->copy()->addDays($diff);
+                            }
                         @endphp
                         @foreach($days as $day)
+                            @php
+                                $dayDate = $dayDates[$day];
+                                $isSelected = $selectedDay === $day;
+                            @endphp
                             <button type="button"
-                                    class="btn btn-sm {{ $selectedDay === $day ? 'btn-primary' : 'btn-outline-primary' }}"
-                                    onclick="selectDay('{{ $day }}')">
-                                {{ $day }}
+                                    class="btn btn-sm {{ $isSelected ? 'btn-primary' : 'btn-outline-primary' }}"
+                                    onclick="selectDate('{{ $dayDate->format('Y-m-d') }}')">
+                                <div class="d-flex flex-column align-items-center">
+                                    <small class="fw-bold">{{ $day }}</small>
+                                    <small class="text-muted">{{ $dayDate->format('d/m') }}</small>
+                                </div>
                             </button>
                         @endforeach
                     </div>
@@ -228,31 +250,10 @@ $(document).ready(function() {
     });
 });
 
-// Function to select day and update date accordingly
-function selectDay(selectedDay) {
-    const currentDate = new Date('{{ $selectedDate->format('Y-m-d') }}');
-    const daysOfWeek = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const targetDayIndex = daysOfWeek.indexOf(selectedDay);
-
-    if (targetDayIndex !== -1) {
-        const currentDayIndex = currentDate.getDay();
-        let diff = targetDayIndex - currentDayIndex;
-
-        // If the target day is before current day, go to next week
-        if (diff <= 0) {
-            diff += 7;
-        }
-
-        // Adjust date to match the selected day
-        currentDate.setDate(currentDate.getDate() + diff);
-
-        // Update the date picker value
-        const newDateStr = currentDate.toISOString().split('T')[0];
-        $('#date-picker').val(newDateStr);
-
-        // Submit the form to update the view
-        $('#date-form').submit();
-    }
+// Function to select specific date
+function selectDate(dateStr) {
+    $('#date-picker').val(dateStr);
+    $('#date-form').submit();
 }
 </script>
 @endsection
