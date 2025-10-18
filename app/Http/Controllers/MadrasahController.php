@@ -53,6 +53,12 @@ class MadrasahController extends Controller
             'hari_kbm' => 'nullable|in:5,6',
         ]);
 
+        // Restrict dual polygon to specific madrasah IDs (only for store method)
+        $allowedMadrasahIds = [24, 26, 33];
+        if ($request->input('enable_dual_polygon') && !in_array($request->input('id') ?? null, $allowedMadrasahIds)) {
+            return redirect()->back()->with('error', 'Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33).');
+        }
+
         $logoPath = null;
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
@@ -118,6 +124,12 @@ class MadrasahController extends Controller
             'enable_dual_polygon' => 'boolean',
             'hari_kbm' => 'nullable|in:5,6',
         ]);
+
+        // Restrict dual polygon to specific madrasah IDs
+        $allowedMadrasahIds = [24, 26, 33];
+        if ($request->input('enable_dual_polygon') && !in_array($madrasah->id, $allowedMadrasahIds)) {
+            return redirect()->back()->with('error', 'Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33).');
+        }
 
         // Jika ada file logo baru, hapus logo lama
         if ($request->hasFile('logo')) {

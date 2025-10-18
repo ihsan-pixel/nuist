@@ -187,6 +187,7 @@
                             <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
                             <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
                         </div>
+                        @if(in_array($madrasah->id, [24, 26, 33]))
                         <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
@@ -202,6 +203,7 @@
                             <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
                             <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
                         </div>
+                        @endif
                         <div class="mb-3">
                             <label>Logo</label>
                             <input type="file" name="logo" id="editLogoInput{{ $madrasah->id }}" class="form-control" accept="image/*">
@@ -304,12 +306,12 @@
                         </div>
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-add" value="1">
+                                <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-add" value="1" disabled>
                                 <label class="form-check-label" for="enable_dual_polygon-add">
                                     Aktifkan Poligon Kedua
                                 </label>
                             </div>
-                            <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
+                            <small class="text-muted">Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33).</small>
                         </div>
                         <div class="mb-3" id="polygon2-container-add" style="display: none;">
                             <label>Area Poligon Presensi Kedua</label>
@@ -590,6 +592,16 @@
                 let container = $('#polygon2-container' + (id ? '-' + id : '-add'));
                 let mapId = 'map2' + (id ? '-' + id : '-add');
                 let polygonInputId = 'polygon_koordinat_2' + (id ? '-' + id : '-add');
+
+                // Check if this madrasah is allowed to use dual polygon (only for IDs 24, 26, 33)
+                let allowedMadrasahIds = [24, 26, 33];
+                let isAllowed = id === 'add' || allowedMadrasahIds.includes(parseInt(id));
+
+                if (!isAllowed) {
+                    $(this).prop('checked', false);
+                    alert('Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33).');
+                    return;
+                }
 
                 if ($(this).is(':checked')) {
                     container.show();
