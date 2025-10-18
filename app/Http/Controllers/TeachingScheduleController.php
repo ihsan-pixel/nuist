@@ -29,16 +29,30 @@ class TeachingScheduleController extends Controller
         } elseif ($user->role === 'pengurus') {
             // See all, same as super_admin
         } elseif ($user->role === 'tenaga_pendidik') {
-            // Only their own
-            $query->where('teacher_id', $user->id);
+            // Check if tenaga_pendidik with ketugasan kepala madrasah/sekolah
+            if ($user->ketugasan === 'kepala madrasah/sekolah') {
+                // Show schedules for their school like admin
+                $query->where('school_id', $user->madrasah_id);
+            } else {
+                // Only their own
+                $query->where('teacher_id', $user->id);
+            }
         }
 
         $schedules = $query->orderBy('day')->orderBy('start_time')->get();
 
         if ($user->role === 'tenaga_pendidik') {
-            // Group by day for teacher view
-            $grouped = $schedules->groupBy('day');
-            return view('teaching-schedules.teacher-index', compact('grouped'));
+            // Check if tenaga_pendidik with ketugasan kepala madrasah/sekolah
+            if ($user->ketugasan === 'kepala madrasah/sekolah') {
+                // Show school schedules view like admin
+                $school = Madrasah::findOrFail($user->madrasah_id);
+                $grouped = $schedules->groupBy('teacher.name');
+                return view('teaching-schedules.school-schedules', compact('school', 'grouped'));
+            } else {
+                // Group by day for teacher view
+                $grouped = $schedules->groupBy('day');
+                return view('teaching-schedules.teacher-index', compact('grouped'));
+            }
         } elseif ($user->role === 'super_admin') {
             // Super admin view: list all schools grouped by kabupaten, then sorted by scod, with search and filter
             $query = Madrasah::with(['teachingSchedules', 'teachingAttendances'])->orderBy('kabupaten')->orderBy('scod');

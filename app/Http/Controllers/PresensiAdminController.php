@@ -15,10 +15,17 @@ class PresensiAdminController extends Controller
 {
     public function __construct()
     {
-        // Middleware to restrict access to super_admin and admin roles
+        // Middleware to restrict access to super_admin, admin, pengurus, and tenaga_pendidik with ketugasan kepala
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if (!in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
+            $allowed = in_array($user->role, ['super_admin', 'admin', 'pengurus']);
+
+            // Allow tenaga_pendidik with ketugasan kepala madrasah/sekolah
+            if (!$allowed && $user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') {
+                $allowed = true;
+            }
+
+            if (!$allowed) {
                 abort(403, 'Unauthorized');
             }
             return $next($request);
@@ -239,11 +246,11 @@ class PresensiAdminController extends Controller
 
             return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary'));
         } else {
-            // For admin and others, show original view
+            // For admin and tenaga_pendidik with ketugasan kepala, show original view
             $query = Presensi::with('user.madrasah', 'statusKepegawaian');
 
-            // If user is admin, filter by madrasah_id
-            if ($user->role === 'admin' && $user->madrasah_id) {
+            // If user is admin or tenaga_pendidik kepala, filter by madrasah_id
+            if (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
                 $query->whereHas('user', function ($q) use ($user) {
                     $q->where('madrasah_id', $user->madrasah_id);
                 });
@@ -254,7 +261,7 @@ class PresensiAdminController extends Controller
             // Query users with role 'tenaga_pendidik' who haven't done presensi on selected date
             $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
 
-            if ($user->role === 'admin' && $user->madrasah_id) {
+            if (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
                 $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
             }
 
@@ -538,7 +545,7 @@ class PresensiAdminController extends Controller
             $totalGuru = User::where('role', 'tenaga_pendidik')->count();
             $summary['guru_tidak_presensi'] = $totalGuru - $presensiUsers;
         } else {
-            // For admin/pengurus: filter by madrasah
+            // For admin and tenaga_pendidik kepala: filter by madrasah
             if ($user->madrasah_id) {
                 $presensiUsers = Presensi::whereDate('tanggal', $selectedDate)
                     ->whereHas('user', function ($q) use ($user) {

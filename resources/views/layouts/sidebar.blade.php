@@ -111,7 +111,7 @@
                         <li><a href="{{ route('presensi_admin.index') }}">Data Presensi</a></li>
                     </ul>
                 </li>
-                @elseif($userRole === 'admin')
+                @elseif($userRole === 'admin' || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
                 <li>
                     <a href="{{ route('presensi_admin.index') }}" class="waves-effect">
                         <i class="bx bx-check-square"></i>

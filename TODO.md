@@ -1,12 +1,12 @@
-# TODO: Modify Tenaga Pendidik Index Page for Admin Role
+# TODO: Implementasi Akses untuk Tenaga Pendidik Kepala Madrasah
 
 ## Completed Tasks
-- [x] Add "NUist ID" column header between Email and Madrasah in table header
-- [x] Add NUist ID data cell in table body after Email column
-- [x] Modify Action column: show only "View" button for admin role, Edit/Delete for others
-- [x] Create readonly "View" modal with all tenaga pendidik fields
-- [x] Update empty state colspan from 11 to 12
+- [x] Update routes/web.php: tambah kondisi untuk tenaga pendidik kepala pada presensi_admin routes
+- [x] Update PresensiAdminController: modifikasi __construct dan index method untuk handle tenaga pendidik kepala seperti admin
+- [x] Update TeachingScheduleController index: jika tenaga pendidik dan ketugasan kepala, tampilkan seperti admin
+- [x] Update sidebar.blade.php: tambah kondisi untuk show presensi admin jika tenaga_pendidik dan ketugasan kepala
 
 ## Pending Tasks
-- [ ] Test the page for admin role to ensure View button works and improved modal displays correctly
-- [ ] Verify table displays NUist ID properly
+- [ ] Test akses untuk user tenaga_pendidik dengan ketugasan kepala madrasah/sekolah
+- [ ] Verifikasi bisa akses data presensi dan jadwal mengajar seperti admin
+- [ ] Pastikan tidak ada error atau akses yang tidak diinginkan
