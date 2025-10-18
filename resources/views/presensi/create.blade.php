@@ -150,6 +150,14 @@
                                                     <p class="mb-0"><strong>Akhir:</strong> {{ $timeRanges['pulang_end'] }}</p>
                                                 </div>
                                             </div>
+                                            @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
+                                            <div class="mt-2">
+                                                <small class="text-info">
+                                                    <i class="bx bx-info-circle me-1"></i>
+                                                    <strong>Catatan:</strong> Untuk hari Sabtu, waktu mulai presensi pulang adalah 12:00. Hari lainnya mulai pukul 13:00.
+                                                </small>
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
