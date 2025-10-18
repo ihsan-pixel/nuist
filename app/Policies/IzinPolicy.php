@@ -22,7 +22,11 @@ class IzinPolicy
             return true;
         }
 
-        return $user->role === 'admin' && $user->madrasah_id === $presensi->user->madrasah_id;
+        if ($user->role === 'admin' && $user->madrasah_id === $presensi->user->madrasah_id) {
+            return true;
+        }
+
+        return $user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah' && $user->madrasah_id === $presensi->user->madrasah_id;
     }
 
     /**
@@ -38,6 +42,10 @@ class IzinPolicy
             return true;
         }
 
-        return $user->role === 'admin' && $user->madrasah_id === $presensi->user->madrasah_id;
+        if ($user->role === 'admin' && $user->madrasah_id === $presensi->user->madrasah_id) {
+            return true;
+        }
+
+        return $user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah' && $user->madrasah_id === $presensi->user->madrasah_id;
     }
 }

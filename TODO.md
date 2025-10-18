@@ -1,14 +1,8 @@
-# TODO: Modify "Kelas Berjalan" View for Day Selection
+# TODO: Allow Tenaga Pendidik Kepala Madrasah to Access "Kelola Izin" Feature
 
 ## Tasks
-- [x] Modify TeachingScheduleController@showSchoolClasses to accept 'day' parameter, default to current day in Indonesian
-- [x] Filter classesByDay to only include selected day
-- [x] Pass selectedDay to the view
-- [x] Update school-classes.blade.php to add day selection buttons at the top
-- [x] Modify grid layout to show only selected day's classes
-- [x] Update title/breadcrumb to indicate selected day
-- [x] Ensure date picker functionality remains intact
-- [x] Hide day selection buttons completely
-- [x] Test day selection buttons (Server started, but browser tool disabled - manual testing needed)
-- [x] Verify date picker filters attendance correctly (Functionality preserved in code)
-- [x] Ensure responsive design works with single day display (Grid layout updated)
+- [x] Update routes/web.php: Modify middleware for izin.index to allow tenaga_pendidik with ketugasan 'kepala madrasah/sekolah'
+- [x] Update app/Policies/IzinPolicy.php: Add condition in approve and reject methods for tenaga_pendidik kepala madrasah
+- [x] Update resources/views/layouts/sidebar.blade.php: Add "Kelola Izin" menu for tenaga pendidik kepala madrasah
+- [x] Verify app/Http/Controllers/IzinController.php index method filters correctly by madrasah_id
+- [ ] Test access and approve/reject functionality for tenaga pendidik kepala madrasah

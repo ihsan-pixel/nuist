@@ -191,7 +191,7 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
         Route::post('/store', [IzinController::class, 'store'])->name('store');
     });
 
-    Route::middleware(['role:admin,super_admin,pengurus'])->group(function () {
+    Route::middleware(['role:admin,super_admin,pengurus,tenaga_pendidik'])->group(function () {
         Route::get('/', [IzinController::class, 'index'])->name('index');
         Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('approve');
         Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');
