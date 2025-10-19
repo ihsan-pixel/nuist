@@ -252,7 +252,7 @@
                                                     <i class="bx bx-log-in-circle text-primary fs-3 mb-2"></i>
                                                     <h6 class="text-primary mb-2">Presensi Masuk</h6>
                                                     <p class="mb-1 fw-semibold">{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
-                                                    <small class="text-muted">Terlambat setelah {{ $timeRanges['masuk_end'] }}</small>
+                                                    <small class="text-muted">Terlambat setelah 07:00</small>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-md-6">
