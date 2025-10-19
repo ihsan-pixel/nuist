@@ -478,4 +478,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('userpassword');
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            // Ganti ikon
+            icon.classList.toggle('mdi-eye-outline', !isPassword);
+            icon.classList.toggle('mdi-eye-off-outline', isPassword);
+        });
+    }
+});
+</script>
+
 @endsection
