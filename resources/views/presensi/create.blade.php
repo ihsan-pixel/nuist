@@ -334,7 +334,13 @@ $(document).ready(function() {
     // Update waktu sekarang setiap detik
     function updateTime() {
         const now = new Date();
-        $('#current-time').val(now.toLocaleTimeString('id-ID'));
+        const timeString = now.toLocaleTimeString('id-ID', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        $('#current-time').text(timeString);
     }
     updateTime();
     setInterval(updateTime, 1000);
