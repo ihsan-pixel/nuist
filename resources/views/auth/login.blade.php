@@ -151,6 +151,29 @@ body {
   color: #7f5af0;
   font-size: 13px;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-box {
+    flex-direction: column;
+  }
+  .left, .right {
+    flex: none;
+  }
+  .right {
+    background: none;
+    padding: 20px;
+  }
+  .right img {
+    width: 50%;
+    max-width: 200px;
+  }
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+}
 @endsection
 
 @section('body')

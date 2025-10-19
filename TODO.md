@@ -10,6 +10,6 @@
 - [x] No new dependencies; reuse existing assets.
 
 ## Followup Steps
-- [ ] Test the login page for layout and responsiveness.
+- [x] Test the login page for layout and responsiveness.
 - [ ] Verify form submission and validation still work.
 - [ ] If needed, create a separate CSS file (e.g., public/css/login-style.css) and link it.
