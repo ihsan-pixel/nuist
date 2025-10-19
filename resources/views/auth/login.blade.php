@@ -409,7 +409,8 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         }
 
         .illustration-section {
-            display: none;
+            order: -1;
+            min-height: 200px;
         }
 
         .form-container {
