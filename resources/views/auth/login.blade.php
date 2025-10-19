@@ -148,7 +148,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
     .illustration-section {
         flex: 1;
-        background: linear-gradient(135deg, #038e18 0%, #e9a615 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         padding: 60px 50px;
         display: flex;
         align-items: center;
