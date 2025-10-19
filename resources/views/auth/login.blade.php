@@ -57,12 +57,12 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
                     <div class="form-group">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
-                        <div class="password-input-container @error('password') is-invalid @enderror">
+                        <div class="password-input-container">
                             <input type="password" name="password"
-                                   class="form-control password-input @error('password') is-invalid @enderror"
-                                   id="userpassword" placeholder="Enter password"
-                                   aria-label="Password" aria-describedby="password-addon" autocomplete="current-password">
-                            <button type="button" class="btn btn-light password-toggle-btn" id="password-addon" data-target="#userpassword" aria-pressed="false" aria-label="Lihat password">
+                                class="form-control password-input @error('password') is-invalid @enderror"
+                                id="userpassword" placeholder="Enter password"
+                                aria-label="Password" autocomplete="current-password">
+                            <button type="button" class="btn password-toggle-btn" id="togglePassword" aria-label="Lihat password">
                                 <i class="mdi mdi-eye-outline"></i>
                             </button>
                             @error('password')
@@ -212,17 +212,17 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         outline: none;
     }
 
-    .password-input-container {
+    /* .password-input-container {
         position: relative;
         display: flex;
         align-items: center;
-    }
+    } */
 
     .password-input {
         padding-right: 50px !important;
     }
 
-    .password-toggle-btn {
+    /* .password-toggle-btn {
         position: absolute;
         right: 0;
         top: 0;
@@ -242,6 +242,29 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
     .password-toggle-btn:hover {
         background: rgba(108, 99, 255, 0.05);
         color: #495057;
+    } */
+
+    .password-input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        z-index: 2;
+        padding: 5px;
+    }
+
+    .password-toggle-btn:hover {
+        color: #004b4c;
     }
 
     .form-check {
