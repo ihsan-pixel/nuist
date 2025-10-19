@@ -96,7 +96,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         <div class="illustration-section">
             <div class="illustration-content">
                 <h2>Welcome Back!</h2>
-                <p>Sign in to access your dashboard and manage your activities.</p>
+                <p>Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
                 <!-- Placeholder for illustration -->
                 <div class="illustration-placeholder">
                     <img src="{{ asset('images/p.png') }}" alt="Login Illustration" class="illustration-image">
