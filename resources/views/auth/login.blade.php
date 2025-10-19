@@ -57,17 +57,14 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
                     <div class="form-group">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
-                        <div class="input-group auth-pass-inputgroup @error('password') is-invalid @enderror" style="position: relative;">
+                        <div class="password-input-container @error('password') is-invalid @enderror">
                             <input type="password" name="password"
-                                   class="form-control @error('password') is-invalid @enderror"
+                                   class="form-control password-input @error('password') is-invalid @enderror"
                                    id="userpassword" placeholder="Enter password"
                                    aria-label="Password" aria-describedby="password-addon" autocomplete="current-password">
-
-                            <!-- Tombol lihat password -->
-                            <button type="button" class="btn btn-light password-toggle" id="password-addon" data-target="#userpassword" aria-pressed="false" aria-label="Lihat password">
+                            <button type="button" class="btn btn-light password-toggle-btn" id="password-addon" data-target="#userpassword" aria-pressed="false" aria-label="Lihat password">
                                 <i class="mdi mdi-eye-outline"></i>
                             </button>
-
                             @error('password')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -215,26 +212,36 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         outline: none;
     }
 
-    .password-toggle {
+    .password-input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-input {
+        padding-right: 50px;
+    }
+
+    .password-toggle-btn {
         position: absolute;
-        right: 6px;
-        top: 6px;
-        height: calc(100% - 12px);
-        width: 44px;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 50px;
         border: none;
         background: transparent;
         color: #6c757d;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 0 8px 8px 0;
         cursor: pointer;
         transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .password-toggle:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: #343a40;
+    .password-toggle-btn:hover {
+        background: rgba(108, 99, 255, 0.05);
+        color: #495057;
     }
 
     .form-check {
@@ -424,15 +431,14 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const toggles = document.querySelectorAll('.password-toggle');
+    const toggleBtn = document.getElementById('password-addon');
 
-    toggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const targetSelector = this.getAttribute('data-target');
-            const input = document.querySelector(targetSelector);
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const input = document.getElementById('userpassword');
             const icon = this.querySelector('i');
 
-            if (!input) return;
+            if (!input || !icon) return;
 
             if (input.type === 'password') {
                 input.type = 'text';
@@ -446,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.setAttribute('aria-pressed', 'false');
             }
         });
-    });
+    }
 });
 </script>
 @endsection
