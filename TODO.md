@@ -13,3 +13,6 @@
 - [x] Test the login page for layout and responsiveness.
 - [ ] Verify form submission and validation still work.
 - [ ] If needed, create a separate CSS file (e.g., public/css/login-style.css) and link it.
+
+## Status
+- Reverted to original login page as per user request.
