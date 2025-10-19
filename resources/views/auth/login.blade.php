@@ -174,7 +174,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
     .login-title {
         font-size: 32px;
         font-weight: 700;
-        color: #000;
+        color: #004b4c;
         text-align: center;
         margin-bottom: 10px;
     }
@@ -243,7 +243,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
     .login-btn {
         width: 100%;
         padding: 14px;
-        background: #6C63FF;
+        background: #004b4c;
         border: none;
         border-radius: 8px;
         color: white;
@@ -255,7 +255,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
     }
 
     .login-btn:hover {
-        background: #5a52e8;
+        background: #006e70;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
     }
