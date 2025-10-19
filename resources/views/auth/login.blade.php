@@ -234,10 +234,12 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         justify-content: center;
         color: #6c757d;
         transition: color 0.3s ease;
+        border-radius: 0 8px 8px 0;
     }
 
     .password-toggle:hover {
         color: #495057;
+        background: rgba(108, 99, 255, 0.05);
     }
 
     .form-check {
