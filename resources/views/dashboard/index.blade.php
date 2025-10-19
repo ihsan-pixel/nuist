@@ -11,46 +11,36 @@
 @endcomponent
 
 <div class="row">
-    <div class="col-xl-4">
-        <div class="card overflow-hidden">
+    <div class="col-12">
+        <!-- Welcome Card - Mobile Optimized -->
+        <div class="card overflow-hidden mb-3">
             <div class="bg-success-subtle">
-                <div class="row">
-                    <div class="col-7">
+                <div class="row align-items-center">
+                    <div class="col-8">
                         <div class="text-success p-3">
                             <h5 class="text-success">Selamat Datang!</h5>
-                            <p>Aplikasi NUIST</p>
+                            <p class="mb-0">Aplikasi NUIST</p>
                         </div>
                     </div>
-                    <div class="col-5 align-self-end">
-                        {{-- <img src="{{ asset('build/images/logo 1.png') }}" alt="" class="img-fluid"> --}}
+                    <div class="col-4 text-end">
+                        {{-- <img src="{{ asset('build/images/logo 1.png') }}" alt="" class="img-fluid" style="max-height: 60px;"> --}}
                     </div>
                 </div>
             </div>
             <div class="card-body pt-0">
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="avatar-md profile-user-wid mb-4">
-<img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="" class="img-thumbnail rounded-circle">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="avatar-lg profile-user-wid mb-3 mb-md-0">
+                            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="" class="img-thumbnail rounded-circle">
                         </div>
-                        <h5 class="font-size-15">{{ Str::ucfirst(Auth::user()->name) }}</h5>
-                        <p class="text-muted mb-0 text-truncate">Nuist ID : {{ Auth::user()->nuist_id ?? '-' }}</p>
                     </div>
-                    <div class="col-sm-8">
-                        {{-- <div class="pt-4"> --}}
-                            {{-- <div class="row">
-                                <div class="col-6">
-                                    <h5 class="font-size-15">{{ Auth::user()->status_kepegawaian ?? '-' }}</h5>
-                                    <p class="text-muted mb-0">Status Kepegawaian</p>
-                                </div>
-                                <div class="col-6">
-                                    <h5 class="font-size-15">{{ Auth::user()->masa_kerja ?? '-' }}</h5>
-                                    <p class="text-muted mb-0">Masa Kerja</p>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <a href="" class="btn btn-success waves-effect waves-light btn-sm">Lihat Profil <i class="mdi mdi-arrow-right ms-1"></i></a>
-                            </div> --}}
-                        {{-- </div> --}}
+                    <div class="col">
+                        <h5 class="font-size-16 mb-1">{{ Str::ucfirst(Auth::user()->name) }}</h5>
+                        <p class="text-muted mb-2">Nuist ID : {{ Auth::user()->nuist_id ?? '-' }}</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <small class="badge bg-primary-subtle text-primary">{{ Auth::user()->statusKepegawaian ? Auth::user()->statusKepegawaian->name : '-' }}</small>
+                            <small class="badge bg-info-subtle text-info">{{ Auth::user()->ketugasan ?? '-' }}</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,38 +157,80 @@
         @endif
 
         @if(Auth::user()->role === 'tenaga_pendidik')
-        {{-- Keaktifan --}}
-        <div class="card">
+        <!-- Attendance Card - Mobile Optimized -->
+        <div class="card mb-3">
             <div class="card-body">
-                <h4 class="card-title mb-4">Keaktifan</h4>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <p class="text-muted">Bulan ini</p>
-                        <h3>{{ round($attendanceData['kehadiran'] ?? 0) }}%</h3>
-                        <p class="text-muted">
-                            <span class="text-success me-2"> {{ round($attendanceData['kehadiran'] ?? 0) }}% <i class="mdi mdi-arrow-up"></i> </span> Kehadiran
-                        </p>
-                        <div class="row mt-3">
-                            {{-- <div class="col-6">
-                                <small class="text-muted">Hari Kerja</small>
-                                <h6>{{ $attendanceData['total_hari_kerja'] ?? 0 }}</h6>
-                            </div> --}}
-                            <div class="col-6">
-                                <small class="text-muted">Total Presensi</small>
-                                <h6>{{ $attendanceData['total_presensi'] ?? 0 }}</h6>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="card-title mb-0">
+                        <i class="mdi mdi-calendar-check text-success me-2"></i>
+                        Keaktifan Bulan Ini
+                    </h5>
+                    <div class="text-end">
+                        <h3 class="text-success mb-0">{{ round($attendanceData['kehadiran'] ?? 0) }}%</h3>
+                        <small class="text-muted">Kehadiran</small>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="mb-3">
+                    <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts" style="height: 200px;"></div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <div class="avatar-sm mx-auto mb-2">
+                                <div class="avatar-title bg-success-subtle text-success rounded-circle">
+                                    <i class="mdi mdi-check-circle fs-5"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-4">
-                            <a href="{{ route('presensi.index') }}" class="btn btn-success waves-effect waves-light btn-sm">Lihat Detail <i class="mdi mdi-arrow-right ms-1"></i></a>
+                            <h6 class="mb-1">{{ round($attendanceData['kehadiran'] ?? 0) }}%</h6>
+                            <small class="text-muted">Hadir</small>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="mt-4 mt-sm-0">
-                            <div id="donut-chart" data-colors='["--bs-success", "--bs-warning", "--bs-danger"]' class="apex-charts"></div>
+                    <div class="col-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <div class="avatar-sm mx-auto mb-2">
+                                <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
+                                    <i class="mdi mdi-medical-bag fs-5"></i>
+                                </div>
+                            </div>
+                            <h6 class="mb-1">{{ round($attendanceData['izin_sakit'] ?? 0) }}%</h6>
+                            <small class="text-muted">Izin/Sakit</small>
                         </div>
                     </div>
                 </div>
-                {{-- <p class="text-muted mb-0">Persentase kehadiran berdasarkan hari kerja (Senin-Sabtu, exclude hari libur).</p> --}}
+
+                <!-- Additional Stats -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="mdi mdi-calendar-text text-primary me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Total Presensi</small>
+                                <strong>{{ $attendanceData['total_presensi'] ?? 0 }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="mdi mdi-close-circle text-danger me-2"></i>
+                            <div>
+                                <small class="text-muted d-block">Tidak Hadir</small>
+                                <strong>{{ round($attendanceData['alpha'] ?? 0) }}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center">
+                    <a href="{{ route('presensi.index') }}" class="btn btn-success btn-lg w-100">
+                        <i class="mdi mdi-eye me-2"></i>
+                        Lihat Detail Presensi
+                    </a>
+                </div>
             </div>
         </div>
         @endif
@@ -569,100 +601,144 @@
     @endif
 
     @if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
-    <div class="col-xl-8">
-        {{-- Tambah kartu info detail user di sebelah kanan --}}
-        <div class="card">
+    <div class="col-12">
+        <!-- User Information Card - Mobile Optimized -->
+        <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title mb-3">Informasi User</h5>
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <small class="text-muted">Asal Madrasah/Sekolah :</small>
-                        <h6>{{ Auth::user()->madrasah ? Auth::user()->madrasah->name : '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Tempat Lahir</small>
-                        <h6>{{ Auth::user()->tempat_lahir ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Tanggal Lahir</small>
-                        <h6>{{ Auth::user()->tanggal_lahir ? \Carbon\Carbon::parse(Auth::user()->tanggal_lahir)->format('d F Y') : '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">TMT</small>
-                        <h6>{{ Auth::user()->tmt ? \Carbon\Carbon::parse(Auth::user()->tmt)->format('d F Y') : '-' }}</h6>
+                <h5 class="card-title mb-3">
+                    <i class="mdi mdi-account-details text-primary me-2"></i>
+                    Informasi Personal
+                </h5>
+
+                <!-- Basic Info -->
+                <div class="mb-3">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Asal Madrasah/Sekolah</small>
+                                <strong class="text-truncate d-block">{{ Auth::user()->madrasah ? Auth::user()->madrasah->name : '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Tempat Lahir</small>
+                                <strong>{{ Auth::user()->tempat_lahir ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Tanggal Lahir</small>
+                                <strong>{{ Auth::user()->tanggal_lahir ? \Carbon\Carbon::parse(Auth::user()->tanggal_lahir)->format('d F Y') : '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">TMT</small>
+                                <strong>{{ Auth::user()->tmt ? \Carbon\Carbon::parse(Auth::user()->tmt)->format('d F Y') : '-' }}</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <small class="text-muted">NUPTK</small>
-                        <h6>{{ Auth::user()->nuptk ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">NPK</small>
-                        <h6>{{ Auth::user()->npk ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Kartanu</small>
-                        <h6>{{ Auth::user()->kartanu ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">NIP Ma'arif</small>
-                        <h6>{{ Auth::user()->nip ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted text-success">Status Kepegawaian</small>
-                        <h6>{{ Auth::user()->statusKepegawaian ? Auth::user()->statusKepegawaian->name : '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted text-success">Ketugasan</small>
-                        <h6>{{ Auth::user()->ketugasan ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted text-info">Pendidikan Terakhir, Tahun Lulus</small>
-                        <h6>{{ Auth::user()->pendidikan_terakhir ?? '-' }}</h6>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted text-warning">Program Studi</small>
-                        <h6>{{ Auth::user()->program_studi ?? '-' }}</h6>
+
+                <!-- Professional Info -->
+                <div class="mb-3">
+                    <h6 class="text-muted mb-3">Informasi Kepegawaian</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-primary-subtle rounded">
+                                <small class="text-muted d-block">NUPTK</small>
+                                <strong>{{ Auth::user()->nuptk ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-primary-subtle rounded">
+                                <small class="text-muted d-block">NPK</small>
+                                <strong>{{ Auth::user()->npk ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-success-subtle rounded">
+                                <small class="text-muted d-block">Kartanu</small>
+                                <strong>{{ Auth::user()->kartanu ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-success-subtle rounded">
+                                <small class="text-muted d-block">NIP Ma'arif</small>
+                                <strong>{{ Auth::user()->nip ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-info-subtle rounded">
+                                <small class="text-muted d-block">Status Kepegawaian</small>
+                                <strong>{{ Auth::user()->statusKepegawaian ? Auth::user()->statusKepegawaian->name : '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-info-subtle rounded">
+                                <small class="text-muted d-block">Ketugasan</small>
+                                <strong>{{ Auth::user()->ketugasan ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-warning-subtle rounded">
+                                <small class="text-muted d-block">Pendidikan Terakhir</small>
+                                <strong>{{ Auth::user()->pendidikan_terakhir ?? '-' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-warning-subtle rounded">
+                                <small class="text-muted d-block">Program Studi</small>
+                                <strong>{{ Auth::user()->program_studi ?? '-' }}</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- Tabel daftar users --}}
+        {{-- Colleagues List - Mobile Optimized --}}
         @if($showUsers)
-        <div class="card mt-4">
+        <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title mb-3">Rekan Guru/Pegawai Se-Madrasah/Sekolah</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Foto</th>
-                                <th>Nama</th>
-                                <th>Ketugasan</th>
-                                <th>Status Kepegawaian</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($users as $index => $user)
-                            <tr>
-                                <td>{{ $users->firstItem() + $index }}</td>
-                                <td>
-<img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Foto {{ $user->name }}" class="rounded-circle" width="40" height="40">
-                                </td>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->ketugasan ?? '-' }}</td>
-                                <td>{{ $user->statusKepegawaian ? $user->statusKepegawaian->name : '-' }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <h5 class="card-title mb-3">
+                    <i class="mdi mdi-account-group text-info me-2"></i>
+                    Rekan Guru/Pegawai Se-Madrasah/Sekolah
+                </h5>
+
+                <!-- Mobile-friendly list view -->
+                <div class="list-group list-group-flush">
+                    @foreach($users as $index => $user)
+                    <div class="list-group-item px-0 py-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                                     alt="Foto {{ $user->name }}"
+                                     class="rounded-circle"
+                                     width="50"
+                                     height="50">
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ $user->name }}</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <small class="badge bg-primary-subtle text-primary">{{ $user->ketugasan ?? '-' }}</small>
+                                    <small class="badge bg-info-subtle text-info">{{ $user->statusKepegawaian ? $user->statusKepegawaian->name : '-' }}</small>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <small class="text-muted">{{ $users->firstItem() + $index }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
-                <div>
+
+                <!-- Pagination -->
+                @if($users->hasPages())
+                <div class="d-flex justify-content-center mt-3">
                     {{ $users->links() }}
                 </div>
+                @endif
             </div>
         </div>
         @endif
@@ -701,7 +777,7 @@
 
         var options = {
             chart: {
-                height: 350,
+                height: 200,
                 type: 'radialBar',
             },
             plotOptions: {

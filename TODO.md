@@ -1,7 +1,19 @@
-# TODO: Redesign Login Page
+# TODO: Redesign Dashboard for Mobile View - Tenaga Pendidik Role
 
-- [x] Update HTML structure to two-part layout (form left, illustration right)
-- [x] Add modern CSS styling (fonts, colors, shadows, rounded corners)
-- [x] Add social login buttons (Google and Facebook)
-- [x] Ensure responsiveness (vertical on mobile)
-- [x] Preserve all Laravel validations and form elements
+## Tasks
+- [x] Analyze current dashboard structure for tenaga_pendidik role
+- [x] Modify grid layout from desktop (col-xl-4, col-xl-8) to mobile-friendly single column
+- [x] Restructure welcome card and attendance card for vertical stacking
+- [x] Update user info card and colleagues table for mobile display
+- [x] Add mobile-specific CSS classes and responsive design
+- [x] Test layout on mobile viewports
+- [x] Ensure all elements are touch-friendly and readable on small screens
+
+## Files to Edit
+- [x] resources/views/dashboard/index.blade.php
+
+## Notes
+- Focus only on tenaga_pendidik role section
+- Maintain functionality while improving mobile UX
+- Use Bootstrap responsive classes for better mobile experience
+- Changes completed: Converted desktop dashboard to mobile app-like interface with single column layout, improved card designs, mobile-friendly list views, and touch-optimized buttons
