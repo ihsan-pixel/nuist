@@ -451,19 +451,25 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 <script src="{{ asset('js/auth-2-carousel.init.js') }}"></script>
 
 <script>
-    // Password toggle functionality
-    document.getElementById('password-addon').addEventListener('click', function() {
-        const passwordInput = document.getElementById('userpassword');
-        const icon = this.querySelector('i');
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordToggle = document.getElementById('password-addon');
+        if (passwordToggle) {
+            passwordToggle.addEventListener('click', function() {
+                const passwordInput = document.getElementById('userpassword');
+                const icon = this.querySelector('i');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('mdi-eye-outline');
-            icon.classList.add('mdi-eye-off-outline');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('mdi-eye-off-outline');
-            icon.classList.add('mdi-eye-outline');
+                if (passwordInput && icon) {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('mdi-eye-outline');
+                        icon.classList.add('mdi-eye-off-outline');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('mdi-eye-off-outline');
+                        icon.classList.add('mdi-eye-outline');
+                    }
+                }
+            });
         }
     });
 </script>
