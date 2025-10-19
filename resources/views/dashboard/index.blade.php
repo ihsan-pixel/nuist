@@ -712,7 +712,7 @@
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0 me-3">
-                                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                                <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                                      alt="Foto {{ $user->name }}"
                                      class="rounded-circle"
                                      width="50"
