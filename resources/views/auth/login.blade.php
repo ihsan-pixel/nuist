@@ -400,15 +400,17 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         .login-wrapper {
             flex-direction: column;
             min-height: auto;
+            max-width: 100%;
         }
 
         .form-section, .illustration-section {
             flex: none;
-            padding: 40px 30px;
+            padding: 30px 20px;
         }
 
         .illustration-section {
             order: -1;
+            min-height: 200px;
         }
 
         .form-container {
@@ -416,11 +418,25 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         }
 
         .login-title {
-            font-size: 28px;
+            font-size: 24px;
         }
 
-        .social-buttons {
-            flex-direction: column;
+        .login-subtitle {
+            font-size: 14px;
+        }
+
+        .form-control {
+            font-size: 14px;
+            padding: 10px 12px;
+        }
+
+        .login-btn {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .logo {
+            height: 60px;
         }
     }
 
@@ -430,11 +446,33 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         }
 
         .form-section, .illustration-section {
-            padding: 30px 20px;
+            padding: 20px 15px;
         }
 
         .login-title {
-            font-size: 24px;
+            font-size: 20px;
+        }
+
+        .login-subtitle {
+            font-size: 13px;
+        }
+
+        .form-control {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        .login-btn {
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .illustration-section {
+            min-height: 150px;
         }
     }
 </style>
