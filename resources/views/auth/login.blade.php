@@ -403,14 +403,13 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
             max-width: 100%;
         }
 
-        .form-section, .illustration-section {
+        .form-section {
             flex: none;
             padding: 30px 20px;
         }
 
         .illustration-section {
-            order: -1;
-            min-height: 200px;
+            display: none;
         }
 
         .form-container {
@@ -445,7 +444,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
             padding: 10px;
         }
 
-        .form-section, .illustration-section {
+        .form-section {
             padding: 20px 15px;
         }
 
@@ -469,10 +468,6 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
         .logo {
             height: 50px;
-        }
-
-        .illustration-section {
-            min-height: 150px;
         }
     }
 </style>
