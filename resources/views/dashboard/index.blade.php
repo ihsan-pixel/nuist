@@ -31,7 +31,7 @@
                 <div class="row align-items-center">
                     <div class="col-auto">
                         <div class="avatar-lg profile-user-wid mb-3 mb-md-0">
-                            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="" class="img-thumbnail rounded-circle">
+                            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="" class="img-thumbnail rounded-circle">
                         </div>
                     </div>
                     <div class="col">
