@@ -37,19 +37,39 @@
 
                     <form action="{{ route('izin.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-3">
-                            <label for="tanggal" class="form-label">Tanggal</label>
-                            <input type="date" name="tanggal" id="tanggal" class="form-control" required>
+
+                        <!-- Mobile-optimized date input -->
+                        <div class="mb-4">
+                            <label for="tanggal" class="form-label fw-bold">Tanggal Izin</label>
+                            <input type="date" name="tanggal" id="tanggal" class="form-control form-control-lg" required>
+                            <small class="text-muted">Pilih tanggal ketika Anda akan izin</small>
                         </div>
-                        <div class="mb-3">
-                            <label for="keterangan" class="form-label">Keterangan</label>
-                            <textarea name="keterangan" id="keterangan" class="form-control" required></textarea>
+
+                        <!-- Mobile-optimized textarea -->
+                        <div class="mb-4">
+                            <label for="keterangan" class="form-label fw-bold">Keterangan Izin</label>
+                            <textarea name="keterangan" id="keterangan" class="form-control form-control-lg" rows="4" placeholder="Jelaskan alasan izin Anda..." required></textarea>
+                            <small class="text-muted">Berikan penjelasan yang jelas tentang alasan izin</small>
                         </div>
-                        <div class="mb-3">
-                            <label for="surat_izin" class="form-label">Upload Surat Izin (PDF, JPG, PNG)</label>
-                            <input type="file" name="surat_izin" id="surat_izin" class="form-control" required>
+
+                        <!-- Mobile-optimized file upload -->
+                        <div class="mb-4">
+                            <label for="surat_izin" class="form-label fw-bold">Upload Surat Izin</label>
+                            <div class="input-group">
+                                <input type="file" name="surat_izin" id="surat_izin" class="form-control form-control-lg" accept=".pdf,.jpg,.jpeg,.png" required>
+                                <label class="input-group-text" for="surat_izin">
+                                    <i class="bx bx-file"></i>
+                                </label>
+                            </div>
+                            <small class="text-muted">Format yang didukung: PDF, JPG, PNG. Maksimal 5MB</small>
                         </div>
-                        <button type="submit" class="btn btn-primary">Upload</button>
+
+                        <!-- Mobile-optimized submit button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg py-3">
+                                <i class="bx bx-upload me-2"></i>Upload Surat Izin
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

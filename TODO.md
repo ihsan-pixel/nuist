@@ -17,3 +17,25 @@
 - Maintain functionality while improving mobile UX
 - Use Bootstrap responsive classes for better mobile experience
 - Changes completed: Converted desktop dashboard to mobile app-like interface with single column layout, improved card designs, mobile-friendly list views, and touch-optimized buttons
+
+---
+
+# TODO: Redesign Presensi and Izin Pages for Mobile View
+
+## Tasks
+- [x] Redesign presensi/create.blade.php for mobile
+- [x] Redesign presensi/index.blade.php for mobile
+- [x] Redesign izin/create.blade.php for mobile
+- [ ] Test all changes on mobile viewport
+- [ ] Ensure GPS and file upload work well on mobile
+- [ ] Verify all elements are touch-friendly
+
+## Files to Edit
+- [ ] resources/views/presensi/create.blade.php
+- [ ] resources/views/presensi/index.blade.php
+- [ ] resources/views/izin/create.blade.php
+
+## Notes
+- Convert desktop layouts to mobile-first approach
+- Optimize forms, buttons, and maps for touch interaction
+- Ensure responsive design across all screen sizes

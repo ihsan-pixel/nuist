@@ -30,13 +30,20 @@
 
 
                 @if(auth()->user()->role === 'tenaga_pendidik')
-                <div class="mb-3 d-flex justify-content-end gap-2">
-                    <a href="{{ route('presensi.create') }}" class="btn btn-primary">
-                        <i class="bx bx-plus"></i> Presensi Hari Ini
-                    </a>
-                    <a href="{{ route('izin.create') }}" class="btn btn-warning">
-                        <i class="bx bx-upload"></i> Upload Surat Izin
-                    </a>
+                <!-- Mobile-optimized action buttons -->
+                <div class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ route('presensi.create') }}" class="btn btn-primary btn-lg w-100 py-3">
+                                <i class="bx bx-plus me-2"></i>Presensi Hari Ini
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('izin.create') }}" class="btn btn-warning btn-lg w-100 py-3">
+                                <i class="bx bx-upload me-2"></i>Upload Surat Izin
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 @endif
 
@@ -54,15 +61,84 @@
                 </div>
                 @endif
 
+                <!-- Mobile-friendly card layout for tenaga_pendidik, table for admin roles -->
+                @if(auth()->user()->role === 'tenaga_pendidik')
+                <div class="row g-3">
+                    @forelse($presensis as $index => $presensi)
+                    <div class="col-12">
+                        <div class="card border">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="avatar-sm">
+                                            <div class="avatar-title bg-{{ $presensi->status === 'hadir' ? 'success' : ($presensi->status === 'izin' ? 'warning' : ($presensi->status === 'sakit' ? 'info' : 'danger')) }} rounded-circle">
+                                                <i class="bx bx-{{ $presensi->status === 'hadir' ? 'check' : ($presensi->status === 'izin' ? 'calendar-x' : ($presensi->status === 'sakit' ? 'medical' : 'x')) }} fs-5"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <h6 class="mb-1">{{ $presensi->tanggal->format('d F Y') }}</h6>
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <small class="badge bg-{{ $presensi->status === 'hadir' ? 'success' : ($presensi->status === 'izin' ? 'warning' : ($presensi->status === 'sakit' ? 'info' : 'danger')) }}">
+                                                {{ ucfirst($presensi->status) }}
+                                            </small>
+                                            @if($presensi->status === 'izin' && $presensi->status_izin)
+                                            <small class="badge bg-{{ $presensi->status_izin === 'approved' ? 'success' : ($presensi->status_izin === 'rejected' ? 'danger' : 'secondary') }}">
+                                                {{ ucfirst($presensi->status_izin) }}
+                                            </small>
+                                            @endif
+                                        </div>
+                                        <div class="row g-2 text-muted small">
+                                            <div class="col-6">
+                                                <i class="bx bx-log-in me-1"></i>Masuk: {{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}
+                                            </div>
+                                            <div class="col-6">
+                                                <i class="bx bx-log-out me-1"></i>Keluar: {{ $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : '-' }}
+                                            </div>
+                                            @if($presensi->lokasi)
+                                            <div class="col-12">
+                                                <i class="bx bx-map me-1"></i>{{ $presensi->lokasi }}
+                                            </div>
+                                            @endif
+                                            @if($presensi->keterangan)
+                                            <div class="col-12">
+                                                <i class="bx bx-note me-1"></i>{{ $presensi->keterangan }}
+                                            </div>
+                                            @endif
+                                            @if($presensi->status === 'izin' && $presensi->surat_izin_path)
+                                            <div class="col-12">
+                                                <a href="{{ asset('storage/app/public/'.$presensi->surat_izin_path) }}" target="_blank" class="text-info">
+                                                    <i class="bx bx-file me-1"></i>Lihat Surat Izin
+                                                </a>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-12">
+                        <div class="card border">
+                            <div class="card-body text-center py-5">
+                                <i class="bx bx-info-circle bx-lg text-muted mb-3"></i>
+                                <h6 class="text-muted">Belum ada data presensi</h6>
+                                <p class="text-muted small">Silakan lakukan presensi terlebih dahulu.</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endforelse
+                </div>
+                @else
+                <!-- Table layout for admin roles -->
                 <div class="table-responsive">
                     <table class="table table-bordered dt-responsive nowrap w-100" id="datatable-buttons">
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
-                                @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
                                 <th>Nama Tenaga Pendidik</th>
                                 <th>Madrasah</th>
-                                @endif
                                 <th>Status Kepegawaian</th>
                                 <th>Tanggal</th>
                                 <th>Waktu Masuk</th>
@@ -83,10 +159,8 @@
                                             {{ $index + 1 }}
                                         @endif
                                     </td>
-                                    @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
                                     <td>{{ $presensi->user->name }}</td>
                                     <td>{{ $presensi->user->madrasah?->name ?? '-' }}</td>
-                                    @endif
                                     <td>{{ $presensi->statusKepegawaian->name ?? '-' }}</td>
                                     <td>{{ $presensi->tanggal->format('d/m/Y') }}</td>
                                     <td>{{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}</td>
@@ -116,7 +190,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->role === 'tenaga_pendidik' ? '9' : '11' }}" class="text-center p-4">
+                                    <td colspan="11" class="text-center p-4">
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Belum ada data presensi</strong><br>
@@ -128,6 +202,7 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
 
                 @if($presensis instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $presensis->hasPages())
                 <div class="d-flex justify-content-center">

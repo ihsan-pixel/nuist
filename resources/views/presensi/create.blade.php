@@ -54,8 +54,10 @@
                 </div>
                 @endif
 
+                <!-- Mobile-first layout: Single column for mobile, two columns for larger screens -->
                 <div class="row">
-                    <div class="col-md-6">
+                    <!-- Presensi Form Section -->
+                    <div class="col-12 col-lg-6 mb-4 mb-lg-0">
                         <div class="card border-primary">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0">
@@ -71,30 +73,33 @@
                                     </div>
                                 </div>
 
-                                <!-- Map Section -->
+                                <!-- Map Section - Responsive height -->
                                 <div class="mb-3">
                                     <label class="form-label">Lokasi Anda Saat Ini</label>
-                                    <div id="map" style="height: 300px; border-radius: 5px;"></div>
+                                    <div id="map" style="height: 250px; border-radius: 5px;"></div>
                                 </div>
 
+                                <!-- Mobile-optimized coordinate inputs -->
                                 <div class="mb-3">
                                     <label class="form-label">Koordinat Lokasi</label>
-                                    <div class="row">
+                                    <div class="row g-2">
                                         <div class="col-6">
-                                            <input type="text" id="latitude" class="form-control" placeholder="Latitude" readonly>
+                                            <input type="text" id="latitude" class="form-control form-control-lg" placeholder="Latitude" readonly>
                                         </div>
                                         <div class="col-6">
-                                            <input type="text" id="longitude" class="form-control" placeholder="Longitude" readonly>
+                                            <input type="text" id="longitude" class="form-control form-control-lg" placeholder="Longitude" readonly>
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Mobile-optimized address input -->
                                 <div class="mb-3">
                                     <label class="form-label">Alamat Lokasi</label>
-                                    <input type="text" id="lokasi" class="form-control" placeholder="Alamat akan muncul otomatis" readonly>
+                                    <input type="text" id="lokasi" class="form-control form-control-lg" placeholder="Alamat akan muncul otomatis" readonly>
                                 </div>
 
-                                <button type="button" id="btn-presensi" class="btn btn-primary btn-lg w-100" {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
+                                <!-- Large, touch-friendly button -->
+                                <button type="button" id="btn-presensi" class="btn btn-primary btn-lg w-100 py-3" {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
                                     <i class="bx bx-check-circle me-2"></i>
                                     {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
                                 </button>
@@ -102,56 +107,64 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <!-- Information Section -->
+                    <div class="col-12 col-lg-6">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">Informasi Presensi</h5>
                             </div>
                             <div class="card-body">
+                                <!-- Mobile-optimized info fields -->
                                 <div class="mb-3">
                                     <label class="form-label">Nama</label>
-                                    <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
+                                    <input type="text" class="form-control form-control-lg" value="{{ auth()->user()->name }}" readonly>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Madrasah</label>
-                                    <input type="text" class="form-control" value="{{ auth()->user()->madrasah?->name ?? 'Tidak ada data' }}" readonly>
+                                    <input type="text" class="form-control form-control-lg" value="{{ auth()->user()->madrasah?->name ?? 'Tidak ada data' }}" readonly>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Status Kepegawaian</label>
-                                    <input type="text" class="form-control" value="{{ auth()->user()->statusKepegawaian?->name ?? 'Belum diatur' }}" readonly>
+                                    <input type="text" class="form-control form-control-lg" value="{{ auth()->user()->statusKepegawaian?->name ?? 'Belum diatur' }}" readonly>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Tanggal</label>
-                                    <input type="text" class="form-control" value="{{ \Carbon\Carbon::now()->format('d F Y') }}" readonly>
+                                    <input type="text" class="form-control form-control-lg" value="{{ \Carbon\Carbon::now()->format('d F Y') }}" readonly>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Waktu Sekarang</label>
-                                    <input type="text" id="current-time" class="form-control" readonly>
+                                    <input type="text" id="current-time" class="form-control form-control-lg" readonly>
                                 </div>
 
                                 @if(isset($timeRanges) && $timeRanges)
                                 <div class="mb-3">
                                     <label class="form-label">Jadwal Presensi Berdasarkan Hari KBM Madrasah</label>
                                     <div class="card bg-light">
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6 class="text-primary"><i class="bx bx-log-in-circle me-2"></i>Presensi Masuk</h6>
-                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['masuk_start'] }}</p>
-                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $timeRanges['masuk_end'] }} (Terlambat setelah ini)</p>
+                                        <div class="card-body p-3">
+                                            <!-- Mobile-friendly time ranges display -->
+                                            <div class="row g-3">
+                                                <div class="col-12 col-md-6">
+                                                    <div class="text-center">
+                                                        <h6 class="text-primary mb-2"><i class="bx bx-log-in-circle me-2"></i>Presensi Masuk</h6>
+                                                        <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['masuk_start'] }}</p>
+                                                        <p class="mb-0 small">Akhir: {{ $timeRanges['masuk_end'] }}</p>
+                                                        <small class="text-muted">(Terlambat setelah ini)</small>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <h6 class="text-success"><i class="bx bx-log-out-circle me-2"></i>Presensi Pulang</h6>
-                                                    <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['pulang_start'] }}</p>
-                                                    <p class="mb-0"><strong>Akhir:</strong> {{ $timeRanges['pulang_end'] }}</p>
+                                                <div class="col-12 col-md-6">
+                                                    <div class="text-center">
+                                                        <h6 class="text-success mb-2"><i class="bx bx-log-out-circle me-2"></i>Presensi Pulang</h6>
+                                                        <p class="mb-1"><strong>Mulai:</strong> {{ $timeRanges['pulang_start'] }}</p>
+                                                        <p class="mb-0 small">Akhir: {{ $timeRanges['pulang_end'] }}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
-                                            <div class="mt-2">
+                                            <div class="mt-3">
                                                 <small class="text-info">
                                                     <i class="bx bx-info-circle me-1"></i>
                                                     <strong>Catatan:</strong> Untuk hari Sabtu, waktu mulai presensi pulang adalah 12:00. Hari lainnya mulai pukul 13:00.
@@ -168,6 +181,7 @@
                                 </div>
                                 @endif
 
+                                <!-- Mobile-optimized warning -->
                                 <div class="alert alert-warning">
                                     <i class="bx bx-error-circle me-2"></i>
                                     <strong>Penting!</strong><br>
