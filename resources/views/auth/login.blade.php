@@ -11,6 +11,9 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 {{-- CSS vendor (taruh file vendor di public/build/libs/) --}}
 <link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
 <link rel="stylesheet" href="{{ asset('build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 @endsection
 
 @section('body')
@@ -18,110 +21,430 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 @endsection
 
 @section('content')
-<div>
-    <div class="container-fluid p-0">
-        <div class="row g-0">
-            <div class="col-xl-9">
-                <div class="auth-full-bg pt-lg-5 p-4">
-                    <div class="w-100">
-                        <div class="d-flex h-100 flex-column">
-                            <div class="p-4 mt-auto">
-                                <div class="row justify-content-center">
-                                    <div class="col-lg-7">
-                                        <div class="text-center">
-                                            <!-- Bisa ditambah carousel/testimonial kalau mau -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="form-container">
+                <div class="logo-section">
+                    <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="logo">
+                </div>
+                <h1 class="login-title">LOGIN</h1>
+                <p class="login-subtitle">Welcome back! Please sign in to your account.</p>
+
+                @if (session('status'))
+                    <div class="alert alert-success">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <form class="login-form" method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label for="username" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                               value="{{ old('email') }}" id="username"
+                               placeholder="Enter Email" autocomplete="email" autofocus>
+                        @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
+                        <div class="input-group auth-pass-inputgroup @error('password') is-invalid @enderror">
+                            <input type="password" name="password"
+                                   class="form-control @error('password') is-invalid @enderror"
+                                   id="userpassword" placeholder="Enter password"
+                                   aria-label="Password" aria-describedby="password-addon">
+                            <button class="btn btn-light password-toggle" type="button" id="password-addon"><i class="mdi mdi-eye-outline"></i></button>
+                            @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
                     </div>
-                </div>
-            </div>
-            <!-- end col -->
 
-            <div class="col-xl-3">
-                <div class="auth-full-page-content p-md-5 p-4">
-                    <div class="w-100">
-                        <div class="d-flex flex-column h-100">
-                            <div class="mb-4 mb-md-5">
-                                <a href="" class="d-block auth-logo">
-                                    <img src="{{ asset('images/logo1.png') }}" alt="Logo" height="90" class="auth-logo-dark">
-                                    <img src="{{ asset('images/logo1.png') }}" alt="Logo" height="70" class="auth-logo-light">
-                                </a>
-                            </div>
-                            <div class="my-auto">
-                                <div>
-                                    <h2 class="text-success">Selamat Datang</h2>
-                                    <p class="text-muted">Di Aplikasi Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
-                                </div>
-
-                                <div class="mt-4">
-                                    <form class="form-horizontal" method="POST" action="{{ route('login') }}">
-                                        @csrf
-                                        <div class="mb-3">
-                                            <label for="username" class="form-label">Email <span class="text-danger">*</span></label>
-                                            <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
-                                                   value="{{ old('email') }}" id="username"
-                                                   placeholder="Enter Email" autocomplete="email" autofocus>
-                                            @error('email')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Password <span class="text-danger">*</span></label>
-                                            <div class="input-group auth-pass-inputgroup @error('password') is-invalid @enderror">
-                                                <input type="password" name="password"
-                                                       class="form-control @error('password') is-invalid @enderror"
-                                                       id="userpassword" placeholder="Enter password"
-                                                       aria-label="Password" aria-describedby="password-addon">
-                                                <button class="btn btn-light" type="button" id="password-addon"><i class="mdi mdi-eye-outline"></i></button>
-                                                @error('password')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="remember">
-                                                Remember me
-                                            </label>
-                                        </div>
-
-                                        <div class="mt-3 d-grid">
-                                            <button class="btn btn-success waves-effect waves-light" type="submit">Log In</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 mt-md-5 text-center">
-                                <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
-                            </div>
-                        </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="remember">
+                            Remember me
+                        </label>
                     </div>
+
+                    <button class="btn btn-primary login-btn" type="submit">Log In</button>
+                </form>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="social-buttons">
+                    <button class="btn btn-google">
+                        <svg width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Login with Google
+                    </button>
+                    <button class="btn btn-facebook">
+                        <svg width="18" height="18" viewBox="0 0 24 24">
+                            <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Login with Facebook
+                    </button>
+                </div>
+
+                <div class="footer-text">
+                    <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
                 </div>
             </div>
-            <!-- end col -->
         </div>
-        <!-- end row -->
+
+        <!-- Illustration Section -->
+        <div class="illustration-section">
+            <div class="illustration-content">
+                <h2>Welcome Back!</h2>
+                <p>Sign in to access your dashboard and manage your activities.</p>
+                <!-- Placeholder for illustration -->
+                <div class="illustration-placeholder">
+                    <img src="https://via.placeholder.com/400x300/6C63FF/FFFFFF?text=Illustration" alt="Login Illustration" class="illustration-image">
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- end container-fluid -->
 </div>
 
 <style>
-    .auth-full-bg {
-        background: url("{{ asset('images/a.png') }}") no-repeat center center !important;
-        background-size: cover !important;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    .bg-overlay {
-        background: none !important;
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+        overflow-x: hidden;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-wrapper {
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        min-height: 600px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-section {
+        flex: 1;
+        background: white;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .illustration-section {
+        flex: 1;
+        background: linear-gradient(135deg, #6C63FF 0%, #4A90E2 100%);
+        padding: 60px 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .form-container {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .logo-section {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo {
+        height: 80px;
+        width: auto;
+    }
+
+    .login-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #000;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+        font-size: 16px;
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-form {
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #6C63FF;
+        box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.25);
+        outline: none;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        border: none;
+        background: transparent;
+        padding: 0 12px;
+        cursor: pointer;
+    }
+
+    .form-check {
+        margin-bottom: 20px;
+    }
+
+    .form-check-input:checked {
+        background-color: #6C63FF;
+        border-color: #6C63FF;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: #6C63FF;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .login-btn:hover {
+        background: #5a52e8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 20px 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #dee2e6;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 15px;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .social-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .btn-google, .btn-facebook {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background: white;
+        color: #495057;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-google:hover {
+        border-color: #4285F4;
+        background: #f8f9fa;
+    }
+
+    .btn-facebook:hover {
+        border-color: #1877F2;
+        background: #f8f9fa;
+    }
+
+    .footer-text {
+        text-align: center;
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .illustration-content {
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .illustration-content h2 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .illustration-content p {
+        font-size: 16px;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    .illustration-placeholder {
+        display: flex;
+        justify-content: center;
+    }
+
+    .illustration-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    .is-invalid .form-control {
+        border-color: #dc3545;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .login-wrapper {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .form-section, .illustration-section {
+            flex: none;
+            padding: 40px 30px;
+        }
+
+        .illustration-section {
+            order: -1;
+        }
+
+        .form-container {
+            max-width: none;
+        }
+
+        .login-title {
+            font-size: 28px;
+        }
+
+        .social-buttons {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 10px;
+        }
+
+        .form-section, .illustration-section {
+            padding: 30px 20px;
+        }
+
+        .login-title {
+            font-size: 24px;
+        }
     }
 </style>
 @endsection
@@ -137,5 +460,23 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 {{-- JS custom --}}
 <script src="{{ asset('js/auth-2-carousel.init.js') }}"></script>
+
+<script>
+    // Password toggle functionality
+    document.getElementById('password-addon').addEventListener('click', function() {
+        const passwordInput = document.getElementById('userpassword');
+        const icon = this.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('mdi-eye-outline');
+            icon.classList.add('mdi-eye-off-outline');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('mdi-eye-off-outline');
+            icon.classList.add('mdi-eye-outline');
+        }
+    });
+</script>
 @endsection
 
