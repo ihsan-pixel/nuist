@@ -8,172 +8,341 @@
 <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 @endsection
 
+@section('css')
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.schedule-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.schedule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.status-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+.attendance-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.attendance-pending {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+.time-indicator {
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.location-indicator {
+    background: rgba(0,123,255,0.1);
+    border: 1px solid rgba(0,123,255,0.2);
+    border-radius: 15px;
+}
+.empty-state {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+}
+</style>
+@endsection
+
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Dashboard @endslot
     @slot('title') Presensi Mengajar @endslot
 @endcomponent
 
-<div class="row">
+<!-- Header Section -->
+<div class="row mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-book me-2"></i>Presensi Mengajar Hari Ini
-                </h4>
-                <p class="card-title-desc mb-0">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
-            </div>
-            <div class="card-body">
-                @if($schedules->isEmpty())
-                    <div class="alert alert-info d-flex align-items-center">
-                        <i class="bx bx-info-circle bx-lg me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-1">Tidak ada jadwal mengajar hari ini</h5>
-                            <p class="mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
-                        </div>
-                    </div>
-                @else
-                    <div class="row">
-                        @foreach($schedules as $schedule)
-                        <div class="col-lg-6 col-xl-4 mb-4">
-                            <div class="card h-100 border {{ $schedule->attendance ? 'border-success' : 'border-warning' }}">
-                                <div class="card-header bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="card-title mb-0">
-                                            <i class="bx bx-book-open me-2"></i>{{ $schedule->subject }}
-                                        </h6>
-                                        @if($schedule->attendance)
-                                            <span class="badge bg-success">
-                                                <i class="bx bx-check"></i> Sudah Presensi
-                                            </span>
-                                        @else
-                                            <span class="badge bg-warning">
-                                                <i class="bx bx-time"></i> Belum Presensi
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="bx bx-building-house text-primary me-2"></i>
-                                            <strong>{{ $schedule->school->name ?? 'N/A' }}</strong>
-                                        </div>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="bx bx-group text-info me-2"></i>
-                                            <span>Kelas: {{ $schedule->class_name }}</span>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <i class="bx bx-time text-warning me-2"></i>
-                                            <span>{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
-                                        </div>
-                                    </div>
-
-                                    @if($schedule->attendance)
-                                        <div class="alert alert-success p-3">
-                                            <div class="d-flex align-items-center">
-                                                <i class="bx bx-check-circle bx-lg me-3"></i>
-                                                <div>
-                                                    <h6 class="mb-1">Presensi Berhasil</h6>
-                                                    <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        @php
-                                            $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
-                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
-                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
-                                            $isWithinTime = $currentTime->between($startTime, $endTime);
-                                        @endphp
-                                        @if($isWithinTime)
-                                            <button type="button" class="btn btn-primary w-100" onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
-                                                <i class="bx bx-check-circle me-2"></i> Lakukan Presensi
-                                            </button>
-                                        @else
-                                            <button type="button" class="btn btn-secondary w-100" disabled>
-                                                <i class="bx bx-time me-2"></i> Diluar Waktu Mengajar
-                                            </button>
-                                            <small class="text-muted d-block text-center mt-1">Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
-                                        @endif
-                                    @endif
-                                </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="avatar-lg">
+                            <div class="avatar-title bg-gradient-primary rounded-circle">
+                                <i class="bx bx-book fs-1"></i>
                             </div>
                         </div>
-                        @endforeach
                     </div>
-                @endif
+                    <div class="col">
+                        <h4 class="card-title mb-1">Presensi Mengajar Hari Ini</h4>
+                        <p class="text-muted mb-0">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+                    </div>
+                    <div class="col-auto">
+                        <div class="text-end">
+                            <div class="fs-4 fw-bold text-primary">{{ $schedules->count() }}</div>
+                            <small class="text-muted">Jadwal Hari Ini</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Main Content -->
+<div class="row">
+    <div class="col-12">
+        @if($schedules->isEmpty())
+            <!-- Empty State -->
+            <div class="card empty-state shadow-sm border-0">
+                <div class="card-body text-center py-5">
+                    <div class="avatar-xl mx-auto mb-4">
+                        <div class="avatar-title bg-light rounded-circle">
+                            <i class="bx bx-calendar-x fs-1 text-muted"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-muted mb-2">Tidak ada jadwal mengajar hari ini</h5>
+                    <p class="text-muted mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
+                </div>
+            </div>
+        @else
+            <!-- Schedule Cards - Mobile Optimized -->
+            <div class="row g-3">
+                @foreach($schedules as $schedule)
+                <div class="col-12">
+                    <div class="card schedule-card h-100 position-relative {{ $schedule->attendance ? 'attendance-success' : 'attendance-pending' }}">
+                        <!-- Status Badge -->
+                        <div class="status-badge {{ $schedule->attendance ? 'bg-success' : 'bg-warning' }}">
+                            @if($schedule->attendance)
+                                <i class="bx bx-check text-white"></i>
+                            @else
+                                <i class="bx bx-time text-white"></i>
+                            @endif
+                        </div>
+
+                        <div class="card-body p-4">
+                            <!-- Subject Header -->
+                            <div class="d-flex align-items-start justify-content-between mb-3">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-1">
+                                        <i class="bx bx-book-open text-primary me-2"></i>{{ $schedule->subject }}
+                                    </h5>
+                                    <div class="d-flex align-items-center text-muted small mb-2">
+                                        <i class="bx bx-building-house me-1"></i>
+                                        {{ $schedule->school->name ?? 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Class and Time Info -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3">
+                                            <div class="avatar-title bg-info bg-opacity-10 text-info rounded-circle">
+                                                <i class="bx bx-group"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Kelas</small>
+                                            <span class="fw-medium">{{ $schedule->class_name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3">
+                                            <div class="avatar-title bg-warning bg-opacity-10 text-warning rounded-circle">
+                                                <i class="bx bx-time"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Waktu</small>
+                                            <span class="fw-medium">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attendance Status -->
+                            @if($schedule->attendance)
+                                <div class="alert alert-success border-0 rounded-3 p-3 mb-0">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bx bx-check-circle fs-4 me-3"></i>
+                                        <div>
+                                            <h6 class="mb-1 text-success">Presensi Berhasil</h6>
+                                            <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                @php
+                                    $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
+                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
+                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+                                    $isWithinTime = $currentTime->between($startTime, $endTime);
+                                @endphp
+                                @if($isWithinTime)
+                                    <button type="button" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-semibold"
+                                            onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
+                                        <i class="bx bx-check-circle me-2 fs-5"></i> Lakukan Presensi
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-outline-secondary btn-lg w-100 rounded-3 py-3" disabled>
+                                        <i class="bx bx-time me-2 fs-5"></i> Diluar Waktu Mengajar
+                                    </button>
+                                    <div class="text-center mt-2">
+                                        <small class="text-muted bg-light px-2 py-1 rounded-pill">
+                                            <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </small>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+</div>
 
 
-<!-- Attendance Modal -->
+
+<!-- Attendance Modal - Mobile Optimized -->
 <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="attendanceModalLabel">
-                    <i class="bx bx-check-circle me-2"></i>Konfirmasi Presensi Mengajar
-                </h5>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-primary text-white border-0">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-3">
+                        <div class="avatar-title bg-white bg-opacity-25 rounded-circle">
+                            <i class="bx bx-check-circle fs-4"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0" id="attendanceModalLabel">Konfirmasi Presensi Mengajar</h5>
+                        <small class="opacity-75">Verifikasi lokasi sebelum presensi</small>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <!-- Schedule Info -->
-                <div class="card border-primary mb-3">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Mata Pelajaran:</strong></p>
-                                <p id="modal-subject" class="text-primary mb-2"></p>
-                            </div>
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Kelas:</strong></p>
-                                <p id="modal-class" class="text-primary mb-2"></p>
-                            </div>
+
+            <div class="modal-body p-4">
+                <!-- Schedule Info Card -->
+                <div class="card border-primary border-opacity-25 mb-4">
+                    <div class="card-header bg-primary bg-opacity-10 border-primary border-opacity-25">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-book-open text-primary me-2"></i>
+                            <h6 class="mb-0 text-primary">Detail Jadwal Mengajar</h6>
                         </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Sekolah:</strong></p>
-                                <p id="modal-school" class="text-primary mb-2"></p>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded-2">
+                                    <div class="avatar-sm me-3">
+                                        <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                            <i class="bx bx-book"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="text-muted d-block">Mata Pelajaran</small>
+                                        <span id="modal-subject" class="fw-medium"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Waktu:</strong></p>
-                                <p id="modal-time" class="text-primary mb-2"></p>
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded-2">
+                                    <div class="avatar-sm me-3">
+                                        <div class="avatar-title bg-info bg-opacity-10 text-info rounded-circle">
+                                            <i class="bx bx-group"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="text-muted d-block">Kelas</small>
+                                        <span id="modal-class" class="fw-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded-2">
+                                    <div class="avatar-sm me-3">
+                                        <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                            <i class="bx bx-building-house"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="text-muted d-block">Sekolah</small>
+                                        <span id="modal-school" class="fw-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded-2">
+                                    <div class="avatar-sm me-3">
+                                        <div class="avatar-title bg-warning bg-opacity-10 text-warning rounded-circle">
+                                            <i class="bx bx-time"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="text-muted d-block">Waktu</small>
+                                        <span id="modal-time" class="fw-medium"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Location Status -->
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshLocation()">
-                                <i class="bx bx-refresh me-1"></i> Refresh Lokasi
+                <!-- Location Status Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light border-0">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-map text-primary me-2"></i>
+                                <h6 class="mb-0 text-primary">Verifikasi Lokasi</h6>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill" onclick="refreshLocation()">
+                                <i class="bx bx-refresh me-1"></i> Refresh
                             </button>
                         </div>
-
-                        <div id="locationStatus" class="alert alert-info mb-3">
-                            <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                    </div>
+                    <div class="card-body">
+                        <div id="locationStatus" class="alert alert-info border-0 rounded-3 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-loader-alt bx-spin me-3 fs-4"></i>
+                                <div>
+                                    <strong>Mendapatkan lokasi Anda...</strong>
+                                    <br><small class="text-muted">Pastikan GPS aktif dan izinkan akses lokasi</small>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="alert alert-warning">
-                            <i class="bx bx-error-circle me-2"></i>
-                            <strong>Penting!</strong> Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar.<br>
-                            <small class="text-muted">Presensi hanya bisa dilakukan sesuai jam mengajar.</small>
+                        <div class="alert alert-warning border-0 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25">
+                            <div class="d-flex">
+                                <i class="bx bx-error-circle text-warning me-3 fs-4"></i>
+                                <div>
+                                    <strong class="text-warning">Penting!</strong>
+                                    <p class="mb-0 text-muted small">Pastikan Anda berada di dalam area sekolah yang telah ditentukan untuk melakukan presensi mengajar. Presensi hanya bisa dilakukan sesuai jam mengajar.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bx bx-x me-1"></i> Batal
+
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="bx bx-x me-2"></i> Batal
                 </button>
-                <button type="button" class="btn btn-primary" id="confirmAttendanceBtn" disabled>
-                    <i class="bx bx-check-circle me-2"></i> Ya, Lakukan Presensi
+                <button type="button" class="btn btn-primary btn-lg rounded-pill px-4 fw-semibold" id="confirmAttendanceBtn" disabled>
+                    <i class="bx bx-check-circle me-2 fs-5"></i> Ya, Lakukan Presensi
                 </button>
             </div>
         </div>

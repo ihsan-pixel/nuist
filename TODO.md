@@ -26,6 +26,7 @@
 - [x] Redesign presensi/create.blade.php for mobile
 - [x] Redesign presensi/index.blade.php for mobile
 - [x] Redesign izin/create.blade.php for mobile
+- [x] Redesign teaching-attendances/index.blade.php for mobile
 - [ ] Test all changes on mobile viewport
 - [ ] Ensure GPS and file upload work well on mobile
 - [ ] Verify all elements are touch-friendly
