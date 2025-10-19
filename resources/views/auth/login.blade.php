@@ -219,7 +219,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
     }
 
     .password-input {
-        padding-right: 50px;
+        padding-right: 50px !important;
     }
 
     .password-toggle-btn {
