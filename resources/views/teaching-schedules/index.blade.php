@@ -13,85 +13,223 @@
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" />
 <!-- SweetAlert2 CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.schedule-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.schedule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.teacher-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #0d6efd;
+}
+.teacher-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+.schedule-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+.schedule-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+.day-badge {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.time-badge {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.subject-badge {
+    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.school-info {
+    background: rgba(0,123,255,0.1);
+    border: 1px solid rgba(0,123,255,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+.empty-state {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+}
+.btn-action {
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+}
+</style>
 @endsection
 
 @section('content')
-<div class="row">
+<!-- Header Section - Mobile Optimized -->
+<div class="row mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bx bx-calendar me-2"></i>Daftar Jadwal Mengajar
-                </h4>
-            </div>
-            <div class="card-body">
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-
-                @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bx bx-error-circle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                @endif
-
-                <div class="mb-3 d-flex justify-content-end gap-2">
-                    @if(Auth::user()->role !== 'tenaga_pendidik')
-                    <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary">
-                        <i class="bx bx-plus"></i> Tambah Jadwal
-                    </a>
-                    @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
-                        <i class="bx bx-upload"></i> Import Jadwal
-                    </button>
-                    @endif
-                    @endif
-                </div>
-
-                @foreach($grouped as $teacherName => $schedules)
-                <h5>{{ $teacherName }}</h5>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Hari</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Kelas</th>
-                            <th>Jam Mulai</th>
-                            <th>Jam Selesai</th>
-                            <th>Sekolah</th>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="avatar-lg">
+                            <div class="avatar-title bg-gradient-primary rounded-circle">
+                                <i class="bx bx-calendar fs-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h4 class="card-title mb-1">Daftar Jadwal Mengajar</h4>
+                        <p class="text-muted mb-0">Kelola jadwal mengajar tenaga pendidik</p>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex gap-2">
                             @if(Auth::user()->role !== 'tenaga_pendidik')
-                            <th>Aksi</th>
+                            <a href="{{ route('teaching-schedules.create') }}" class="btn btn-primary rounded-pill px-3">
+                                <i class="bx bx-plus me-1"></i>Tambah
+                            </a>
+                            @if(Auth::user()->role === 'admin' || Auth::user()->role === 'super_admin' || Auth::user()->role === 'pengurus')
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#importModal">
+                                <i class="bx bx-upload me-1"></i>Import
+                            </button>
                             @endif
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($schedules as $schedule)
-                        <tr>
-                            <td>{{ $schedule->day }}</td>
-                            <td>{{ $schedule->subject }}</td>
-                            <td>{{ $schedule->class_name }}</td>
-                            <td>{{ $schedule->start_time }}</td>
-                            <td>{{ $schedule->end_time }}</td>
-                            <td>{{ $schedule->school->name ?? 'N/A' }}</td>
-                            @if(Auth::user()->role !== 'tenaga_pendidik')
-                            <td>
-                                <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{ $schedule->id }}" data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}">Hapus</button>
-                            </td>
                             @endif
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Alert Messages -->
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show border-0 rounded-3" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bx bx-check-circle fs-4 me-3"></i>
+        <div>{{ session('success') }}</div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if(session('error'))
+<div class="alert alert-danger alert-dismissible fade show border-0 rounded-3" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bx bx-error-circle fs-4 me-3"></i>
+        <div>{{ session('error') }}</div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+<!-- Schedule Content -->
+@if($grouped->isEmpty())
+    <!-- Empty State -->
+    <div class="card empty-state shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <div class="avatar-xl mx-auto mb-4">
+                <div class="avatar-title bg-light rounded-circle">
+                    <i class="bx bx-calendar-x fs-1 text-muted"></i>
+                </div>
+            </div>
+            <h5 class="text-muted mb-2">Belum ada jadwal mengajar</h5>
+            <p class="text-muted mb-0">Belum ada data jadwal mengajar yang terdaftar dalam sistem.</p>
+        </div>
+    </div>
+@else
+    <!-- Teacher Schedule Sections - Mobile Optimized -->
+    @foreach($grouped as $teacherName => $schedules)
+    <div class="teacher-section">
+        <div class="d-flex align-items-center mb-4">
+            <div class="teacher-avatar me-3">
+                {{ strtoupper(substr($teacherName, 0, 1)) }}
+            </div>
+            <div>
+                <h5 class="mb-1 text-primary">{{ $teacherName }}</h5>
+                <small class="text-muted">{{ count($schedules) }} jadwal mengajar</small>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            @foreach($schedules as $schedule)
+            <div class="col-12">
+                <div class="schedule-item">
+                    <div class="row align-items-center g-3">
+                        <div class="col-auto">
+                            <div class="d-flex flex-column gap-2">
+                                <span class="day-badge">{{ $schedule->day }}</span>
+                                <span class="time-badge">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex flex-column flex-md-row gap-2 mb-2">
+                                <span class="subject-badge">{{ $schedule->subject }}</span>
+                                <span class="badge bg-light text-dark">{{ $schedule->class_name }}</span>
+                            </div>
+                            <div class="school-info">
+                                <i class="bx bx-building me-1"></i>
+                                <strong>{{ $schedule->school->name ?? 'N/A' }}</strong>
+                            </div>
+                        </div>
+                        @if(Auth::user()->role !== 'tenaga_pendidik')
+                        <div class="col-auto">
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('teaching-schedules.edit', $schedule->id) }}" class="btn btn-warning btn-action">
+                                    <i class="bx bx-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-danger btn-action delete-btn"
+                                        data-id="{{ $schedule->id }}"
+                                        data-name="{{ $schedule->subject }} - {{ $schedule->class_name }}">
+                                    <i class="bx bx-trash"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endforeach
+@endif
 
 <!-- Import Modal -->
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">

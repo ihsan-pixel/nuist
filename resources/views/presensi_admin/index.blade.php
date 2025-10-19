@@ -15,6 +15,60 @@
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.summary-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.madrasah-card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.madrasah-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.status-badge {
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+}
+.user-detail-link, .madrasah-detail-link {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.user-detail-link:hover, .madrasah-detail-link:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+.empty-state {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: none;
+}
+.kabupaten-header {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2196f3;
+}
+</style>
 @endsection
 
 @section('content')
@@ -24,59 +78,91 @@
 @endcomponent
 
 @if(in_array($user->role, ['super_admin', 'pengurus']))
-    <!-- Super Admin and Pengurus View: 5 tables per madrasah -->
-    <div class="row">
-        <div class="col-12 mb-3">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">
-                        <i class="bx bx-calendar me-2"></i>Data Presensi per Tanggal: {{ $selectedDate->format('d-m-Y') }}
-                    </h4>
-                    <div class="d-flex align-items-center gap-2">
-                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center" id="date-form">
-                            <input type="date" id="date-picker" name="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}">
-                        </form>
-                        <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}" class="btn btn-success btn-sm">
-                            <i class="bx bx-download"></i> Export Excel
-                        </a>
+    <!-- Header Section - Mobile Optimized -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="avatar-lg">
+                                <div class="avatar-title bg-gradient-primary rounded-circle">
+                                    <i class="bx bx-calendar fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-1">Data Presensi</h4>
+                            <p class="text-muted mb-0">{{ $selectedDate->format('d F Y') }}</p>
+                        </div>
+                        <div class="col-auto">
+                            <div class="d-flex gap-2">
+                                <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
+                                    <input type="date" id="date-picker" name="date" class="form-control form-control-sm rounded-pill"
+                                           value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                                </form>
+                                <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
+                                   class="btn btn-success btn-sm rounded-pill px-3">
+                                    <i class="bx bx-download me-1"></i>Export
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-primary">
-                <div class="card-body text-center py-2">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <i class="bx bx-user-check bx-sm text-primary me-2"></i>
-                        <span class="h5 mb-0 text-primary fw-bold">{{ $summary['users_presensi'] }}</span>
+    <!-- Summary Cards - Mobile Optimized -->
+    <div class="row mb-4 g-3">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="avatar-sm me-3">
+                            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                <i class="bx bx-user-check fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-primary mb-0">{{ $summary['users_presensi'] }}</div>
+                            <small class="text-muted">Users Presensi</small>
+                        </div>
                     </div>
-                    <small class="text-muted d-block mt-1">Users Presensi</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-success">
-                <div class="card-body text-center py-2">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <i class="bx bx-building bx-sm text-success me-2"></i>
-                        <span class="h5 mb-0 text-success fw-bold">{{ $summary['sekolah_presensi'] }}</span>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="avatar-sm me-3">
+                            <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                <i class="bx bx-building fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-success mb-0">{{ $summary['sekolah_presensi'] }}</div>
+                            <small class="text-muted">Sekolah Presensi</small>
+                        </div>
                     </div>
-                    <small class="text-muted d-block mt-1">Sekolah Presensi</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-danger">
-                <div class="card-body text-center py-2">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <i class="bx bx-user-x bx-sm text-danger me-2"></i>
-                        <span class="h5 mb-0 text-danger fw-bold">{{ $summary['guru_tidak_presensi'] }}</span>
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="avatar-sm me-3">
+                            <div class="avatar-title bg-danger bg-opacity-10 text-danger rounded-circle">
+                                <i class="bx bx-user-x fs-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-danger mb-0">{{ $summary['guru_tidak_presensi'] }}</div>
+                            <small class="text-muted">Belum Presensi</small>
+                        </div>
                     </div>
-                    <small class="text-muted d-block mt-1">Guru Belum Presensi</small>
                 </div>
             </div>
         </div>
@@ -90,7 +176,6 @@
             'Kabupaten Sleman',
             'Kota Yogyakarta'
         ];
-        $currentKabupaten = '';
     @endphp
 
     @foreach($kabupatenOrder as $kabupaten)
@@ -101,66 +186,89 @@
         @endphp
 
         @if($kabupatenMadrasahData->count() > 0)
-            <div class="row mb-3">
-                <div class="col-12">
-                    <h5 class="text-primary mb-3">
-                        <i class="bx bx-map-pin me-2"></i>{{ $kabupaten }}
-                    </h5>
+            <!-- Kabupaten Header - Mobile Optimized -->
+            <div class="kabupaten-header">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-3">
+                        <div class="avatar-title bg-primary rounded-circle">
+                            <i class="bx bx-map-pin text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 text-primary">{{ $kabupaten }}</h5>
+                        <small class="text-muted">{{ $kabupatenMadrasahData->count() }} Madrasah</small>
+                    </div>
                 </div>
             </div>
 
-            <div class="row mb-4">
+            <!-- Madrasah Cards - Mobile Optimized -->
+            <div class="row g-3 mb-4">
                 @foreach($kabupatenMadrasahData as $data)
-                <div class="col-12 col-sm-6 col-md-4 col-lg-2 col-xl-2 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="card-title mb-0 small">
-                                <i class="bx bx-building me-1"></i>
-                                <span class="madrasah-detail-link" style="cursor: pointer; text-decoration: underline;" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
-                                    {{ $data['madrasah']->name }}
-                                </span>
-                            </h6>
-                            <small class="text-muted">{{ count($data['presensi']) }} guru</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                <table id="madrasah-table-{{ $loop->parent->index }}-{{ $loop->index }}" class="table table-sm table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Nama</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($data['presensi'] as $presensi)
-                                        <tr>
-                                            <td class="small">
-                                                <span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
-                                                    {{ $presensi['nama'] }}
-                                                </span>
-                                            </td>
-                                            <td class="small">
-                                                @if($presensi['status'] == 'hadir')
-                                                    <span class="badge bg-success">Hadir</span>
-                                                @elseif($presensi['status'] == 'terlambat')
-                                                    <span class="badge bg-warning">Terlambat</span>
-                                                @elseif($presensi['status'] == 'izin')
-                                                    <span class="badge bg-info">Izin</span>
-                                                @else
-                                                    <span class="badge bg-secondary">Tidak Hadir</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="2" class="text-center text-muted small">
-                                                <small>Tidak ada tenaga pendidik</small>
-                                            </td>
-                                        </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card madrasah-card h-100">
+                        <div class="card-header bg-light border-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title mb-1">
+                                        <i class="bx bx-building text-primary me-2"></i>
+                                        <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                            {{ $data['madrasah']->name }}
+                                        </span>
+                                    </h6>
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <i class="bx bx-group me-1"></i>
+                                        {{ count($data['presensi']) }} Tenaga Pendidik
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        <div class="card-body p-3">
+                            @if(count($data['presensi']) > 0)
+                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                                    <table class="table table-sm table-borderless">
+                                        <tbody>
+                                            @foreach($data['presensi'] as $presensi)
+                                            <tr class="border-bottom border-light">
+                                                <td class="ps-0 py-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-xs me-2">
+                                                            <div class="avatar-title bg-light text-primary rounded-circle">
+                                                                <i class="bx bx-user"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <span class="user-detail-link fw-medium small" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
+                                                                {{ $presensi['nama'] }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="pe-0 py-2 text-end">
+                                                    @if($presensi['status'] == 'hadir')
+                                                        <span class="status-badge bg-success text-white">Hadir</span>
+                                                    @elseif($presensi['status'] == 'terlambat')
+                                                        <span class="status-badge bg-warning text-white">Terlambat</span>
+                                                    @elseif($presensi['status'] == 'izin')
+                                                        <span class="status-badge bg-info text-white">Izin</span>
+                                                    @else
+                                                        <span class="status-badge bg-secondary text-white">Tidak Hadir</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <div class="avatar-sm mx-auto mb-2">
+                                        <div class="avatar-title bg-light text-muted rounded-circle">
+                                            <i class="bx bx-user-x"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Tidak ada tenaga pendidik</small>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
