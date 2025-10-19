@@ -99,7 +99,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 <p>Sign in to access your dashboard and manage your activities.</p>
                 <!-- Placeholder for illustration -->
                 <div class="illustration-placeholder">
-                    <img src="https://via.placeholder.com/400x300/6C63FF/FFFFFF?text=Illustration" alt="Login Illustration" class="illustration-image">
+                    <img src="{{ asset('images/p.png') }}" alt="Login Illustration" class="illustration-image">
                 </div>
             </div>
         </div>
