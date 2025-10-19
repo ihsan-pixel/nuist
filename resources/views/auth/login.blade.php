@@ -413,6 +413,10 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
             min-height: 200px;
         }
 
+        .illustration-content {
+            display: none;
+        }
+
         .form-container {
             max-width: none;
         }
