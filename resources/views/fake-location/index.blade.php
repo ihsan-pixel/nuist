@@ -176,12 +176,7 @@
                                         @if($item['presensi']->user->madrasah && $item['presensi']->user->madrasah->latitude)
                                             <br>
                                             <small class="text-muted">
-                                                Jarak: {{ number_format($this->calculateDistance(
-                                                    $item['presensi']->user->madrasah->latitude,
-                                                    $item['presensi']->user->madrasah->longitude,
-                                                    $item['presensi']->latitude,
-                                                    $item['presensi']->longitude
-                                                ), 2) }} km
+                                                Jarak: {{ number_format($item['analysis']['distance'] ?? 0, 2) }} km
                                             </small>
                                         @endif
                                     </td>
