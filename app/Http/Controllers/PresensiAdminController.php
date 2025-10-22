@@ -519,6 +519,84 @@ class PresensiAdminController extends Controller
         }, $filename);
     }
 
+    // Export presensi data per madrasah to Excel
+    public function exportMadrasah(Request $request, $madrasahId)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'super_admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+        $type = $request->input('type', 'all'); // 'month' or 'all'
+
+        if ($type === 'month') {
+            $month = $request->input('month', Carbon::now()->format('Y-m'));
+            $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+            $endDate = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+        }
+
+        $query = Presensi::with(['user.statusKepegawaian'])
+            ->whereHas('user', function ($q) use ($madrasahId) {
+                $q->where('madrasah_id', $madrasahId)
+                  ->where('role', 'tenaga_pendidik');
+            });
+
+        if ($type === 'month') {
+            $query->whereBetween('tanggal', [$startDate, $endDate]);
+        }
+
+        $presensis = $query->orderBy('tanggal', 'desc')->get();
+
+        $data = [];
+        foreach ($presensis as $presensi) {
+            $data[] = [
+                'Tanggal' => $presensi->tanggal->format('Y-m-d'),
+                'Nama Guru' => $presensi->user->name,
+                'Status Kepegawaian' => $presensi->statusKepegawaian->name ?? '-',
+                'NIP' => $presensi->user->nip,
+                'NUPTK' => $presensi->user->nuptk,
+                'Status Presensi' => $presensi->status,
+                'Waktu Masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                'Keterangan' => $presensi->keterangan,
+                'Lokasi' => $presensi->lokasi,
+            ];
+        }
+
+        $filename = 'Data_Presensi_' . $madrasah->name . '_' . ($type === 'month' ? $month : 'Semua_Data') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return $this->data;
+            }
+
+            public function headings(): array
+            {
+                return [
+                    'Tanggal',
+                    'Nama Guru',
+                    'Status Kepegawaian',
+                    'NIP',
+                    'NUPTK',
+                    'Status Presensi',
+                    'Waktu Masuk',
+                    'Waktu Keluar',
+                    'Keterangan',
+                    'Lokasi'
+                ];
+            }
+        }, $filename);
+    }
+
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */

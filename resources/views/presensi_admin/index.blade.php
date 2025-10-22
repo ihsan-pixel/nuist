@@ -207,20 +207,27 @@
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card madrasah-card h-100">
                         <div class="card-header bg-light border-0">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="card-title mb-1">
-                                        <i class="bx bx-building text-primary me-2"></i>
-                                        <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
-                                            {{ $data['madrasah']->name }}
-                                        </span>
-                                    </h6>
-                                    <div class="d-flex align-items-center text-muted small">
-                                        <i class="bx bx-group me-1"></i>
-                                        {{ count($data['presensi']) }} Tenaga Pendidik
-                                    </div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1">
+                                    <i class="bx bx-building text-primary me-2"></i>
+                                    <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                        {{ $data['madrasah']->name }}
+                                    </span>
+                                </h6>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <i class="bx bx-group me-1"></i>
+                                    {{ count($data['presensi']) }} Tenaga Pendidik
                                 </div>
                             </div>
+                            @if($user->role === 'super_admin')
+                            <div class="flex-shrink-0">
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                    <i class="bx bx-download me-1"></i>Export
+                                </button>
+                            </div>
+                            @endif
+                        </div>
                         </div>
                         <div class="card-body p-3">
                             @if(count($data['presensi']) > 0)
@@ -332,6 +339,36 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Export Data Presensi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Pilih jenis export untuk <strong id="exportMadrasahName"></strong>:</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="exportAllBtn">
+                            <i class="bx bx-download me-2"></i>Export Semua Data
+                        </button>
+                        <button type="button" class="btn btn-outline-success" id="exportMonthBtn">
+                            <i class="bx bx-calendar me-2"></i>Export Per Bulan
+                        </button>
+                    </div>
+                    <div class="mt-3" id="monthSelector" style="display: none;">
+                        <label for="exportMonth" class="form-label">Pilih Bulan:</label>
+                        <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 </div>
             </div>
         </div>
@@ -893,6 +930,32 @@ $(document).ready(function () {
         $('a[href*="presensi_admin.export"]').attr('href', exportLink);
         updatePresensiData();
         return false;
+    });
+
+    // Handle export modal
+    let currentMadrasahId = null;
+    $(document).on('click', '[data-bs-target="#exportModal"]', function() {
+        currentMadrasahId = $(this).data('madrasah-id');
+        let madrasahName = $(this).data('madrasah-name');
+        $('#exportMadrasahName').text(madrasahName);
+        $('#monthSelector').hide();
+    });
+
+    $('#exportAllBtn').on('click', function() {
+        if (currentMadrasahId) {
+            window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=all';
+        }
+    });
+
+    $('#exportMonthBtn').on('click', function() {
+        $('#monthSelector').show();
+    });
+
+    $('#exportMonth').on('change', function() {
+        if (currentMadrasahId) {
+            let month = $(this).val();
+            window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
+        }
     });
 
     // Initial update
