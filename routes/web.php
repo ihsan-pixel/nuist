@@ -62,6 +62,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/teaching-attendances', [App\Http\Controllers\TeachingAttendanceController::class, 'store'])->name('teaching-attendances.store');
         Route::post('/teaching-attendances/check-location', [App\Http\Controllers\TeachingAttendanceController::class, 'checkLocation'])->name('teaching-attendances.check-location');
     });
+
+    // Fake Location Detection Routes - Super Admin Only
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/fake-location', [App\Http\Controllers\FakeLocationController::class, 'index'])->name('fake-location.index');
+    });
 });
 
 Auth::routes(['verify' => true]);
