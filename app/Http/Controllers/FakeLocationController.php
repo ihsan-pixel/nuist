@@ -59,7 +59,25 @@ class FakeLocationController extends Controller
         // Analyze each presensi for fake location indicators
         $fakeLocationData = [];
         foreach ($presensis as $presensi) {
-            $analysis = $this->analyzePresensiForFakeLocation($presensi);
+            // Use the new database fields if available, otherwise analyze from data
+            if ($presensi->is_fake_location !== null) {
+                $analysis = [
+                    'is_suspicious' => $presensi->is_fake_location,
+                    'issues' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['issues'] : [],
+                    'severity' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['severity'] : 0,
+                    'severity_label' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['severity_label'] : 'Tidak',
+                    'distance' => $presensi->user->madrasah && $presensi->user->madrasah->latitude ?
+                        $this->calculateDistance(
+                            $presensi->user->madrasah->latitude,
+                            $presensi->user->madrasah->longitude,
+                            $presensi->latitude,
+                            $presensi->longitude
+                        ) : 0
+                ];
+            } else {
+                // Fallback to analysis method for older records
+                $analysis = $this->analyzePresensiForFakeLocation($presensi);
+            }
 
             if ($analysis['is_suspicious']) {
                 $fakeLocationData[] = [

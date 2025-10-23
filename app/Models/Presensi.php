@@ -19,6 +19,12 @@ class Presensi extends Model
         'latitude',
         'longitude',
         'lokasi',
+        'is_fake_location',
+        'fake_location_analysis',
+        'accuracy',
+        'altitude',
+        'speed',
+        'device_info',
         'status',
         'keterangan',
         'surat_izin_path',
@@ -33,6 +39,11 @@ class Presensi extends Model
         'waktu_keluar' => 'datetime:H:i',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'is_fake_location' => 'boolean',
+        'fake_location_analysis' => 'array',
+        'accuracy' => 'decimal:2',
+        'altitude' => 'decimal:2',
+        'speed' => 'decimal:2',
     ];
 
     public function user()

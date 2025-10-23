@@ -260,6 +260,9 @@
                                                     @else
                                                         <span class="status-badge bg-secondary text-white">Tidak Hadir</span>
                                                     @endif
+                                                    @if(isset($presensi['is_fake_location']) && $presensi['is_fake_location'])
+                                                        <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Fake Location</small>
+                                                    @endif
                                                 </td>
                                             </tr>
                                             @endforeach

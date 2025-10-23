@@ -179,6 +179,18 @@
                                                 Jarak: {{ number_format($item['analysis']['distance'] ?? 0, 2) }} km
                                             </small>
                                         @endif
+                                        @if($item['presensi']->accuracy)
+                                            <br>
+                                            <small class="text-muted">
+                                                Akurasi: {{ number_format($item['presensi']->accuracy, 1) }} m
+                                            </small>
+                                        @endif
+                                        @if($item['presensi']->speed)
+                                            <br>
+                                            <small class="text-muted">
+                                                Kecepatan: {{ number_format($item['presensi']->speed * 3.6, 1) }} km/h
+                                            </small>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-light text-dark">{{ $item['presensi']->lokasi ?? '-' }}</span>
@@ -283,6 +295,16 @@ function viewDetails(presensiId) {
                             <tr><td><strong>Status:</strong></td><td>${data.user.status_kepegawaian}</td></tr>
                             <tr><td><strong>NIP:</strong></td><td>${data.user.nip || '-'}</td></tr>
                             <tr><td><strong>NUPTK:</strong></td><td>${data.user.nuptk || '-'}</td></tr>
+                        </table>
+
+                        <h6>Data Lokasi & Perangkat</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Koordinat:</strong></td><td>${data.presensi.latitude}, ${data.presensi.longitude}</td></tr>
+                            <tr><td><strong>Akurasi GPS:</strong></td><td>${data.presensi.accuracy ? data.presensi.accuracy + ' m' : '-'}</td></tr>
+                            <tr><td><strong>Kecepatan:</strong></td><td>${data.presensi.speed ? (data.presensi.speed * 3.6).toFixed(1) + ' km/h' : '-'}</td></tr>
+                            <tr><td><strong>Ketinggian:</strong></td><td>${data.presensi.altitude ? data.presensi.altitude + ' m' : '-'}</td></tr>
+                            <tr><td><strong>Perangkat:</strong></td><td>${data.presensi.device_info || '-'}</td></tr>
+                            <tr><td><strong>Status Fake Location:</strong></td><td><span class="badge bg-${data.presensi.is_fake_location ? 'danger' : 'success'}">${data.presensi.is_fake_location ? 'Terdeteksi' : 'Valid'}</span></td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
