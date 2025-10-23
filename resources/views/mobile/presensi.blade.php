@@ -62,8 +62,8 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm">
-                <div id="map" style="height: 250px; width: 100%;"></div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border" style="position: relative;">
+                <div id="map" style="height: 280px; width: 100%; position: relative; z-index: 1;"></div>
             </div>
         </div>
 
@@ -152,6 +152,19 @@
 
 @endsection
 
+@section('css')
+<style>
+.map-container {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    min-height: 280px;
+}
+.user-location-marker {
+    background: transparent !important;
+    border: none !important;
+}
+</style>
+@endsection
+
 @section('script')
 <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
@@ -201,23 +214,51 @@ $(document).ready(function() {
             // Initialize map with user location
             var map = L.map('map', {
                 center: [latitude, longitude],
-                zoom: 15,
+                zoom: 16,
                 zoomControl: true,
-                scrollWheelZoom: false
+                scrollWheelZoom: false,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            var marker = L.marker([latitude, longitude]).addTo(map)
-                .bindPopup('Lokasi Anda saat ini')
+            // Add user location marker with custom icon
+            var userIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: '<div style="background-color: #007bff; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+
+            var marker = L.marker([latitude, longitude], {icon: userIcon}).addTo(map)
+                .bindPopup('<div class="text-center"><strong>Lokasi Anda</strong><br/>' + latitude.toFixed(6) + ', ' + longitude.toFixed(6) + '</div>')
                 .openPopup();
 
+            // Add accuracy circle if available
+            if (position.coords.accuracy) {
+                L.circle([latitude, longitude], {
+                    color: '#007bff',
+                    fillColor: '#007bff',
+                    fillOpacity: 0.1,
+                    radius: position.coords.accuracy
+                }).addTo(map);
+            }
+
+            // Force map to resize and fit bounds
             setTimeout(function() {
                 map.invalidateSize();
-            }, 100);
+                // Fit map to show marker and accuracy circle
+                if (position.coords.accuracy) {
+                    var bounds = L.latLngBounds([
+                        [latitude - 0.001, longitude - 0.001],
+                        [latitude + 0.001, longitude + 0.001]
+                    ]);
+                    map.fitBounds(bounds, {padding: [20, 20]});
+                }
+            }, 200);
 
         }, function(error) {
             $('#location-info').html(`
@@ -235,23 +276,24 @@ $(document).ready(function() {
             // Initialize map with default location on error
             var map = L.map('map', {
                 center: [-7.7956, 110.3695],
-                zoom: 10,
+                zoom: 12,
                 zoomControl: true,
-                scrollWheelZoom: false
+                scrollWheelZoom: false,
+                attributionControl: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
             var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-                .bindPopup('Tidak dapat mendapatkan lokasi Anda')
+                .bindPopup('<div class="text-center"><strong>Lokasi Tidak Dapat Didapatkan</strong><br/>Periksa pengaturan GPS Anda</div>')
                 .openPopup();
 
             setTimeout(function() {
                 map.invalidateSize();
-            }, 100);
+            }, 200);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -273,23 +315,24 @@ $(document).ready(function() {
         // Initialize map with default location
         var map = L.map('map', {
             center: [-7.7956, 110.3695],
-            zoom: 10,
+            zoom: 12,
             zoomControl: true,
-            scrollWheelZoom: false
+            scrollWheelZoom: false,
+            attributionControl: false
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-            .bindPopup('Browser tidak mendukung GPS')
+            .bindPopup('<div class="text-center"><strong>Browser Tidak Mendukung GPS</strong><br/>Gunakan browser modern</div>')
             .openPopup();
 
         setTimeout(function() {
             map.invalidateSize();
-        }, 100);
+        }, 200);
     }
 
     // Get address from coordinates
