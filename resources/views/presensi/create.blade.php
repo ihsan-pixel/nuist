@@ -512,8 +512,8 @@ $(document).ready(function() {
                                 resolve(postData);
                             });
                         } else {
-                            // Wait 3 seconds before getting next reading
-                            setTimeout(getReading, 3000); // 3 second delay between readings
+                            // Wait 1 second before getting next reading
+                            setTimeout(getReading, 1000); // 1 second delay between readings
                         }
                     },
                     function(error) {
@@ -521,7 +521,7 @@ $(document).ready(function() {
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 5000, // 5 second timeout per reading
+                        timeout: 3000, // 3 second timeout per reading
                         maximumAge: 0
                     }
                 );
