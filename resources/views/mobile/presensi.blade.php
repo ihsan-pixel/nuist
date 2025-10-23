@@ -580,9 +580,19 @@ window.addEventListener('load', function() {
                     url: '{{ route("mobile.presensi.store") }}',
                     method: 'POST',
                     data: postData,
+                    timeout: 30000, // 30 detik timeout
                     success: function(response) {
                         if (response.success) {
-                            location.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message,
+                                confirmButtonText: 'Oke',
+                                timer: 3000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                location.reload();
+                            });
                         } else {
                             Swal.fire({
                                 icon: 'warning',
@@ -593,11 +603,21 @@ window.addEventListener('load', function() {
                             $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
                         }
                     },
-                    error: function(xhr) {
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Terjadi kesalahan tidak diketahui';
+
+                        if (status === 'timeout') {
+                            errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Kesalahan',
-                            text: xhr.responseJSON?.message || 'Terjadi kesalahan tidak diketahui',
+                            text: errorMessage,
                             confirmButtonText: 'Oke'
                         });
                         $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
