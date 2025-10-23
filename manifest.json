@@ -1,0 +1,43 @@
+{
+  "name": "NUIST Mobile - Sistem Informasi Digital",
+  "short_name": "NUIST Mobile",
+  "description": "Aplikasi mobile untuk presensi dan informasi digital LP. Ma'arif NU PWNU DIY",
+  "start_url": "/mobile/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#556ee6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "id-ID",
+  "categories": ["productivity", "education"],
+  "icons": [
+    {
+      "src": "/build/images/logo favicon 1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/build/images/logo favicon 1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Presensi",
+      "short_name": "Presensi",
+      "description": "Lakukan presensi harian",
+      "url": "/mobile/presensi",
+      "icons": [{ "src": "/build/images/logo favicon 1.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Jadwal",
+      "short_name": "Jadwal",
+      "description": "Lihat jadwal mengajar",
+      "url": "/mobile/jadwal",
+      "icons": [{ "src": "/build/images/logo favicon 1.png", "sizes": "96x96" }]
+    }
+  ]
+}
