@@ -484,8 +484,8 @@ $(document).ready(function() {
     function getMultipleLocationReadings() {
         return new Promise(function(resolve, reject) {
             let readings = [];
-            let totalReadings = 3;
-            let delayMs = 1000; // 1 second between readings
+            let totalReadings = 2; // Reduced to 2 readings for faster verification
+            let delayMs = 500; // 0.5 second between readings for speed
 
             function getReading(readingNumber) {
                 if (readingNumber >= totalReadings) {
@@ -541,7 +541,7 @@ $(document).ready(function() {
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,
+                        timeout: 5000, // Reduced timeout for faster response
                         maximumAge: 0
                     }
                 );

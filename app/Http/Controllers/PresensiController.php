@@ -101,6 +101,10 @@ class PresensiController extends Controller
         $madrasah = $user->madrasah;
         $madrasahTambahan = $user->madrasahTambahan;
 
+        // Initialize variables
+        $isFakeLocation = false;
+        $fakeLocationAnalysis = [];
+
         // Deteksi fake GPS dengan multiple location checks
         if ($request->location_readings) {
             $locationReadings = json_decode($request->location_readings, true);
@@ -112,16 +116,19 @@ class PresensiController extends Controller
                     'analysis' => $fakeGpsCheck
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Deteksi penggunaan fake GPS. Koordinat lokasi terdeteksi identik dalam beberapa pengukuran. Pastikan GPS aktif dan tidak menggunakan aplikasi pemalsu lokasi.'
-                ], 400);
+                // Jika terdeteksi fake GPS, tetap izinkan presensi tapi tandai sebagai fake location
+                $isFakeLocation = true;
+                $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
+                    'fake_gps_detected' => true,
+                    'fake_gps_analysis' => $fakeGpsCheck
+                ]);
             }
         }
 
         // Analisis fake location sebelum validasi poligon
-        $fakeLocationAnalysis = $this->analyzeFakeLocation($request, $user, $madrasah, $madrasahTambahan);
-        $isFakeLocation = $fakeLocationAnalysis['is_fake'];
+        $additionalFakeLocationAnalysis = $this->analyzeFakeLocation($request, $user, $madrasah, $madrasahTambahan);
+        $isFakeLocation = $isFakeLocation || $additionalFakeLocationAnalysis['is_fake'];
+        $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, $additionalFakeLocationAnalysis);
 
         // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
         $isWithinPolygon = false;
