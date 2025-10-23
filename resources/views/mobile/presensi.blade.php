@@ -250,12 +250,15 @@ window.addEventListener('load', function() {
                 </div>
             `);
 
-            // Initialize Leaflet map dengan loading yang lebih cepat
+            // Initialize Leaflet map dengan zoom controls
             map = L.map('map', {
                 center: [latitude, longitude],
                 zoom: 15,
                 zoomControl: true,
-                scrollWheelZoom: false
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                keyboard: true
             });
 
             // Gunakan tile layer yang lebih cepat loading
@@ -292,7 +295,10 @@ window.addEventListener('load', function() {
                 center: [-7.7956, 110.3695],
                 zoom: 10,
                 zoomControl: true,
-                scrollWheelZoom: false
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                keyboard: true
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -329,28 +335,18 @@ window.addEventListener('load', function() {
         // Initialize map with default location
         map = L.map('map', {
             center: [-7.7956, 110.3695],
-            zoom: 11,
-            zoomControl: false,
-            scrollWheelZoom: false,
-            attributionControl: false,
-            fadeAnimation: false,
-            zoomAnimation: false,
-            markerZoomAnimation: false,
-            preferCanvas: true,
-            renderer: L.canvas(),
-            boxZoom: false,
-            doubleClickZoom: false,
-            keyboard: false
+            zoom: 10,
+            zoomControl: true,
+            scrollWheelZoom: true,
+            doubleClickZoom: true,
+            boxZoom: true,
+            keyboard: true
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: false,
-            updateWhenIdle: true,
-            updateWhenZooming: false,
-            crossOrigin: true,
-            tileSize: 256,
-            zoomOffset: 0
+            attribution: '&copy; OpenStreetMap contributors',
+            updateWhenIdle: true
         }).addTo(map);
 
         var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -358,33 +354,8 @@ window.addEventListener('load', function() {
             .openPopup();
 
         setTimeout(function() {
-            if (map) {
-                map.invalidateSize();
-                map._onResize();
-            }
+            map.invalidateSize();
         }, 100);
-
-        // Additional resize for hidden tabs - multiple calls for reliability
-        setTimeout(function() {
-            if (map) {
-                map.invalidateSize();
-                map._onResize();
-            }
-        }, 300);
-
-        setTimeout(function() {
-            if (map) {
-                map.invalidateSize();
-                map._onResize();
-            }
-        }, 600);
-
-        setTimeout(function() {
-            if (map) {
-                map.invalidateSize();
-                map._onResize();
-            }
-        }, 1000);
     }
 
     // Get address from coordinates
