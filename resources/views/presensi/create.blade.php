@@ -373,7 +373,6 @@ $(document).ready(function() {
                     <i class="bx bx-check-circle me-3 fs-4"></i>
                     <div>
                         <strong>Lokasi berhasil didapatkan!</strong>
-                        <br><small class="text-muted">Akurasi: ${position.coords.accuracy ? Math.round(position.coords.accuracy) + ' meter' : 'Tidak diketahui'}</small>
                     </div>
                 </div>
             `);
