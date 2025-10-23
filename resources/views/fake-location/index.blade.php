@@ -3,6 +3,11 @@
 @section('title')Deteksi Fake Location Presensi@endsection
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('title') Deteksi Fake Location @endslot
+@endcomponent
+
 <div class="row">
     <div class="col-12">
         <div class="card">
