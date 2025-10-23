@@ -105,25 +105,36 @@ class PresensiController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Deteksi fake GPS dengan analisis koordinat yang sama persis
+        // Deteksi fake GPS dengan analisis 2 koordinat yang sama persis
         if ($request->location_readings) {
             $locationReadings = json_decode($request->location_readings, true);
 
-            // Jika hanya ada 1 reading, tidak bisa deteksi fake GPS
-            if (count($locationReadings) >= 2) {
-                $fakeGpsCheck = $this->checkFakeGpsByMultipleReadings($locationReadings);
-                if ($fakeGpsCheck['is_fake']) {
-                    \Log::warning('Fake GPS detected - identical coordinates in multiple readings', [
+            // Jika ada 2 readings, cek apakah koordinat sama persis
+            if (count($locationReadings) == 2) {
+                $reading1 = $locationReadings[0];
+                $reading2 = $locationReadings[1];
+
+                // Cek apakah latitude dan longitude sama persis
+                $isIdentical = (
+                    abs($reading1['latitude'] - $reading2['latitude']) < 0.000001 &&
+                    abs($reading1['longitude'] - $reading2['longitude']) < 0.000001
+                );
+
+                if ($isIdentical) {
+                    \Log::warning('Fake GPS detected - identical coordinates in 2 readings', [
                         'user_id' => $user->id,
                         'user_name' => $user->name,
-                        'analysis' => $fakeGpsCheck
+                        'reading1' => $reading1,
+                        'reading2' => $reading2,
+                        'time_diff' => $reading2['timestamp'] - $reading1['timestamp']
                     ]);
 
                     // Jika terdeteksi fake GPS, tetap izinkan presensi tapi tandai sebagai fake location
                     $isFakeLocation = true;
                     $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
                         'fake_gps_detected' => true,
-                        'fake_gps_analysis' => $fakeGpsCheck
+                        'fake_gps_reason' => 'Koordinat latitude dan longitude sama persis dalam 2 pengukuran',
+                        'readings' => $locationReadings
                     ]);
                 }
             }
