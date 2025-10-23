@@ -87,7 +87,7 @@
                 @endphp
                 @if($presensiAllowed)
                 <li>
-                    <a href="{{ route('presensi.index') }}" class="waves-effect">
+                    <a href="{{ route('mobile.presensi') }}" class="waves-effect">
                         <i class="bx bx-check-square"></i>
                         <span>Presensi</span>
                     </a>

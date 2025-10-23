@@ -226,7 +226,7 @@
 
                 <!-- Action Button -->
                 <div class="text-center">
-                    <a href="{{ route('presensi.index') }}" class="btn btn-success btn-lg w-100">
+                    <a href="{{ route('mobile.presensi') }}" class="btn btn-success btn-lg w-100">
                         <i class="mdi mdi-eye me-2"></i>
                         Lihat Detail Presensi
                     </a>

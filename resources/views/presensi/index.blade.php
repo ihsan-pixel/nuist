@@ -34,7 +34,7 @@
                 <div class="mb-3">
                     <div class="row g-2">
                         <div class="col-6">
-                            <a href="{{ route('presensi.create') }}" class="btn btn-primary btn-lg w-100 py-3">
+                            <a href="{{ route('mobile.presensi') }}" class="btn btn-primary btn-lg w-100 py-3">
                                 <i class="bx bx-plus me-2"></i>Presensi Hari Ini
                             </a>
                         </div>
