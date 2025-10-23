@@ -224,15 +224,32 @@
 <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script>
-    $(document).ready(function() {
-        var isSuperAdmin = "{{ auth()->user()->role }}" === "super_admin";
-        $('#datatable-buttons').DataTable({
-            pageLength: isSuperAdmin ? -1 : 10,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            responsive: true,
-            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
-        });
+$(document).ready(function() {
+    var isSuperAdmin = "{{ auth()->user()->role }}" === "super_admin";
+    $('#datatable-buttons').DataTable({
+        pageLength: isSuperAdmin ? -1 : 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        responsive: true,
+        buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
     });
+
+    // Get initial location when page loads
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            // Store first location reading in sessionStorage
+            sessionStorage.setItem('first_latitude', position.coords.latitude);
+            sessionStorage.setItem('first_longitude', position.coords.longitude);
+            sessionStorage.setItem('first_timestamp', Date.now());
+            console.log('First location stored:', position.coords.latitude, position.coords.longitude);
+        }, function(error) {
+            console.log('Error getting first location:', error.message);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
+    }
+});
 </script>
 @endsection
 
