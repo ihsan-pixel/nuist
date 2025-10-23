@@ -142,75 +142,6 @@ class MobileController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Analisis fake location detection dengan 2 readings
-        if ($request->has('location_readings')) {
-            $locationReadings = json_decode($request->location_readings, true);
-
-            if (count($locationReadings) >= 2) {
-                $reading1 = $locationReadings[0];
-                $reading2 = $locationReadings[1];
-
-                // Calculate distance between the two readings
-                $distance12 = $this->calculateDistance(
-                    $reading1['latitude'], $reading1['longitude'],
-                    $reading2['latitude'], $reading2['longitude']
-                );
-
-                $issues = [];
-                $severity = 0;
-
-                // Check if both readings are identical (within 1 meter)
-                if ($distance12 < 0.001) {
-                    $issues[] = 'Kedua pembacaan lokasi identik';
-                    $severity += 8;
-                }
-
-                // Check if readings are too close together (within 10 meters)
-                if ($distance12 < 0.01) {
-                    $issues[] = 'Pembacaan 1 dan 2 terlalu dekat (< 10m)';
-                    $severity += 2;
-                }
-
-                // Check for suspicious time difference (should be reasonable for button click)
-                $timeDiff = abs($reading2['timestamp'] - $reading1['timestamp']) / 1000; // seconds
-                if ($timeDiff < 1) {
-                    $issues[] = 'Waktu pembacaan terlalu cepat (< 1 detik)';
-                    $severity += 1;
-                }
-                if ($timeDiff > 30) {
-                    $issues[] = 'Waktu pembacaan terlalu lama (> 30 detik)';
-                    $severity += 1;
-                }
-
-                $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
-                    'issues' => $issues,
-                    'severity' => $severity,
-                    'severity_label' => $this->getSeverityLabel($severity),
-                    'checked_at' => Carbon::now('Asia/Jakarta')->toISOString(),
-                    'location_data' => [
-                        'latitude' => $request->latitude,
-                        'longitude' => $request->longitude,
-                        'accuracy' => $request->accuracy,
-                        'altitude' => $request->altitude,
-                        'speed' => $request->speed,
-                        'device_info' => $request->device_info,
-                    ],
-                    'distances' => [
-                        'reading1_reading2' => $distance12
-                    ]
-                ]);
-
-                if ($severity >= 5) {
-                    $isFakeLocation = true;
-                }
-            }
-        }
-
-        // Analisis fake location sebelum validasi poligon
-        $additionalFakeLocationAnalysis = $this->analyzeFakeLocation($request, $user, $madrasah, $madrasahTambahan);
-        $isFakeLocation = $isFakeLocation || $additionalFakeLocationAnalysis['is_fake'];
-        $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, $additionalFakeLocationAnalysis);
-
         // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
         $isWithinPolygon = false;
         $validMadrasah = null;
@@ -256,16 +187,7 @@ class MobileController extends Controller
             ], 400);
         }
 
-        // Jika terdeteksi fake location, tetap izinkan presensi tapi log untuk monitoring
-        // Super admin dapat memeriksa di menu deteksi fake location
-        if ($isFakeLocation) {
-            \Illuminate\Support\Facades\Log::warning('Fake location detected - presensi allowed but flagged', [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'madrasah' => $madrasah ? $madrasah->name : 'N/A',
-                'analysis' => $fakeLocationAnalysis
-            ]);
-        }
+        // Fake location detection disabled for mobile presensi
 
         // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
         if ($user->pemenuhan_beban_kerja_lain) {
@@ -336,8 +258,6 @@ class MobileController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
-                'is_fake_location' => $isFakeLocation,
-                'fake_location_analysis' => $isFakeLocation ? $fakeLocationAnalysis : null,
                 'accuracy' => $request->accuracy,
                 'altitude' => $request->altitude,
                 'speed' => $request->speed,
@@ -387,8 +307,6 @@ class MobileController extends Controller
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                     'lokasi' => $request->lokasi,
-                    'is_fake_location' => $isFakeLocation,
-                    'fake_location_analysis' => $isFakeLocation ? $fakeLocationAnalysis : null,
                     'accuracy' => $request->accuracy,
                     'altitude' => $request->altitude,
                     'speed' => $request->speed,
@@ -435,173 +353,7 @@ class MobileController extends Controller
         }
     }
 
-    /**
-     * Analyze location data for fake location indicators
-     * @param Request $request
-     * @param User $user
-     * @param Madrasah|null $madrasah
-     * @param Madrasah|null $madrasahTambahan
-     * @return array
-     */
-    private function analyzeFakeLocation(Request $request, $user, $madrasah, $madrasahTambahan)
-    {
-        $issues = [];
-        $severity = 0;
 
-        // Check 1: Invalid coordinates (0,0 or default coordinates)
-        if (($request->latitude == 0 && $request->longitude == 0) ||
-            ($request->latitude == -7.7956 && $request->longitude == 110.3695)) {
-            $issues[] = 'Koordinat default atau tidak valid (0,0 atau koordinat template)';
-            $severity += 3;
-        }
-
-        // Check 2: Suspicious accuracy (too perfect or too low)
-        if ($request->accuracy !== null) {
-            if ($request->accuracy == 0) {
-                $issues[] = 'Akurasi GPS tidak valid (0 meter)';
-                $severity += 2;
-            } elseif ($request->accuracy > 100) {
-                $issues[] = 'Akurasi GPS terlalu rendah (' . $request->accuracy . ' meter)';
-                $severity += 1;
-            }
-        }
-
-        // Check 3: Suspicious speed (moving too fast for presensi)
-        if ($request->speed !== null && $request->speed > 50) { // > 50 m/s = 180 km/h
-            $issues[] = 'Kecepatan terlalu tinggi untuk aktivitas presensi (' . round($request->speed * 3.6, 1) . ' km/h)';
-            $severity += 2;
-        }
-
-        // Check 4: Altitude check (suspicious if too high/low for school area)
-        if ($request->altitude !== null) {
-            if ($request->altitude < -100 || $request->altitude > 3000) {
-                $issues[] = 'Ketinggian lokasi tidak wajar (' . $request->altitude . ' meter)';
-                $severity += 1;
-            }
-        }
-
-        // Check 5: Device info analysis
-        if ($request->device_info) {
-            $suspiciousDevicePatterns = [
-                '/emulator/i',
-                '/fake/i',
-                '/mock/i',
-                '/test/i',
-                '/virtual/i'
-            ];
-
-            foreach ($suspiciousDevicePatterns as $pattern) {
-                if (preg_match($pattern, $request->device_info)) {
-                    $issues[] = 'Informasi perangkat mencurigakan';
-                    $severity += 2;
-                    break;
-                }
-            }
-        }
-
-        // Check 6: Location consistency with previous presensi
-        $previousPresensi = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', '<', Carbon::now('Asia/Jakarta')->toDateString())
-            ->orderBy('tanggal', 'desc')
-            ->first();
-
-        if ($previousPresensi && $previousPresensi->latitude && $previousPresensi->longitude) {
-            $distance = $this->calculateDistance(
-                $previousPresensi->latitude,
-                $previousPresensi->longitude,
-                $request->latitude,
-                $request->longitude
-            );
-
-            // If distance from previous location is suspiciously far (>500km in one day)
-            if ($distance > 500) {
-                $issues[] = 'Jarak dari lokasi presensi sebelumnya terlalu jauh (' . round($distance, 1) . ' km)';
-                $severity += 1;
-            }
-        }
-
-        // Check 7: Time-based anomalies (presensi at impossible times)
-        $now = Carbon::now('Asia/Jakarta');
-        $hour = $now->hour;
-
-        // Suspicious if presensi at 3-5 AM (very unlikely for school)
-        if ($hour >= 3 && $hour <= 5) {
-            $issues[] = 'Waktu presensi pada jam yang tidak wajar (' . $hour . ':00)';
-            $severity += 1;
-        }
-
-        // Check 8: Location name analysis
-        if ($request->lokasi) {
-            $suspiciousLocationPatterns = [
-                '/\b(test|dummy|fake|contoh|sample)\b/i',
-                '/\b(unknown|tidak diketahui|belum diisi)\b/i',
-                '/\d{1,2}\.\d{6},\s*\d{1,2}\.\d{6}/', // Raw coordinates in location field
-                '/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/', // Exact coordinate format
-            ];
-
-            foreach ($suspiciousLocationPatterns as $pattern) {
-                if (preg_match($pattern, $request->lokasi)) {
-                    $issues[] = 'Nama lokasi mencurigakan atau berisi koordinat mentah';
-                    $severity += 1;
-                    break;
-                }
-            }
-        }
-
-        // Check 9: Multiple presensi attempts in short time (possible automation)
-        $recentAttempts = Presensi::where('user_id', $user->id)
-            ->where('created_at', '>=', Carbon::now('Asia/Jakarta')->subMinutes(5))
-            ->count();
-
-        if ($recentAttempts > 2) {
-            $issues[] = 'Terlalu banyak percobaan presensi dalam waktu singkat';
-            $severity += 2;
-        }
-
-        // Check 10: Distance from madrasah center (if coordinates available)
-        if ($madrasah && $madrasah->latitude && $madrasah->longitude) {
-            $distanceFromSchool = $this->calculateDistance(
-                $madrasah->latitude,
-                $madrasah->longitude,
-                $request->latitude,
-                $request->longitude
-            );
-
-            // If distance is suspiciously far (>100km), flag it
-            if ($distanceFromSchool > 100) {
-                $issues[] = 'Jarak dari pusat madrasah terlalu jauh (' . round($distanceFromSchool, 2) . ' km)';
-                $severity += 2;
-            }
-        }
-
-        return [
-            'is_fake' => count($issues) > 0,
-            'issues' => $issues,
-            'severity' => $severity,
-            'severity_label' => $this->getSeverityLabel($severity),
-            'checked_at' => Carbon::now('Asia/Jakarta')->toISOString(),
-            'location_data' => [
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'accuracy' => $request->accuracy,
-                'altitude' => $request->altitude,
-                'speed' => $request->speed,
-                'device_info' => $request->device_info,
-            ]
-        ];
-    }
-
-    /**
-     * Get severity label based on score
-     */
-    private function getSeverityLabel($severity)
-    {
-        if ($severity >= 8) return 'Sangat Tinggi';
-        if ($severity >= 5) return 'Tinggi';
-        if ($severity >= 3) return 'Sedang';
-        if ($severity >= 1) return 'Rendah';
-        return 'Tidak';
-    }
 
     /**
      * Get presensi time ranges based on madrasah hari_kbm and current day.
