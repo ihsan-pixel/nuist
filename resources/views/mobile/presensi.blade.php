@@ -185,6 +185,31 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+}
+.map-container .leaflet-control-container {
+    font-size: 14px !important;
+}
+.map-container .leaflet-control-zoom-in,
+.map-container .leaflet-control-zoom-out {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 30px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    margin-bottom: 2px !important;
+}
+.map-container .leaflet-control-zoom-in:hover,
+.map-container .leaflet-control-zoom-out:hover {
+    background-color: #0056b3 !important;
+}
+.map-container .leaflet-control-attribution {
+    font-size: 10px !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
 }
 .info-item {
     transition: all 0.2s ease;
@@ -255,6 +280,9 @@ window.addEventListener('load', function() {
                 center: [latitude, longitude],
                 zoom: 15,
                 zoomControl: true,
+                zoomControlOptions: {
+                    position: 'topright'
+                },
                 scrollWheelZoom: true,
                 doubleClickZoom: true,
                 boxZoom: true,
@@ -295,6 +323,9 @@ window.addEventListener('load', function() {
                 center: [-7.7956, 110.3695],
                 zoom: 10,
                 zoomControl: true,
+                zoomControlOptions: {
+                    position: 'topright'
+                },
                 scrollWheelZoom: true,
                 doubleClickZoom: true,
                 boxZoom: true,
@@ -337,6 +368,9 @@ window.addEventListener('load', function() {
             center: [-7.7956, 110.3695],
             zoom: 10,
             zoomControl: true,
+            zoomControlOptions: {
+                position: 'topright'
+            },
             scrollWheelZoom: true,
             doubleClickZoom: true,
             boxZoom: true,
