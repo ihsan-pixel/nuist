@@ -105,23 +105,27 @@ class PresensiController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Deteksi fake GPS dengan multiple location checks
+        // Deteksi fake GPS dengan analisis koordinat yang sama persis
         if ($request->location_readings) {
             $locationReadings = json_decode($request->location_readings, true);
-            $fakeGpsCheck = $this->checkFakeGpsByMultipleReadings($locationReadings);
-            if ($fakeGpsCheck['is_fake']) {
-                \Log::warning('Fake GPS detected - identical coordinates in multiple readings', [
-                    'user_id' => $user->id,
-                    'user_name' => $user->name,
-                    'analysis' => $fakeGpsCheck
-                ]);
 
-                // Jika terdeteksi fake GPS, tetap izinkan presensi tapi tandai sebagai fake location
-                $isFakeLocation = true;
-                $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
-                    'fake_gps_detected' => true,
-                    'fake_gps_analysis' => $fakeGpsCheck
-                ]);
+            // Jika hanya ada 1 reading, tidak bisa deteksi fake GPS
+            if (count($locationReadings) >= 2) {
+                $fakeGpsCheck = $this->checkFakeGpsByMultipleReadings($locationReadings);
+                if ($fakeGpsCheck['is_fake']) {
+                    \Log::warning('Fake GPS detected - identical coordinates in multiple readings', [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'analysis' => $fakeGpsCheck
+                    ]);
+
+                    // Jika terdeteksi fake GPS, tetap izinkan presensi tapi tandai sebagai fake location
+                    $isFakeLocation = true;
+                    $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
+                        'fake_gps_detected' => true,
+                        'fake_gps_analysis' => $fakeGpsCheck
+                    ]);
+                }
             }
         }
 
