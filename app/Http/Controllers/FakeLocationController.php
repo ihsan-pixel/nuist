@@ -99,7 +99,7 @@ class FakeLocationController extends Controller
                     $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
 
                     if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
-                        $analysis['issues'][] = 'Presensi diluar waktu yang ditentukan (' . $timeRanges['masuk_start'] . ' - ' . $timeRanges['masuk_end'] . ')';
+                        $analysis['issues'][] = 'Presensi diluar waktu yang ditentukan';
                     }
                 }
 
