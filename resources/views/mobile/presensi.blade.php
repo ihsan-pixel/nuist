@@ -156,7 +156,7 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 250px !important;
+    height: 200px !important;
     width: 100% !important;
     background: #f8f9fa;
     position: relative;
@@ -189,7 +189,7 @@
 .leaflet-container {
     background: #f8f9fa !important;
     font-family: inherit;
-    font-size: 12px !important;
+    font-size: 10px !important;
     height: 100% !important;
     width: 100% !important;
     position: relative !important;
