@@ -62,6 +62,7 @@ class MobileController extends Controller
             'izin',
             'sakit',
             'alpha',
+            'totalBasis',
             'todayPresensi',
             'todaySchedules'
         ));
