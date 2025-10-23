@@ -345,7 +345,7 @@ $(document).ready(function() {
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Mendapatkan lokasi pengguna (Reading 2) ketika masuk ke halaman create
+    // Mendapatkan lokasi pengguna (Reading 1) ketika masuk ke halaman create
     if (navigator.geolocation) {
         // Tampilkan loading
         $('#location-info').html(`
@@ -362,10 +362,10 @@ $(document).ready(function() {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
 
-            // Store reading 2 in sessionStorage
-            sessionStorage.setItem('reading2_latitude', position.coords.latitude);
-            sessionStorage.setItem('reading2_longitude', position.coords.longitude);
-            sessionStorage.setItem('reading2_timestamp', Date.now());
+            // Store reading 1 in sessionStorage (menu entry reading)
+            sessionStorage.setItem('reading1_latitude', position.coords.latitude);
+            sessionStorage.setItem('reading1_longitude', position.coords.longitude);
+            sessionStorage.setItem('reading1_timestamp', Date.now());
 
             $('#latitude').val(latitude.toFixed(6));
             $('#longitude').val(longitude.toFixed(6));
@@ -416,6 +416,28 @@ $(document).ready(function() {
                     </div>
                 </div>
             `);
+
+            // Initialize map with default location on error
+            var map = L.map('map', {
+                center: [-7.7956, 110.3695],
+                zoom: 10,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors',
+                updateWhenIdle: true
+            }).addTo(map);
+
+            var marker = L.marker([-7.7956, 110.3695]).addTo(map)
+                .bindPopup('Tidak dapat mendapatkan lokasi Anda')
+                .openPopup();
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
         }, {
             enableHighAccuracy: true,
             timeout: 10000, // Timeout 10 detik
@@ -431,6 +453,28 @@ $(document).ready(function() {
                 </div>
             </div>
         `);
+
+        // Initialize map with default location
+        var map = L.map('map', {
+            center: [-7.7956, 110.3695],
+            zoom: 10,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors',
+            updateWhenIdle: true
+        }).addTo(map);
+
+        var marker = L.marker([-7.7956, 110.3695]).addTo(map)
+            .bindPopup('Browser tidak mendukung GPS')
+            .openPopup();
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
     }
 
     // Fungsi untuk mendapatkan alamat dari koordinat
@@ -464,28 +508,24 @@ $(document).ready(function() {
         // Disable button and show loading
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-        // Get third location reading (Reading 3) when button is clicked
+        // Get second location reading (Reading 2) when button is clicked
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                // Get readings from sessionStorage
+                // Get reading1 from sessionStorage
                 let reading1Lat = sessionStorage.getItem('reading1_latitude');
                 let reading1Lng = sessionStorage.getItem('reading1_longitude');
                 let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
 
-                let reading2Lat = sessionStorage.getItem('reading2_latitude');
-                let reading2Lng = sessionStorage.getItem('reading2_longitude');
-                let reading2Timestamp = sessionStorage.getItem('reading2_timestamp');
+                // Create second reading
+                let reading2Lat = position.coords.latitude;
+                let reading2Lng = position.coords.longitude;
+                let reading2Timestamp = Date.now();
 
-                // Create third reading
-                let reading3Lat = position.coords.latitude;
-                let reading3Lng = position.coords.longitude;
-                let reading3Timestamp = Date.now();
-
-                // Prepare data for AJAX with all three readings
+                // Prepare data for AJAX with two readings
                 let postData = {
                     _token: '{{ csrf_token() }}',
-                    latitude: reading3Lat,
-                    longitude: reading3Lng,
+                    latitude: reading2Lat,
+                    longitude: reading2Lng,
                     lokasi: lokasi,
                     accuracy: position.coords.accuracy,
                     altitude: position.coords.altitude,
@@ -498,14 +538,9 @@ $(document).ready(function() {
                             timestamp: parseInt(reading1Timestamp)
                         },
                         {
-                            latitude: parseFloat(reading2Lat),
-                            longitude: parseFloat(reading2Lng),
-                            timestamp: parseInt(reading2Timestamp)
-                        },
-                        {
-                            latitude: reading3Lat,
-                            longitude: reading3Lng,
-                            timestamp: reading3Timestamp
+                            latitude: reading2Lat,
+                            longitude: reading2Lng,
+                            timestamp: reading2Timestamp
                         }
                     ])
                 };

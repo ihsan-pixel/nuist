@@ -158,39 +158,139 @@
 $(document).ready(function() {
     let latitude, longitude, lokasi;
 
-    // Initialize map without getting location on page load
-    $('#location-info').html(`
-        <div class="alert alert-info border-0 rounded-3">
-            <div class="d-flex align-items-center">
-                <i class="bx bx-info-circle me-3 fs-4"></i>
-                <div>
-                    <strong>Klik tombol presensi untuk mendapatkan lokasi</strong>
-                    <br><small class="text-muted">Pastikan GPS aktif</small>
+    // Get location when page loads (reading1)
+    if (navigator.geolocation) {
+        $('#location-info').html(`
+            <div class="alert alert-info border-0 rounded-3">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-loader-alt bx-spin me-3 fs-4"></i>
+                    <div>
+                        <strong>Mendapatkan lokasi Anda...</strong>
+                        <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
+                    </div>
                 </div>
             </div>
-        </div>
-    `);
+        `);
 
-    // Initialize map with default location
-    var map = L.map('map', {
-        center: [-7.7956, 110.3695], // Default to Yogyakarta area
-        zoom: 10,
-        zoomControl: true,
-        scrollWheelZoom: false
-    });
+        navigator.geolocation.getCurrentPosition(function(position) {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+            // Store reading1 in sessionStorage (menu entry reading)
+            sessionStorage.setItem('reading1_latitude', position.coords.latitude);
+            sessionStorage.setItem('reading1_longitude', position.coords.longitude);
+            sessionStorage.setItem('reading1_timestamp', Date.now());
 
-    var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-        .bindPopup('Peta akan menampilkan lokasi Anda saat presensi')
-        .openPopup();
+            $('#latitude').val(latitude.toFixed(6));
+            $('#longitude').val(longitude.toFixed(6));
 
-    setTimeout(function() {
-        map.invalidateSize();
-    }, 100);
+            // Get address
+            getAddressFromCoordinates(latitude, longitude);
+
+            $('#location-info').html(`
+                <div class="alert alert-success border-0 rounded-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-check-circle me-3 fs-4"></i>
+                        <div>
+                            <strong>Lokasi berhasil didapatkan!</strong>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            // Initialize map with user location
+            var map = L.map('map', {
+                center: [latitude, longitude],
+                zoom: 15,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([latitude, longitude]).addTo(map)
+                .bindPopup('Lokasi Anda saat ini')
+                .openPopup();
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+
+        }, function(error) {
+            $('#location-info').html(`
+                <div class="alert alert-danger border-0 rounded-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-3 fs-4"></i>
+                        <div>
+                            <strong>Gagal mendapatkan lokasi</strong>
+                            <br><small class="text-muted">${error.message}</small>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            // Initialize map with default location on error
+            var map = L.map('map', {
+                center: [-7.7956, 110.3695],
+                zoom: 10,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([-7.7956, 110.3695]).addTo(map)
+                .bindPopup('Tidak dapat mendapatkan lokasi Anda')
+                .openPopup();
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 30000
+        });
+    } else {
+        $('#location-info').html(`
+            <div class="alert alert-danger border-0 rounded-3">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Browser tidak mendukung GPS</strong>
+                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        // Initialize map with default location
+        var map = L.map('map', {
+            center: [-7.7956, 110.3695],
+            zoom: 10,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker = L.marker([-7.7956, 110.3695]).addTo(map)
+            .bindPopup('Browser tidak mendukung GPS')
+            .openPopup();
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
+    }
 
     // Get address from coordinates
     function getAddressFromCoordinates(lat, lng) {
@@ -225,8 +325,8 @@ $(document).ready(function() {
         // Get second location reading (button click)
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                latitude = position.coords.latitude;
-                longitude = position.coords.longitude;
+                let reading2Lat = position.coords.latitude;
+                let reading2Lng = position.coords.longitude;
 
                 // Store reading 2 in sessionStorage
                 sessionStorage.setItem('reading2_latitude', position.coords.latitude);
@@ -237,8 +337,6 @@ $(document).ready(function() {
                 let reading1Lng = sessionStorage.getItem('reading1_longitude');
                 let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
 
-                let reading2Lat = position.coords.latitude;
-                let reading2Lng = position.coords.longitude;
                 let reading2Timestamp = Date.now();
 
                 let postData = {
@@ -263,28 +361,6 @@ $(document).ready(function() {
                         }
                     ])
                 };
-
-                // Update UI with location data
-                $('#latitude').val(latitude.toFixed(6));
-                $('#longitude').val(longitude.toFixed(6));
-
-                // Get address
-                getAddressFromCoordinates(latitude, longitude);
-
-                // Update map
-                map.setView([latitude, longitude], 15);
-                marker.setLatLng([latitude, longitude]).setPopupContent('Lokasi Anda saat presensi').openPopup();
-
-                $('#location-info').html(`
-                    <div class="alert alert-success border-0 rounded-3">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-3 fs-4"></i>
-                            <div>
-                                <strong>Lokasi berhasil didapatkan!</strong>
-                            </div>
-                        </div>
-                    </div>
-                `);
 
                 $.ajax({
                     url: '{{ route("mobile.presensi.store") }}',
