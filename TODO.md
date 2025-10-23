@@ -10,3 +10,4 @@
 - [x] Change dashboard colors to match login page theme (green gradient)
 - [x] Make welcome section horizontal layout (avatar + text side by side)
 - [x] Make stats cards smaller and fit 4 in one row (col-3)
+- [x] Reduce font size of stats numbers to fs-6

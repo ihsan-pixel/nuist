@@ -101,7 +101,7 @@
             <div class="card text-center py-2">
                 <div class="card-body px-1">
                     <i class="bx bx-check-circle text-success fs-4 mb-1"></i>
-                    <h6 class="mb-0">{{ $kehadiranPercent }}%</h6>
+                    <h6 class="mb-0 fs-6">{{ $kehadiranPercent }}%</h6>
                     <small class="text-muted">Kehadiran</small>
                 </div>
             </div>
@@ -110,7 +110,7 @@
             <div class="card text-center py-2">
                 <div class="card-body px-1">
                     <i class="bx bx-calendar text-primary fs-4 mb-1"></i>
-                    <h6 class="mb-0">{{ $totalBasis }}</h6>
+                    <h6 class="mb-0 fs-6">{{ $totalBasis }}</h6>
                     <small class="text-muted">Total Presensi</small>
                 </div>
             </div>
@@ -119,7 +119,7 @@
             <div class="card text-center py-2">
                 <div class="card-body px-1">
                     <i class="bx bx-time text-warning fs-4 mb-1"></i>
-                    <h6 class="mb-0">{{ $izin }}</h6>
+                    <h6 class="mb-0 fs-6">{{ $izin }}</h6>
                     <small class="text-muted">Total Izin</small>
                 </div>
             </div>
@@ -128,7 +128,7 @@
             <div class="card text-center py-2">
                 <div class="card-body px-1">
                     <i class="bx bx-plus-medical text-danger fs-4 mb-1"></i>
-                    <h6 class="mb-0">{{ $sakit }}</h6>
+                    <h6 class="mb-0 fs-6">{{ $sakit }}</h6>
                     <small class="text-muted">Total Sakit</small>
                 </div>
             </div>
