@@ -61,91 +61,120 @@
 
         <!-- Map Container -->
         <div class="mb-4">
-            <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border">
-                <div id="map"></div>
+            <div class="d-flex align-items-center mb-3">
+                <i class="bx bx-map text-primary me-2"></i>
+                <label class="form-label fw-semibold mb-0">Lokasi Anda Saat Ini</label>
+            </div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm">
+                <div id="map" style="height: 280px; width: 100%;"></div>
             </div>
         </div>
 
         <!-- Coordinates -->
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <label class="form-label small fw-semibold">Latitude</label>
-                <input type="text" id="latitude" class="form-control form-control-lg"
-                       placeholder="Latitude" readonly>
+        <div class="mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bx bx-target-lock text-success me-2"></i>
+                <label class="form-label fw-semibold mb-0">Koordinat Lokasi</label>
             </div>
-            <div class="col-6">
-                <label class="form-label small fw-semibold">Longitude</label>
-                <input type="text" id="longitude" class="form-control form-control-lg"
-                       placeholder="Longitude" readonly>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bx bx-up text-muted"></i>
+                        </span>
+                        <input type="text" id="latitude" class="form-control form-control-lg border-start-0 ps-0"
+                               placeholder="Latitude" readonly>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="bx bx-right text-muted"></i>
+                        </span>
+                        <input type="text" id="longitude" class="form-control form-control-lg border-start-0 ps-0"
+                               placeholder="Longitude" readonly>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Address -->
         <div class="mb-4">
-            <label class="form-label fw-semibold mb-2">Alamat Lokasi</label>
-            <input type="text" id="lokasi" class="form-control form-control-lg"
-                   placeholder="Alamat akan muncul otomatis" readonly>
+            <div class="d-flex align-items-center mb-3">
+                <i class="bx bx-home text-info me-2"></i>
+                <label class="form-label fw-semibold mb-0">Alamat Lokasi</label>
+            </div>
+            <div class="input-group">
+                <span class="input-group-text bg-light">
+                    <i class="bx bx-map-pin text-muted"></i>
+                </span>
+                <input type="text" id="lokasi" class="form-control form-control-lg"
+                       placeholder="Alamat akan muncul otomatis" readonly>
+            </div>
         </div>
 
         <!-- Presensi Button -->
-        <button type="button" id="btn-presensi"
-                class="btn btn-{{ $isHoliday ? 'secondary' : 'primary' }} btn-lg w-100 py-3 rounded-3"
-                {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
-            <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-2 fs-5"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
-        </button>
+        <div class="d-grid">
+            <button type="button" id="btn-presensi"
+                    class="btn btn-{{ $isHoliday ? 'secondary' : 'primary' }} btn-lg py-3 rounded-3 shadow-sm fw-semibold"
+                    {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
+                <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-2 fs-5"></i>
+                {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
+            </button>
+        </div>
     </div>
 </div>
 
         <!-- Time Information -->
 @if(isset($timeRanges) && $timeRanges)
 <div class="card shadow-sm mb-4">
-    <div class="card-header bg-light">
-        <h6 class="mb-0"><i class="bx bx-time me-2"></i>Jadwal Presensi</h6>
-    </div>
-    <div class="card-body">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+            <i class="bx bx-calendar-check text-warning me-2 fs-4"></i>
+            <h6 class="card-title mb-0 fw-semibold">Jadwal Presensi</h6>
+        </div>
         <div class="row g-3">
-            <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between p-3 bg-primary bg-opacity-10 rounded-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-log-in-circle text-primary me-2 fs-4"></i>
-                        <div>
-                            <h6 class="mb-0 text-primary">Presensi Masuk</h6>
-                            <small class="text-muted">{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</small>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <small class="text-muted">Terlambat setelah 07:00</small>
-                    </div>
+            <div class="col-12 col-md-6">
+                <div class="schedule-card bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-3 p-3 text-center">
+                    <i class="bx bx-log-in-circle text-primary fs-3 mb-2"></i>
+                    <h6 class="text-primary mb-2">Presensi Masuk</h6>
+                    <p class="mb-1 fw-semibold">{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
+                    <small class="text-muted">Terlambat setelah 07:00</small>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between p-3 bg-success bg-opacity-10 rounded-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-log-out-circle text-success me-2 fs-4"></i>
-                        <div>
-                            <h6 class="mb-0 text-success">Presensi Pulang</h6>
-                            <small class="text-muted">{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</small>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <small class="text-muted">Waktu pulang normal</small>
-                    </div>
+            <div class="col-12 col-md-6">
+                <div class="schedule-card bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 p-3 text-center">
+                    <i class="bx bx-log-out-circle text-success fs-3 mb-2"></i>
+                    <h6 class="text-success mb-2">Presensi Pulang</h6>
+                    <p class="mb-1 fw-semibold">{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
+                    <small class="text-muted">Waktu pulang normal</small>
                 </div>
             </div>
         </div>
+        @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
+        <div class="mt-3 p-2 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+            <small class="text-info">
+                <i class="bx bx-info-circle me-1"></i>
+                <strong>Catatan:</strong> Untuk hari Sabtu, waktu mulai presensi pulang adalah 12:00. Hari lainnya mulai pukul 13:00.
+            </small>
+        </div>
+        @endif
     </div>
+</div>
+@else
+<div class="alert alert-warning border-0 rounded-3 mb-4">
+    <i class="bx bx-info-circle me-2"></i>
+    <strong>Pengaturan Presensi:</strong> Hari KBM madrasah Anda belum diatur. Silakan hubungi administrator untuk mengaturnya.
 </div>
 @endif
 
 <!-- Important Notice -->
-<div class="alert alert-danger border-0 rounded-3">
+<div class="alert alert-danger border-0 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25">
     <div class="d-flex">
         <i class="bx bx-error-circle text-danger me-3 fs-4"></i>
         <div>
-            <strong>Penting!</strong>
-            <p class="mb-0 small">Pastikan Anda berada dalam lingkungan Madrasah/Sekolah untuk melakukan presensi.</p>
+            <strong class="text-danger">Penting!</strong>
+            <p class="mb-0 text-muted small">Pastikan Anda berada dalam lingkungan Madrasah/Sekolah untuk melakukan presensi.</p>
         </div>
     </div>
 </div>
@@ -156,56 +185,20 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 200px !important;
-    width: 100% !important;
-    background: #f8f9fa;
-    position: relative;
-    overflow: hidden !important;
-    border-radius: 8px;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box !important;
-    display: block !important;
 }
-#map {
-    height: 100% !important;
-    width: 100% !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 1;
-    border-radius: 8px;
-    box-sizing: border-box !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    display: block !important;
+.info-item {
+    transition: all 0.2s ease;
 }
-.user-location-marker {
-    background: transparent !important;
-    border: none !important;
+.info-item:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-1px);
 }
-.leaflet-container {
-    background: #f8f9fa !important;
-    font-family: inherit;
-    font-size: 10px !important;
-    height: 100% !important;
-    width: 100% !important;
-    position: relative !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    display: block !important;
+.schedule-card {
+    transition: all 0.3s ease;
 }
-.leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.leaflet-popup-tip {
-    background: white;
+.schedule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 </style>
 @endsection
@@ -257,86 +250,29 @@ window.addEventListener('load', function() {
                 </div>
             `);
 
-            // Initialize map with user location
+            // Initialize Leaflet map dengan loading yang lebih cepat
             map = L.map('map', {
                 center: [latitude, longitude],
-                zoom: 16,
-                zoomControl: false,
-                scrollWheelZoom: false,
-                attributionControl: false,
-                fadeAnimation: false,
-                zoomAnimation: false,
-                markerZoomAnimation: false,
-                preferCanvas: true,
-                renderer: L.canvas(),
-                boxZoom: false,
-                doubleClickZoom: false,
-                keyboard: false
+                zoom: 15,
+                zoomControl: true,
+                scrollWheelZoom: false
             });
 
+            // Gunakan tile layer yang lebih cepat loading
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: false,
-                updateWhenIdle: true,
-                updateWhenZooming: false,
-                crossOrigin: true,
-                tileSize: 256,
-                zoomOffset: 0
+                attribution: '&copy; OpenStreetMap contributors',
+                updateWhenIdle: true
             }).addTo(map);
 
-            // Add user location marker with custom icon
-            var userIcon = L.divIcon({
-                className: 'user-location-marker',
-                html: '<div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-
-            var marker = L.marker([latitude, longitude], {icon: userIcon}).addTo(map)
-                .bindPopup('<div class="text-center"><strong>Lokasi Anda</strong><br/>' + latitude.toFixed(6) + ', ' + longitude.toFixed(6) + '</div>')
+            var marker = L.marker([latitude, longitude]).addTo(map)
+                .bindPopup('Lokasi Anda saat ini')
                 .openPopup();
 
-            // Add accuracy circle if available
-            if (position.coords.accuracy) {
-                L.circle([latitude, longitude], {
-                    color: '#007bff',
-                    fillColor: '#007bff',
-                    fillOpacity: 0.1,
-                    radius: position.coords.accuracy
-                }).addTo(map);
-            }
-
-            // Force map to resize and center on location
+            // Enable map setelah loading selesai
             setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map.setView([latitude, longitude], 16);
-                    // Force a complete redraw
-                    map._onResize();
-                }
+                map.invalidateSize();
             }, 100);
-
-            // Additional resize for hidden tabs - multiple calls for reliability
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 300);
-
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 600);
-
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 1000);
 
         }, function(error) {
             $('#location-info').html(`
@@ -354,62 +290,24 @@ window.addEventListener('load', function() {
             // Initialize map with default location on error
             map = L.map('map', {
                 center: [-7.7956, 110.3695],
-                zoom: 11,
-                zoomControl: false,
-                scrollWheelZoom: false,
-                attributionControl: false,
-                fadeAnimation: false,
-                zoomAnimation: false,
-                markerZoomAnimation: false,
-                preferCanvas: true,
-                renderer: L.canvas(),
-                boxZoom: false,
-                doubleClickZoom: false,
-                keyboard: false
+                zoom: 10,
+                zoomControl: true,
+                scrollWheelZoom: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: false,
-                updateWhenIdle: true,
-                updateWhenZooming: false,
-                crossOrigin: true,
-                tileSize: 256,
-                zoomOffset: 0
+                attribution: '&copy; OpenStreetMap contributors',
+                updateWhenIdle: true
             }).addTo(map);
 
             var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-                .bindPopup('<div class="text-center"><strong>Lokasi Tidak Dapat Didapatkan</strong><br/>Periksa pengaturan GPS Anda</div>')
+                .bindPopup('Tidak dapat mendapatkan lokasi Anda')
                 .openPopup();
 
             setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
+                map.invalidateSize();
             }, 100);
-
-            // Additional resize for hidden tabs - multiple calls for reliability
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 300);
-
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 600);
-
-            setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                    map._onResize();
-                }
-            }, 1000);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -643,95 +541,6 @@ window.addEventListener('load', function() {
     });
 });
 
-// Handle tab visibility changes for map resizing
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-        setTimeout(function() {
-            if (map && typeof map.invalidateSize === 'function') {
-                map.invalidateSize();
-                if (typeof map._onResize === 'function') map._onResize();
-            }
-        }, 100);
-        // Additional calls for reliability
-        setTimeout(function() {
-            if (map && typeof map.invalidateSize === 'function') {
-                map.invalidateSize();
-                if (typeof map._onResize === 'function') map._onResize();
-            }
-        }, 300);
-    }
-});
 
-// Handle window resize
-window.addEventListener('resize', function() {
-    setTimeout(function() {
-        if (map && typeof map.invalidateSize === 'function') {
-            map.invalidateSize();
-            if (typeof map._onResize === 'function') map._onResize();
-        }
-    }, 100);
-    // Additional calls for reliability
-    setTimeout(function() {
-        if (map && typeof map.invalidateSize === 'function') {
-            map.invalidateSize();
-            if (typeof map._onResize === 'function') map._onResize();
-        }
-    }, 300);
-});
-
-// Use MutationObserver to detect when map container becomes visible
-const mapContainerObserver = document.querySelector('.map-container');
-if (mapContainerObserver) {
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
-                setTimeout(function() {
-                    if (map && typeof map.invalidateSize === 'function') {
-                        map.invalidateSize();
-                        if (typeof map._onResize === 'function') map._onResize();
-                    }
-                }, 100);
-                // Additional calls for reliability
-                setTimeout(function() {
-                    if (map && typeof map.invalidateSize === 'function') {
-                        map.invalidateSize();
-                        if (typeof map._onResize === 'function') map._onResize();
-                    }
-                }, 300);
-            }
-        });
-    });
-
-    observer.observe(mapContainerObserver, {
-        attributes: true,
-        attributeFilter: ['style', 'class']
-    });
-}
-
-// Additional check for when map element becomes visible
-const mapElement = document.getElementById('map');
-if (mapElement) {
-    const mapObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                setTimeout(function() {
-                    if (map && typeof map.invalidateSize === 'function') {
-                        map.invalidateSize();
-                        if (typeof map._onResize === 'function') map._onResize();
-                    }
-                }, 100);
-                // Additional calls for reliability
-                setTimeout(function() {
-                    if (map && typeof map.invalidateSize === 'function') {
-                        map.invalidateSize();
-                        if (typeof map._onResize === 'function') map._onResize();
-                    }
-                }, 300);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    mapObserver.observe(mapElement);
-}
 </script>
 @endsection
