@@ -421,46 +421,136 @@ $(document).ready(function() {
             return;
         }
 
-        // Prepare data for AJAX
-        let postData = {
-            _token: '{{ csrf_token() }}',
-            latitude: latitude,
-            longitude: longitude,
-            lokasi: lokasi
-        };
-
         // Disable button and show loading
-        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memverifikasi lokasi...');
 
-        $.ajax({
-            url: '{{ route("presensi.store") }}',
-            method: 'POST',
-            data: postData,
-            success: function(response) {
-                if (response.success) {
-                    location.reload();
-                } else {
+        // Multiple location readings to detect fake GPS
+        getMultipleLocationReadings().then(function(locationData) {
+            // Prepare data for AJAX
+            let postData = {
+                _token: '{{ csrf_token() }}',
+                latitude: locationData.latitude,
+                longitude: locationData.longitude,
+                lokasi: locationData.lokasi,
+                accuracy: locationData.accuracy,
+                altitude: locationData.altitude,
+                speed: locationData.speed,
+                device_info: locationData.device_info,
+                location_readings: JSON.stringify(locationData.readings) // Send multiple readings for server-side analysis
+            };
+
+            $('#btn-presensi').html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+
+            $.ajax({
+                url: '{{ route("presensi.store") }}',
+                method: 'POST',
+                data: postData,
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Peringatan',
+                            text: response.message,
+                            confirmButtonText: 'Oke'
+                        });
+                        // Re-enable button and reset text
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> {{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                    }
+                },
+                error: function(xhr) {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Peringatan',
-                        text: response.message,
+                        icon: 'error',
+                        title: 'Kesalahan',
+                        text: xhr.responseJSON?.message || 'Terjadi kesalahan tidak diketahui',
                         confirmButtonText: 'Oke'
                     });
-                    // Re-enable button and reset text
                     $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> {{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
                 }
-            },
-            error: function(xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan',
-                    text: xhr.responseJSON?.message || 'Terjadi kesalahan tidak diketahui',
-                    confirmButtonText: 'Oke'
-                });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> {{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
-            }
+            });
+        }).catch(function(error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan',
+                text: 'Gagal memverifikasi lokasi: ' + error.message,
+                confirmButtonText: 'Oke'
+            });
+            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i> {{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
         });
     });
+
+    // Function to get multiple location readings
+    function getMultipleLocationReadings() {
+        return new Promise(function(resolve, reject) {
+            let readings = [];
+            let totalReadings = 3;
+            let delayMs = 1000; // 1 second between readings
+
+            function getReading(readingNumber) {
+                if (readingNumber >= totalReadings) {
+                    // All readings collected, resolve with data
+                    resolve({
+                        latitude: latitude,
+                        longitude: longitude,
+                        lokasi: lokasi,
+                        accuracy: readings[0]?.accuracy || null,
+                        altitude: readings[0]?.altitude || null,
+                        speed: readings[0]?.speed || null,
+                        device_info: navigator.userAgent,
+                        readings: readings
+                    });
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let reading = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            altitude: position.coords.altitude,
+                            speed: position.coords.speed,
+                            timestamp: Date.now()
+                        };
+                        readings.push(reading);
+
+                        // Update main coordinates with latest reading
+                        latitude = position.coords.latitude;
+                        longitude = position.coords.longitude;
+                        $('#latitude').val(latitude.toFixed(6));
+                        $('#longitude').val(longitude.toFixed(6));
+
+                        // Get address for the latest reading
+                        if (readingNumber === totalReadings - 1) {
+                            getAddressFromCoordinates(latitude, longitude).then(function() {
+                                // Wait before next reading
+                                setTimeout(function() {
+                                    getReading(readingNumber + 1);
+                                }, delayMs);
+                            });
+                        } else {
+                            // Wait before next reading
+                            setTimeout(function() {
+                                getReading(readingNumber + 1);
+                            }, delayMs);
+                        }
+                    },
+                    function(error) {
+                        reject(new Error('Gagal mendapatkan lokasi: ' + error.message));
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            }
+
+            // Start getting readings
+            getReading(0);
+        });
+    }
 });
 </script>
 @endsection

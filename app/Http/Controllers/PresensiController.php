@@ -86,6 +86,7 @@ class PresensiController extends Controller
             'altitude' => 'nullable|numeric',
             'speed' => 'nullable|numeric|min:0',
             'device_info' => 'nullable|string|max:255',
+            'location_readings' => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -99,6 +100,24 @@ class PresensiController extends Controller
         // Ambil data madrasah dari user yang sedang login
         $madrasah = $user->madrasah;
         $madrasahTambahan = $user->madrasahTambahan;
+
+        // Deteksi fake GPS dengan multiple location checks
+        if ($request->location_readings) {
+            $locationReadings = json_decode($request->location_readings, true);
+            $fakeGpsCheck = $this->checkFakeGpsByMultipleReadings($locationReadings);
+            if ($fakeGpsCheck['is_fake']) {
+                \Log::warning('Fake GPS detected - identical coordinates in multiple readings', [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'analysis' => $fakeGpsCheck
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Deteksi penggunaan fake GPS. Koordinat lokasi terdeteksi identik dalam beberapa pengukuran. Pastikan GPS aktif dan tidak menggunakan aplikasi pemalsu lokasi.'
+                ], 400);
+            }
+        }
 
         // Analisis fake location sebelum validasi poligon
         $fakeLocationAnalysis = $this->analyzeFakeLocation($request, $user, $madrasah, $madrasahTambahan);
@@ -402,6 +421,60 @@ class PresensiController extends Controller
             'masuk_end' => $masukEnd,
             'pulang_start' => $pulangStart,
             'pulang_end' => $pulangEnd,
+        ];
+    }
+
+    /**
+     * Check for fake GPS by analyzing multiple location readings
+     * @param array $readings
+     * @return array
+     */
+    private function checkFakeGpsByMultipleReadings(array $readings)
+    {
+        if (empty($readings) || count($readings) < 2) {
+            return [
+                'is_fake' => false,
+                'readings_count' => count($readings),
+                'identical_count' => 0,
+                'readings' => $readings,
+                'time_span' => 0,
+                'reason' => 'Insufficient readings for analysis'
+            ];
+        }
+
+        $identicalCount = 0;
+        $firstReading = $readings[0];
+
+        // Analyze readings for identical coordinates
+        foreach ($readings as $reading) {
+            if (isset($reading['latitude']) && isset($reading['longitude'])) {
+                // Check if coordinates are identical (within a very small tolerance for floating point)
+                $latDiff = abs($reading['latitude'] - $firstReading['latitude']);
+                $lngDiff = abs($reading['longitude'] - $firstReading['longitude']);
+
+                // If difference is less than 0.000001 degrees (about 0.1 meter), consider identical
+                if ($latDiff < 0.000001 && $lngDiff < 0.000001) {
+                    $identicalCount++;
+                }
+            }
+        }
+
+        // If all readings are identical, likely fake GPS
+        $isFake = $identicalCount >= count($readings);
+
+        // Calculate time span
+        $timeSpan = 0;
+        if (count($readings) > 1 && isset($readings[0]['timestamp']) && isset(end($readings)['timestamp'])) {
+            $timeSpan = end($readings)['timestamp'] - $readings[0]['timestamp'];
+        }
+
+        return [
+            'is_fake' => $isFake,
+            'readings_count' => count($readings),
+            'identical_count' => $identicalCount,
+            'readings' => $readings,
+            'time_span' => $timeSpan,
+            'reason' => $isFake ? 'All location readings are identical - indicates fake GPS usage' : 'Location readings vary naturally'
         ];
     }
 
