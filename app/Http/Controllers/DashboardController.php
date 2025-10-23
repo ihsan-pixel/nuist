@@ -90,25 +90,8 @@ class DashboardController extends Controller
         }
 
         if ($user->role === 'tenaga_pendidik') {
-            // Tenaga pendidik melihat data users
-            $users = User::with('madrasah', 'statusKepegawaian')
-                ->where('madrasah_id', $user->madrasah_id)
-                ->where('role', 'tenaga_pendidik')
-                ->where('id', '!=', $user->id)
-                ->orderBy('name', 'asc')
-                ->paginate(10);
-
-            // Kirim data users dan attendance ke view
-            return view('dashboard.index', [
-                'users' => $users,
-                'showUsers' => true,
-                'attendanceData' => $attendanceData,
-                'adminStats' => $adminStats,
-                'madrasahData' => $madrasahData,
-                'schoolPrincipal' => $schoolPrincipal,
-                'superAdminStats' => $superAdminStats,
-                'foundationData' => $foundationData,
-            ]);
+            // Redirect tenaga pendidik to mobile interface
+            return redirect()->route('mobile.dashboard');
         }
 
         // Untuk role lain, tampilkan dashboard default tanpa data users
