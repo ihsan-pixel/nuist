@@ -95,7 +95,7 @@
 </div>
 
 <!-- Statistik Kehadiran -->
-<div class="dashboard-stats mb-4">
+<div class="dashboard-stats mb-2">
     <div class="row g-2">
         <div class="col-3">
             <div class="card text-center py-2">
