@@ -208,7 +208,6 @@ class MobileController extends Controller
             'altitude' => 'nullable|numeric',
             'speed' => 'nullable|numeric|min:0',
             'device_info' => 'nullable|string|max:255',
-            'location_readings' => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -222,10 +221,6 @@ class MobileController extends Controller
         // Ambil data madrasah dari user yang sedang login
         $madrasah = $user->madrasah;
         $madrasahTambahan = $user->madrasahTambahan;
-
-        // Initialize variables
-        $isFakeLocation = false;
-        $fakeLocationAnalysis = [];
 
         // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
         $isWithinPolygon = false;
@@ -271,8 +266,6 @@ class MobileController extends Controller
                 'message' => 'Lokasi Anda berada di luar area presensi yang telah ditentukan.'
             ], 400);
         }
-
-        // Fake location detection disabled for mobile presensi
 
         // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
         if ($user->pemenuhan_beban_kerja_lain) {
@@ -332,9 +325,6 @@ class MobileController extends Controller
                 $keterangan = "tidak terlambat";
             }
 
-            // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
-            // Tidak perlu tambahkan keterangan di field keterangan presensi
-
             // Presensi masuk
             $presensi = Presensi::create([
                 'user_id' => $user->id,
@@ -382,9 +372,6 @@ class MobileController extends Controller
                 } else {
                     $keterangan = "tidak terlambat";
                 }
-
-                // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
-                // Tidak perlu tambahkan keterangan di field keterangan presensi
 
                 $presensi->update([
                     'status' => 'hadir',

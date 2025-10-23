@@ -209,23 +209,135 @@
 @section('script')
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    let locationReadings = [];
+    let locationWatchId = null;
+
+    // Function to collect multiple location readings
+    const collectLocationReadings = (callback) => {
+        locationReadings = [];
+        let readingsCount = 0;
+        const maxReadings = 3;
+
+        const collectReading = (position) => {
+            const reading = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                altitude: position.coords.altitude,
+                speed: position.coords.speed,
+                timestamp: Date.now()
+            };
+            locationReadings.push(reading);
+            readingsCount++;
+
+            if (readingsCount >= maxReadings) {
+                // Use the most recent reading for display
+                const latestReading = locationReadings[locationReadings.length - 1];
+                document.getElementById('latitude').value = latestReading.latitude.toFixed(6);
+                document.getElementById('longitude').value = latestReading.longitude.toFixed(6);
+
+                // Reverse geocode
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latestReading.latitude}&lon=${latestReading.longitude}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('lokasi').value = data.display_name || 'Tidak dapat menentukan alamat';
+                    });
+
+                callback();
+            }
+        };
+
+        // Collect readings with small delays
+        for (let i = 0; i < maxReadings; i++) {
+            setTimeout(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(collectReading, (error) => {
+                        console.error('Error getting location:', error);
+                        if (i === maxReadings - 1) callback(); // Call callback on last attempt even if failed
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    });
+                }
+            }, i * 500); // 500ms delay between readings
+        }
+    };
+
+    // Initial location collection
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            document.getElementById('latitude').value = lat.toFixed(6);
-            document.getElementById('longitude').value = lng.toFixed(6);
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('lokasi').value = data.display_name || 'Tidak dapat menentukan alamat';
-                });
+        collectLocationReadings(() => {
+            document.getElementById('location-info').innerHTML = `
+                <i class="bx bx-check-circle text-success me-1"></i> Lokasi berhasil didapatkan.
+            `;
         });
     } else {
         document.getElementById('location-info').innerHTML = `
             <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>GPS tidak tersedia.</div>
         `;
     }
+
+    // Handle presensi button click
+    document.getElementById('btn-presensi').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Disable button to prevent multiple clicks
+        this.disabled = true;
+        this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...';
+
+        // Collect fresh location readings before submitting
+        collectLocationReadings(() => {
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('latitude', document.getElementById('latitude').value);
+            formData.append('longitude', document.getElementById('longitude').value);
+            formData.append('lokasi', document.getElementById('lokasi').value);
+            formData.append('accuracy', '5.0'); // Default accuracy
+            formData.append('altitude', null);
+            formData.append('speed', null);
+            formData.append('device_info', navigator.userAgent);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            // Submit presensi
+            fetch('{{ route("mobile.presensi.store") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    document.getElementById('location-info').innerHTML = `
+                        <div class="alert alert-success small"><i class="bx bx-check-circle me-1"></i>${data.message}</div>
+                    `;
+
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    // Show error message
+                    document.getElementById('location-info').innerHTML = `
+                        <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>${data.message}</div>
+                    `;
+
+                    // Re-enable button
+                    document.getElementById('btn-presensi').disabled = false;
+                    document.getElementById('btn-presensi').innerHTML = '<i class="bx bx-check-circle me-2"></i>Presensi Masuk';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('location-info').innerHTML = `
+                    <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>Terjadi kesalahan. Silakan coba lagi.</div>
+                `;
+
+                // Re-enable button
+                document.getElementById('btn-presensi').disabled = false;
+                document.getElementById('btn-presensi').innerHTML = '<i class="bx bx-check-circle me-2"></i>Presensi Masuk';
+            });
+        });
+    });
 });
 </script>
 @endsection
