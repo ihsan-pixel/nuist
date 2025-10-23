@@ -89,6 +89,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\MobileController::class, 'dashboard'])->name('dashboard');
     Route::get('/presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('presensi');
+    Route::post('/presensi', [App\Http\Controllers\MobileController::class, 'storePresensi'])->name('presensi.store');
     Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
 });
