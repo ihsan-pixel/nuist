@@ -200,228 +200,61 @@ class MobileController extends Controller
 
     public function storePresensi(Request $request)
     {
-        $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'lokasi' => 'nullable|string',
-            'accuracy' => 'nullable|numeric|min:0|max:999.99',
-            'altitude' => 'nullable|numeric',
-            'speed' => 'nullable|numeric|min:0',
-            'device_info' => 'nullable|string|max:255',
-        ]);
-
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
-
-        // Check if today is a holiday
-        $isHoliday = \App\Models\Holiday::isHoliday($today);
-        if ($isHoliday) {
-            $holiday = \App\Models\Holiday::getHoliday($today);
-            return response()->json([
-                'success' => false,
-                'message' => 'Hari ini adalah hari libur: ' . $holiday['name']
-            ], 400);
-        }
+        $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
         // Cek apakah sudah presensi hari ini
         $presensi = Presensi::where('user_id', $user->id)
             ->where('tanggal', $today)
             ->first();
 
-        // Ambil data madrasah dari user yang sedang login
-        $madrasah = $user->madrasah;
-        $madrasahTambahan = $user->madrasahTambahan;
-
-        // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
-        $isWithinPolygon = false;
-        $validMadrasah = null;
-
-        $madrasahsToCheck = [];
-        if ($madrasah && $madrasah->polygon_koordinat) {
-            $madrasahsToCheck[] = $madrasah;
-        }
-        if ($user->pemenuhan_beban_kerja_lain && $madrasahTambahan && $madrasahTambahan->polygon_koordinat) {
-            $madrasahsToCheck[] = $madrasahTambahan;
-        }
-
-        // Jika madrasah utama mengaktifkan dual polygon, tambahkan polygon kedua
-        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
-            $madrasahsToCheck[] = (object)['polygon_koordinat' => $madrasah->polygon_koordinat_2];
-        }
-
-        if (empty($madrasahsToCheck)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Area presensi (poligon) untuk madrasah Anda belum diatur. Silakan hubungi administrator.'
-            ], 400);
-        }
-
-        foreach ($madrasahsToCheck as $m) {
-            try {
-                $polygonGeometry = json_decode($m->polygon_koordinat, true);
-                $polygon = $polygonGeometry['coordinates'][0];
-                if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                    $isWithinPolygon = true;
-                    $validMadrasah = $m;
-                    break;
-                }
-            } catch (\Exception $e) {
-                continue; // Skip invalid polygon
-            }
-        }
-
-        if (!$isWithinPolygon) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lokasi Anda berada di luar area presensi yang telah ditentukan.'
-            ], 400);
-        }
-
-        // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
-        if ($user->pemenuhan_beban_kerja_lain) {
-            $batasAwalMasuk = null;
-            $batasAkhirMasuk = null;
-            $batasPulang = null;
-        } else {
-            // Ambil pengaturan waktu berdasarkan hari_kbm madrasah yang valid
-            $hariKbm = $validMadrasah ? $validMadrasah->hari_kbm : null;
-            $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
-            $batasAwalMasuk = $timeRanges['masuk_start'];
-            $batasAkhirMasuk = $timeRanges['masuk_end'];
-            $batasPulang = $timeRanges['pulang_start'];
-            // Adjust for special users
-            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '12:00';
-            }
-        }
-
-        $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
-
         if (!$presensi) {
-            // Validasi batas awal presensi masuk
-            if ($batasAwalMasuk && $now < $batasAwalMasuk) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Belum waktunya presensi masuk.'
-                ], 400);
-            }
-
-            // Validasi batas akhir presensi masuk
-            if ($batasAkhirMasuk && $now > $batasAkhirMasuk) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Waktu presensi masuk telah berakhir.'
-                ], 400);
-            }
-
-            $waktuMasuk = $request->input('waktu_masuk') ?? $now;
-            $keterangan = null;
-
-            // Jika waktu presensi setelah 07:00, hitung keterlambatan
-            if ($now > '07:00:00') {
-                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                $sekarang = Carbon::now('Asia/Jakarta');
-                $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                if ($sekarang->lessThan($batas)) {
-                    $terlambatMenit = 0;
-                } else {
-                    $terlambatMenit = abs(round($terlambatMenit));
-                }
-
-                $keterangan = "Terlambat {$terlambatMenit} menit";
-            } else {
-                $keterangan = "tidak terlambat";
-            }
-
-            // Presensi masuk
+            // Presensi masuk - langsung simpan tanpa validasi
             $presensi = Presensi::create([
                 'user_id' => $user->id,
                 'tanggal' => $today,
-                'waktu_masuk' => $waktuMasuk,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'lokasi' => $request->lokasi,
-                'accuracy' => $request->accuracy,
+                'waktu_masuk' => $now,
+                'latitude' => $request->latitude ?? 0,
+                'longitude' => $request->longitude ?? 0,
+                'lokasi' => $request->lokasi ?? 'Lokasi tidak diketahui',
+                'accuracy' => $request->accuracy ?? 5.0,
                 'altitude' => $request->altitude,
                 'speed' => $request->speed,
-                'device_info' => $request->device_info,
+                'device_info' => $request->device_info ?? 'Mobile App',
                 'status' => 'hadir',
-                'keterangan' => $keterangan,
+                'keterangan' => 'Presensi mobile',
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
-            $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
-
             return response()->json([
                 'success' => true,
-                'message' => $message,
+                'message' => 'Presensi masuk berhasil dicatat.',
                 'data' => $presensi
             ]);
         } else {
             if ($presensi->status === 'alpha') {
-                // Update alpha to hadir, set waktu_masuk
-                $waktuMasuk = $request->input('waktu_masuk') ?? $now;
-                $keterangan = null;
-
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
-
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
-                } else {
-                    $keterangan = "tidak terlambat";
-                }
-
+                // Update alpha to hadir
                 $presensi->update([
                     'status' => 'hadir',
-                    'waktu_masuk' => $waktuMasuk,
-                    'latitude' => $request->latitude,
-                    'longitude' => $request->longitude,
-                    'lokasi' => $request->lokasi,
-                    'accuracy' => $request->accuracy,
+                    'waktu_masuk' => $now,
+                    'latitude' => $request->latitude ?? 0,
+                    'longitude' => $request->longitude ?? 0,
+                    'lokasi' => $request->lokasi ?? 'Lokasi tidak diketahui',
+                    'accuracy' => $request->accuracy ?? 5.0,
                     'altitude' => $request->altitude,
                     'speed' => $request->speed,
-                    'device_info' => $request->device_info,
-                    'keterangan' => $keterangan,
+                    'device_info' => $request->device_info ?? 'Mobile App',
+                    'keterangan' => 'Presensi mobile',
                 ]);
-
-                $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
 
                 return response()->json([
                     'success' => true,
-                    'message' => $message,
+                    'message' => 'Presensi masuk berhasil dicatat.',
                     'data' => $presensi
                 ]);
             } else {
-                // Validasi batas diperbolehkan presensi pulang
-                if ($batasPulang && $now < $batasPulang) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Belum waktunya presensi pulang.'
-                    ], 400);
-                }
-
-                // Validasi tanggal presensi keluar harus sama dengan tanggal presensi masuk
-                $tanggalSekarang = Carbon::now('Asia/Jakarta')->toDateString();
-                if ($tanggalSekarang !== $presensi->tanggal->toDateString()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Presensi keluar harus dilakukan pada tanggal yang sama dengan presensi masuk.'
-                    ], 400);
-                }
-
-                // Presensi keluar
+                // Presensi keluar - langsung update tanpa validasi
                 $presensi->update([
                     'waktu_keluar' => $now,
                 ]);
