@@ -59,25 +59,7 @@
             </div>
         </div>
 
-        <!-- Map Container -->
-        <div class="mb-4">
-            <div class="d-flex align-items-center mb-3">
-                <i class="bx bx-map text-primary me-2"></i>
-                <label class="form-label fw-semibold mb-0">Lokasi Anda Saat Ini</label>
-            </div>
-            <div class="map-container-mobile rounded-3 overflow-hidden shadow-sm position-relative">
-                <div id="map" class="mobile-map" style="height: 300px; width: 100%; border-radius: 8px;"></div>
-                <!-- Loading overlay -->
-                <div id="map-loading" class="position-absolute top-0 start-0 w-100 h-100 bg-white d-flex align-items-center justify-content-center" style="z-index: 1000; border-radius: 8px;">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary mb-2" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <div class="text-muted small">Memuat peta...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Coordinates -->
         <div class="mb-4">
@@ -192,122 +174,7 @@
 
 @section('css')
 <style>
-/* Mobile Map Styles */
-.map-container-mobile {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: relative;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
 
-.mobile-map {
-    border-radius: 8px;
-    background: #f8f9fa;
-}
-
-/* Leaflet Controls for Mobile */
-.map-container-mobile .leaflet-control-container {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.map-container-mobile .leaflet-control-zoom {
-    border: none !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-    border-radius: 8px !important;
-    overflow: hidden;
-}
-
-.map-container-mobile .leaflet-control-zoom a {
-    width: 40px !important;
-    height: 40px !important;
-    line-height: 38px !important;
-    font-size: 20px !important;
-    font-weight: bold !important;
-    background-color: #007bff !important;
-    color: white !important;
-    border: none !important;
-    transition: all 0.2s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.map-container-mobile .leaflet-control-zoom a:hover {
-    background-color: #0056b3 !important;
-    transform: scale(1.05);
-}
-
-.map-container-mobile .leaflet-control-zoom a:first-child {
-    border-bottom: 1px solid rgba(255,255,255,0.2) !important;
-}
-
-.map-container-mobile .leaflet-control-attribution {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    font-size: 9px !important;
-    padding: 2px 6px !important;
-    border-radius: 4px !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
-    margin-bottom: 5px !important;
-    margin-right: 5px !important;
-}
-
-/* Leaflet Popup Styles */
-.map-container-mobile .leaflet-popup-content-wrapper {
-    border-radius: 8px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
-}
-
-.map-container-mobile .leaflet-popup-tip {
-    background-color: white;
-}
-
-/* Loading Overlay */
-#map-loading {
-    backdrop-filter: blur(2px);
-    background: rgba(255, 255, 255, 0.95) !important;
-}
-
-/* Ensure map tiles load properly on mobile */
-.map-container-mobile .leaflet-tile {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-/* Mobile specific adjustments */
-@media (max-width: 576px) {
-    .mobile-map {
-        height: 280px !important;
-    }
-
-    .map-container-mobile .leaflet-control-zoom a {
-        width: 36px !important;
-        height: 36px !important;
-        line-height: 34px !important;
-        font-size: 18px !important;
-    }
-}
-
-/* Custom marker styles */
-.mobile-user-marker {
-    background: transparent !important;
-    border: none !important;
-}
-
-/* Ensure proper rendering on different devices */
-.map-container-mobile .leaflet-container {
-    background: #f8f9fa !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Fix for iOS Safari */
-@media screen and (max-width: 768px) {
-    .map-container-mobile .leaflet-control-container {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-    }
-}
 .info-item {
     transition: all 0.2s ease;
 }
@@ -327,10 +194,9 @@
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
-    let latitude, longitude, lokasi, map;
+    let latitude, longitude, lokasi;
 
     // Get location when page loads (reading1)
     if (navigator.geolocation) {
@@ -372,63 +238,7 @@ window.addEventListener('load', function() {
                 </div>
             `);
 
-            // Initialize Leaflet map untuk mobile
-            map = L.map('map', {
-                center: [latitude, longitude],
-                zoom: 16,
-                zoomControl: true,
-                zoomControlOptions: {
-                    position: 'topright'
-                },
-                scrollWheelZoom: true,
-                doubleClickZoom: true,
-                boxZoom: true,
-                keyboard: true,
-                fadeAnimation: true,
-                zoomAnimation: true,
-                markerZoomAnimation: true,
-                preferCanvas: false
-            });
 
-            // Gunakan tile layer yang dioptimasi untuk mobile
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                minZoom: 3,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                updateWhenIdle: false,
-                updateWhenZooming: false,
-                keepBuffer: 2
-            }).addTo(map);
-
-            // Tambahkan marker dengan custom icon
-            var userIcon = L.divIcon({
-                className: 'mobile-user-marker',
-                html: '<div style="background-color: #007bff; width: 20px; height: 20px; border-radius: 50% 50% 50% 0; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transform: rotate(-45deg);"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 20]
-            });
-
-            var marker = L.marker([latitude, longitude], {icon: userIcon}).addTo(map)
-                .bindPopup('<div class="text-center"><strong>Lokasi Anda</strong><br/>' + latitude.toFixed(6) + ', ' + longitude.toFixed(6) + '</div>')
-                .openPopup();
-
-            // Tambahkan circle untuk akurasi jika tersedia
-            if (position.coords.accuracy && position.coords.accuracy < 100) {
-                L.circle([latitude, longitude], {
-                    color: '#007bff',
-                    fillColor: '#007bff',
-                    fillOpacity: 0.1,
-                    radius: position.coords.accuracy,
-                    weight: 1
-                }).addTo(map);
-            }
-
-            // Sembunyikan loading overlay dan tampilkan map
-            setTimeout(function() {
-                $('#map-loading').fadeOut(300, function() {
-                    map.invalidateSize();
-                });
-            }, 500);
 
         }, function(error) {
             $('#location-info').html(`
@@ -443,44 +253,7 @@ window.addEventListener('load', function() {
                 </div>
             `);
 
-            // Initialize map with default location on error
-            map = L.map('map', {
-                center: [-7.7956, 110.3695],
-                zoom: 10,
-                zoomControl: true,
-                zoomControlOptions: {
-                    position: 'topright'
-                },
-                scrollWheelZoom: true,
-                doubleClickZoom: true,
-                boxZoom: true,
-                keyboard: true,
-                fadeAnimation: true,
-                zoomAnimation: true,
-                markerZoomAnimation: true,
-                preferCanvas: false
-            });
 
-            // Gunakan tile layer yang dioptimasi untuk mobile
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                minZoom: 3,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                updateWhenIdle: false,
-                updateWhenZooming: false,
-                keepBuffer: 2
-            }).addTo(map);
-
-            var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-                .bindPopup('<div class="text-center"><strong>Lokasi Default</strong><br/>Yogyakarta, Indonesia</div>')
-                .openPopup();
-
-            // Sembunyikan loading overlay dan tampilkan map
-            setTimeout(function() {
-                $('#map-loading').fadeOut(300, function() {
-                    map.invalidateSize();
-                });
-            }, 500);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -499,44 +272,7 @@ window.addEventListener('load', function() {
             </div>
         `);
 
-        // Initialize map with default location
-        map = L.map('map', {
-            center: [-7.7956, 110.3695],
-            zoom: 10,
-            zoomControl: true,
-            zoomControlOptions: {
-                position: 'topright'
-            },
-            scrollWheelZoom: true,
-            doubleClickZoom: true,
-            boxZoom: true,
-            keyboard: true,
-            fadeAnimation: true,
-            zoomAnimation: true,
-            markerZoomAnimation: true,
-            preferCanvas: false
-        });
 
-        // Gunakan tile layer yang dioptimasi untuk mobile
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            minZoom: 3,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            updateWhenIdle: false,
-            updateWhenZooming: false,
-            keepBuffer: 2
-        }).addTo(map);
-
-        var marker = L.marker([-7.7956, 110.3695]).addTo(map)
-            .bindPopup('<div class="text-center"><strong>Browser Tidak Mendukung GPS</strong><br/>Gunakan browser modern</div>')
-            .openPopup();
-
-        // Sembunyikan loading overlay dan tampilkan map
-        setTimeout(function() {
-            $('#map-loading').fadeOut(300, function() {
-                map.invalidateSize();
-            });
-        }, 500);
     }
 
     // Get address from coordinates
