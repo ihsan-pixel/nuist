@@ -62,8 +62,8 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border">
-                <div id="map"></div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border" style="width: 100%; height: 350px;">
+                <div id="map" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
@@ -160,14 +160,20 @@
     background: #f8f9fa;
     position: relative;
     overflow: hidden;
+    border-radius: 8px;
+    margin: 0;
+    padding: 0;
 }
 #map {
     height: 100% !important;
     width: 100% !important;
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     z-index: 1;
+    border-radius: 8px;
 }
 .user-location-marker {
     background: transparent !important;
@@ -179,6 +185,8 @@
     height: 100% !important;
     width: 100% !important;
     position: relative !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
 }
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
@@ -246,7 +254,8 @@ window.addEventListener('load', function() {
                 fadeAnimation: false,
                 zoomAnimation: false,
                 markerZoomAnimation: false,
-                preferCanvas: true
+                preferCanvas: true,
+                renderer: L.canvas()
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -284,20 +293,31 @@ window.addEventListener('load', function() {
                 if (map) {
                     map.invalidateSize();
                     map.setView([latitude, longitude], 17);
+                    // Force a complete redraw
+                    map._onResize();
                 }
             }, 100);
 
             // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 300);
 
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 600);
 
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 1000);
 
         }, function(error) {
@@ -323,7 +343,8 @@ window.addEventListener('load', function() {
                 fadeAnimation: false,
                 zoomAnimation: false,
                 markerZoomAnimation: false,
-                preferCanvas: true
+                preferCanvas: true,
+                renderer: L.canvas()
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -339,20 +360,32 @@ window.addEventListener('load', function() {
                 .openPopup();
 
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 100);
 
             // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 300);
 
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 600);
 
             setTimeout(function() {
-                if (map) map.invalidateSize();
+                if (map) {
+                    map.invalidateSize();
+                    map._onResize();
+                }
             }, 1000);
         }, {
             enableHighAccuracy: true,
@@ -382,7 +415,8 @@ window.addEventListener('load', function() {
             fadeAnimation: false,
             zoomAnimation: false,
             markerZoomAnimation: false,
-            preferCanvas: true
+            preferCanvas: true,
+            renderer: L.canvas()
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -398,20 +432,32 @@ window.addEventListener('load', function() {
             .openPopup();
 
         setTimeout(function() {
-            if (map) map.invalidateSize();
+            if (map) {
+                map.invalidateSize();
+                map._onResize();
+            }
         }, 100);
 
         // Additional resize for hidden tabs - multiple calls for reliability
         setTimeout(function() {
-            if (map) map.invalidateSize();
+            if (map) {
+                map.invalidateSize();
+                map._onResize();
+            }
         }, 300);
 
         setTimeout(function() {
-            if (map) map.invalidateSize();
+            if (map) {
+                map.invalidateSize();
+                map._onResize();
+            }
         }, 600);
 
         setTimeout(function() {
-            if (map) map.invalidateSize();
+            if (map) {
+                map.invalidateSize();
+                map._onResize();
+            }
         }, 1000);
     }
 
@@ -555,12 +601,14 @@ document.addEventListener('visibilitychange', function() {
         setTimeout(function() {
             if (map && typeof map.invalidateSize === 'function') {
                 map.invalidateSize();
+                if (typeof map._onResize === 'function') map._onResize();
             }
         }, 100);
         // Additional calls for reliability
         setTimeout(function() {
             if (map && typeof map.invalidateSize === 'function') {
                 map.invalidateSize();
+                if (typeof map._onResize === 'function') map._onResize();
             }
         }, 300);
     }
@@ -571,12 +619,14 @@ window.addEventListener('resize', function() {
     setTimeout(function() {
         if (map && typeof map.invalidateSize === 'function') {
             map.invalidateSize();
+            if (typeof map._onResize === 'function') map._onResize();
         }
     }, 100);
     // Additional calls for reliability
     setTimeout(function() {
         if (map && typeof map.invalidateSize === 'function') {
             map.invalidateSize();
+            if (typeof map._onResize === 'function') map._onResize();
         }
     }, 300);
 });
@@ -590,12 +640,14 @@ if (mapContainer) {
                 setTimeout(function() {
                     if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
+                        if (typeof map._onResize === 'function') map._onResize();
                     }
                 }, 100);
                 // Additional calls for reliability
                 setTimeout(function() {
                     if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
+                        if (typeof map._onResize === 'function') map._onResize();
                     }
                 }, 300);
             }
@@ -617,12 +669,14 @@ if (mapElement) {
                 setTimeout(function() {
                     if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
+                        if (typeof map._onResize === 'function') map._onResize();
                     }
                 }, 100);
                 // Additional calls for reliability
                 setTimeout(function() {
                     if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
+                        if (typeof map._onResize === 'function') map._onResize();
                     }
                 }, 300);
             }
