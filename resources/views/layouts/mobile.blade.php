@@ -15,6 +15,9 @@
     <meta name="apple-mobile-web-app-title" content="NUIST Mobile">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
 
