@@ -243,14 +243,16 @@ window.addEventListener('load', function() {
                 attributionControl: false,
                 fadeAnimation: false,
                 zoomAnimation: false,
-                markerZoomAnimation: false
+                markerZoomAnimation: false,
+                preferCanvas: true
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: false,
                 updateWhenIdle: true,
-                updateWhenZooming: false
+                updateWhenZooming: false,
+                crossOrigin: true
             }).addTo(map);
 
             // Add user location marker with custom icon
@@ -281,10 +283,18 @@ window.addEventListener('load', function() {
                 map.setView([latitude, longitude], 17);
             }, 100);
 
-            // Additional resize for hidden tabs
+            // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
                 map.invalidateSize();
-            }, 500);
+            }, 300);
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 600);
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 1000);
 
         }, function(error) {
             $('#location-info').html(`
@@ -308,14 +318,16 @@ window.addEventListener('load', function() {
                 attributionControl: false,
                 fadeAnimation: false,
                 zoomAnimation: false,
-                markerZoomAnimation: false
+                markerZoomAnimation: false,
+                preferCanvas: true
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: false,
                 updateWhenIdle: true,
-                updateWhenZooming: false
+                updateWhenZooming: false,
+                crossOrigin: true
             }).addTo(map);
 
             var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -326,10 +338,18 @@ window.addEventListener('load', function() {
                 map.invalidateSize();
             }, 100);
 
-            // Additional resize for hidden tabs
+            // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
                 map.invalidateSize();
-            }, 500);
+            }, 300);
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 600);
+
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 1000);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -357,14 +377,16 @@ window.addEventListener('load', function() {
             attributionControl: false,
             fadeAnimation: false,
             zoomAnimation: false,
-            markerZoomAnimation: false
+            markerZoomAnimation: false,
+            preferCanvas: true
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: false,
             updateWhenIdle: true,
-            updateWhenZooming: false
+            updateWhenZooming: false,
+            crossOrigin: true
         }).addTo(map);
 
         var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -375,10 +397,18 @@ window.addEventListener('load', function() {
             map.invalidateSize();
         }, 100);
 
-        // Additional resize for hidden tabs
+        // Additional resize for hidden tabs - multiple calls for reliability
         setTimeout(function() {
             map.invalidateSize();
-        }, 500);
+        }, 300);
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 600);
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 1000);
     }
 
     // Get address from coordinates
@@ -451,6 +481,24 @@ window.addEventListener('load', function() {
                     ])
                 };
 
+                // Update UI with location data
+                $('#latitude').val(reading2Lat.toFixed(6));
+                $('#longitude').val(reading2Lng.toFixed(6));
+
+                // Get address
+                getAddressFromCoordinates(reading2Lat, reading2Lng);
+
+                $('#location-info').html(`
+                    <div class="alert alert-success border-0 rounded-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-check-circle me-3 fs-4"></i>
+                            <div>
+                                <strong>Lokasi berhasil didapatkan!</strong>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
                 $.ajax({
                     url: '{{ route("mobile.presensi.store") }}',
                     method: 'POST',
@@ -505,6 +553,12 @@ document.addEventListener('visibilitychange', function() {
                 map.invalidateSize();
             }
         }, 100);
+        // Additional calls for reliability
+        setTimeout(function() {
+            if (typeof map !== 'undefined' && map.invalidateSize) {
+                map.invalidateSize();
+            }
+        }, 300);
     }
 });
 
@@ -515,6 +569,63 @@ window.addEventListener('resize', function() {
             map.invalidateSize();
         }
     }, 100);
+    // Additional calls for reliability
+    setTimeout(function() {
+        if (typeof map !== 'undefined' && map.invalidateSize) {
+            map.invalidateSize();
+        }
+    }, 300);
 });
+
+// Use MutationObserver to detect when map container becomes visible
+const mapContainer = document.querySelector('.map-container');
+if (mapContainer) {
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                setTimeout(function() {
+                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                        map.invalidateSize();
+                    }
+                }, 100);
+                // Additional calls for reliability
+                setTimeout(function() {
+                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                        map.invalidateSize();
+                    }
+                }, 300);
+            }
+        });
+    });
+
+    observer.observe(mapContainer, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+    });
+}
+
+// Additional check for when map element becomes visible
+const mapElement = document.getElementById('map');
+if (mapElement) {
+    const mapObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                setTimeout(function() {
+                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                        map.invalidateSize();
+                    }
+                }, 100);
+                // Additional calls for reliability
+                setTimeout(function() {
+                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                        map.invalidateSize();
+                    }
+                }, 300);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    mapObserver.observe(mapElement);
+}
 </script>
 @endsection
