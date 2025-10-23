@@ -160,6 +160,27 @@ class MobileController extends Controller
         return back()->with('success', 'Foto profil berhasil diubah.');
     }
 
+    public function laporan()
+    {
+        $user = Auth::user();
+        // Add logic for laporan if needed
+        return view('mobile.laporan', compact('user'));
+    }
+
+    public function izin()
+    {
+        $user = Auth::user();
+        // Add logic for izin if needed
+        return view('mobile.izin', compact('user'));
+    }
+
+    public function pengaturan()
+    {
+        $user = Auth::user();
+        // Add logic for pengaturan if needed
+        return view('mobile.pengaturan', compact('user'));
+    }
+
     public function storePresensi(Request $request)
     {
         $request->validate([

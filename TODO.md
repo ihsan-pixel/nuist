@@ -5,3 +5,5 @@
 - [x] Update Detailed Stats: Reduce card-body padding, increase icon size (fs-1 to fs-2)
 - [x] Expand Quick Actions to 6 items in 3x2 grid: Add Profile, Laporan, Izin, Pengaturan; use col-4, larger icons (fs-4), shorter labels, reduce button padding (py-3 to py-2)
 - [x] Test layout for mobile responsiveness (Server started, browser testing disabled)
+- [x] Fix missing routes: Added mobile.laporan, mobile.izin, mobile.pengaturan routes and methods
+- [x] Create placeholder views for new mobile pages
