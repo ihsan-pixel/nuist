@@ -74,6 +74,23 @@ class FakeLocationController extends Controller
                             $presensi->longitude
                         ) : 0
                 ];
+
+                // Tambahkan detail masalah untuk fake GPS detection
+                if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['fake_gps_detected']) && $presensi->fake_location_analysis['fake_gps_detected']) {
+                    $analysis['issues'][] = 'Antara latitude dan longitude 2 waktu sama persis';
+                }
+
+                // Tambahkan detail masalah untuk presensi di luar waktu yang ditentukan
+                $madrasah = $presensi->user->madrasah;
+                if ($presensi->waktu_masuk && $madrasah) {
+                    $timeRanges = $this->getPresensiTimeRanges($madrasah->hari_kbm, $presensi->tanggal);
+                    $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
+
+                    if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
+                        $analysis['issues'][] = 'Presensi diluar waktu yang ditentukan (' . $timeRanges['masuk_start'] . ' - ' . $timeRanges['masuk_end'] . ')';
+                    }
+                }
+
             } else {
                 // Fallback to analysis method for older records
                 $analysis = $this->analyzePresensiForFakeLocation($presensi);
