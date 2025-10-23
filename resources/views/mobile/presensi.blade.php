@@ -112,7 +112,7 @@
                         <i class="bx bx-log-in-circle text-primary me-2 fs-4"></i>
                         <div>
                             <h6 class="mb-0 text-primary">Presensi Masuk</h6>
-                            <small class="text-muted">{{ $timeRanges['masuk']['start'] }} - {{ $timeRanges['masuk']['end'] }}</small>
+                            <small class="text-muted">{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</small>
                         </div>
                     </div>
                     <div class="text-end">
@@ -126,7 +126,7 @@
                         <i class="bx bx-log-out-circle text-success me-2 fs-4"></i>
                         <div>
                             <h6 class="mb-0 text-success">Presensi Pulang</h6>
-                            <small class="text-muted">{{ $timeRanges['pulang']['start'] }} - {{ $timeRanges['pulang']['end'] }}</small>
+                            <small class="text-muted">{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</small>
                         </div>
                     </div>
                     <div class="text-end">
