@@ -85,6 +85,14 @@ Route::get('/', function () {
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
+// Mobile routes for tenaga_pendidik
+Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mobile.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\MobileController::class, 'dashboard'])->name('dashboard');
+    Route::get('/presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('presensi');
+    Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
+    Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
+});
+
 // panduan route - accessible by super_admin and pengurus
 Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index')->middleware(['auth', 'role:super_admin,pengurus']);
 

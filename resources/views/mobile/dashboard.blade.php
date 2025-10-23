@@ -26,7 +26,7 @@
                         <i class="bx bx-check-circle fs-4"></i>
                     </div>
                 </div>
-                <h4 class="mb-1">{{ $attendanceData['kehadiran'] }}%</h4>
+                <h4 class="mb-1">{{ $kehadiranPercent }}%</h4>
                 <small class="text-muted">Kehadiran</small>
             </div>
         </div>
@@ -39,7 +39,7 @@
                         <i class="bx bx-calendar fs-4"></i>
                     </div>
                 </div>
-                <h4 class="mb-1">{{ $attendanceData['total_presensi'] }}</h4>
+                <h4 class="mb-1">{{ $totalBasis }}</h4>
                 <small class="text-muted">Total Presensi</small>
             </div>
         </div>
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div>
-                        <h6 class="mb-0">{{ $attendanceData['hadir'] }}</h6>
+                        <h6 class="mb-0">{{ $hadir }}</h6>
                         <small class="text-muted">Hadir</small>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                         </div>
                     </div>
                     <div>
-                        <h6 class="mb-0">{{ $attendanceData['izin'] }}</h6>
+                        <h6 class="mb-0">{{ $izin }}</h6>
                         <small class="text-muted">Izin</small>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                         </div>
                     </div>
                     <div>
-                        <h6 class="mb-0">{{ $attendanceData['sakit'] }}</h6>
+                        <h6 class="mb-0">{{ $sakit }}</h6>
                         <small class="text-muted">Sakit</small>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     <div>
-                        <h6 class="mb-0">{{ $attendanceData['alpha'] }}</h6>
+                        <h6 class="mb-0">{{ $alpha }}</h6>
                         <small class="text-muted">Alpha</small>
                     </div>
                 </div>
@@ -110,13 +110,13 @@
 </div>
 
 <!-- Today's Schedule -->
-@if($todaySchedule->count() > 0)
+@if($todaySchedules->count() > 0)
 <div class="card mb-4 shadow-sm">
     <div class="card-header bg-light">
         <h6 class="mb-0"><i class="bx bx-calendar-today me-2"></i>Jadwal Hari Ini</h6>
     </div>
     <div class="card-body">
-        @foreach($todaySchedule as $schedule)
+        @foreach($todaySchedules as $schedule)
         <div class="d-flex align-items-center mb-3 pb-3 border-bottom border-light">
             <div class="avatar-sm me-3">
                 <div class="avatar-title bg-info bg-opacity-10 text-info rounded-circle">
