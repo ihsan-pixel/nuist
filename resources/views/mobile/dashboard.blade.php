@@ -12,11 +12,11 @@
     }
 
     .dashboard-header {
-        background: linear-gradient(135deg, #e60012, #ff4b4b);
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         color: #fff;
         border-radius: 20px;
         padding: 20px 15px;
-        box-shadow: 0 4px 10px rgba(230, 0, 18, 0.3);
+        box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
     }
 
     .dashboard-header img {
@@ -54,13 +54,13 @@
     }
 
     .quick-action-btn:hover {
-        background: #ffecec;
+        background: #e8f5f5;
         transform: translateY(-2px);
     }
 
     .quick-action-btn i {
         font-size: 1.7rem;
-        color: #e60012;
+        color: #004b4c;
     }
 
     .quick-action-btn small {
@@ -81,50 +81,54 @@
 </style>
 
 <!-- Header -->
-<div class="dashboard-header text-center mb-4">
-    <div class="avatar-md mx-auto mb-2">
-        <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-             alt="" class="img-thumbnail rounded-circle" width="80" height="80">
+<div class="dashboard-header mb-4">
+    <div class="d-flex align-items-center">
+        <div class="avatar-sm me-3">
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 alt="" class="img-thumbnail rounded-circle" width="60" height="60">
+        </div>
+        <div class="flex-grow-1">
+            <h6 class="mb-0">Halo, {{ Auth::user()->name }} 👋</h6>
+            <p class="small mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</p>
+        </div>
     </div>
-    <h6>Halo, {{ Auth::user()->name }} 👋</h6>
-    <p class="small mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</p>
 </div>
 
 <!-- Statistik Kehadiran -->
 <div class="dashboard-stats mb-4">
-    <div class="row g-3">
-        <div class="col-6">
-            <div class="card text-center py-3">
-                <div class="card-body">
-                    <i class="bx bx-check-circle text-success fs-3 mb-1"></i>
-                    <h5 class="mb-0">{{ $kehadiranPercent }}%</h5>
+    <div class="row g-2">
+        <div class="col-3">
+            <div class="card text-center py-2">
+                <div class="card-body px-1">
+                    <i class="bx bx-check-circle text-success fs-4 mb-1"></i>
+                    <h6 class="mb-0">{{ $kehadiranPercent }}%</h6>
                     <small class="text-muted">Kehadiran</small>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card text-center py-3">
-                <div class="card-body">
-                    <i class="bx bx-calendar text-primary fs-3 mb-1"></i>
-                    <h5 class="mb-0">{{ $totalBasis }}</h5>
+        <div class="col-3">
+            <div class="card text-center py-2">
+                <div class="card-body px-1">
+                    <i class="bx bx-calendar text-primary fs-4 mb-1"></i>
+                    <h6 class="mb-0">{{ $totalBasis }}</h6>
                     <small class="text-muted">Total Presensi</small>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card text-center py-3">
-                <div class="card-body">
-                    <i class="bx bx-time text-warning fs-3 mb-1"></i>
-                    <h5 class="mb-0">{{ $izin }}</h5>
+        <div class="col-3">
+            <div class="card text-center py-2">
+                <div class="card-body px-1">
+                    <i class="bx bx-time text-warning fs-4 mb-1"></i>
+                    <h6 class="mb-0">{{ $izin }}</h6>
                     <small class="text-muted">Total Izin</small>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card text-center py-3">
-                <div class="card-body">
-                    <i class="bx bx-plus-medical text-danger fs-3 mb-1"></i>
-                    <h5 class="mb-0">{{ $sakit }}</h5>
+        <div class="col-3">
+            <div class="card text-center py-2">
+                <div class="card-body px-1">
+                    <i class="bx bx-plus-medical text-danger fs-4 mb-1"></i>
+                    <h6 class="mb-0">{{ $sakit }}</h6>
                     <small class="text-muted">Total Sakit</small>
                 </div>
             </div>

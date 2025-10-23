@@ -7,3 +7,6 @@
 - [x] Test layout for mobile responsiveness (Server started, browser testing disabled)
 - [x] Fix missing routes: Added mobile.laporan, mobile.izin, mobile.pengaturan routes and methods
 - [x] Create placeholder views for new mobile pages
+- [x] Change dashboard colors to match login page theme (green gradient)
+- [x] Make welcome section horizontal layout (avatar + text side by side)
+- [x] Make stats cards smaller and fit 4 in one row (col-3)
