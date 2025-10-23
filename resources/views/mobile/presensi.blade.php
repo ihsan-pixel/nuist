@@ -156,7 +156,7 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 350px !important;
+    height: 250px !important;
     width: 100% !important;
     background: #f8f9fa;
     position: relative;
@@ -189,6 +189,7 @@
 .leaflet-container {
     background: #f8f9fa !important;
     font-family: inherit;
+    font-size: 12px !important;
     height: 100% !important;
     width: 100% !important;
     position: relative !important;
@@ -258,7 +259,7 @@ window.addEventListener('load', function() {
             // Initialize map with user location
             map = L.map('map', {
                 center: [latitude, longitude],
-                zoom: 17,
+                zoom: 16,
                 zoomControl: false,
                 scrollWheelZoom: false,
                 attributionControl: false,
@@ -285,9 +286,9 @@ window.addEventListener('load', function() {
             // Add user location marker with custom icon
             var userIcon = L.divIcon({
                 className: 'user-location-marker',
-                html: '<div style="background-color: #007bff; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
-                iconSize: [26, 26],
-                iconAnchor: [13, 13]
+                html: '<div style="background-color: #007bff; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
             });
 
             var marker = L.marker([latitude, longitude], {icon: userIcon}).addTo(map)
@@ -308,7 +309,7 @@ window.addEventListener('load', function() {
             setTimeout(function() {
                 if (map) {
                     map.invalidateSize();
-                    map.setView([latitude, longitude], 17);
+                    map.setView([latitude, longitude], 16);
                     // Force a complete redraw
                     map._onResize();
                 }
@@ -352,7 +353,7 @@ window.addEventListener('load', function() {
             // Initialize map with default location on error
             map = L.map('map', {
                 center: [-7.7956, 110.3695],
-                zoom: 12,
+                zoom: 11,
                 zoomControl: false,
                 scrollWheelZoom: false,
                 attributionControl: false,
@@ -429,7 +430,7 @@ window.addEventListener('load', function() {
         // Initialize map with default location
         map = L.map('map', {
             center: [-7.7956, 110.3695],
-            zoom: 12,
+            zoom: 11,
             zoomControl: false,
             scrollWheelZoom: false,
             attributionControl: false,

@@ -11,6 +11,7 @@
   - [x] Update distance calculations and issue detection for reading1 vs reading2 only
 - [x] Update `app/Http/Controllers/FakeLocationController.php`:
   - [x] Update analysis comments and logic to reference 2 readings instead of 3
+- [x] Make map smaller and reduce font size for better mobile display
 
 ## Followup Steps
 - [ ] Test mobile presensi functionality

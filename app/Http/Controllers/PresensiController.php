@@ -113,6 +113,7 @@ class PresensiController extends Controller
                 $reading1 = $locationReadings[0];
                 $reading2 = $locationReadings[1];
 
+                // Calculate distance between the two readings
                 $distance12 = $this->calculateDistance(
                     $reading1['latitude'], $reading1['longitude'],
                     $reading2['latitude'], $reading2['longitude']
@@ -124,31 +125,46 @@ class PresensiController extends Controller
                 // Check if both readings are identical (within 1 meter)
                 if ($distance12 < 0.001) {
                     $issues[] = 'Kedua pembacaan lokasi identik';
-                    $severity += 3;
+                    $severity += 8;
                 }
 
                 // Check if readings are too close together (within 10 meters)
                 if ($distance12 < 0.01) {
-                    $issues[] = 'Jarak antara pembacaan 1 dan 2 terlalu dekat';
+                    $issues[] = 'Pembacaan 1 dan 2 terlalu dekat (< 10m)';
                     $severity += 2;
                 }
 
-                // Check for suspicious patterns - readings too far apart
-                if ($distance12 > 1.0) {
-                    $issues[] = 'Jarak pembacaan terlalu jauh';
+                // Check for suspicious time difference (should be reasonable for button click)
+                $timeDiff = abs($reading2['timestamp'] - $reading1['timestamp']) / 1000; // seconds
+                if ($timeDiff < 1) {
+                    $issues[] = 'Waktu pembacaan terlalu cepat (< 1 detik)';
+                    $severity += 1;
+                }
+                if ($timeDiff > 30) {
+                    $issues[] = 'Waktu pembacaan terlalu lama (> 30 detik)';
                     $severity += 1;
                 }
 
-                if (count($issues) > 0) {
+                $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
+                    'issues' => $issues,
+                    'severity' => $severity,
+                    'severity_label' => $this->getSeverityLabel($severity),
+                    'checked_at' => Carbon::now('Asia/Jakarta')->toISOString(),
+                    'location_data' => [
+                        'latitude' => $request->latitude,
+                        'longitude' => $request->longitude,
+                        'accuracy' => $request->accuracy,
+                        'altitude' => $request->altitude,
+                        'speed' => $request->speed,
+                        'device_info' => $request->device_info,
+                    ],
+                    'distances' => [
+                        'reading1_reading2' => $distance12
+                    ]
+                ]);
+
+                if ($severity >= 5) {
                     $isFakeLocation = true;
-                    $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
-                        'issues' => $issues,
-                        'severity' => $severity,
-                        'severity_label' => $this->getSeverityLabel($severity),
-                        'distances' => [
-                            'reading1_reading2' => $distance12
-                        ]
-                    ]);
                 }
             }
         }
