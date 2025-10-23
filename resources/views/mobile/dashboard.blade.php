@@ -72,68 +72,7 @@
     </div>
 </div>
 
-<!-- Detailed Stats -->
-<div class="card mb-3 shadow-sm">
-    <div class="card-header bg-light py-2">
-        <h6 class="mb-0"><i class="bx bx-bar-chart me-2"></i>Detail Kehadiran</h6>
-    </div>
-    <div class="card-body py-2">
-        <div class="row g-2">
-            <div class="col-6">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-xs me-2">
-                        <div class="avatar-title bg-success rounded-circle">
-                            <i class="bx bx-check text-white fs-2"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">{{ $hadir }}</h6>
-                        <small class="text-muted">Hadir</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-xs me-2">
-                        <div class="avatar-title bg-warning rounded-circle">
-                            <i class="bx bx-time text-white fs-2"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">{{ $izin }}</h6>
-                        <small class="text-muted">Izin</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-xs me-2">
-                        <div class="avatar-title bg-danger rounded-circle">
-                            <i class="bx bx-plus-medical text-white fs-2"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">{{ $sakit }}</h6>
-                        <small class="text-muted">Sakit</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-xs me-2">
-                        <div class="avatar-title bg-secondary rounded-circle">
-                            <i class="bx bx-x text-white fs-2"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">{{ $alpha }}</h6>
-                        <small class="text-muted">Alpha</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Today's Schedule -->
 @if($todaySchedules->count() > 0)
