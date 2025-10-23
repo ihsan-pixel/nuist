@@ -95,7 +95,7 @@
 </div>
 
 <!-- Statistik Kehadiran -->
-<div class="dashboard-stats mb-0">
+<div class="dashboard-stats mb-3">
     <div class="row g-2">
         <div class="col-3">
             <div class="card text-center py-2">
@@ -130,6 +130,89 @@
                     <i class="bx bx-plus-medical text-danger fs-4 mb-1"></i>
                     <h6 class="mb-0 fs-6">{{ $sakit }}</h6>
                     <small class="text-muted">Sakit</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informasi Tenaga Pendidik -->
+<div class="card mb-3 shadow-sm">
+    <div class="card-header bg-light py-2">
+        <h6 class="mb-0"><i class="bx bx-user me-2"></i>Informasi Tenaga Pendidik</h6>
+    </div>
+    <div class="card-body py-2">
+        <div class="row g-2">
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">NUIST ID</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['nuist_id'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Status Kepegawaian</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['status_kepegawaian'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Ketugasan</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['ketugasan'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Tempat Lahir</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['tempat_lahir'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Tanggal Lahir</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['tanggal_lahir'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">TMT</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['tmt'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">NUPTK</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['nuptk'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">NPK</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['npk'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Kartanu</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['kartanu'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">NIP Ma'arif</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['nip'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Pendidikan Terakhir</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['pendidikan_terakhir'] }}</strong>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 bg-light rounded">
+                    <small class="text-muted d-block">Program Studi</small>
+                    <strong class="text-truncate d-block">{{ $userInfo['program_studi'] }}</strong>
                 </div>
             </div>
         </div>

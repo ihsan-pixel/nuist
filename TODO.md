@@ -11,3 +11,4 @@
 - [x] Make welcome section horizontal layout (avatar + text side by side)
 - [x] Make stats cards smaller and fit 4 in one row (col-3)
 - [x] Reduce font size of stats numbers to fs-6
+- [x] Add teacher information section above today's schedule

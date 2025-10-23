@@ -58,6 +58,22 @@ class MobileController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        // Get user information for display
+        $userInfo = [
+            'nuist_id' => $user->nuist_id ?? '-',
+            'status_kepegawaian' => $user->statusKepegawaian ? $user->statusKepegawaian->name : '-',
+            'ketugasan' => $user->ketugasan ?? '-',
+            'tempat_lahir' => $user->tempat_lahir ?? '-',
+            'tanggal_lahir' => $user->tanggal_lahir ? Carbon::parse($user->tanggal_lahir)->format('d F Y') : '-',
+            'tmt' => $user->tmt ? Carbon::parse($user->tmt)->format('d F Y') : '-',
+            'nuptk' => $user->nuptk ?? '-',
+            'npk' => $user->npk ?? '-',
+            'kartanu' => $user->kartanu ?? '-',
+            'nip' => $user->nip ?? '-',
+            'pendidikan_terakhir' => $user->pendidikan_terakhir ?? '-',
+            'program_studi' => $user->program_studi ?? '-',
+        ];
+
         return view('mobile.dashboard', compact(
             'kehadiranPercent',
             'hadir',
@@ -66,7 +82,8 @@ class MobileController extends Controller
             'alpha',
             'totalBasis',
             'todayPresensi',
-            'todaySchedules'
+            'todaySchedules',
+            'userInfo'
         ));
     }
 
