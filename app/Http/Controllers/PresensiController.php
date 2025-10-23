@@ -69,7 +69,7 @@ class PresensiController extends Controller
             $timeRanges = $this->getPresensiTimeRanges($user->madrasah->hari_kbm, $today);
             // Adjust for special users
             if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $timeRanges['masuk_end'] = '08:00';
+                $timeRanges['masuk_end'] = '11:00';
             }
         }
 
@@ -174,7 +174,7 @@ class PresensiController extends Controller
             $batasPulang = $timeRanges['pulang_start'];
             // Adjust for special users
             if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '08:00';
+                $batasAkhirMasuk = '11:00';
             }
         }
 
