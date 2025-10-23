@@ -345,9 +345,9 @@ $(document).ready(function() {
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Mendapatkan lokasi pengguna dengan timeout yang lebih cepat
+    // Mendapatkan lokasi pengguna (Reading 2) ketika masuk ke halaman create
     if (navigator.geolocation) {
-        // Tampilkan loading yang lebih cepat
+        // Tampilkan loading
         $('#location-info').html(`
             <div class="alert alert-info border-0 rounded-3 d-flex align-items-center">
                 <i class="bx bx-loader-alt bx-spin me-3 fs-4"></i>
@@ -361,6 +361,11 @@ $(document).ready(function() {
         navigator.geolocation.getCurrentPosition(function(position) {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
+
+            // Store reading 2 in sessionStorage
+            sessionStorage.setItem('reading2_latitude', position.coords.latitude);
+            sessionStorage.setItem('reading2_longitude', position.coords.longitude);
+            sessionStorage.setItem('reading2_timestamp', Date.now());
 
             $('#latitude').val(latitude.toFixed(6));
             $('#longitude').val(longitude.toFixed(6));
@@ -413,7 +418,7 @@ $(document).ready(function() {
             `);
         }, {
             enableHighAccuracy: true,
-            timeout: 10000, // Timeout 10 detik (lebih cepat dari default browser)
+            timeout: 10000, // Timeout 10 detik
             maximumAge: 30000 // Cache lokasi selama 30 detik
         });
     } else {
@@ -459,24 +464,28 @@ $(document).ready(function() {
         // Disable button and show loading
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-        // Get second location reading and combine with first reading from sessionStorage
+        // Get third location reading (Reading 3) when button is clicked
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                // Get first reading from sessionStorage
-                let firstLat = sessionStorage.getItem('first_latitude');
-                let firstLng = sessionStorage.getItem('first_longitude');
-                let firstTimestamp = sessionStorage.getItem('first_timestamp');
+                // Get readings from sessionStorage
+                let reading1Lat = sessionStorage.getItem('reading1_latitude');
+                let reading1Lng = sessionStorage.getItem('reading1_longitude');
+                let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
 
-                // Create second reading
-                let secondLat = position.coords.latitude;
-                let secondLng = position.coords.longitude;
-                let secondTimestamp = Date.now();
+                let reading2Lat = sessionStorage.getItem('reading2_latitude');
+                let reading2Lng = sessionStorage.getItem('reading2_longitude');
+                let reading2Timestamp = sessionStorage.getItem('reading2_timestamp');
 
-                // Prepare data for AJAX
+                // Create third reading
+                let reading3Lat = position.coords.latitude;
+                let reading3Lng = position.coords.longitude;
+                let reading3Timestamp = Date.now();
+
+                // Prepare data for AJAX with all three readings
                 let postData = {
                     _token: '{{ csrf_token() }}',
-                    latitude: secondLat,
-                    longitude: secondLng,
+                    latitude: reading3Lat,
+                    longitude: reading3Lng,
                     lokasi: lokasi,
                     accuracy: position.coords.accuracy,
                     altitude: position.coords.altitude,
@@ -484,14 +493,19 @@ $(document).ready(function() {
                     device_info: navigator.userAgent,
                     location_readings: JSON.stringify([
                         {
-                            latitude: parseFloat(firstLat),
-                            longitude: parseFloat(firstLng),
-                            timestamp: parseInt(firstTimestamp)
+                            latitude: parseFloat(reading1Lat),
+                            longitude: parseFloat(reading1Lng),
+                            timestamp: parseInt(reading1Timestamp)
                         },
                         {
-                            latitude: secondLat,
-                            longitude: secondLng,
-                            timestamp: secondTimestamp
+                            latitude: parseFloat(reading2Lat),
+                            longitude: parseFloat(reading2Lng),
+                            timestamp: parseInt(reading2Timestamp)
+                        },
+                        {
+                            latitude: reading3Lat,
+                            longitude: reading3Lng,
+                            timestamp: reading3Timestamp
                         }
                     ])
                 };
@@ -536,7 +550,7 @@ $(document).ready(function() {
             },
             {
                 enableHighAccuracy: true,
-                timeout: 5000, // Timeout 5 detik untuk GPS kedua (lebih cepat)
+                timeout: 5000, // Timeout 5 detik untuk GPS ketiga
                 maximumAge: 10000 // Cache lokasi selama 10 detik
             }
         );

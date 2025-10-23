@@ -233,20 +233,20 @@ $(document).ready(function() {
         buttons: ['copy', 'excel', 'pdf', 'print', 'colvis']
     });
 
-    // Get initial location when page loads
+    // Get initial location when page loads (Reading 1)
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             // Store first location reading in sessionStorage
-            sessionStorage.setItem('first_latitude', position.coords.latitude);
-            sessionStorage.setItem('first_longitude', position.coords.longitude);
-            sessionStorage.setItem('first_timestamp', Date.now());
-            console.log('First location stored:', position.coords.latitude, position.coords.longitude);
+            sessionStorage.setItem('reading1_latitude', position.coords.latitude);
+            sessionStorage.setItem('reading1_longitude', position.coords.longitude);
+            sessionStorage.setItem('reading1_timestamp', Date.now());
+            console.log('Reading 1 location stored:', position.coords.latitude, position.coords.longitude);
         }, function(error) {
-            console.log('Error getting first location:', error.message);
+            console.log('Error getting reading 1 location:', error.message);
         }, {
             enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
+            timeout: 10000,
+            maximumAge: 30000
         });
     }
 });

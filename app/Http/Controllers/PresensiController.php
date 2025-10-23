@@ -105,36 +105,68 @@ class PresensiController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Deteksi fake GPS dengan analisis 2 koordinat yang sama persis
-        if ($request->location_readings) {
+        // Analisis fake location detection dengan 3 readings
+        if ($request->has('location_readings')) {
             $locationReadings = json_decode($request->location_readings, true);
 
-            // Jika ada 2 readings, cek apakah koordinat sama persis
-            if (count($locationReadings) == 2) {
+            if (count($locationReadings) >= 3) {
                 $reading1 = $locationReadings[0];
                 $reading2 = $locationReadings[1];
+                $reading3 = $locationReadings[2];
 
-                // Cek apakah latitude dan longitude sama persis
-                $isIdentical = (
-                    abs($reading1['latitude'] - $reading2['latitude']) < 0.000001 &&
-                    abs($reading1['longitude'] - $reading2['longitude']) < 0.000001
+                // Check distances between all readings
+                $distance12 = $this->calculateDistance(
+                    $reading1['latitude'], $reading1['longitude'],
+                    $reading2['latitude'], $reading2['longitude']
                 );
 
-                if ($isIdentical) {
-                    \Log::warning('Fake GPS detected - identical coordinates in 2 readings', [
-                        'user_id' => $user->id,
-                        'user_name' => $user->name,
-                        'reading1' => $reading1,
-                        'reading2' => $reading2,
-                        'time_diff' => $reading2['timestamp'] - $reading1['timestamp']
-                    ]);
+                $distance23 = $this->calculateDistance(
+                    $reading2['latitude'], $reading2['longitude'],
+                    $reading3['latitude'], $reading3['longitude']
+                );
 
-                    // Jika terdeteksi fake GPS, tetap izinkan presensi tapi tandai sebagai fake location
+                $distance13 = $this->calculateDistance(
+                    $reading1['latitude'], $reading1['longitude'],
+                    $reading3['latitude'], $reading3['longitude']
+                );
+
+                $issues = [];
+                $severity = 0;
+
+                // Check if any two readings are identical (within 0.1 meter tolerance)
+                if ($distance12 < 0.0001) {
+                    $issues[] = 'Reading 1 dan Reading 2 memiliki koordinat sama persis';
+                    $severity += 2;
+                }
+
+                if ($distance23 < 0.0001) {
+                    $issues[] = 'Reading 2 dan Reading 3 memiliki koordinat sama persis';
+                    $severity += 2;
+                }
+
+                if ($distance13 < 0.0001) {
+                    $issues[] = 'Reading 1 dan Reading 3 memiliki koordinat sama persis';
+                    $severity += 2;
+                }
+
+                // If all three readings are identical, highest severity
+                if ($distance12 < 0.0001 && $distance23 < 0.0001 && $distance13 < 0.0001) {
+                    $issues[] = 'Semua reading memiliki koordinat sama persis - indikasi fake GPS kuat';
+                    $severity = 5;
+                }
+
+                if (count($issues) > 0) {
                     $isFakeLocation = true;
                     $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
                         'fake_gps_detected' => true,
-                        'fake_gps_reason' => 'Koordinat latitude dan longitude sama persis dalam 2 pengukuran',
-                        'readings' => $locationReadings
+                        'distances' => [
+                            'reading1_reading2' => $distance12,
+                            'reading2_reading3' => $distance23,
+                            'reading1_reading3' => $distance13
+                        ],
+                        'issues' => $issues,
+                        'severity' => min($severity, 5),
+                        'severity_label' => $this->getSeverityLabel($severity)
                     ]);
                 }
             }

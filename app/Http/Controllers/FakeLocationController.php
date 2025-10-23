@@ -75,9 +75,9 @@ class FakeLocationController extends Controller
                         ) : 0
                 ];
 
-                // Tambahkan detail masalah untuk fake GPS detection
+                // Tambahkan detail masalah untuk fake GPS detection (updated for 3 readings)
                 if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['fake_gps_detected']) && $presensi->fake_location_analysis['fake_gps_detected']) {
-                    $analysis['issues'][] = 'Antara latitude dan longitude 2 waktu sama persis';
+                    // Issues are already included from the analysis, no need to add generic message
                 }
 
                 // Tambahkan detail masalah untuk presensi di luar waktu yang ditentukan
