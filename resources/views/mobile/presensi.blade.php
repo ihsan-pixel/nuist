@@ -62,7 +62,7 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border position-relative" style="min-height: 280px;">
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border position-relative" style="min-height: 350px;">
                 <div id="map" class="w-100 h-100 position-absolute" style="top: 0; left: 0; z-index: 1;"></div>
             </div>
         </div>
@@ -156,7 +156,7 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    min-height: 280px;
+    min-height: 350px;
     background: #f8f9fa;
 }
 .user-location-marker {
