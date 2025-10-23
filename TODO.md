@@ -5,7 +5,7 @@
   - [x] Remove page load geolocation call that stores reading2
   - [x] Update button click handler to store reading2 instead of reading3
   - [x] Update location_readings array to send only 2 readings
-  - [x] Fix map display issues for mobile devices (enhanced CSS, canvas renderer, _onResize calls, inline styles)
+  - [x] Fix map display issues for mobile devices (enhanced CSS with box-sizing, display block, max-width/height constraints, canvas renderer, _onResize calls, tile size/zoom offset)
 - [x] Update `app/Http/Controllers/PresensiController.php`:
   - [x] Change analysis logic from 3 readings to 2 readings
   - [x] Update distance calculations and issue detection for reading1 vs reading2 only

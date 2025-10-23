@@ -62,8 +62,8 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border" style="width: 100%; height: 350px;">
-                <div id="map" style="width: 100%; height: 100%;"></div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border">
+                <div id="map"></div>
             </div>
         </div>
 
@@ -156,13 +156,16 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 350px;
+    height: 350px !important;
+    width: 100% !important;
     background: #f8f9fa;
     position: relative;
-    overflow: hidden;
+    overflow: hidden !important;
     border-radius: 8px;
     margin: 0;
     padding: 0;
+    box-sizing: border-box !important;
+    display: block !important;
 }
 #map {
     height: 100% !important;
@@ -174,6 +177,10 @@
     bottom: 0 !important;
     z-index: 1;
     border-radius: 8px;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    display: block !important;
 }
 .user-location-marker {
     background: transparent !important;
@@ -187,6 +194,10 @@
     position: relative !important;
     border-radius: 8px !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    display: block !important;
 }
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
@@ -255,7 +266,10 @@ window.addEventListener('load', function() {
                 zoomAnimation: false,
                 markerZoomAnimation: false,
                 preferCanvas: true,
-                renderer: L.canvas()
+                renderer: L.canvas(),
+                boxZoom: false,
+                doubleClickZoom: false,
+                keyboard: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -263,7 +277,9 @@ window.addEventListener('load', function() {
                 attribution: false,
                 updateWhenIdle: true,
                 updateWhenZooming: false,
-                crossOrigin: true
+                crossOrigin: true,
+                tileSize: 256,
+                zoomOffset: 0
             }).addTo(map);
 
             // Add user location marker with custom icon
@@ -344,7 +360,10 @@ window.addEventListener('load', function() {
                 zoomAnimation: false,
                 markerZoomAnimation: false,
                 preferCanvas: true,
-                renderer: L.canvas()
+                renderer: L.canvas(),
+                boxZoom: false,
+                doubleClickZoom: false,
+                keyboard: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -352,7 +371,9 @@ window.addEventListener('load', function() {
                 attribution: false,
                 updateWhenIdle: true,
                 updateWhenZooming: false,
-                crossOrigin: true
+                crossOrigin: true,
+                tileSize: 256,
+                zoomOffset: 0
             }).addTo(map);
 
             var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -416,7 +437,10 @@ window.addEventListener('load', function() {
             zoomAnimation: false,
             markerZoomAnimation: false,
             preferCanvas: true,
-            renderer: L.canvas()
+            renderer: L.canvas(),
+            boxZoom: false,
+            doubleClickZoom: false,
+            keyboard: false
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -424,7 +448,9 @@ window.addEventListener('load', function() {
             attribution: false,
             updateWhenIdle: true,
             updateWhenZooming: false,
-            crossOrigin: true
+            crossOrigin: true,
+            tileSize: 256,
+            zoomOffset: 0
         }).addTo(map);
 
         var marker = L.marker([-7.7956, 110.3695]).addTo(map)
