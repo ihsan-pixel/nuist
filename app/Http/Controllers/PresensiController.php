@@ -105,54 +105,27 @@ class PresensiController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Analisis fake location detection dengan 3 readings
+        // Analisis fake location detection dengan 2 readings
         if ($request->has('location_readings')) {
             $locationReadings = json_decode($request->location_readings, true);
 
-            if (count($locationReadings) >= 3) {
+            if (count($locationReadings) >= 2) {
                 $reading1 = $locationReadings[0];
                 $reading2 = $locationReadings[1];
-                $reading3 = $locationReadings[2];
 
-                // Check distances between all readings
+                // Check distance between the two readings
                 $distance12 = $this->calculateDistance(
                     $reading1['latitude'], $reading1['longitude'],
                     $reading2['latitude'], $reading2['longitude']
                 );
 
-                $distance23 = $this->calculateDistance(
-                    $reading2['latitude'], $reading2['longitude'],
-                    $reading3['latitude'], $reading3['longitude']
-                );
-
-                $distance13 = $this->calculateDistance(
-                    $reading1['latitude'], $reading1['longitude'],
-                    $reading3['latitude'], $reading3['longitude']
-                );
-
                 $issues = [];
                 $severity = 0;
 
-                // Check if any two readings are identical (within 0.1 meter tolerance)
+                // Check if readings are identical (within 0.1 meter tolerance)
                 if ($distance12 < 0.0001) {
                     $issues[] = 'Reading 1 dan Reading 2 memiliki koordinat sama persis';
-                    $severity += 2;
-                }
-
-                if ($distance23 < 0.0001) {
-                    $issues[] = 'Reading 2 dan Reading 3 memiliki koordinat sama persis';
-                    $severity += 2;
-                }
-
-                if ($distance13 < 0.0001) {
-                    $issues[] = 'Reading 1 dan Reading 3 memiliki koordinat sama persis';
-                    $severity += 2;
-                }
-
-                // If all three readings are identical, highest severity
-                if ($distance12 < 0.0001 && $distance23 < 0.0001 && $distance13 < 0.0001) {
-                    $issues[] = 'Semua reading memiliki koordinat sama persis - indikasi fake GPS kuat';
-                    $severity = 5;
+                    $severity += 3;
                 }
 
                 if (count($issues) > 0) {
@@ -160,9 +133,7 @@ class PresensiController extends Controller
                     $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
                         'fake_gps_detected' => true,
                         'distances' => [
-                            'reading1_reading2' => $distance12,
-                            'reading2_reading3' => $distance23,
-                            'reading1_reading3' => $distance13
+                            'reading1_reading2' => $distance12
                         ],
                         'issues' => $issues,
                         'severity' => min($severity, 5),

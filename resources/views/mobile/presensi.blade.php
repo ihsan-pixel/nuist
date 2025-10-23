@@ -158,97 +158,39 @@
 $(document).ready(function() {
     let latitude, longitude, lokasi;
 
-    // Get location when page loads
-    if (navigator.geolocation) {
-        $('#location-info').html(`
-            <div class="alert alert-info border-0 rounded-3">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-3 fs-4"></i>
-                    <div>
-                        <strong>Mendapatkan lokasi Anda...</strong>
-                        <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
-                    </div>
+    // Initialize map without getting location on page load
+    $('#location-info').html(`
+        <div class="alert alert-info border-0 rounded-3">
+            <div class="d-flex align-items-center">
+                <i class="bx bx-info-circle me-3 fs-4"></i>
+                <div>
+                    <strong>Klik tombol presensi untuk mendapatkan lokasi</strong>
+                    <br><small class="text-muted">Pastikan GPS aktif</small>
                 </div>
             </div>
-        `);
+        </div>
+    `);
 
-        navigator.geolocation.getCurrentPosition(function(position) {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
+    // Initialize map with default location
+    var map = L.map('map', {
+        center: [-7.7956, 110.3695], // Default to Yogyakarta area
+        zoom: 10,
+        zoomControl: true,
+        scrollWheelZoom: false
+    });
 
-            // Store reading 2 in sessionStorage
-            sessionStorage.setItem('reading2_latitude', position.coords.latitude);
-            sessionStorage.setItem('reading2_longitude', position.coords.longitude);
-            sessionStorage.setItem('reading2_timestamp', Date.now());
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-            $('#latitude').val(latitude.toFixed(6));
-            $('#longitude').val(longitude.toFixed(6));
+    var marker = L.marker([-7.7956, 110.3695]).addTo(map)
+        .bindPopup('Peta akan menampilkan lokasi Anda saat presensi')
+        .openPopup();
 
-            // Get address
-            getAddressFromCoordinates(latitude, longitude);
-
-            $('#location-info').html(`
-                <div class="alert alert-success border-0 rounded-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-3 fs-4"></i>
-                        <div>
-                            <strong>Lokasi berhasil didapatkan!</strong>
-                        </div>
-                    </div>
-                </div>
-            `);
-
-            // Initialize map
-            var map = L.map('map', {
-                center: [latitude, longitude],
-                zoom: 15,
-                zoomControl: true,
-                scrollWheelZoom: false
-            });
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            var marker = L.marker([latitude, longitude]).addTo(map)
-                .bindPopup('Lokasi Anda saat ini')
-                .openPopup();
-
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 100);
-
-        }, function(error) {
-            $('#location-info').html(`
-                <div class="alert alert-danger border-0 rounded-3">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-3 fs-4"></i>
-                        <div>
-                            <strong>Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
-                        </div>
-                    </div>
-                </div>
-            `);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 30000
-        });
-    } else {
-        $('#location-info').html(`
-            <div class="alert alert-danger border-0 rounded-3">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-3 fs-4"></i>
-                    <div>
-                        <strong>Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                    </div>
-                </div>
-            </div>
-        `);
-    }
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 100);
 
     // Get address from coordinates
     function getAddressFromCoordinates(lat, lng) {
@@ -280,25 +222,29 @@ $(document).ready(function() {
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-        // Get third location reading
+        // Get second location reading (button click)
         navigator.geolocation.getCurrentPosition(
             function(position) {
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
+
+                // Store reading 2 in sessionStorage
+                sessionStorage.setItem('reading2_latitude', position.coords.latitude);
+                sessionStorage.setItem('reading2_longitude', position.coords.longitude);
+                sessionStorage.setItem('reading2_timestamp', Date.now());
+
                 let reading1Lat = sessionStorage.getItem('reading1_latitude');
                 let reading1Lng = sessionStorage.getItem('reading1_longitude');
                 let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
 
-                let reading2Lat = sessionStorage.getItem('reading2_latitude');
-                let reading2Lng = sessionStorage.getItem('reading2_longitude');
-                let reading2Timestamp = sessionStorage.getItem('reading2_timestamp');
-
-                let reading3Lat = position.coords.latitude;
-                let reading3Lng = position.coords.longitude;
-                let reading3Timestamp = Date.now();
+                let reading2Lat = position.coords.latitude;
+                let reading2Lng = position.coords.longitude;
+                let reading2Timestamp = Date.now();
 
                 let postData = {
                     _token: '{{ csrf_token() }}',
-                    latitude: reading3Lat,
-                    longitude: reading3Lng,
+                    latitude: reading2Lat,
+                    longitude: reading2Lng,
                     lokasi: lokasi,
                     accuracy: position.coords.accuracy,
                     altitude: position.coords.altitude,
@@ -311,17 +257,34 @@ $(document).ready(function() {
                             timestamp: parseInt(reading1Timestamp)
                         },
                         {
-                            latitude: parseFloat(reading2Lat),
-                            longitude: parseFloat(reading2Lng),
-                            timestamp: parseInt(reading2Timestamp)
-                        },
-                        {
-                            latitude: reading3Lat,
-                            longitude: reading3Lng,
-                            timestamp: reading3Timestamp
+                            latitude: reading2Lat,
+                            longitude: reading2Lng,
+                            timestamp: reading2Timestamp
                         }
                     ])
                 };
+
+                // Update UI with location data
+                $('#latitude').val(latitude.toFixed(6));
+                $('#longitude').val(longitude.toFixed(6));
+
+                // Get address
+                getAddressFromCoordinates(latitude, longitude);
+
+                // Update map
+                map.setView([latitude, longitude], 15);
+                marker.setLatLng([latitude, longitude]).setPopupContent('Lokasi Anda saat presensi').openPopup();
+
+                $('#location-info').html(`
+                    <div class="alert alert-success border-0 rounded-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-check-circle me-3 fs-4"></i>
+                            <div>
+                                <strong>Lokasi berhasil didapatkan!</strong>
+                            </div>
+                        </div>
+                    </div>
+                `);
 
                 $.ajax({
                     url: '{{ route("mobile.presensi.store") }}',

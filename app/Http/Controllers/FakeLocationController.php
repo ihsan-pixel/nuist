@@ -75,19 +75,14 @@ class FakeLocationController extends Controller
                         ) : 0
                 ];
 
-                // Tambahkan detail masalah untuk fake GPS detection (updated for 3 readings)
+                // Tambahkan detail masalah untuk fake GPS detection (updated for 2 readings)
                 if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['fake_gps_detected']) && $presensi->fake_location_analysis['fake_gps_detected']) {
-                    // Check if all three readings are identical (strong fake GPS indicator)
+                    // Check if readings are identical (fake GPS indicator)
                     if (isset($presensi->fake_location_analysis['distances'])) {
                         $distances = $presensi->fake_location_analysis['distances'];
-                        if ($distances['reading1_reading2'] < 0.0001 &&
-                            $distances['reading2_reading3'] < 0.0001 &&
-                            $distances['reading1_reading3'] < 0.0001) {
-                            // Add specific issue for all readings being identical
-                            $analysis['issues'][] = 'Ketiga pembacaan lokasi (index, create, dan button) sama persis - indikasi pengguna fake GPS';
-                        } elseif ($distances['reading2_reading3'] < 0.0001) {
-                            // Add specific issue for readings 2 and 3 being identical
-                            $analysis['issues'][] = 'Pembacaan lokasi ke-2 (create) dan ke-3 (button) sama persis - indikasi pengguna fake GPS';
+                        if ($distances['reading1_reading2'] < 0.0001) {
+                            // Add specific issue for readings being identical
+                            $analysis['issues'][] = 'Kedua pembacaan lokasi (menu entry dan button click) sama persis - indikasi pengguna fake GPS';
                         }
                     }
                 }
