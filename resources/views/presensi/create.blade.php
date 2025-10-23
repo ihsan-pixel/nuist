@@ -345,8 +345,19 @@ $(document).ready(function() {
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Mendapatkan lokasi pengguna
+    // Mendapatkan lokasi pengguna dengan timeout yang lebih cepat
     if (navigator.geolocation) {
+        // Tampilkan loading yang lebih cepat
+        $('#location-info').html(`
+            <div class="alert alert-info border-0 rounded-3 d-flex align-items-center">
+                <i class="bx bx-loader-alt bx-spin me-3 fs-4"></i>
+                <div>
+                    <strong>Mendapatkan lokasi Anda...</strong>
+                    <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
+                </div>
+            </div>
+        `);
+
         navigator.geolocation.getCurrentPosition(function(position) {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
@@ -354,41 +365,66 @@ $(document).ready(function() {
             $('#latitude').val(latitude.toFixed(6));
             $('#longitude').val(longitude.toFixed(6));
 
-            // Mendapatkan alamat dari koordinat
+            // Mendapatkan alamat dari koordinat secara paralel (tidak blocking)
             getAddressFromCoordinates(latitude, longitude);
 
             $('#location-info').html(`
-                <div class="alert alert-success">
-                    <i class="bx bx-check-circle me-2"></i>
-                    Lokasi berhasil didapatkan!
+                <div class="alert alert-success border-0 rounded-3 d-flex align-items-center">
+                    <i class="bx bx-check-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Lokasi berhasil didapatkan!</strong>
+                        <br><small class="text-muted">Akurasi: ${position.coords.accuracy ? Math.round(position.coords.accuracy) + ' meter' : 'Tidak diketahui'}</small>
+                    </div>
                 </div>
             `);
 
-            // Initialize Leaflet map
-            var map = L.map('map').setView([latitude, longitude], 15);
+            // Initialize Leaflet map dengan loading yang lebih cepat
+            var map = L.map('map', {
+                center: [latitude, longitude],
+                zoom: 15,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
 
+            // Gunakan tile layer yang lebih cepat loading
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; OpenStreetMap contributors',
+                updateWhenIdle: true
             }).addTo(map);
 
             var marker = L.marker([latitude, longitude]).addTo(map)
                 .bindPopup('Lokasi Anda saat ini')
                 .openPopup();
 
+            // Enable map setelah loading selesai
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+
         }, function(error) {
             $('#location-info').html(`
-                <div class="alert alert-danger">
-                    <i class="bx bx-error-circle me-2"></i>
-                    Gagal mendapatkan lokasi: ${error.message}
+                <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center">
+                    <i class="bx bx-error-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Gagal mendapatkan lokasi</strong>
+                        <br><small class="text-muted">${error.message}</small>
+                    </div>
                 </div>
             `);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000, // Timeout 10 detik (lebih cepat dari default browser)
+            maximumAge: 30000 // Cache lokasi selama 30 detik
         });
     } else {
         $('#location-info').html(`
-            <div class="alert alert-danger">
-                <i class="bx bx-error-circle me-2"></i>
-                Browser Anda tidak mendukung geolocation.
+            <div class="alert alert-danger border-0 rounded-3 d-flex align-items-center">
+                <i class="bx bx-error-circle me-3 fs-4"></i>
+                <div>
+                    <strong>Browser tidak mendukung GPS</strong>
+                    <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+                </div>
             </div>
         `);
     }
@@ -501,8 +537,8 @@ $(document).ready(function() {
             },
             {
                 enableHighAccuracy: true,
-                timeout: 3000,
-                maximumAge: 0
+                timeout: 5000, // Timeout 5 detik untuk GPS kedua (lebih cepat)
+                maximumAge: 10000 // Cache lokasi selama 10 detik
             }
         );
     });
