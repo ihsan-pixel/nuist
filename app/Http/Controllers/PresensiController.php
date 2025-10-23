@@ -190,20 +190,15 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Jika terdeteksi fake location, blokir presensi
+        // Jika terdeteksi fake location, tetap izinkan presensi tapi log untuk monitoring
+        // Super admin dapat memeriksa di menu deteksi fake location
         if ($isFakeLocation) {
-            // Log untuk monitoring
-            \Log::warning('Fake location detected - presensi blocked', [
+            \Log::warning('Fake location detected - presensi allowed but flagged', [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'madrasah' => $madrasah ? $madrasah->name : 'N/A',
                 'analysis' => $fakeLocationAnalysis
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Deteksi penggunaan fake location atau lokasi tidak valid. Presensi tidak dapat dilakukan. Pastikan GPS aktif dan tidak menggunakan aplikasi pemalsu lokasi.'
-            ], 400);
         }
 
         // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
@@ -264,10 +259,8 @@ class PresensiController extends Controller
                 $keterangan = "tidak terlambat";
             }
 
-            // Tambahkan keterangan fake GPS jika terdeteksi
-            if ($isFakeLocation && isset($fakeLocationAnalysis['fake_gps_detected']) && $fakeLocationAnalysis['fake_gps_detected']) {
-                $keterangan = ($keterangan ? $keterangan . ' - ' : '') . 'Presensi menggunakan fake GPS - koordinat latitude dan longitude konstan/sama persis pada 2 waktu yang berbeda';
-            }
+            // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
+            // Tidak perlu tambahkan keterangan di field keterangan presensi
 
             // Presensi masuk
             $presensi = Presensi::create([
@@ -319,10 +312,8 @@ class PresensiController extends Controller
                     $keterangan = "tidak terlambat";
                 }
 
-                // Tambahkan keterangan fake GPS jika terdeteksi
-                if ($isFakeLocation && isset($fakeLocationAnalysis['fake_gps_detected']) && $fakeLocationAnalysis['fake_gps_detected']) {
-                    $keterangan = ($keterangan ? $keterangan . ' - ' : '') . 'Presensi menggunakan fake GPS - koordinat latitude dan longitude konstan/sama persis pada 2 waktu yang berbeda';
-                }
+                // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
+                // Tidak perlu tambahkan keterangan di field keterangan presensi
 
                 $presensi->update([
                     'status' => 'hadir',
