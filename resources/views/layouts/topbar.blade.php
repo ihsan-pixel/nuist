@@ -1,4 +1,4 @@
-<header id="page-topbar" class="fixed-top">
+<header id="page-topbar">
     <div class="navbar-header">
         <div class="d-flex">
             <!-- LOGO -->
