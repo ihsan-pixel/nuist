@@ -62,8 +62,8 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border" style="position: relative;">
-                <div id="map" style="height: 280px; width: 100%; position: relative; z-index: 1;"></div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border position-relative" style="min-height: 280px;">
+                <div id="map" class="w-100 h-100 position-absolute" style="top: 0; left: 0; z-index: 1;"></div>
             </div>
         </div>
 
@@ -157,10 +157,22 @@
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     min-height: 280px;
+    background: #f8f9fa;
 }
 .user-location-marker {
     background: transparent !important;
     border: none !important;
+}
+.leaflet-container {
+    background: #f8f9fa !important;
+    font-family: inherit;
+}
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.leaflet-popup-tip {
+    background: white;
 }
 </style>
 @endsection
@@ -214,15 +226,20 @@ $(document).ready(function() {
             // Initialize map with user location
             var map = L.map('map', {
                 center: [latitude, longitude],
-                zoom: 16,
-                zoomControl: true,
+                zoom: 17,
+                zoomControl: false,
                 scrollWheelZoom: false,
-                attributionControl: false
+                attributionControl: false,
+                fadeAnimation: false,
+                zoomAnimation: false,
+                markerZoomAnimation: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: false,
+                updateWhenIdle: true,
+                updateWhenZooming: false
             }).addTo(map);
 
             // Add user location marker with custom icon
@@ -247,18 +264,11 @@ $(document).ready(function() {
                 }).addTo(map);
             }
 
-            // Force map to resize and fit bounds
+            // Force map to resize and center on location
             setTimeout(function() {
                 map.invalidateSize();
-                // Fit map to show marker and accuracy circle
-                if (position.coords.accuracy) {
-                    var bounds = L.latLngBounds([
-                        [latitude - 0.001, longitude - 0.001],
-                        [latitude + 0.001, longitude + 0.001]
-                    ]);
-                    map.fitBounds(bounds, {padding: [20, 20]});
-                }
-            }, 200);
+                map.setView([latitude, longitude], 17);
+            }, 100);
 
         }, function(error) {
             $('#location-info').html(`
@@ -277,14 +287,19 @@ $(document).ready(function() {
             var map = L.map('map', {
                 center: [-7.7956, 110.3695],
                 zoom: 12,
-                zoomControl: true,
+                zoomControl: false,
                 scrollWheelZoom: false,
-                attributionControl: false
+                attributionControl: false,
+                fadeAnimation: false,
+                zoomAnimation: false,
+                markerZoomAnimation: false
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: false,
+                updateWhenIdle: true,
+                updateWhenZooming: false
             }).addTo(map);
 
             var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -293,7 +308,7 @@ $(document).ready(function() {
 
             setTimeout(function() {
                 map.invalidateSize();
-            }, 200);
+            }, 100);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -316,14 +331,19 @@ $(document).ready(function() {
         var map = L.map('map', {
             center: [-7.7956, 110.3695],
             zoom: 12,
-            zoomControl: true,
+            zoomControl: false,
             scrollWheelZoom: false,
-            attributionControl: false
+            attributionControl: false,
+            fadeAnimation: false,
+            zoomAnimation: false,
+            markerZoomAnimation: false
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: false,
+            updateWhenIdle: true,
+            updateWhenZooming: false
         }).addTo(map);
 
         var marker = L.marker([-7.7956, 110.3695]).addTo(map)
@@ -332,7 +352,7 @@ $(document).ready(function() {
 
         setTimeout(function() {
             map.invalidateSize();
-        }, 200);
+        }, 100);
     }
 
     // Get address from coordinates
