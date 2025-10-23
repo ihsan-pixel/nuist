@@ -75,7 +75,7 @@
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center py-2">
                     <span class="text-muted">Bergabung Sejak</span>
-                    <span class="fw-medium">{{ $user->created_at->format('d M Y') }}</span>
+                    <span class="fw-medium">{{ $user->created_at ? $user->created_at->format('d M Y') : 'Tidak diketahui' }}</span>
                 </div>
             </div>
         </div>
