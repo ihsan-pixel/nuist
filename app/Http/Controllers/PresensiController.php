@@ -149,15 +149,20 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Jika terdeteksi fake location, log untuk super admin tapi tetap izinkan presensi
+        // Jika terdeteksi fake location, blokir presensi
         if ($isFakeLocation) {
-            // Log untuk monitoring, tapi jangan blokir presensi
-            \Log::warning('Fake location detected', [
+            // Log untuk monitoring
+            \Log::warning('Fake location detected - presensi blocked', [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'madrasah' => $madrasah ? $madrasah->name : 'N/A',
                 'analysis' => $fakeLocationAnalysis
             ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Deteksi penggunaan fake location atau lokasi tidak valid. Presensi tidak dapat dilakukan. Pastikan GPS aktif dan tidak menggunakan aplikasi pemalsu lokasi.'
+            ], 400);
         }
 
         // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
