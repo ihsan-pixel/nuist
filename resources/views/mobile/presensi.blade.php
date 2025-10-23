@@ -296,78 +296,62 @@ document.addEventListener("DOMContentLoaded", () => {
         const originalText = this.innerHTML;
         this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...';
 
-        // Function to submit presensi
-        const submitPresensi = () => {
-            // Prepare form data
-            const formData = new FormData();
-            formData.append('latitude', document.getElementById('latitude').value);
-            formData.append('longitude', document.getElementById('longitude').value);
-            formData.append('lokasi', document.getElementById('lokasi').value);
-            formData.append('accuracy', currentLocation ? currentLocation.accuracy : '5.0');
-            formData.append('altitude', currentLocation ? currentLocation.altitude : null);
-            formData.append('speed', currentLocation ? currentLocation.speed : null);
-            formData.append('device_info', navigator.userAgent);
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        // Prepare form data (use existing location data without fetching new one)
+        const formData = new FormData();
+        formData.append('latitude', document.getElementById('latitude').value || '0');
+        formData.append('longitude', document.getElementById('longitude').value || '0');
+        formData.append('lokasi', document.getElementById('lokasi').value || 'Lokasi tidak diketahui');
+        formData.append('accuracy', currentLocation ? currentLocation.accuracy : '5.0');
+        formData.append('altitude', currentLocation ? currentLocation.altitude : null);
+        formData.append('speed', currentLocation ? currentLocation.speed : null);
+        formData.append('device_info', navigator.userAgent);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-            // Submit presensi
-            fetch('{{ route("mobile.presensi.store") }}', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success alert
-                    alert('✅ ' + data.message);
+        // Submit presensi directly without fetching new location
+        fetch('{{ route("mobile.presensi.store") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success alert
+                alert('✅ ' + data.message);
 
-                    // Show success message in UI
-                    document.getElementById('location-info').innerHTML = `
-                        <div class="alert alert-success small"><i class="bx bx-check-circle me-1"></i>${data.message}</div>
-                    `;
-
-                    // Reload page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    // Show error alert for validation failures
-                    alert('❌ ' + data.message);
-
-                    // Show error message in UI
-                    document.getElementById('location-info').innerHTML = `
-                        <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>${data.message}</div>
-                    `;
-
-                    // Re-enable button
-                    document.getElementById('btn-presensi').disabled = false;
-                    document.getElementById('btn-presensi').innerHTML = originalText;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+                // Show success message in UI
                 document.getElementById('location-info').innerHTML = `
-                    <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>Terjadi kesalahan. Silakan coba lagi.</div>
+                    <div class="alert alert-success small"><i class="bx bx-check-circle me-1"></i>${data.message}</div>
+                `;
+
+                // Reload page after 2 seconds
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                // Show error alert for validation failures
+                alert('❌ ' + data.message);
+
+                // Show error message in UI
+                document.getElementById('location-info').innerHTML = `
+                    <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>${data.message}</div>
                 `;
 
                 // Re-enable button
                 document.getElementById('btn-presensi').disabled = false;
                 document.getElementById('btn-presensi').innerHTML = originalText;
-            });
-        };
-
-        // If we don't have current location or it's old, get fresh location
-        if (!currentLocation) {
-            getCurrentLocation(submitPresensi);
-        } else {
-            // Check if location is recent (within 30 seconds)
-            const locationAge = Date.now() - (currentLocation.timestamp || 0);
-            if (locationAge > 30000) {
-                getCurrentLocation(submitPresensi);
-            } else {
-                submitPresensi();
             }
-        }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan. Silakan coba lagi.');
+            document.getElementById('location-info').innerHTML = `
+                <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>Terjadi kesalahan. Silakan coba lagi.</div>
+            `;
+
+            // Re-enable button
+            document.getElementById('btn-presensi').disabled = false;
+            document.getElementById('btn-presensi').innerHTML = originalText;
+        });
     });
 });
 </script>
