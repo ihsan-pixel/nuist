@@ -62,8 +62,8 @@
         <!-- Map Container -->
         <div class="mb-4">
             <label class="form-label fw-semibold mb-2">Lokasi Anda</label>
-            <div class="map-container rounded-3 overflow-hidden shadow-sm border position-relative" style="min-height: 350px;">
-                <div id="map" class="w-100 h-100 position-absolute" style="top: 0; left: 0; z-index: 1;"></div>
+            <div class="map-container rounded-3 overflow-hidden shadow-sm border">
+                <div id="map"></div>
             </div>
         </div>
 
@@ -158,6 +158,15 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     min-height: 350px;
     background: #f8f9fa;
+    position: relative;
+}
+#map {
+    height: 350px !important;
+    width: 100% !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 .user-location-marker {
     background: transparent !important;
@@ -166,6 +175,8 @@
 .leaflet-container {
     background: #f8f9fa !important;
     font-family: inherit;
+    height: 100% !important;
+    width: 100% !important;
 }
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
@@ -180,7 +191,7 @@
 @section('script')
 <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
-$(document).ready(function() {
+window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
 
     // Get location when page loads (reading1)
@@ -270,6 +281,11 @@ $(document).ready(function() {
                 map.setView([latitude, longitude], 17);
             }, 100);
 
+            // Additional resize for hidden tabs
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 500);
+
         }, function(error) {
             $('#location-info').html(`
                 <div class="alert alert-danger border-0 rounded-3">
@@ -309,6 +325,11 @@ $(document).ready(function() {
             setTimeout(function() {
                 map.invalidateSize();
             }, 100);
+
+            // Additional resize for hidden tabs
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 500);
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
@@ -353,6 +374,11 @@ $(document).ready(function() {
         setTimeout(function() {
             map.invalidateSize();
         }, 100);
+
+        // Additional resize for hidden tabs
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 500);
     }
 
     // Get address from coordinates
@@ -469,6 +495,26 @@ $(document).ready(function() {
             }
         );
     });
+});
+
+// Handle tab visibility changes for map resizing
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        setTimeout(function() {
+            if (typeof map !== 'undefined' && map.invalidateSize) {
+                map.invalidateSize();
+            }
+        }, 100);
+    }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    setTimeout(function() {
+        if (typeof map !== 'undefined' && map.invalidateSize) {
+            map.invalidateSize();
+        }
+    }, 100);
 });
 </script>
 @endsection
