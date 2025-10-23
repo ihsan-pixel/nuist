@@ -209,73 +209,83 @@
 @section('script')
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    let locationReadings = [];
-    let locationWatchId = null;
+    let currentLocation = null;
 
-    // Function to collect multiple location readings
-    const collectLocationReadings = (callback) => {
-        locationReadings = [];
-        let readingsCount = 0;
-        const maxReadings = 3;
+    // Function to get single location reading (faster)
+    const getCurrentLocation = (callback) => {
+        if (!navigator.geolocation) {
+            alert('GPS tidak tersedia di perangkat ini.');
+            return;
+        }
 
-        const collectReading = (position) => {
-            const reading = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                accuracy: position.coords.accuracy,
-                altitude: position.coords.altitude,
-                speed: position.coords.speed,
-                timestamp: Date.now()
-            };
-            locationReadings.push(reading);
-            readingsCount++;
+        document.getElementById('location-info').innerHTML = `
+            <i class="bx bx-loader-alt bx-spin me-1"></i> Mendapatkan lokasi...
+        `;
 
-            if (readingsCount >= maxReadings) {
-                // Use the most recent reading for display
-                const latestReading = locationReadings[locationReadings.length - 1];
-                document.getElementById('latitude').value = latestReading.latitude.toFixed(6);
-                document.getElementById('longitude').value = latestReading.longitude.toFixed(6);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                currentLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    altitude: position.coords.altitude,
+                    speed: position.coords.speed
+                };
+
+                // Update form fields
+                document.getElementById('latitude').value = currentLocation.latitude.toFixed(6);
+                document.getElementById('longitude').value = currentLocation.longitude.toFixed(6);
 
                 // Reverse geocode
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latestReading.latitude}&lon=${latestReading.longitude}`)
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLocation.latitude}&lon=${currentLocation.longitude}`)
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById('lokasi').value = data.display_name || 'Tidak dapat menentukan alamat';
+                        document.getElementById('location-info').innerHTML = `
+                            <i class="bx bx-check-circle text-success me-1"></i> Lokasi berhasil didapatkan.
+                        `;
+                        if (callback) callback();
+                    })
+                    .catch(() => {
+                        document.getElementById('lokasi').value = 'Tidak dapat menentukan alamat';
+                        document.getElementById('location-info').innerHTML = `
+                            <i class="bx bx-check-circle text-success me-1"></i> Lokasi berhasil didapatkan.
+                        `;
+                        if (callback) callback();
                     });
-
-                callback();
-            }
-        };
-
-        // Collect readings with small delays
-        for (let i = 0; i < maxReadings; i++) {
-            setTimeout(() => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(collectReading, (error) => {
-                        console.error('Error getting location:', error);
-                        if (i === maxReadings - 1) callback(); // Call callback on last attempt even if failed
-                    }, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    });
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                let errorMessage = 'Gagal mendapatkan lokasi. ';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += 'Akses lokasi ditolak. Izinkan akses lokasi di browser.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += 'Lokasi tidak tersedia.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += 'Waktu habis mendapatkan lokasi.';
+                        break;
+                    default:
+                        errorMessage += 'Error tidak diketahui.';
+                        break;
                 }
-            }, i * 500); // 500ms delay between readings
-        }
+                alert(errorMessage);
+                document.getElementById('location-info').innerHTML = `
+                    <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>${errorMessage}</div>
+                `;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 30000 // Allow cached location up to 30 seconds
+            }
+        );
     };
 
     // Initial location collection
-    if (navigator.geolocation) {
-        collectLocationReadings(() => {
-            document.getElementById('location-info').innerHTML = `
-                <i class="bx bx-check-circle text-success me-1"></i> Lokasi berhasil didapatkan.
-            `;
-        });
-    } else {
-        document.getElementById('location-info').innerHTML = `
-            <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>GPS tidak tersedia.</div>
-        `;
-    }
+    getCurrentLocation();
 
     // Handle presensi button click
     document.getElementById('btn-presensi').addEventListener('click', function(e) {
@@ -283,18 +293,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Disable button to prevent multiple clicks
         this.disabled = true;
+        const originalText = this.innerHTML;
         this.innerHTML = '<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...';
 
-        // Collect fresh location readings before submitting
-        collectLocationReadings(() => {
+        // Function to submit presensi
+        const submitPresensi = () => {
             // Prepare form data
             const formData = new FormData();
             formData.append('latitude', document.getElementById('latitude').value);
             formData.append('longitude', document.getElementById('longitude').value);
             formData.append('lokasi', document.getElementById('lokasi').value);
-            formData.append('accuracy', '5.0'); // Default accuracy
-            formData.append('altitude', null);
-            formData.append('speed', null);
+            formData.append('accuracy', currentLocation ? currentLocation.accuracy : '5.0');
+            formData.append('altitude', currentLocation ? currentLocation.altitude : null);
+            formData.append('speed', currentLocation ? currentLocation.speed : null);
             formData.append('device_info', navigator.userAgent);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
@@ -306,7 +317,10 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Show success message
+                    // Show success alert
+                    alert('✅ ' + data.message);
+
+                    // Show success message in UI
                     document.getElementById('location-info').innerHTML = `
                         <div class="alert alert-success small"><i class="bx bx-check-circle me-1"></i>${data.message}</div>
                     `;
@@ -316,27 +330,44 @@ document.addEventListener("DOMContentLoaded", () => {
                         window.location.reload();
                     }, 2000);
                 } else {
-                    // Show error message
+                    // Show error alert for validation failures
+                    alert('❌ ' + data.message);
+
+                    // Show error message in UI
                     document.getElementById('location-info').innerHTML = `
                         <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>${data.message}</div>
                     `;
 
                     // Re-enable button
                     document.getElementById('btn-presensi').disabled = false;
-                    document.getElementById('btn-presensi').innerHTML = '<i class="bx bx-check-circle me-2"></i>Presensi Masuk';
+                    document.getElementById('btn-presensi').innerHTML = originalText;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('❌ Terjadi kesalahan. Silakan coba lagi.');
                 document.getElementById('location-info').innerHTML = `
                     <div class="alert alert-danger small"><i class="bx bx-error-circle me-1"></i>Terjadi kesalahan. Silakan coba lagi.</div>
                 `;
 
                 // Re-enable button
                 document.getElementById('btn-presensi').disabled = false;
-                document.getElementById('btn-presensi').innerHTML = '<i class="bx bx-check-circle me-2"></i>Presensi Masuk';
+                document.getElementById('btn-presensi').innerHTML = originalText;
             });
-        });
+        };
+
+        // If we don't have current location or it's old, get fresh location
+        if (!currentLocation) {
+            getCurrentLocation(submitPresensi);
+        } else {
+            // Check if location is recent (within 30 seconds)
+            const locationAge = Date.now() - (currentLocation.timestamp || 0);
+            if (locationAge > 30000) {
+                getCurrentLocation(submitPresensi);
+            } else {
+                submitPresensi();
+            }
+        }
     });
 });
 </script>
