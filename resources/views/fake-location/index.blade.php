@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title')Deteksi Fake Location Presensi@endsection
+@section('title')Deteksi Fake Location - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY@endsection
 
 @section('content')
 @component('components.breadcrumb')
