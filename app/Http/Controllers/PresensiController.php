@@ -264,6 +264,11 @@ class PresensiController extends Controller
                 $keterangan = "tidak terlambat";
             }
 
+            // Tambahkan keterangan fake GPS jika terdeteksi
+            if ($isFakeLocation && isset($fakeLocationAnalysis['fake_gps_detected']) && $fakeLocationAnalysis['fake_gps_detected']) {
+                $keterangan = ($keterangan ? $keterangan . ' - ' : '') . 'Presensi menggunakan fake GPS - koordinat latitude dan longitude konstan/sama persis pada 2 waktu yang berbeda';
+            }
+
             // Presensi masuk
             $presensi = Presensi::create([
                 'user_id' => $user->id,
@@ -312,6 +317,11 @@ class PresensiController extends Controller
                     $keterangan = "Terlambat {$terlambatMenit} menit";
                 } else {
                     $keterangan = "tidak terlambat";
+                }
+
+                // Tambahkan keterangan fake GPS jika terdeteksi
+                if ($isFakeLocation && isset($fakeLocationAnalysis['fake_gps_detected']) && $fakeLocationAnalysis['fake_gps_detected']) {
+                    $keterangan = ($keterangan ? $keterangan . ' - ' : '') . 'Presensi menggunakan fake GPS - koordinat latitude dan longitude konstan/sama persis pada 2 waktu yang berbeda';
                 }
 
                 $presensi->update([
