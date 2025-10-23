@@ -156,12 +156,13 @@
 <style>
 .map-container {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    min-height: 350px;
+    height: 350px;
     background: #f8f9fa;
     position: relative;
+    overflow: hidden;
 }
 #map {
-    height: 350px !important;
+    height: 100% !important;
     width: 100% !important;
     position: absolute;
     top: 0;
@@ -177,6 +178,7 @@
     font-family: inherit;
     height: 100% !important;
     width: 100% !important;
+    position: relative !important;
 }
 .leaflet-popup-content-wrapper {
     border-radius: 8px;
@@ -192,7 +194,7 @@
 <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
-    let latitude, longitude, lokasi;
+    let latitude, longitude, lokasi, map;
 
     // Get location when page loads (reading1)
     if (navigator.geolocation) {
@@ -235,7 +237,7 @@ window.addEventListener('load', function() {
             `);
 
             // Initialize map with user location
-            var map = L.map('map', {
+            map = L.map('map', {
                 center: [latitude, longitude],
                 zoom: 17,
                 zoomControl: false,
@@ -279,21 +281,23 @@ window.addEventListener('load', function() {
 
             // Force map to resize and center on location
             setTimeout(function() {
-                map.invalidateSize();
-                map.setView([latitude, longitude], 17);
+                if (map) {
+                    map.invalidateSize();
+                    map.setView([latitude, longitude], 17);
+                }
             }, 100);
 
             // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 300);
 
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 600);
 
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 1000);
 
         }, function(error) {
@@ -310,7 +314,7 @@ window.addEventListener('load', function() {
             `);
 
             // Initialize map with default location on error
-            var map = L.map('map', {
+            map = L.map('map', {
                 center: [-7.7956, 110.3695],
                 zoom: 12,
                 zoomControl: false,
@@ -335,20 +339,20 @@ window.addEventListener('load', function() {
                 .openPopup();
 
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 100);
 
             // Additional resize for hidden tabs - multiple calls for reliability
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 300);
 
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 600);
 
             setTimeout(function() {
-                map.invalidateSize();
+                if (map) map.invalidateSize();
             }, 1000);
         }, {
             enableHighAccuracy: true,
@@ -369,7 +373,7 @@ window.addEventListener('load', function() {
         `);
 
         // Initialize map with default location
-        var map = L.map('map', {
+        map = L.map('map', {
             center: [-7.7956, 110.3695],
             zoom: 12,
             zoomControl: false,
@@ -394,20 +398,20 @@ window.addEventListener('load', function() {
             .openPopup();
 
         setTimeout(function() {
-            map.invalidateSize();
+            if (map) map.invalidateSize();
         }, 100);
 
         // Additional resize for hidden tabs - multiple calls for reliability
         setTimeout(function() {
-            map.invalidateSize();
+            if (map) map.invalidateSize();
         }, 300);
 
         setTimeout(function() {
-            map.invalidateSize();
+            if (map) map.invalidateSize();
         }, 600);
 
         setTimeout(function() {
-            map.invalidateSize();
+            if (map) map.invalidateSize();
         }, 1000);
     }
 
@@ -549,13 +553,13 @@ window.addEventListener('load', function() {
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
         setTimeout(function() {
-            if (typeof map !== 'undefined' && map.invalidateSize) {
+            if (map && typeof map.invalidateSize === 'function') {
                 map.invalidateSize();
             }
         }, 100);
         // Additional calls for reliability
         setTimeout(function() {
-            if (typeof map !== 'undefined' && map.invalidateSize) {
+            if (map && typeof map.invalidateSize === 'function') {
                 map.invalidateSize();
             }
         }, 300);
@@ -565,13 +569,13 @@ document.addEventListener('visibilitychange', function() {
 // Handle window resize
 window.addEventListener('resize', function() {
     setTimeout(function() {
-        if (typeof map !== 'undefined' && map.invalidateSize) {
+        if (map && typeof map.invalidateSize === 'function') {
             map.invalidateSize();
         }
     }, 100);
     // Additional calls for reliability
     setTimeout(function() {
-        if (typeof map !== 'undefined' && map.invalidateSize) {
+        if (map && typeof map.invalidateSize === 'function') {
             map.invalidateSize();
         }
     }, 300);
@@ -584,13 +588,13 @@ if (mapContainer) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
                 setTimeout(function() {
-                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                    if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
                     }
                 }, 100);
                 // Additional calls for reliability
                 setTimeout(function() {
-                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                    if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
                     }
                 }, 300);
@@ -611,13 +615,13 @@ if (mapElement) {
         entries.forEach(function(entry) {
             if (entry.isIntersecting) {
                 setTimeout(function() {
-                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                    if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
                     }
                 }, 100);
                 // Additional calls for reliability
                 setTimeout(function() {
-                    if (typeof map !== 'undefined' && map.invalidateSize) {
+                    if (map && typeof map.invalidateSize === 'function') {
                         map.invalidateSize();
                     }
                 }, 300);

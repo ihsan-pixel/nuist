@@ -113,7 +113,6 @@ class PresensiController extends Controller
                 $reading1 = $locationReadings[0];
                 $reading2 = $locationReadings[1];
 
-                // Check distance between the two readings
                 $distance12 = $this->calculateDistance(
                     $reading1['latitude'], $reading1['longitude'],
                     $reading2['latitude'], $reading2['longitude']
@@ -122,22 +121,33 @@ class PresensiController extends Controller
                 $issues = [];
                 $severity = 0;
 
-                // Check if readings are identical (within 0.1 meter tolerance)
-                if ($distance12 < 0.0001) {
-                    $issues[] = 'Reading 1 dan Reading 2 memiliki koordinat sama persis';
+                // Check if both readings are identical (within 1 meter)
+                if ($distance12 < 0.001) {
+                    $issues[] = 'Kedua pembacaan lokasi identik';
                     $severity += 3;
+                }
+
+                // Check if readings are too close together (within 10 meters)
+                if ($distance12 < 0.01) {
+                    $issues[] = 'Jarak antara pembacaan 1 dan 2 terlalu dekat';
+                    $severity += 2;
+                }
+
+                // Check for suspicious patterns - readings too far apart
+                if ($distance12 > 1.0) {
+                    $issues[] = 'Jarak pembacaan terlalu jauh';
+                    $severity += 1;
                 }
 
                 if (count($issues) > 0) {
                     $isFakeLocation = true;
                     $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
-                        'fake_gps_detected' => true,
+                        'issues' => $issues,
+                        'severity' => $severity,
+                        'severity_label' => $this->getSeverityLabel($severity),
                         'distances' => [
                             'reading1_reading2' => $distance12
-                        ],
-                        'issues' => $issues,
-                        'severity' => min($severity, 5),
-                        'severity_label' => $this->getSeverityLabel($severity)
+                        ]
                     ]);
                 }
             }
