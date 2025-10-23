@@ -211,6 +211,7 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
@@ -679,8 +680,8 @@ window.addEventListener('resize', function() {
 });
 
 // Use MutationObserver to detect when map container becomes visible
-const mapContainer = document.querySelector('.map-container');
-if (mapContainer) {
+const mapContainerObserver = document.querySelector('.map-container');
+if (mapContainerObserver) {
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
@@ -701,7 +702,7 @@ if (mapContainer) {
         });
     });
 
-    observer.observe(mapContainer, {
+    observer.observe(mapContainerObserver, {
         attributes: true,
         attributeFilter: ['style', 'class']
     });
