@@ -1,18 +1,7 @@
-# TODO: Change Fake GPS Detection from 3 to 2 Readings
+# TODO: Mobile Dashboard Compact Layout Update
 
-## Tasks
-- [x] Modify `resources/views/mobile/presensi.blade.php`:
-  - [x] Remove page load geolocation call that stores reading2
-  - [x] Update button click handler to store reading2 instead of reading3
-  - [x] Update location_readings array to send only 2 readings
-  - [x] Fix map display issues for mobile devices (enhanced CSS with box-sizing, display block, max-width/height constraints, canvas renderer, _onResize calls, tile size/zoom offset)
-- [x] Update `app/Http/Controllers/PresensiController.php`:
-  - [x] Change analysis logic from 3 readings to 2 readings
-  - [x] Update distance calculations and issue detection for reading1 vs reading2 only
-- [x] Update `app/Http/Controllers/FakeLocationController.php`:
-  - [x] Update analysis comments and logic to reference 2 readings instead of 3
-- [x] Make map smaller and reduce font size for better mobile display
-
-## Followup Steps
-- [ ] Test mobile presensi functionality
-- [ ] Verify fake GPS detection logic with 2 readings
+- [x] Modify Welcome Section: Reduce padding (py-4 to py-2), margins (mb-4 to mb-2), and avatar size (avatar-lg to avatar-md)
+- [x] Expand Quick Stats to 4 cards in 2x2 grid: Add Total Izin and Total Sakit cards, reduce padding (py-3 to py-2), smaller avatars (avatar-sm to avatar-xs), adjust icon size (fs-4 to fs-3)
+- [x] Update Detailed Stats: Reduce card-body padding, increase icon size (fs-1 to fs-2)
+- [x] Expand Quick Actions to 6 items in 3x2 grid: Add Profile, Laporan, Izin, Pengaturan; use col-4, larger icons (fs-4), shorter labels, reduce button padding (py-3 to py-2)
+- [x] Test layout for mobile responsiveness (Server started, browser testing disabled)
