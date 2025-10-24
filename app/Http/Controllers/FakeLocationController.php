@@ -61,24 +61,12 @@ class FakeLocationController extends Controller
         foreach ($presensis as $presensi) {
             // Use the new database fields if available, otherwise analyze from data
             if ($presensi->is_fake_location !== null) {
-                $analysis = [
-                    'is_suspicious' => $presensi->is_fake_location,
-                    'issues' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['issues'] : [],
-                    'severity' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['severity'] : 0,
-                    'severity_label' => $presensi->fake_location_analysis ? $presensi->fake_location_analysis['severity_label'] : 'Tidak',
-                    'distance' => $presensi->user->madrasah && $presensi->user->madrasah->latitude ?
-                        $this->calculateDistance(
-                            $presensi->user->madrasah->latitude,
-                            $presensi->user->madrasah->longitude,
-                            $presensi->latitude,
-                            $presensi->longitude
-                        ) : 0
-                ];
+                $issues = [];
 
                 // Tambahkan detail masalah untuk fake GPS detection (updated for 2 readings)
                 if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['reason'])) {
                     if ($presensi->fake_location_analysis['reason'] === 'Identical coordinates between reading1 and reading2') {
-                        $analysis['issues'][] = 'Kedua pembacaan lokasi identik - indikasi pengguna fake GPS';
+                        $issues[] = 'Kedua pembacaan lokasi identik - indikasi pengguna fake GPS';
                     }
                 }
 
@@ -89,9 +77,23 @@ class FakeLocationController extends Controller
                     $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
 
                     if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
-                        $analysis['issues'][] = 'Presensi diluar waktu yang ditentukan';
+                        $issues[] = 'Presensi diluar waktu yang ditentukan';
                     }
                 }
+
+                $analysis = [
+                    'is_suspicious' => $presensi->is_fake_location,
+                    'issues' => $issues,
+                    'severity' => count($issues),
+                    'severity_label' => $this->getSeverityLabel(count($issues)),
+                    'distance' => $presensi->user->madrasah && $presensi->user->madrasah->latitude ?
+                        $this->calculateDistance(
+                            $presensi->user->madrasah->latitude,
+                            $presensi->user->madrasah->longitude,
+                            $presensi->latitude,
+                            $presensi->longitude
+                        ) : 0
+                ];
 
             } else {
                 // Fallback to analysis method for older records
