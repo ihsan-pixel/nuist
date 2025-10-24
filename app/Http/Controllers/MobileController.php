@@ -158,24 +158,49 @@ class MobileController extends Controller
 
     public function updateAvatar(Request $request)
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            $request->validate([
+                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+                Log::info('updateAvatar called for user ' . $user->id . ', hasFile: ' . ($request->hasFile('avatar') ? 'yes' : 'no'));
+
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                Log::info('avatar info: originalName=' . $file->getClientOriginalName() . ', size=' . $file->getSize());
+
+                // Delete old avatar if exists
+                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                    Storage::disk('public')->delete($user->avatar);
+                }
+
+                // Store new avatar
+                $avatarPath = $file->store('avatars', 'public');
+
+                if (!$avatarPath) {
+                    Log::error('Failed to store avatar for user ' . $user->id);
+                    return redirect()->route('mobile.pengaturan')->with('error', 'Gagal menyimpan foto.');
+                }
+
+                // Verify file exists
+                if (!Storage::disk('public')->exists($avatarPath)) {
+                    Log::error('Stored avatar not found on disk for user ' . $user->id . ': ' . $avatarPath);
+                    return redirect()->route('mobile.pengaturan')->with('error', 'Terjadi kesalahan saat menyimpan file.');
+                }
+
+                $user->update(['avatar' => $avatarPath]);
             }
 
-            // Store new avatar
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $user->update(['avatar' => $avatarPath]);
-        }
-
-        return redirect()->route('mobile.pengaturan')->with('success', 'Foto profil berhasil diubah.');
+            return redirect()->route('mobile.pengaturan')->with('success', 'Foto profil berhasil diubah.');
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
+                return redirect()->route('mobile.pengaturan')->withErrors($e->errors());
+            } catch (\Exception $e) {
+                Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
+                return redirect()->route('mobile.pengaturan')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
+            }
     }
 
     public function updateAccount(Request $request)
@@ -190,19 +215,21 @@ class MobileController extends Controller
         $emailChanged = $request->input('email') !== $user->email;
 
         try {
-            $user->email = $request->input('email');
-            $user->phone = $request->input('phone');
+            $payload = [
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+            ];
 
             if ($emailChanged) {
                 // If email changed, mark email as unverified (if using verification)
-                $user->email_verified_at = null;
+                $payload['email_verified_at'] = null;
             }
 
-            $user->save();
+            $user->update($payload);
 
             return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
         } catch (\Exception $e) {
-            Log::error('Failed to update account for user ' . $user->id . ': ' . $e->getMessage());
+            Log::error('Failed to update account for user ' . ($user->id ?? 'unknown') . ': ' . $e->getMessage());
             return redirect()->route('mobile.pengaturan')->with('error', 'Gagal memperbarui informasi akun. Silakan coba lagi.');
         }
     }
@@ -400,7 +427,7 @@ class MobileController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Error storing izin: ' . $e->getMessage());
+            Log::error('Error storing izin: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan izin. Silakan coba lagi.'

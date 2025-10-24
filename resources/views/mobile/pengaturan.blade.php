@@ -194,7 +194,7 @@
                 <h6 class="mb-1">Pengaturan</h6>
                 <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+          <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
@@ -354,23 +354,49 @@
                 <h5 class="modal-title">Ubah Foto Profil</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
+            <form id="avatarForm" action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Pilih Foto</label>
-                        <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                        <input id="avatarInput" type="file" name="avatar" class="form-control" accept="image/*" required>
                         <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button id="avatarSubmit" type="submit" class="btn btn-primary">Upload</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    (function(){
+        const input = document.getElementById('avatarInput');
+        const form = document.getElementById('avatarForm');
+        const submit = document.getElementById('avatarSubmit');
+        const MAX_BYTES = 2 * 1024 * 1024; // 2MB
+
+        if (!form) return;
+
+        form.addEventListener('submit', function(e){
+            if (!input || !input.files || input.files.length === 0) return; // let server handle required
+            const f = input.files[0];
+            if (f.size > MAX_BYTES) {
+                e.preventDefault();
+                alert('Ukuran file terlalu besar. Maks 2MB.');
+                return false;
+            }
+
+            // disable submit and show simple loading state
+            if (submit) {
+                submit.disabled = true;
+                submit.innerText = 'Uploading...';
+            }
+        });
+    })();
+</script>
 
 </div>
 @endsection
