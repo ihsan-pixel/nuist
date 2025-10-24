@@ -97,7 +97,7 @@
     <div class="form-section">
         <h5><i class="bx bx-user me-2"></i>Ubah Email & Nomor HP</h5>
 
-        <form action="{{ route('mobile.profile.update-account') }}" method="POST">
+        <form action="{{ route('profile.update-account') }}" method="POST" id="updateAccountForm">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -109,9 +109,17 @@
             </div>
             <small class="text-muted d-block mb-3">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
 
-            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Simpan Perubahan</button>
             <a href="{{ route('mobile.pengaturan') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 </div>
 @endsection
+
+<script>
+document.getElementById('updateAccountForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...';
+});
+</script>

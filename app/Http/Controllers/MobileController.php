@@ -207,6 +207,12 @@ class MobileController extends Controller
     {
         $user = Auth::user();
 
+        Log::info('Update account request received', [
+            'user_id' => $user->id,
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+        ]);
+
         $request->validate([
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
@@ -225,7 +231,9 @@ class MobileController extends Controller
                 $payload['email_verified_at'] = null;
             }
 
-            $user->update($payload);
+            $user->fill($payload)->save();
+
+            Log::info('Account updated successfully', ['user_id' => $user->id]);
 
             return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
         } catch (\Exception $e) {
