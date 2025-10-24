@@ -159,7 +159,7 @@ class MobileController extends Controller
             $updateData['email'] = $request->email;
         }
         if ($request->filled('phone')) {
-            $updateData['phone'] = $request->phone;
+            $updateData['no_hp'] = $request->phone;
         }
 
         if (!empty($updateData)) {

@@ -207,7 +207,7 @@
                 </div>
                 <div class="form-group">
                     <label for="phone" class="form-label">Nomor HP</label>
-                    <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Masukkan nomor HP">
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->no_hp) }}" placeholder="Masukkan nomor HP">
                 </div>
                 <button type="submit" class="btn btn-primary w-100" id="save-profile-btn">
                     <i class="bx bx-save me-1"></i>Simpan Perubahan
