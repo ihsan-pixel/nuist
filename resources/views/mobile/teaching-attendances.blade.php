@@ -10,6 +10,7 @@
         .presensi-header { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; border-radius: 12px; padding: 12px 10px; box-shadow: 0 4px 10px rgba(0,75,76,0.3); margin-bottom: 10px; }
         .presensi-header h6 { font-weight: 600; font-size: 12px; }
         .presensi-header h5 { font-size: 14px; }
+        .presensi-date { font-size: 11px; color: #6c757d; }
         .schedule-card { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
         .status-icon { width: 36px; height: 36px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-right:10px; }
         .presensi-btn { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border: none; border-radius: 8px; padding: 10px; color: #fff; font-weight: 600; font-size: 14px; width: 100%; }
@@ -21,12 +22,16 @@
     <div class="presensi-header d-flex align-items-center">
         <div class="me-2">
             <h6 class="mb-0">Presensi Mengajar</h6>
-            <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
-            <small class="small-muted">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
+            <h5 class="fw-bold mb-0">{{ Auth::user()->name ?? Auth::user()->username ?? 'User' }}</h5>
         </div>
         <div class="ms-auto">
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="40" height="40" alt="User">
         </div>
+    </div>
+
+    <!-- Date below header (smaller font) -->
+    <div class="text-center mt-2">
+        <small class="small-muted presensi-date">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
     </div>
 
     @if($schedules->isEmpty())
