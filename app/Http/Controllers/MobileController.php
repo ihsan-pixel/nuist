@@ -152,7 +152,7 @@ class MobileController extends Controller
 
             // Check if current password is correct for initial change
             if (!Hash::check($request->current_password, $user->password)) {
-                return redirect()->route('mobile.ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+                return redirect()->route('ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
             }
         } else {
             $request->validate([
@@ -166,7 +166,7 @@ class MobileController extends Controller
             'password_changed' => true,
         ]);
 
-        return redirect()->route('mobile.ubah-akun')->with('success', 'Password berhasil diubah.');
+        return redirect()->route('ubah-akun')->with('success', 'Password berhasil diubah.');
     }
 
     public function updateAvatar(Request $request)
@@ -209,10 +209,10 @@ class MobileController extends Controller
             return redirect()->route('mobile.ubah-akun')->with('success', 'Foto profil berhasil diubah.');
             } catch (\Illuminate\Validation\ValidationException $e) {
                 Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
-                return redirect()->route('mobile.ubah-akun')->withErrors($e->errors());
+                return redirect()->route('ubah-akun')->withErrors($e->errors());
             } catch (\Exception $e) {
                 Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
-                return redirect()->route('mobile.ubah-akun')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
+                return redirect()->route('ubah-akun')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
             }
     }
 
