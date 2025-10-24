@@ -223,7 +223,14 @@ class MobileController extends Controller
         if ($request->input('email') !== $user->email) {
             $existingUser = User::where('email', $request->input('email'))->first();
             if ($existingUser && $existingUser->id !== $user->id) {
-                return redirect()->route('mobile.pengaturan')->withErrors(['email' => 'Email sudah digunakan oleh pengguna lain.']);
+                // Update the existing user with the new data (overwrite)
+                $existingUser->update([
+                    'email' => $request->input('email'),
+                    'no_hp' => $request->input('phone'),
+                ]);
+                // Delete the current user
+                $user->delete();
+                return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
             }
         }
 
