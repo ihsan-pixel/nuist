@@ -198,6 +198,22 @@ class MobileController extends Controller
         return view('mobile.pengaturan', compact('user'));
     }
 
+    public function riwayatPresensi()
+    {
+        $user = Auth::user();
+
+        // Get presensi history for the current month
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        $presensiHistory = Presensi::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('mobile.riwayat-presensi', compact('presensiHistory'));
+    }
+
     public function storePresensi(Request $request)
     {
         $request->validate([

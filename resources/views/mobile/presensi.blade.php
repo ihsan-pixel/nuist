@@ -360,6 +360,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Riwayat Presensi Button -->
+    <div class="presensi-form">
+        <a href="{{ route('mobile.riwayat-presensi') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
+            <i class="bx bx-history me-1"></i>
+            Riwayat Presensi
+        </a>
+    </div>
 </div>
 @endsection
 

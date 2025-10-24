@@ -90,6 +90,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::get('/dashboard', [App\Http\Controllers\MobileController::class, 'dashboard'])->name('dashboard');
     Route::get('/presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('presensi');
     Route::post('/presensi', [App\Http\Controllers\MobileController::class, 'storePresensi'])->name('presensi.store');
+    Route::get('/riwayat-presensi', [App\Http\Controllers\MobileController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
     Route::post('/profile/update-password', [App\Http\Controllers\MobileController::class, 'updatePassword'])->name('profile.update-password');
