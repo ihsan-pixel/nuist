@@ -235,6 +235,10 @@
                 <span class="info-value">{{ $user->email }}</span>
             </div>
             <div class="info-item">
+                <span class="info-label">Nomor HP</span>
+                <span class="info-value">{{ $user->no_hp ?? 'Belum diatur' }}</span>
+            </div>
+            <div class="info-item">
                 <span class="info-label">Madrasah</span>
                 <span class="info-value">{{ $user->madrasah?->name ?? 'Belum diatur' }}</span>
             </div>
@@ -300,7 +304,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nomor HP</label>
-                        <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="0812xxxx" maxlength="20">
+                        <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->no_hp) }}" placeholder="0812xxxx" maxlength="20">
                     </div>
                     <small class="text-muted">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
                 </div>

@@ -217,7 +217,7 @@ class MobileController extends Controller
         try {
             $payload = [
                 'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
+                'no_hp' => $request->input('phone'),
             ];
 
             if ($emailChanged) {
