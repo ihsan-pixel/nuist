@@ -64,10 +64,68 @@
 
         .presensi-form {
             background: #fff;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 10px;
+        }
+
+        .izin-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+        }
+
+        .izin-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .izin-btn {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.2s;
+            min-height: 60px;
+        }
+
+        .izin-btn:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .izin-btn i {
+            font-size: 18px;
+            margin-bottom: 4px;
+            color: #0e8549;
+        }
+
+        .izin-terlambat {
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .izin-terlambat:hover {
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .izin-tugas-luar {
+            border-color: rgba(0, 123, 255, 0.3);
+        }
+
+        .izin-tugas-luar:hover {
+            background: rgba(0, 123, 255, 0.1);
         }
 
         .form-section {
@@ -368,11 +426,194 @@
             Riwayat Presensi
         </a>
     </div>
+
+    <!-- Izin Buttons -->
+    <div class="izin-section">
+        <div class="izin-buttons">
+            <button type="button" class="izin-btn izin-terlambat" data-bs-toggle="modal" data-bs-target="#izinTerlambatModal">
+                <i class="bx bx-time-five"></i>
+                Izin Terlambat
+            </button>
+            <button type="button" class="izin-btn izin-tugas-luar" data-bs-toggle="modal" data-bs-target="#izinTugasLuarModal">
+                <i class="bx bx-briefcase"></i>
+                Izin Tugas Diluar
+            </button>
+        </div>
+    </div>
+
+    <!-- Izin Terlambat Modal -->
+    <div class="modal fade" id="izinTerlambatModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Izin Terlambat Masuk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="izinTerlambatForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Alasan Terlambat</label>
+                            <textarea class="form-control" name="alasan" rows="3" placeholder="Jelaskan alasan keterlambatan Anda..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Surat Izin/Foto</label>
+                            <input type="file" class="form-control" name="file_izin" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Format: JPG, PNG, PDF, DOC, DOCX. Maksimal 5MB.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu Masuk yang Diminta</label>
+                            <input type="time" class="form-control" name="waktu_masuk" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Izin Tugas Diluar Modal -->
+    <div class="modal fade" id="izinTugasLuarModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Izin Tugas Diluar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="izinTugasLuarForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Deskripsi Tugas</label>
+                            <textarea class="form-control" name="deskripsi_tugas" rows="3" placeholder="Jelaskan tugas yang akan dilakukan diluar..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi Tugas</label>
+                            <input type="text" class="form-control" name="lokasi_tugas" placeholder="Masukkan lokasi tugas" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Surat Tugas/Foto</label>
+                            <input type="file" class="form-control" name="file_tugas" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Format: JPG, PNG, PDF, DOC, DOCX. Maksimal 5MB.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estimasi Waktu Keluar</label>
+                            <input type="time" class="form-control" name="waktu_keluar" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function() {
+    // Handle Izin Terlambat Form
+    $('#izinTerlambatForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        formData.append('type', 'terlambat');
+
+        $.ajax({
+            url: '{{ route("mobile.izin.store") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#izinTerlambatModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Izin terlambat berhasil dikirim dan menunggu approval.',
+                        confirmButtonText: 'Oke'
+                    });
+                    $('#izinTerlambatForm')[0].reset();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Terjadi kesalahan saat mengirim izin.',
+                        confirmButtonText: 'Oke'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan tidak diketahui';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: errorMessage,
+                    confirmButtonText: 'Oke'
+                });
+            }
+        });
+    });
+
+    // Handle Izin Tugas Diluar Form
+    $('#izinTugasLuarForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        formData.append('type', 'tugas_luar');
+
+        $.ajax({
+            url: '{{ route("mobile.izin.store") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    $('#izinTugasLuarModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Izin tugas diluar berhasil dikirim dan menunggu approval.',
+                        confirmButtonText: 'Oke'
+                    });
+                    $('#izinTugasLuarForm')[0].reset();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message || 'Terjadi kesalahan saat mengirim izin.',
+                        confirmButtonText: 'Oke'
+                    });
+                }
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan tidak diketahui';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: errorMessage,
+                    confirmButtonText: 'Oke'
+                });
+            }
+        });
+    });
+});
+</script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;

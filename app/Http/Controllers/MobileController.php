@@ -198,6 +198,74 @@ class MobileController extends Controller
         return view('mobile.pengaturan', compact('user'));
     }
 
+    public function storeIzin(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:terlambat,tugas_luar',
+            'alasan' => 'required_if:type,terlambat|string|max:500',
+            'deskripsi_tugas' => 'required_if:type,tugas_luar|string|max:500',
+            'lokasi_tugas' => 'required_if:type,tugas_luar|string|max:255',
+            'file_izin' => 'required_if:type,terlambat|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+            'file_tugas' => 'required_if:type,tugas_luar|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+            'waktu_masuk' => 'required_if:type,terlambat|date_format:H:i',
+            'waktu_keluar' => 'required_if:type,tugas_luar|date_format:H:i',
+        ]);
+
+        $user = Auth::user();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // Cek apakah sudah ada izin hari ini untuk jenis yang sama
+        $existingIzin = \App\Models\Izin::where('user_id', $user->id)
+            ->where('tanggal', $today)
+            ->where('type', $request->type)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($existingIzin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah mengajukan izin ' . ($request->type === 'terlambat' ? 'terlambat' : 'tugas diluar') . ' untuk hari ini.'
+            ], 400);
+        }
+
+        $filePath = null;
+        $fileName = null;
+
+        // Handle file upload
+        if ($request->type === 'terlambat' && $request->hasFile('file_izin')) {
+            $file = $request->file('file_izin');
+            $fileName = time() . '_izin_terlambat_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('izin/terlambat', $fileName, 'public');
+        } elseif ($request->type === 'tugas_luar' && $request->hasFile('file_tugas')) {
+            $file = $request->file('file_tugas');
+            $fileName = time() . '_izin_tugas_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('izin/tugas_luar', $fileName, 'public');
+        }
+
+        // Create izin record
+        $izin = \App\Models\Izin::create([
+            'user_id' => $user->id,
+            'tanggal' => $today,
+            'type' => $request->type,
+            'alasan' => $request->alasan,
+            'deskripsi_tugas' => $request->deskripsi_tugas,
+            'lokasi_tugas' => $request->lokasi_tugas,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'waktu_masuk' => $request->waktu_masuk,
+            'waktu_keluar' => $request->waktu_keluar,
+            'status' => 'pending',
+            'approved_by' => null,
+            'approved_at' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Izin berhasil dikirim dan menunggu approval.',
+            'data' => $izin
+        ]);
+    }
+
     public function riwayatPresensi()
     {
         $user = Auth::user();
