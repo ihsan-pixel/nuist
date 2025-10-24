@@ -97,6 +97,8 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::post('/profile/update-avatar', [App\Http\Controllers\MobileController::class, 'updateAvatar'])->name('profile.update-avatar');
     Route::post('/izin', [App\Http\Controllers\MobileController::class, 'storeIzin'])->name('izin.store');
     Route::get('/laporan', [App\Http\Controllers\MobileController::class, 'laporan'])->name('laporan');
+    // Mobile presensi mengajar (mobile-optimized view)
+    Route::get('/teaching-attendances', [App\Http\Controllers\MobileController::class, 'teachingAttendances'])->name('teaching-attendances');
     Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin');
     Route::get('/pengaturan', [App\Http\Controllers\MobileController::class, 'pengaturan'])->name('pengaturan');
 });

@@ -185,6 +185,35 @@ class MobileController extends Controller
         return view('mobile.laporan', compact('user'));
     }
 
+    public function teachingAttendances()
+    {
+        $user = Auth::user();
+
+        // Similar restriction as desktop controller: force password change if required
+        if ($user->role === 'tenaga_pendidik' && !$user->password_changed) {
+            return redirect()->route('mobile.dashboard')->with('error', 'Anda harus mengubah password terlebih dahulu sebelum mengakses menu presensi mengajar.');
+        }
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        $dayOfWeek = Carbon::parse($today)->locale('id')->dayName;
+
+        $schedules = TeachingSchedule::with(['school', 'teacher'])
+            ->where('teacher_id', $user->id)
+            ->where('day', $dayOfWeek)
+            ->orderBy('start_time')
+            ->get();
+
+        // Attach today's attendance if exists
+        foreach ($schedules as $schedule) {
+            $attendance = \App\Models\TeachingAttendance::where('teaching_schedule_id', $schedule->id)
+                ->where('tanggal', $today)
+                ->first();
+            $schedule->attendance = $attendance;
+        }
+
+        return view('mobile.teaching-attendances', compact('schedules', 'today'));
+    }
+
     public function izin(\Illuminate\Http\Request $request)
     {
         $user = Auth::user();
