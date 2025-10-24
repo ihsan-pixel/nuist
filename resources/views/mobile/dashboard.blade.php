@@ -9,14 +9,16 @@
         body {
             background: #f8f9fb;
             font-family: 'Poppins', sans-serif;
+            font-size: 13px;
         }
 
         .dashboard-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 20px;
-            padding: 20px 15px;
+            border-radius: 16px;
+            padding: 16px 12px;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            margin-bottom: 12px;
         }
 
         .dashboard-header img {
@@ -25,118 +27,134 @@
 
         .dashboard-header h6 {
             font-weight: 600;
+            font-size: 14px;
         }
 
-        .trip-type-buttons {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 4px;
-        }
-
-        .trip-type-buttons .btn {
-            border-radius: 20px;
-            font-size: 12px;
-            padding: 6px 12px;
+        .dashboard-header h5 {
+            font-size: 16px;
         }
 
         .stats-form {
             background: #fff;
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 8px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .stat-item i {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .info-section {
-            background: #fff;
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .info-item {
             padding: 8px;
             background: #f8f9fa;
             border-radius: 8px;
         }
 
-        .info-item small {
-            color: #6c757d;
+        .stat-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .stat-item h6 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .stat-item small {
             font-size: 11px;
         }
 
+        .info-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .info-item {
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .info-item small {
+            color: #6c757d;
+            font-size: 10px;
+        }
+
         .info-item strong {
-            font-size: 12px;
+            font-size: 11px;
             color: #333;
         }
 
         .schedule-section {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .schedule-card {
             background: #fff;
-            border-radius: 16px;
-            padding: 12px;
+            border-radius: 12px;
+            padding: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
         }
 
         .schedule-icon {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             background: rgba(14, 133, 73, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
+            margin-right: 10px;
         }
 
         .schedule-icon i {
             color: #0e8549;
-            font-size: 18px;
+            font-size: 14px;
+        }
+
+        .schedule-card h6 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .schedule-card p {
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .schedule-card small {
+            font-size: 11px;
         }
 
         .quick-actions {
             background: #fff;
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 80px;
+            margin-bottom: 60px;
         }
 
         .quick-actions-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            gap: 8px;
         }
 
         .quick-action-btn {
@@ -145,70 +163,62 @@
             align-items: center;
             justify-content: center;
             background: #f8f9fa;
-            border-radius: 12px;
-            padding: 12px 8px;
+            border-radius: 8px;
+            padding: 8px 6px;
             text-decoration: none;
             transition: all 0.2s;
         }
 
         .quick-action-btn:hover {
             background: #e8f5f5;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .quick-action-btn i {
-            font-size: 20px;
+            font-size: 16px;
             color: #0e8549;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .quick-action-btn small {
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
             text-align: center;
         }
 
         .section-title {
             font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
             color: #333;
         }
 
         .no-schedule {
             text-align: center;
-            padding: 20px;
+            padding: 16px;
             color: #999;
         }
 
         .no-schedule i {
-            font-size: 32px;
-            margin-bottom: 8px;
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .no-schedule p {
+            font-size: 12px;
+            margin: 0;
         }
     </style>
 
     <!-- Header -->
-    <div class="dashboard-header text-white text-start mb-4 rounded-4 p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
             </div>
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="48" height="48" alt="User">
-        </div>
-
-        <!-- Quick Action Buttons -->
-        <div class="d-flex justify-content-between bg-white rounded-pill p-1">
-            <a href="{{ route('mobile.presensi') }}" class="btn btn-sm btn-success rounded-pill w-100 me-1 text-white">
-                <i class="bx bx-check-square me-1"></i>Presensi
-            </a>
-            <a href="{{ route('mobile.jadwal') }}" class="btn btn-sm btn-light rounded-pill w-100 me-1">
-                <i class="bx bx-calendar me-1"></i>Jadwal
-            </a>
-            <a href="{{ route('mobile.profile') }}" class="btn btn-sm btn-light rounded-pill w-100">
-                <i class="bx bx-user me-1"></i>Profil
-            </a>
+                 class="rounded-circle border border-white" width="40" height="40" alt="User">
         </div>
     </div>
 
