@@ -430,14 +430,20 @@
     <!-- Izin Buttons -->
     <div class="izin-section">
         <div class="izin-buttons">
-            <button type="button" class="izin-btn izin-terlambat" data-bs-toggle="modal" data-bs-target="#izinTerlambatModal">
+            <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="izin-btn" role="button" aria-label="Izin Tidak Masuk" style="text-decoration: none; color: inherit;">
+                <i class="bx bx-user-x"></i>
+                Izin Tidak Masuk
+            </a>
+
+            <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="izin-btn izin-terlambat" role="button" aria-label="Izin Terlambat" style="text-decoration: none; color: inherit;">
                 <i class="bx bx-time-five"></i>
                 Izin Terlambat
-            </button>
-            <button type="button" class="izin-btn izin-tugas-luar" data-bs-toggle="modal" data-bs-target="#izinTugasLuarModal">
+            </a>
+
+            <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="izin-btn izin-tugas-luar" role="button" aria-label="Izin Tugas Diluar" style="text-decoration: none; color: inherit;">
                 <i class="bx bx-briefcase"></i>
                 Izin Tugas Diluar
-            </button>
+            </a>
         </div>
     </div>
 
