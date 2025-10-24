@@ -118,9 +118,16 @@
 @endsection
 
 <script>
-document.getElementById('updateAccountForm').addEventListener('submit', function(e) {
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...';
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('updateAccountForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Menyimpan...';
+            }
+        });
+    }
 });
 </script>
