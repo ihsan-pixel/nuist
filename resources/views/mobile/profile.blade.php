@@ -193,7 +193,7 @@
                 <h6 class="mb-1">Profil</h6>
                 <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
@@ -212,7 +212,7 @@
 
     <!-- Profile Avatar Section -->
     <div class="profile-avatar">
-       <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+       <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
            alt="Profile Picture">
         <h5>{{ $user->name }}</h5>
         <p>{{ $user->email }}</p>

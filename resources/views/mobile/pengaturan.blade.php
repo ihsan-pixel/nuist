@@ -4,18 +4,32 @@
 @section('subtitle', 'Pengaturan Akun')
 
 @section('content')
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3" style="max-width:420px; margin:auto;">
     <style>
-        /* Reuse styling similar to profile view to keep mobile UI consistent */
-        body { background: #f8f9fb; font-family: 'Poppins', sans-serif; font-size: 12px; }
-        .card-custom { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; overflow: hidden; }
-        .card-header-custom { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; padding: 12px; border-radius: 12px; }
-        .avatar-lg { text-align: center; margin-bottom: 10px; }
-        .avatar-lg img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f1f3f4; }
-        .item-row { display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #f1f3f4; }
-        .item-label { color:#666; font-weight:600; }
-        .item-value { color:#333; font-weight:700; text-align:right; max-width:65%; word-wrap:break-word; }
-        .settings-btn { width:100%; display:flex; align-items:center; gap:10px; padding:10px; border-radius:8px; border:1px solid #e9ecef; background:#f8f9fa; color:#333; text-decoration:none; }
+        /* Clean, consistent mobile settings styles (aligned with profile view) */
+        body { background: #f8f9fb; font-family: 'Poppins', sans-serif; font-size: 13px; }
+        .card-custom { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(14,133,73,0.06); margin-bottom: 12px; overflow: hidden; }
+        .card-header-custom { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; padding: 14px; }
+        .card-header-custom h6 { margin:0; font-size:14px; font-weight:700; }
+        .card-header-custom small { opacity:0.95; }
+
+        .avatar-lg { text-align:center; margin-bottom:8px; }
+        .avatar-lg img { width:88px; height:88px; border-radius:50%; border:3px solid rgba(241,243,244,0.9); object-fit:cover; }
+
+        .info-row { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid #f1f3f4; }
+        .info-label { color:#6c757d; font-weight:600; }
+        .info-value { color:#333; font-weight:700; text-align:right; max-width:65%; word-wrap:break-word; }
+
+        .settings-list { padding:10px; }
+        .settings-item { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:10px; background:#fbfcfd; border:1px solid #eef2f3; margin-bottom:10px; cursor:pointer; transition:all .15s ease; }
+        .settings-item:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(14,133,73,0.06); }
+        .settings-item .left { display:flex; align-items:center; gap:12px; }
+        .settings-item .title { font-weight:600; color:#263238; }
+        .settings-item .subtitle { font-size:12px; color:#6c757d; }
+        .settings-item i.chev { color:#bfc8c6; font-size:20px; }
+
+        .btn-ghost { background:transparent; border:none; padding:0; }
+        @media (max-width:420px) { .container { padding-left:10px; padding-right:10px; } }
     </style>
 
     @if(session('success'))
@@ -38,47 +52,64 @@
     <div class="card-custom">
         <div class="card-header-custom d-flex justify-content-between align-items-center">
             <div>
-                <h6 class="mb-1">Pengaturan Akun</h6>
+                <h6>Pengaturan Akun</h6>
                 <small>Kelola informasi akun Anda</small>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="32" height="32" alt="User">
+            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="40" height="40" alt="User">
         </div>
         <div class="p-3">
-            <div class="avatar-lg text-center mb-2">
-                <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Profile">
+            <div class="avatar-lg">
+                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Profile">
                 <div class="mt-2">
-                    <strong>{{ $user->name }}</strong>
+                    <strong style="font-size:15px">{{ $user->name }}</strong>
+                    <div style="font-size:12px;color:#6c757d">{{ $user->email }}</div>
                 </div>
             </div>
 
             <div class="card-custom mb-2">
-                <div class="item-row">
-                    <div class="item-label">Email</div>
-                    <div class="item-value">{{ $user->email }}</div>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ $user->email }}</div>
                 </div>
-                <div class="item-row">
-                    <div class="item-label">Nomor HP</div>
-                    <div class="item-value">{{ $user->phone ?? 'Belum diatur' }}</div>
+                <div class="info-row">
+                    <div class="info-label">Nomor HP</div>
+                    <div class="info-value">{{ $user->phone ?? 'Belum diatur' }}</div>
                 </div>
             </div>
 
-            <div class="card-custom mb-3">
-                <div class="p-2">
-                    <button class="settings-btn mb-2" data-bs-toggle="modal" data-bs-target="#editAccountModal">
-                        <i class="bx bx-user"></i>
-                        Ubah Email & Nomor HP
-                    </button>
+            <div class="settings-list">
+                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#editAccountModal" aria-label="Ubah Email & Nomor HP">
+                    <div class="left">
+                        <i class="bx bx-user" style="font-size:20px;color:#0e8549"></i>
+                        <div>
+                            <div class="title">Ubah Email & Nomor HP</div>
+                            <div class="subtitle">Perbarui alamat email dan nomor telepon Anda</div>
+                        </div>
+                    </div>
+                    <i class="bx bx-chevron-right chev"></i>
+                </button>
 
-                    <button class="settings-btn mb-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                        <i class="bx bx-lock"></i>
-                        Ubah Password
-                    </button>
+                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#changePasswordModal" aria-label="Ubah Password">
+                    <div class="left">
+                        <i class="bx bx-lock" style="font-size:20px;color:#f59e0b"></i>
+                        <div>
+                            <div class="title">Ubah Password</div>
+                            <div class="subtitle">Ganti kata sandi lama Anda</div>
+                        </div>
+                    </div>
+                    <i class="bx bx-chevron-right chev"></i>
+                </button>
 
-                    <button class="settings-btn" data-bs-toggle="modal" data-bs-target="#changeAvatarModal">
-                        <i class="bx bx-camera"></i>
-                        Ubah Foto Profil
-                    </button>
-                </div>
+                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#changeAvatarModal" aria-label="Ubah Foto Profil">
+                    <div class="left">
+                        <i class="bx bx-camera" style="font-size:20px;color:#06b6d4"></i>
+                        <div>
+                            <div class="title">Ubah Foto Profil</div>
+                            <div class="subtitle">Unggah foto profil baru (max 2MB)</div>
+                        </div>
+                    </div>
+                    <i class="bx bx-chevron-right chev"></i>
+                </button>
             </div>
         </div>
     </div>
