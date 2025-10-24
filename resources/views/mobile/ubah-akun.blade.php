@@ -245,6 +245,10 @@ document.getElementById('avatar-input').addEventListener('change', function() {
         .then(data => {
             if (data.success) {
                 showMessage('success', data.message || 'Foto profil berhasil diperbarui');
+                // Auto reload page after 1 second
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 showMessage('error', data.message || 'Terjadi kesalahan saat mengunggah foto');
             }
