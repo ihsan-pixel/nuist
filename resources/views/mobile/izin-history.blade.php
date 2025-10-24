@@ -39,10 +39,14 @@
                 </div>
             </div>
         @endforeach
+
+        <div class="mt-2">
+            {{ $izinList->links() }}
+        </div>
     @endif
 
     <div class="mt-3">
-        <a href="{{ route('mobile.izin') }}" class="btn btn-secondary w-100">Ajukan Izin Baru</a>
+        <a href="{{ route('mobile.izin.create') }}" class="btn btn-secondary w-100">Ajukan Izin Baru</a>
     </div>
 </div>
 @endsection

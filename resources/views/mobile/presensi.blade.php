@@ -437,17 +437,17 @@
     <!-- Izin Buttons -->
     <div class="izin-section">
         <div class="izin-buttons">
-            <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="izin-btn" role="button" aria-label="Izin Tidak Masuk" style="text-decoration: none; color: inherit;">
+            <a href="{{ route('mobile.izin.create', ['type' => 'tidak_masuk']) }}" class="izin-btn" role="button" aria-label="Izin Tidak Masuk" style="text-decoration: none; color: inherit;">
                 <i class="bx bx-user-x"></i>
                 Izin Tidak Masuk
             </a>
 
-            <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="izin-btn izin-terlambat" role="button" aria-label="Izin Terlambat" style="text-decoration: none; color: inherit;">
+            <a href="{{ route('mobile.izin.create', ['type' => 'terlambat']) }}" class="izin-btn izin-terlambat" role="button" aria-label="Izin Terlambat" style="text-decoration: none; color: inherit;">
                 <i class="bx bx-time-five"></i>
                 Izin Terlambat
             </a>
 
-            <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="izin-btn izin-tugas-luar" role="button" aria-label="Izin Tugas Diluar" style="text-decoration: none; color: inherit;">
+            <a href="{{ route('mobile.izin.create', ['type' => 'tugas_luar']) }}" class="izin-btn izin-tugas-luar" role="button" aria-label="Izin Tugas Diluar" style="text-decoration: none; color: inherit;">
                 <i class="bx bx-briefcase"></i>
                 Izin Tugas Diluar
             </a>

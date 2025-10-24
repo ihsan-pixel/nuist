@@ -348,7 +348,7 @@
                 <i class="bx bx-file"></i>
                 <small>Laporan</small>
             </a>
-            <a href="{{ route('mobile.izin') }}" class="quick-action-btn">
+            <a href="{{ route('mobile.izin.create') }}" class="quick-action-btn">
                 <i class="bx bx-time"></i>
                 <small>Izin</small>
             </a>

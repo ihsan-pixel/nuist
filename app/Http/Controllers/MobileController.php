@@ -192,14 +192,14 @@ class MobileController extends Controller
         return view('mobile.izin', compact('user'));
     }
 
-    public function izinHistory()
+    public function izinIndex()
     {
         $user = Auth::user();
 
         $izinList = Presensi::where('user_id', $user->id)
             ->where('status', 'izin')
             ->orderBy('tanggal', 'desc')
-            ->get();
+            ->paginate(10);
 
         return view('mobile.izin-history', compact('izinList'));
     }

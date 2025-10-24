@@ -21,14 +21,14 @@
 
     @if(!$type)
         <div class="d-grid gap-2">
-            <a href="{{ route('mobile.izin', ['type' => 'tidak_masuk']) }}" class="btn btn-outline-secondary">Izin Tidak Masuk</a>
-            <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="btn btn-outline-warning">Izin Terlambat</a>
-            <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="btn btn-outline-primary">Izin Tugas Diluar</a>
+            <a href="{{ route('mobile.izin.create', ['type' => 'tidak_masuk']) }}" class="btn btn-outline-secondary">Izin Tidak Masuk</a>
+            <a href="{{ route('mobile.izin.create', ['type' => 'terlambat']) }}" class="btn btn-outline-warning">Izin Terlambat</a>
+            <a href="{{ route('mobile.izin.create', ['type' => 'tugas_luar']) }}" class="btn btn-outline-primary">Izin Tugas Diluar</a>
         </div>
     @else
         <div class="card shadow-sm">
             <div class="card-body">
-                <a href="{{ route('mobile.izin') }}" class="btn btn-sm btn-link mb-2"><i class="bx bx-arrow-back"></i> Kembali</a>
+                <a href="{{ route('mobile.izin.create') }}" class="btn btn-sm btn-link mb-2"><i class="bx bx-arrow-back"></i> Kembali</a>
 
                 @if($type === 'tidak_masuk')
                     <h6>Izin Tidak Masuk</h6>
@@ -148,7 +148,7 @@ $(function(){
             success: function(res){
                 if (res.success) {
                     Swal.fire({icon:'success', title:'Berhasil', text: res.message, timer:2000, timerProgressBar:true}).then(()=>{
-                        window.location = '{{ route("mobile.izin.history") }}';
+                        window.location = '{{ route("mobile.izin.index") }}';
                     });
                 } else {
                     Swal.fire({icon:'error', title:'Gagal', text: res.message || 'Terjadi kesalahan.'});
