@@ -103,7 +103,6 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     // Mobile presensi mengajar (mobile-optimized view)
     Route::get('/teaching-attendances', [App\Http\Controllers\MobileController::class, 'teachingAttendances'])->name('teaching-attendances');
     Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin');
-    Route::get('/pengaturan', [App\Http\Controllers\MobileController::class, 'pengaturan'])->name('pengaturan');
     Route::get('/ubah-akun', [App\Http\Controllers\MobileController::class, 'ubahAkun'])->name('ubah-akun');
 });
 

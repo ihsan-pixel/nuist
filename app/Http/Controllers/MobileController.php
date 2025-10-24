@@ -145,7 +145,7 @@ class MobileController extends Controller
 
         // Check if current password is correct
         if (!Hash::check($request->current_password, $user->password)) {
-            return redirect()->route('mobile.pengaturan')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+            return redirect()->route('mobile.profile')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
         }
 
         // Update password
@@ -154,7 +154,7 @@ class MobileController extends Controller
             'password_changed' => true,
         ]);
 
-        return redirect()->route('mobile.pengaturan')->with('success', 'Password berhasil diubah.');
+        return redirect()->route('mobile.profile')->with('success', 'Password berhasil diubah.');
     }
 
     public function updateAvatar(Request $request)
@@ -182,25 +182,25 @@ class MobileController extends Controller
 
                 if (!$avatarPath) {
                     Log::error('Failed to store avatar for user ' . $user->id);
-                    return redirect()->route('mobile.pengaturan')->with('error', 'Gagal menyimpan foto.');
+                    return redirect()->route('mobile.profile')->with('error', 'Gagal menyimpan foto.');
                 }
 
                 // Verify file exists
                 if (!Storage::disk('public')->exists($avatarPath)) {
                     Log::error('Stored avatar not found on disk for user ' . $user->id . ': ' . $avatarPath);
-                    return redirect()->route('mobile.pengaturan')->with('error', 'Terjadi kesalahan saat menyimpan file.');
+                    return redirect()->route('mobile.profile')->with('error', 'Terjadi kesalahan saat menyimpan file.');
                 }
 
                 $user->update(['avatar' => $avatarPath]);
             }
 
-            return redirect()->route('mobile.pengaturan')->with('success', 'Foto profil berhasil diubah.');
+            return redirect()->route('mobile.profile')->with('success', 'Foto profil berhasil diubah.');
             } catch (\Illuminate\Validation\ValidationException $e) {
                 Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
-                return redirect()->route('mobile.pengaturan')->withErrors($e->errors());
+                return redirect()->route('mobile.profile')->withErrors($e->errors());
             } catch (\Exception $e) {
                 Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
-                return redirect()->route('mobile.pengaturan')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
+                return redirect()->route('mobile.profile')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
             }
     }
 
@@ -249,10 +249,10 @@ class MobileController extends Controller
 
             Log::info('Account updated successfully', ['user_id' => $user->id]);
 
-            return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
+            return redirect()->route('mobile.profile')->with('success', 'Informasi akun berhasil diperbarui.');
         } catch (\Exception $e) {
             Log::error('Failed to update account for user ' . ($user->id ?? 'unknown') . ': ' . $e->getMessage());
-            return redirect()->route('mobile.pengaturan')->with('error', 'Gagal memperbarui informasi akun. Silakan coba lagi.');
+            return redirect()->route('mobile.profile')->with('error', 'Gagal memperbarui informasi akun. Silakan coba lagi.');
         }
     }
 
@@ -329,12 +329,7 @@ class MobileController extends Controller
         }
     }
 
-    public function pengaturan()
-    {
-        $user = Auth::user();
-        // Add logic for pengaturan if needed
-        return view('mobile.pengaturan', compact('user'));
-    }
+
 
     public function ubahAkun()
     {

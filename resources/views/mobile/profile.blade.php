@@ -269,9 +269,9 @@
             </div>
             @endif
 
-            <a href="{{ route('mobile.pengaturan') }}" class="settings-button w-100">
+            <a href="{{ route('mobile.ubah-akun') }}" class="settings-button w-100">
                 <i class="bx bx-cog"></i>
-                Pengaturan Akun
+                Ubah Data Akun
             </a>
         </div>
     </div>

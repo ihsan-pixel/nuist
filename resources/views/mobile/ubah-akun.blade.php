@@ -135,7 +135,7 @@
             <small class="text-muted d-block mb-3">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
 
             <button type="submit" class="btn btn-primary" id="submitBtn">Simpan Perubahan</button>
-            <a href="{{ route('mobile.pengaturan') }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ route('mobile.profile') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 </div>

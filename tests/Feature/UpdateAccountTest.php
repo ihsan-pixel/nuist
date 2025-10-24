@@ -30,7 +30,7 @@ class UpdateAccountTest extends TestCase
                 'program_studi' => 'Teknik Informatika',
             ]);
 
-        $response->assertRedirect(route('mobile.pengaturan'));
+        $response->assertRedirect(route('mobile.profile'));
         $response->assertSessionHas('success');
 
         $user->refresh();
@@ -97,7 +97,7 @@ class UpdateAccountTest extends TestCase
                 'phone' => '08123456789', // same phone
             ]);
 
-        $response->assertRedirect(route('mobile.pengaturan'));
+        $response->assertRedirect(route('mobile.profile'));
         $response->assertSessionHas('success');
 
         $user->refresh();

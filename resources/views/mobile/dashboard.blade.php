@@ -352,9 +352,9 @@
                 <i class="bx bx-time"></i>
                 <small>Izin</small>
             </a>
-            <a href="{{ route('mobile.pengaturan') }}" class="quick-action-btn">
+            <a href="{{ route('mobile.ubah-akun') }}" class="quick-action-btn">
                 <i class="bx bx-cog"></i>
-                <small>Pengaturan</small>
+                <small>Ubah Akun</small>
             </a>
         </div>
     </div>
