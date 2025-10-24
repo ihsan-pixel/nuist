@@ -523,6 +523,41 @@ $(document).ready(function() {
     $('#izinTerlambatForm').on('submit', function(e) {
         e.preventDefault();
 
+        // Validate required fields
+        let alasan = $('#alasan_terlambat').val().trim();
+        let waktuMasuk = $('#waktu_masuk_terlambat').val();
+        let fileIzin = $('#file_izin_terlambat')[0].files[0];
+
+        if (!alasan) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'Alasan keterlambatan harus diisi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        if (!waktuMasuk) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'Waktu masuk yang diminta harus diisi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        if (!fileIzin) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'File surat izin harus diupload.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
         let submitBtn = $(this).find('button[type="submit"]');
         let originalText = submitBtn.html();
 
@@ -592,6 +627,52 @@ $(document).ready(function() {
     // Handle Izin Tugas Diluar Form
     $('#izinTugasLuarForm').on('submit', function(e) {
         e.preventDefault();
+
+        // Validate required fields
+        let deskripsiTugas = $('#deskripsi_tugas_luar').val().trim();
+        let lokasiTugas = $('#lokasi_tugas_luar').val().trim();
+        let waktuKeluar = $('#waktu_keluar_tugas_luar').val();
+        let fileTugas = $('#file_tugas_luar')[0].files[0];
+
+        if (!deskripsiTugas) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'Deskripsi tugas harus diisi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        if (!lokasiTugas) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'Lokasi tugas harus diisi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        if (!waktuKeluar) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'Waktu keluar harus diisi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        if (!fileTugas) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Data Tidak Lengkap',
+                text: 'File surat tugas harus diupload.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
 
         let submitBtn = $(this).find('button[type="submit"]');
         let originalText = submitBtn.html();
