@@ -83,6 +83,10 @@ class TrackGitCommits extends Command
         $this->info("Tracked: {$tracked} commits");
         $this->info("Skipped: {$skipped} commits (already tracked)");
 
+        // Generate updated development history text file
+        $this->info("Generating updated development history text file...");
+        $this->call('development:generate-txt');
+
         return Command::SUCCESS;
     }
 

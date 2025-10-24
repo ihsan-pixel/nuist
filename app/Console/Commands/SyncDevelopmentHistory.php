@@ -69,6 +69,10 @@ class SyncDevelopmentHistory extends Command
         $this->info("Synced: {$synced} files");
         $this->info("Skipped: {$skipped} files (already exist)");
 
+        // Generate updated development history text file
+        $this->info("Generating updated development history text file...");
+        $this->call('development:generate-txt');
+
         return Command::SUCCESS;
     }
 
