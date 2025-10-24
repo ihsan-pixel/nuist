@@ -41,11 +41,11 @@
                 <h6 class="mb-1">Pengaturan Akun</h6>
                 <small>Kelola informasi akun Anda</small>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="44" height="44" alt="User">
+            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
         <div class="p-3">
             <div class="avatar-lg text-center mb-2">
-                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Profile">
+                <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Profile">
                 <div class="mt-2">
                     <strong>{{ $user->name }}</strong>
                 </div>
