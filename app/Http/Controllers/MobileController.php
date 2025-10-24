@@ -146,6 +146,8 @@ class MobileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . Auth::id(),
             'phone' => 'nullable|string|max:20',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
         ]);
 
         $user = Auth::user();
@@ -160,6 +162,12 @@ class MobileController extends Controller
         }
         if ($request->filled('phone')) {
             $updateData['no_hp'] = $request->phone;
+        }
+        if ($request->filled('tempat_lahir')) {
+            $updateData['tempat_lahir'] = $request->tempat_lahir;
+        }
+        if ($request->filled('tanggal_lahir')) {
+            $updateData['tanggal_lahir'] = $request->tanggal_lahir;
         }
 
         if (!empty($updateData)) {

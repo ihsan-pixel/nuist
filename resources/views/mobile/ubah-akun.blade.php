@@ -209,6 +209,14 @@
                     <label for="phone" class="form-label">Nomor HP</label>
                     <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->no_hp) }}" placeholder="Masukkan nomor HP">
                 </div>
+                <div class="form-group">
+                    <label for="tempat_lahir" class="form-label">Tempat Lahir</label>
+                    <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" value="{{ old('tempat_lahir', $user->tempat_lahir) }}" placeholder="Masukkan tempat lahir">
+                </div>
+                <div class="form-group">
+                    <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+                    <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir', $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('Y-m-d') : '') }}">
+                </div>
                 <button type="submit" class="btn btn-primary w-100" id="save-profile-btn">
                     <i class="bx bx-save me-1"></i>Simpan Perubahan
                 </button>
