@@ -25,6 +25,7 @@ class Presensi extends Model
         'altitude',
         'speed',
         'device_info',
+        'location_readings',
         'status',
         'keterangan',
         'surat_izin_path',
@@ -44,6 +45,7 @@ class Presensi extends Model
         'accuracy' => 'decimal:2',
         'altitude' => 'decimal:2',
         'speed' => 'decimal:2',
+        'location_readings' => 'array',
     ];
 
     public function user()

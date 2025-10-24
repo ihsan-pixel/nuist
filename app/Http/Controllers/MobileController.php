@@ -377,6 +377,7 @@ class MobileController extends Controller
                 'altitude' => $request->altitude,
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
+                'location_readings' => $request->location_readings,
                 'status' => 'hadir',
                 'keterangan' => $keterangan,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
@@ -425,6 +426,7 @@ class MobileController extends Controller
                     'altitude' => $request->altitude,
                     'speed' => $request->speed,
                     'device_info' => $request->device_info,
+                    'location_readings' => $request->location_readings,
                     'keterangan' => $keterangan,
                 ]);
 
