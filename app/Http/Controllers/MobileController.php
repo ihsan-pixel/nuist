@@ -245,7 +245,7 @@ class MobileController extends Controller
                 $payload['email_verified_at'] = null;
             }
 
-            $user->fill($payload)->save();
+            $user->update($payload);
 
             Log::info('Account updated successfully', ['user_id' => $user->id]);
 
