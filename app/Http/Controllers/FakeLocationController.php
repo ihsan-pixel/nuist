@@ -76,14 +76,9 @@ class FakeLocationController extends Controller
                 ];
 
                 // Tambahkan detail masalah untuk fake GPS detection (updated for 2 readings)
-                if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['issues'])) {
-                    // Check if readings are identical (fake GPS indicator)
-                    if (isset($presensi->fake_location_analysis['distances'])) {
-                        $distances = $presensi->fake_location_analysis['distances'];
-                        if (isset($distances['reading1_reading2']) && $distances['reading1_reading2'] < 0.0001) {
-                            // Add specific issue for readings being identical
-                            $analysis['issues'][] = 'Kedua pembacaan lokasi identik - indikasi pengguna fake GPS';
-                        }
+                if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['reason'])) {
+                    if ($presensi->fake_location_analysis['reason'] === 'Identical coordinates between reading1 and reading2') {
+                        $analysis['issues'][] = 'Kedua pembacaan lokasi identik - indikasi pengguna fake GPS';
                     }
                 }
 
