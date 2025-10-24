@@ -105,47 +105,33 @@
         }
 
         .schedule-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 12px;
         }
 
-        .schedule-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
         }
 
-        .schedule-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(14, 133, 73, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
+        .schedule-item {
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
         }
 
-        .schedule-icon i {
-            color: #0e8549;
-            font-size: 14px;
-        }
-
-        .schedule-card h6 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .schedule-card p {
-            font-size: 12px;
-            margin-bottom: 2px;
-        }
-
-        .schedule-card small {
+        .schedule-item strong {
             font-size: 11px;
+            color: #333;
+        }
+
+        .schedule-item small {
+            color: #6c757d;
+            font-size: 10px;
         }
 
         .quick-actions {
@@ -334,18 +320,15 @@
     <div class="schedule-section">
         <h6 class="section-title">Jadwal Hari Ini</h6>
         @if($todaySchedules->count() > 0)
-            @foreach($todaySchedules as $schedule)
-                <div class="schedule-card">
-                    <div class="schedule-icon">
-                        <i class="bx bx-book"></i>
+            <div class="schedule-grid">
+                @foreach($todaySchedules as $schedule)
+                    <div class="schedule-item">
+                        <strong class="d-block">{{ $schedule->subject }}</strong>
+                        <small class="d-block text-muted">{{ $schedule->class_name }}</small>
+                        <small class="d-block text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
                     </div>
-                    <div>
-                        <h6 class="mb-0">{{ $schedule->subject }}</h6>
-                        <p class="mb-0 text-muted small">{{ $schedule->class_name }}</p>
-                        <small class="text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
-                    </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         @else
             <div class="no-schedule">
                 <i class="bx bx-calendar-x"></i>
