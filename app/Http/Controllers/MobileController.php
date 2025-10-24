@@ -164,7 +164,24 @@ class MobileController extends Controller
 
         if (!empty($updateData)) {
             $user->update($updateData);
+
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profil berhasil diperbarui.'
+                ]);
+            }
+
             return redirect()->route('ubah-akun')->with('success', 'Profil berhasil diperbarui.');
+        }
+
+        // Return JSON response for AJAX requests
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada perubahan yang dilakukan.'
+            ]);
         }
 
         return redirect()->route('ubah-akun')->with('info', 'Tidak ada perubahan yang dilakukan.');
