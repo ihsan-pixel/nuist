@@ -209,7 +209,7 @@
                     <label for="phone" class="form-label">Nomor HP</label>
                     <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Masukkan nomor HP">
                 </div>
-                <button type="submit" class="btn btn-primary w-100">
+                <button type="submit" class="btn btn-primary w-100" id="save-profile-btn">
                     <i class="bx bx-save me-1"></i>Simpan Perubahan
                 </button>
             </form>
@@ -233,5 +233,85 @@ document.getElementById('avatar-input').addEventListener('change', function() {
         document.getElementById('avatar-form').submit();
     }
 });
+
+// Auto-submit profile form on change (like avatar)
+document.getElementById('name').addEventListener('blur', function() {
+    autoSubmitProfile();
+});
+
+document.getElementById('email').addEventListener('blur', function() {
+    autoSubmitProfile();
+});
+
+document.getElementById('phone').addEventListener('blur', function() {
+    autoSubmitProfile();
+});
+
+function autoSubmitProfile() {
+    const form = document.querySelector('form[action*="update-profile"]');
+    const formData = new FormData(form);
+
+    // Check if any field has changed
+    const nameChanged = formData.get('name') !== '{{ $user->name }}';
+    const emailChanged = formData.get('email') !== '{{ $user->email }}';
+    const phoneChanged = formData.get('phone') !== '{{ $user->phone }}';
+
+    if (nameChanged || emailChanged || phoneChanged) {
+        // Show loading state
+        const btn = document.getElementById('save-profile-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
+        btn.disabled = true;
+
+        // Submit form via AJAX
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Reset button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (data.success) {
+                // Show success message
+                showMessage('success', 'Profil berhasil diperbarui');
+            } else {
+                // Show error message
+                showMessage('error', data.message || 'Terjadi kesalahan');
+            }
+        })
+        .catch(error => {
+            // Reset button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            showMessage('error', 'Terjadi kesalahan saat menyimpan');
+        });
+    }
+}
+
+function showMessage(type, message) {
+    // Remove existing alerts
+    const existingAlerts = document.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => alert.remove());
+
+    // Create new alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    alertDiv.innerHTML = `<i class="bx bx-${type === 'success' ? 'check' : 'error'}-circle me-1"></i>${message}`;
+
+    // Insert at the top of the container
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
 </script>
 @endsection
