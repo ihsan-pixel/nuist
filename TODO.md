@@ -1,14 +1,15 @@
-# TODO: Mobile Dashboard Compact Layout Update
+# TODO: Fix Izin Button Functionality
 
-- [x] Modify Welcome Section: Reduce padding (py-4 to py-2), margins (mb-4 to mb-2), and avatar size (avatar-lg to avatar-md)
-- [x] Expand Quick Stats to 4 cards in 2x2 grid: Add Total Izin and Total Sakit cards, reduce padding (py-3 to py-2), smaller avatars (avatar-sm to avatar-xs), adjust icon size (fs-4 to fs-3)
-- [x] Remove Detailed Stats section from dashboard
-- [x] Expand Quick Actions to 6 items in 3x2 grid: Add Profile, Laporan, Izin, Pengaturan; use col-4, larger icons (fs-4), shorter labels, reduce button padding (py-3 to py-2)
-- [x] Test layout for mobile responsiveness (Server started, browser testing disabled)
-- [x] Fix missing routes: Added mobile.laporan, mobile.izin, mobile.pengaturan routes and methods
-- [x] Create placeholder views for new mobile pages
-- [x] Change dashboard colors to match login page theme (green gradient)
-- [x] Make welcome section horizontal layout (avatar + text side by side)
-- [x] Make stats cards smaller and fit 4 in one row (col-3)
-- [x] Reduce font size of stats numbers to fs-6
-- [x] Add teacher information section above today's schedule
+## Tasks
+- [x] Modify MobileController@storeIzin to store izin data in presensis table instead of izins table
+- [x] Update validation and file handling for presensis storage
+- [x] Ensure izin appears in kelola izin (izin/index) for approval by admin/kepala sekolah
+- [ ] Test the button functionality and data submission
+- [ ] Verify approval process works
+
+## Details
+- Change storeIzin to create Presensi record with status='izin', status_izin='pending'
+- Use keterangan field to store alasan or deskripsi_tugas
+- Store file in surat_izin_path
+- Handle different file fields (file_izin, file_tugas)
+- Ensure no duplicate izin for same day/type

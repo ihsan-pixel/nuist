@@ -216,54 +216,90 @@ class MobileController extends Controller
             $today = Carbon::now('Asia/Jakarta')->toDateString();
 
             // Cek apakah sudah ada izin hari ini untuk jenis yang sama
-            $existingIzin = \App\Models\Izin::where('user_id', $user->id)
+            $existingIzin = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $today)
-                ->where('type', $request->type)
-                ->where('status', 'pending')
+                ->where('status', 'izin')
+                ->where('status_izin', 'pending')
                 ->first();
 
             if ($existingIzin) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda sudah mengajukan izin ' . ($request->type === 'terlambat' ? 'terlambat' : 'tugas diluar') . ' untuk hari ini.'
+                    'message' => 'Anda sudah mengajukan izin untuk hari ini.'
+                ], 400);
+            }
+
+            // Cek apakah sudah ada presensi hari ini
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->where('tanggal', $today)
+                ->first();
+
+            if ($existingPresensi && $existingPresensi->status !== 'alpha') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah memiliki catatan presensi untuk hari ini.'
                 ], 400);
             }
 
             $filePath = null;
-            $fileName = null;
 
             // Handle file upload
             if ($request->type === 'terlambat' && $request->hasFile('file_izin')) {
                 $file = $request->file('file_izin');
                 $fileName = time() . '_izin_terlambat_' . $user->id . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('izin/terlambat', $fileName, 'public');
+                $filePath = $file->storeAs('surat_izin', $fileName, 'public');
             } elseif ($request->type === 'tugas_luar' && $request->hasFile('file_tugas')) {
                 $file = $request->file('file_tugas');
                 $fileName = time() . '_izin_tugas_' . $user->id . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('izin/tugas_luar', $fileName, 'public');
+                $filePath = $file->storeAs('surat_izin', $fileName, 'public');
             }
 
-            // Create izin record
-            $izin = \App\Models\Izin::create([
-                'user_id' => $user->id,
-                'tanggal' => $today,
-                'type' => $request->type,
-                'alasan' => $request->alasan,
-                'deskripsi_tugas' => $request->deskripsi_tugas,
-                'lokasi_tugas' => $request->lokasi_tugas,
-                'file_path' => $filePath,
-                'file_name' => $fileName,
-                'waktu_masuk' => $request->waktu_masuk,
-                'waktu_keluar' => $request->waktu_keluar,
-                'status' => 'pending',
-                'approved_by' => null,
-                'approved_at' => null,
-            ]);
+            // Prepare keterangan based on type
+            $keterangan = '';
+            if ($request->type === 'terlambat') {
+                $keterangan = 'Izin Terlambat: ' . $request->alasan;
+                if ($request->waktu_masuk) {
+                    $keterangan .= ' - Waktu Masuk: ' . $request->waktu_masuk;
+                }
+            } elseif ($request->type === 'tugas_luar') {
+                $keterangan = 'Izin Tugas Luar: ' . $request->deskripsi_tugas;
+                if ($request->lokasi_tugas) {
+                    $keterangan .= ' - Lokasi: ' . $request->lokasi_tugas;
+                }
+                if ($request->waktu_keluar) {
+                    $keterangan .= ' - Waktu Keluar: ' . $request->waktu_keluar;
+                }
+            }
+
+            // Create or update presensi record
+            if ($existingPresensi && $existingPresensi->status === 'alpha') {
+                // Update existing alpha record
+                $existingPresensi->update([
+                    'status' => 'izin',
+                    'keterangan' => $keterangan,
+                    'surat_izin_path' => $filePath,
+                    'status_izin' => 'pending',
+                    'approved_by' => null,
+                ]);
+                $presensi = $existingPresensi;
+            } else {
+                // Create new presensi record
+                $presensi = Presensi::create([
+                    'user_id' => $user->id,
+                    'tanggal' => $today,
+                    'status' => 'izin',
+                    'keterangan' => $keterangan,
+                    'surat_izin_path' => $filePath,
+                    'status_izin' => 'pending',
+                    'approved_by' => null,
+                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Izin berhasil dikirim dan menunggu approval.',
-                'data' => $izin
+                'data' => $presensi
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
