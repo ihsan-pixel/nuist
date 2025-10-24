@@ -188,12 +188,12 @@
 
     <!-- Header -->
     <div class="profile-header">
-    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h6 class="mb-1">Profil</h6>
                 <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
@@ -212,7 +212,7 @@
 
     <!-- Profile Avatar Section -->
     <div class="profile-avatar">
-       <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+       <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
            alt="Profile Picture">
         <h5>{{ $user->name }}</h5>
         <p>{{ $user->email }}</p>
@@ -269,75 +269,13 @@
             </div>
             @endif
 
-            <button type="button" class="settings-button w-100" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                <i class="bx bx-lock"></i>
-                Ubah Password
-            </button>
-
-            <button type="button" class="settings-button w-100" data-bs-toggle="modal" data-bs-target="#changeAvatarModal">
-                <i class="bx bx-camera"></i>
-                Ubah Foto Profil
-            </button>
+            <a href="{{ route('mobile.pengaturan') }}" class="settings-button w-100">
+                <i class="bx bx-cog"></i>
+                Pengaturan Akun
+            </a>
         </div>
     </div>
 
-<!-- Change Password Modal -->
-<div class="modal fade" id="changePasswordModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ubah Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('mobile.profile.update-password') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Password Lama</label>
-                        <input type="password" name="current_password" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password Baru</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Change Avatar Modal -->
-<div class="modal fade" id="changeAvatarModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ubah Foto Profil</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Pilih Foto</label>
-                        <input type="file" name="avatar" class="form-control" accept="image/*" required>
-                        <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB.</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- Note: password/avatar edit moved to Pengaturan page -->
 
 @endsection
