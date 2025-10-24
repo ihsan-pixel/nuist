@@ -178,6 +178,30 @@ class MobileController extends Controller
         return back()->with('success', 'Foto profil berhasil diubah.');
     }
 
+    public function updateAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $emailChanged = $request->input('email') !== $user->email;
+
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
+
+        if ($emailChanged) {
+            // If email changed, mark email as unverified (if using verification)
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Informasi akun berhasil diperbarui.');
+    }
+
     public function laporan()
     {
         $user = Auth::user();
