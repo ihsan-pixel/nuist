@@ -239,7 +239,12 @@
                 <div class="form-group">
                     <label for="password" class="form-label">Password Baru</label>
                     <input type="password" class="form-control" id="password" name="password" required placeholder="Minimal 8 karakter, kombinasi huruf besar, kecil, angka & simbol">
-                    <small class="text-muted">Password harus mengandung huruf besar, huruf kecil, angka, dan simbol</small>
+                    <div id="password-strength" class="mt-2">
+                        <small id="password-strength-text" class="text-muted">Password harus mengandung huruf besar, huruf kecil, angka, dan simbol</small>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%; background-color: #dc3545;"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
@@ -255,6 +260,7 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.getElementById('avatar-input').addEventListener('change', function() {
     if (this.files && this.files[0]) {
@@ -345,6 +351,73 @@ document.getElementById('save-profile-btn').addEventListener('click', function(e
     });
 });
 
+// Password strength checker
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strengthBar = document.getElementById('password-strength-bar');
+    const strengthText = document.getElementById('password-strength-text');
+
+    let strength = 0;
+    let feedback = [];
+
+    // Length check
+    if (password.length >= 8) {
+        strength += 25;
+    } else {
+        feedback.push('Minimal 8 karakter');
+    }
+
+    // Lowercase check
+    if (/[a-z]/.test(password)) {
+        strength += 25;
+    } else {
+        feedback.push('Huruf kecil');
+    }
+
+    // Uppercase check
+    if (/[A-Z]/.test(password)) {
+        strength += 25;
+    } else {
+        feedback.push('Huruf besar');
+    }
+
+    // Number check
+    if (/\d/.test(password)) {
+        strength += 12.5;
+    } else {
+        feedback.push('Angka');
+    }
+
+    // Special character check
+    if (/[@$!%*?&]/.test(password)) {
+        strength += 12.5;
+    } else {
+        feedback.push('Simbol (@$!%*?&)');
+    }
+
+    // Update progress bar
+    strengthBar.style.width = strength + '%';
+
+    // Update color and text
+    if (strength < 50) {
+        strengthBar.style.backgroundColor = '#dc3545'; // Red
+        strengthText.textContent = 'Lemah: ' + feedback.join(', ');
+        strengthText.style.color = '#dc3545';
+    } else if (strength < 75) {
+        strengthBar.style.backgroundColor = '#ffc107'; // Yellow
+        strengthText.textContent = 'Sedang: Perlu ' + feedback.join(', ');
+        strengthText.style.color = '#ffc107';
+    } else if (strength < 100) {
+        strengthBar.style.backgroundColor = '#0d6efd'; // Blue
+        strengthText.textContent = 'Kuat: Perlu ' + feedback.join(', ');
+        strengthText.style.color = '#0d6efd';
+    } else {
+        strengthBar.style.backgroundColor = '#198754'; // Green
+        strengthText.textContent = 'Sangat Kuat: Password memenuhi semua kriteria!';
+        strengthText.style.color = '#198754';
+    }
+});
+
 // Handle password form submission with AJAX
 document.getElementById('save-password-btn').addEventListener('click', function(e) {
     e.preventDefault();
@@ -374,24 +447,43 @@ document.getElementById('save-password-btn').addEventListener('click', function(
         btn.disabled = false;
 
         if (data.success) {
-            // Show success message
-            showMessage('success', data.message || 'Password berhasil diperbarui');
+            // Show success SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: data.message || 'Password berhasil diperbarui',
+                confirmButtonColor: '#004b4c',
+                confirmButtonText: 'OK'
+            });
             // Clear form
             form.reset();
-            // Auto reload page after 2 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            // Reset password strength indicator
+            document.getElementById('password-strength-bar').style.width = '0%';
+            document.getElementById('password-strength-text').textContent = 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol';
+            document.getElementById('password-strength-text').style.color = '#6c757d';
         } else {
-            // Show error message
-            showMessage('error', data.message || 'Terjadi kesalahan');
+            // Show error SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message || 'Terjadi kesalahan saat mengubah password',
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'OK'
+            });
         }
     })
     .catch(error => {
         // Reset button
         btn.innerHTML = originalText;
         btn.disabled = false;
-        showMessage('error', 'Terjadi kesalahan saat mengubah password');
+        // Show error SweetAlert
+        Swal.fire({
+            icon: 'error',
+            title: 'Kesalahan!',
+            text: 'Terjadi kesalahan saat mengubah password',
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'OK'
+        });
         console.error('Error:', error);
     });
 });
