@@ -44,29 +44,34 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 8px;
+            padding: 6px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
-        .stat-item i {
-            font-size: 20px;
+        .stat-item .icon-container {
             margin-bottom: 4px;
         }
 
+        .stat-item i {
+            font-size: 18px;
+        }
+
         .stat-item h6 {
-            font-size: 14px;
-            margin-bottom: 2px;
+            font-size: 12px;
+            margin-bottom: 0;
+            font-weight: 600;
         }
 
         .stat-item small {
-            font-size: 11px;
+            font-size: 9px;
+            color: #6c757d;
         }
 
         .info-section {
@@ -226,24 +231,32 @@
     <div class="stats-form">
         <div class="stats-grid">
             <div class="stat-item">
-                <i class="bx bx-check-circle text-success"></i>
-                <h6 class="mb-0">{{ $kehadiranPercent }}%</h6>
-                <small class="text-muted">Kehadiran</small>
+                <div class="icon-container">
+                    <i class="bx bx-check-circle text-success"></i>
+                </div>
+                <h6>{{ $kehadiranPercent }}%</h6>
+                <small>Kehadiran</small>
             </div>
             <div class="stat-item">
-                <i class="bx bx-calendar text-primary"></i>
-                <h6 class="mb-0">{{ $totalBasis }}</h6>
-                <small class="text-muted">Presensi</small>
+                <div class="icon-container">
+                    <i class="bx bx-calendar text-primary"></i>
+                </div>
+                <h6>{{ $totalBasis }}</h6>
+                <small>Presensi</small>
             </div>
             <div class="stat-item">
-                <i class="bx bx-time text-warning"></i>
-                <h6 class="mb-0">{{ $izin }}</h6>
-                <small class="text-muted">Izin</small>
+                <div class="icon-container">
+                    <i class="bx bx-time text-warning"></i>
+                </div>
+                <h6>{{ $izin }}</h6>
+                <small>Izin</small>
             </div>
             <div class="stat-item">
-                <i class="bx bx-plus-medical text-danger"></i>
-                <h6 class="mb-0">{{ $sakit }}</h6>
-                <small class="text-muted">Sakit</small>
+                <div class="icon-container">
+                    <i class="bx bx-plus-medical text-danger"></i>
+                </div>
+                <h6>{{ $sakit }}</h6>
+                <small>Sakit</small>
             </div>
         </div>
     </div>
