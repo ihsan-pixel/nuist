@@ -142,16 +142,22 @@ class MobileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'current_password' => 'required',
-            'password' => 'required|min:8|confirmed',
-        ]);
-
         $user = Auth::user();
 
-        // Check if current password is correct
-        if (!Hash::check($request->current_password, $user->password)) {
-        return redirect()->route('mobile.ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+        if (!$user->password_changed) {
+            $request->validate([
+                'current_password' => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            // Check if current password is correct for initial change
+            if (!Hash::check($request->current_password, $user->password)) {
+                return redirect()->route('mobile.ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+            }
+        } else {
+            $request->validate([
+                'password' => 'required|min:8|confirmed',
+            ]);
         }
 
         // Update password

@@ -197,10 +197,12 @@
         <div class="section-content">
             <form action="{{ route('mobile.profile.update-password') }}" method="POST">
                 @csrf
+                @if(!$user->password_changed)
                 <div class="form-group">
                     <label for="current_password" class="form-label">Password Lama</label>
                     <input type="password" class="form-control" id="current_password" name="current_password" required>
                 </div>
+                @endif
                 <div class="form-group">
                     <label for="password" class="form-label">Password Baru</label>
                     <input type="password" class="form-control" id="password" name="password" required minlength="8">
