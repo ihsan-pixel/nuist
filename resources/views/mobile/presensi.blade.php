@@ -523,6 +523,12 @@ $(document).ready(function() {
     $('#izinTerlambatForm').on('submit', function(e) {
         e.preventDefault();
 
+        let submitBtn = $(this).find('button[type="submit"]');
+        let originalText = submitBtn.html();
+
+        // Show loading state
+        submitBtn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...');
+
         let formData = new FormData(this);
         formData.append('type', 'terlambat');
 
@@ -532,6 +538,7 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
+            timeout: 30000, // 30 seconds timeout
             success: function(response) {
                 if (response.success) {
                     $('#izinTerlambatModal').modal('hide');
@@ -539,7 +546,9 @@ $(document).ready(function() {
                         icon: 'success',
                         title: 'Berhasil!',
                         text: 'Izin terlambat berhasil dikirim dan menunggu approval.',
-                        confirmButtonText: 'Oke'
+                        confirmButtonText: 'Oke',
+                        timer: 3000,
+                        timerProgressBar: true
                     });
                     $('#izinTerlambatForm')[0].reset();
                 } else {
@@ -551,17 +560,31 @@ $(document).ready(function() {
                     });
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
                 let errorMessage = 'Terjadi kesalahan tidak diketahui';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
+
+                if (status === 'timeout') {
+                    errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
+                } else if (xhr.status === 0) {
+                    errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    // Validation errors
+                    let errors = Object.values(xhr.responseJSON.errors).flat();
+                    errorMessage = errors.join('<br>');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Kesalahan',
-                    text: errorMessage,
+                    html: errorMessage,
                     confirmButtonText: 'Oke'
                 });
+            },
+            complete: function() {
+                // Reset button state
+                submitBtn.prop('disabled', false).html(originalText);
             }
         });
     });
@@ -569,6 +592,12 @@ $(document).ready(function() {
     // Handle Izin Tugas Diluar Form
     $('#izinTugasLuarForm').on('submit', function(e) {
         e.preventDefault();
+
+        let submitBtn = $(this).find('button[type="submit"]');
+        let originalText = submitBtn.html();
+
+        // Show loading state
+        submitBtn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...');
 
         let formData = new FormData(this);
         formData.append('type', 'tugas_luar');
@@ -579,6 +608,7 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
+            timeout: 30000, // 30 seconds timeout
             success: function(response) {
                 if (response.success) {
                     $('#izinTugasLuarModal').modal('hide');
@@ -586,7 +616,9 @@ $(document).ready(function() {
                         icon: 'success',
                         title: 'Berhasil!',
                         text: 'Izin tugas diluar berhasil dikirim dan menunggu approval.',
-                        confirmButtonText: 'Oke'
+                        confirmButtonText: 'Oke',
+                        timer: 3000,
+                        timerProgressBar: true
                     });
                     $('#izinTugasLuarForm')[0].reset();
                 } else {
@@ -598,17 +630,31 @@ $(document).ready(function() {
                     });
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
                 let errorMessage = 'Terjadi kesalahan tidak diketahui';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
+
+                if (status === 'timeout') {
+                    errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
+                } else if (xhr.status === 0) {
+                    errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    // Validation errors
+                    let errors = Object.values(xhr.responseJSON.errors).flat();
+                    errorMessage = errors.join('<br>');
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
                 }
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Kesalahan',
-                    text: errorMessage,
+                    html: errorMessage,
                     confirmButtonText: 'Oke'
                 });
+            },
+            complete: function() {
+                // Reset button state
+                submitBtn.prop('disabled', false).html(originalText);
             }
         });
     });
