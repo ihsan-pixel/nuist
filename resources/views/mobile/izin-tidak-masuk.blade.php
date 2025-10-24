@@ -55,7 +55,7 @@
         }
     </style>
 
-    <form action="{{ route('izin.store') }}" method="POST" enctype="multipart/form-data" class="izin-form">
+    <form id="form-izin-tidak-masuk" action="{{ route('mobile.izin.store') }}" method="POST" enctype="multipart/form-data" class="izin-form">
         @csrf
         <input type="hidden" name="type" value="tidak_masuk">
 
@@ -77,4 +77,42 @@
         <button type="submit" class="btn-submit">Kirim Izin Tidak Masuk</button>
     </form>
 </div>
+@endsection
+
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $('#form-izin-tidak-masuk').on('submit', function(e){
+        e.preventDefault();
+        var form = this;
+        var fd = new FormData(form);
+
+        $.ajax({
+            url: '{{ route("mobile.izin.store") }}',
+            method: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                if(res.success){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: res.message || 'Izin berhasil diajukan.',
+                        confirmButtonText: 'Oke'
+                    }).then(function(){
+                        window.location.href = '{{ route("mobile.riwayat-presensi") }}';
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: res.message || 'Surat gagal terkirim.' });
+                }
+            },
+            error: function(xhr){
+                var msg = 'Surat gagal terkirim.';
+                if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+            }
+        });
+    });
+</script>
 @endsection

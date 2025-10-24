@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Presensi;
 use App\Models\TeachingSchedule;
 use Carbon\Carbon;
@@ -215,20 +216,20 @@ class MobileController extends Controller
     {
         try {
             $request->validate([
-                'type' => 'required|in:terlambat,tugas_luar',
-                'alasan' => 'required_if:type,terlambat|string|max:500',
-                'deskripsi_tugas' => 'required_if:type,tugas_luar|string|max:500',
-                'lokasi_tugas' => 'required_if:type,tugas_luar|string|max:255',
-                'file_izin' => 'required_if:type,terlambat|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
-                'file_tugas' => 'required_if:type,tugas_luar|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
-                'waktu_masuk' => 'required_if:type,terlambat|date_format:H:i',
-                'waktu_keluar' => 'required_if:type,tugas_luar|date_format:H:i',
+                'type' => 'required|in:tidak_masuk,sakit,terlambat,tugas_luar',
+                // optional file inputs - validate if present
+                'file_izin' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+                'surat_izin' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+                'file_tugas' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+                // time fields
+                'waktu_masuk' => 'nullable|date_format:H:i',
+                'waktu_keluar' => 'nullable|date_format:H:i',
             ]);
 
             $user = Auth::user();
             $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-            // Cek apakah sudah ada izin hari ini untuk jenis yang sama
+            // Prevent duplicate pending izin for the day
             $existingIzin = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $today)
                 ->where('status', 'izin')
@@ -242,7 +243,7 @@ class MobileController extends Controller
                 ], 400);
             }
 
-            // Cek apakah sudah ada presensi hari ini
+            // Check existing presensi for today
             $existingPresensi = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $today)
                 ->first();
@@ -254,39 +255,42 @@ class MobileController extends Controller
                 ], 400);
             }
 
+            // Determine uploaded file (accept several input names)
+            $file = $request->file('file_izin') ?? $request->file('surat_izin') ?? $request->file('file_tugas');
             $filePath = null;
-
-            // Handle file upload
-            if ($request->type === 'terlambat' && $request->hasFile('file_izin')) {
-                $file = $request->file('file_izin');
-                $fileName = time() . '_izin_terlambat_' . $user->id . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('surat_izin', $fileName, 'public');
-            } elseif ($request->type === 'tugas_luar' && $request->hasFile('file_tugas')) {
-                $file = $request->file('file_tugas');
-                $fileName = time() . '_izin_tugas_' . $user->id . '.' . $file->getClientOriginalExtension();
+            if ($file) {
+                $fileName = time() . '_izin_' . ($request->type ?? 'unknown') . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('surat_izin', $fileName, 'public');
             }
 
-            // Prepare keterangan based on type
+            // Compose keterangan based on type
             $keterangan = '';
-            if ($request->type === 'terlambat') {
-                $keterangan = 'Izin Terlambat: ' . $request->alasan;
+            $type = $request->input('type');
+            if ($type === 'tidak_masuk') {
+                $reason = $request->input('alasan') ?? $request->input('keterangan');
+                $keterangan = 'Izin Tidak Masuk: ' . ($reason ?? '-');
+            } elseif ($type === 'sakit') {
+                $reason = $request->input('keterangan') ?? $request->input('alasan');
+                $keterangan = 'Izin Sakit: ' . ($reason ?? '-');
+            } elseif ($type === 'terlambat') {
+                $reason = $request->input('alasan') ?? $request->input('keterangan');
+                $keterangan = 'Izin Terlambat: ' . ($reason ?? '-');
                 if ($request->waktu_masuk) {
                     $keterangan .= ' - Waktu Masuk: ' . $request->waktu_masuk;
                 }
-            } elseif ($request->type === 'tugas_luar') {
-                $keterangan = 'Izin Tugas Luar: ' . $request->deskripsi_tugas;
-                if ($request->lokasi_tugas) {
-                    $keterangan .= ' - Lokasi: ' . $request->lokasi_tugas;
+            } elseif ($type === 'tugas_luar') {
+                $desc = $request->input('deskripsi_tugas') ?? $request->input('keterangan');
+                $keterangan = 'Izin Tugas Luar: ' . ($desc ?? '-');
+                if ($request->input('lokasi_tugas')) {
+                    $keterangan .= ' - Lokasi: ' . $request->input('lokasi_tugas');
                 }
                 if ($request->waktu_keluar) {
                     $keterangan .= ' - Waktu Keluar: ' . $request->waktu_keluar;
                 }
             }
 
-            // Create or update presensi record
+            // Persist presensi record (update alpha or create new)
             if ($existingPresensi && $existingPresensi->status === 'alpha') {
-                // Update existing alpha record
                 $existingPresensi->update([
                     'status' => 'izin',
                     'keterangan' => $keterangan,
@@ -296,7 +300,6 @@ class MobileController extends Controller
                 ]);
                 $presensi = $existingPresensi;
             } else {
-                // Create new presensi record
                 $presensi = Presensi::create([
                     'user_id' => $user->id,
                     'tanggal' => $today,
