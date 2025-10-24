@@ -214,9 +214,17 @@ class MobileController extends Controller
         ]);
 
         $request->validate([
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email',
             'phone' => 'nullable|string|max:20',
         ]);
+
+        // Check if email is being changed and if it's already taken by another user
+        if ($request->input('email') !== $user->email) {
+            $existingUser = \App\Models\User::where('email', $request->input('email'))->first();
+            if ($existingUser && $existingUser->id !== $user->id) {
+                return redirect()->route('mobile.pengaturan')->withErrors(['email' => 'Email sudah digunakan oleh pengguna lain.']);
+            }
+        }
 
         $emailChanged = $request->input('email') !== $user->email;
 
