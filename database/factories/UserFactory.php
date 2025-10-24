@@ -22,6 +22,11 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'role' => 'tenaga_pendidik',
             'no_hp' => $this->faker->phoneNumber,
+            'tempat_lahir' => $this->faker->city,
+            'tanggal_lahir' => $this->faker->date('Y-m-d', '-20 years'),
+            'alamat' => $this->faker->address,
+            'pendidikan_terakhir' => $this->faker->randomElement(['SMA', 'D3', 'S1', 'S2']),
+            'program_studi' => $this->faker->randomElement(['Teknik Informatika', 'Pendidikan Matematika', 'Bahasa Indonesia']),
         ];
     }
 
