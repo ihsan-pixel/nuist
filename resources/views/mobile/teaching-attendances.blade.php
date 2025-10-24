@@ -4,175 +4,210 @@
 @section('subtitle', 'Presensi Mengajar Hari Ini')
 
 @section('content')
-@component('components.breadcrumb')
-    @slot('li_1') Dashboard @endslot
-    @slot('title') Presensi Mengajar @endslot
-@endcomponent
+<div class="container py-3" style="max-width: 420px; margin: auto;">
+    <style>
+        /* reuse mobile presensi styles for consistency */
+        .presensi-header { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; border-radius: 12px; padding: 12px 10px; box-shadow: 0 4px 10px rgba(0,75,76,0.3); margin-bottom: 10px; }
+        .presensi-header h6 { font-weight: 600; font-size: 12px; }
+        .presensi-header h5 { font-size: 14px; }
+        .schedule-card { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
+        .status-icon { width: 36px; height: 36px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-right:10px; }
+        .presensi-btn { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border: none; border-radius: 8px; padding: 10px; color: #fff; font-weight: 600; font-size: 14px; width: 100%; }
+        .presensi-btn.outline { background: transparent; border:1px solid #e9ecef; color:#333; }
+        .small-muted { font-size: 12px; color: #6c757d; }
+    </style>
 
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-body p-3 d-flex align-items-center">
-        <div class="avatar-lg me-3">
-            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
-                <i class="bx bx-book fs-2"></i>
-            </div>
+    <!-- Header -->
+    <div class="presensi-header d-flex align-items-center">
+        <div class="me-2">
+            <h6 class="mb-0">Presensi Mengajar</h6>
+            <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+            <small class="small-muted">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
         </div>
-        <div class="flex-grow-1">
-            <h6 class="mb-0">Presensi Mengajar Hari Ini</h6>
-            <small class="text-muted">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
-        </div>
-        <div class="text-end">
-            <div class="fs-5 fw-bold text-primary">{{ $schedules->count() }}</div>
-            <small class="text-muted">Jadwal Hari Ini</small>
+        <div class="ms-auto">
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="40" height="40" alt="User">
         </div>
     </div>
-</div>
 
-@if($schedules->isEmpty())
-    <div class="card empty-state shadow-sm border-0">
-        <div class="card-body text-center py-5">
-            <div class="avatar-xl mx-auto mb-4">
-                <div class="avatar-title bg-light rounded-circle">
-                    <i class="bx bx-calendar-x fs-1 text-muted"></i>
+    @if($schedules->isEmpty())
+        <div class="card empty-state shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <div class="avatar-xl mx-auto mb-4">
+                    <div class="avatar-title bg-light rounded-circle">
+                        <i class="bx bx-calendar-x fs-1 text-muted"></i>
+                    </div>
                 </div>
+                <h5 class="text-muted mb-2">Tidak ada jadwal mengajar hari ini</h5>
+                <p class="text-muted mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
             </div>
-            <h5 class="text-muted mb-2">Tidak ada jadwal mengajar hari ini</h5>
-            <p class="text-muted mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
         </div>
-    </div>
-@else
-    <div class="row g-3">
+    @else
         @foreach($schedules as $schedule)
-        <div class="col-12">
-            <div class="card position-relative p-3">
-                <div class="d-flex align-items-start justify-content-between mb-2">
-                    <div>
-                        <h6 class="mb-1"><i class="bx bx-book-open text-primary me-2"></i>{{ $schedule->subject }}</h6>
-                        <div class="text-muted small"><i class="bx bx-building-house"></i> {{ $schedule->school->name ?? 'N/A' }}</div>
+            <div class="schedule-card d-flex align-items-start">
+                <div class="status-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bx bx-book-open"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <div class="fw-semibold">{{ $schedule->subject }}</div>
+                            <div class="small-muted">{{ $schedule->school->name ?? 'N/A' }}</div>
+                        </div>
+                        <div class="text-end">
+                            @if($schedule->attendance)
+                                <div class="badge bg-success">Hadir</div>
+                            @else
+                                <div class="badge bg-warning text-dark">Belum</div>
+                            @endif
+                        </div>
                     </div>
-                    <div class="text-end">
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <div>
+                            <small class="small-muted">Kelas</small>
+                            <div class="fw-medium">{{ $schedule->class_name }}</div>
+                        </div>
+                        <div class="text-end">
+                            <small class="small-muted">Waktu</small>
+                            <div class="fw-medium">{{ $schedule->start_time }} - {{ $schedule->end_time }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
                         @if($schedule->attendance)
-                            <span class="badge bg-success">Hadir</span>
-                        @else
-                            <span class="badge bg-warning text-dark">Belum</span>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-between mt-2">
-                    <div>
-                        <small class="text-muted d-block">Kelas</small>
-                        <div class="fw-medium">{{ $schedule->class_name }}</div>
-                    </div>
-                    <div class="text-end">
-                        <small class="text-muted d-block">Waktu</small>
-                        <div class="fw-medium">{{ $schedule->start_time }} - {{ $schedule->end_time }}</div>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    @if($schedule->attendance)
-                        <div class="alert alert-success mb-0">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-check-circle fs-4 me-2"></i>
-                                <div>
-                                    <div class="fw-semibold">Presensi Berhasil</div>
-                                    <small class="text-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                            <div class="alert alert-success mb-0">
+                                <div class="d-flex align-items-center">
+                                    <i class="bx bx-check-circle fs-4 me-2"></i>
+                                    <div>
+                                        <div class="fw-semibold">Presensi Berhasil</div>
+                                        <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @else
-                        @php
-                            $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
-                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
-                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
-                            $isWithinTime = $currentTime->between($startTime, $endTime);
-                        @endphp
-
-                        @if($isWithinTime)
-                            <button class="btn btn-primary btn-lg w-100" onclick="markAttendance({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')"> 
-                                <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
-                            </button>
                         @else
-                            <button class="btn btn-outline-secondary btn-lg w-100" disabled>
-                                <i class="bx bx-time me-1"></i> Diluar Waktu Mengajar
-                            </button>
-                            <div class="text-center mt-2">
-                                <small class="text-muted bg-light px-2 py-1 rounded-pill">
-                                    <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                </small>
-                            </div>
+                            @php
+                                $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
+                                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
+                                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+                                $isWithinTime = $currentTime->between($startTime, $endTime);
+                            @endphp
+
+                            @if($isWithinTime)
+                                <button class="presensi-btn" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')"> 
+                                    <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
+                                </button>
+                            @else
+                                <button class="presensi-btn outline" disabled>
+                                    <i class="bx bx-time me-1"></i> Diluar Waktu Mengajar
+                                </button>
+                                <div class="text-center mt-2">
+                                    <small class="small-muted bg-light px-2 py-1 rounded-pill">
+                                        <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                    </small>
+                                </div>
+                            @endif
                         @endif
-                    @endif
+                    </div>
                 </div>
             </div>
-        </div>
         @endforeach
-    </div>
-@endif
+    @endif
 
-<!-- Modal -->
-<div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0">
-            <div class="modal-header bg-primary text-white">
-                <h6 class="mb-0">Konfirmasi Presensi Mengajar</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <div class="fw-semibold" id="modal-subject"></div>
-                    <div class="text-muted small" id="modal-class"></div>
-                    <div class="text-muted small" id="modal-school"></div>
-                    <div class="text-muted small" id="modal-time"></div>
+    <!-- Modal -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="mb-0">Konfirmasi Presensi Mengajar</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="fw-semibold" id="modal-subject"></div>
+                        <div class="text-muted small" id="modal-class"></div>
+                        <div class="text-muted small" id="modal-school"></div>
+                        <div class="text-muted small" id="modal-time"></div>
+                    </div>
 
-                <div id="locationStatus" class="alert alert-info">
-                    <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
-                </div>
+                    <div id="locationStatus" class="alert alert-info">
+                        <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                    </div>
 
-                <div class="alert alert-warning">
-                    <i class="bx bx-error-circle me-2"></i>
-                    Pastikan Anda berada di dalam area sekolah yang ditentukan. Presensi hanya bisa dilakukan sesuai jam mengajar.
+                    <div class="alert alert-warning">
+                        <i class="bx bx-error-circle me-2"></i>
+                        Pastikan Anda berada di dalam area sekolah yang ditentukan. Presensi hanya bisa dilakukan sesuai jam mengajar.
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="confirmAttendanceBtn" disabled>Ya, Lakukan Presensi</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmAttendanceBtn" disabled>Ya, Lakukan Presensi</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+</div>
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 let currentScheduleId = null;
 let userLocation = null;
 
-function getUserLocation() {
+function openAttendanceModal(scheduleId, subject, className, schoolName, startTime, endTime) {
+    currentScheduleId = scheduleId;
+    userLocation = null;
+
+    document.getElementById('modal-subject').innerText = subject;
+    document.getElementById('modal-class').innerText = className;
+    document.getElementById('modal-school').innerText = schoolName;
+    document.getElementById('modal-time').innerText = startTime + ' - ' + endTime;
+
+    const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+    modal.show();
+    updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
+
+    // get two readings like presensi page
+    getReadingAndVerify().then(() => {
+        // nothing
+    }).catch(err => {
+        updateLocationStatus('error', err);
+    });
+}
+
+function getReadingAndVerify() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
             reject('Browser tidak mendukung geolokasi.');
             return;
         }
-        navigator.geolocation.getCurrentPosition((position) => {
-            resolve({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                accuracy: position.coords.accuracy
-            });
-        }, (error) => {
-            let errorMessage = 'Gagal mendapatkan lokasi.';
-            if (error.code === error.PERMISSION_DENIED) {
-                errorMessage = 'Akses lokasi ditolak. Pastikan Anda mengizinkan akses lokasi.';
-            }
-            reject(errorMessage);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 300000
-        });
+
+        // first reading: quick
+        navigator.geolocation.getCurrentPosition((pos1) => {
+            // store reading1
+            sessionStorage.setItem('reading1_latitude', pos1.coords.latitude);
+            sessionStorage.setItem('reading1_longitude', pos1.coords.longitude);
+            sessionStorage.setItem('reading1_timestamp', Date.now());
+
+            // second reading for verification
+            navigator.geolocation.getCurrentPosition((pos2) => {
+                userLocation = { latitude: pos2.coords.latitude, longitude: pos2.coords.longitude };
+                // check location in polygon
+                checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
+                    if (isValid) {
+                        updateLocationStatus('success', 'Lokasi berada dalam area sekolah.', true);
+                    } else {
+                        updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah.');
+                    }
+                    resolve();
+                }).catch(err => reject('Gagal memverifikasi lokasi: ' + err));
+            }, (err2) => {
+                reject('Gagal mendapatkan lokasi kedua: ' + err2.message);
+            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+
+        }, (err1) => {
+            reject('Gagal mendapatkan lokasi awal: ' + err1.message);
+        }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
     });
 }
 
@@ -198,39 +233,10 @@ function updateLocationStatus(status, message, isSuccess = false) {
     }
 }
 
-function markAttendance(scheduleId, subject, className, schoolName, startTime, endTime) {
-    currentScheduleId = scheduleId;
-    userLocation = null;
-
-    document.getElementById('modal-subject').innerText = subject;
-    document.getElementById('modal-class').innerText = className;
-    document.getElementById('modal-school').innerText = schoolName;
-    document.getElementById('modal-time').innerText = startTime + ' - ' + endTime;
-
-    const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
-    modal.show();
-    updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
-
-    getUserLocation().then(location => {
-        userLocation = location;
-        checkLocationInPolygon(location.latitude, location.longitude, currentScheduleId).then(isValid => {
-            if (isValid) {
-                updateLocationStatus('success', 'Lokasi berada dalam area sekolah.', true);
-            } else {
-                updateLocationStatus('warning', 'Lokasi Anda berada di luar area sekolah.');
-            }
-        }).catch(err => updateLocationStatus('error', 'Gagal memverifikasi lokasi: ' + err));
-    }).catch(err => updateLocationStatus('error', err));
-}
-
 function checkLocationInPolygon(lat, lng, scheduleId) {
     return new Promise((resolve, reject) => {
         fetch('{{ route('teaching-attendances.check-location') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
             body: JSON.stringify({ latitude: lat, longitude: lng, teaching_schedule_id: scheduleId })
         }).then(res => res.json()).then(json => {
             if (json.success) resolve(json.is_within_polygon);
@@ -239,42 +245,33 @@ function checkLocationInPolygon(lat, lng, scheduleId) {
     });
 }
 
-document.getElementById('confirmAttendanceBtn').addEventListener('click', function() {
-    if (!userLocation || !currentScheduleId) {
-        alert('Lokasi belum didapatkan atau jadwal tidak valid.');
-        return;
-    }
-
-    checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
-        if (!isValid) {
-            alert('Lokasi Anda berada di luar area sekolah.');
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'confirmAttendanceBtn') {
+        if (!userLocation || !currentScheduleId) {
+            Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Lokasi belum didapatkan atau jadwal tidak valid.' });
             return;
         }
 
-        const btn = document.getElementById('confirmAttendanceBtn');
-        btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
+        checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
+            if (!isValid) { Swal.fire({ icon: 'warning', title: 'Diluar Area', text: 'Lokasi Anda berada di luar area sekolah.' }); return; }
 
-        fetch('{{ route('teaching-attendances.store') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar' })
-        }).then(res => res.json()).then(json => {
-            btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi';
-            if (json.success) {
-                alert('Presensi mengajar berhasil dicatat!');
-                location.reload();
-            } else {
-                alert('Gagal: ' + (json.message || 'Terjadi kesalahan'));
-            }
-        }).catch(err => {
-            btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi';
-            alert('Error: ' + err);
-        });
+            const btn = document.getElementById('confirmAttendanceBtn');
+            btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Memproses...';
 
-    }).catch(err => alert('Error: ' + err));
+            fetch('{{ route('teaching-attendances.store') }}', {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify({ teaching_schedule_id: currentScheduleId, latitude: userLocation.latitude, longitude: userLocation.longitude, lokasi: 'Presensi Mengajar' })
+            }).then(res => res.json()).then(json => {
+                btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi';
+                if (json.success) {
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: json.message, timer: 2000 }).then(() => location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: json.message || 'Terjadi kesalahan' });
+                }
+            }).catch(err => { btn.disabled = false; btn.innerHTML = 'Ya, Lakukan Presensi'; Swal.fire({ icon: 'error', title: 'Error', text: err }); });
+
+        }).catch(err => Swal.fire({ icon: 'error', title: 'Error', text: err }));
+    }
 });
 </script>
 @endsection
