@@ -77,53 +77,31 @@
         .info-section {
             background: #fff;
             border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 12px;
-            overflow: hidden;
         }
 
-        .info-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .info-header h6 {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-            margin: 0;
-        }
-
-        .info-content {
-            padding: 12px;
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
         }
 
         .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f3f4;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
         }
 
-        .info-item:last-child {
-            border-bottom: none;
+        .info-item small {
+            color: #6c757d;
+            font-size: 10px;
         }
 
-        .info-label {
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .info-value {
-            font-size: 12px;
+        .info-item strong {
+            font-size: 11px;
             color: #333;
-            font-weight: 600;
-            text-align: right;
-            max-width: 60%;
-            word-wrap: break-word;
         }
 
         .schedule-section {
@@ -299,57 +277,55 @@
 
     <!-- Teacher Info -->
     <div class="info-section">
-        <div class="info-header">
-            <h6><i class="bx bx-user me-2"></i>Informasi Tenaga Pendidik</h6>
-        </div>
-        <div class="info-content">
+        <h6 class="section-title">Informasi Tenaga Pendidik</h6>
+        <div class="info-grid">
             <div class="info-item">
-                <span class="info-label">NUIST ID</span>
-                <span class="info-value">{{ $userInfo['nuist_id'] }}</span>
+                <small class="d-block">NUIST ID</small>
+                <strong>{{ $userInfo['nuist_id'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Status Kepegawaian</span>
-                <span class="info-value">{{ $userInfo['status_kepegawaian'] }}</span>
+                <small class="d-block">Status Kepegawaian</small>
+                <strong>{{ $userInfo['status_kepegawaian'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Ketugasan</span>
-                <span class="info-value">{{ $userInfo['ketugasan'] }}</span>
+                <small class="d-block">Ketugasan</small>
+                <strong>{{ $userInfo['ketugasan'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Tempat Lahir</span>
-                <span class="info-value">{{ $userInfo['tempat_lahir'] }}</span>
+                <small class="d-block">Tempat Lahir</small>
+                <strong>{{ $userInfo['tempat_lahir'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Tanggal Lahir</span>
-                <span class="info-value">{{ $userInfo['tanggal_lahir'] }}</span>
+                <small class="d-block">Tanggal Lahir</small>
+                <strong>{{ $userInfo['tanggal_lahir'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">TMT</span>
-                <span class="info-value">{{ $userInfo['tmt'] }}</span>
+                <small class="d-block">TMT</small>
+                <strong>{{ $userInfo['tmt'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">NUPTK</span>
-                <span class="info-value">{{ $userInfo['nuptk'] }}</span>
+                <small class="d-block">NUPTK</small>
+                <strong>{{ $userInfo['nuptk'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">NPK</span>
-                <span class="info-value">{{ $userInfo['npk'] }}</span>
+                <small class="d-block">NPK</small>
+                <strong>{{ $userInfo['npk'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Kartanu</span>
-                <span class="info-value">{{ $userInfo['kartanu'] }}</span>
+                <small class="d-block">Kartanu</small>
+                <strong>{{ $userInfo['kartanu'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">NIP Ma'arif</span>
-                <span class="info-value">{{ $userInfo['nip'] }}</span>
+                <small class="d-block">NIP Ma'arif</small>
+                <strong>{{ $userInfo['nip'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Pendidikan Terakhir</span>
-                <span class="info-value">{{ $userInfo['pendidikan_terakhir'] }}</span>
+                <small class="d-block">Pendidikan Terakhir</small>
+                <strong>{{ $userInfo['pendidikan_terakhir'] }}</strong>
             </div>
             <div class="info-item">
-                <span class="info-label">Program Studi</span>
-                <span class="info-value">{{ $userInfo['program_studi'] }}</span>
+                <small class="d-block">Program Studi</small>
+                <strong>{{ $userInfo['program_studi'] }}</strong>
             </div>
         </div>
     </div>
