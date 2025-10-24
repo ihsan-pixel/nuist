@@ -233,10 +233,10 @@
                 <span class="info-label">Email</span>
                 <span class="info-value">{{ $user->email }}</span>
             </div>
-            <div class="info-item">
+            {{-- <div class="info-item">
                 <span class="info-label">Role</span>
                 <span class="info-value">{{ ucfirst($user->role) }}</span>
-            </div>
+            </div> --}}
             <div class="info-item">
                 <span class="info-label">Madrasah</span>
                 <span class="info-value">{{ $user->madrasah?->name ?? 'Belum diatur' }}</span>
