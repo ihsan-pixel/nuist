@@ -290,7 +290,7 @@ document.getElementById('save-profile-btn').addEventListener('click', function(e
             // Auto reload page after 2 seconds
             setTimeout(() => {
                 window.location.reload();
-            }, 2000);
+            }, 1000);
         } else {
             // Show error message
             showMessage('error', data.message || 'Terjadi kesalahan');
