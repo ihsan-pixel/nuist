@@ -4,53 +4,274 @@
 @section('subtitle', 'Catat Kehadiran')
 
 @section('content')
-<!-- Status Card -->
-@if($isHoliday)
-<div class="alert alert-warning border-0 rounded-3 mb-3">
-    <div class="d-flex align-items-center">
-        <i class="bx bx-calendar-x fs-5 me-2"></i>
-        <div>
-            <h6 class="mb-1 fs-6">Hari Libur</h6>
-            <p class="mb-0 small">{{ $holiday->name ?? 'Hari ini adalah hari libur' }}</p>
+<div class="container py-3" style="max-width: 420px; margin: auto;">
+    <style>
+        body {
+            background: #f8f9fb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+        }
+
+        .presensi-header {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 16px;
+            padding: 16px 12px;
+            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .presensi-header h6 {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .presensi-header h5 {
+            font-size: 16px;
+        }
+
+        .status-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .status-card.success {
+            border-left: 4px solid #0e8549;
+        }
+
+        .status-card.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(14, 133, 73, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .status-icon i {
+            color: #0e8549;
+            font-size: 16px;
+        }
+
+        .presensi-form {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .form-section {
+            margin-bottom: 12px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .location-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .location-info.success {
+            background: rgba(14, 133, 73, 0.1);
+            border: 1px solid rgba(14, 133, 73, 0.2);
+        }
+
+        .location-info.error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .location-info.info {
+            background: rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(0, 123, 255, 0.2);
+        }
+
+        .coordinate-input {
+            background: #fff;
+            border-radius: 6px;
+            padding: 6px 8px;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+
+        .address-input {
+            background: #fff;
+            border-radius: 6px;
+            padding: 6px 8px;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .presensi-btn {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .presensi-btn:disabled {
+            background: #6c757d;
+        }
+
+        .schedule-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .schedule-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .schedule-item.masuk {
+            border-left: 3px solid #0d6efd;
+        }
+
+        .schedule-item.pulang {
+            border-left: 3px solid #0e8549;
+        }
+
+        .schedule-item i {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .schedule-item h6 {
+            font-size: 12px;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .schedule-item p {
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .schedule-item small {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        .alert-custom {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .alert-custom.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-custom.danger {
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-custom.info {
+            border-left: 4px solid #0dcaf0;
+        }
+    </style>
+
+    <!-- Header -->
+    <div class="presensi-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">Presensi Digital</h6>
+                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+            </div>
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 class="rounded-circle border border-white" width="40" height="40" alt="User">
         </div>
     </div>
-</div>
-@elseif($presensiHariIni)
-<div class="card mb-3 shadow-sm border-success">
-    <div class="card-body text-center py-3">
-        <div class="avatar-sm mx-auto mb-2">
-            <div class="avatar-title bg-success text-white rounded-circle">
-                <i class="bx bx-check-circle fs-4"></i>
+
+    <!-- Status Card -->
+    @if($isHoliday)
+    <div class="alert-custom warning">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-calendar-x"></i>
+            </div>
+            <div>
+                <h6 class="mb-0">Hari Libur</h6>
+                <p class="mb-0 small">{{ $holiday->name ?? 'Hari ini adalah hari libur' }}</p>
             </div>
         </div>
-        <h6 class="text-success mb-2 fs-6">Presensi Sudah Dicatat</h6>
-        <p class="mb-2 small">Waktu Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
-        @if($presensiHariIni->waktu_keluar)
-        <p class="mb-0 small">Waktu Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
-        <div class="alert alert-success mt-2 small">
-            <i class="bx bx-check me-1"></i> Presensi hari ini sudah lengkap!
-        </div>
-        @else
-        <p class="text-muted small">Silakan lakukan presensi keluar jika sudah selesai bekerja.</p>
-        @endif
     </div>
-</div>
-@endif
-
-<!-- Presensi Form -->
-<div class="card shadow-sm mb-3">
-    <div class="card-header bg-gradient-primary text-white py-2">
+    @elseif($presensiHariIni)
+    <div class="status-card success">
         <div class="d-flex align-items-center">
-            <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }} me-2 fs-6"></i>
-            <h6 class="mb-0 fs-6">{{ $presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
+            <div class="status-icon">
+                <i class="bx bx-check-circle"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">Presensi Sudah Dicatat</h6>
+                <p class="mb-1 small">Waktu Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
+                @if($presensiHariIni->waktu_keluar)
+                <p class="mb-0 small">Waktu Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
+                <div class="alert-custom success" style="margin-top: 8px; padding: 6px;">
+                    <small><i class="bx bx-check me-1"></i> Presensi hari ini sudah lengkap!</small>
+                </div>
+                @else
+                <p class="mb-0 small text-muted">Silakan lakukan presensi keluar jika sudah selesai bekerja.</p>
+                @endif
+            </div>
         </div>
     </div>
-    <div class="card-body p-3">
+    @endif
+
+    <!-- Presensi Form -->
+    <div class="presensi-form">
+        <div class="d-flex align-items-center mb-3">
+            <div class="status-icon">
+                <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
+            </div>
+            <h6 class="section-title mb-0">{{ $presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
+        </div>
+
         <!-- Location Status -->
-        <div id="location-info" class="mb-3">
-            <div class="alert alert-info border-0 rounded-3 p-2">
+        <div class="form-section">
+            <div id="location-info" class="location-info info">
                 <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-2 fs-5"></i>
+                    <i class="bx bx-loader-alt bx-spin me-2"></i>
                     <div>
                         <strong class="small">Mendapatkan lokasi...</strong>
                         <br><small class="text-muted">Pastikan GPS aktif</small>
@@ -60,184 +281,87 @@
         </div>
 
         <!-- Coordinates -->
-        <div class="mb-3">
+        <div class="form-section">
             <div class="d-flex align-items-center mb-2">
-                <i class="bx bx-target-lock text-success me-2 fs-6"></i>
-                <label class="form-label fw-semibold mb-0 small">Koordinat Lokasi</label>
+                <i class="bx bx-target-lock text-success me-2"></i>
+                <label class="section-title mb-0">Koordinat Lokasi</label>
             </div>
-            <div class="row g-2">
-                <div class="col-6">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 p-1">
-                            <i class="bx bx-up text-muted fs-6"></i>
-                        </span>
-                        <input type="text" id="latitude" class="form-control border-start-0 ps-0 small"
-                               placeholder="Latitude" readonly>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 p-1">
-                            <i class="bx bx-right text-muted fs-6"></i>
-                        </span>
-                        <input type="text" id="longitude" class="form-control border-start-0 ps-0 small"
-                               placeholder="Longitude" readonly>
-                    </div>
-                </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <input type="text" id="latitude" class="coordinate-input" placeholder="Latitude" readonly>
+                <input type="text" id="longitude" class="coordinate-input" placeholder="Longitude" readonly>
             </div>
         </div>
 
         <!-- Address -->
-        <div class="mb-3">
+        <div class="form-section">
             <div class="d-flex align-items-center mb-2">
-                <i class="bx bx-home text-info me-2 fs-6"></i>
-                <label class="form-label fw-semibold mb-0 small">Alamat Lokasi</label>
+                <i class="bx bx-home text-info me-2"></i>
+                <label class="section-title mb-0">Alamat Lokasi</label>
             </div>
-            <div class="input-group">
-                <span class="input-group-text bg-light p-1">
-                    <i class="bx bx-map-pin text-muted fs-6"></i>
-                </span>
-                <input type="text" id="lokasi" class="form-control small"
-                       placeholder="Alamat akan muncul otomatis" readonly>
-            </div>
+            <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
         </div>
 
         <!-- Presensi Button -->
-        <div class="d-grid">
-            <button type="button" id="btn-presensi"
-                    class="btn btn-{{ $isHoliday ? 'secondary' : 'primary' }} py-2 rounded-3 shadow-sm fw-semibold small"
-                    {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
-                <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-2 fs-6"></i>
-                {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
-            </button>
-        </div>
+        <button type="button" id="btn-presensi"
+                class="presensi-btn"
+                {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
+            <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-2"></i>
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
+        </button>
     </div>
-</div>
 
-        <!-- Time Information -->
-@if(isset($timeRanges) && $timeRanges)
-<div class="card shadow-sm mb-3">
-    <div class="card-body p-3">
-        <div class="d-flex align-items-center mb-2">
-            <i class="bx bx-calendar-check text-warning me-2 fs-5"></i>
-            <h6 class="card-title mb-0 fw-semibold small">Jadwal Presensi</h6>
-        </div>
-        <div class="row g-2">
-            <div class="col-12 col-md-6">
-                <div class="schedule-card bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-3 p-2 text-center">
-                    <i class="bx bx-log-in-circle text-primary fs-4 mb-1"></i>
-                    <h6 class="text-primary mb-1 small">Presensi Masuk</h6>
-                    <p class="mb-1 fw-semibold small">{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
-                    <small class="text-muted">Terlambat setelah 07:00</small>
-                </div>
+    <!-- Time Information -->
+    @if(isset($timeRanges) && $timeRanges)
+    <div class="schedule-section">
+        <div class="d-flex align-items-center mb-3">
+            <div class="status-icon">
+                <i class="bx bx-calendar-check"></i>
             </div>
-            <div class="col-12 col-md-6">
-                <div class="schedule-card bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3 p-2 text-center">
-                    <i class="bx bx-log-out-circle text-success fs-4 mb-1"></i>
-                    <h6 class="text-success mb-1 small">Presensi Pulang</h6>
-                    <p class="mb-1 fw-semibold small">{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
-                    <small class="text-muted">Waktu pulang normal</small>
-                </div>
+            <h6 class="section-title mb-0">Jadwal Presensi</h6>
+        </div>
+        <div class="schedule-grid">
+            <div class="schedule-item masuk">
+                <i class="bx bx-log-in-circle text-primary"></i>
+                <h6 class="text-primary">Presensi Masuk</h6>
+                <p>{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
+                <small>Terlambat setelah 07:00</small>
+            </div>
+            <div class="schedule-item pulang">
+                <i class="bx bx-log-out-circle text-success"></i>
+                <h6 class="text-success">Presensi Pulang</h6>
+                <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
+                <small>Waktu pulang normal</small>
             </div>
         </div>
         @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
-        <div class="mt-2 p-2 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
-            <small class="text-info">
+        <div class="alert-custom info" style="margin-top: 8px;">
+            <small>
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong> Untuk hari Sabtu, waktu mulai presensi pulang adalah 12:00. Hari lainnya mulai pukul 13:00.
             </small>
         </div>
         @endif
     </div>
-</div>
-@else
-<div class="alert alert-warning border-0 rounded-3 mb-3">
-    <i class="bx bx-info-circle me-2 fs-6"></i>
-    <strong class="small">Pengaturan Presensi:</strong> Hari KBM madrasah Anda belum diatur. Silakan hubungi administrator untuk mengaturnya.
-</div>
-@endif
+    @else
+    <div class="alert-custom warning">
+        <i class="bx bx-info-circle me-2"></i>
+        <strong class="small">Pengaturan Presensi:</strong> Hari KBM madrasah Anda belum diatur. Silakan hubungi administrator untuk mengaturnya.
+    </div>
+    @endif
 
-<!-- Important Notice -->
-<div class="alert alert-danger border-0 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 mb-3">
-    <div class="d-flex">
-        <i class="bx bx-error-circle text-danger me-2 fs-5"></i>
-        <div>
-            <strong class="text-danger small">Penting!</strong>
-            <p class="mb-0 text-muted small">Pastikan Anda berada dalam lingkungan Madrasah/Sekolah untuk melakukan presensi.</p>
+    <!-- Important Notice -->
+    <div class="alert-custom danger">
+        <div class="d-flex">
+            <i class="bx bx-error-circle text-danger me-2"></i>
+            <div>
+                <strong class="text-danger small">Penting!</strong>
+                <p class="mb-0 text-muted small">Pastikan Anda berada dalam lingkungan Madrasah/Sekolah untuk melakukan presensi.</p>
+            </div>
         </div>
     </div>
 </div>
-
 @endsection
 
-@section('css')
-<style>
-/* Mobile-specific styles for presensi page */
-body {
-    font-size: 13px;
-    line-height: 1.3;
-}
-
-.card {
-    border-radius: 10px;
-    margin-bottom: 12px;
-}
-
-.card-header {
-    padding: 8px 12px;
-    font-size: 14px;
-}
-
-.card-body {
-    padding: 12px;
-}
-
-.alert {
-    padding: 8px 12px;
-    margin-bottom: 12px;
-    font-size: 13px;
-}
-
-.btn {
-    font-size: 14px;
-    padding: 8px 12px;
-}
-
-.form-control {
-    font-size: 13px;
-    padding: 8px 12px;
-}
-
-.input-group-text {
-    padding: 8px 10px;
-}
-
-.schedule-card {
-    margin-bottom: 8px;
-}
-
-.schedule-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Ensure proper spacing for mobile */
-.mb-3 {
-    margin-bottom: 12px !important;
-}
-
-.mb-2 {
-    margin-bottom: 8px !important;
-}
-
-.p-2 {
-    padding: 8px !important;
-}
-
-.p-3 {
-    padding: 12px !important;
-}
-</style>
 @endsection
 
 @section('script')
@@ -249,9 +373,9 @@ window.addEventListener('load', function() {
     // Get location when page loads (reading1)
     if (navigator.geolocation) {
             $('#location-info').html(`
-                <div class="alert alert-info border-0 rounded-3 p-2">
+                <div class="location-info info">
                     <div class="d-flex align-items-center">
-                        <i class="bx bx-loader-alt bx-spin me-2 fs-5"></i>
+                        <i class="bx bx-loader-alt bx-spin me-2"></i>
                         <div>
                             <strong class="small">Mendapatkan lokasi Anda...</strong>
                             <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
@@ -276,9 +400,9 @@ window.addEventListener('load', function() {
             getAddressFromCoordinates(latitude, longitude);
 
             $('#location-info').html(`
-                <div class="alert alert-success border-0 rounded-3 p-2">
+                <div class="location-info success">
                     <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-2 fs-5"></i>
+                        <i class="bx bx-check-circle me-2"></i>
                         <div>
                             <strong class="small">Lokasi berhasil didapatkan!</strong>
                         </div>
@@ -289,17 +413,17 @@ window.addEventListener('load', function() {
 
 
         }, function(error) {
-            $('#location-info').html(`
-                <div class="alert alert-danger border-0 rounded-3 p-2">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2 fs-5"></i>
-                        <div>
-                            <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
-                        </div>
+        $('#location-info').html(`
+            <div class="location-info error">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <div>
+                        <strong class="small">Gagal mendapatkan lokasi</strong>
+                        <br><small class="text-muted">${error.message}</small>
                     </div>
                 </div>
-            `);
+            </div>
+        `);
 
 
         }, {
@@ -308,17 +432,17 @@ window.addEventListener('load', function() {
             maximumAge: 30000
         });
     } else {
-        $('#location-info').html(`
-            <div class="alert alert-danger border-0 rounded-3 p-2">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2 fs-5"></i>
-                    <div>
-                        <strong class="small">Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                    </div>
+    $('#location-info').html(`
+        <div class="location-info error">
+            <div class="d-flex align-items-center">
+                <i class="bx bx-error-circle me-2"></i>
+                <div>
+                    <strong class="small">Browser tidak mendukung GPS</strong>
+                    <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
                 </div>
             </div>
-        `);
+        </div>
+    `);
 
 
     }
@@ -401,9 +525,9 @@ window.addEventListener('load', function() {
                 getAddressFromCoordinates(reading2Lat, reading2Lng);
 
                 $('#location-info').html(`
-                    <div class="alert alert-success border-0 rounded-3 p-2">
+                    <div class="location-info success">
                         <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2 fs-5"></i>
+                            <i class="bx bx-check-circle me-2"></i>
                             <div>
                                 <strong class="small">Lokasi berhasil didapatkan!</strong>
                             </div>
