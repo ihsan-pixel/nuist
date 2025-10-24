@@ -23,239 +23,87 @@
 
         .presensi-header h6 {
             font-weight: 600;
-            font-size: 12px;
-        }
+        <script>
+        $(document).ready(function() {
+            function handleFormSubmit(formSelector, type) {
+                $(formSelector).on('submit', function(e) {
+                    e.preventDefault();
 
-        .presensi-header h5 {
-            font-size: 14px;
-        }
+                    let $form = $(this);
+                    let formData = new FormData(this);
+                    formData.append('type', type);
 
-        .status-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
-        }
+                    // Basic client validation per type
+                    if (type === 'terlambat' || type === 'tidak_masuk') {
+                        let alasan = $form.find('textarea[name="alasan"]').val();
+                        let file = $form.find('input[name="file_izin"]')[0];
+                        if (!alasan || !file || !file.files || file.files.length === 0) {
+                            Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Lengkapi alasan dan upload file izin.'});
+                            return;
+                        }
+                        if (type === 'terlambat') {
+                            let waktu = $form.find('input[name="waktu_masuk"]').val();
+                            if (!waktu) {
+                                Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Waktu masuk yang diminta harus diisi.'});
+                                return;
+                            }
+                        }
+                    }
 
-        .status-card.success {
-            border-left: 4px solid #0e8549;
-        }
+                    if (type === 'tugas_luar') {
+                        let deskripsi = $form.find('textarea[name="deskripsi_tugas"]').val();
+                        let lokasi = $form.find('input[name="lokasi_tugas"]').val();
+                        let waktuKeluar = $form.find('input[name="waktu_keluar"]').val();
+                        let file = $form.find('input[name="file_tugas"]')[0];
+                        if (!deskripsi || !lokasi || !waktuKeluar || !file || !file.files || file.files.length === 0) {
+                            Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Lengkapi semua field untuk izin tugas diluar.'});
+                            return;
+                        }
+                    }
 
-        .status-card.warning {
-            border-left: 4px solid #ffc107;
-        }
+                    let submitBtn = $form.find('button[type="submit"]');
+                    let originalText = submitBtn.html();
+                    submitBtn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Mengirim...');
 
-        .status-icon {
-            width: 28px;
-            height: 28px;
-            background: rgba(14, 133, 73, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-        }
-
-        .status-icon i {
-            color: #0e8549;
-            font-size: 14px;
-        }
-
-        .presensi-form {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
-        }
-
-        .izin-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
-        }
-
-        .izin-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        /* Responsive fallback: on narrow screens keep two-column layout */
-        @media (max-width: 420px) {
-            .izin-buttons {
-                grid-template-columns: 1fr 1fr;
+                    $.ajax({
+                        url: '{{ route("mobile.izin.store") }}',
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        timeout: 30000,
+                        success: function(res) {
+                            if (res.success) {
+                                // hide modal
+                                $($form.closest('.modal')).modal('hide');
+                                Swal.fire({icon:'success', title:'Berhasil', text: res.message, timer:2000, timerProgressBar:true}).then(()=>{
+                                    // reload presensi page to reflect changes
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({icon:'error', title:'Gagal', text: res.message || 'Terjadi kesalahan.'});
+                                submitBtn.prop('disabled', false).html(originalText);
+                            }
+                        },
+                        error: function(xhr) {
+                            let msg = 'Terjadi kesalahan.';
+                            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                msg = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            Swal.fire({icon:'error', title:'Kesalahan', text: msg});
+                            submitBtn.prop('disabled', false).html(originalText);
+                        }
+                    });
+                });
             }
-        }
 
-        .izin-btn {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: all 0.2s;
-            min-height: 60px;
-        }
-
-        .izin-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-1px);
-        }
-
-        .izin-btn i {
-            font-size: 18px;
-            margin-bottom: 4px;
-            color: #0e8549;
-        }
-
-        .izin-terlambat {
-            border-color: rgba(255, 193, 7, 0.3);
-        }
-
-        .izin-terlambat:hover {
-            background: rgba(255, 193, 7, 0.1);
-        }
-
-        .izin-tugas-luar {
-            border-color: rgba(0, 123, 255, 0.3);
-        }
-
-        .izin-tugas-luar:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
-        .form-section {
-            margin-bottom: 10px;
-        }
-
-        .form-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 12px;
-            margin-bottom: 6px;
-            color: #333;
-        }
-
-        .location-info {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
-            margin-bottom: 6px;
-            word-wrap: break-word;
-        }
-
-        .location-info.success {
-            background: rgba(14, 133, 73, 0.1);
-            border: 1px solid rgba(14, 133, 73, 0.2);
-        }
-
-        .location-info.error {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-
-        .location-info.info {
-            background: rgba(0, 123, 255, 0.1);
-            border: 1px solid rgba(0, 123, 255, 0.2);
-        }
-
-        .coordinate-input {
-            background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
-            font-size: 11px;
-            width: 100%;
-        }
-
-        .address-input {
-            background: #fff;
-            border-radius: 4px;
-            padding: 4px 6px;
-            border: 1px solid #e9ecef;
-            font-size: 11px;
-            width: 100%;
-            word-wrap: break-word;
-        }
-
-        .presensi-btn {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            border: none;
-            border-radius: 6px;
-            padding: 8px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 12px;
-            width: 100%;
-            margin-top: 6px;
-        }
-
-        .presensi-btn:disabled {
-            background: #6c757d;
-        }
-
-        .schedule-section {
-            background: #fff;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
-        }
-
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .schedule-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 6px;
-            text-align: center;
-        }
-
-        .schedule-item.masuk {
-            border-left: 2px solid #0d6efd;
-        }
-
-        .schedule-item.pulang {
-            border-left: 2px solid #0e8549;
-        }
-
-        .schedule-item i {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .schedule-item h6 {
-            font-size: 11px;
-            margin-bottom: 1px;
-            font-weight: 600;
-        }
-
-        .schedule-item p {
-            font-size: 10px;
-            margin-bottom: 1px;
-        }
-
-        .schedule-item small {
-            font-size: 9px;
-            color: #6c757d;
+            handleFormSubmit('#izinTidakMasukForm', 'tidak_masuk');
+            handleFormSubmit('#izinTerlambatForm', 'terlambat');
+            handleFormSubmit('#izinTugasLuarForm', 'tugas_luar');
+        });
+        </script>
         }
 
         .alert-custom {
@@ -437,20 +285,122 @@
     <!-- Izin Buttons -->
     <div class="izin-section">
         <div class="izin-buttons">
-            <a href="{{ route('mobile.izin.create', ['type' => 'tidak_masuk']) }}" class="izin-btn" role="button" aria-label="Izin Tidak Masuk" style="text-decoration: none; color: inherit;">
+            <button type="button" class="izin-btn" data-bs-toggle="modal" data-bs-target="#izinTidakMasukModal" aria-label="Izin Tidak Masuk">
                 <i class="bx bx-user-x"></i>
                 Izin Tidak Masuk
-            </a>
+            </button>
 
-            <a href="{{ route('mobile.izin.create', ['type' => 'terlambat']) }}" class="izin-btn izin-terlambat" role="button" aria-label="Izin Terlambat" style="text-decoration: none; color: inherit;">
+            <button type="button" class="izin-btn izin-terlambat" data-bs-toggle="modal" data-bs-target="#izinTerlambatModal" aria-label="Izin Terlambat">
                 <i class="bx bx-time-five"></i>
                 Izin Terlambat
-            </a>
+            </button>
 
-            <a href="{{ route('mobile.izin.create', ['type' => 'tugas_luar']) }}" class="izin-btn izin-tugas-luar" role="button" aria-label="Izin Tugas Diluar" style="text-decoration: none; color: inherit;">
+            <button type="button" class="izin-btn izin-tugas-luar" data-bs-toggle="modal" data-bs-target="#izinTugasLuarModal" aria-label="Izin Tugas Diluar">
                 <i class="bx bx-briefcase"></i>
                 Izin Tugas Diluar
-            </a>
+            </button>
+        </div>
+    </div>
+
+    <!-- Izin Tidak Masuk Modal -->
+    <div class="modal fade" id="izinTidakMasukModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Izin Tidak Masuk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="izinTidakMasukForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Alasan</label>
+                            <textarea class="form-control" name="alasan" rows="3" placeholder="Jelaskan alasan Anda..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Surat Izin / Foto</label>
+                            <input type="file" class="form-control" name="file_izin" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Izin Terlambat Modal -->
+    <div class="modal fade" id="izinTerlambatModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Izin Terlambat Masuk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="izinTerlambatForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Alasan Terlambat</label>
+                            <textarea class="form-control" name="alasan" rows="3" placeholder="Jelaskan alasan keterlambatan Anda..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Surat Izin/Foto</label>
+                            <input type="file" class="form-control" name="file_izin" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu Masuk yang Diminta</label>
+                            <input type="time" class="form-control" name="waktu_masuk" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Izin Tugas Diluar Modal -->
+    <div class="modal fade" id="izinTugasLuarModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Izin Tugas Diluar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="izinTugasLuarForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Deskripsi Tugas</label>
+                            <textarea class="form-control" name="deskripsi_tugas" rows="3" placeholder="Jelaskan tugas yang akan dilakukan diluar..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi Tugas</label>
+                            <input type="text" class="form-control" name="lokasi_tugas" placeholder="Masukkan lokasi tugas" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Surat Tugas/Foto</label>
+                            <input type="file" class="form-control" name="file_tugas" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estimasi Waktu Keluar</label>
+                            <input type="time" class="form-control" name="waktu_keluar" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
