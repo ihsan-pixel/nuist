@@ -214,6 +214,33 @@ class MobileController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
+        // Deteksi fake location berdasarkan location_readings
+        $isFakeLocation = false;
+        $fakeLocationAnalysis = null;
+
+        if ($request->location_readings) {
+            try {
+                $locationReadings = json_decode($request->location_readings, true);
+                if (is_array($locationReadings) && count($locationReadings) >= 2) {
+                    $reading1 = $locationReadings[0];
+                    $reading2 = $locationReadings[1];
+
+                    // Jika latitude dan longitude sama persis antara reading1 dan reading2, maka fake GPS
+                    if ($reading1['latitude'] === $reading2['latitude'] && $reading1['longitude'] === $reading2['longitude']) {
+                        $isFakeLocation = true;
+                        $fakeLocationAnalysis = [
+                            'reason' => 'Identical coordinates between reading1 and reading2',
+                            'reading1' => $reading1,
+                            'reading2' => $reading2,
+                            'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {
+                // Jika parsing gagal, lanjutkan tanpa deteksi
+            }
+        }
+
         // Check if today is a holiday
         $isHoliday = \App\Models\Holiday::isHoliday($today);
         if ($isHoliday) {
@@ -344,6 +371,8 @@ class MobileController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
+                'is_fake_location' => $isFakeLocation,
+                'fake_location_analysis' => $fakeLocationAnalysis,
                 'accuracy' => $request->accuracy,
                 'altitude' => $request->altitude,
                 'speed' => $request->speed,
@@ -390,6 +419,8 @@ class MobileController extends Controller
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                     'lokasi' => $request->lokasi,
+                    'is_fake_location' => $isFakeLocation,
+                    'fake_location_analysis' => $fakeLocationAnalysis,
                     'accuracy' => $request->accuracy,
                     'altitude' => $request->altitude,
                     'speed' => $request->speed,
