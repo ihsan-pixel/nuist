@@ -184,11 +184,24 @@ class MobileController extends Controller
         return view('mobile.laporan', compact('user'));
     }
 
-    public function izin()
+    public function izin(\Illuminate\Http\Request $request)
     {
         $user = Auth::user();
-        // Add logic for izin if needed
-        return view('mobile.izin', compact('user'));
+
+        // If a specific izin type is requested, return the corresponding mobile form view
+        $type = $request->query('type');
+        switch ($type) {
+            case 'tidak_masuk':
+                return view('mobile.izin-tidak-masuk', compact('user'));
+            case 'sakit':
+                return view('mobile.izin-sakit', compact('user'));
+            case 'terlambat':
+                return view('mobile.izin-terlambat', compact('user'));
+            case 'tugas_luar':
+                return view('mobile.izin-tugas-luar', compact('user'));
+            default:
+                return view('mobile.izin', compact('user'));
+        }
     }
 
     public function pengaturan()
