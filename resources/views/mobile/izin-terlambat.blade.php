@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 420px; margin: auto;">
+    <a href="{{ url()->previous() }}" onclick="event.preventDefault(); history.back();" class="text-muted" style="display:inline-block; margin-bottom:12px; font-weight:600; color:#333;">&larr; Kembali ke halaman sebelumnya</a>
     <style>
         body {
             background: #f8f9fb;
