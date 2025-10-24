@@ -314,6 +314,12 @@ class MobileController extends Controller
         return view('mobile.pengaturan', compact('user'));
     }
 
+    public function ubahAkun()
+    {
+        $user = Auth::user();
+        return view('mobile.ubah-akun', compact('user'));
+    }
+
     public function storeIzin(Request $request)
     {
         try {

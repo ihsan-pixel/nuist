@@ -270,10 +270,10 @@
             </div>
             @endif
 
-            <button type="button" class="settings-button w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+            <a href="{{ route('mobile.ubah-akun') }}" class="settings-button w-100 mb-2">
                 <i class="bx bx-user"></i>
                 Ubah Email & Nomor HP
-            </button>
+            </a>
 
             <button type="button" class="settings-button w-100 mb-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                 <i class="bx bx-lock"></i>
@@ -287,35 +287,7 @@
         </div>
     </div>
 
-<!-- Edit Account Modal (email + phone) -->
-<div class="modal fade" id="editAccountModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ubah Email & Nomor HP</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('mobile.profile.update-account') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nomor HP</label>
-                        <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->no_hp) }}" placeholder="0812xxxx" maxlength="20">
-                    </div>
-                    <small class="text-muted">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 <!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1">
