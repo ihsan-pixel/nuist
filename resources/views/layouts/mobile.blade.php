@@ -79,7 +79,7 @@
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: #0e8549;
             border-radius: 8px;
             margin: 0 2px;
             transition: all 0.2s;
@@ -87,14 +87,8 @@
             justify-content: center;
         }
 
-        .mobile-nav .nav-link:hover {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
-            color: white;
-            transform: translateY(-1px);
-        }
-
         .mobile-nav .nav-link.active {
-            background: #0e8549;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
         }
 
