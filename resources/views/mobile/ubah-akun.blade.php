@@ -287,6 +287,10 @@ document.getElementById('save-profile-btn').addEventListener('click', function(e
         if (data.success) {
             // Show success message
             showMessage('success', data.message || 'Profil berhasil diperbarui');
+            // Auto reload page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } else {
             // Show error message
             showMessage('error', data.message || 'Terjadi kesalahan');
