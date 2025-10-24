@@ -60,7 +60,7 @@
             right: 0;
             background: white;
             border-top: 1px solid #e9ecef;
-            padding: 8px 0;
+            padding: 12px;
             z-index: 1030;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
@@ -72,17 +72,30 @@
 
         .mobile-nav .nav-link {
             padding: 8px 4px;
-            color: #6c757d;
+            color: white;
             font-size: 11px;
+            font-weight: 500;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-radius: 8px;
+            margin: 0 2px;
             transition: all 0.2s;
+            min-height: 50px;
+            justify-content: center;
+        }
+
+        .mobile-nav .nav-link:hover {
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            color: white;
+            transform: translateY(-1px);
         }
 
         .mobile-nav .nav-link.active {
-            color: #556ee6;
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            color: white;
         }
 
         .mobile-nav .nav-link i {
@@ -92,7 +105,7 @@
 
         /* Content padding for bottom nav */
         .mobile-content {
-            padding-bottom: 80px;
+            padding-bottom: 90px;
         }
 
         /* Card optimizations for mobile */
