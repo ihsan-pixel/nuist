@@ -93,7 +93,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::get('/riwayat-presensi', [App\Http\Controllers\MobileController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
-    Route::post('/profile/update-password', [App\Http\Controllers\MobileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/update-profile', [App\Http\Controllers\MobileController::class, 'updateProfile'])->name('profile.update-profile');
 
     Route::post('/profile/update-avatar', [App\Http\Controllers\MobileController::class, 'updateAvatar'])->name('profile.update-avatar');
     Route::post('/izin', [App\Http\Controllers\MobileController::class, 'storeIzin'])->name('izin.store');

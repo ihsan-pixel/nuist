@@ -189,30 +189,28 @@
         </div>
     </div>
 
-    <!-- Password Section -->
+    <!-- Profile Section -->
     <div class="settings-section">
         <div class="section-header">
-            <h6><i class="bx bx-lock me-2"></i>Ubah Password</h6>
+            <h6><i class="bx bx-user me-2"></i>Ubah Profil</h6>
         </div>
         <div class="section-content">
-            <form action="{{ route('mobile.profile.update-password') }}" method="POST">
+            <form action="{{ route('mobile.profile.update-profile') }}" method="POST">
                 @csrf
-                @if(!$user->password_changed)
                 <div class="form-group">
-                    <label for="current_password" class="form-label">Password Lama</label>
-                    <input type="password" class="form-control" id="current_password" name="current_password" required>
-                </div>
-                @endif
-                <div class="form-group">
-                    <label for="password" class="form-label">Password Baru</label>
-                    <input type="password" class="form-control" id="password" name="password" required minlength="8">
+                    <label for="name" class="form-label">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->name) }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
-                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required minlength="8">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $user->email) }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone" class="form-label">Nomor HP</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Masukkan nomor HP">
                 </div>
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="bx bx-save me-1"></i>Simpan Password
+                    <i class="bx bx-save me-1"></i>Simpan Perubahan
                 </button>
             </form>
         </div>

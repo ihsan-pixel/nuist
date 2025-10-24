@@ -140,33 +140,34 @@ class MobileController extends Controller
         return view('mobile.ubah-akun', compact('user'));
     }
 
-    public function updatePassword(Request $request)
+    public function updateProfile(Request $request)
     {
-        $user = Auth::user();
-
-        if (!$user->password_changed) {
-            $request->validate([
-                'current_password' => 'required',
-                'password' => 'required|min:8|confirmed',
-            ]);
-
-            // Check if current password is correct for initial change
-            if (!Hash::check($request->current_password, $user->password)) {
-                return redirect()->route('ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
-            }
-        } else {
-            $request->validate([
-                'password' => 'required|min:8|confirmed',
-            ]);
-        }
-
-        // Update password
-        $user->update([
-            'password' => Hash::make($request->password),
-            'password_changed' => true,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'phone' => 'nullable|string|max:20',
         ]);
 
-        return redirect()->route('ubah-akun')->with('success', 'Password berhasil diubah.');
+        $user = Auth::user();
+
+        // Update only the fields that were provided
+        $updateData = [];
+        if ($request->filled('name')) {
+            $updateData['name'] = $request->name;
+        }
+        if ($request->filled('email')) {
+            $updateData['email'] = $request->email;
+        }
+        if ($request->filled('phone')) {
+            $updateData['phone'] = $request->phone;
+        }
+
+        if (!empty($updateData)) {
+            $user->update($updateData);
+            return redirect()->route('ubah-akun')->with('success', 'Profil berhasil diperbarui.');
+        }
+
+        return redirect()->route('ubah-akun')->with('info', 'Tidak ada perubahan yang dilakukan.');
     }
 
     public function updateAvatar(Request $request)
@@ -209,7 +210,7 @@ class MobileController extends Controller
             return redirect()->route('mobile.ubah-akun')->with('success', 'Foto profil berhasil diubah.');
             } catch (\Illuminate\Validation\ValidationException $e) {
                 Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
-                return redirect()->route('ubah-akun')->withErrors($e->errors());
+            return redirect()->route('ubah-akun')->withErrors($e->errors());
             } catch (\Exception $e) {
                 Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
                 return redirect()->route('ubah-akun')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
