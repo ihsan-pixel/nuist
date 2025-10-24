@@ -41,8 +41,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload Surat Izin / Foto (opsional)</label>
-                            <input type="file" name="file_izin" class="form-control" accept="image/*,.pdf,.doc,.docx">
-                            <small class="text-muted">Opsional. Maks 5MB.</small>
+                            <input type="file" name="file_izin" class="form-control" accept="image/*,.pdf,.doc,.docx" required>
+                            <small class="text-muted">Wajib diupload. Maks 5MB.</small>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Kirim Izin</button>
                     </form>
@@ -106,7 +106,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(function(){
-    $('#izinForm').on('submit', function(e){
+        $('#izinForm').on('submit', function(e){
         e.preventDefault();
 
         let form = this;
@@ -115,9 +115,13 @@ $(function(){
         let type = formData.get('type');
 
         // Basic client-side validation for required fields per type
-        if (type === 'terlambat') {
-            if (!formData.get('alasan') || !formData.get('waktu_masuk') || (!formData.get('file_izin') || formData.get('file_izin').size === 0)) {
-                Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Lengkapi semua field untuk izin terlambat.'});
+        if (type === 'terlambat' || type === 'tidak_masuk') {
+            if (!formData.get('alasan') || (!formData.get('file_izin') || formData.get('file_izin').size === 0)) {
+                Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Lengkapi semua field dan upload file izin.'});
+                return;
+            }
+            if (type === 'terlambat' && !formData.get('waktu_masuk')) {
+                Swal.fire({icon:'warning', title:'Data Tidak Lengkap', text:'Waktu masuk yang diminta harus diisi.'});
                 return;
             }
         }
@@ -144,7 +148,7 @@ $(function(){
             success: function(res){
                 if (res.success) {
                     Swal.fire({icon:'success', title:'Berhasil', text: res.message, timer:2000, timerProgressBar:true}).then(()=>{
-                        window.location = '{{ route("mobile.presensi") }}';
+                        window.location = '{{ route("mobile.izin.history") }}';
                     });
                 } else {
                     Swal.fire({icon:'error', title:'Gagal', text: res.message || 'Terjadi kesalahan.'});

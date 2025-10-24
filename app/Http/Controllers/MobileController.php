@@ -192,6 +192,18 @@ class MobileController extends Controller
         return view('mobile.izin', compact('user'));
     }
 
+    public function izinHistory()
+    {
+        $user = Auth::user();
+
+        $izinList = Presensi::where('user_id', $user->id)
+            ->where('status', 'izin')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('mobile.izin-history', compact('izinList'));
+    }
+
     public function pengaturan()
     {
         $user = Auth::user();
@@ -209,8 +221,8 @@ class MobileController extends Controller
                 'alasan' => 'required_if:type,terlambat,tidak_masuk|string|max:500',
                 'deskripsi_tugas' => 'required_if:type,tugas_luar|string|max:500',
                 'lokasi_tugas' => 'required_if:type,tugas_luar|string|max:255',
-                // file for terlambat required, for tidak_masuk optional; validate file if present
-                'file_izin' => 'sometimes|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+                // file for terlambat and tidak_masuk required; validate file if present
+                'file_izin' => 'required_if:type,terlambat,tidak_masuk|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
                 'file_tugas' => 'required_if:type,tugas_luar|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
                 'waktu_masuk' => 'required_if:type,terlambat|date_format:H:i',
                 'waktu_keluar' => 'required_if:type,tugas_luar|date_format:H:i',
@@ -320,7 +332,7 @@ class MobileController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Error storing izin: ' . $e->getMessage());
+            Log::error('Error storing izin: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan izin. Silakan coba lagi.'
