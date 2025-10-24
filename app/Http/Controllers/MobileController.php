@@ -215,24 +215,9 @@ class MobileController extends Controller
         ]);
 
         $request->validate([
-            'email' => 'required|email',
-            'phone' => 'nullable|string|max:20',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20|unique:users,no_hp,' . $user->id,
         ]);
-
-        // Check if email is being changed and if it's already taken by another user
-        if ($request->input('email') !== $user->email) {
-            $existingUser = User::where('email', $request->input('email'))->first();
-            if ($existingUser && $existingUser->id !== $user->id) {
-                // Update the existing user with the new data (overwrite)
-                $existingUser->update([
-                    'email' => $request->input('email'),
-                    'no_hp' => $request->input('phone'),
-                ]);
-                // Delete the current user
-                $user->delete();
-                return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
-            }
-        }
 
         $emailChanged = $request->input('email') !== $user->email;
 
