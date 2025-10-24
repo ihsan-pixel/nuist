@@ -272,7 +272,7 @@
 
             <a href="{{ route('mobile.ubah-akun') }}" class="settings-button w-100 mb-2">
                 <i class="bx bx-user"></i>
-                Ubah Email & Nomor HP
+                Ubah Data Akun
             </a>
 
             <button type="button" class="settings-button w-100 mb-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">

@@ -95,11 +95,15 @@
     @endif
 
     <div class="form-section">
-        <h5><i class="bx bx-user me-2"></i>Ubah Email & Nomor HP</h5>
+        <h5><i class="bx bx-user me-2"></i>Ubah Data Akun</h5>
 
         <form action="{{ route('mobile.profile.update-account') }}" method="POST" id="updateAccountForm">
             @csrf
             @method('PUT')
+            <div class="mb-3">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+            </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
@@ -107,6 +111,26 @@
             <div class="mb-3">
                 <label class="form-label">Nomor HP</label>
                 <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->no_hp) }}" placeholder="0812xxxx" maxlength="20">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tempat Lahir</label>
+                <input type="text" name="tempat_lahir" class="form-control" value="{{ old('tempat_lahir', $user->tempat_lahir) }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tanggal Lahir</label>
+                <input type="date" name="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $user->tanggal_lahir ? $user->tanggal_lahir->format('Y-m-d') : '') }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Alamat</label>
+                <textarea name="alamat" class="form-control" rows="3" maxlength="500">{{ old('alamat', $user->alamat) }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Pendidikan Terakhir</label>
+                <input type="text" name="pendidikan_terakhir" class="form-control" value="{{ old('pendidikan_terakhir', $user->pendidikan_terakhir) }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Program Studi</label>
+                <input type="text" name="program_studi" class="form-control" value="{{ old('program_studi', $user->program_studi) }}">
             </div>
             <small class="text-muted d-block mb-3">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
 

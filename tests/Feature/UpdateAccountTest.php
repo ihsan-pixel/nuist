@@ -13,22 +13,35 @@ class UpdateAccountTest extends TestCase
     public function test_user_can_update_their_own_email_and_phone()
     {
         $user = User::factory()->create([
+            'name' => 'Old Name',
             'email' => 'old@example.com',
             'no_hp' => '08123456789',
         ]);
 
         $response = $this->actingAs($user)
             ->put(route('mobile.profile.update-account'), [
+                'name' => 'New Name',
                 'email' => 'new@example.com',
                 'phone' => '08198765432',
+                'tempat_lahir' => 'Jakarta',
+                'tanggal_lahir' => '1990-01-01',
+                'alamat' => 'Jl. Sudirman',
+                'pendidikan_terakhir' => 'S1',
+                'program_studi' => 'Teknik Informatika',
             ]);
 
         $response->assertRedirect(route('mobile.pengaturan'));
         $response->assertSessionHas('success');
 
         $user->refresh();
+        $this->assertEquals('New Name', $user->name);
         $this->assertEquals('new@example.com', $user->email);
         $this->assertEquals('08198765432', $user->no_hp);
+        $this->assertEquals('Jakarta', $user->tempat_lahir);
+        $this->assertEquals('1990-01-01', $user->tanggal_lahir->format('Y-m-d'));
+        $this->assertEquals('Jl. Sudirman', $user->alamat);
+        $this->assertEquals('S1', $user->pendidikan_terakhir);
+        $this->assertEquals('Teknik Informatika', $user->program_studi);
     }
 
     public function test_user_cannot_update_to_existing_email()
@@ -38,6 +51,7 @@ class UpdateAccountTest extends TestCase
 
         $response = $this->actingAs($user1)
             ->put(route('mobile.profile.update-account'), [
+                'name' => 'User1',
                 'email' => 'user2@example.com', // existing email
                 'phone' => '08123456789',
             ]);
@@ -56,6 +70,7 @@ class UpdateAccountTest extends TestCase
 
         $response = $this->actingAs($user1)
             ->put(route('mobile.profile.update-account'), [
+                'name' => 'User1',
                 'email' => 'new@example.com',
                 'phone' => '08198765432', // existing phone
             ]);
@@ -70,12 +85,14 @@ class UpdateAccountTest extends TestCase
     public function test_user_can_keep_same_email_and_phone()
     {
         $user = User::factory()->create([
+            'name' => 'Same Name',
             'email' => 'same@example.com',
             'no_hp' => '08123456789',
         ]);
 
         $response = $this->actingAs($user)
             ->put(route('mobile.profile.update-account'), [
+                'name' => 'Same Name', // same name
                 'email' => 'same@example.com', // same email
                 'phone' => '08123456789', // same phone
             ]);
@@ -84,6 +101,7 @@ class UpdateAccountTest extends TestCase
         $response->assertSessionHas('success');
 
         $user->refresh();
+        $this->assertEquals('Same Name', $user->name);
         $this->assertEquals('same@example.com', $user->email);
         $this->assertEquals('08123456789', $user->no_hp);
     }

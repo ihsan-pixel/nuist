@@ -212,19 +212,32 @@ class MobileController extends Controller
             'user_id' => $user->id,
             'email' => $request->input('email'),
             'phone' => $request->input('phone'),
+            'name' => $request->input('name'),
         ]);
 
         $request->validate([
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20|unique:users,no_hp,' . $user->id,
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date|before:today',
+            'alamat' => 'nullable|string|max:500',
+            'pendidikan_terakhir' => 'nullable|string|max:255',
+            'program_studi' => 'nullable|string|max:255',
         ]);
 
         $emailChanged = $request->input('email') !== $user->email;
 
         try {
             $payload = [
+                'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'no_hp' => $request->input('phone'),
+                'tempat_lahir' => $request->input('tempat_lahir'),
+                'tanggal_lahir' => $request->input('tanggal_lahir'),
+                'alamat' => $request->input('alamat'),
+                'pendidikan_terakhir' => $request->input('pendidikan_terakhir'),
+                'program_studi' => $request->input('program_studi'),
             ];
 
             if ($emailChanged) {
