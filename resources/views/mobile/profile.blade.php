@@ -283,6 +283,10 @@
         </div>
         <div class="info-content">
             <div class="info-item">
+                <span class="info-label">NUIST ID</span>
+                <span class="info-value">{{ $user->nuist_id ?? '-' }}</span>
+            </div>
+            <div class="info-item">
                 <span class="info-label">Nama Lengkap</span>
                 <span class="info-value">{{ $user->name }}</span>
             </div>
