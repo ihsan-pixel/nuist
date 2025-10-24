@@ -14,7 +14,7 @@ class GenerateDevelopmentHistoryTxt extends Command
      *
      * @var string
      */
-    protected $signature = 'development:generate-txt {--output=riwayat_pengembangan.txt : Output filename}';
+    protected $signature = 'development:generate-txt {--output=riwayat_pengembangan.txt : Output filename} {--format=txt : Output format (txt|todo)}';
 
     /**
      * The console command description.
@@ -53,7 +53,8 @@ class GenerateDevelopmentHistoryTxt extends Command
             return Command::FAILURE;
         }
 
-        $content = $this->generateContent($histories);
+        $format = $this->option('format');
+        $content = $this->generateContent($histories, $format);
         $filename = $this->option('output');
 
         // Write to file in project root
@@ -68,8 +69,12 @@ class GenerateDevelopmentHistoryTxt extends Command
     /**
      * Generate the text content
      */
-    private function generateContent($histories)
+    private function generateContent($histories, $format = 'txt')
     {
+        if ($format === 'todo') {
+            return $this->generateTodoContent($histories);
+        }
+
         $firstDate = $histories->last()->development_date;
         $lastDate = $histories->first()->development_date;
 
@@ -376,5 +381,90 @@ class GenerateDevelopmentHistoryTxt extends Command
         ]);
 
         return $histories;
+    }
+
+    /**
+     * Generate TODO-style content
+     */
+    private function generateTodoContent($histories)
+    {
+        $content = "# TODO: Development History - " . now()->format('d F Y') . "\n\n";
+
+        // Group by type and date
+        $groupedByType = $histories->groupBy('type');
+
+        foreach ($groupedByType as $type => $typeHistories) {
+            $content .= "## " . ucfirst($type) . " Tasks (" . $typeHistories->count() . ")\n\n";
+
+            $groupedByDate = $typeHistories->groupBy(function($item) {
+                return $item->development_date->format('Y-m-d');
+            });
+
+            foreach ($groupedByDate as $date => $dayHistories) {
+                $dateObj = Carbon::parse($date);
+                $content .= "### " . $dateObj->format('d F Y') . "\n\n";
+
+                foreach ($dayHistories as $history) {
+                    $status = $this->determineTodoStatus($history);
+                    $content .= "- [{$status}] {$history->title}\n";
+                    $content .= "  - Description: {$history->description}\n";
+
+                    if ($history->migration_file) {
+                        $content .= "  - File: {$history->migration_file}\n";
+                    }
+
+                    if ($history->version) {
+                        $content .= "  - Version: {$history->version}\n";
+                    }
+
+                    if ($history->details && is_array($history->details)) {
+                        if (isset($history->details['commit_hash'])) {
+                            $content .= "  - Commit: {$history->details['commit_hash']}\n";
+                            $content .= "  - Author: {$history->details['commit_author']}\n";
+                        }
+                    }
+
+                    $content .= "\n";
+                }
+            }
+
+            $content .= "\n";
+        }
+
+        $content .= "## Summary\n\n";
+        $content .= "- Total Tasks: {$histories->count()}\n";
+        $content .= "- Period: " . $histories->last()->development_date->format('d F Y') . " - " . $histories->first()->development_date->format('d F Y') . "\n";
+        $content .= "- Generated: " . now()->format('d F Y H:i:s') . "\n";
+
+        return $content;
+    }
+
+    /**
+     * Determine TODO status based on history type and details
+     */
+    private function determineTodoStatus($history)
+    {
+        // If it's a migration, assume completed
+        if ($history->type === 'migration') {
+            return 'x';
+        }
+
+        // If it has commit details, assume completed
+        if ($history->details && isset($history->details['commit_hash'])) {
+            return 'x';
+        }
+
+        // For features and enhancements, check if recent
+        if (in_array($history->type, ['feature', 'enhancement'])) {
+            $daysSince = $history->development_date->diffInDays(now());
+            return $daysSince > 30 ? 'x' : '-';
+        }
+
+        // For updates and bugfixes, assume completed
+        if (in_array($history->type, ['update', 'bugfix'])) {
+            return 'x';
+        }
+
+        return '-';
     }
 }
