@@ -15,10 +15,10 @@
         .dashboard-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 16px;
-            padding: 16px 12px;
+            border-radius: 12px;
+            padding: 12px 10px;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .dashboard-header img {
@@ -27,11 +27,11 @@
 
         .dashboard-header h6 {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .dashboard-header h5 {
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .stats-form {
@@ -223,7 +223,7 @@
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
             </div>
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="40" height="40" alt="User">
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
