@@ -234,49 +234,16 @@ document.getElementById('avatar-input').addEventListener('change', function() {
     }
 });
 
-// Handle profile form submission with AJAX
+// Handle profile form submission with loading state
 document.getElementById('save-profile-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    const form = document.querySelector('form[action*="update-profile"]');
-    const formData = new FormData(form);
-
     // Show loading state
     const btn = this;
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
     btn.disabled = true;
 
-    // Submit form via AJAX
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Reset button
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-
-        if (data.success) {
-            // Show success message
-            showMessage('success', data.message || 'Profil berhasil diperbarui');
-        } else {
-            // Show error message
-            showMessage('error', data.message || 'Terjadi kesalahan');
-        }
-    })
-    .catch(error => {
-        // Reset button
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        showMessage('error', 'Terjadi kesalahan saat menyimpan');
-        console.error('Error:', error);
-    });
+    // Let the form submit normally (will cause page reload)
+    // The form will submit after this event handler completes
 });
 
 function showMessage(type, message) {
