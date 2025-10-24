@@ -25,8 +25,7 @@
             <h5 class="fw-bold mb-0">{{ Auth::user()->name ?? Auth::user()->username ?? 'User' }}</h5>
         </div>
         <div class="ms-auto">
-            <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
