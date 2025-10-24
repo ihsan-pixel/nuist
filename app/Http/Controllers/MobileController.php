@@ -224,12 +224,36 @@ class MobileController extends Controller
                 $user->update(['avatar' => $avatarPath]);
             }
 
-            return redirect()->route('mobile.ubah-akun')->with('success', 'Foto profil berhasil diubah.');
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Foto profil berhasil diperbarui.'
+                ]);
+            }
+
+            return redirect()->route('ubah-akun')->with('success', 'Foto profil berhasil diubah.');
             } catch (\Illuminate\Validation\ValidationException $e) {
                 Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal: ' . implode(', ', $e->errors())
+                ]);
+            }
+
             return redirect()->route('ubah-akun')->withErrors($e->errors());
             } catch (\Exception $e) {
                 Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
+                // Return JSON response for AJAX requests
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Terjadi kesalahan saat mengunggah foto.'
+                    ]);
+                }
+
                 return redirect()->route('ubah-akun')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
             }
     }

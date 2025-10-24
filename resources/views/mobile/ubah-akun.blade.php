@@ -229,8 +229,30 @@ document.getElementById('avatar-input').addEventListener('change', function() {
         };
         reader.readAsDataURL(this.files[0]);
 
-        // Auto-submit the form
-        document.getElementById('avatar-form').submit();
+        // Auto-submit the form via AJAX
+        const form = document.getElementById('avatar-form');
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('success', data.message || 'Foto profil berhasil diperbarui');
+            } else {
+                showMessage('error', data.message || 'Terjadi kesalahan saat mengunggah foto');
+            }
+        })
+        .catch(error => {
+            showMessage('error', 'Terjadi kesalahan saat mengunggah foto');
+            console.error('Error:', error);
+        });
     }
 });
 
