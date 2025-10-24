@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
 use App\Models\Presensi;
 use App\Models\TeachingSchedule;
 use Carbon\Carbon;
@@ -220,7 +221,7 @@ class MobileController extends Controller
 
         // Check if email is being changed and if it's already taken by another user
         if ($request->input('email') !== $user->email) {
-            $existingUser = \App\Models\User::where('email', $request->input('email'))->first();
+            $existingUser = User::where('email', $request->input('email'))->first();
             if ($existingUser && $existingUser->id !== $user->id) {
                 return redirect()->route('mobile.pengaturan')->withErrors(['email' => 'Email sudah digunakan oleh pengguna lain.']);
             }
