@@ -204,57 +204,7 @@ class MobileController extends Controller
             }
     }
 
-    public function updateAccount(Request $request)
-    {
-        $user = Auth::user();
 
-        Log::info('Update account request received', [
-            'user_id' => $user->id,
-            'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
-            'name' => $request->input('name'),
-        ]);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20|unique:users,no_hp,' . $user->id,
-            'tempat_lahir' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date|before:today',
-            'alamat' => 'nullable|string|max:500',
-            'pendidikan_terakhir' => 'nullable|string|max:255',
-            'program_studi' => 'nullable|string|max:255',
-        ]);
-
-        $emailChanged = $request->input('email') !== $user->email;
-
-        try {
-            $payload = [
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'no_hp' => $request->input('phone'),
-                'tempat_lahir' => $request->input('tempat_lahir'),
-                'tanggal_lahir' => $request->input('tanggal_lahir'),
-                'alamat' => $request->input('alamat'),
-                'pendidikan_terakhir' => $request->input('pendidikan_terakhir'),
-                'program_studi' => $request->input('program_studi'),
-            ];
-
-            if ($emailChanged) {
-                // If email changed, mark email as unverified (if using verification)
-                $payload['email_verified_at'] = null;
-            }
-
-            $user->update($payload);
-
-            Log::info('Account updated successfully', ['user_id' => $user->id]);
-
-            return redirect()->route('mobile.profile')->with('success', 'Informasi akun berhasil diperbarui.');
-        } catch (\Exception $e) {
-            Log::error('Failed to update account for user ' . ($user->id ?? 'unknown') . ': ' . $e->getMessage());
-            return redirect()->route('mobile.profile')->with('error', 'Gagal memperbarui informasi akun. Silakan coba lagi.');
-        }
-    }
 
     public function laporan()
     {
@@ -331,11 +281,7 @@ class MobileController extends Controller
 
 
 
-    public function ubahAkun()
-    {
-        $user = Auth::user();
-        return view('mobile.ubah-akun', compact('user'));
-    }
+
 
     public function storeIzin(Request $request)
     {

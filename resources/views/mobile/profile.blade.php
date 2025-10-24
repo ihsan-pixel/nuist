@@ -269,10 +269,7 @@
             </div>
             @endif
 
-            <a href="{{ route('mobile.ubah-akun') }}" class="settings-button w-100">
-                <i class="bx bx-cog"></i>
-                Ubah Data Akun
-            </a>
+
         </div>
     </div>
 

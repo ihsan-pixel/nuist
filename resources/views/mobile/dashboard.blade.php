@@ -352,10 +352,7 @@
                 <i class="bx bx-time"></i>
                 <small>Izin</small>
             </a>
-            <a href="{{ route('mobile.ubah-akun') }}" class="quick-action-btn">
-                <i class="bx bx-cog"></i>
-                <small>Ubah Akun</small>
-            </a>
+
         </div>
     </div>
 </div>
