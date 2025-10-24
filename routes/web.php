@@ -95,11 +95,9 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
     Route::post('/profile/update-password', [App\Http\Controllers\MobileController::class, 'updatePassword'])->name('profile.update-password');
     Route::post('/profile/update-avatar', [App\Http\Controllers\MobileController::class, 'updateAvatar'])->name('profile.update-avatar');
-    // izin: index (list) and create (form)
-    Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izinIndex'])->name('izin.index');
-    Route::get('/izin/create', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin.create');
     Route::post('/izin', [App\Http\Controllers\MobileController::class, 'storeIzin'])->name('izin.store');
     Route::get('/laporan', [App\Http\Controllers\MobileController::class, 'laporan'])->name('laporan');
+    Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin');
     Route::get('/pengaturan', [App\Http\Controllers\MobileController::class, 'pengaturan'])->name('pengaturan');
 });
 
