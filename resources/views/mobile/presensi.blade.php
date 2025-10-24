@@ -80,8 +80,15 @@
 
         .izin-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
+        }
+
+        /* Responsive fallback: on narrow screens keep two-column layout */
+        @media (max-width: 420px) {
+            .izin-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         .izin-btn {

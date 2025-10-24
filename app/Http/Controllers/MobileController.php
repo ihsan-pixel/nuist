@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Presensi;
 use App\Models\TeachingSchedule;
 use Carbon\Carbon;
@@ -202,11 +203,14 @@ class MobileController extends Controller
     {
         try {
             $request->validate([
-                'type' => 'required|in:terlambat,tugas_luar',
-                'alasan' => 'required_if:type,terlambat|string|max:500',
+                // now accept 'tidak_masuk' in addition to existing types
+                'type' => 'required|in:terlambat,tugas_luar,tidak_masuk',
+                // alasan is required for 'terlambat' and 'tidak_masuk'
+                'alasan' => 'required_if:type,terlambat,tidak_masuk|string|max:500',
                 'deskripsi_tugas' => 'required_if:type,tugas_luar|string|max:500',
                 'lokasi_tugas' => 'required_if:type,tugas_luar|string|max:255',
-                'file_izin' => 'required_if:type,terlambat|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
+                // file for terlambat required, for tidak_masuk optional; validate file if present
+                'file_izin' => 'sometimes|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
                 'file_tugas' => 'required_if:type,tugas_luar|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx|max:5120',
                 'waktu_masuk' => 'required_if:type,terlambat|date_format:H:i',
                 'waktu_keluar' => 'required_if:type,tugas_luar|date_format:H:i',
@@ -252,6 +256,11 @@ class MobileController extends Controller
                 $file = $request->file('file_tugas');
                 $fileName = time() . '_izin_tugas_' . $user->id . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('surat_izin', $fileName, 'public');
+            } elseif ($request->type === 'tidak_masuk' && $request->hasFile('file_izin')) {
+                // optional file for tidak_masuk
+                $file = $request->file('file_izin');
+                $fileName = time() . '_izin_tidak_masuk_' . $user->id . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('surat_izin', $fileName, 'public');
             }
 
             // Prepare keterangan based on type
@@ -269,6 +278,8 @@ class MobileController extends Controller
                 if ($request->waktu_keluar) {
                     $keterangan .= ' - Waktu Keluar: ' . $request->waktu_keluar;
                 }
+            } elseif ($request->type === 'tidak_masuk') {
+                $keterangan = 'Izin Tidak Masuk: ' . $request->alasan;
             }
 
             // Create or update presensi record
