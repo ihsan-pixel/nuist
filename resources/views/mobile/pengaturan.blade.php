@@ -4,204 +4,373 @@
 @section('subtitle', 'Pengaturan Akun')
 
 @section('content')
-<div class="container py-3" style="max-width:420px; margin:auto;">
+<div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
-        /* Clean, consistent mobile settings styles (aligned with profile view) */
-        body { background: #f8f9fb; font-family: 'Poppins', sans-serif; font-size: 13px; }
-        .card-custom { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(14,133,73,0.06); margin-bottom: 12px; overflow: hidden; }
-        .card-header-custom { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; padding: 14px; }
-        .card-header-custom h6 { margin:0; font-size:14px; font-weight:700; }
-        .card-header-custom small { opacity:0.95; }
+        body {
+            background: #f8f9fb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+        }
 
-        .avatar-lg { text-align:center; margin-bottom:8px; }
-        .avatar-lg img { width:88px; height:88px; border-radius:50%; border:3px solid rgba(241,243,244,0.9); object-fit:cover; }
+        .profile-header {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 10px;
+            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            margin-bottom: 10px;
+        }
 
-        .info-row { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid #f1f3f4; }
-        .info-label { color:#6c757d; font-weight:600; }
-        .info-value { color:#333; font-weight:700; text-align:right; max-width:65%; word-wrap:break-word; }
+        .profile-header h6 {
+            font-weight: 600;
+            font-size: 12px;
+        }
 
-        .settings-list { padding:10px; }
-        .settings-item { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:10px; background:#fbfcfd; border:1px solid #eef2f3; margin-bottom:10px; cursor:pointer; transition:all .15s ease; }
-        .settings-item:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(14,133,73,0.06); }
-        .settings-item .left { display:flex; align-items:center; gap:12px; }
-        .settings-item .title { font-weight:600; color:#263238; }
-        .settings-item .subtitle { font-size:12px; color:#6c757d; }
-        .settings-item i.chev { color:#bfc8c6; font-size:20px; }
+        .profile-header h5 {
+            font-size: 14px;
+        }
 
-        .btn-ghost { background:transparent; border:none; padding:0; }
-        @media (max-width:420px) { .container { padding-left:10px; padding-right:10px; } }
+        .profile-avatar {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .profile-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #e9ecef;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+
+        .profile-avatar h5 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .profile-avatar p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .role-badge {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .info-section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .info-header {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-header h6 {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
+
+        .info-content {
+            padding: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 12px;
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        .settings-section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+        }
+
+        .settings-header {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .settings-header h6 {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
+
+        .settings-content {
+            padding: 12px;
+        }
+
+        .settings-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .settings-button:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .settings-button i {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .alert-custom {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .alert-custom i {
+            margin-right: 6px;
+        }
     </style>
 
+    <!-- Header -->
+    <div class="profile-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">Pengaturan</h6>
+                <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
+            </div>
+            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+        </div>
+    </div>
+
     @if(session('success'))
-    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.08); color: #198754; border-radius: 12px; padding: 10px;">
+    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
         <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
     </div>
     @endif
 
-    @if($errors->any())
-    <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.06); color: #dc3545; border-radius: 12px; padding: 10px;">
-        <i class="bx bx-error-circle me-1"></i>
-        <ul class="mb-0">
-            @foreach($errors->all() as $err)
-            <li>{{ $err }}</li>
-            @endforeach
-        </ul>
+    @if(session('error'))
+    <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border-radius: 12px; padding: 10px;">
+        <i class="bx bx-error-circle me-1"></i>{{ session('error') }}
     </div>
     @endif
 
-    <div class="card-custom">
-        <div class="card-header-custom d-flex justify-content-between align-items-center">
-            <div>
-                <h6>Pengaturan Akun</h6>
-                <small>Kelola informasi akun Anda</small>
-            </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="rounded-circle border border-white" width="40" height="40" alt="User">
+    <!-- Profile Avatar Section -->
+    <div class="profile-avatar">
+        <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+             alt="Profile Picture">
+        <h5>{{ $user->name }}</h5>
+        <p>{{ $user->email }}</p>
+        <span class="role-badge">{{ ucfirst($user->role) }}</span>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="info-section">
+        <div class="info-header">
+            <h6><i class="bx bx-user me-2"></i>Informasi Personal</h6>
         </div>
-        <div class="p-3">
-            <div class="avatar-lg">
-                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="Profile">
-                <div class="mt-2">
-                    <strong style="font-size:15px">{{ $user->name }}</strong>
-                    <div style="font-size:12px;color:#6c757d">{{ $user->email }}</div>
-                </div>
+        <div class="info-content">
+            <div class="info-item">
+                <span class="info-label">Nama Lengkap</span>
+                <span class="info-value">{{ $user->name }}</span>
             </div>
-
-            <div class="card-custom mb-2">
-                <div class="info-row">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ $user->email }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Nomor HP</div>
-                    <div class="info-value">{{ $user->phone ?? 'Belum diatur' }}</div>
-                </div>
+            <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ $user->email }}</span>
             </div>
-
-            <div class="settings-list">
-                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#editAccountModal" aria-label="Ubah Email & Nomor HP">
-                    <div class="left">
-                        <i class="bx bx-user" style="font-size:20px;color:#0e8549"></i>
-                        <div>
-                            <div class="title">Ubah Email & Nomor HP</div>
-                            <div class="subtitle">Perbarui alamat email dan nomor telepon Anda</div>
-                        </div>
-                    </div>
-                    <i class="bx bx-chevron-right chev"></i>
-                </button>
-
-                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#changePasswordModal" aria-label="Ubah Password">
-                    <div class="left">
-                        <i class="bx bx-lock" style="font-size:20px;color:#f59e0b"></i>
-                        <div>
-                            <div class="title">Ubah Password</div>
-                            <div class="subtitle">Ganti kata sandi lama Anda</div>
-                        </div>
-                    </div>
-                    <i class="bx bx-chevron-right chev"></i>
-                </button>
-
-                <button type="button" class="settings-item btn-ghost" data-bs-toggle="modal" data-bs-target="#changeAvatarModal" aria-label="Ubah Foto Profil">
-                    <div class="left">
-                        <i class="bx bx-camera" style="font-size:20px;color:#06b6d4"></i>
-                        <div>
-                            <div class="title">Ubah Foto Profil</div>
-                            <div class="subtitle">Unggah foto profil baru (max 2MB)</div>
-                        </div>
-                    </div>
-                    <i class="bx bx-chevron-right chev"></i>
-                </button>
+            <div class="info-item">
+                <span class="info-label">Madrasah</span>
+                <span class="info-value">{{ $user->madrasah?->name ?? 'Belum diatur' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status Kepegawaian</span>
+                <span class="info-value">{{ $user->statusKepegawaian?->name ?? 'Belum diatur' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Ketugasan</span>
+                <span class="info-value">{{ $user->ketugasan ?? 'Belum diatur' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Bergabung Sejak</span>
+                <span class="info-value">{{ $user->created_at ? $user->created_at->format('d M Y') : 'Tidak diketahui' }}</span>
             </div>
         </div>
     </div>
 
-    <!-- Edit Account Modal (email + phone) -->
-    <div class="modal fade" id="editAccountModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ubah Email & Nomor HP</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('mobile.profile.update-account') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nomor HP</label>
-                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="0812xxxx" maxlength="20">
-                        </div>
-                        <small class="text-muted">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </div>
-                </form>
+    <!-- Account Settings -->
+    <div class="settings-section">
+        <div class="settings-header">
+            <h6><i class="bx bx-cog me-2"></i>Pengaturan Akun</h6>
+        </div>
+        <div class="settings-content">
+            @if(!$user->password_changed)
+            <div class="alert-custom">
+                <i class="bx bx-info-circle"></i>
+                <strong>Password belum diubah!</strong> Anda menggunakan password default. Silakan ubah password untuk keamanan akun.
             </div>
+            @endif
+
+            <button type="button" class="settings-button w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                <i class="bx bx-user"></i>
+                Ubah Email & Nomor HP
+            </button>
+
+            <button type="button" class="settings-button w-100 mb-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                <i class="bx bx-lock"></i>
+                Ubah Password
+            </button>
+
+            <button type="button" class="settings-button w-100" data-bs-toggle="modal" data-bs-target="#changeAvatarModal">
+                <i class="bx bx-camera"></i>
+                Ubah Foto Profil
+            </button>
         </div>
     </div>
 
-    <!-- Change Password Modal -->
-    <div class="modal fade" id="changePasswordModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ubah Password</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('mobile.profile.update-password') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Password Lama</label>
-                            <input type="password" name="current_password" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password Baru</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Konfirmasi Password Baru</label>
-                            <input type="password" name="password_confirmation" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </div>
-                </form>
+<!-- Edit Account Modal (email + phone) -->
+<div class="modal fade" id="editAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ubah Email & Nomor HP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form action="{{ route('mobile.profile.update-account') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nomor HP</label>
+                        <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" placeholder="0812xxxx" maxlength="20">
+                    </div>
+                    <small class="text-muted">Jika Anda mengubah email, verifikasi email mungkin diperlukan kembali.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Change Avatar Modal -->
-    <div class="modal fade" id="changeAvatarModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ubah Foto Profil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Pilih Foto</label>
-                            <input type="file" name="avatar" class="form-control" accept="image/*" required>
-                            <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB.</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ubah Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form action="{{ route('mobile.profile.update-password') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Password Lama</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password Baru</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Konfirmasi Password Baru</label>
+                        <input type="password" name="password_confirmation" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
+<!-- Change Avatar Modal -->
+<div class="modal fade" id="changeAvatarModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ubah Foto Profil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Foto</label>
+                        <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                        <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 </div>
 @endsection
