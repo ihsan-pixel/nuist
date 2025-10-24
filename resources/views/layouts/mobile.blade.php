@@ -309,6 +309,12 @@
                     </a>
                 </div>
                 <div class="col">
+                    <a href="{{ route('mobile.ubah-akun') }}" class="nav-link {{ request()->routeIs('mobile.ubah-akun') ? 'active' : '' }}">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan</span>
+                    </a>
+                </div>
+                <div class="col">
                     <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
                         <i class="bx bx-user"></i>
                         <span>Profil</span>

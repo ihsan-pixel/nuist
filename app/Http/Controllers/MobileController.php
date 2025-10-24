@@ -134,6 +134,12 @@ class MobileController extends Controller
         return view('mobile.profile', compact('user'));
     }
 
+    public function ubahAkun()
+    {
+        $user = Auth::user();
+        return view('mobile.ubah-akun', compact('user'));
+    }
+
     public function updatePassword(Request $request)
     {
         $request->validate([
@@ -145,7 +151,7 @@ class MobileController extends Controller
 
         // Check if current password is correct
         if (!Hash::check($request->current_password, $user->password)) {
-            return redirect()->route('mobile.profile')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+        return redirect()->route('mobile.ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
         }
 
         // Update password
@@ -154,7 +160,7 @@ class MobileController extends Controller
             'password_changed' => true,
         ]);
 
-        return redirect()->route('mobile.profile')->with('success', 'Password berhasil diubah.');
+        return redirect()->route('mobile.ubah-akun')->with('success', 'Password berhasil diubah.');
     }
 
     public function updateAvatar(Request $request)
@@ -194,13 +200,13 @@ class MobileController extends Controller
                 $user->update(['avatar' => $avatarPath]);
             }
 
-            return redirect()->route('mobile.profile')->with('success', 'Foto profil berhasil diubah.');
+            return redirect()->route('mobile.ubah-akun')->with('success', 'Foto profil berhasil diubah.');
             } catch (\Illuminate\Validation\ValidationException $e) {
                 Log::warning('Avatar validation failed for user ' . (Auth::id() ?? 'guest') . ': ' . json_encode($e->errors()));
-                return redirect()->route('mobile.profile')->withErrors($e->errors());
+                return redirect()->route('mobile.ubah-akun')->withErrors($e->errors());
             } catch (\Exception $e) {
                 Log::error('Exception in updateAvatar for user ' . (Auth::id() ?? 'guest') . ': ' . $e->getMessage());
-                return redirect()->route('mobile.profile')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
+                return redirect()->route('mobile.ubah-akun')->with('error', 'Terjadi kesalahan saat mengunggah foto.');
             }
     }
 
