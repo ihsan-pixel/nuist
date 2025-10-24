@@ -94,7 +94,7 @@
         }
 
         .mobile-nav .nav-link.active {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            background: #0e8549;
             color: white;
         }
 

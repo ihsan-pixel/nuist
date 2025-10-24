@@ -334,31 +334,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <div class="quick-actions-header">
-            <h6><i class="bx bx-flash me-2"></i>Aksi Cepat</h6>
-        </div>
-        <div class="quick-actions-content">
-            <div class="action-grid">
-                <a href="{{ route('mobile.presensi') }}" class="action-button">
-                    <i class="bx bx-check-square"></i>
-                    <span>Presensi</span>
-                </a>
-                <a href="{{ route('mobile.jadwal') }}" class="action-button">
-                    <i class="bx bx-calendar"></i>
-                    <span>Jadwal</span>
-                </a>
-                <a href="{{ route('mobile.teaching-attendances') }}" class="action-button">
-                    <i class="bx bx-chalkboard"></i>
-                    <span>Mengajar</span>
-                </a>
-                <a href="{{ route('mobile.ubah-akun') }}" class="action-button">
-                    <i class="bx bx-cog"></i>
-                    <span>Pengaturan</span>
-                </a>
-            </div>
-        </div>
-    </div>
+
 
 @endsection
