@@ -21,7 +21,7 @@
     <div class="presensi-header d-flex align-items-center">
         <div class="me-2">
             <h6 class="mb-0">Presensi Mengajar</h6>
-            <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+            <h6 class="fw-bold mb-0">{{ $user->name }}</h6>
             <small class="small-muted">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
         </div>
         <div class="ms-auto">
@@ -92,7 +92,7 @@
                             @endphp
 
                             @if($isWithinTime)
-                                <button class="presensi-btn" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')"> 
+                                <button class="presensi-btn" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
                                     <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                 </button>
                             @else
