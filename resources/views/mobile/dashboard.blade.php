@@ -77,31 +77,53 @@
         .info-section {
             background: #fff;
             border-radius: 12px;
-            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 12px;
+            overflow: hidden;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+        .info-header {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-header h6 {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
+
+        .info-content {
+            padding: 12px;
         }
 
         .info-item {
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
         }
 
-        .info-item small {
-            color: #6c757d;
-            font-size: 10px;
+        .info-item:last-child {
+            border-bottom: none;
         }
 
-        .info-item strong {
-            font-size: 11px;
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 12px;
             color: #333;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-wrap: break-word;
         }
 
         .schedule-section {
