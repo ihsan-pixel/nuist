@@ -740,6 +740,15 @@ $(document).ready(function() {
         });
     });
 });
+
+// Fix aria-hidden issue on modals
+$('#izinTerlambatModal').on('show.bs.modal', function () {
+    $(this).removeAttr('aria-hidden');
+});
+
+$('#izinTugasLuarModal').on('show.bs.modal', function () {
+    $(this).removeAttr('aria-hidden');
+});
 </script>
 <script>
 window.addEventListener('load', function() {
