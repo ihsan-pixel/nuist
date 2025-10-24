@@ -72,14 +72,14 @@
 
         .mobile-nav .nav-link {
             padding: 8px 4px;
-            color: white;
+            color: #0e8549;
             font-size: 11px;
             font-weight: 500;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            background: #0e8549;
+            background: white;
             border-radius: 8px;
             margin: 0 2px;
             transition: all 0.2s;
