@@ -234,65 +234,50 @@ document.getElementById('avatar-input').addEventListener('change', function() {
     }
 });
 
-// Auto-submit profile form on change (like avatar)
-document.getElementById('name').addEventListener('blur', function() {
-    autoSubmitProfile();
-});
+// Handle profile form submission with AJAX
+document.getElementById('save-profile-btn').addEventListener('click', function(e) {
+    e.preventDefault();
 
-document.getElementById('email').addEventListener('blur', function() {
-    autoSubmitProfile();
-});
-
-document.getElementById('phone').addEventListener('blur', function() {
-    autoSubmitProfile();
-});
-
-function autoSubmitProfile() {
     const form = document.querySelector('form[action*="update-profile"]');
     const formData = new FormData(form);
 
-    // Check if any field has changed
-    const nameChanged = formData.get('name') !== '{{ $user->name }}';
-    const emailChanged = formData.get('email') !== '{{ $user->email }}';
-    const phoneChanged = formData.get('phone') !== '{{ $user->phone }}';
+    // Show loading state
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
+    btn.disabled = true;
 
-    if (nameChanged || emailChanged || phoneChanged) {
-        // Show loading state
-        const btn = document.getElementById('save-profile-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...';
-        btn.disabled = true;
+    // Submit form via AJAX
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
 
-        // Submit form via AJAX
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Reset button
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-
-            if (data.success) {
-                // Show success message
-                showMessage('success', 'Profil berhasil diperbarui');
-            } else {
-                // Show error message
-                showMessage('error', data.message || 'Terjadi kesalahan');
-            }
-        })
-        .catch(error => {
-            // Reset button
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            showMessage('error', 'Terjadi kesalahan saat menyimpan');
-        });
-    }
-}
+        if (data.success) {
+            // Show success message
+            showMessage('success', data.message || 'Profil berhasil diperbarui');
+        } else {
+            // Show error message
+            showMessage('error', data.message || 'Terjadi kesalahan');
+        }
+    })
+    .catch(error => {
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showMessage('error', 'Terjadi kesalahan saat menyimpan');
+        console.error('Error:', error);
+    });
+});
 
 function showMessage(type, message) {
     // Remove existing alerts
