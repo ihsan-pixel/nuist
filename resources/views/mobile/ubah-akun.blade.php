@@ -223,6 +223,34 @@
             </form>
         </div>
     </div>
+
+    <!-- Password Section -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h6><i class="bx bx-lock me-2"></i>Ubah Password</h6>
+        </div>
+        <div class="section-content">
+            <form action="{{ route('mobile.profile.update-password') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="current_password" class="form-label">Password Lama</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required placeholder="Masukkan password lama">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password Baru</label>
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="Minimal 8 karakter, kombinasi huruf besar, kecil, angka & simbol">
+                    <small class="text-muted">Password harus mengandung huruf besar, huruf kecil, angka, dan simbol</small>
+                </div>
+                <div class="form-group">
+                    <label for="password_confirmation" class="form-label">Konfirmasi Password Baru</label>
+                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi password baru">
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="save-password-btn">
+                    <i class="bx bx-save me-1"></i>Ubah Password
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -313,6 +341,57 @@ document.getElementById('save-profile-btn').addEventListener('click', function(e
         btn.innerHTML = originalText;
         btn.disabled = false;
         showMessage('error', 'Terjadi kesalahan saat menyimpan');
+        console.error('Error:', error);
+    });
+});
+
+// Handle password form submission with AJAX
+document.getElementById('save-password-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const form = document.querySelector('form[action*="update-password"]');
+    const formData = new FormData(form);
+
+    // Show loading state
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Mengubah...';
+    btn.disabled = true;
+
+    // Submit form via AJAX
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
+        if (data.success) {
+            // Show success message
+            showMessage('success', data.message || 'Password berhasil diperbarui');
+            // Clear form
+            form.reset();
+            // Auto reload page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            // Show error message
+            showMessage('error', data.message || 'Terjadi kesalahan');
+        }
+    })
+    .catch(error => {
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showMessage('error', 'Terjadi kesalahan saat mengubah password');
         console.error('Error:', error);
     });
 });

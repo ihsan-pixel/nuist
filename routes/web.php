@@ -96,6 +96,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::post('/profile/update-profile', [App\Http\Controllers\MobileController::class, 'updateProfile'])->name('profile.update-profile');
 
     Route::post('/profile/update-avatar', [App\Http\Controllers\MobileController::class, 'updateAvatar'])->name('profile.update-avatar');
+    Route::post('/profile/update-password', [App\Http\Controllers\MobileController::class, 'updatePassword'])->name('profile.update-password');
     Route::post('/izin', [App\Http\Controllers\MobileController::class, 'storeIzin'])->name('izin.store');
     Route::get('/laporan', [App\Http\Controllers\MobileController::class, 'laporan'])->name('laporan');
     // Mobile laporan presensi mengajar (riwayat)

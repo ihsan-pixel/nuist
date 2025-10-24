@@ -195,6 +195,55 @@ class MobileController extends Controller
         return redirect()->route('ubah-akun')->with('info', 'Tidak ada perubahan yang dilakukan.');
     }
 
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/'
+            ],
+        ], [
+            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $user = Auth::user();
+
+        // Check if current password is correct
+        if (!Hash::check($request->current_password, $user->password)) {
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password lama tidak sesuai.'
+                ], 422);
+            }
+
+            return redirect()->route('ubah-akun')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+        }
+
+        // Update password
+        $user->update([
+            'password' => Hash::make($request->password),
+            'password_changed' => true,
+        ]);
+
+        // Return JSON response for AJAX requests
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password berhasil diperbarui.'
+            ]);
+        }
+
+        return redirect()->route('ubah-akun')->with('success', 'Password berhasil diperbarui.');
+    }
+
     public function updateAvatar(Request $request)
     {
         try {
