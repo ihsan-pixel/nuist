@@ -434,129 +434,13 @@
         </a>
     </div>
 
-    <!-- Izin Buttons -->
-    <div class="izin-section">
-        <div class="izin-buttons">
-            <button type="button" class="izin-btn" data-bs-toggle="modal" data-bs-target="#izinTidakMasukModal" aria-label="Izin Tidak Masuk">
-                <i class="bx bx-user-x"></i>
-                Izin Tidak Masuk
-            </button>
-
-            <button type="button" class="izin-btn izin-terlambat" data-bs-toggle="modal" data-bs-target="#izinTerlambatModal" aria-label="Izin Terlambat">
-                <i class="bx bx-time-five"></i>
-                Izin Terlambat
-            </button>
-
-            <button type="button" class="izin-btn izin-tugas-luar" data-bs-toggle="modal" data-bs-target="#izinTugasLuarModal" aria-label="Izin Tugas Diluar">
-                <i class="bx bx-briefcase"></i>
-                Izin Tugas Diluar
-            </button>
-        </div>
+    <!-- Izin: single button to mobile izin menu -->
+    <div class="presensi-form">
+        <a href="{{ route('mobile.izin') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
+            <i class="bx bx-calendar-minus me-1"></i>
+            Izin
+        </a>
     </div>
-
-    <!-- Izin Tidak Masuk Modal -->
-    <div class="modal fade" id="izinTidakMasukModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Izin Tidak Masuk</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="izinTidakMasukForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Alasan</label>
-                            <textarea class="form-control" name="alasan" rows="3" placeholder="Jelaskan alasan Anda..." required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Surat Izin / Foto</label>
-                            <input type="file" class="form-control" name="file_izin" accept="image/*,.pdf,.doc,.docx" required>
-                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Izin Terlambat Modal -->
-    <div class="modal fade" id="izinTerlambatModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Izin Terlambat Masuk</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="izinTerlambatForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Alasan Terlambat</label>
-                            <textarea class="form-control" name="alasan" rows="3" placeholder="Jelaskan alasan keterlambatan Anda..." required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Surat Izin/Foto</label>
-                            <input type="file" class="form-control" name="file_izin" accept="image/*,.pdf,.doc,.docx" required>
-                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Waktu Masuk yang Diminta</label>
-                            <input type="time" class="form-control" name="waktu_masuk" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Izin Tugas Diluar Modal -->
-    <div class="modal fade" id="izinTugasLuarModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Izin Tugas Diluar</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="izinTugasLuarForm" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Deskripsi Tugas</label>
-                            <textarea class="form-control" name="deskripsi_tugas" rows="3" placeholder="Jelaskan tugas yang akan dilakukan diluar..." required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Lokasi Tugas</label>
-                            <input type="text" class="form-control" name="lokasi_tugas" placeholder="Masukkan lokasi tugas" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Surat Tugas/Foto</label>
-                            <input type="file" class="form-control" name="file_tugas" accept="image/*,.pdf,.doc,.docx" required>
-                            <small class="text-muted">Format: JPG, PNG, PDF, DOC. Maks 5MB.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Estimasi Waktu Keluar</label>
-                            <input type="time" class="form-control" name="waktu_keluar" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Kirim Izin</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals for inline izin removed — uses dedicated halaman izin instead -->
 </div>
 @endsection
 
