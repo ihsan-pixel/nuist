@@ -214,6 +214,23 @@ class MobileController extends Controller
         return view('mobile.teaching-attendances', compact('schedules', 'today'));
     }
 
+    public function laporanMengajar()
+    {
+        $user = Auth::user();
+
+        // Riwayat presensi mengajar untuk bulan ini
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        $history = \App\Models\TeachingAttendance::with(['teachingSchedule.school'])
+            ->where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('mobile.laporan-mengajar', compact('history'));
+    }
+
     public function izin(\Illuminate\Http\Request $request)
     {
         $user = Auth::user();

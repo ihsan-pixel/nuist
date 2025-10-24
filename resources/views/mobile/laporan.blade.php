@@ -20,7 +20,7 @@
     </div>
 
     <div class="col-6">
-    <a href="{{ route('mobile.teaching-attendances') }}" class="text-decoration-none">
+    <a href="{{ route('mobile.laporan.mengajar') }}" class="text-decoration-none">
             <div class="card shadow-sm text-center p-3">
                 <div class="avatar-md mx-auto mb-2">
                     <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">

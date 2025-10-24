@@ -303,6 +303,12 @@
                     </a>
                 </div>
                 <div class="col">
+                    <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
+                        <i class="bx bx-chalkboard"></i>
+                        <span>Mengajar</span>
+                    </a>
+                </div>
+                <div class="col">
                     <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
                         <i class="bx bx-user"></i>
                         <span>Profil</span>
