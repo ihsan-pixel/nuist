@@ -144,7 +144,7 @@ class MobileController extends Controller
 
         // Check if current password is correct
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+            return redirect()->route('mobile.pengaturan')->withErrors(['current_password' => 'Password lama tidak sesuai.']);
         }
 
         // Update password
@@ -153,7 +153,7 @@ class MobileController extends Controller
             'password_changed' => true,
         ]);
 
-        return back()->with('success', 'Password berhasil diubah.');
+        return redirect()->route('mobile.pengaturan')->with('success', 'Password berhasil diubah.');
     }
 
     public function updateAvatar(Request $request)
@@ -175,7 +175,7 @@ class MobileController extends Controller
             $user->update(['avatar' => $avatarPath]);
         }
 
-        return back()->with('success', 'Foto profil berhasil diubah.');
+        return redirect()->route('mobile.pengaturan')->with('success', 'Foto profil berhasil diubah.');
     }
 
     public function updateAccount(Request $request)
@@ -189,17 +189,22 @@ class MobileController extends Controller
 
         $emailChanged = $request->input('email') !== $user->email;
 
-        $user->email = $request->input('email');
-        $user->phone = $request->input('phone');
+        try {
+            $user->email = $request->input('email');
+            $user->phone = $request->input('phone');
 
-        if ($emailChanged) {
-            // If email changed, mark email as unverified (if using verification)
-            $user->email_verified_at = null;
+            if ($emailChanged) {
+                // If email changed, mark email as unverified (if using verification)
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
+
+            return redirect()->route('mobile.pengaturan')->with('success', 'Informasi akun berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Failed to update account for user ' . $user->id . ': ' . $e->getMessage());
+            return redirect()->route('mobile.pengaturan')->with('error', 'Gagal memperbarui informasi akun. Silakan coba lagi.');
         }
-
-        $user->save();
-
-        return back()->with('success', 'Informasi akun berhasil diperbarui.');
     }
 
     public function laporan()
