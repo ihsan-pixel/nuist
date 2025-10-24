@@ -348,9 +348,9 @@
                 <i class="bx bx-check-square"></i>
                 <span>Presensi</span>
             </a>
-            <a href="{{ route('mobile.jadwal') }}" class="action-button">
-                <i class="bx bx-calendar"></i>
-                <span>Jadwal</span>
+            <a href="{{ route('mobile.laporan') }}" class="action-button">
+                <i class="bx bx-file"></i>
+                <span>Laporan</span>
             </a>
             <a href="{{ route('mobile.teaching-attendances') }}" class="action-button">
                 <i class="bx bx-chalkboard"></i>
