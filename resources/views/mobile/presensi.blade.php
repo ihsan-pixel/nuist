@@ -524,9 +524,9 @@ $(document).ready(function() {
         e.preventDefault();
 
         // Validate required fields
-        let alasan = $('#alasan_terlambat').val().trim();
-        let waktuMasuk = $('#waktu_masuk_terlambat').val();
-        let fileIzin = $('#file_izin_terlambat')[0].files[0];
+        let alasan = $(this).find('textarea[name="alasan"]').val().trim();
+        let waktuMasuk = $(this).find('input[name="waktu_masuk"]').val();
+        let fileIzin = $(this).find('input[name="file_izin"]')[0].files[0];
 
         if (!alasan) {
             Swal.fire({
@@ -629,10 +629,10 @@ $(document).ready(function() {
         e.preventDefault();
 
         // Validate required fields
-        let deskripsiTugas = $('#deskripsi_tugas_luar').val().trim();
-        let lokasiTugas = $('#lokasi_tugas_luar').val().trim();
-        let waktuKeluar = $('#waktu_keluar_tugas_luar').val();
-        let fileTugas = $('#file_tugas_luar')[0].files[0];
+        let deskripsiTugas = $(this).find('textarea[name="deskripsi_tugas"]').val().trim();
+        let lokasiTugas = $(this).find('input[name="lokasi_tugas"]').val().trim();
+        let waktuKeluar = $(this).find('input[name="waktu_keluar"]').val();
+        let fileTugas = $(this).find('input[name="file_tugas"]')[0].files[0];
 
         if (!deskripsiTugas) {
             Swal.fire({
