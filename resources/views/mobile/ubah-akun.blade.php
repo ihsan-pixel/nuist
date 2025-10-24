@@ -97,7 +97,7 @@
     <div class="form-section">
         <h5><i class="bx bx-user me-2"></i>Ubah Email & Nomor HP</h5>
 
-        <form action="{{ route('profile.update-account') }}" method="POST" id="updateAccountForm">
+        <form action="{{ route('mobile.profile.update-account') }}" method="POST" id="updateAccountForm">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Email</label>
