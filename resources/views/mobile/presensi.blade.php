@@ -9,33 +9,33 @@
         body {
             background: #f8f9fb;
             font-family: 'Poppins', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .presensi-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 16px;
-            padding: 16px 12px;
+            border-radius: 12px;
+            padding: 12px 10px;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .presensi-header h6 {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .presensi-header h5 {
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .status-card {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .status-card.success {
@@ -47,31 +47,31 @@
         }
 
         .status-icon {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: rgba(14, 133, 73, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         .status-icon i {
             color: #0e8549;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .presensi-form {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .form-section {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .form-section:last-child {
@@ -80,16 +80,17 @@
 
         .section-title {
             font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 12px;
+            margin-bottom: 6px;
             color: #333;
         }
 
         .location-info {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
+            border-radius: 6px;
+            padding: 6px;
+            margin-bottom: 6px;
+            word-wrap: break-word;
         }
 
         .location-info.success {
@@ -109,31 +110,33 @@
 
         .coordinate-input {
             background: #fff;
-            border-radius: 6px;
-            padding: 6px 8px;
+            border-radius: 4px;
+            padding: 4px 6px;
             border: 1px solid #e9ecef;
-            font-size: 12px;
+            font-size: 11px;
+            width: 100%;
         }
 
         .address-input {
             background: #fff;
-            border-radius: 6px;
-            padding: 6px 8px;
+            border-radius: 4px;
+            padding: 4px 6px;
             border: 1px solid #e9ecef;
-            font-size: 12px;
+            font-size: 11px;
             width: 100%;
+            word-wrap: break-word;
         }
 
         .presensi-btn {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border: none;
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 6px;
+            padding: 8px;
             color: #fff;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .presensi-btn:disabled {
@@ -142,60 +145,60 @@
 
         .schedule-section {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .schedule-item {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 6px;
+            padding: 6px;
             text-align: center;
         }
 
         .schedule-item.masuk {
-            border-left: 3px solid #0d6efd;
+            border-left: 2px solid #0d6efd;
         }
 
         .schedule-item.pulang {
-            border-left: 3px solid #0e8549;
+            border-left: 2px solid #0e8549;
         }
 
         .schedule-item i {
-            font-size: 16px;
-            margin-bottom: 4px;
+            font-size: 14px;
+            margin-bottom: 2px;
         }
 
         .schedule-item h6 {
-            font-size: 12px;
-            margin-bottom: 2px;
+            font-size: 11px;
+            margin-bottom: 1px;
             font-weight: 600;
         }
 
         .schedule-item p {
-            font-size: 11px;
-            margin-bottom: 2px;
+            font-size: 10px;
+            margin-bottom: 1px;
         }
 
         .schedule-item small {
-            font-size: 10px;
+            font-size: 9px;
             color: #6c757d;
         }
 
         .alert-custom {
             background: #fff;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .alert-custom.warning {
@@ -219,7 +222,7 @@
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
             </div>
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="40" height="40" alt="User">
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
@@ -232,7 +235,7 @@
             </div>
             <div>
                 <h6 class="mb-0">Hari Libur</h6>
-                <p class="mb-0 small">{{ $holiday->name ?? 'Hari ini adalah hari libur' }}</p>
+                <p class="mb-0">{{ $holiday->name ?? 'Hari ini libur' }}</p>
             </div>
         </div>
     </div>
@@ -244,14 +247,14 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <p class="mb-1 small">Waktu Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
+                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
                 @if($presensiHariIni->waktu_keluar)
-                <p class="mb-0 small">Waktu Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
-                <div class="alert-custom success" style="margin-top: 8px; padding: 6px;">
-                    <small><i class="bx bx-check me-1"></i> Presensi hari ini sudah lengkap!</small>
+                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
+                <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
+                    <small><i class="bx bx-check me-1"></i> Presensi hari ini lengkap!</small>
                 </div>
                 @else
-                <p class="mb-0 small text-muted">Silakan lakukan presensi keluar jika sudah selesai bekerja.</p>
+                <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
                 @endif
             </div>
         </div>
@@ -260,7 +263,7 @@
 
     <!-- Presensi Form -->
     <div class="presensi-form">
-        <div class="d-flex align-items-center mb-3">
+        <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
             </div>
@@ -271,9 +274,9 @@
         <div class="form-section">
             <div id="location-info" class="location-info info">
                 <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-2"></i>
+                    <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
-                        <strong class="small">Mendapatkan lokasi...</strong>
+                        <strong>Mendapatkan lokasi...</strong>
                         <br><small class="text-muted">Pastikan GPS aktif</small>
                     </div>
                 </div>
@@ -282,11 +285,11 @@
 
         <!-- Coordinates -->
         <div class="form-section">
-            <div class="d-flex align-items-center mb-2">
-                <i class="bx bx-target-lock text-success me-2"></i>
+            <div class="d-flex align-items-center mb-1">
+                <i class="bx bx-target-lock text-success me-1"></i>
                 <label class="section-title mb-0">Koordinat Lokasi</label>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                 <input type="text" id="latitude" class="coordinate-input" placeholder="Latitude" readonly>
                 <input type="text" id="longitude" class="coordinate-input" placeholder="Longitude" readonly>
             </div>
@@ -294,8 +297,8 @@
 
         <!-- Address -->
         <div class="form-section">
-            <div class="d-flex align-items-center mb-2">
-                <i class="bx bx-home text-info me-2"></i>
+            <div class="d-flex align-items-center mb-1">
+                <i class="bx bx-home text-info me-1"></i>
                 <label class="section-title mb-0">Alamat Lokasi</label>
             </div>
             <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
@@ -305,7 +308,7 @@
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
                 {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
-            <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-2"></i>
+            <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
             {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
         </button>
     </div>
@@ -313,7 +316,7 @@
     <!-- Time Information -->
     @if(isset($timeRanges) && $timeRanges)
     <div class="schedule-section">
-        <div class="d-flex align-items-center mb-3">
+        <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-calendar-check"></i>
             </div>
@@ -322,40 +325,38 @@
         <div class="schedule-grid">
             <div class="schedule-item masuk">
                 <i class="bx bx-log-in-circle text-primary"></i>
-                <h6 class="text-primary">Presensi Masuk</h6>
+                <h6 class="text-primary">Masuk</h6>
                 <p>{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
-                <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
                 <i class="bx bx-log-out-circle text-success"></i>
-                <h6 class="text-success">Presensi Pulang</h6>
+                <h6 class="text-success">Pulang</h6>
                 <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
-                <small>Waktu pulang normal</small>
             </div>
         </div>
         @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
-        <div class="alert-custom info" style="margin-top: 8px;">
+        <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
-                <strong>Catatan:</strong> Untuk hari Sabtu, waktu mulai presensi pulang adalah 12:00. Hari lainnya mulai pukul 13:00.
+                <strong>Catatan:</strong> Sabtu pulang mulai 12:00, hari lain 13:00.
             </small>
         </div>
         @endif
     </div>
     @else
     <div class="alert-custom warning">
-        <i class="bx bx-info-circle me-2"></i>
-        <strong class="small">Pengaturan Presensi:</strong> Hari KBM madrasah Anda belum diatur. Silakan hubungi administrator untuk mengaturnya.
+        <i class="bx bx-info-circle me-1"></i>
+        <strong>Pengaturan Presensi:</strong> Hari KBM belum diatur. Hubungi admin.
     </div>
     @endif
 
     <!-- Important Notice -->
     <div class="alert-custom danger">
         <div class="d-flex">
-            <i class="bx bx-error-circle text-danger me-2"></i>
+            <i class="bx bx-error-circle text-danger me-1"></i>
             <div>
-                <strong class="text-danger small">Penting!</strong>
-                <p class="mb-0 text-muted small">Pastikan Anda berada dalam lingkungan Madrasah/Sekolah untuk melakukan presensi.</p>
+                <strong class="text-danger">Penting!</strong>
+                <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
             </div>
         </div>
     </div>
