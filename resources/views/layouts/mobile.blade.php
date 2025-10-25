@@ -98,12 +98,12 @@
         }
 
         .mobile-nav .nav-link.active {
-            flex-direction: row;
+            flex-direction: column;
         }
 
         .mobile-nav .nav-link.active i {
-            margin-bottom: 0;
-            margin-right: 4px;
+            margin-bottom: 2px;
+            margin-right: 0;
         }
 
         .mobile-nav .nav-link:not(.active) span {
