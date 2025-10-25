@@ -12,6 +12,14 @@
         .izin-action .label { font-weight: 600; font-size: 13px; }
     </style>
 
+    <!-- Back Button -->
+    <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+            <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+        </button>
+        <span class="fw-bold" style="color: #004b4c; font-size: 14px;">Kembali</span>
+    </div>
+
     <h6 class="mb-3">Pengajuan Izin</h6>
 
     <div class="izin-grid">

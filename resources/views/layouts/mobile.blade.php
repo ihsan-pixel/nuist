@@ -301,6 +301,17 @@
     </main>
 
     <!-- Mobile Bottom Navigation -->
+    @php
+        $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
+        $showNav = false;
+        foreach ($menuRoutes as $route) {
+            if (request()->routeIs($route)) {
+                $showNav = true;
+                break;
+            }
+        }
+    @endphp
+    @if($showNav)
     <nav class="mobile-nav d-md-none">
         <div class="container-fluid">
             <div class="row g-0">
@@ -337,6 +348,7 @@
             </div>
         </div>
     </nav>
+    @endif
 
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')

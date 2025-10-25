@@ -4,6 +4,14 @@
 @section('subtitle', 'Laporan Presensi')
 
 @section('content')
+<!-- Back Button -->
+<div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+    <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+        <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+    </button>
+    <span class="fw-bold" style="color: #004b4c; font-size: 14px;">Kembali</span>
+</div>
+
 <div class="row g-2">
     <div class="col-6">
     <a href="{{ route('mobile.riwayat-presensi') }}" class="text-decoration-none">

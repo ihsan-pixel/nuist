@@ -1,15 +1,13 @@
-# TODO: Fix Izin Button Functionality
-
-## Tasks
-- [x] Modify MobileController@storeIzin to store izin data in presensis table instead of izins table
-- [x] Update validation and file handling for presensis storage
-- [x] Ensure izin appears in kelola izin (izin/index) for approval by admin/kepala sekolah
-- [ ] Test the button functionality and data submission
-- [ ] Verify approval process works
-
-## Details
-- Change storeIzin to create Presensi record with status='izin', status_izin='pending'
-- Use keterangan field to store alasan or deskripsi_tugas
-- Store file in surat_izin_path
-- Handle different file fields (file_izin, file_tugas)
-- Ensure no duplicate izin for same day/type
+- [x] Modifikasi resources/views/layouts/mobile.blade.php: Tambahkan kondisi untuk hide bottom navigation jika route tidak ada di daftar menu bawah.
+- [x] Tambahkan tombol kembali di resources/views/mobile/ubah-akun.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/laporan.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/laporan-mengajar.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin-history.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin-sakit.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin-terlambat.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin-tidak-masuk.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/izin-tugas-luar.blade.php
+- [x] Tambahkan tombol kembali di resources/views/mobile/riwayat-presensi.blade.php
+- [x] Jalankan server lokal dan test halaman-halaman tersebut untuk memastikan bottom nav hide dan tombol kembali berfungsi.
+- [ ] Jika ada error, perbaiki.

@@ -5,7 +5,13 @@
 
 @section('content')
 <div class="container py-3" style="max-width: 420px; margin: auto;">
-    <a href="{{ url()->previous() }}" onclick="event.preventDefault(); history.back();" class="text-muted" style="display:inline-block; margin-bottom:12px; font-weight:600; color:#333;">&larr; Kembali ke halaman sebelumnya</a>
+    <!-- Back Button -->
+    <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+            <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+        </button>
+        <span class="fw-bold" style="color: #004b4c; font-size: 14px;">Kembali</span>
+    </div>
     <style>
         body { background: #f8f9fb; font-family: 'Poppins', sans-serif; font-size: 12px; }
         .izin-form { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
