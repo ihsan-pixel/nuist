@@ -97,6 +97,19 @@
             margin-bottom: 2px;
         }
 
+        .mobile-nav .nav-link.active {
+            flex-direction: row;
+        }
+
+        .mobile-nav .nav-link.active i {
+            margin-bottom: 0;
+            margin-right: 4px;
+        }
+
+        .mobile-nav .nav-link:not(.active) span {
+            display: none;
+        }
+
         /* Content padding for bottom nav */
         .mobile-content {
             padding-bottom: 90px;
