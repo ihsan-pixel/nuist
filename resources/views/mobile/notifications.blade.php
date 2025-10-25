@@ -4,7 +4,15 @@
 @section('subtitle', 'Pesan & Pengingat')
 
 @section('content')
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-2" style="max-width: 420px; margin: auto;">
+    <!-- Back Button -->
+    <div class="d-flex align-items-center mb-3">
+        <button onclick="window.history.back()" class="btn btn-outline-secondary btn-sm me-2" style="border-radius: 6px; padding: 6px 10px;">
+            <i class="bx bx-arrow-back"></i>
+        </button>
+        <h6 class="mb-0 fw-bold">Kembali</h6>
+    </div>
+
     <style>
         body {
             background: #f8f9fb;
@@ -13,11 +21,11 @@
 
         .notification-item {
             background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 4px solid #556ee6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border-left: 3px solid #556ee6;
             position: relative;
         }
 
@@ -34,37 +42,37 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .notification-title {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             color: #333;
             margin: 0;
         }
 
         .notification-time {
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
             margin: 0;
         }
 
         .notification-message {
-            font-size: 13px;
+            font-size: 11px;
             color: #666;
-            line-height: 1.4;
+            line-height: 1.3;
             margin: 0;
         }
 
         .notification-icon {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
+            margin-right: 8px;
             flex-shrink: 0;
         }
 
@@ -96,9 +104,9 @@
             background: none;
             border: none;
             color: #999;
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 6px;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
@@ -108,18 +116,18 @@
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 15px;
             color: #999;
         }
 
         .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 36px;
+            margin-bottom: 12px;
             opacity: 0.5;
         }
 
         .empty-state p {
-            font-size: 14px;
+            font-size: 12px;
             margin: 0;
         }
 
@@ -127,12 +135,12 @@
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 14px;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
             font-weight: 500;
             width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .mark-all-read:disabled {
@@ -142,11 +150,11 @@
 
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .loading i {
-            font-size: 24px;
+            font-size: 18px;
             color: #0e8549;
         }
     </style>
