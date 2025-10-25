@@ -558,23 +558,96 @@ class MobileController extends Controller
         if ($request->location_readings) {
             try {
                 $locationReadings = json_decode($request->location_readings, true);
-                if (is_array($locationReadings) && count($locationReadings) >= 2) {
-                    $reading1 = $locationReadings[0];
-                    $reading2 = $locationReadings[1];
+                if (is_array($locationReadings) && count($locationReadings) >= 3) {
+                    // Analisis untuk mendeteksi fake GPS
+                    $issues = [];
 
-                    // Jika latitude dan longitude sama persis antara reading1 dan reading2, maka fake GPS
-                    if ($reading1['latitude'] === $reading2['latitude'] && $reading1['longitude'] === $reading2['longitude']) {
+                    // 1. Check if coordinates are identical across readings (strong fake GPS indicator)
+                    $identicalCount = 0;
+                    for ($i = 1; $i < count($locationReadings); $i++) {
+                        if ($locationReadings[$i]['latitude'] === $locationReadings[0]['latitude'] &&
+                            $locationReadings[$i]['longitude'] === $locationReadings[0]['longitude']) {
+                            $identicalCount++;
+                        }
+                    }
+
+                    if ($identicalCount >= 2) {
+                        $issues[] = 'Identical coordinates across multiple readings';
                         $isFakeLocation = true;
+                    }
+
+                    // 2. Check for suspicious accuracy values (very high accuracy might indicate fake)
+                    $totalAccuracy = 0;
+                    $accuracyCount = 0;
+                    foreach ($locationReadings as $reading) {
+                        if (isset($reading['accuracy']) && is_numeric($reading['accuracy'])) {
+                            $totalAccuracy += $reading['accuracy'];
+                            $accuracyCount++;
+                        }
+                    }
+
+                    if ($accuracyCount > 0) {
+                        $avgAccuracy = $totalAccuracy / $accuracyCount;
+                        if ($avgAccuracy < 5) { // Very high accuracy (less than 5 meters) is suspicious
+                            $issues[] = 'Unusually high GPS accuracy (potentially fake)';
+                            $isFakeLocation = true;
+                        }
+                    }
+
+                    // 3. Check for movement patterns (real GPS should show some variation)
+                    if (!$isFakeLocation && count($locationReadings) >= 3) {
+                        $hasMovement = false;
+                        for ($i = 1; $i < count($locationReadings); $i++) {
+                            $prevLat = $locationReadings[$i-1]['latitude'];
+                            $prevLng = $locationReadings[$i-1]['longitude'];
+                            $currLat = $locationReadings[$i]['latitude'];
+                            $currLng = $locationReadings[$i]['longitude'];
+
+                            // Calculate distance in meters
+                            $distance = $this->calculateDistance($prevLat, $prevLng, $currLat, $currLng) * 1000;
+
+                            if ($distance > 1) { // More than 1 meter movement
+                                $hasMovement = true;
+                                break;
+                            }
+                        }
+
+                        if (!$hasMovement) {
+                            $issues[] = 'No significant movement detected between readings';
+                            $isFakeLocation = true;
+                        }
+                    }
+
+                    // 4. Check timestamp intervals (should be approximately 5 seconds apart)
+                    if (count($locationReadings) >= 2) {
+                        $expectedInterval = 5; // seconds
+                        $tolerance = 2; // seconds tolerance
+
+                        for ($i = 1; $i < count($locationReadings); $i++) {
+                            $prevTime = strtotime($locationReadings[$i-1]['timestamp']);
+                            $currTime = strtotime($locationReadings[$i]['timestamp']);
+                            $actualInterval = $currTime - $prevTime;
+
+                            if (abs($actualInterval - $expectedInterval) > $tolerance) {
+                                $issues[] = 'Irregular timestamp intervals between readings';
+                                $isFakeLocation = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($isFakeLocation) {
                         $fakeLocationAnalysis = [
-                            'reason' => 'Identical coordinates between reading1 and reading2',
-                            'reading1' => $reading1,
-                            'reading2' => $reading2,
+                            'issues' => $issues,
+                            'readings_count' => count($locationReadings),
+                            'readings' => $locationReadings,
                             'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
                         ];
                     }
                 }
             } catch (\Exception $e) {
                 // Jika parsing gagal, lanjutkan tanpa deteksi
+                Log::warning('Failed to parse location_readings for fake GPS detection: ' . $e->getMessage());
             }
         }
 

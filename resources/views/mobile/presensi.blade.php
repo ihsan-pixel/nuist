@@ -725,7 +725,37 @@ window.addEventListener('load', function() {
             return;
         }
 
-        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+        // Show warning about fake GPS detection
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan Deteksi Fake GPS',
+            html: `
+                <div style="text-align: left;">
+                    <p>Sistem akan mendeteksi penggunaan fake GPS berdasarkan:</p>
+                    <ul style="text-align: left;">
+                        <li>Koordinat identik di beberapa pembacaan</li>
+                        <li>Akurasi GPS yang tidak wajar</li>
+                        <li>Tidak ada pergerakan lokasi</li>
+                        <li>Interval waktu yang tidak teratur</li>
+                    </ul>
+                    <p><strong>Pastikan GPS perangkat aktif dan tidak menggunakan aplikasi fake GPS!</strong></p>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan Presensi',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                proceedWithPresensi();
+            }
+        });
+    });
+
+    // Function to proceed with presensi after warning
+    function proceedWithPresensi() {
+        $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Build location readings array from all stored readings
         let locationReadings = [];

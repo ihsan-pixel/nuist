@@ -6,8 +6,10 @@
 - [x] Update UI to show progress of location readings with countdown
 - [x] Detect and save coordinate changes automatically between readings
 - [x] Ensure button click uses all stored readings without new fetch
+- [x] Implement advanced fake GPS detection in backend
+- [x] Add user warning about fake GPS detection before presensi
 - [ ] Test presensi functionality
 
 ## Status
-- Implementation completed with 3 automatic readings
+- Implementation completed with enhanced fake GPS detection
 - Ready for testing
