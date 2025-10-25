@@ -9,10 +9,12 @@
 - [x] Update backend fake GPS detection: if 3 readings have identical latitude and longitude
 - [x] Add detailed problem descriptions in fake location detection with coordinate details
 - [x] Removed skip fake GPS detection for presensi outside working hours - now only detects identical coordinates
+- [x] Update fake location menu to display coordinate details from database analysis
 - [ ] Test presensi functionality with multiple readings
 
 ## Status
 - Frontend implementation completed: Multiple readings (3 on load + 1 on click) with progress UI
 - Backend fake GPS detection updated: detects if 3+ readings have identical coordinates with detailed problem descriptions and coordinate details
 - Removed time-based filtering - now strictly detects only identical coordinate patterns
+- Updated fake location menu to show detailed coordinate information from database
 - Ready for testing
