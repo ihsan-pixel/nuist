@@ -312,9 +312,9 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
+                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk ? $presensiHariIni->waktu_masuk->format('H:i') : '-' }}</strong></p>
                 @if($presensiHariIni->waktu_keluar)
-                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
+                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar ? $presensiHariIni->waktu_keluar->format('H:i') : '-' }}</strong></p>
                 <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
                     <small><i class="bx bx-check me-1"></i> Presensi hari ini lengkap!</small>
                 </div>
@@ -421,8 +421,7 @@
             <i class="bx bx-error-circle text-danger me-1"></i>
             <div>
                 <strong class="text-danger">Penting!</strong>
-                <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
-            </div>
+            <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
         </div>
     </div>
 
