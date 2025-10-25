@@ -335,14 +335,14 @@
             <h6 class="section-title mb-0">{{ $presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
         </div>
 
-        <!-- Location Status -->
+    <!-- Location Status -->
         <div class="form-section">
             <div id="location-info" class="location-info info">
                 <div class="d-flex align-items-center">
                     <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
-                        <strong>Mendapatkan lokasi...</strong>
-                        <br><small class="text-muted">Pastikan GPS aktif</small>
+                        <strong>Mengumpulkan data lokasi...</strong>
+                        <br><small class="text-muted">Reading 1/3 - Pastikan GPS aktif</small>
                     </div>
                 </div>
             </div>
@@ -372,9 +372,10 @@
         <!-- Presensi Button -->
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
+                disabled
                 {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Mengumpulkan data lokasi...' }}
         </button>
     </div>
 
@@ -449,82 +450,131 @@
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
+    let locationReadings = [];
+    let readingCount = 0;
+    const totalReadings = 3;
+    const readingInterval = 5000; // 5 seconds
 
-    // Get location when page loads (reading1)
-    if (navigator.geolocation) {
-            $('#location-info').html(`
-                <div class="location-info info">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-loader-alt bx-spin me-2"></i>
-                        <div>
-                            <strong class="small">Mendapatkan lokasi Anda...</strong>
-                            <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
+    // Function to collect location readings
+    function collectLocationReading(readingNumber) {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const reading = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now(),
+                        accuracy: position.coords.accuracy,
+                        altitude: position.coords.altitude,
+                        speed: position.coords.speed
+                    };
+
+                    // Store in sessionStorage
+                    sessionStorage.setItem(`reading${readingNumber}_latitude`, reading.latitude);
+                    sessionStorage.setItem(`reading${readingNumber}_longitude`, reading.longitude);
+                    sessionStorage.setItem(`reading${readingNumber}_timestamp`, reading.timestamp);
+                    sessionStorage.setItem(`reading${readingNumber}_accuracy`, reading.accuracy);
+                    sessionStorage.setItem(`reading${readingNumber}_altitude`, reading.altitude || null);
+                    sessionStorage.setItem(`reading${readingNumber}_speed`, reading.speed || null);
+
+                    locationReadings.push(reading);
+                    readingCount++;
+
+                    // Update UI
+                    $('#location-info').html(`
+                        <div class="location-info info">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-loader-alt bx-spin me-2"></i>
+                                <div>
+                                    <strong class="small">Mengumpulkan data lokasi...</strong>
+                                    <br><small class="text-muted">Reading ${readingCount}/${totalReadings} - ${readingCount < totalReadings ? 'Tunggu sebentar...' : 'Selesai!'}</small>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `);
+                    `);
 
-        navigator.geolocation.getCurrentPosition(function(position) {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
+                    // Update coordinates display with latest reading
+                    $('#latitude').val(reading.latitude.toFixed(6));
+                    $('#longitude').val(reading.longitude.toFixed(6));
 
-            // Store reading1 in sessionStorage (menu entry reading)
-            sessionStorage.setItem('reading1_latitude', position.coords.latitude);
-            sessionStorage.setItem('reading1_longitude', position.coords.longitude);
-            sessionStorage.setItem('reading1_timestamp', Date.now());
+                    // Get address from latest reading
+                    getAddressFromCoordinates(reading.latitude, reading.longitude);
 
-            $('#latitude').val(latitude.toFixed(6));
-            $('#longitude').val(longitude.toFixed(6));
+                    resolve(reading);
+                },
+                function(error) {
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 30000
+                }
+            );
+        });
+    }
 
-            // Get address
-            getAddressFromCoordinates(latitude, longitude);
+    // Start collecting multiple readings
+    async function startLocationCollection() {
+        try {
+            for (let i = 1; i <= totalReadings; i++) {
+                await collectLocationReading(i);
+
+                // Wait 5 seconds between readings (except for the last one)
+                if (i < totalReadings) {
+                    await new Promise(resolve => setTimeout(resolve, readingInterval));
+                }
+            }
+
+            // All readings collected successfully
+            latitude = locationReadings[locationReadings.length - 1].latitude;
+            longitude = locationReadings[locationReadings.length - 1].longitude;
 
             $('#location-info').html(`
                 <div class="location-info success">
                     <div class="d-flex align-items-center">
                         <i class="bx bx-check-circle me-2"></i>
                         <div>
-                            <strong class="small">Lokasi berhasil didapatkan!</strong>
+                            <strong class="small">Data lokasi lengkap!</strong>
+                            <br><small class="text-muted">Siap untuk presensi</small>
                         </div>
                     </div>
                 </div>
             `);
 
+            // Enable presensi button
+            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
 
+        } catch (error) {
+            $('#location-info').html(`
+                <div class="location-info error">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <div>
+                            <strong class="small">Gagal mendapatkan lokasi</strong>
+                            <br><small class="text-muted">${error.message}</small>
+                        </div>
+                    </div>
+                </div>
+            `);
+        }
+    }
 
-        }, function(error) {
+    // Check if geolocation is supported
+    if (navigator.geolocation) {
+        startLocationCollection();
+    } else {
         $('#location-info').html(`
             <div class="location-info error">
                 <div class="d-flex align-items-center">
                     <i class="bx bx-error-circle me-2"></i>
                     <div>
-                        <strong class="small">Gagal mendapatkan lokasi</strong>
-                        <br><small class="text-muted">${error.message}</small>
+                        <strong class="small">Browser tidak mendukung GPS</strong>
+                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
                     </div>
                 </div>
             </div>
         `);
-
-
-        }, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 30000
-        });
-    } else {
-    $('#location-info').html(`
-        <div class="location-info error">
-            <div class="d-flex align-items-center">
-                <i class="bx bx-error-circle me-2"></i>
-                <div>
-                    <strong class="small">Browser tidak mendukung GPS</strong>
-                    <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                </div>
-            </div>
-        </div>
-    `);
-
-
     }
 
     // Get address from coordinates
@@ -549,7 +599,7 @@ window.addEventListener('load', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Kesalahan',
-                text: 'Lokasi belum didapatkan. Pastikan GPS aktif dan izinkan akses lokasi.',
+                text: 'Data lokasi belum lengkap. Pastikan GPS aktif dan tunggu proses pengumpulan data selesai.',
                 confirmButtonText: 'Oke'
             });
             return;
@@ -557,52 +607,65 @@ window.addEventListener('load', function() {
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-        // Get second location reading (button click)
+        // Get final location reading (button click) as reading4
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                let reading2Lat = position.coords.latitude;
-                let reading2Lng = position.coords.longitude;
+                let reading4Lat = position.coords.latitude;
+                let reading4Lng = position.coords.longitude;
+                let reading4Timestamp = Date.now();
 
-                // Store reading 2 in sessionStorage
-                sessionStorage.setItem('reading2_latitude', position.coords.latitude);
-                sessionStorage.setItem('reading2_longitude', position.coords.longitude);
-                sessionStorage.setItem('reading2_timestamp', Date.now());
+                // Build location readings array from all stored readings
+                let allReadings = [];
 
-                let reading1Lat = sessionStorage.getItem('reading1_latitude');
-                let reading1Lng = sessionStorage.getItem('reading1_longitude');
-                let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
+                // Add readings 1-3 from sessionStorage
+                for (let i = 1; i <= 3; i++) {
+                    let lat = sessionStorage.getItem(`reading${i}_latitude`);
+                    let lng = sessionStorage.getItem(`reading${i}_longitude`);
+                    let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
+                    let accuracy = sessionStorage.getItem(`reading${i}_accuracy`);
+                    let altitude = sessionStorage.getItem(`reading${i}_altitude`);
+                    let speed = sessionStorage.getItem(`reading${i}_speed`);
 
-                let reading2Timestamp = Date.now();
+                    if (lat && lng && timestamp) {
+                        allReadings.push({
+                            latitude: parseFloat(lat),
+                            longitude: parseFloat(lng),
+                            timestamp: parseInt(timestamp),
+                            accuracy: parseFloat(accuracy) || null,
+                            altitude: altitude ? parseFloat(altitude) : null,
+                            speed: speed ? parseFloat(speed) : null
+                        });
+                    }
+                }
+
+                // Add reading 4 (button click)
+                allReadings.push({
+                    latitude: reading4Lat,
+                    longitude: reading4Lng,
+                    timestamp: reading4Timestamp,
+                    accuracy: position.coords.accuracy,
+                    altitude: position.coords.altitude,
+                    speed: position.coords.speed
+                });
 
                 let postData = {
                     _token: '{{ csrf_token() }}',
-                    latitude: reading2Lat,
-                    longitude: reading2Lng,
+                    latitude: reading4Lat,
+                    longitude: reading4Lng,
                     lokasi: lokasi,
                     accuracy: position.coords.accuracy,
                     altitude: position.coords.altitude,
                     speed: position.coords.speed,
                     device_info: navigator.userAgent,
-                    location_readings: JSON.stringify([
-                        {
-                            latitude: parseFloat(reading1Lat),
-                            longitude: parseFloat(reading1Lng),
-                            timestamp: parseInt(reading1Timestamp)
-                        },
-                        {
-                            latitude: reading2Lat,
-                            longitude: reading2Lng,
-                            timestamp: reading2Timestamp
-                        }
-                    ])
+                    location_readings: JSON.stringify(allReadings)
                 };
 
-                // Update UI with location data
-                $('#latitude').val(reading2Lat.toFixed(6));
-                $('#longitude').val(reading2Lng.toFixed(6));
+                // Update UI with final location data
+                $('#latitude').val(reading4Lat.toFixed(6));
+                $('#longitude').val(reading4Lng.toFixed(6));
 
                 // Get address
-                getAddressFromCoordinates(reading2Lat, reading2Lng);
+                getAddressFromCoordinates(reading4Lat, reading4Lng);
 
                 $('#location-info').html(`
                     <div class="location-info success">

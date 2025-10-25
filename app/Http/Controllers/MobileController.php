@@ -547,30 +547,79 @@ class MobileController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Deteksi fake location berdasarkan location_readings
+        // Enhanced fake location detection based on multiple location_readings
         $isFakeLocation = false;
         $fakeLocationAnalysis = null;
 
         if ($request->location_readings) {
             try {
                 $locationReadings = json_decode($request->location_readings, true);
-                if (is_array($locationReadings) && count($locationReadings) >= 2) {
-                    $reading1 = $locationReadings[0];
-                    $reading2 = $locationReadings[1];
+                if (is_array($locationReadings) && count($locationReadings) >= 4) {
+                    // Check for identical coordinates across multiple readings
+                    $identicalCount = 0;
+                    $totalComparisons = 0;
 
-                    // Jika latitude dan longitude sama persis antara reading1 dan reading2, maka fake GPS
-                    if ($reading1['latitude'] === $reading2['latitude'] && $reading1['longitude'] === $reading2['longitude']) {
+                    for ($i = 0; $i < count($locationReadings) - 1; $i++) {
+                        for ($j = $i + 1; $j < count($locationReadings); $j++) {
+                            $totalComparisons++;
+                            if ($locationReadings[$i]['latitude'] === $locationReadings[$j]['latitude'] &&
+                                $locationReadings[$i]['longitude'] === $locationReadings[$j]['longitude']) {
+                                $identicalCount++;
+                            }
+                        }
+                    }
+
+                    // Calculate identical percentage
+                    $identicalPercentage = $totalComparisons > 0 ? ($identicalCount / $totalComparisons) * 100 : 0;
+
+                    // Check for suspicious patterns
+                    $suspiciousPatterns = [];
+
+                    // 1. All readings identical
+                    if ($identicalPercentage >= 100) {
+                        $suspiciousPatterns[] = 'All location readings are identical';
+                    }
+
+                    // 2. High percentage of identical readings
+                    if ($identicalPercentage >= 50) {
+                        $suspiciousPatterns[] = 'High percentage of identical coordinates (' . round($identicalPercentage, 1) . '%)';
+                    }
+
+                    // 3. Check time intervals (should be ~5 seconds apart for readings 1-3)
+                    if (count($locationReadings) >= 3) {
+                        $timeDiff1to2 = ($locationReadings[1]['timestamp'] - $locationReadings[0]['timestamp']) / 1000;
+                        $timeDiff2to3 = ($locationReadings[2]['timestamp'] - $locationReadings[1]['timestamp']) / 1000;
+
+                        if ($timeDiff1to2 < 3 || $timeDiff1to2 > 10) {
+                            $suspiciousPatterns[] = 'Suspicious time interval between readings 1-2: ' . round($timeDiff1to2, 1) . 's';
+                        }
+                        if ($timeDiff2to3 < 3 || $timeDiff2to3 > 10) {
+                            $suspiciousPatterns[] = 'Suspicious time interval between readings 2-3: ' . round($timeDiff2to3, 1) . 's';
+                        }
+                    }
+
+                    // 4. Check for unrealistic accuracy values
+                    foreach ($locationReadings as $index => $reading) {
+                        if (isset($reading['accuracy']) && $reading['accuracy'] < 5) {
+                            $suspiciousPatterns[] = 'Unrealistically high accuracy in reading ' . ($index + 1) . ': ' . $reading['accuracy'] . 'm';
+                        }
+                    }
+
+                    // Determine if fake location based on patterns
+                    if (!empty($suspiciousPatterns) || $identicalPercentage >= 50) {
                         $isFakeLocation = true;
                         $fakeLocationAnalysis = [
-                            'reason' => 'Identical coordinates between reading1 and reading2',
-                            'reading1' => $reading1,
-                            'reading2' => $reading2,
+                            'reason' => implode('; ', $suspiciousPatterns),
+                            'identical_percentage' => round($identicalPercentage, 1),
+                            'total_readings' => count($locationReadings),
+                            'readings' => $locationReadings,
                             'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
                         ];
                     }
                 }
             } catch (\Exception $e) {
                 // Jika parsing gagal, lanjutkan tanpa deteksi
+                Log::warning('Failed to parse location_readings for fake GPS detection: ' . $e->getMessage());
             }
         }
 
