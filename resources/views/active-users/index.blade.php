@@ -142,7 +142,7 @@
                     @forelse($users as $user)
                     <div class="user-item">
                         <div class="d-flex align-items-center">
-                            <img src="{{ $user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/images/avatar-11.jpg') }}"
+                            <img src="{{ $user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                                  alt="Avatar" class="user-avatar me-3">
                             <div class="flex-grow-1">
                                 <h6 class="mb-1">{{ $user->name }}</h6>
