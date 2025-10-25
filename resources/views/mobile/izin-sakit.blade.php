@@ -10,7 +10,7 @@
         <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
             <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
         </button>
-        <span class="fw-bold" style="color: #004b4c; font-size: 14px;">Kembali</span>
+        <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
     </div>
     <style>
         body { background: #f8f9fb; font-family: 'Poppins', sans-serif; font-size: 12px; }
