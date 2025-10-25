@@ -618,10 +618,10 @@ class MobileController extends Controller
                         }
                     }
 
-                    // 4. Check timestamp intervals (should be approximately 3 seconds apart)
+                    // 4. Check timestamp intervals (should be approximately 5 seconds apart)
                     if (count($locationReadings) >= 2) {
-                        $expectedInterval = 3; // seconds (adjusted for new timing)
-                        $tolerance = 1.5; // seconds tolerance (adjusted for new timing)
+                        $expectedInterval = 5; // seconds
+                        $tolerance = 2; // seconds tolerance
 
                         for ($i = 1; $i < count($locationReadings); $i++) {
                             $prevTime = strtotime($locationReadings[$i-1]['timestamp']);
