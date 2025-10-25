@@ -475,7 +475,10 @@
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
-    let reading2Complete = false;
+    let readingsComplete = false;
+    let currentReading = 1;
+    let totalReadings = 3;
+    let locationHistory = [];
 
     // Disable presensi button initially
     $('#btn-presensi').prop('disabled', true);
@@ -498,10 +501,24 @@ window.addEventListener('load', function() {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
 
-            // Store reading1 in sessionStorage (menu entry reading)
+            // Store reading1 in sessionStorage and history
+            const reading1Data = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                timestamp: Date.now(),
+                accuracy: position.coords.accuracy,
+                altitude: position.coords.altitude,
+                speed: position.coords.speed
+            };
+
             sessionStorage.setItem('reading1_latitude', position.coords.latitude);
             sessionStorage.setItem('reading1_longitude', position.coords.longitude);
             sessionStorage.setItem('reading1_timestamp', Date.now());
+            sessionStorage.setItem('reading1_accuracy', position.coords.accuracy);
+            sessionStorage.setItem('reading1_altitude', position.coords.altitude);
+            sessionStorage.setItem('reading1_speed', position.coords.speed);
+
+            locationHistory.push(reading1Data);
 
             $('#latitude').val(latitude.toFixed(6));
             $('#longitude').val(longitude.toFixed(6));
@@ -514,15 +531,15 @@ window.addEventListener('load', function() {
                     <div class="d-flex align-items-center">
                         <i class="bx bx-check-circle me-2"></i>
                         <div>
-                            <strong class="small">Lokasi berhasil didapatkan!</strong>
-                            <br><small class="text-muted">Menunggu pembacaan kedua...</small>
+                            <strong class="small">Pembacaan 1/${totalReadings} selesai!</strong>
+                            <br><small class="text-muted">Menunggu pembacaan berikutnya...</small>
                         </div>
                     </div>
                 </div>
             `);
 
-            // Start automatic reading2 after 5 seconds
-            startReading2Countdown();
+            // Start automatic readings sequence
+            startNextReadingCountdown();
 
         }, function(error) {
             $('#location-info').html(`
@@ -555,8 +572,27 @@ window.addEventListener('load', function() {
         `);
     }
 
-    // Function to start countdown and automatic reading2
-    function startReading2Countdown() {
+    // Function to start countdown for next reading
+    function startNextReadingCountdown() {
+        currentReading++;
+        if (currentReading > totalReadings) {
+            // All readings complete
+            readingsComplete = true;
+            $('#btn-presensi').prop('disabled', false);
+            $('#location-info').html(`
+                <div class="location-info success">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-check-circle me-2"></i>
+                        <div>
+                            <strong class="small">Semua pembacaan lokasi selesai!</strong>
+                            <br><small class="text-muted">Siap untuk presensi</small>
+                        </div>
+                    </div>
+                </div>
+            `);
+            return;
+        }
+
         let countdown = 5;
         const countdownInterval = setInterval(() => {
             $('#location-info').html(`
@@ -564,7 +600,7 @@ window.addEventListener('load', function() {
                     <div class="d-flex align-items-center">
                         <i class="bx bx-time me-2"></i>
                         <div>
-                            <strong class="small">Membaca lokasi kedua dalam ${countdown} detik...</strong>
+                            <strong class="small">Pembacaan ${currentReading}/${totalReadings} dalam ${countdown} detik...</strong>
                             <br><small class="text-muted">Jangan pindah posisi</small>
                         </div>
                     </div>
@@ -574,19 +610,19 @@ window.addEventListener('load', function() {
 
             if (countdown < 0) {
                 clearInterval(countdownInterval);
-                getReading2();
+                getNextReading();
             }
         }, 1000);
     }
 
-    // Function to get reading2 automatically
-    function getReading2() {
+    // Function to get next reading automatically
+    function getNextReading() {
         $('#location-info').html(`
             <div class="location-info info">
                 <div class="d-flex align-items-center">
                     <i class="bx bx-loader-alt bx-spin me-2"></i>
                     <div>
-                        <strong class="small">Mendapatkan pembacaan kedua...</strong>
+                        <strong class="small">Mendapatkan pembacaan ${currentReading}...</strong>
                         <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
                     </div>
                 </div>
@@ -595,16 +631,30 @@ window.addEventListener('load', function() {
 
         navigator.geolocation.getCurrentPosition(
             function(position) {
-                // Store reading2 in sessionStorage
-                sessionStorage.setItem('reading2_latitude', position.coords.latitude);
-                sessionStorage.setItem('reading2_longitude', position.coords.longitude);
-                sessionStorage.setItem('reading2_timestamp', Date.now());
+                const readingData = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    timestamp: Date.now(),
+                    accuracy: position.coords.accuracy,
+                    altitude: position.coords.altitude,
+                    speed: position.coords.speed
+                };
 
-                // Update UI with final location data
+                // Store reading in sessionStorage
+                sessionStorage.setItem(`reading${currentReading}_latitude`, position.coords.latitude);
+                sessionStorage.setItem(`reading${currentReading}_longitude`, position.coords.longitude);
+                sessionStorage.setItem(`reading${currentReading}_timestamp`, Date.now());
+                sessionStorage.setItem(`reading${currentReading}_accuracy`, position.coords.accuracy);
+                sessionStorage.setItem(`reading${currentReading}_altitude`, position.coords.altitude);
+                sessionStorage.setItem(`reading${currentReading}_speed`, position.coords.speed);
+
+                locationHistory.push(readingData);
+
+                // Update UI with latest location data
                 $('#latitude').val(position.coords.latitude.toFixed(6));
                 $('#longitude').val(position.coords.longitude.toFixed(6));
 
-                // Get address for reading2
+                // Get address for latest reading
                 getAddressFromCoordinates(position.coords.latitude, position.coords.longitude);
 
                 $('#location-info').html(`
@@ -612,15 +662,15 @@ window.addEventListener('load', function() {
                         <div class="d-flex align-items-center">
                             <i class="bx bx-check-circle me-2"></i>
                             <div>
-                                <strong class="small">Pembacaan lokasi selesai!</strong>
-                                <br><small class="text-muted">Siap untuk presensi</small>
+                                <strong class="small">Pembacaan ${currentReading}/${totalReadings} selesai!</strong>
+                                <br><small class="text-muted">Menunggu pembacaan berikutnya...</small>
                             </div>
                         </div>
                     </div>
                 `);
 
-                reading2Complete = true;
-                $('#btn-presensi').prop('disabled', false);
+                // Continue to next reading
+                startNextReadingCountdown();
             },
             function(error) {
                 $('#location-info').html(`
@@ -628,15 +678,15 @@ window.addEventListener('load', function() {
                         <div class="d-flex align-items-center">
                             <i class="bx bx-error-circle me-2"></i>
                             <div>
-                            <strong class="small">Gagal mendapatkan pembacaan kedua</strong>
-                            <br><small class="text-muted">${error.message}</small>
+                                <strong class="small">Gagal mendapatkan pembacaan ${currentReading}</strong>
+                                <br><small class="text-muted">${error.message}</small>
+                            </div>
                         </div>
                     </div>
-                </div>
                 `);
-                // Retry reading2 after 2 seconds
+                // Retry current reading after 2 seconds
                 setTimeout(() => {
-                    getReading2();
+                    getNextReading();
                 }, 2000);
             },
             {
@@ -665,11 +715,11 @@ window.addEventListener('load', function() {
 
     // Handle presensi button
     $('#btn-presensi').click(function() {
-        if (!reading2Complete) {
+        if (!readingsComplete) {
             Swal.fire({
                 icon: 'error',
                 title: 'Kesalahan',
-                text: 'Pembacaan lokasi belum selesai. Tunggu hingga proses otomatis selesai.',
+                text: 'Pembacaan lokasi belum selesai. Tunggu hingga semua pembacaan otomatis selesai.',
                 confirmButtonText: 'Oke'
             });
             return;
@@ -677,36 +727,35 @@ window.addEventListener('load', function() {
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-        // Use stored readings from sessionStorage
-        let reading1Lat = sessionStorage.getItem('reading1_latitude');
-        let reading1Lng = sessionStorage.getItem('reading1_longitude');
-        let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
+        // Build location readings array from all stored readings
+        let locationReadings = [];
+        for (let i = 1; i <= totalReadings; i++) {
+            let lat = sessionStorage.getItem(`reading${i}_latitude`);
+            let lng = sessionStorage.getItem(`reading${i}_longitude`);
+            let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
 
-        let reading2Lat = sessionStorage.getItem('reading2_latitude');
-        let reading2Lng = sessionStorage.getItem('reading2_longitude');
-        let reading2Timestamp = sessionStorage.getItem('reading2_timestamp');
+            if (lat && lng && timestamp) {
+                locationReadings.push({
+                    latitude: parseFloat(lat),
+                    longitude: parseFloat(lng),
+                    timestamp: parseInt(timestamp)
+                });
+            }
+        }
+
+        // Use the latest reading for main coordinates
+        let latestReading = locationReadings[locationReadings.length - 1];
 
         let postData = {
             _token: '{{ csrf_token() }}',
-            latitude: parseFloat(reading2Lat),
-            longitude: parseFloat(reading2Lng),
+            latitude: latestReading.latitude,
+            longitude: latestReading.longitude,
             lokasi: lokasi,
-            accuracy: null, // Will be set from reading2 if available
-            altitude: null,
-            speed: null,
+            accuracy: sessionStorage.getItem(`reading${totalReadings}_accuracy`) || null,
+            altitude: sessionStorage.getItem(`reading${totalReadings}_altitude`) || null,
+            speed: sessionStorage.getItem(`reading${totalReadings}_speed`) || null,
             device_info: navigator.userAgent,
-            location_readings: JSON.stringify([
-                {
-                    latitude: parseFloat(reading1Lat),
-                    longitude: parseFloat(reading1Lng),
-                    timestamp: parseInt(reading1Timestamp)
-                },
-                {
-                    latitude: parseFloat(reading2Lat),
-                    longitude: parseFloat(reading2Lng),
-                    timestamp: parseInt(reading2Timestamp)
-                }
-            ])
+            location_readings: JSON.stringify(locationReadings)
         };
 
         $.ajax({
