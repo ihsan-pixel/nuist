@@ -273,8 +273,8 @@
                     <div class="dropdown">
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                             <div class="avatar-sm">
-                                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                                     alt="" class="img-thumbnail rounded-circle">
+                                {{-- <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                                     alt="" class="img-thumbnail rounded-circle"> --}}
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
