@@ -555,8 +555,8 @@ window.addEventListener('load', function() {
             `);
         }, {
             enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 30000
+            timeout: 5000, // Reduced from 10 seconds to 5 seconds
+            maximumAge: 10000 // Reduced from 30 seconds to 10 seconds
         });
     } else {
         $('#location-info').html(`
@@ -593,7 +593,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        let countdown = 5;
+        let countdown = 3; // Reduced from 5 seconds to 3 seconds
         const countdownInterval = setInterval(() => {
             $('#location-info').html(`
                 <div class="location-info info">
@@ -684,15 +684,15 @@ window.addEventListener('load', function() {
                         </div>
                     </div>
                 `);
-                // Retry current reading after 2 seconds
+                // Retry current reading after 1 second (reduced from 2 seconds)
                 setTimeout(() => {
                     getNextReading();
-                }, 2000);
+                }, 1000);
             },
             {
                 enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 10000
+                timeout: 3000, // Reduced from 5 seconds to 3 seconds
+                maximumAge: 5000 // Reduced from 10 seconds to 5 seconds
             }
         );
     }
