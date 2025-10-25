@@ -746,14 +746,18 @@ window.addEventListener('load', function() {
         // Use the latest reading for main coordinates
         let latestReading = locationReadings[locationReadings.length - 1];
 
+        // Get speed value and ensure it's a number or null
+        let speedValue = sessionStorage.getItem(`reading${totalReadings}_speed`);
+        speedValue = speedValue && speedValue !== 'null' && speedValue !== 'undefined' ? parseFloat(speedValue) : null;
+
         let postData = {
             _token: '{{ csrf_token() }}',
             latitude: latestReading.latitude,
             longitude: latestReading.longitude,
             lokasi: lokasi,
-            accuracy: sessionStorage.getItem(`reading${totalReadings}_accuracy`) || null,
-            altitude: sessionStorage.getItem(`reading${totalReadings}_altitude`) || null,
-            speed: sessionStorage.getItem(`reading${totalReadings}_speed`) || null,
+            accuracy: sessionStorage.getItem(`reading${totalReadings}_accuracy`) ? parseFloat(sessionStorage.getItem(`reading${totalReadings}_accuracy`)) : null,
+            altitude: sessionStorage.getItem(`reading${totalReadings}_altitude`) ? parseFloat(sessionStorage.getItem(`reading${totalReadings}_altitude`)) : null,
+            speed: speedValue,
             device_info: navigator.userAgent,
             location_readings: JSON.stringify(locationReadings)
         };
