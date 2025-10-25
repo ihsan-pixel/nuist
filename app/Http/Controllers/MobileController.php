@@ -416,26 +416,13 @@ class MobileController extends Controller
             $user = Auth::user();
             $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-            // Prevent duplicate pending izin for the day
-            $existingIzin = Presensi::where('user_id', $user->id)
-                ->where('tanggal', $today)
-                ->where('status', 'izin')
-                ->where('status_izin', 'pending')
-                ->first();
-
-            if ($existingIzin) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda sudah mengajukan izin untuk hari ini.'
-                ], 400);
-            }
-
             // Check existing presensi for today
             $existingPresensi = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $today)
                 ->first();
 
-            if ($existingPresensi && $existingPresensi->status !== 'alpha') {
+            // Allow submission only if no presensi, or alpha, or izin rejected
+            if ($existingPresensi && $existingPresensi->status !== 'alpha' && !($existingPresensi->status === 'izin' && $existingPresensi->status_izin === 'rejected')) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda sudah memiliki catatan presensi untuk hari ini.'
@@ -476,8 +463,8 @@ class MobileController extends Controller
                 }
             }
 
-            // Persist presensi record (update alpha or create new)
-            if ($existingPresensi && $existingPresensi->status === 'alpha') {
+            // Persist presensi record (update alpha or rejected izin, or create new)
+            if ($existingPresensi && ($existingPresensi->status === 'alpha' || ($existingPresensi->status === 'izin' && $existingPresensi->status_izin === 'rejected'))) {
                 $existingPresensi->update([
                     'status' => 'izin',
                     'keterangan' => $keterangan,
