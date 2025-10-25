@@ -1,18 +1,3 @@
-- [x] Modifikasi resources/views/layouts/mobile.blade.php: Tambahkan kondisi untuk hide bottom navigation jika route tidak ada di daftar menu bawah.
-- [x] Tambahkan tombol kembali di resources/views/mobile/ubah-akun.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/laporan.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/laporan-mengajar.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin-history.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin-sakit.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin-terlambat.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin-tidak-masuk.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/izin-tugas-luar.blade.php
-- [x] Tambahkan tombol kembali di resources/views/mobile/riwayat-presensi.blade.php
-- [x] Jalankan server lokal dan test halaman-halaman tersebut untuk memastikan bottom nav hide dan tombol kembali berfungsi.
-- [x] Jika ada error, perbaiki.
-- [x] Implementasi sistem notifikasi untuk presensi, izin, dan presensi mengajar
-- [x] Tambahkan notifikasi reminder untuk presensi dan presensi mengajar di dashboard
-- [x] Tambahkan notifikasi sukses untuk presensi masuk/keluar
-- [x] Tambahkan notifikasi untuk pengajuan, persetujuan, dan penolakan izin
-- [x] Tambahkan notifikasi sukses untuk presensi mengajar
+- [x] Add direct route for /izin/store in routes/web.php
+- [x] Verify route accessibility
+- Test izin submission functionality

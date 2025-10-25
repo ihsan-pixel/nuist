@@ -486,6 +486,18 @@ class MobileController extends Controller
                 ]);
             }
 
+            // Create notification for izin submission
+            Notification::create([
+                'user_id' => $user->id,
+                'type' => 'izin_submitted',
+                'title' => 'Izin Diajukan',
+                'message' => 'Pengajuan izin Anda telah dikirim dan sedang menunggu persetujuan.',
+                'data' => [
+                    'tanggal' => $today,
+                    'keterangan' => $keterangan
+                ]
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Izin berhasil dikirim dan menunggu approval.',

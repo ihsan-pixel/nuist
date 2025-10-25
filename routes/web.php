@@ -232,6 +232,9 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
     });
 });
 
+// Direct route for /izin/store
+Route::post('/izin/store', [IzinController::class, 'store'])->middleware(['auth', 'role:tenaga_pendidik'])->name('izin.store');
+
 // Update User Details
 Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class, 'updateProfile'])->name('updateProfile');
 Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])->name('updatePassword');
