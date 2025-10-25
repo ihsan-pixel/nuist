@@ -547,7 +547,7 @@ class MobileController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Enhanced fake GPS detection with detailed analysis
+        // Fake GPS detection: only if 3 or more readings have identical coordinates
         $isFakeLocation = false;
         $fakeLocationAnalysis = null;
 
@@ -630,34 +630,6 @@ class MobileController extends Controller
                 // Jika parsing gagal, lanjutkan tanpa deteksi
                 Log::warning('Failed to parse location_readings for fake GPS detection: ' . $e->getMessage());
             }
-        }
-
-        // Skip fake GPS detection for presensi outside working hours (alpha status)
-        $now = Carbon::now('Asia/Jakarta');
-        $currentTime = $now->format('H:i:s');
-        $today = $now->toDateString();
-
-        // Get time ranges for validation
-        $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : null;
-        $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
-
-        $isOutsideWorkingHours = false;
-        if ($timeRanges) {
-            $masukStart = $timeRanges['masuk_start'];
-            $masukEnd = $timeRanges['masuk_end'];
-            $pulangStart = $timeRanges['pulang_start'];
-            $pulangEnd = $timeRanges['pulang_end'];
-
-            // Check if current time is outside working hours
-            if ($currentTime < $masukStart || $currentTime > $pulangEnd) {
-                $isOutsideWorkingHours = true;
-            }
-        }
-
-        // If outside working hours, don't flag as fake GPS even if detected
-        if ($isFakeLocation && $isOutsideWorkingHours) {
-            $isFakeLocation = false;
-            $fakeLocationAnalysis = null;
         }
 
         // Check if today is a holiday
