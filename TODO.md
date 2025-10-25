@@ -6,10 +6,10 @@
 - [x] Disable presensi button until all readings are complete
 - [x] Store all readings in sessionStorage
 - [x] On button click, send all readings to backend without new fetch
-- [x] Enhance backend fake GPS detection in MobileController.php to analyze multiple readings
+- [x] Update backend fake GPS detection: if 3 readings have identical latitude and longitude
 - [ ] Test presensi functionality with multiple readings
 
 ## Status
 - Frontend implementation completed: Multiple readings (3 on load + 1 on click) with progress UI
-- Backend enhanced fake GPS detection implemented
+- Backend fake GPS detection updated: detects if 3+ readings have identical coordinates
 - Ready for testing
