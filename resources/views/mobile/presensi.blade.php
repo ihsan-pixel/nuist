@@ -305,32 +305,6 @@
         </div>
     </div>
     @elseif($presensiHariIni)
-    @if($presensiHariIni->status === 'izin')
-    <div class="status-card warning">
-        <div class="d-flex align-items-center">
-            <div class="status-icon">
-                <i class="bx bx-calendar-minus"></i>
-            </div>
-            <div>
-                <h6 class="mb-1">Izin Sudah Diajukan</h6>
-                <p class="mb-0">{{ $presensiHariIni->keterangan }}</p>
-                @if($presensiHariIni->status_izin === 'pending')
-                <div class="alert-custom warning" style="margin-top: 6px; padding: 4px;">
-                    <small><i class="bx bx-time me-1"></i> Menunggu approval</small>
-                </div>
-                @elseif($presensiHariIni->status_izin === 'approved')
-                <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
-                    <small><i class="bx bx-check me-1"></i> Izin disetujui</small>
-                </div>
-                @elseif($presensiHariIni->status_izin === 'rejected')
-                <div class="alert-custom danger" style="margin-top: 6px; padding: 4px;">
-                    <small><i class="bx bx-x me-1"></i> Izin ditolak</small>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-    @else
     <div class="status-card success">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -338,9 +312,9 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk ? $presensiHariIni->waktu_masuk->format('H:i') : '-' }}</strong></p>
+                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
                 @if($presensiHariIni->waktu_keluar)
-                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar ? $presensiHariIni->waktu_keluar->format('H:i') : '-' }}</strong></p>
+                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
                 <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
                     <small><i class="bx bx-check me-1"></i> Presensi hari ini lengkap!</small>
                 </div>
@@ -350,7 +324,6 @@
             </div>
         </div>
     </div>
-    @endif
     @endif
 
     <!-- Presensi Form -->
@@ -399,7 +372,7 @@
         <!-- Presensi Button -->
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
-                disabled>
+                {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
             {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : ($presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk') }}
         </button>
@@ -448,7 +421,8 @@
             <i class="bx bx-error-circle text-danger me-1"></i>
             <div>
                 <strong class="text-danger">Penting!</strong>
-            <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
+                <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
+            </div>
         </div>
     </div>
 
@@ -475,50 +449,29 @@
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
-    let readingsComplete = false;
-    let currentReading = 1;
-    let totalReadings = 3;
-    let locationHistory = [];
-
-    // Disable presensi button initially
-    $('#btn-presensi').prop('disabled', true);
 
     // Get location when page loads (reading1)
     if (navigator.geolocation) {
-        $('#location-info').html(`
-            <div class="location-info info">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-2"></i>
-                    <div>
-                        <strong class="small">Mendapatkan lokasi Anda...</strong>
-                        <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
+            $('#location-info').html(`
+                <div class="location-info info">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-loader-alt bx-spin me-2"></i>
+                        <div>
+                            <strong class="small">Mendapatkan lokasi Anda...</strong>
+                            <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `);
+            `);
 
         navigator.geolocation.getCurrentPosition(function(position) {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
 
-            // Store reading1 in sessionStorage and history
-            const reading1Data = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                timestamp: Date.now(),
-                accuracy: position.coords.accuracy,
-                altitude: position.coords.altitude,
-                speed: position.coords.speed
-            };
-
+            // Store reading1 in sessionStorage (menu entry reading)
             sessionStorage.setItem('reading1_latitude', position.coords.latitude);
             sessionStorage.setItem('reading1_longitude', position.coords.longitude);
             sessionStorage.setItem('reading1_timestamp', Date.now());
-            sessionStorage.setItem('reading1_accuracy', position.coords.accuracy);
-            sessionStorage.setItem('reading1_altitude', position.coords.altitude);
-            sessionStorage.setItem('reading1_speed', position.coords.speed);
-
-            locationHistory.push(reading1Data);
 
             $('#latitude').val(latitude.toFixed(6));
             $('#longitude').val(longitude.toFixed(6));
@@ -531,170 +484,47 @@ window.addEventListener('load', function() {
                     <div class="d-flex align-items-center">
                         <i class="bx bx-check-circle me-2"></i>
                         <div>
-                            <strong class="small">Pembacaan 1/${totalReadings} selesai!</strong>
-                            <br><small class="text-muted">Menunggu pembacaan berikutnya...</small>
+                            <strong class="small">Lokasi berhasil didapatkan!</strong>
                         </div>
                     </div>
                 </div>
             `);
 
-            // Start automatic readings sequence
-            startNextReadingCountdown();
+
 
         }, function(error) {
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
-                        </div>
+        $('#location-info').html(`
+            <div class="location-info error">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <div>
+                        <strong class="small">Gagal mendapatkan lokasi</strong>
+                        <br><small class="text-muted">${error.message}</small>
                     </div>
                 </div>
-            `);
+            </div>
+        `);
+
+
         }, {
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 30000
         });
     } else {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                    </div>
+    $('#location-info').html(`
+        <div class="location-info error">
+            <div class="d-flex align-items-center">
+                <i class="bx bx-error-circle me-2"></i>
+                <div>
+                    <strong class="small">Browser tidak mendukung GPS</strong>
+                    <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
                 </div>
             </div>
-        `);
-    }
+        </div>
+    `);
 
-    // Function to start countdown for next reading
-    function startNextReadingCountdown() {
-        currentReading++;
-        if (currentReading > totalReadings) {
-            // All readings complete
-            readingsComplete = true;
-            $('#btn-presensi').prop('disabled', false);
-            $('#location-info').html(`
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-2"></i>
-                        <div>
-                            <strong class="small">Semua pembacaan lokasi selesai!</strong>
-                            <br><small class="text-muted">Siap untuk presensi</small>
-                        </div>
-                    </div>
-                </div>
-            `);
-            return;
-        }
 
-        let countdown = 5;
-        const countdownInterval = setInterval(() => {
-            $('#location-info').html(`
-                <div class="location-info info">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-time me-2"></i>
-                        <div>
-                            <strong class="small">Pembacaan ${currentReading}/${totalReadings} dalam ${countdown} detik...</strong>
-                            <br><small class="text-muted">Jangan pindah posisi</small>
-                        </div>
-                    </div>
-                </div>
-            `);
-            countdown--;
-
-            if (countdown < 0) {
-                clearInterval(countdownInterval);
-                getNextReading();
-            }
-        }, 1000);
-    }
-
-    // Function to get next reading automatically
-    function getNextReading() {
-        $('#location-info').html(`
-            <div class="location-info info">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-loader-alt bx-spin me-2"></i>
-                    <div>
-                        <strong class="small">Mendapatkan pembacaan ${currentReading}...</strong>
-                        <br><small class="text-muted">Proses ini akan selesai dalam beberapa detik</small>
-                    </div>
-                </div>
-            </div>
-        `);
-
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                const readingData = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    timestamp: Date.now(),
-                    accuracy: position.coords.accuracy,
-                    altitude: position.coords.altitude,
-                    speed: position.coords.speed
-                };
-
-                // Store reading in sessionStorage
-                sessionStorage.setItem(`reading${currentReading}_latitude`, position.coords.latitude);
-                sessionStorage.setItem(`reading${currentReading}_longitude`, position.coords.longitude);
-                sessionStorage.setItem(`reading${currentReading}_timestamp`, Date.now());
-                sessionStorage.setItem(`reading${currentReading}_accuracy`, position.coords.accuracy);
-                sessionStorage.setItem(`reading${currentReading}_altitude`, position.coords.altitude);
-                sessionStorage.setItem(`reading${currentReading}_speed`, position.coords.speed);
-
-                locationHistory.push(readingData);
-
-                // Update UI with latest location data
-                $('#latitude').val(position.coords.latitude.toFixed(6));
-                $('#longitude').val(position.coords.longitude.toFixed(6));
-
-                // Get address for latest reading
-                getAddressFromCoordinates(position.coords.latitude, position.coords.longitude);
-
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2"></i>
-                            <div>
-                                <strong class="small">Pembacaan ${currentReading}/${totalReadings} selesai!</strong>
-                                <br><small class="text-muted">Menunggu pembacaan berikutnya...</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
-
-                // Continue to next reading
-                startNextReadingCountdown();
-            },
-            function(error) {
-                $('#location-info').html(`
-                    <div class="location-info error">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-error-circle me-2"></i>
-                            <div>
-                                <strong class="small">Gagal mendapatkan pembacaan ${currentReading}</strong>
-                                <br><small class="text-muted">${error.message}</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
-                // Retry current reading after 2 seconds
-                setTimeout(() => {
-                    getNextReading();
-                }, 2000);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 10000
-            }
-        );
     }
 
     // Get address from coordinates
@@ -715,130 +545,139 @@ window.addEventListener('load', function() {
 
     // Handle presensi button
     $('#btn-presensi').click(function() {
-        if (!readingsComplete) {
+        if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
                 title: 'Kesalahan',
-                text: 'Pembacaan lokasi belum selesai. Tunggu hingga semua pembacaan otomatis selesai.',
+                text: 'Lokasi belum didapatkan. Pastikan GPS aktif dan izinkan akses lokasi.',
                 confirmButtonText: 'Oke'
             });
             return;
         }
 
-        // Show warning about fake GPS detection
-        Swal.fire({
-            icon: 'warning',
-            title: 'Peringatan Deteksi Fake GPS',
-            html: `
-                <div style="text-align: left;">
-                    <p>Sistem akan mendeteksi penggunaan fake GPS berdasarkan:</p>
-                    <ul style="text-align: left;">
-                        <li>Koordinat identik di beberapa pembacaan</li>
-                        <li>Akurasi GPS yang tidak wajar</li>
-                        <li>Tidak ada pergerakan lokasi</li>
-                        <li>Interval waktu yang tidak teratur</li>
-                    </ul>
-                    <p><strong>Pastikan GPS perangkat aktif dan tidak menggunakan aplikasi fake GPS!</strong></p>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Lanjutkan Presensi',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                proceedWithPresensi();
-            }
-        });
-    });
+        $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
-    // Function to proceed with presensi after warning
-    function proceedWithPresensi() {
-        $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
+        // Get second location reading (button click)
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let reading2Lat = position.coords.latitude;
+                let reading2Lng = position.coords.longitude;
 
-        // Build location readings array from all stored readings
-        let locationReadings = [];
-        for (let i = 1; i <= totalReadings; i++) {
-            let lat = sessionStorage.getItem(`reading${i}_latitude`);
-            let lng = sessionStorage.getItem(`reading${i}_longitude`);
-            let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
+                // Store reading 2 in sessionStorage
+                sessionStorage.setItem('reading2_latitude', position.coords.latitude);
+                sessionStorage.setItem('reading2_longitude', position.coords.longitude);
+                sessionStorage.setItem('reading2_timestamp', Date.now());
 
-            if (lat && lng && timestamp) {
-                locationReadings.push({
-                    latitude: parseFloat(lat),
-                    longitude: parseFloat(lng),
-                    timestamp: parseInt(timestamp)
+                let reading1Lat = sessionStorage.getItem('reading1_latitude');
+                let reading1Lng = sessionStorage.getItem('reading1_longitude');
+                let reading1Timestamp = sessionStorage.getItem('reading1_timestamp');
+
+                let reading2Timestamp = Date.now();
+
+                let postData = {
+                    _token: '{{ csrf_token() }}',
+                    latitude: reading2Lat,
+                    longitude: reading2Lng,
+                    lokasi: lokasi,
+                    accuracy: position.coords.accuracy,
+                    altitude: position.coords.altitude,
+                    speed: position.coords.speed,
+                    device_info: navigator.userAgent,
+                    location_readings: JSON.stringify([
+                        {
+                            latitude: parseFloat(reading1Lat),
+                            longitude: parseFloat(reading1Lng),
+                            timestamp: parseInt(reading1Timestamp)
+                        },
+                        {
+                            latitude: reading2Lat,
+                            longitude: reading2Lng,
+                            timestamp: reading2Timestamp
+                        }
+                    ])
+                };
+
+                // Update UI with location data
+                $('#latitude').val(reading2Lat.toFixed(6));
+                $('#longitude').val(reading2Lng.toFixed(6));
+
+                // Get address
+                getAddressFromCoordinates(reading2Lat, reading2Lng);
+
+                $('#location-info').html(`
+                    <div class="location-info success">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-check-circle me-2"></i>
+                            <div>
+                                <strong class="small">Lokasi berhasil didapatkan!</strong>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                $.ajax({
+                    url: '{{ route("mobile.presensi.store") }}',
+                    method: 'POST',
+                    data: postData,
+                    timeout: 30000, // 30 detik timeout
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message,
+                                confirmButtonText: 'Oke',
+                                timer: 3000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Peringatan',
+                                text: response.message,
+                                confirmButtonText: 'Oke'
+                            });
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let errorMessage = 'Terjadi kesalahan tidak diketahui';
+
+                        if (status === 'timeout') {
+                            errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Kesalahan',
+                            text: errorMessage,
+                            confirmButtonText: 'Oke'
+                        });
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                    }
                 });
-            }
-        }
-
-        // Use the latest reading for main coordinates
-        let latestReading = locationReadings[locationReadings.length - 1];
-
-        // Get speed value and ensure it's a number or null
-        let speedValue = sessionStorage.getItem(`reading${totalReadings}_speed`);
-        speedValue = speedValue && speedValue !== 'null' && speedValue !== 'undefined' ? parseFloat(speedValue) : null;
-
-        let postData = {
-            _token: '{{ csrf_token() }}',
-            latitude: latestReading.latitude,
-            longitude: latestReading.longitude,
-            lokasi: lokasi,
-            accuracy: sessionStorage.getItem(`reading${totalReadings}_accuracy`) ? parseFloat(sessionStorage.getItem(`reading${totalReadings}_accuracy`)) : null,
-            altitude: sessionStorage.getItem(`reading${totalReadings}_altitude`) ? parseFloat(sessionStorage.getItem(`reading${totalReadings}_altitude`)) : null,
-            speed: speedValue,
-            device_info: navigator.userAgent,
-            location_readings: JSON.stringify(locationReadings)
-        };
-
-        $.ajax({
-            url: '{{ route("mobile.presensi.store") }}',
-            method: 'POST',
-            data: postData,
-            timeout: 30000, // 30 detik timeout
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: response.message,
-                        confirmButtonText: 'Oke',
-                        timer: 3000,
-                        timerProgressBar: true
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Peringatan',
-                        text: response.message,
-                        confirmButtonText: 'Oke'
-                    });
-                    $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
-                }
             },
-            error: function(xhr, status, error) {
-                let errorMessage = 'Terjadi kesalahan tidak diketahui';
-
-                if (status === 'timeout') {
-                    errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
-                } else if (xhr.status === 0) {
-                    errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
-                } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-
+            function(error) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Kesalahan',
-                    text: errorMessage,
+                    text: 'Gagal mendapatkan lokasi: ' + error.message,
                     confirmButtonText: 'Oke'
                 });
                 $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 10000
             }
-        });
+        );
     });
 });
 

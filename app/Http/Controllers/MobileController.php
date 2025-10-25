@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Presensi;
 use App\Models\TeachingSchedule;
-use App\Models\Notification;
 use Carbon\Carbon;
 
 class MobileController extends Controller
@@ -76,10 +75,6 @@ class MobileController extends Controller
             'pendidikan_terakhir' => $user->pendidikan_terakhir ?? '-',
             'program_studi' => $user->program_studi ?? '-',
         ];
-
-        // Create notifications for reminders if needed
-        $this->createPresensiReminders($user);
-        $this->createTeachingReminders($user);
 
         return view('mobile.dashboard', compact(
             'kehadiranPercent',
@@ -416,13 +411,26 @@ class MobileController extends Controller
             $user = Auth::user();
             $today = Carbon::now('Asia/Jakarta')->toDateString();
 
+            // Prevent duplicate pending izin for the day
+            $existingIzin = Presensi::where('user_id', $user->id)
+                ->where('tanggal', $today)
+                ->where('status', 'izin')
+                ->where('status_izin', 'pending')
+                ->first();
+
+            if ($existingIzin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah mengajukan izin untuk hari ini.'
+                ], 400);
+            }
+
             // Check existing presensi for today
             $existingPresensi = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $today)
                 ->first();
 
-            // Allow submission only if no presensi, or alpha, or izin rejected
-            if ($existingPresensi && $existingPresensi->status !== 'alpha' && !($existingPresensi->status === 'izin' && $existingPresensi->status_izin === 'rejected')) {
+            if ($existingPresensi && $existingPresensi->status !== 'alpha') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Anda sudah memiliki catatan presensi untuk hari ini.'
@@ -463,8 +471,8 @@ class MobileController extends Controller
                 }
             }
 
-            // Persist presensi record (update alpha or rejected izin, or create new)
-            if ($existingPresensi && ($existingPresensi->status === 'alpha' || ($existingPresensi->status === 'izin' && $existingPresensi->status_izin === 'rejected'))) {
+            // Persist presensi record (update alpha or create new)
+            if ($existingPresensi && $existingPresensi->status === 'alpha') {
                 $existingPresensi->update([
                     'status' => 'izin',
                     'keterangan' => $keterangan,
@@ -485,18 +493,6 @@ class MobileController extends Controller
                     'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
             }
-
-            // Create notification for izin submission
-            Notification::create([
-                'user_id' => $user->id,
-                'type' => 'izin_submitted',
-                'title' => 'Izin Diajukan',
-                'message' => 'Pengajuan izin Anda telah dikirim dan sedang menunggu persetujuan.',
-                'data' => [
-                    'tanggal' => $today,
-                    'keterangan' => $keterangan
-                ]
-            ]);
 
             return response()->json([
                 'success' => true,
@@ -558,96 +554,23 @@ class MobileController extends Controller
         if ($request->location_readings) {
             try {
                 $locationReadings = json_decode($request->location_readings, true);
-                if (is_array($locationReadings) && count($locationReadings) >= 3) {
-                    // Analisis untuk mendeteksi fake GPS
-                    $issues = [];
+                if (is_array($locationReadings) && count($locationReadings) >= 2) {
+                    $reading1 = $locationReadings[0];
+                    $reading2 = $locationReadings[1];
 
-                    // 1. Check if coordinates are identical across readings (strong fake GPS indicator)
-                    $identicalCount = 0;
-                    for ($i = 1; $i < count($locationReadings); $i++) {
-                        if ($locationReadings[$i]['latitude'] === $locationReadings[0]['latitude'] &&
-                            $locationReadings[$i]['longitude'] === $locationReadings[0]['longitude']) {
-                            $identicalCount++;
-                        }
-                    }
-
-                    if ($identicalCount >= 2) {
-                        $issues[] = 'Identical coordinates across multiple readings';
+                    // Jika latitude dan longitude sama persis antara reading1 dan reading2, maka fake GPS
+                    if ($reading1['latitude'] === $reading2['latitude'] && $reading1['longitude'] === $reading2['longitude']) {
                         $isFakeLocation = true;
-                    }
-
-                    // 2. Check for suspicious accuracy values (very high accuracy might indicate fake)
-                    $totalAccuracy = 0;
-                    $accuracyCount = 0;
-                    foreach ($locationReadings as $reading) {
-                        if (isset($reading['accuracy']) && is_numeric($reading['accuracy'])) {
-                            $totalAccuracy += $reading['accuracy'];
-                            $accuracyCount++;
-                        }
-                    }
-
-                    if ($accuracyCount > 0) {
-                        $avgAccuracy = $totalAccuracy / $accuracyCount;
-                        if ($avgAccuracy < 5) { // Very high accuracy (less than 5 meters) is suspicious
-                            $issues[] = 'Unusually high GPS accuracy (potentially fake)';
-                            $isFakeLocation = true;
-                        }
-                    }
-
-                    // 3. Check for movement patterns (real GPS should show some variation)
-                    if (!$isFakeLocation && count($locationReadings) >= 3) {
-                        $hasMovement = false;
-                        for ($i = 1; $i < count($locationReadings); $i++) {
-                            $prevLat = $locationReadings[$i-1]['latitude'];
-                            $prevLng = $locationReadings[$i-1]['longitude'];
-                            $currLat = $locationReadings[$i]['latitude'];
-                            $currLng = $locationReadings[$i]['longitude'];
-
-                            // Calculate distance in meters
-                            $distance = $this->calculateDistance($prevLat, $prevLng, $currLat, $currLng) * 1000;
-
-                            if ($distance > 1) { // More than 1 meter movement
-                                $hasMovement = true;
-                                break;
-                            }
-                        }
-
-                        if (!$hasMovement) {
-                            $issues[] = 'No significant movement detected between readings';
-                            $isFakeLocation = true;
-                        }
-                    }
-
-                    // 4. Check timestamp intervals (should be approximately 5 seconds apart)
-                    if (count($locationReadings) >= 2) {
-                        $expectedInterval = 5; // seconds
-                        $tolerance = 2; // seconds tolerance
-
-                        for ($i = 1; $i < count($locationReadings); $i++) {
-                            $prevTime = strtotime($locationReadings[$i-1]['timestamp']);
-                            $currTime = strtotime($locationReadings[$i]['timestamp']);
-                            $actualInterval = $currTime - $prevTime;
-
-                            if (abs($actualInterval - $expectedInterval) > $tolerance) {
-                                $issues[] = 'Irregular timestamp intervals between readings';
-                                $isFakeLocation = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($isFakeLocation) {
                         $fakeLocationAnalysis = [
-                            'issues' => $issues,
-                            'readings_count' => count($locationReadings),
-                            'readings' => $locationReadings,
+                            'reason' => 'Identical coordinates between reading1 and reading2',
+                            'reading1' => $reading1,
+                            'reading2' => $reading2,
                             'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
                         ];
                     }
                 }
             } catch (\Exception $e) {
                 // Jika parsing gagal, lanjutkan tanpa deteksi
-                Log::warning('Failed to parse location_readings for fake GPS detection: ' . $e->getMessage());
             }
         }
 
@@ -729,7 +652,7 @@ class MobileController extends Controller
             $batasPulang = $timeRanges['pulang_start'];
             // Adjust for special users
             if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '15:00';
+                $batasAkhirMasuk = '08:00';
             }
         }
 
@@ -963,124 +886,5 @@ class MobileController extends Controller
         }
 
         return $isInside;
-    }
-
-    /**
-     * Create presensi reminder notifications if user hasn't done presensi today
-     */
-    private function createPresensiReminders($user)
-    {
-        $today = now()->toDateString();
-
-        // Check if today is a holiday
-        $isHoliday = \App\Models\Holiday::isHoliday($today);
-        if ($isHoliday) {
-            return; // Don't create reminder on holidays
-        }
-
-        // Get hari_kbm from user's madrasah
-        $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : null;
-        $dayOfWeek = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 6=Saturday
-
-        // Determine if today is a working day based on hari_kbm
-        $isWorkingDay = false;
-        if ($hariKbm == '5') {
-            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]); // Monday to Friday
-        } elseif ($hariKbm == '6') {
-            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5, 6]); // Monday to Saturday
-        } else {
-            // Default to 5 days if hari_kbm is null or other value
-            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]);
-        }
-
-        if (!$isWorkingDay) {
-            return; // Don't create reminder on non-working days
-        }
-
-        // Check if user has already done presensi today
-        $hasPresensi = Presensi::where('user_id', $user->id)
-            ->where('tanggal', $today)
-            ->where('status', '!=', 'alpha')
-            ->exists();
-
-        if (!$hasPresensi) {
-            // Check if reminder already exists for today
-            $existingReminder = Notification::where('user_id', $user->id)
-                ->where('type', 'presensi_reminder')
-                ->whereDate('created_at', $today)
-                ->exists();
-
-            if (!$existingReminder) {
-                Notification::create([
-                    'user_id' => $user->id,
-                    'type' => 'presensi_reminder',
-                    'title' => 'Pengingat Presensi',
-                    'message' => 'Anda belum melakukan presensi hari ini. Silakan lakukan presensi masuk.',
-                ]);
-            }
-        }
-    }
-
-    /**
-     * Create teaching attendance reminder notifications if user has schedules but hasn't done attendance
-     */
-    private function createTeachingReminders($user)
-    {
-        $today = now()->toDateString();
-        $dayOfWeek = now()->locale('id')->dayName;
-
-        // Check if today is a holiday
-        $isHoliday = \App\Models\Holiday::isHoliday($today);
-        if ($isHoliday) {
-            return; // Don't create reminder on holidays
-        }
-
-        // Get hari_kbm from user's madrasah
-        $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : null;
-        $dayOfWeekNum = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 6=Saturday
-
-        // Determine if today is a working day based on hari_kbm
-        $isWorkingDay = false;
-        if ($hariKbm == '5') {
-            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5]); // Monday to Friday
-        } elseif ($hariKbm == '6') {
-            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5, 6]); // Monday to Saturday
-        } else {
-            // Default to 5 days if hari_kbm is null or other value
-            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5]);
-        }
-
-        if (!$isWorkingDay) {
-            return; // Don't create reminder on non-working days
-        }
-
-        // Get today's schedules
-        $schedules = TeachingSchedule::where('teacher_id', $user->id)
-            ->where('day', $dayOfWeek)
-            ->get();
-
-        if ($schedules->isNotEmpty()) {
-            // Check if user has done any teaching attendance today
-            $hasTeachingAttendance = \App\Models\TeachingAttendance::where('user_id', $user->id)
-                ->where('tanggal', $today)
-                ->exists();
-
-            if (!$hasTeachingAttendance) {
-                // Check if reminder already exists for today
-                $existingReminder = Notification::where('user_id', $user->id)
-                    ->where('type', 'teaching_reminder')
-                    ->whereDate('created_at', $today)
-                    ->exists();
-
-                if (!$existingReminder) {
-                    Notification::create([
-                        'user_id' => $user->id,
-                        'type' => 'teaching_reminder',
-                        'title' => 'Pengingat Presensi Mengajar',
-                        'message' => 'Anda memiliki jadwal mengajar hari ini. Jangan lupa melakukan presensi mengajar.',
-                    ]);
-                }
-            }
-        }
     }
 }
