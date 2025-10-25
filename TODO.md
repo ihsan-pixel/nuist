@@ -7,9 +7,10 @@
 - [x] Store all readings in sessionStorage
 - [x] On button click, send all readings to backend without new fetch
 - [x] Update backend fake GPS detection: if 3 readings have identical latitude and longitude
+- [x] Add detailed problem descriptions in fake location detection
 - [ ] Test presensi functionality with multiple readings
 
 ## Status
 - Frontend implementation completed: Multiple readings (3 on load + 1 on click) with progress UI
-- Backend fake GPS detection updated: detects if 3+ readings have identical coordinates
+- Backend fake GPS detection updated: detects if 3+ readings have identical coordinates with detailed problem descriptions
 - Ready for testing

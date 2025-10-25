@@ -571,8 +571,44 @@ class MobileController extends Controller
                         if ($count >= 3) {
                             $isFakeLocation = true;
                             list($lat, $lng) = explode(',', $coordinates);
+
+                            // Create detailed problem description
+                            $problemDetails = [];
+                            if ($count === 4) {
+                                $problemDetails[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik';
+                            } elseif ($count === 3) {
+                                $problemDetails[] = '3 dari 4 pembacaan lokasi memiliki koordinat yang sama';
+                            }
+
+                            // Check if readings are too close in time (less than 1 second apart)
+                            $timestamps = array_column($locationReadings, 'timestamp');
+                            sort($timestamps);
+                            $timeDifferences = [];
+                            for ($i = 1; $i < count($timestamps); $i++) {
+                                $timeDifferences[] = ($timestamps[$i] - $timestamps[$i-1]) / 1000; // Convert to seconds
+                            }
+                            $suspiciousTimeReadings = array_filter($timeDifferences, function($diff) {
+                                return $diff < 1; // Less than 1 second
+                            });
+
+                            if (count($suspiciousTimeReadings) > 0) {
+                                $problemDetails[] = 'Beberapa pembacaan lokasi terlalu cepat (kurang dari 1 detik)';
+                            }
+
+                            // Check for unrealistic accuracy (too perfect)
+                            $perfectAccuracyCount = 0;
+                            foreach ($locationReadings as $reading) {
+                                if (isset($reading['accuracy']) && $reading['accuracy'] <= 1) {
+                                    $perfectAccuracyCount++;
+                                }
+                            }
+                            if ($perfectAccuracyCount >= 3) {
+                                $problemDetails[] = 'Akurasi lokasi terlalu sempurna (≤1 meter) pada ' . $perfectAccuracyCount . ' pembacaan';
+                            }
+
                             $fakeLocationAnalysis = [
                                 'reason' => '3 or more readings have identical coordinates',
+                                'problem_details' => $problemDetails,
                                 'duplicate_coordinates' => [
                                     'latitude' => (float)$lat,
                                     'longitude' => (float)$lng,
