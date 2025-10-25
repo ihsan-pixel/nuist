@@ -305,6 +305,32 @@
         </div>
     </div>
     @elseif($presensiHariIni)
+    @if($presensiHariIni->status === 'izin')
+    <div class="status-card warning">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-calendar-minus"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">Izin Sudah Diajukan</h6>
+                <p class="mb-0">{{ $presensiHariIni->keterangan }}</p>
+                @if($presensiHariIni->status_izin === 'pending')
+                <div class="alert-custom warning" style="margin-top: 6px; padding: 4px;">
+                    <small><i class="bx bx-time me-1"></i> Menunggu approval</small>
+                </div>
+                @elseif($presensiHariIni->status_izin === 'approved')
+                <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
+                    <small><i class="bx bx-check me-1"></i> Izin disetujui</small>
+                </div>
+                @elseif($presensiHariIni->status_izin === 'rejected')
+                <div class="alert-custom danger" style="margin-top: 6px; padding: 4px;">
+                    <small><i class="bx bx-x me-1"></i> Izin ditolak</small>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @else
     <div class="status-card success">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -324,6 +350,7 @@
             </div>
         </div>
     </div>
+    @endif
     @endif
 
     <!-- Presensi Form -->
