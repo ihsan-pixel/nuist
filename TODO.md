@@ -1,3 +1,4 @@
 - [x] Add direct route for /izin/store in routes/web.php
 - [x] Verify route accessibility
 - Test izin submission functionality
+- [x] Modify presensi reminder notifications to only appear on working days based on hari_kbm and not on holidays

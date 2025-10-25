@@ -899,6 +899,31 @@ class MobileController extends Controller
     {
         $today = now()->toDateString();
 
+        // Check if today is a holiday
+        $isHoliday = \App\Models\Holiday::isHoliday($today);
+        if ($isHoliday) {
+            return; // Don't create reminder on holidays
+        }
+
+        // Get hari_kbm from user's madrasah
+        $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : null;
+        $dayOfWeek = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 6=Saturday
+
+        // Determine if today is a working day based on hari_kbm
+        $isWorkingDay = false;
+        if ($hariKbm == '5') {
+            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]); // Monday to Friday
+        } elseif ($hariKbm == '6') {
+            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5, 6]); // Monday to Saturday
+        } else {
+            // Default to 5 days if hari_kbm is null or other value
+            $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]);
+        }
+
+        if (!$isWorkingDay) {
+            return; // Don't create reminder on non-working days
+        }
+
         // Check if user has already done presensi today
         $hasPresensi = Presensi::where('user_id', $user->id)
             ->where('tanggal', $today)
@@ -930,6 +955,31 @@ class MobileController extends Controller
     {
         $today = now()->toDateString();
         $dayOfWeek = now()->locale('id')->dayName;
+
+        // Check if today is a holiday
+        $isHoliday = \App\Models\Holiday::isHoliday($today);
+        if ($isHoliday) {
+            return; // Don't create reminder on holidays
+        }
+
+        // Get hari_kbm from user's madrasah
+        $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : null;
+        $dayOfWeekNum = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 6=Saturday
+
+        // Determine if today is a working day based on hari_kbm
+        $isWorkingDay = false;
+        if ($hariKbm == '5') {
+            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5]); // Monday to Friday
+        } elseif ($hariKbm == '6') {
+            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5, 6]); // Monday to Saturday
+        } else {
+            // Default to 5 days if hari_kbm is null or other value
+            $isWorkingDay = in_array($dayOfWeekNum, [1, 2, 3, 4, 5]);
+        }
+
+        if (!$isWorkingDay) {
+            return; // Don't create reminder on non-working days
+        }
 
         // Get today's schedules
         $schedules = TeachingSchedule::where('teacher_id', $user->id)
