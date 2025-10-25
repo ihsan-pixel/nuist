@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TeachingAttendance;
 use App\Models\TeachingSchedule;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -146,6 +147,21 @@ class TeachingAttendanceController extends Controller
         ]);
 
         $message = 'Presensi mengajar berhasil dicatat pada ' . $now . '.';
+
+        // Create success notification
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'teaching_success',
+            'title' => 'Presensi Mengajar Berhasil',
+            'message' => $message,
+            'data' => [
+                'attendance_id' => $attendance->id,
+                'schedule_id' => $schedule->id,
+                'tanggal' => $today,
+                'waktu' => $now,
+                'school_name' => $schedule->school->name ?? 'N/A'
+            ]
+        ]);
 
         return response()->json([
             'success' => true,

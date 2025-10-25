@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Madrasah;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -312,6 +313,20 @@ class PresensiController extends Controller
 
             $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
 
+            // Create success notification
+            Notification::create([
+                'user_id' => $user->id,
+                'type' => 'presensi_success',
+                'title' => 'Presensi Masuk Berhasil',
+                'message' => $message,
+                'data' => [
+                    'presensi_id' => $presensi->id,
+                    'tanggal' => $today,
+                    'waktu_masuk' => $waktuMasuk,
+                    'keterangan' => $keterangan
+                ]
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
@@ -361,6 +376,20 @@ class PresensiController extends Controller
 
                 $message = $keterangan === "tidak terlambat" ? 'Presensi masuk berhasil dicatat.' : "Presensi masuk berhasil dicatat dengan {$keterangan}.";
 
+                // Create success notification
+                Notification::create([
+                    'user_id' => $user->id,
+                    'type' => 'presensi_success',
+                    'title' => 'Presensi Masuk Berhasil',
+                    'message' => $message,
+                    'data' => [
+                        'presensi_id' => $presensi->id,
+                        'tanggal' => $today,
+                        'waktu_masuk' => $waktuMasuk,
+                        'keterangan' => $keterangan
+                    ]
+                ]);
+
                 return response()->json([
                     'success' => true,
                     'message' => $message,
@@ -387,6 +416,19 @@ class PresensiController extends Controller
                 // Presensi keluar
                 $presensi->update([
                     'waktu_keluar' => $now,
+                ]);
+
+                // Create success notification for presensi keluar
+                Notification::create([
+                    'user_id' => $user->id,
+                    'type' => 'presensi_success',
+                    'title' => 'Presensi Keluar Berhasil',
+                    'message' => 'Presensi keluar berhasil dicatat.',
+                    'data' => [
+                        'presensi_id' => $presensi->id,
+                        'tanggal' => $today,
+                        'waktu_keluar' => $now
+                    ]
                 ]);
 
                 return response()->json([

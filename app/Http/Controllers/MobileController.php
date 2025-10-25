@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Presensi;
 use App\Models\TeachingSchedule;
+use App\Models\Notification;
 use Carbon\Carbon;
 
 class MobileController extends Controller
@@ -75,6 +76,10 @@ class MobileController extends Controller
             'pendidikan_terakhir' => $user->pendidikan_terakhir ?? '-',
             'program_studi' => $user->program_studi ?? '-',
         ];
+
+        // Create notifications for reminders if needed
+        $this->createPresensiReminders($user);
+        $this->createTeachingReminders($user);
 
         return view('mobile.dashboard', compact(
             'kehadiranPercent',
@@ -886,5 +891,74 @@ class MobileController extends Controller
         }
 
         return $isInside;
+    }
+
+    /**
+     * Create presensi reminder notifications if user hasn't done presensi today
+     */
+    private function createPresensiReminders($user)
+    {
+        $today = now()->toDateString();
+
+        // Check if user has already done presensi today
+        $hasPresensi = Presensi::where('user_id', $user->id)
+            ->where('tanggal', $today)
+            ->where('status', '!=', 'alpha')
+            ->exists();
+
+        if (!$hasPresensi) {
+            // Check if reminder already exists for today
+            $existingReminder = Notification::where('user_id', $user->id)
+                ->where('type', 'presensi_reminder')
+                ->whereDate('created_at', $today)
+                ->exists();
+
+            if (!$existingReminder) {
+                Notification::create([
+                    'user_id' => $user->id,
+                    'type' => 'presensi_reminder',
+                    'title' => 'Pengingat Presensi',
+                    'message' => 'Anda belum melakukan presensi hari ini. Silakan lakukan presensi masuk.',
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Create teaching attendance reminder notifications if user has schedules but hasn't done attendance
+     */
+    private function createTeachingReminders($user)
+    {
+        $today = now()->toDateString();
+        $dayOfWeek = now()->locale('id')->dayName;
+
+        // Get today's schedules
+        $schedules = TeachingSchedule::where('teacher_id', $user->id)
+            ->where('day', $dayOfWeek)
+            ->get();
+
+        if ($schedules->isNotEmpty()) {
+            // Check if user has done any teaching attendance today
+            $hasTeachingAttendance = \App\Models\TeachingAttendance::where('user_id', $user->id)
+                ->where('tanggal', $today)
+                ->exists();
+
+            if (!$hasTeachingAttendance) {
+                // Check if reminder already exists for today
+                $existingReminder = Notification::where('user_id', $user->id)
+                    ->where('type', 'teaching_reminder')
+                    ->whereDate('created_at', $today)
+                    ->exists();
+
+                if (!$existingReminder) {
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'type' => 'teaching_reminder',
+                        'title' => 'Pengingat Presensi Mengajar',
+                        'message' => 'Anda memiliki jadwal mengajar hari ini. Jangan lupa melakukan presensi mengajar.',
+                    ]);
+                }
+            }
+        }
     }
 }

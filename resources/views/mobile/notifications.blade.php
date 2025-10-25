@@ -1,0 +1,299 @@
+@extends('layouts.mobile')
+
+@section('title', 'Notifikasi')
+@section('subtitle', 'Pesan & Pengingat')
+
+@section('content')
+<div class="container py-3" style="max-width: 420px; margin: auto;">
+    <style>
+        body {
+            background: #f8f9fb;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .notification-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #556ee6;
+            position: relative;
+        }
+
+        .notification-item.unread {
+            border-left-color: #0e8549;
+            background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+        }
+
+        .notification-item.read {
+            opacity: 0.7;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #999;
+            margin: 0;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.presensi {
+            background: linear-gradient(135deg, #556ee6 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .notification-icon.teaching {
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            color: white;
+        }
+
+        .notification-icon.izin {
+            background: linear-gradient(135deg, #fd7e14 0%, #e8680d 100%);
+            color: white;
+        }
+
+        .notification-icon.warning {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .mark-read-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .mark-read-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .mark-all-read {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .mark-all-read:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            font-size: 24px;
+            color: #0e8549;
+        }
+    </style>
+
+    <!-- Mark All as Read Button -->
+    @if($notifications->count() > 0)
+    <button id="markAllReadBtn" class="mark-all-read">
+        <i class="bx bx-check-double me-2"></i>Tandai Semua Sudah Dibaca
+    </button>
+    @endif
+
+    <!-- Notifications List -->
+    <div id="notificationsContainer">
+        @forelse($notifications as $notification)
+        <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}"
+             data-id="{{ $notification->id }}">
+            <div class="d-flex">
+                <div class="notification-icon {{ $this->getNotificationIconClass($notification->type) }}">
+                    <i class="{{ $this->getNotificationIcon($notification->type) }}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-header">
+                        <h6 class="notification-title">{{ $notification->title }}</h6>
+                        <small class="notification-time">{{ $notification->created_at->diffForHumans() }}</small>
+                    </div>
+                    <p class="notification-message">{{ $notification->message }}</p>
+                    @if(!$notification->is_read)
+                    <button class="mark-read-btn mt-2" onclick="markAsRead({{ $notification->id }})">
+                        <i class="bx bx-check"></i> Tandai Dibaca
+                    </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @empty
+        <div class="empty-state">
+            <i class="bx bx-bell-off"></i>
+            <p>Belum ada notifikasi</p>
+        </div>
+        @endforelse
+    </div>
+
+    <!-- Pagination -->
+    @if($notifications->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $notifications->links() }}
+    </div>
+    @endif
+</div>
+@endsection
+
+@section('script')
+<script>
+function getNotificationIconClass(type) {
+    const classes = {
+        'presensi_reminder': 'warning',
+        'presensi_success': 'presensi',
+        'teaching_success': 'teaching',
+        'izin_submitted': 'izin',
+        'izin_approved': 'presensi',
+        'izin_rejected': 'warning'
+    };
+    return classes[type] || 'presensi';
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'presensi_reminder': 'bx bx-time-five',
+        'presensi_success': 'bx bx-check-circle',
+        'teaching_success': 'bx bx-chalkboard',
+        'izin_submitted': 'bx bx-file',
+        'izin_approved': 'bx bx-check',
+        'izin_rejected': 'bx bx-x'
+    };
+    return icons[type] || 'bx bx-bell';
+}
+
+function markAsRead(notificationId) {
+    fetch(`/mobile/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const item = document.querySelector(`[data-id="${notificationId}"]`);
+            item.classList.remove('unread');
+            item.classList.add('read');
+            const markBtn = item.querySelector('.mark-read-btn');
+            if (markBtn) markBtn.remove();
+
+            // Update badge count
+            updateNotificationBadge();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function markAllAsRead() {
+    const btn = document.getElementById('markAllReadBtn');
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-2"></i>Menyimpan...';
+    btn.disabled = true;
+
+    fetch('/mobile/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                item.classList.add('read');
+                const markBtn = item.querySelector('.mark-read-btn');
+                if (markBtn) markBtn.remove();
+            });
+
+            btn.style.display = 'none';
+            updateNotificationBadge();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.innerHTML = '<i class="bx bx-check-double me-2"></i>Tandai Semua Sudah Dibaca';
+        btn.disabled = false;
+    });
+}
+
+function updateNotificationBadge() {
+    // This will be called to update the header badge
+    if (window.parent && window.parent.updateNotificationBadge) {
+        window.parent.updateNotificationBadge();
+    }
+}
+
+// Event listeners
+document.getElementById('markAllReadBtn')?.addEventListener('click', markAllAsRead);
+
+// Auto-refresh notifications every 30 seconds
+setInterval(() => {
+    // Optional: implement auto-refresh if needed
+}, 30000);
+</script>
+@endsection

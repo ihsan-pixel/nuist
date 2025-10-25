@@ -105,6 +105,12 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::get('/teaching-attendances', [App\Http\Controllers\MobileController::class, 'teachingAttendances'])->name('teaching-attendances');
     Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin');
     Route::get('/ubah-akun', [App\Http\Controllers\MobileController::class, 'ubahAkun'])->name('ubah-akun');
+
+    // Notification routes
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 });
 
 // panduan route - accessible by super_admin and pengurus

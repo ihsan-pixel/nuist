@@ -270,6 +270,13 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
+                    <!-- Notification Bell -->
+                    <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-3 position-relative">
+                        <i class="bx bx-bell" style="font-size: 24px; color: #0e8549;"></i>
+                        <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">0</span>
+                    </a>
+
+                    <!-- User Avatar Dropdown -->
                     <div class="dropdown">
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                             <div class="avatar-sm">
@@ -278,6 +285,8 @@
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -439,6 +448,22 @@
             isPulling = false;
         });
 
+        // Notification badge functionality
+        function updateNotificationBadge() {
+            fetch('/mobile/notifications/unread-count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 99 ? '99+' : data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error updating notification badge:', error));
+        }
+
         // Mobile optimizations
         document.addEventListener('DOMContentLoaded', () => {
             // Prevent zoom on input focus
@@ -459,6 +484,12 @@
                     }
                 });
             });
+
+            // Update notification badge on page load
+            updateNotificationBadge();
+
+            // Update badge every 30 seconds
+            setInterval(updateNotificationBadge, 30000);
         });
     </script>
 

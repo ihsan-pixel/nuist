@@ -10,4 +10,9 @@
 - [x] Tambahkan tombol kembali di resources/views/mobile/izin-tugas-luar.blade.php
 - [x] Tambahkan tombol kembali di resources/views/mobile/riwayat-presensi.blade.php
 - [x] Jalankan server lokal dan test halaman-halaman tersebut untuk memastikan bottom nav hide dan tombol kembali berfungsi.
-- [ ] Jika ada error, perbaiki.
+- [x] Jika ada error, perbaiki.
+- [x] Implementasi sistem notifikasi untuk presensi, izin, dan presensi mengajar
+- [x] Tambahkan notifikasi reminder untuk presensi dan presensi mengajar di dashboard
+- [x] Tambahkan notifikasi sukses untuk presensi masuk/keluar
+- [x] Tambahkan notifikasi untuk pengajuan, persetujuan, dan penolakan izin
+- [x] Tambahkan notifikasi sukses untuk presensi mengajar

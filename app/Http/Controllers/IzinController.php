@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Presensi;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -47,6 +48,18 @@ class IzinController extends Controller
             'status_kepegawaian_id' => $user->status_kepegawaian_id,
         ]);
 
+        // Create notification for izin submission
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'izin_submitted',
+            'title' => 'Izin Diajukan',
+            'message' => 'Pengajuan izin Anda telah dikirim dan sedang menunggu persetujuan.',
+            'data' => [
+                'tanggal' => $tanggal,
+                'keterangan' => $request->input('keterangan')
+            ]
+        ]);
+
         return redirect()->route('presensi.index')->with('success', 'Surat izin berhasil diunggah dan menunggu persetujuan.');
     }
 
@@ -75,6 +88,19 @@ class IzinController extends Controller
             'approved_by' => Auth::id(),
         ]);
 
+        // Create notification for user about approval
+        Notification::create([
+            'user_id' => $presensi->user_id,
+            'type' => 'izin_approved',
+            'title' => 'Izin Disetujui',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah disetujui.',
+            'data' => [
+                'presensi_id' => $presensi->id,
+                'tanggal' => $presensi->tanggal,
+                'approved_by' => Auth::user()->name
+            ]
+        ]);
+
         return redirect()->route('izin.index')->with('success', 'Izin disetujui.');
     }
 
@@ -86,6 +112,19 @@ class IzinController extends Controller
             'status_izin' => 'rejected',
             'status' => 'alpha',
             'approved_by' => Auth::id(),
+        ]);
+
+        // Create notification for user about rejection
+        Notification::create([
+            'user_id' => $presensi->user_id,
+            'type' => 'izin_rejected',
+            'title' => 'Izin Ditolak',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak.',
+            'data' => [
+                'presensi_id' => $presensi->id,
+                'tanggal' => $presensi->tanggal,
+                'rejected_by' => Auth::user()->name
+            ]
         ]);
 
         return redirect()->route('izin.index')->with('success', 'Izin ditolak.');
