@@ -274,7 +274,7 @@
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                             <div class="avatar-sm">
                                 <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+                 class="rounded-circle border border-white" width="40" height="40" alt="User">
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
