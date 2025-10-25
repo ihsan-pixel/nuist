@@ -566,19 +566,15 @@ class MobileController extends Controller
                         $coordinateCounts[$key]++;
                     }
 
-                    // Check if any coordinate appears 3 or more times
+                    // Check if any coordinate appears exactly 4 times (not 3 times)
                     foreach ($coordinateCounts as $coordinates => $count) {
-                        if ($count >= 3) {
+                        if ($count === 4) {
                             $isFakeLocation = true;
                             list($lat, $lng) = explode(',', $coordinates);
 
                             // Create detailed problem description
                             $problemDetails = [];
-                            if ($count === 4) {
-                                $problemDetails[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik';
-                            } elseif ($count === 3) {
-                                $problemDetails[] = '3 dari 4 pembacaan lokasi memiliki koordinat yang sama';
-                            }
+                            $problemDetails[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik';
 
                             // Add coordinate details
                             $problemDetails[] = "Koordinat terdeteksi: {$lat}, {$lng} muncul {$count} kali";
@@ -610,7 +606,7 @@ class MobileController extends Controller
                             }
 
                             $fakeLocationAnalysis = [
-                                'reason' => '3 or more readings have identical coordinates',
+                                'reason' => 'All 4 readings have identical coordinates',
                                 'problem_details' => $problemDetails,
                                 'duplicate_coordinates' => [
                                     'latitude' => (float)$lat,

@@ -63,9 +63,9 @@ class FakeLocationController extends Controller
             if ($presensi->is_fake_location !== null) {
                 $issues = [];
 
-                // Tambahkan detail masalah untuk fake GPS detection (updated for multiple readings)
+                // Tambahkan detail masalah untuk fake GPS detection (updated for 4 identical readings)
                 if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['reason'])) {
-                    if ($presensi->fake_location_analysis['reason'] === '3 or more readings have identical coordinates') {
+                    if ($presensi->fake_location_analysis['reason'] === 'All 4 readings have identical coordinates') {
                         // Add coordinate details from the analysis
                         if (isset($presensi->fake_location_analysis['duplicate_coordinates'])) {
                             $coord = $presensi->fake_location_analysis['duplicate_coordinates'];
