@@ -164,8 +164,8 @@
         <div class="notification-item {{ $notification->is_read ? 'read' : 'unread' }}"
              data-id="{{ $notification->id }}">
             <div class="d-flex">
-                <div class="notification-icon {{ $this->getNotificationIconClass($notification->type) }}">
-                    <i class="{{ $this->getNotificationIcon($notification->type) }}"></i>
+                <div class="notification-icon {{ $notification->type === 'presensi_reminder' ? 'warning' : ($notification->type === 'presensi_success' ? 'presensi' : ($notification->type === 'teaching_success' ? 'teaching' : ($notification->type === 'izin_submitted' || $notification->type === 'izin_approved' || $notification->type === 'izin_rejected' ? 'izin' : 'presensi'))) }}">
+                    <i class="{{ $notification->type === 'presensi_reminder' ? 'bx bx-time-five' : ($notification->type === 'presensi_success' ? 'bx bx-check-circle' : ($notification->type === 'teaching_success' ? 'bx bx-chalkboard' : ($notification->type === 'izin_submitted' ? 'bx bx-file' : ($notification->type === 'izin_approved' ? 'bx bx-check' : ($notification->type === 'izin_rejected' ? 'bx bx-x' : 'bx bx-bell'))))) }}"></i>
                 </div>
                 <div class="notification-content">
                     <div class="notification-header">
@@ -200,30 +200,6 @@
 
 @section('script')
 <script>
-function getNotificationIconClass(type) {
-    const classes = {
-        'presensi_reminder': 'warning',
-        'presensi_success': 'presensi',
-        'teaching_success': 'teaching',
-        'izin_submitted': 'izin',
-        'izin_approved': 'presensi',
-        'izin_rejected': 'warning'
-    };
-    return classes[type] || 'presensi';
-}
-
-function getNotificationIcon(type) {
-    const icons = {
-        'presensi_reminder': 'bx bx-time-five',
-        'presensi_success': 'bx bx-check-circle',
-        'teaching_success': 'bx bx-chalkboard',
-        'izin_submitted': 'bx bx-file',
-        'izin_approved': 'bx bx-check',
-        'izin_rejected': 'bx bx-x'
-    };
-    return icons[type] || 'bx bx-bell';
-}
-
 function markAsRead(notificationId) {
     fetch(`/mobile/notifications/${notificationId}/read`, {
         method: 'POST',
