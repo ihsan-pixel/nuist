@@ -289,7 +289,7 @@
 
     <!-- Bottom Navigation -->
     <nav class="bg-white rounded-full shadow-md flex justify-between items-center px-4 py-2 mb-6 w-[90%] max-w-md fixed bottom-0 left-1/2 transform -translate-x-1/2 d-md-none" style="z-index: 1030;">
-        <!-- Beranda Active -->
+        <!-- Beranda -->
         <a href="{{ route('mobile.dashboard') }}" class="flex items-center gap-1 {{ request()->routeIs('mobile.dashboard') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full' : 'text-gray-400 hover:text-green-500 transition' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75l8.485-6.364a1 1 0 011.03 0L21 9.75M4.5 10.5V20a1 1 0 001 1h13a1 1 0 001-1v-9.5" />
@@ -298,45 +298,35 @@
         </a>
 
         <!-- Presensi -->
-        <a href="{{ route('mobile.presensi') }}" class="text-gray-400 hover:text-green-500 transition {{ request()->routeIs('mobile.presensi*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full flex items-center gap-1' : '' }}">
+        <a href="{{ route('mobile.presensi') }}" class="flex items-center gap-1 {{ request()->routeIs('mobile.presensi*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full' : 'text-gray-400 hover:text-green-500 transition' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 10.5a6.15 6.15 0 11-12.3 0 6.15 6.15 0 0112.3 0z" />
             </svg>
-            @if(request()->routeIs('mobile.presensi*'))
-                <span class="text-sm font-medium">Presensi</span>
-            @endif
+            <span class="text-sm font-medium">Presensi</span>
         </a>
 
         <!-- Jadwal -->
-        <a href="{{ route('mobile.jadwal') }}" class="text-gray-400 hover:text-green-500 transition {{ request()->routeIs('mobile.jadwal*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full flex items-center gap-1' : '' }}">
+        <a href="{{ route('mobile.jadwal') }}" class="flex items-center gap-1 {{ request()->routeIs('mobile.jadwal*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full' : 'text-gray-400 hover:text-green-500 transition' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" />
             </svg>
-            @if(request()->routeIs('mobile.jadwal*'))
-                <span class="text-sm font-medium">Jadwal</span>
-            @endif
+            <span class="text-sm font-medium">Jadwal</span>
         </a>
 
         <!-- Mengajar -->
-        <a href="{{ route('mobile.teaching-attendances') }}" class="text-gray-400 hover:text-green-500 transition {{ request()->routeIs('mobile.teaching-attendances*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full flex items-center gap-1' : '' }}">
+        <a href="{{ route('mobile.teaching-attendances') }}" class="flex items-center gap-1 {{ request()->routeIs('mobile.teaching-attendances*') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full' : 'text-gray-400 hover:text-green-500 transition' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5v14l7-5 7 5V5a2 2 0 00-2-2H7a2 2 0 00-2 2z" />
             </svg>
-            @if(request()->routeIs('mobile.teaching-attendances*'))
-                <span class="text-sm font-medium">Mengajar</span>
-            @endif
+            <span class="text-sm font-medium">Mengajar</span>
         </a>
 
         <!-- Profil -->
-        <a href="{{ route('mobile.profile') }}" class="text-gray-400 hover:text-green-500 transition {{ request()->routeIs('mobile.profile') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full flex items-center gap-1' : '' }}">
+        <a href="{{ route('mobile.profile') }}" class="flex items-center gap-1 {{ request()->routeIs('mobile.profile') ? 'bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-2 rounded-full' : 'text-gray-400 hover:text-green-500 transition' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9a3 3 0 110 6 3 3 0 010-6zM19.4 15a1.5 1.5 0 010 2.12l-1.41 1.41a1.5 1.5 0 01-2.12 0l-.9-.9a6.97 6.97 0 01-2.59.48 6.97 6.97 0 01-2.59-.48l-.9.9a1.5 1.5 0 01-2.12 0L4.6 17.12a1.5 1.5 0 010-2.12l.9-.9A6.97 6.97 0 015 12c0-.9.17-1.77.48-2.59l-.9-.9a1.5 1.5 0 010-2.12L5.1 4.6a1.5 1.5 0 012.12 0l.9.9A6.97 6.97 0 0111 5c.9 0 1.77.17 2.59.48l.9-.9a1.5 1.5 0 012.12 0l1.41 1.41a1.5 1.5 0 010 2.12l-.9.9c.31.82.48 1.69.48 2.59 0 .9-.17 1.77-.48 2.59l.9.9z" />
             </svg>
-            @if(request()->routeIs('mobile.profile'))
-                <span class="text-sm font-medium">Profil</span>
-            @endif
-        </a>
-    </nav>
+            <span class="text-sm font-medium">Profil</span>
 
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
