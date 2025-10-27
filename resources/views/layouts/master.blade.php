@@ -18,6 +18,8 @@
     <meta property="og:image" content="{{ asset('build/images/logo%20favicon%201.png') }}" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('build/images/logo%20favicon%201.png') }}">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.head-css')
 </head>
 
