@@ -211,6 +211,10 @@
                         <i class="bx bx-file me-1"></i>
                         Lihat Log Sistem
                     </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="turnOffDebug()">
+                        <i class="bx bx-shield-x me-1"></i>
+                        Matikan Debug Mode
+                    </button>
                 </div>
             </div>
         </div>
@@ -443,6 +447,40 @@ function optimizeApp() {
 
 function viewLogs() {
     window.open('/admin/logs', '_blank');
+}
+
+function turnOffDebug() {
+    if (!confirm('Apakah Anda yakin ingin mematikan mode debug? Aplikasi akan restart konfigurasi.')) return;
+
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Mematikan...';
+    button.disabled = true;
+
+    fetch('{{ route("app-settings.turn-off-debug") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message);
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast('error', data.message);
+        }
+    })
+    .catch(error => {
+        showToast('error', 'Terjadi kesalahan saat mematikan debug mode');
+        console.error(error);
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
 }
 
 function resetSettings() {

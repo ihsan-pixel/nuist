@@ -254,4 +254,5 @@ Route::middleware(['role:super_admin'])->group(function () {
     Route::put('/app-settings', [App\Http\Controllers\AppSettingsController::class, 'update'])->name('app-settings.update');
     Route::post('/app-settings/update-version', [App\Http\Controllers\AppSettingsController::class, 'updateVersion'])->name('app-settings.update-version');
     Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])->name('app-settings.check-updates');
+    Route::post('/app-settings/turn-off-debug', [App\Http\Controllers\AppSettingsController::class, 'turnOffDebug'])->name('app-settings.turn-off-debug');
 });

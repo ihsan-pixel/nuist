@@ -185,4 +185,40 @@ class AppSettingsController extends Controller
             ]);
         }
     }
+
+    /**
+     * Turn off debug mode
+     */
+    public function turnOffDebug()
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        try {
+            // Update .env file
+            $envPath = base_path('.env');
+            $envContent = file_get_contents($envPath);
+
+            // Replace APP_DEBUG=true with APP_DEBUG=false
+            $envContent = preg_replace('/APP_DEBUG\s*=\s*true/i', 'APP_DEBUG=false', $envContent);
+
+            file_put_contents($envPath, $envContent);
+
+            // Clear and recache configuration
+            \Artisan::call('config:clear');
+            \Artisan::call('config:cache');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mode debug berhasil dimatikan.',
+                'debug_mode' => false
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mematikan mode debug: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
