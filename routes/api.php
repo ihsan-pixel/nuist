@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GithubWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/api/github-commit', [GithubWebhookController::class, 'handle']);
+Route::post('github-commit', [GithubWebhookController::class, 'handle']);
