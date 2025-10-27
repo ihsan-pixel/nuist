@@ -83,13 +83,13 @@
                 </li>
                 @endif --}}
 
+                <li class="menu-title">PRESENSI</li>
+
                 @php
                     $presensiAllowed = in_array($userRole, ['tenaga_pendidik']) && auth()->user()->password_changed;
                     \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 @endphp
                 @if($presensiAllowed)
-
-                <li class="menu-title">PRESENSI</li>
 
                 <li>
                     <a href="{{ route('mobile.presensi') }}" class="waves-effect">
@@ -137,7 +137,7 @@
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
 
-                APLIKASI
+                <li class="menu-title">APLIKASI</li>
 
                 <li>
                     <a href="{{ route('development-history.index') }}" class="waves-effect">
