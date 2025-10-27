@@ -599,6 +599,22 @@ class PresensiAdminController extends Controller
         }, $filename);
     }
 
+    // Export monthly presensi summary to Excel
+    public function exportMonthly(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['super_admin', 'admin', 'pengurus'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        $month = $request->input('month', Carbon::now()->format('Y-m'));
+        list($year, $monthNum) = explode('-', $month);
+
+        $filename = 'Rekap_Presensi_Bulanan_' . $month . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PresensiMonthlyExport($monthNum, $year, $user), $filename);
+    }
+
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */
