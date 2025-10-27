@@ -26,14 +26,6 @@
                 <i class="fa fa-fw fa-bars"></i>
             </button>
 
-            <!-- Home Button and Page Title -->
-            <div class="d-flex align-items-center ms-3">
-                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary me-2" title="Kembali ke Dashboard">
-                    <i class="bx bx-home"></i>
-                </a>
-                <h5 class="mb-0 text-dark">{{ explode(' - ', @yield('title'))[0] }}</h5>
-            </div>
-
            <!-- App Search-->
            {{-- <form class="app-search d-none d-lg-block">
             <div class="position-relative">
