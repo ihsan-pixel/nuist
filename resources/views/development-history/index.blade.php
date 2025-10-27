@@ -281,38 +281,65 @@
     border-width: 0.3em;
 }
 
+/* Custom Pagination Styles */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2rem;
+}
+
+.page-item-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.page-item-custom:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.page-item-custom.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.page-item-custom.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.page-item-custom i {
+    font-size: 1.1rem;
+}
+
+.page-info {
+    color: #718096;
+    font-size: 0.875rem;
+    margin: 0 15px;
+    font-weight: 500;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .timeline-container {
-        padding-left: 40px;
-    }
-
-    .timeline-line {
-        left: 20px;
-    }
-
-    .timeline-marker {
-        left: -35px;
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
-    .timeline-content {
-        padding: 20px;
-    }
-
-    .timeline-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .timeline-meta {
-        width: 100%;
-        justify-content: space-between;
-    }
-
     .btn-group-custom .btn {
         width: 100%;
         margin-right: 0;
@@ -326,26 +353,43 @@
     .stats-card {
         margin-bottom: 1rem;
     }
+
+    .custom-pagination {
+        gap: 8px;
+    }
+
+    .page-item-custom {
+        width: 40px;
+        height: 40px;
+    }
+
+    .page-info {
+        font-size: 0.8rem;
+        margin: 0 10px;
+    }
 }
 
 @media (max-width: 576px) {
-    .timeline-container {
-        padding-left: 30px;
-    }
-
-    .timeline-marker {
-        left: -25px;
-        width: 35px;
-        height: 35px;
+    .card-description {
         font-size: 0.9rem;
     }
 
-    .timeline-content {
-        padding: 15px;
+    .card-title {
+        font-size: 1.1rem;
     }
 
-    .timeline-title {
-        font-size: 1.1rem;
+    .custom-pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .page-item-custom {
+        width: 35px;
+        height: 35px;
+    }
+
+    .page-item-custom i {
+        font-size: 1rem;
     }
 }
 
@@ -680,9 +724,35 @@
                         @endforeach
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $histories->appends(request()->query())->links() }}
+                    <!-- Custom Pagination -->
+                    <div class="custom-pagination">
+                        @if($histories->hasPages())
+                            @if($histories->onFirstPage())
+                                <span class="page-item-custom disabled">
+                                    <i class="bx bx-chevron-left"></i>
+                                </span>
+                            @else
+                                <a href="{{ $histories->previousPageUrl() }}" class="page-item-custom">
+                                    <i class="bx bx-chevron-left"></i>
+                                </a>
+                            @endif
+
+                            <div class="page-info">
+                                Halaman {{ $histories->currentPage() }} dari {{ $histories->lastPage() }}
+                                <br>
+                                <small class="text-muted">Menampilkan {{ $histories->count() }} dari {{ $histories->total() }} item</small>
+                            </div>
+
+                            @if($histories->hasMorePages())
+                                <a href="{{ $histories->nextPageUrl() }}" class="page-item-custom">
+                                    <i class="bx bx-chevron-right"></i>
+                                </a>
+                            @else
+                                <span class="page-item-custom disabled">
+                                    <i class="bx bx-chevron-right"></i>
+                                </span>
+                            @endif
+                        @endif
                     </div>
                 @else
                     <div class="empty-state">
