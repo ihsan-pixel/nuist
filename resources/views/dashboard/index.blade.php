@@ -11,7 +11,7 @@
 @endcomponent
 
 <div class="row">
-    <div class="col-12">
+    <div class="col-4">
         <!-- Welcome Card - Mobile Optimized -->
         <div class="card overflow-hidden mb-3">
             <div class="bg-success-subtle">
@@ -105,7 +105,7 @@
         @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData))
         <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-12">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -130,7 +130,7 @@
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-12">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
