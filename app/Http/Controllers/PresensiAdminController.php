@@ -599,6 +599,25 @@ class PresensiAdminController extends Controller
         }, $filename);
     }
 
+    // Export presensi data bulanan untuk admin
+    public function exportMonthly(Request $request)
+    {
+        $user = Auth::user();
+
+        // Hanya untuk role admin
+        if ($user->role !== 'admin' || !$user->madrasah_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $month = $request->input('month', Carbon::now()->format('Y-m'));
+        list($year, $monthNum) = explode('-', $month);
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\PresensiMonthlyExport($monthNum, $year, $user),
+            'Data_Presensi_Bulanan_' . $month . '.xlsx'
+        );
+    }
+
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */

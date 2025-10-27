@@ -431,6 +431,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Export Monthly Modal -->
+    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportMonthlyModalLabel">Export Data Presensi Bulanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Pilih bulan untuk export data presensi bulanan:</p>
+                    <div class="mb-3">
+                        <label for="exportMonth" class="form-label">Bulan:</label>
+                        <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
+                    </div>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-success" id="exportMonthlyBtn">
+                            <i class="bx bx-download me-2"></i>Export Data Bulanan
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @else
     <!-- Admin and other roles: Original view -->
     <!-- Summary Cards -->
@@ -493,10 +520,19 @@
                     </div>
                     @endif
 
-                    <div class="mb-3 d-flex justify-content-end">
-                        <a href="{{ route('izin.index') }}" class="btn btn-info">
-                            <i class="bx bx-mail-send"></i> Kelola Izin
-                        </a>
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            @if($user->role === 'admin')
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportMonthlyModal">
+                                <i class="bx bx-calendar me-1"></i>Export Bulanan
+                            </button>
+                            @endif
+                        </div>
+                        <div>
+                            <a href="{{ route('izin.index') }}" class="btn btn-info">
+                                <i class="bx bx-mail-send"></i> Kelola Izin
+                            </a>
+                        </div>
                     </div>
 
                     <div class="table-responsive">
@@ -958,6 +994,14 @@ $(document).ready(function () {
         if (currentMadrasahId) {
             let month = $(this).val();
             window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
+        }
+    });
+
+    // Handle export monthly for admin
+    $('#exportMonthlyBtn').on('click', function() {
+        let month = $('#exportMonth').val();
+        if (month) {
+            window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
         }
     });
 
