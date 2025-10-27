@@ -103,11 +103,8 @@
                                 </form>
                                 <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
                                    class="btn btn-success btn-sm rounded-pill px-3">
-                                    <i class="bx bx-download me-1"></i>Export Harian
+                                    <i class="bx bx-download me-1"></i>Export
                                 </a>
-                                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportMonthlyModal">
-                                    <i class="bx bx-calendar me-1"></i>Export Bulanan
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -380,41 +377,6 @@
         </div>
     </div>
 
-    <!-- Export Monthly Modal -->
-    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportMonthlyModalLabel">Export Rekap Presensi Bulanan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-3">Pilih bulan untuk export rekap presensi bulanan:</p>
-                    <div class="mb-3">
-                        <label for="exportMonthlyMonth" class="form-label">Bulan:</label>
-                        <input type="month" class="form-control" id="exportMonthlyMonth" value="{{ date('Y-m') }}">
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="bx bx-info-circle me-2"></i>
-                        Export ini akan menghasilkan rekapitulasi presensi bulanan dengan informasi:
-                        <ul class="mb-0 mt-2">
-                            <li>Total hari kerja dalam bulan tersebut</li>
-                            <li>Jumlah kehadiran, keterlambatan, izin, dan ketidakhadiran</li>
-                            <li>Persentase kehadiran per guru</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="exportMonthlyBtn">
-                        <i class="bx bx-download me-2"></i>Export Bulanan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
     <!-- Madrasah Detail Modal -->
     <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -511,19 +473,10 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header">
                     <h4 class="card-title mb-0">
                         <i class="bx bx-list-ul me-2"></i>Data Presensi
                     </h4>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
-                           class="btn btn-success btn-sm">
-                            <i class="bx bx-download me-1"></i>Export Harian
-                        </a>
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exportMonthlyModal">
-                            <i class="bx bx-calendar me-1"></i>Export Bulanan
-                        </button>
-                    </div>
                 </div>
                 <div class="card-body">
                     @if(session('success'))
@@ -1005,15 +958,6 @@ $(document).ready(function () {
         if (currentMadrasahId) {
             let month = $(this).val();
             window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
-        }
-    });
-
-    // Handle monthly export
-    $('#exportMonthlyBtn').on('click', function() {
-        let month = $('#exportMonthlyMonth').val();
-        if (month) {
-            window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
-            $('#exportMonthlyModal').modal('hide');
         }
     });
 

@@ -42,70 +42,51 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        try {
-            $data = collect();
+        $data = collect();
 
-            // Get start and end of month
-            $startDate = Carbon::createFromFormat('Y-m', $this->year . '-' . $this->month)->startOfMonth();
-            $endDate = Carbon::createFromFormat('Y-m', $this->year . '-' . $this->month)->endOfMonth();
+        // Get start and end of month
+        $startDate = Carbon::createFromFormat('Y-m', $this->year . '-' . $this->month)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m', $this->year . '-' . $this->month)->endOfMonth();
 
-            // Get working days (exclude weekends and holidays)
-            $workingDays = $this->getWorkingDays($startDate, $endDate);
+        // Get working days (exclude weekends and holidays)
+        $workingDays = $this->getWorkingDays($startDate, $endDate);
 
-            if (in_array($this->user->role, ['super_admin', 'pengurus'])) {
-                // For super_admin and pengurus: all madrasah
-                $madrasahs = Madrasah::all();
-            } else {
-                // For admin: only their madrasah
-                $madrasahs = Madrasah::where('id', $this->user->madrasah_id)->get();
-            }
+        if (in_array($this->user->role, ['super_admin', 'pengurus'])) {
+            // For super_admin and pengurus: all madrasah
+            $madrasahs = Madrasah::all();
+        } else {
+            // For admin: only their madrasah
+            $madrasahs = Madrasah::where('id', $this->user->madrasah_id)->get();
+        }
 
-            foreach ($madrasahs as $madrasah) {
-                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $madrasah->id)
-                    ->with('statusKepegawaian')
-                    ->get();
+        foreach ($madrasahs as $madrasah) {
+            $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $madrasah->id)
+                ->with('statusKepegawaian')
+                ->get();
 
-                foreach ($tenagaPendidik as $guru) {
-                    $presensiData = $this->getPresensiSummary($guru->id, $startDate, $endDate, $workingDays);
+            foreach ($tenagaPendidik as $guru) {
+                $presensiData = $this->getPresensiSummary($guru->id, $startDate, $endDate, $workingDays);
 
-                    if ($presensiData['total_hari_kerja'] > 0) {
-                        $data->push([
-                            'Madrasah' => $madrasah->name,
-                            'Nama Guru' => $guru->name,
-                            'Status Kepegawaian' => $guru->statusKepegawaian->name ?? '-',
-                            'NIP' => $guru->nip,
-                            'NUPTK' => $guru->nuptk,
-                            'Total Hari Kerja' => $presensiData['total_hari_kerja'],
-                            'Hadir' => $presensiData['hadir'],
-                            'Terlambat' => $presensiData['terlambat'],
-                            'Izin' => $presensiData['izin'],
-                            'Tidak Hadir' => $presensiData['tidak_hadir'],
-                            'Persentase Kehadiran (%)' => $presensiData['persentase_kehadiran']
-                        ]);
-                    }
+                if ($presensiData['total_hari_kerja'] > 0) {
+                    $data->push([
+                        'Madrasah' => $madrasah->name,
+                        'Nama Guru' => $guru->name,
+                        'Status Kepegawaian' => $guru->statusKepegawaian->name ?? '-',
+                        'NIP' => $guru->nip,
+                        'NUPTK' => $guru->nuptk,
+                        'Total Hari Kerja' => $presensiData['total_hari_kerja'],
+                        'Hadir' => $presensiData['hadir'],
+                        'Terlambat' => $presensiData['terlambat'],
+                        'Izin' => $presensiData['izin'],
+                        'Tidak Hadir' => $presensiData['tidak_hadir'],
+                        'Persentase Kehadiran (%)' => $presensiData['persentase_kehadiran']
+                    ]);
                 }
             }
-
-            return $data;
-        } catch (\Exception $e) {
-            // Return empty collection with error info for debugging
-            return collect([
-                [
-                    'Madrasah' => 'Error',
-                    'Nama Guru' => $e->getMessage(),
-                    'Status Kepegawaian' => $e->getFile() . ':' . $e->getLine(),
-                    'NIP' => '',
-                    'NUPTK' => '',
-                    'Total Hari Kerja' => 0,
-                    'Hadir' => 0,
-                    'Terlambat' => 0,
-                    'Izin' => 0,
-                    'Tidak Hadir' => 0,
-                    'Persentase Kehadiran (%)' => 0
-                ]
-            ]);
         }
+
+        return $data;
     }
 
     private function getWorkingDays($startDate, $endDate)
@@ -116,8 +97,11 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
         while ($currentDate <= $endDate) {
             // Skip weekends (0 = Sunday, 6 = Saturday)
             if ($currentDate->dayOfWeek !== 0 && $currentDate->dayOfWeek !== 6) {
-                // For now, just exclude weekends. Holiday check can be added later if table exists
-                $workingDays[] = $currentDate->toDateString();
+                // Check if it's a holiday
+                $isHoliday = \App\Models\Holiday::whereDate('tanggal', $currentDate)->exists();
+                if (!$isHoliday) {
+                    $workingDays[] = $currentDate->toDateString();
+                }
             }
             $currentDate->addDay();
         }
