@@ -434,12 +434,14 @@
     </div>
 
     <!-- Export Monthly Modal -->
-    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" role="dialog" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exportMonthlyModalLabel">Export Data Presensi Bulanan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">Pilih bulan untuk export data presensi bulanan:</p>
@@ -454,7 +456,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                 </div>
             </div>
         </div>
@@ -524,7 +526,7 @@
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <div>
                             @if($user->role === 'admin')
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportMonthlyModal">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exportMonthlyModal">
                                 <i class="bx bx-calendar me-1"></i>Export Bulanan
                             </button>
                             @endif
@@ -1032,13 +1034,13 @@ $(document).ready(function () {
         }
     });
 
-    // Initialize modal properly for Bootstrap 5
-    $(document).on('show.bs.modal', '#exportMonthlyModal', function (e) {
+    // Initialize modal properly for Bootstrap 4
+    $('#exportMonthlyModal').on('show.bs.modal', function (e) {
         // Ensure modal is properly initialized
         console.log('Modal opening');
     });
 
-    $(document).on('shown.bs.modal', '#exportMonthlyModal', function (e) {
+    $('#exportMonthlyModal').on('shown.bs.modal', function (e) {
         // Modal is fully shown
         console.log('Modal opened');
     });
