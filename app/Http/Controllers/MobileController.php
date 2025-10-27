@@ -732,22 +732,34 @@ class MobileController extends Controller
             $waktuMasuk = $request->input('waktu_masuk') ?? $now;
             $keterangan = null;
 
-            // Jika waktu presensi setelah 07:00, hitung keterlambatan
-            if ($now > '07:00:00') {
-                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                $sekarang = Carbon::now('Asia/Jakarta');
-                $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+            // Check if user has approved izin terlambat for today
+            $approvedIzinTerlambat = Presensi::where('user_id', $user->id)
+                ->where('tanggal', $today)
+                ->where('status', 'izin')
+                ->where('status_izin', 'approved')
+                ->where('keterangan', 'like', 'Izin Terlambat%')
+                ->first();
 
-                // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                if ($sekarang->lessThan($batas)) {
-                    $terlambatMenit = 0;
-                } else {
-                    $terlambatMenit = abs(round($terlambatMenit));
-                }
-
-                $keterangan = "Terlambat {$terlambatMenit} menit";
+            if ($approvedIzinTerlambat) {
+                $keterangan = "Izin terlambat disetujui";
             } else {
-                $keterangan = "tidak terlambat";
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    if ($sekarang->lessThan($batas)) {
+                        $terlambatMenit = 0;
+                    } else {
+                        $terlambatMenit = abs(round($terlambatMenit));
+                    }
+
+                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                } else {
+                    $keterangan = "tidak terlambat";
+                }
             }
 
             // Presensi masuk
@@ -783,22 +795,34 @@ class MobileController extends Controller
                 $waktuMasuk = $request->input('waktu_masuk') ?? $now;
                 $keterangan = null;
 
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+                // Check if user has approved izin terlambat for today
+                $approvedIzinTerlambat = Presensi::where('user_id', $user->id)
+                    ->where('tanggal', $today)
+                    ->where('status', 'izin')
+                    ->where('status_izin', 'approved')
+                    ->where('keterangan', 'like', 'Izin Terlambat%')
+                    ->first();
 
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
-
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                if ($approvedIzinTerlambat) {
+                    $keterangan = "Izin terlambat disetujui";
                 } else {
-                    $keterangan = "tidak terlambat";
+                    // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                    if ($now > '07:00:00') {
+                        $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                        $sekarang = Carbon::now('Asia/Jakarta');
+                        $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                        // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                        if ($sekarang->lessThan($batas)) {
+                            $terlambatMenit = 0;
+                        } else {
+                            $terlambatMenit = abs(round($terlambatMenit));
+                        }
+
+                        $keterangan = "Terlambat {$terlambatMenit} menit";
+                    } else {
+                        $keterangan = "tidak terlambat";
+                    }
                 }
 
                 $presensi->update([
