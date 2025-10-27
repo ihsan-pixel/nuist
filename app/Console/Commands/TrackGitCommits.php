@@ -15,7 +15,7 @@ class TrackGitCommits extends Command
      *
      * @var string
      */
-    protected $signature = 'development:track-commits {--since=1 week ago : Track commits since this date} {--force : Force re-sync all commits}';
+    protected $signature = 'development:track-commits {--since=1 week ago : Track commits since this date} {--force : Force re-sync all commits} {--webhook : Run in webhook mode (less verbose)}';
 
     /**
      * The console command description.
@@ -43,17 +43,23 @@ class TrackGitCommits extends Command
             return Command::FAILURE;
         }
 
-        $this->info('Starting Git commit tracking...');
+        if (!$this->option('webhook')) {
+            $this->info('Starting Git commit tracking...');
+        }
 
         $since = $this->option('since');
         $commits = $this->getGitCommits($since);
 
         if (empty($commits)) {
-            $this->info('No new commits found since ' . $since);
+            if (!$this->option('webhook')) {
+                $this->info('No new commits found since ' . $since);
+            }
             return Command::SUCCESS;
         }
 
-        $this->info("Found " . count($commits) . " commits");
+        if (!$this->option('webhook')) {
+            $this->info("Found " . count($commits) . " commits");
+        }
 
         $tracked = 0;
         $skipped = 0;
@@ -75,13 +81,17 @@ class TrackGitCommits extends Command
 
                 DevelopmentHistory::create($historyData);
                 $tracked++;
-                $this->line("Tracked: {$commit['hash']} - {$commit['message']}");
+                if (!$this->option('webhook')) {
+                    $this->line("Tracked: {$commit['hash']} - {$commit['message']}");
+                }
             }
         }
 
-        $this->info("Git commit tracking complete!");
-        $this->info("Tracked: {$tracked} commits");
-        $this->info("Skipped: {$skipped} commits (already tracked)");
+        if (!$this->option('webhook')) {
+            $this->info("Git commit tracking complete!");
+            $this->info("Tracked: {$tracked} commits");
+            $this->info("Skipped: {$skipped} commits (already tracked)");
+        }
 
         // Auto-generate development history files after tracking commits
         if ($tracked > 0) {

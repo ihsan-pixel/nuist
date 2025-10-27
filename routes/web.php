@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,pengurus'])->group(function () {
         Route::get('/development-history', [DevelopmentHistoryController::class, 'index'])->name('development-history.index');
         Route::get('/development-history/sync', [DevelopmentHistoryController::class, 'syncMigrations'])->name('development-history.sync');
+        Route::post('/admin/run-commit-tracking', [DevelopmentHistoryController::class, 'runCommitTracking'])->name('admin.run-commit-tracking');
         Route::get('/active-users', [App\Http\Controllers\ActiveUsersController::class, 'index'])->name('active-users.index');
     });
 

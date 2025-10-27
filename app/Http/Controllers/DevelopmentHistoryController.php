@@ -26,6 +26,15 @@ class DevelopmentHistoryController extends Controller
             $query->where('type', $request->type);
         }
 
+        // Filter by source (commits vs manual entries)
+        if ($request->has('source') && $request->source !== '') {
+            if ($request->source === 'commits') {
+                $query->whereNotNull('details->commit_hash');
+            } elseif ($request->source === 'manual') {
+                $query->whereNull('details->commit_hash');
+            }
+        }
+
         // Filter by date range if provided
         if ($request->has('date_from') && $request->date_from !== '') {
             $query->where('development_date', '>=', $request->date_from);
@@ -52,7 +61,14 @@ class DevelopmentHistoryController extends Controller
             'enhancement' => 'Enhancement'
         ];
 
-        return view('development-history.index', compact('histories', 'stats', 'types'));
+        // Get source options
+        $sources = [
+            'all' => 'Semua',
+            'commits' => 'Git Commits',
+            'manual' => 'Manual Entry'
+        ];
+
+        return view('development-history.index', compact('histories', 'stats', 'types', 'sources'));
     }
 
     /**
@@ -60,8 +76,13 @@ class DevelopmentHistoryController extends Controller
      */
     private function getStatistics()
     {
+        $totalCommits = DevelopmentHistory::whereNotNull('details->commit_hash')->count();
+        $totalManual = DevelopmentHistory::whereNull('details->commit_hash')->count();
+
         return [
             'total' => DevelopmentHistory::count(),
+            'commits' => $totalCommits,
+            'manual_entries' => $totalManual,
             'migrations' => DevelopmentHistory::where('type', 'migration')->count(),
             'features' => DevelopmentHistory::where('type', 'feature')->count(),
             'updates' => DevelopmentHistory::where('type', 'update')->count(),
@@ -106,6 +127,48 @@ class DevelopmentHistoryController extends Controller
 
         return redirect()->route('development-history.index')
                         ->with('success', "Successfully synced {$synced} migration files to development history.");
+    }
+
+    /**
+     * Run commit tracking command via AJAX for super admin
+     */
+    public function runCommitTracking(Request $request)
+    {
+        // Check if user is super_admin
+        if (auth()->user()->role !== 'super_admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
+        try {
+            // Run the command
+            $exitCode = \Artisan::call('development:track-commits', [
+                '--since' => '1 week ago'
+            ]);
+
+            $output = \Artisan::output();
+
+            if ($exitCode === 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Commit tracking completed successfully',
+                    'output' => $output
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Commit tracking failed',
+                    'output' => $output
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error running commit tracking: ' . $e->getMessage()
+            ]);
+        }
     }
 
     /**

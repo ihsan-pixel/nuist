@@ -180,13 +180,13 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success rounded-circle fs-3">
-                            <i class="bx bx-plus-circle"></i>
+                        <span class="avatar-title bg-info rounded-circle fs-3">
+                            <i class="bx bx-git-commit"></i>
                         </span>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Fitur</p>
-                        <h5 class="mb-0">{{ $stats['features'] ?? 0 }}</h5>
+                        <p class="text-muted mb-2">Git Commits</p>
+                        <h5 class="mb-0">{{ $stats['commits'] ?? 0 }}</h5>
                     </div>
                 </div>
             </div>
@@ -198,13 +198,31 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-info rounded-circle fs-3">
-                            <i class="bx bx-refresh"></i>
+                        <span class="avatar-title bg-secondary rounded-circle fs-3">
+                            <i class="bx bx-edit"></i>
                         </span>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Update</p>
-                        <h5 class="mb-0">{{ $stats['updates'] ?? 0 }}</h5>
+                        <p class="text-muted mb-2">Manual Entry</p>
+                        <h5 class="mb-0">{{ $stats['manual_entries'] ?? 0 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success rounded-circle fs-3">
+                            <i class="bx bx-plus-circle"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Fitur</p>
+                        <h5 class="mb-0">{{ $stats['features'] ?? 0 }}</h5>
                     </div>
                 </div>
             </div>
@@ -234,24 +252,6 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-secondary rounded-circle fs-3">
-                            <i class="bx bx-trending-up"></i>
-                        </span>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Enhancement</p>
-                        <h5 class="mb-0">{{ $stats['enhancements'] ?? 0 }}</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
                         <span class="avatar-title bg-primary rounded-circle fs-3">
                             <i class="bx bx-database"></i>
                         </span>
@@ -266,14 +266,14 @@
     </div>
 </div>
 
-{{-- <!-- Filters -->
+<!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <form method="GET" action="{{ route('development-history.index') }}">
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="type" class="form-label">Tipe</label>
                             <select class="form-select" id="type" name="type">
                                 <option value="">Semua Tipe</option>
@@ -284,15 +284,25 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <label for="source" class="form-label">Sumber</label>
+                            <select class="form-select" id="source" name="source">
+                                @foreach($sources as $key => $label)
+                                    <option value="{{ $key }}" {{ request('source') == $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <label for="date_from" class="form-label">Dari Tanggal</label>
                             <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request('date_from') }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label for="date_to" class="form-label">Sampai Tanggal</label>
                             <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request('date_to') }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">&nbsp;</label>
                             <div class="d-grid gap-2 d-md-flex">
                                 <button type="submit" class="btn btn-primary">
@@ -301,6 +311,11 @@
                                 <a href="{{ route('development-history.index') }}" class="btn btn-secondary">
                                     <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
+                                @if(auth()->user()->role === 'super_admin')
+                                <a href="#" class="btn btn-success" onclick="runCommitTracking()">
+                                    <i class="bx bx-git-commit me-1"></i> Track Commits
+                                </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -308,7 +323,7 @@
             </div>
         </div>
     </div>
-</div> --}}
+</div>
 
 <!-- Sync Button -->
 <div class="row mb-4">
@@ -331,11 +346,20 @@
                         @foreach($histories as $history)
                         <li>
                             <div class="timeline-badge {{ $history->getTypeBadgeClass() }}">
-                                <i class="bx {{ $history->getTypeIcon() }}"></i>
+                                @if($history->details && isset($history->details['commit_hash']))
+                                    <i class="bx bx-git-commit"></i>
+                                @else
+                                    <i class="bx {{ $history->getTypeIcon() }}"></i>
+                                @endif
                             </div>
                             <div class="timeline-panel">
                                 <div class="timeline-heading">
-                                    <h4 class="timeline-title">{{ $history->title }}</h4>
+                                    <h4 class="timeline-title">
+                                        {{ $history->title }}
+                                        @if($history->details && isset($history->details['commit_hash']))
+                                            <i class="bx bx-git-commit text-info ms-2" title="Git Commit"></i>
+                                        @endif
+                                    </h4>
                                     <p class="text-muted">
                                         <small>
                                             <i class="bx bx-calendar me-1"></i>
@@ -347,6 +371,11 @@
                                             <span class="badge {{ $history->getTypeBadgeClass() }} ms-2">
                                                 {{ $types[$history->type] ?? $history->type }}
                                             </span>
+                                            @if($history->details && isset($history->details['commit_hash']))
+                                                <span class="badge bg-success ms-2">
+                                                    <i class="bx bx-git-commit me-1"></i>Git Commit
+                                                </span>
+                                            @endif
                                         </small>
                                     </p>
                                 </div>
@@ -359,6 +388,20 @@
                                                 Migration: {{ $history->migration_file }}
                                             </small>
                                         </p>
+                                    @endif
+                                    @if($history->details && isset($history->details['commit_hash']))
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="bx bx-hash me-1"></i>
+                                                Commit: <code>{{ substr($history->details['commit_hash'], 0, 7) }}</code>
+                                                @if(isset($history->details['commit_author']))
+                                                    | Author: {{ $history->details['commit_author'] }}
+                                                @endif
+                                                @if(isset($history->details['webhook_processed']) && $history->details['webhook_processed'])
+                                                    <span class="badge bg-primary ms-2">Auto-tracked</span>
+                                                @endif
+                                            </small>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -394,6 +437,49 @@
     document.getElementById('type').addEventListener('change', function() {
         this.form.submit();
     });
+
+    document.getElementById('source').addEventListener('change', function() {
+        this.form.submit();
+    });
+
+    // Function to run commit tracking
+    function runCommitTracking() {
+        if (!confirm('Jalankan tracking commit Git? Proses ini akan memakan waktu beberapa saat.')) {
+            return;
+        }
+
+        // Show loading
+        const button = event.target.closest('a');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Processing...';
+        button.classList.add('disabled');
+
+        // Make AJAX request to run the command
+        fetch('/admin/run-commit-tracking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Commit tracking berhasil! ' + data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Terjadi kesalahan saat menjalankan commit tracking');
+            console.error(error);
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('disabled');
+        });
+    }
 </script>
 @endsection
 
