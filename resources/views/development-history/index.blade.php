@@ -4,83 +4,60 @@
 
 @section('css')
 <style>
-/* Modern Timeline Design */
-.timeline-container {
-    position: relative;
-    padding-left: 60px;
-}
-
-.timeline-line {
-    position: absolute;
-    left: 30px;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
-    border-radius: 3px;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 40px;
-    opacity: 0;
-    animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.timeline-item:nth-child(1) { animation-delay: 0.1s; }
-.timeline-item:nth-child(2) { animation-delay: 0.2s; }
-.timeline-item:nth-child(3) { animation-delay: 0.3s; }
-.timeline-item:nth-child(4) { animation-delay: 0.4s; }
-.timeline-item:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -45px;
-    top: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 10;
-}
-
-.timeline-marker.migration { background: linear-gradient(135deg, #6c757d, #495057); }
-.timeline-marker.feature { background: linear-gradient(135deg, #28a745, #20c997); }
-.timeline-marker.update { background: linear-gradient(135deg, #17a2b8, #138496); }
-.timeline-marker.bugfix { background: linear-gradient(135deg, #ffc107, #e0a800); }
-.timeline-marker.enhancement { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
-
-.timeline-content {
+/* Modern Card Grid Design */
+.history-card {
     background: white;
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     border: 1px solid rgba(0,0,0,0.05);
     transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
-.timeline-content:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+.history-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
-.timeline-header {
+.history-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.history-card.migration::before { background: linear-gradient(90deg, #6c757d, #495057); }
+.history-card.feature::before { background: linear-gradient(90deg, #28a745, #20c997); }
+.history-card.update::before { background: linear-gradient(90deg, #17a2b8, #138496); }
+.history-card.bugfix::before { background: linear-gradient(90deg, #ffc107, #e0a800); }
+.history-card.enhancement::before { background: linear-gradient(90deg, #6f42c1, #5a32a3); }
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.card-icon.migration { background: linear-gradient(135deg, #6c757d, #495057); }
+.card-icon.feature { background: linear-gradient(135deg, #28a745, #20c997); }
+.card-icon.update { background: linear-gradient(135deg, #17a2b8, #138496); }
+.card-icon.bugfix { background: linear-gradient(135deg, #ffc107, #e0a800); }
+.card-icon.enhancement { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
+
+.card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -89,22 +66,23 @@
     gap: 10px;
 }
 
-.timeline-title {
+.card-title {
     font-size: 1.25rem;
     font-weight: 600;
     color: #2d3748;
     margin: 0;
     line-height: 1.4;
+    flex: 1;
 }
 
-.timeline-meta {
+.card-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
 }
 
-.timeline-date {
+.card-date {
     color: #718096;
     font-size: 0.875rem;
     display: flex;
@@ -112,7 +90,7 @@
     gap: 5px;
 }
 
-.timeline-badges {
+.card-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
@@ -133,20 +111,21 @@
 .badge-modern.bg-warning { background: linear-gradient(135deg, #ed8936, #dd6b20) !important; }
 .badge-modern.bg-secondary { background: linear-gradient(135deg, #a0aec0, #718096) !important; }
 
-.timeline-description {
+.card-description {
     color: #4a5568;
     line-height: 1.6;
     margin-bottom: 15px;
 }
 
-.timeline-details {
+.card-details {
     background: #f7fafc;
     border-radius: 8px;
     padding: 15px;
     border-left: 4px solid #667eea;
+    margin-bottom: 15px;
 }
 
-.timeline-details small {
+.card-details small {
     color: #718096;
     font-size: 0.8rem;
 }
@@ -156,7 +135,6 @@
     color: white;
     border-radius: 8px;
     padding: 12px 15px;
-    margin-top: 15px;
 }
 
 .commit-info code {
@@ -623,59 +601,59 @@
     </div>
 </div>
 
-<!-- Timeline -->
+<!-- History Cards Grid -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
                 @if($histories->count() > 0)
-                    <div class="timeline-container">
-                        <div class="timeline-line"></div>
+                    <div class="row g-4">
                         @foreach($histories as $history)
-                        <div class="timeline-item">
-                            <div class="timeline-marker {{ $history->type }}">
-                                @if($history->details && isset($history->details['commit_hash']))
-                                    <i class="bx bx-git-commit"></i>
-                                @else
-                                    <i class="bx {{ $history->getTypeIcon() }}"></i>
-                                @endif
-                            </div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <h3 class="timeline-title">
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <div class="history-card {{ $history->type }}">
+                                <div class="card-icon {{ $history->type }}">
+                                    @if($history->details && isset($history->details['commit_hash']))
+                                        <i class="bx bx-git-commit"></i>
+                                    @else
+                                        <i class="bx {{ $history->getTypeIcon() }}"></i>
+                                    @endif
+                                </div>
+
+                                <div class="card-header">
+                                    <h3 class="card-title">
                                         {{ $history->title }}
                                         @if($history->details && isset($history->details['commit_hash']))
                                             <i class="bx bx-git-commit text-info ms-2" title="Git Commit"></i>
                                         @endif
                                     </h3>
-                                    <div class="timeline-meta">
-                                        <div class="timeline-date">
+                                    <div class="card-meta">
+                                        <div class="card-date">
                                             <i class="bx bx-calendar me-1"></i>
                                             {{ $history->formatted_date }}
-                                            <span class="text-primary ms-1">({{ $history->relative_date }})</span>
-                                        </div>
-                                        <div class="timeline-badges">
-                                            @if($history->version)
-                                                <span class="badge badge-modern bg-info">v{{ $history->version }}</span>
-                                            @endif
-                                            <span class="badge badge-modern {{ $history->getTypeBadgeClass() }}">
-                                                {{ $types[$history->type] ?? $history->type }}
-                                            </span>
-                                            @if($history->details && isset($history->details['commit_hash']))
-                                                <span class="badge badge-modern bg-success">
-                                                    <i class="bx bx-git-commit me-1"></i>Git Commit
-                                                </span>
-                                            @endif
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="timeline-description">
+                                <div class="card-description">
                                     {{ $history->description }}
                                 </div>
 
+                                <div class="card-badges mb-3">
+                                    @if($history->version)
+                                        <span class="badge badge-modern bg-info">v{{ $history->version }}</span>
+                                    @endif
+                                    <span class="badge badge-modern {{ $history->getTypeBadgeClass() }}">
+                                        {{ $types[$history->type] ?? $history->type }}
+                                    </span>
+                                    @if($history->details && isset($history->details['commit_hash']))
+                                        <span class="badge badge-modern bg-success">
+                                            <i class="bx bx-git-commit me-1"></i>Git Commit
+                                        </span>
+                                    @endif
+                                </div>
+
                                 @if($history->migration_file)
-                                    <div class="timeline-details">
+                                    <div class="card-details">
                                         <small>
                                             <i class="bx bx-file me-1"></i>
                                             <strong>Migration:</strong> {{ $history->migration_file }}
