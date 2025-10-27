@@ -44,7 +44,7 @@
                 </li>
                 @endif
 
-                <li class="menu-title">INFORMASI</li>
+                <li class="menu-title">INFORMATION</li>
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
@@ -176,6 +176,9 @@
                         <span>Fake Location</span>
                     </a>
                 </li>
+
+                <li class="menu-title">SETTING</li>
+
                 <li>
                     <a href="{{ route('app-settings.index') }}" class="waves-effect">
                         <i class="bx bx-cog"></i>
