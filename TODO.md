@@ -6,6 +6,7 @@
 - [x] Update footer.blade.php to display dynamic app name instead of hardcoded "NUIST"
 - [x] Update AppSettingsController to cache app_name changes for immediate effect
 - [x] Update AppServiceProvider to use cached app_name in view composer
+- [x] Update AppSettingsController index method to use cached app_name for settings display
 - [x] Clear config and cache to ensure changes take effect
 - [x] Test that footer displays correct version on pages (Laravel server is running on port 8000, but browser tool is disabled)
 

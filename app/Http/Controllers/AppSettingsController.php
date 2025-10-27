@@ -27,7 +27,7 @@ class AppSettingsController extends Controller
 
         // Get app settings from config/database
         $settings = [
-            'app_name' => config('app.name', 'NUIST'),
+            'app_name' => Cache::get('app_name', config('app.name', 'NUIST')),
             'app_version' => $currentVersion,
             'maintenance_mode' => app()->isDownForMaintenance(),
             'timezone' => config('app.timezone', 'Asia/Jakarta'),
