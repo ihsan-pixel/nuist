@@ -526,7 +526,7 @@
                     <div class="mb-3 d-flex justify-content-between align-items-center">
                         <div>
                             @if($user->role === 'admin')
-                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exportMonthlyModal">
+                            <button type="button" class="btn btn-success" id="exportMonthlyTriggerBtn" data-toggle="modal" data-target="#exportMonthlyModal">
                                 <i class="bx bx-calendar me-1"></i>Export Bulanan
                             </button>
                             @endif
@@ -1027,13 +1027,20 @@ $(document).ready(function () {
     updatePresensiData();
     @else
     // Handle export monthly for admin
-    $('#exportMonthlyBtn').on('click', function() {
+    $('#exportMonthlyBtn').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         let month = $('#exportMonthInput').val();
         if (month) {
             console.log('Exporting for month:', month);
             window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
         } else {
             console.log('No month selected');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Bulan',
+                text: 'Silakan pilih bulan terlebih dahulu'
+            });
         }
     });
 
@@ -1048,9 +1055,9 @@ $(document).ready(function () {
         console.log('Modal opened');
     });
 
-    // Test button click
-    $('button[data-target="#exportMonthlyModal"]').on('click', function() {
-        console.log('Button clicked, opening modal');
+    // Handle export monthly trigger button specifically
+    $('#exportMonthlyTriggerBtn').on('click', function() {
+        console.log('Export Monthly Trigger Button clicked');
         $('#exportMonthlyModal').modal('show');
     });
 
