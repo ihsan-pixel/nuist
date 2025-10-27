@@ -296,7 +296,6 @@
         </div>
         @endif
     </div>
-    @endif
 </div>
 
 {{-- Social Source, Activity, Top Cities --}}
