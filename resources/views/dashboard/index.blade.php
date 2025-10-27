@@ -51,20 +51,33 @@
         <div class="row">
             {{-- Address Information --}}
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map-marker text-primary me-2"></i>
-                            Alamat Madrasah
-                        </h5>
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title mb-1 text-dark">
+                                    <i class="mdi mdi-map-marker text-primary me-2"></i>
+                                    Alamat Madrasah
+                                </h5>
+                                <p class="text-muted mb-0 small">Informasi lokasi dan kontak madrasah</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                    <i class="mdi mdi-school fs-5"></i>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-3">
-                            <h6 class="mb-2">{{ $madrasahData->name }}</h6>
-                            <p class="text-muted mb-2">
-                                <i class="mdi mdi-map-marker-outline me-1"></i>
-                                {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
-                            </p>
+                            <h6 class="mb-3 text-primary fw-semibold">{{ $madrasahData->name }}</h6>
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="mdi mdi-map-marker-outline text-success me-2 mt-1"></i>
+                                <div>
+                                    <p class="text-muted mb-1 small">Alamat Lengkap</p>
+                                    <p class="mb-0 fw-medium">{{ $madrasahData->alamat ?? 'Alamat belum diisi' }}</p>
+                                </div>
+                            </div>
                             @if($madrasahData->map_link)
-                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center">
                                 <i class="mdi mdi-google-maps me-1"></i>
                                 Lihat di Google Maps
                             </a>
@@ -76,20 +89,34 @@
 
             {{-- Map Display --}}
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map text-success me-2"></i>
-                            Lokasi Madrasah
-                        </h5>
-                        <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title mb-1 text-dark">
+                                    <i class="mdi mdi-map text-success me-2"></i>
+                                    Lokasi Madrasah
+                                </h5>
+                                <p class="text-muted mb-0 small">Peta lokasi madrasah saat ini</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                    <i class="mdi mdi-map-marker fs-5"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             @if($madrasahData->latitude && $madrasahData->longitude)
-                                <div id="map" style="height: 100%; width: 100%;"></div>
+                                <div id="map" style="height: 100%; width: 100%; border-radius: 12px;"></div>
                             @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
-                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
-                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
-                                    <p class="text-muted text-center small">
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-light text-muted rounded-circle">
+                                            <i class="mdi mdi-map-marker-off fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted mb-2">Koordinat belum tersedia</h6>
+                                    <p class="text-muted text-center small px-3">
                                         Koordinat latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
                                 </div>
@@ -106,20 +133,33 @@
         <div class="row">
             {{-- Address Information --}}
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map-marker text-primary me-2"></i>
-                            Alamat Yayasan
-                        </h5>
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title mb-1 text-dark">
+                                    <i class="mdi mdi-map-marker text-primary me-2"></i>
+                                    Alamat Yayasan
+                                </h5>
+                                <p class="text-muted mb-0 small">Informasi lokasi dan kontak yayasan</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                    <i class="mdi mdi-office-building fs-5"></i>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-3">
-                            <h6 class="mb-2">{{ $foundationData->name }}</h6>
-                            <p class="text-muted mb-2">
-                                <i class="mdi mdi-map-marker-outline me-1"></i>
-                                {{ $foundationData->alamat ?? 'Alamat belum diisi' }}
-                            </p>
+                            <h6 class="mb-3 text-primary fw-semibold">{{ $foundationData->name }}</h6>
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="mdi mdi-map-marker-outline text-success me-2 mt-1"></i>
+                                <div>
+                                    <p class="text-muted mb-1 small">Alamat Lengkap</p>
+                                    <p class="mb-0 fw-medium">{{ $foundationData->alamat ?? 'Alamat belum diisi' }}</p>
+                                </div>
+                            </div>
                             @if($foundationData->map_link)
-                            <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center">
                                 <i class="mdi mdi-google-maps me-1"></i>
                                 Lihat di Google Maps
                             </a>
@@ -131,20 +171,34 @@
 
             {{-- Map Display --}}
             <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map text-success me-2"></i>
-                            Lokasi Yayasan
-                        </h5>
-                        <div id="foundation-map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                <div class="card border-0 shadow-sm hover-lift" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title mb-1 text-dark">
+                                    <i class="mdi mdi-map text-success me-2"></i>
+                                    Lokasi Yayasan
+                                </h5>
+                                <p class="text-muted mb-0 small">Peta lokasi yayasan saat ini</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                    <i class="mdi mdi-map-marker fs-5"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             @if($foundationData->latitude && $foundationData->longitude)
-                                <div id="foundation-map" style="height: 100%; width: 100%;"></div>
+                                <div id="foundation-map" style="height: 100%; width: 100%; border-radius: 12px;"></div>
                             @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
-                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
-                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
-                                    <p class="text-muted text-center small">
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-light text-muted rounded-circle">
+                                            <i class="mdi mdi-map-marker-off fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted mb-2">Koordinat belum tersedia</h6>
+                                    <p class="text-muted text-center small px-3">
                                         Koordinat latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
                                 </div>
