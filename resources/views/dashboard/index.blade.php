@@ -394,20 +394,43 @@
     {{-- Super Admin Statistics Section --}}
     @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($superAdminStats))
     <div class="col-xl-8">
-        <div class="row">
+        <!-- Statistics Overview Header -->
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="text-white mb-1">Dashboard Super Admin</h4>
+                        <p class="text-white-50 mb-0">Ringkasan Sistem Informasi NUIST</p>
+                    </div>
+                    <div class="avatar-lg">
+                        <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                            <i class="mdi mdi-view-dashboard fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Primary Statistics Row -->
+        <div class="row g-3 mb-4">
             {{-- Total Madrasah Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                    <i class="mdi mdi-school fs-4"></i>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ $superAdminStats['total_madrasah'] }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Total Madrasah</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-school fs-3"></i>
                                 </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_madrasah'] }}</h5>
-                                <p class="text-muted mb-0">Total Madrasah</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
                             </div>
                         </div>
                     </div>
@@ -415,18 +438,23 @@
             </div>
 
             {{-- Total Teachers Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-success-subtle text-success rounded-circle">
-                                    <i class="mdi mdi-account-tie fs-4"></i>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ $superAdminStats['total_teachers'] }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Total Tenaga Pendidik</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-tie fs-3"></i>
                                 </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_teachers'] }}</h5>
-                                <p class="text-muted mb-0">Total Tenaga Pendidik</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
                             </div>
                         </div>
                     </div>
@@ -434,18 +462,23 @@
             </div>
 
             {{-- Total Admins Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-info-subtle text-info rounded-circle">
-                                    <i class="mdi mdi-account-cog fs-4"></i>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ $superAdminStats['total_admin'] }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Total Admin</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-cog fs-3"></i>
                                 </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_admin'] }}</h5>
-                                <p class="text-muted mb-0">Total Admin</p>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
                             </div>
                         </div>
                     </div>
@@ -453,20 +486,21 @@
             </div>
         </div>
 
-        <div class="row">
+        <!-- Secondary Statistics Row -->
+        <div class="row g-3 mb-4">
             {{-- Total Super Admins Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-white mb-1">{{ $superAdminStats['total_super_admin'] }}</h4>
+                                <p class="text-white-75 mb-0 small">Super Admin</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
                                     <i class="mdi mdi-shield-account fs-4"></i>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_super_admin'] }}</h5>
-                                <p class="text-muted mb-0">Total Super Admin</p>
                             </div>
                         </div>
                     </div>
@@ -474,18 +508,18 @@
             </div>
 
             {{-- Total Pengurus Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-white mb-1">{{ $superAdminStats['total_pengurus'] }}</h4>
+                                <p class="text-white-75 mb-0 small">Pengurus</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
                                     <i class="mdi mdi-account-group fs-4"></i>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_pengurus'] }}</h5>
-                                <p class="text-muted mb-0">Total Pengurus</p>
                             </div>
                         </div>
                     </div>
@@ -493,18 +527,18 @@
             </div>
 
             {{-- Total School Principals Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle">
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-white mb-1">{{ $superAdminStats['total_school_principals'] }}</h4>
+                                <p class="text-white-75 mb-0 small">Kepala Sekolah</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
                                     <i class="mdi mdi-account-tie fs-4"></i>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $superAdminStats['total_school_principals'] }}</h5>
-                                <p class="text-muted mb-0">Total Kepala Sekolah</p>
                             </div>
                         </div>
                     </div>
@@ -513,31 +547,57 @@
         </div>
 
         {{-- Employment Status Breakdown --}}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Ringkasan Berdasarkan Status Kepegawaian</h5>
-                <div class="row">
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark">Ringkasan Status Kepegawaian</h5>
+                        <p class="text-muted mb-0 small">Distribusi tenaga pendidik berdasarkan status</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                            <i class="mdi mdi-chart-pie fs-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
                     @if($superAdminStats['total_by_status']->count() > 0)
                         @foreach($superAdminStats['total_by_status'] as $status)
-                        <div class="col-md-4">
-                            <div class="card border">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                            <i class="mdi mdi-account-tie fs-5"></i>
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                <div class="card-body p-3 text-center">
+                                    <div class="avatar-md mx-auto mb-3">
+                                        <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                            <i class="mdi mdi-account-tie fs-4"></i>
                                         </div>
                                     </div>
-                                    <h6 class="mb-2">{{ $status['count'] }}</h6>
-                                    <p class="text-muted mb-0">{{ $status['status_name'] }}</p>
+                                    <h5 class="mb-2 text-dark">{{ $status['count'] }}</h5>
+                                    <p class="text-muted mb-2 small">{{ $status['status_name'] }}</p>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                             style="width: {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100) : 0 }}%"
+                                             aria-valuenow="{{ $status['count'] }}"
+                                             aria-valuemin="0"
+                                             aria-valuemax="{{ $superAdminStats['total_teachers'] }}">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted mt-1 d-block">
+                                        {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100, 1) : 0 }}%
+                                    </small>
                                 </div>
                             </div>
                         </div>
                         @endforeach
                     @else
                         <div class="col-12">
-                            <div class="text-center py-4">
-                                <i class="mdi mdi-information-outline text-muted fs-1"></i>
-                                <p class="text-muted mt-2">Belum ada data status kepegawaian</p>
+                            <div class="text-center py-5">
+                                <div class="avatar-lg mx-auto mb-3">
+                                    <div class="avatar-title bg-light text-muted rounded-circle">
+                                        <i class="mdi mdi-information-outline fs-1"></i>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted">Belum ada data status kepegawaian</h6>
+                                <p class="text-muted small">Data akan muncul setelah ada tenaga pendidik terdaftar</p>
                             </div>
                         </div>
                     @endif
@@ -546,49 +606,90 @@
         </div>
 
         {{-- Detailed Statistics Table --}}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Detail Statistik Tenaga Pendidik</h5>
+        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <h5 class="card-title mb-1 text-dark">Detail Statistik Tenaga Pendidik</h5>
+                        <p class="text-muted mb-0 small">Tabel lengkap distribusi status kepegawaian</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                            <i class="mdi mdi-table fs-5"></i>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead>
+                    <table class="table table-hover align-middle mb-0" style="border-radius: 10px; overflow: hidden;">
+                        <thead class="table-light">
                             <tr>
-                                <th>Status Kepegawaian</th>
-                                <th>Jumlah</th>
-                                <th>Persentase</th>
+                                <th class="border-0 fw-semibold text-dark py-3 ps-4">Status Kepegawaian</th>
+                                <th class="border-0 fw-semibold text-dark py-3 text-center">Jumlah</th>
+                                <th class="border-0 fw-semibold text-dark py-3 pe-4">Persentase</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if($superAdminStats['total_by_status']->count() > 0)
                                 @foreach($superAdminStats['total_by_status'] as $status)
-                                <tr>
-                                    <td>{{ $status['status_name'] }}</td>
-                                    <td>{{ $status['count'] }}</td>
-                                    <td>
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100) : 0 }}%"
-                                                 aria-valuenow="{{ $status['count'] }}"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="{{ $superAdminStats['total_teachers'] }}">
+                                <tr class="border-bottom border-light">
+                                    <td class="py-3 ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-xs me-3">
+                                                <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                                    <i class="mdi mdi-account-tie fs-6"></i>
+                                                </div>
                                             </div>
+                                            <span class="fw-medium">{{ $status['status_name'] }}</span>
                                         </div>
-                                        <small class="text-muted">
-                                            {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100, 1) : 0 }}%
-                                        </small>
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2">{{ $status['count'] }}</span>
+                                    </td>
+                                    <td class="py-3 pe-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1 me-3">
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" role="progressbar"
+                                                         style="width: {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100) : 0 }}%"
+                                                         aria-valuenow="{{ $status['count'] }}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="{{ $superAdminStats['total_teachers'] }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="text-muted fw-medium small">
+                                                {{ $superAdminStats['total_teachers'] > 0 ? round(($status['count'] / $superAdminStats['total_teachers']) * 100, 1) : 0 }}%
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach
-                                <tr class="table-info">
-                                    <td><strong>Total</strong></td>
-                                    <td><strong>{{ $superAdminStats['total_teachers'] }}</strong></td>
-                                    <td><strong>100%</strong></td>
+                                <tr class="table-primary bg-primary bg-opacity-10">
+                                    <td class="py-3 ps-4 fw-bold text-primary">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-xs me-3">
+                                                <div class="avatar-title bg-primary text-white rounded-circle">
+                                                    <i class="mdi mdi-sigma fs-6"></i>
+                                                </div>
+                                            </div>
+                                            Total Keseluruhan
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <span class="badge bg-primary text-white fs-6 px-3 py-2">{{ $superAdminStats['total_teachers'] }}</span>
+                                    </td>
+                                    <td class="py-3 pe-4 fw-bold text-primary">100%</td>
                                 </tr>
                             @else
                                 <tr>
-                                    <td colspan="3" class="text-center py-4">
-                                        <i class="mdi mdi-information-outline text-muted fs-4"></i>
-                                        <p class="text-muted mt-2">Belum ada data untuk ditampilkan</p>
+                                    <td colspan="3" class="text-center py-5">
+                                        <div class="avatar-lg mx-auto mb-3">
+                                            <div class="avatar-title bg-light text-muted rounded-circle">
+                                                <i class="mdi mdi-table-off fs-1"></i>
+                                            </div>
+                                        </div>
+                                        <h6 class="text-muted">Belum ada data untuk ditampilkan</h6>
+                                        <p class="text-muted small">Data statistik akan muncul setelah ada tenaga pendidik terdaftar</p>
                                     </td>
                                 </tr>
                             @endif
@@ -770,6 +871,45 @@
 <!-- Leaflet CSS and JS for map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-pink {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-orange {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-mint {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.gradient-peach {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
