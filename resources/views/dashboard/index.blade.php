@@ -13,13 +13,13 @@
 <div class="row">
     <div class="col-lg-4 col-12">
         <!-- Welcome Card - Mobile Optimized -->
-        <div class="card overflow-hidden mb-3">
-            <div class="bg-success-subtle">
+        <div class="card border-0 shadow-sm hover-lift overflow-hidden mb-3" style="border-radius: 15px;">
+            <div style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
                 <div class="row align-items-center">
                     <div class="col-8">
-                        <div class="text-success p-3">
-                            <h5 class="text-success">Selamat Datang!</h5>
-                            <p class="mb-0">Aplikasi NUIST</p>
+                        <div class="text-white p-3">
+                            <h5 class="text-white">Selamat Datang!</h5>
+                            <p class="mb-0 text-white-50">Aplikasi NUIST</p>
                         </div>
                     </div>
                     <div class="col-4 text-end">
