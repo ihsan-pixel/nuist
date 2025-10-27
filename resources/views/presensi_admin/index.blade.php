@@ -413,6 +413,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Madrasah Detail Modal -->
     <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
@@ -510,10 +511,19 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">
                         <i class="bx bx-list-ul me-2"></i>Data Presensi
                     </h4>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
+                           class="btn btn-success btn-sm">
+                            <i class="bx bx-download me-1"></i>Export Harian
+                        </a>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exportMonthlyModal">
+                            <i class="bx bx-calendar me-1"></i>Export Bulanan
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     @if(session('success'))
