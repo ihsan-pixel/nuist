@@ -368,6 +368,7 @@
                     <div class="mt-3" id="monthSelector" style="display: none;">
                         <label for="exportMonth" class="form-label">Pilih Bulan:</label>
                         <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
+                        <small class="text-muted">Hanya bulan yang memiliki data presensi yang akan tersedia</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -993,7 +994,30 @@ $(document).ready(function () {
     $('#exportMonth').on('change', function() {
         if (currentMadrasahId) {
             let month = $(this).val();
-            window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
+            // Check if month has data before exporting
+            $.ajax({
+                url: '{{ url('/presensi-admin/check-month-data') }}',
+                type: 'GET',
+                data: { madrasah_id: currentMadrasahId, month: month },
+                success: function(data) {
+                    if (data.has_data) {
+                        window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tidak Ada Data',
+                            text: 'Tidak ada data presensi untuk bulan yang dipilih pada madrasah ini.'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Gagal memeriksa data bulan'
+                    });
+                }
+            });
         }
     });
 

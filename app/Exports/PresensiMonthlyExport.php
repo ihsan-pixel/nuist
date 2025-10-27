@@ -68,7 +68,8 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
             foreach ($tenagaPendidik as $guru) {
                 $presensiData = $this->getPresensiSummary($guru->id, $startDate, $endDate, $workingDays);
 
-                if ($presensiData['total_hari_kerja'] > 0) {
+                // Only include if there is actual presensi data for this month
+                if ($presensiData['total_hari_kerja'] > 0 && ($presensiData['hadir'] > 0 || $presensiData['terlambat'] > 0 || $presensiData['izin'] > 0 || $presensiData['tidak_hadir'] > 0)) {
                     $data->push([
                         'Madrasah' => $madrasah->name,
                         'Nama Guru' => $guru->name,

@@ -525,7 +525,12 @@ class PresensiAdminController extends Controller
     public function exportMadrasah(Request $request, $madrasahId)
     {
         $user = Auth::user();
-        if ($user->role !== 'super_admin') {
+
+        // Allow super_admin and admin (but admin can only export their own madrasah)
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
+            abort(403, 'Unauthorized - You can only export data for your own madrasah');
+        }
+        if (!in_array($user->role, ['super_admin', 'admin'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -612,10 +617,50 @@ class PresensiAdminController extends Controller
         $month = $request->input('month', Carbon::now()->format('Y-m'));
         list($year, $monthNum) = explode('-', $month);
 
+        // Check if there is any presensi data for this month and madrasah
+        $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+
+        $hasData = Presensi::whereHas('user', function ($q) use ($user) {
+            $q->where('madrasah_id', $user->madrasah_id)
+              ->where('role', 'tenaga_pendidik');
+        })->whereBetween('tanggal', [$startDate, $endDate])->exists();
+
+        if (!$hasData) {
+            return redirect()->back()->with('error', 'Tidak ada data presensi untuk bulan ' . $month . ' pada madrasah Anda.');
+        }
+
         return \Maatwebsite\Excel\Facades\Excel::download(
             new \App\Exports\PresensiMonthlyExport($monthNum, $year, $user),
             'Data_Presensi_Bulanan_' . $month . '.xlsx'
         );
+    }
+
+    // Check if month has presensi data for a madrasah
+    public function checkMonthData(Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['super_admin', 'admin'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $madrasahId = $request->input('madrasah_id');
+        $month = $request->input('month');
+
+        // Admin can only check their own madrasah
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $startDate = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $endDate = Carbon::createFromFormat('Y-m', $month)->endOfMonth();
+
+        $hasData = Presensi::whereHas('user', function ($q) use ($madrasahId) {
+            $q->where('madrasah_id', $madrasahId)
+              ->where('role', 'tenaga_pendidik');
+        })->whereBetween('tanggal', [$startDate, $endDate])->exists();
+
+        return response()->json(['has_data' => $hasData]);
     }
 
     /**
