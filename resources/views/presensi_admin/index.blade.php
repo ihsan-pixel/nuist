@@ -368,7 +368,6 @@
                     <div class="mt-3" id="monthSelector" style="display: none;">
                         <label for="exportMonth" class="form-label">Pilih Bulan:</label>
                         <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
-                        <small class="text-muted">Hanya bulan yang memiliki data presensi yang akan tersedia</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -428,35 +427,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Export Monthly Modal -->
-    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" role="dialog" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportMonthlyModalLabel">Export Data Presensi Bulanan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-3">Pilih bulan untuk export data presensi bulanan:</p>
-                    <div class="mb-3">
-                        <label for="exportMonthInput" class="form-label">Bulan:</label>
-                        <input type="month" class="form-control" id="exportMonthInput" value="{{ date('Y-m') }}">
-                    </div>
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-success" id="exportMonthlyBtn">
-                            <i class="bx bx-download me-2"></i>Export Data Bulanan
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                 </div>
             </div>
         </div>
@@ -523,19 +493,10 @@
                     </div>
                     @endif
 
-                    <div class="mb-3 d-flex justify-content-between align-items-center">
-                        <div>
-                            @if($user->role === 'admin')
-                            <button type="button" class="btn btn-success" id="exportMonthlyTriggerBtn" data-toggle="modal" data-target="#exportMonthlyModal">
-                                <i class="bx bx-calendar me-1"></i>Export Bulanan
-                            </button>
-                            @endif
-                        </div>
-                        <div>
-                            <a href="{{ route('izin.index') }}" class="btn btn-info">
-                                <i class="bx bx-mail-send"></i> Kelola Izin
-                            </a>
-                        </div>
+                    <div class="mb-3 d-flex justify-content-end">
+                        <a href="{{ route('izin.index') }}" class="btn btn-info">
+                            <i class="bx bx-mail-send"></i> Kelola Izin
+                        </a>
                     </div>
 
                     <div class="table-responsive">
@@ -996,72 +957,13 @@ $(document).ready(function () {
     $('#exportMonth').on('change', function() {
         if (currentMadrasahId) {
             let month = $(this).val();
-            // Check if month has data before exporting
-            $.ajax({
-                url: '{{ url('/presensi-admin/check-month-data') }}',
-                type: 'GET',
-                data: { madrasah_id: currentMadrasahId, month: month },
-                success: function(data) {
-                    if (data.has_data) {
-                        window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
-                    } else {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Tidak Ada Data',
-                            text: 'Tidak ada data presensi untuk bulan yang dipilih pada madrasah ini.'
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Gagal memeriksa data bulan'
-                    });
-                }
-            });
+            window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
         }
     });
 
     // Initial update
     updatePresensiData();
-    @else
-    // Handle export monthly for admin
-    $('#exportMonthlyBtn').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        let month = $('#exportMonthInput').val();
-        if (month) {
-            console.log('Exporting for month:', month);
-            window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
-        } else {
-            console.log('No month selected');
-            Swal.fire({
-                icon: 'warning',
-                title: 'Pilih Bulan',
-                text: 'Silakan pilih bulan terlebih dahulu'
-            });
-        }
-    });
 
-    // Initialize modal properly for Bootstrap 4
-    $('#exportMonthlyModal').on('show.bs.modal', function (e) {
-        // Ensure modal is properly initialized
-        console.log('Modal opening');
-    });
-
-    $('#exportMonthlyModal').on('shown.bs.modal', function (e) {
-        // Modal is fully shown
-        console.log('Modal opened');
-    });
-
-    // Handle export monthly trigger button specifically
-    $('#exportMonthlyTriggerBtn').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Export Monthly Trigger Button clicked');
-        $('#exportMonthlyModal').modal('show');
-    });
 
     // Function to initialize map for madrasah detail
     function initializeMadrasahMap(madrasah) {
