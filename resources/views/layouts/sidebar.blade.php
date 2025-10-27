@@ -8,8 +8,6 @@
             <!-- Left Menu Start -->
             <ul class="metismenu list-unstyled" id="side-menu">
                 <li class="menu-title" key="t-menu">@lang('translation.Menu')</li>
-                <li class="menu-title">Navigasi Utama</li>
-
 
                 <li>
                     <a href="{{ url('dashboard') }}" class="waves-effect">
@@ -45,6 +43,8 @@
                     </ul>
                 </li>
                 @endif
+
+                <li class="menu-title">INFORMASI</li>
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
@@ -88,6 +88,9 @@
                     \Log::info('Sidebar Presensi userRole: [' . $userRole . '], password_changed: ' . (auth()->user()->password_changed ? 'true' : 'false') . ', presensiAllowed: ' . ($presensiAllowed ? 'true' : 'false'));
                 @endphp
                 @if($presensiAllowed)
+
+                <li class="menu-title">PRESENSI</li>
+
                 <li>
                     <a href="{{ route('mobile.presensi') }}" class="waves-effect">
                         <i class="bx bx-check-square"></i>
@@ -133,6 +136,9 @@
                 @endphp
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
+
+                APLIKASI
+
                 <li>
                     <a href="{{ route('development-history.index') }}" class="waves-effect">
                         <i class="bx bx-history"></i>
