@@ -156,8 +156,21 @@
                 <li>
                     <a href="{{ route('fake-location.index') }}" class="waves-effect">
                         <i class="bx bx-error-circle"></i>
-                        <span>Deteksi Fake Location</span>
+                        </a>
+                </li>
+                <li>
+                    <a href="{{ route('app-settings.index') }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan Aplikasi</span>
                     </a>
+                </li>
+                @endif
+                <li>
+                    <a href="{{ route('app-settings.index') }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan Aplikasi</span>
+                    </a>
+                </li>                    </a>
                 </li>
                 @endif
                 @endif

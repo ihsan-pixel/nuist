@@ -1,0 +1,188 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\DevelopmentHistory;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Cache;
+
+class AppSettingsController extends Controller
+{
+    /**
+     * Display application settings page for super admin
+     */
+    public function index()
+    {
+        // Check if user is super_admin
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        // Get current app version from config or latest development history
+        $currentVersion = $this->getCurrentAppVersion();
+
+        // Get latest development history for version info
+        $latestHistory = DevelopmentHistory::orderBy('development_date', 'desc')->first();
+
+        // Get app settings from config/database
+        $settings = [
+            'app_name' => config('app.name', 'NUIST'),
+            'app_version' => $currentVersion,
+            'maintenance_mode' => app()->isDownForMaintenance(),
+            'timezone' => config('app.timezone', 'Asia/Jakarta'),
+            'locale' => config('app.locale', 'id'),
+            'debug_mode' => config('app.debug', false),
+            'cache_enabled' => config('cache.default') !== 'array',
+            'session_lifetime' => config('session.lifetime', 120),
+            'max_upload_size' => ini_get('upload_max_filesize'),
+            'memory_limit' => ini_get('memory_limit'),
+        ];
+
+        return view('app-settings.index', compact('settings', 'latestHistory'));
+    }
+
+    /**
+     * Update application settings
+     */
+    public function update(Request $request)
+    {
+        // Check if user is super_admin
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        $request->validate([
+            'app_name' => 'required|string|max:255',
+            'app_version' => 'required|string|max:50',
+            'maintenance_mode' => 'boolean',
+            'timezone' => 'required|string',
+            'locale' => 'required|string',
+            'debug_mode' => 'boolean',
+            'cache_enabled' => 'boolean',
+            'session_lifetime' => 'required|integer|min:1|max:525600',
+        ]);
+
+        // Update config values (in production, this would update .env or database)
+        // For now, we'll store in cache or session as example
+        Cache::put('app_settings', [
+            'app_name' => $request->app_name,
+            'app_version' => $request->app_version,
+            'maintenance_mode' => $request->boolean('maintenance_mode'),
+            'timezone' => $request->timezone,
+            'locale' => $request->locale,
+            'debug_mode' => $request->boolean('debug_mode'),
+            'cache_enabled' => $request->boolean('cache_enabled'),
+            'session_lifetime' => $request->session_lifetime,
+        ], now()->addHours(24)); // Cache for 24 hours
+
+        // If maintenance mode changed
+        if ($request->boolean('maintenance_mode')) {
+            \Artisan::call('down');
+        } else {
+            \Artisan::call('up');
+        }
+
+        // Clear cache if cache settings changed
+        if ($request->boolean('cache_enabled') !== (config('cache.default') !== 'array')) {
+            \Artisan::call('cache:clear');
+            \Artisan::call('config:clear');
+        }
+
+        return redirect()->route('app-settings.index')
+                        ->with('success', 'Pengaturan aplikasi berhasil diperbarui.');
+    }
+
+    /**
+     * Get current app version
+     */
+    private function getCurrentAppVersion()
+    {
+        // Try to get from cache first
+        $cachedVersion = Cache::get('app_version');
+        if ($cachedVersion) {
+            return $cachedVersion;
+        }
+
+        // Get from latest development history
+        $latestHistory = DevelopmentHistory::whereNotNull('version')
+                                          ->orderBy('development_date', 'desc')
+                                          ->first();
+
+        if ($latestHistory && $latestHistory->version) {
+            $version = $latestHistory->version;
+            Cache::put('app_version', $version, now()->addHours(1));
+            return $version;
+        }
+
+        // Fallback to config version
+        $version = config('app.version', '1.0.0');
+        Cache::put('app_version', $version, now()->addHours(1));
+        return $version;
+    }
+
+    /**
+     * Update app version manually
+     */
+    public function updateVersion(Request $request)
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        $request->validate([
+            'version' => 'required|string|max:50|regex:/^\d+\.\d+\.\d+$/',
+        ]);
+
+        // Update latest development history with new version
+        $latestHistory = DevelopmentHistory::orderBy('development_date', 'desc')->first();
+        if ($latestHistory) {
+            $latestHistory->update(['version' => $request->version]);
+        }
+
+        // Clear cache
+        Cache::forget('app_version');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Versi aplikasi berhasil diperbarui.',
+            'version' => $request->version
+        ]);
+    }
+
+    /**
+     * Trigger automatic update check
+     */
+    public function checkForUpdates()
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(403, 'Unauthorized access');
+        }
+
+        try {
+            // Run commit tracking
+            $exitCode = \Artisan::call('development:track-commits', [
+                '--since' => '1 day ago'
+            ]);
+
+            $output = \Artisan::output();
+
+            // Check for new commits
+            $newCommits = DevelopmentHistory::where('created_at', '>=', now()->subMinutes(5))
+                                           ->whereNotNull('details->commit_hash')
+                                           ->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengecekan update selesai.',
+                'new_commits' => $newCommits,
+                'output' => $output
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengecek update: ' . $e->getMessage()
+            ]);
+        }
+    }
+}
