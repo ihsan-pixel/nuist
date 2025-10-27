@@ -97,11 +97,8 @@ class PresensiMonthlyExport implements FromCollection, WithHeadings
         while ($currentDate <= $endDate) {
             // Skip weekends (0 = Sunday, 6 = Saturday)
             if ($currentDate->dayOfWeek !== 0 && $currentDate->dayOfWeek !== 6) {
-                // Check if it's a holiday
-                $isHoliday = \App\Models\Holiday::whereDate('tanggal', $currentDate)->exists();
-                if (!$isHoliday) {
-                    $workingDays[] = $currentDate->toDateString();
-                }
+                // For now, just exclude weekends. Holiday check can be added later if table exists
+                $workingDays[] = $currentDate->toDateString();
             }
             $currentDate->addDay();
         }
