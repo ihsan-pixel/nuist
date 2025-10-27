@@ -10,8 +10,11 @@
     @slot('title') Dashboard @endslot
 @endcomponent
 
+{{-- Two-column layout for admin, super_admin, and pengurus roles --}}
+@if(in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
 <div class="row">
-    <div class="col-12">
+    {{-- Left Column: Welcome Card, Address, and Location --}}
+    <div class="col-xl-4">
         <!-- Welcome Card - Mobile Optimized -->
         <div class="card overflow-hidden mb-3">
             <div class="bg-success-subtle">
@@ -46,116 +49,107 @@
             </div>
         </div>
 
-        {{-- Madrasah Location and Map - Positioned below welcome card on left side --}}
+        {{-- Madrasah Location and Map for Admin --}}
         @if(Auth::user()->role === 'admin' && isset($madrasahData))
-        <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map-marker text-primary me-2"></i>
-                            Alamat Madrasah
-                        </h5>
-                        <div class="mb-3">
-                            <h6 class="mb-2">{{ $madrasahData->name }}</h6>
-                            <p class="text-muted mb-2">
-                                <i class="mdi mdi-map-marker-outline me-1"></i>
-                                {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
-                            </p>
-                            @if($madrasahData->map_link)
-                            <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="mdi mdi-google-maps me-1"></i>
-                                Lihat di Google Maps
-                            </a>
-                            @endif
-                        </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="mdi mdi-map-marker text-primary me-2"></i>
+                        Alamat Madrasah
+                    </h5>
+                    <div class="mb-3">
+                        <h6 class="mb-2">{{ $madrasahData->name }}</h6>
+                        <p class="text-muted mb-2">
+                            <i class="mdi mdi-map-marker-outline me-1"></i>
+                            {{ $madrasahData->alamat ?? 'Alamat belum diisi' }}
+                        </p>
+                        @if($madrasahData->map_link)
+                        <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="mdi mdi-google-maps me-1"></i>
+                            Lihat di Google Maps
+                        </a>
+                        @endif
                     </div>
                 </div>
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map text-success me-2"></i>
-                            Lokasi Madrasah
-                        </h5>
-                        <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
-                            @if($madrasahData->latitude && $madrasahData->longitude)
-                                <div id="map" style="height: 100%; width: 100%;"></div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
-                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
-                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
-                                    <p class="text-muted text-center small">
-                                        Koordinat latitude dan longitude belum diisi untuk menampilkan peta
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="mdi mdi-map text-success me-2"></i>
+                        Lokasi Madrasah
+                    </h5>
+                    <div id="map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                        @if($madrasahData->latitude && $madrasahData->longitude)
+                            <div id="map" style="height: 100%; width: 100%;"></div>
+                        @else
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
+                                <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
+                                <h6 class="text-muted">Koordinat belum tersedia</h6>
+                                <p class="text-muted text-center small">
+                                    Koordinat latitude dan longitude belum diisi untuk menampilkan peta
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
-        </div>
         @endif
 
         {{-- Foundation Location and Map for Super Admin and Pengurus --}}
         @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData))
-        <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map-marker text-primary me-2"></i>
-                            Alamat Yayasan
-                        </h5>
-                        <div class="mb-3">
-                            <h6 class="mb-2">{{ $foundationData->name }}</h6>
-                            <p class="text-muted mb-2">
-                                <i class="mdi mdi-map-marker-outline me-1"></i>
-                                {{ $foundationData->alamat ?? 'Alamat belum diisi' }}
-                            </p>
-                            @if($foundationData->map_link)
-                            <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="mdi mdi-google-maps me-1"></i>
-                                Lihat di Google Maps
-                            </a>
-                            @endif
-                        </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="mdi mdi-map-marker text-primary me-2"></i>
+                        Alamat Yayasan
+                    </h5>
+                    <div class="mb-3">
+                        <h6 class="mb-2">{{ $foundationData->name }}</h6>
+                        <p class="text-muted mb-2">
+                            <i class="mdi mdi-map-marker-outline me-1"></i>
+                            {{ $foundationData->alamat ?? 'Alamat belum diisi' }}
+                        </p>
+                        @if($foundationData->map_link)
+                        <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="mdi mdi-google-maps me-1"></i>
+                            Lihat di Google Maps
+                        </a>
+                        @endif
                     </div>
                 </div>
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="mdi mdi-map text-success me-2"></i>
-                            Lokasi Yayasan
-                        </h5>
-                        <div id="foundation-map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
-                            @if($foundationData->latitude && $foundationData->longitude)
-                                <div id="foundation-map" style="height: 100%; width: 100%;"></div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
-                                    <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
-                                    <h6 class="text-muted">Koordinat belum tersedia</h6>
-                                    <p class="text-muted text-center small">
-                                        Koordinat latitude dan longitude belum diisi untuk menampilkan peta
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="mdi mdi-map text-success me-2"></i>
+                        Lokasi Yayasan
+                    </h5>
+                    <div id="foundation-map-container" style="height: 300px; border-radius: 8px; overflow: hidden;">
+                        @if($foundationData->latitude && $foundationData->longitude)
+                            <div id="foundation-map" style="height: 100%; width: 100%;"></div>
+                        @else
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light">
+                                <i class="mdi mdi-map-marker-off text-muted fs-1 mb-3"></i>
+                                <h6 class="text-muted">Koordinat belum tersedia</h6>
+                                <p class="text-muted text-center small">
+                                    Koordinat latitude dan longitude belum diisi untuk menampilkan peta
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
-        </div>
         @endif
+    </div>
 
+    {{-- Right Column: Statistics --}}
+    <div class="col-xl-8">
         @if(Auth::user()->role === 'tenaga_pendidik')
         <!-- Attendance Card - Mobile Optimized -->
         <div class="card mb-3">
@@ -235,165 +229,12 @@
         </div>
         @endif
     </div>
+@endif
 
+{{-- Statistics sections for admin, super_admin, pengurus in right column --}}
+@if(in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
     {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
-    <div class="col-xl-8">
-        <div class="row">
-            {{-- Total Teachers Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-success-subtle text-success rounded-circle">
-                                    <i class="mdi mdi-account-tie fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ $adminStats['total_teachers'] }}</h5>
-                                <p class="text-muted mb-0">Total Tenaga Pendidik</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- School Principal Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-warning-subtle text-warning rounded-circle">
-                                    <i class="mdi mdi-account-tie fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                @if($schoolPrincipal)
-                                    <h6 class="mb-1">{{ $schoolPrincipal->name }}</h6>
-                                    <p class="text-muted mb-0">Kepala Sekolah</p>
-                                @else
-                                    <h6 class="mb-1 text-muted">-</h6>
-                                    <p class="text-muted mb-0">Kepala Sekolah</p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Madrasah Info Card --}}
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm flex-shrink-0 me-3">
-                                <div class="avatar-title bg-info-subtle text-info rounded-circle">
-                                    <i class="mdi mdi-school fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ Auth::user()->madrasah ? Auth::user()->madrasah->name : 'N/A' }}</h6>
-                                <p class="text-muted mb-0">Madrasah Saat Ini</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Employment Status Breakdown --}}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Ringkasan Berdasarkan Status Kepegawaian</h5>
-                <div class="row">
-                    @if($adminStats['total_by_status']->count() > 0)
-                        @foreach($adminStats['total_by_status'] as $status)
-                        <div class="col-md-4">
-                            <div class="card border">
-                                <div class="card-body text-center">
-                                    <div class="avatar-sm mx-auto mb-3">
-                                        <div class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                            <i class="mdi mdi-account-tie fs-5"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="mb-2">{{ $status['count'] }}</h6>
-                                    <p class="text-muted mb-0">{{ $status['status_name'] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    @else
-                        <div class="col-12">
-                            <div class="text-center py-4">
-                                <i class="mdi mdi-information-outline text-muted fs-1"></i>
-                                <p class="text-muted mt-2">Belum ada data status kepegawaian</p>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        {{-- Detailed Statistics Table --}}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Detail Statistik Tenaga Pendidik</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>Status Kepegawaian</th>
-                                <th>Jumlah</th>
-                                <th>Persentase</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if($adminStats['total_by_status']->count() > 0)
-                                @foreach($adminStats['total_by_status'] as $status)
-                                <tr>
-                                    <td>{{ $status['status_name'] }}</td>
-                                    <td>{{ $status['count'] }}</td>
-                                    <td>
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ $adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100) : 0 }}%"
-                                                 aria-valuenow="{{ $status['count'] }}"
-                                                 aria-valuemin="0"
-                                                 aria-valuemax="{{ $adminStats['total_teachers'] }}">
-                                            </div>
-                                        </div>
-                                        <small class="text-muted">
-                                            {{ $adminStats['total_teachers'] > 0 ? round(($status['count'] / $adminStats['total_teachers']) * 100, 1) : 0 }}%
-                                        </small>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                <tr class="table-info">
-                                    <td><strong>Total</strong></td>
-                                    <td><strong>{{ $adminStats['total_teachers'] }}</strong></td>
-                                    <td><strong>100%</strong></td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td colspan="3" class="text-center py-4">
-                                        <i class="mdi mdi-information-outline text-muted fs-4"></i>
-                                        <p class="text-muted mt-2">Belum ada data untuk ditampilkan</p>
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    {{-- Super Admin Statistics Section --}}
-    @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($superAdminStats))
-    <div class="col-xl-8">
         <div class="row">
             {{-- Total Madrasah Card --}}
             <div class="col-md-4">
@@ -599,8 +440,11 @@
         </div>
     </div>
     @endif
+@endif
 
-    @if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
+{{-- Single column layout for tenaga_pendidik and other roles --}}
+@if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus']))
+<div class="row">
     <div class="col-12">
         <!-- User Information Card - Mobile Optimized -->
         <div class="card mb-3">

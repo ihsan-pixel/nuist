@@ -1,20 +1,13 @@
-# TODO: Add Multiple Location Readings for Fake GPS Detection
+.
+# Dashboard Layout Rearrangement Task
 
-## Tasks
-- [x] Modify presensi.blade.php JavaScript to collect 3 location readings every 5 seconds when page loads
-- [x] Update UI to show progress of location readings with countdown timer
-- [x] Disable presensi button until all readings are complete
-- [x] Store all readings in sessionStorage
-- [x] On button click, send all readings to backend without new fetch
-- [x] Update backend fake GPS detection: if ALL 4 readings have identical latitude and longitude (not 3)
-- [x] Add detailed problem descriptions in fake location detection with coordinate details
-- [x] Removed skip fake GPS detection for presensi outside working hours - now only detects identical coordinates
-- [x] Update fake location menu to display coordinate details from database analysis
-- [ ] Test presensi functionality with multiple readings
+## Task: Rearrange dashboard layout for admin, super_admin, and pengurus roles
+- Move welcome card, address card, and location card to left side (col-xl-4)
+- Move statistics to right side (col-xl-8) in desktop mode
+- Ensure responsive design for mobile
 
-## Status
-- Frontend implementation completed: Multiple readings (3 on load + 1 on click) with progress UI
-- Backend fake GPS detection updated: detects ONLY if ALL 4 readings have identical coordinates (not 3)
-- Removed time-based filtering - now strictly detects only identical coordinate patterns
-- Updated fake location menu to show detailed coordinate information from database
-- Ready for testing
+## Steps:
+- [x] Modify resources/views/dashboard/index.blade.php to create two-column layout
+- [x] For admin role: left column with welcome, madrasah address/location; right with admin stats
+- [x] For super_admin/pengurus: left column with welcome, foundation address/location; right with super admin stats
+- [x] Test layout in browser for desktop and mobile responsiveness (Server started at http://127.0.0.1:8000)
