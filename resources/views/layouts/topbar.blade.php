@@ -31,7 +31,12 @@
                 <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary me-2" title="Kembali ke Dashboard">
                     <i class="bx bx-home"></i>
                 </a>
-                <h5 class="mb-0 text-dark">{{ explode(' - ', @yield('title'))[0] }}</h5>
+                @php
+                    $fullTitle = trim(View::getSection('title') ?: '');
+                    $titleParts = explode(' - ', $fullTitle);
+                    $pageTitle = $titleParts[0] ?? '';
+                @endphp
+                <h5 class="mb-0 text-dark">{{ $pageTitle }}</h5>
             </div>
 
            <!-- App Search-->
