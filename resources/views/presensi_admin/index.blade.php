@@ -1007,7 +1007,7 @@ $(document).ready(function () {
             window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
         }
     });
-    @endif
+
     // Function to initialize map for madrasah detail
     function initializeMadrasahMap(madrasah) {
         // Clear any existing map
