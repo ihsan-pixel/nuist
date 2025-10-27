@@ -156,12 +156,7 @@
                 <li>
                     <a href="{{ route('fake-location.index') }}" class="waves-effect">
                         <i class="bx bx-error-circle"></i>
-                        </a>
-                </li>
-                <li>
-                    <a href="{{ route('app-settings.index') }}" class="waves-effect">
-                        <i class="bx bx-cog"></i>
-                        <span>Pengaturan Aplikasi</span>
+                        <span>Fake Location</span>
                     </a>
                 </li>
                 @endif
@@ -170,9 +165,7 @@
                         <i class="bx bx-cog"></i>
                         <span>Pengaturan Aplikasi</span>
                     </a>
-                </li>                    </a>
                 </li>
-                @endif
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
