@@ -1,11 +1,12 @@
-# Dashboard Layout Rearrangement Task - CANCELLED
+# Dashboard Layout Rearrangement Task
 
 ## Task: Rearrange dashboard layout for admin, super_admin, and pengurus roles
 - Move welcome card, address card, and location card to left side (col-xl-4)
 - Move statistics to right side (col-xl-8) in desktop mode
 - Ensure responsive design for mobile
 
-## Status: CANCELLED by user
-- Changes have been reverted to original single-column layout
-- All users now see welcome card, address/location cards, and statistics in single column
-- Laravel server still running at http://127.0.0.1:8000 if needed for other tasks
+## Steps:
+- [ ] Modify resources/views/dashboard/index.blade.php to create two-column layout
+- [ ] For admin role: left column with welcome, madrasah address/location; right with admin stats
+- [ ] For super_admin/pengurus: left column with welcome, foundation address/location; right with super admin stats
+- [ ] Test layout in browser for desktop and mobile responsiveness
