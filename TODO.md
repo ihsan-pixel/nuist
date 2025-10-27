@@ -1,12 +1,10 @@
-# TODO: Update Dashboard Cards Styling
+# TODO: Update Footer Version to Dynamic App Version
 
 ## Tasks
-- [x] Update welcome card container classes and styling to match other cards
-- [x] Change header background to gradient and text to white
-- [x] Update address and location cards styling to match other cards
-- [ ] Verify mobile responsiveness and accessibility
+- [x] Update AppServiceProvider.php to add view composer that shares current app version with all views
+- [x] Update footer.blade.php to display dynamic version instead of hardcoded "Version 1.0.2"
+- [x] Test that footer displays correct version on pages (Laravel server is running on port 8000, but browser tool is disabled)
 
-## Status
-- [x] Plan confirmed by user
-- [x] Welcome card implementation completed
-- [x] Address/location cards implementation completed
+## Files to Edit
+- app/Providers/AppServiceProvider.php
+- resources/views/layouts/footer.blade.php
