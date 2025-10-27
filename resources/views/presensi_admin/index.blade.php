@@ -997,6 +997,9 @@ $(document).ready(function () {
         }
     });
 
+    // Initial update
+    updatePresensiData();
+    @else
     // Handle export monthly for admin
     $('#exportMonthlyBtn').on('click', function() {
         let month = $('#exportMonthInput').val();
@@ -1004,9 +1007,7 @@ $(document).ready(function () {
             window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
         }
     });
-
-    // Initial update
-    updatePresensiData();
+    @endif
 
 
     // Function to initialize map for madrasah detail
