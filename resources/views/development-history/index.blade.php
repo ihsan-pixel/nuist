@@ -4,186 +4,335 @@
 
 @section('css')
 <style>
-.timeline {
+/* Modern Timeline Design */
+.timeline-container {
     position: relative;
-    padding: 0;
-    list-style: none;
+    padding-left: 60px;
 }
 
-.timeline:before {
+.timeline-line {
     position: absolute;
+    left: 30px;
     top: 0;
     bottom: 0;
-    left: 40px;
-    width: 2px;
-    margin-left: -1.5px;
-    content: '';
-    background-color: #e9ecef;
+    width: 3px;
+    background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
 }
 
-.timeline > li {
+.timeline-item {
     position: relative;
-    margin-bottom: 50px;
-    min-height: 50px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.timeline > li:before,
-.timeline > li:after {
-    content: ' ';
-    display: table;
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.timeline-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.timeline > li:after {
-    clear: both;
-}
-
-.timeline > li .timeline-panel {
-    position: relative;
-    float: right;
-    width: calc(100% - 90px);
-    padding: 20px;
-    border: 1px solid #d4edda;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
-}
-
-.timeline > li .timeline-panel:before {
+.timeline-marker {
     position: absolute;
-    top: 26px;
-    right: -15px;
-    display: inline-block;
-    border-top: 15px solid transparent;
-    border-left: 15px solid #ccc;
-    border-right: 0 solid #ccc;
-    border-bottom: 15px solid transparent;
-    content: ' ';
-}
-
-.timeline > li .timeline-panel:after {
-    position: absolute;
-    top: 27px;
-    right: -14px;
-    display: inline-block;
-    border-top: 14px solid transparent;
-    border-left: 14px solid #fff;
-    border-right: 0 solid #fff;
-    border-bottom: 14px solid transparent;
-    content: ' ';
-}
-
-.timeline > li .timeline-badge {
-    position: absolute;
-    top: 16px;
-    left: 28px;
-    z-index: 100;
-    width: 25px;
-    height: 25px;
+    left: -45px;
+    top: 20px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    text-align: center;
-    font-size: 1.4em;
-    line-height: 25px;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.timeline-marker.migration { background: linear-gradient(135deg, #6c757d, #495057); }
+.timeline-marker.feature { background: linear-gradient(135deg, #28a745, #20c997); }
+.timeline-marker.update { background: linear-gradient(135deg, #17a2b8, #138496); }
+.timeline-marker.bugfix { background: linear-gradient(135deg, #ffc107, #e0a800); }
+.timeline-marker.enhancement { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
+
+.timeline-content {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .timeline-title {
-    margin-top: 0;
-    color: inherit;
-    font-size: 1.1em;
+    font-size: 1.25rem;
     font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    line-height: 1.4;
 }
 
-.timeline-body p {
-    margin-bottom: 0;
+.timeline-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
 }
 
-.timeline-body p + p {
-    margin-top: 5px;
+.timeline-date {
+    color: #718096;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
+.timeline-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.badge-modern {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-modern.bg-primary { background: linear-gradient(135deg, #667eea, #764ba2) !important; }
+.badge-modern.bg-success { background: linear-gradient(135deg, #48bb78, #38a169) !important; }
+.badge-modern.bg-info { background: linear-gradient(135deg, #4299e1, #3182ce) !important; }
+.badge-modern.bg-warning { background: linear-gradient(135deg, #ed8936, #dd6b20) !important; }
+.badge-modern.bg-secondary { background: linear-gradient(135deg, #a0aec0, #718096) !important; }
+
+.timeline-description {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.timeline-details {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.timeline-details small {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.commit-info {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-top: 15px;
+}
+
+.commit-info code {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Statistics Cards */
 .stats-card {
-    border-radius: 10px;
+    border-radius: 15px;
     border: none;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    background: white;
 }
 
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.stats-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+/* Filter Card */
 .filter-card {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 15px;
+    border: none;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
 }
 
-.filter-card .card-body {
-    padding: 2rem;
-}
-
+/* Action Buttons */
 .action-buttons {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
+}
+
+.action-buttons h5 {
+    color: white;
     margin-bottom: 1rem;
 }
 
 .btn-group-custom .btn {
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
+.btn-group-custom .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Export Section - More Visible */
 .export-section {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.export-section h5 {
+    color: white;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.export-section p {
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 1.5rem;
 }
 
 .export-section .btn {
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    transition: all 0.3s ease;
 }
 
 .export-section .btn:hover {
     background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
+.export-section .btn i {
+    margin-right: 8px;
+}
+
+/* Loading Overlay */
 .loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.7);
     z-index: 9999;
     display: none;
     justify-content: center;
     align-items: center;
+    backdrop-filter: blur(5px);
 }
 
 .loading-content {
     background: white;
-    padding: 2rem;
-    border-radius: 10px;
+    padding: 2.5rem;
+    border-radius: 15px;
     text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
 }
 
 .spinner-border {
     width: 3rem;
     height: 3rem;
+    border-width: 0.3em;
 }
 
-@media (max-width: 767px) {
-    .timeline > li .timeline-panel {
-        width: calc(100% - 70px);
+/* Responsive Design */
+@media (max-width: 768px) {
+    .timeline-container {
+        padding-left: 40px;
     }
 
-    .timeline:before {
-        left: 30px;
+    .timeline-line {
+        left: 20px;
     }
 
-    .timeline > li .timeline-badge {
-        left: 18px;
+    .timeline-marker {
+        left: -35px;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .timeline-content {
+        padding: 20px;
+    }
+
+    .timeline-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .timeline-meta {
+        width: 100%;
+        justify-content: space-between;
     }
 
     .btn-group-custom .btn {
@@ -195,6 +344,54 @@
         width: 100%;
         margin-right: 0;
     }
+
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .timeline-container {
+        padding-left: 30px;
+    }
+
+    .timeline-marker {
+        left: -25px;
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .timeline-content {
+        padding: 15px;
+    }
+
+    .timeline-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 15px;
+    border: 2px dashed #cbd5e0;
+}
+
+.empty-state .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 </style>
 @endsection
@@ -227,10 +424,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-primary rounded-circle fs-3">
-                            <i class="bx bx-data"></i>
-                        </span>
+                    <div class="stats-icon bg-primary">
+                        <i class="bx bx-data"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total</p>
@@ -245,10 +440,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-info rounded-circle fs-3">
-                            <i class="bx bx-git-commit"></i>
-                        </span>
+                    <div class="stats-icon bg-info">
+                        <i class="bx bx-git-commit"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Git Commits</p>
@@ -263,10 +456,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-secondary rounded-circle fs-3">
-                            <i class="bx bx-edit"></i>
-                        </span>
+                    <div class="stats-icon bg-secondary">
+                        <i class="bx bx-edit"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Manual Entry</p>
@@ -281,10 +472,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success rounded-circle fs-3">
-                            <i class="bx bx-plus-circle"></i>
-                        </span>
+                    <div class="stats-icon bg-success">
+                        <i class="bx bx-plus-circle"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Fitur</p>
@@ -299,10 +488,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-warning rounded-circle fs-3">
-                            <i class="bx bx-wrench"></i>
-                        </span>
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-wrench"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Bug Fix</p>
@@ -317,10 +504,8 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-primary rounded-circle fs-3">
-                            <i class="bx bx-database"></i>
-                        </span>
+                    <div class="stats-icon bg-primary">
+                        <i class="bx bx-database"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Migration</p>
@@ -444,83 +629,87 @@
         <div class="card">
             <div class="card-body">
                 @if($histories->count() > 0)
-                    <ul class="timeline">
+                    <div class="timeline-container">
+                        <div class="timeline-line"></div>
                         @foreach($histories as $history)
-                        <li>
-                            <div class="timeline-badge {{ $history->getTypeBadgeClass() }}">
+                        <div class="timeline-item">
+                            <div class="timeline-marker {{ $history->type }}">
                                 @if($history->details && isset($history->details['commit_hash']))
                                     <i class="bx bx-git-commit"></i>
                                 @else
                                     <i class="bx {{ $history->getTypeIcon() }}"></i>
                                 @endif
                             </div>
-                            <div class="timeline-panel">
-                                <div class="timeline-heading">
-                                    <h4 class="timeline-title">
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3 class="timeline-title">
                                         {{ $history->title }}
                                         @if($history->details && isset($history->details['commit_hash']))
                                             <i class="bx bx-git-commit text-info ms-2" title="Git Commit"></i>
                                         @endif
-                                    </h4>
-                                    <p class="text-muted">
-                                        <small>
+                                    </h3>
+                                    <div class="timeline-meta">
+                                        <div class="timeline-date">
                                             <i class="bx bx-calendar me-1"></i>
                                             {{ $history->formatted_date }}
-                                            <span class="text-primary ms-2">({{ $history->relative_date }})</span>
+                                            <span class="text-primary ms-1">({{ $history->relative_date }})</span>
+                                        </div>
+                                        <div class="timeline-badges">
                                             @if($history->version)
-                                                <span class="badge bg-info ms-2">v{{ $history->version }}</span>
+                                                <span class="badge badge-modern bg-info">v{{ $history->version }}</span>
                                             @endif
-                                            <span class="badge {{ $history->getTypeBadgeClass() }} ms-2">
+                                            <span class="badge badge-modern {{ $history->getTypeBadgeClass() }}">
                                                 {{ $types[$history->type] ?? $history->type }}
                                             </span>
                                             @if($history->details && isset($history->details['commit_hash']))
-                                                <span class="badge bg-success ms-2">
+                                                <span class="badge badge-modern bg-success">
                                                     <i class="bx bx-git-commit me-1"></i>Git Commit
                                                 </span>
                                             @endif
-                                        </small>
-                                    </p>
-                                </div>
-                                <div class="timeline-body">
-                                    <p>{{ $history->description }}</p>
-                                    @if($history->migration_file)
-                                        <p class="text-muted mb-0">
-                                            <small>
-                                                <i class="bx bx-file me-1"></i>
-                                                Migration: {{ $history->migration_file }}
-                                            </small>
-                                        </p>
-                                    @endif
-                                    @if($history->details && isset($history->details['commit_hash']))
-                                        <div class="mt-2">
-                                            <small class="text-muted">
-                                                <i class="bx bx-hash me-1"></i>
-                                                Commit: <code>{{ substr($history->details['commit_hash'], 0, 7) }}</code>
-                                                @if(isset($history->details['commit_author']))
-                                                    | Author: {{ $history->details['commit_author'] }}
-                                                @endif
-                                                @if(isset($history->details['webhook_processed']) && $history->details['webhook_processed'])
-                                                    <span class="badge bg-primary ms-2">Auto-tracked</span>
-                                                @endif
-                                            </small>
                                         </div>
-                                    @endif
+                                    </div>
                                 </div>
+
+                                <div class="timeline-description">
+                                    {{ $history->description }}
+                                </div>
+
+                                @if($history->migration_file)
+                                    <div class="timeline-details">
+                                        <small>
+                                            <i class="bx bx-file me-1"></i>
+                                            <strong>Migration:</strong> {{ $history->migration_file }}
+                                        </small>
+                                    </div>
+                                @endif
+
+                                @if($history->details && isset($history->details['commit_hash']))
+                                    <div class="commit-info">
+                                        <small>
+                                            <i class="bx bx-hash me-1"></i>
+                                            <strong>Commit:</strong> <code>{{ substr($history->details['commit_hash'], 0, 7) }}</code>
+                                            @if(isset($history->details['commit_author']))
+                                                | <strong>Author:</strong> {{ $history->details['commit_author'] }}
+                                            @endif
+                                            @if(isset($history->details['webhook_processed']) && $history->details['webhook_processed'])
+                                                <span class="badge bg-light text-dark ms-2">Auto-tracked</span>
+                                            @endif
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
-                        </li>
+                        </div>
                         @endforeach
-                    </ul>
+                    </div>
 
                     <!-- Pagination -->
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center mt-4">
                         {{ $histories->appends(request()->query())->links() }}
                     </div>
                 @else
-                    <div class="text-center py-5">
-                        <div class="avatar-lg mx-auto mb-4">
-                            <div class="avatar-title bg-light text-primary rounded-circle fs-1">
-                                <i class="bx bx-history"></i>
-                            </div>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bx bx-history"></i>
                         </div>
                         <h5>Belum Ada Riwayat Pengembangan</h5>
                         <p class="text-muted">Klik tombol "Sinkronisasi Migration" untuk memuat riwayat dari file migration.</p>
