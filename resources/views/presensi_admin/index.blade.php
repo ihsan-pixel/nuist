@@ -1030,7 +1030,10 @@ $(document).ready(function () {
     $('#exportMonthlyBtn').on('click', function() {
         let month = $('#exportMonthInput').val();
         if (month) {
+            console.log('Exporting for month:', month);
             window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
+        } else {
+            console.log('No month selected');
         }
     });
 
@@ -1043,6 +1046,12 @@ $(document).ready(function () {
     $('#exportMonthlyModal').on('shown.bs.modal', function (e) {
         // Modal is fully shown
         console.log('Modal opened');
+    });
+
+    // Test button click
+    $('button[data-target="#exportMonthlyModal"]').on('click', function() {
+        console.log('Button clicked, opening modal');
+        $('#exportMonthlyModal').modal('show');
     });
 
     // Function to initialize map for madrasah detail
