@@ -1032,6 +1032,17 @@ $(document).ready(function () {
         }
     });
 
+    // Initialize modal properly for Bootstrap 5
+    $(document).on('show.bs.modal', '#exportMonthlyModal', function (e) {
+        // Ensure modal is properly initialized
+        console.log('Modal opening');
+    });
+
+    $(document).on('shown.bs.modal', '#exportMonthlyModal', function (e) {
+        // Modal is fully shown
+        console.log('Modal opened');
+    });
+
     // Function to initialize map for madrasah detail
     function initializeMadrasahMap(madrasah) {
         // Clear any existing map
