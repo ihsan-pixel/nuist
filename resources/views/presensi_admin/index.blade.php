@@ -1008,8 +1008,6 @@ $(document).ready(function () {
         }
     });
     @endif
-
-
     // Function to initialize map for madrasah detail
     function initializeMadrasahMap(madrasah) {
         // Clear any existing map
