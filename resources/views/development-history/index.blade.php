@@ -117,6 +117,62 @@
     padding: 2rem;
 }
 
+.action-buttons {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-group-custom .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.export-section {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.export-section .btn {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.export-section .btn:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
 @media (max-width: 767px) {
     .timeline > li .timeline-panel {
         width: calc(100% - 70px);
@@ -128,6 +184,16 @@
 
     .timeline > li .timeline-badge {
         left: 18px;
+    }
+
+    .btn-group-custom .btn {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .export-section .btn {
+        width: 100%;
+        margin-right: 0;
     }
 }
 </style>
@@ -325,13 +391,49 @@
     </div>
 </div>
 
-<!-- Sync Button -->
+<!-- Action Buttons -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex justify-content-end">
-            <a href="{{ route('development-history.sync') }}" class="btn btn-success" onclick="return confirm('Sinkronisasi file migration dengan riwayat pengembangan?')">
-                <i class="bx bx-sync me-1"></i> Sinkronisasi Migration
-            </a>
+        <div class="action-buttons">
+            <h5 class="mb-3">
+                <i class="bx bx-cog me-2"></i>Aksi Pengembangan
+            </h5>
+            <div class="btn-group-custom">
+                <a href="{{ route('development-history.sync') }}" class="btn btn-success" onclick="return confirm('Sinkronisasi file migration dengan riwayat pengembangan?')">
+                    <i class="bx bx-sync me-1"></i> Sinkronisasi Migration
+                </a>
+                @if(auth()->user()->role === 'super_admin')
+                <button type="button" class="btn btn-warning" onclick="regenerateDocumentation()">
+                    <i class="bx bx-refresh me-1"></i> Regenerasi Dokumentasi
+                </button>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="export-section">
+            <h5 class="mb-3">
+                <i class="bx bx-download me-2"></i>Export Riwayat Pengembangan
+            </h5>
+            <p class="mb-3 opacity-75">Unduh riwayat pengembangan dalam berbagai format</p>
+            <div class="btn-group-custom">
+                <a href="{{ route('development-history.export', ['format' => 'txt']) . '?' . request()->getQueryString() }}" class="btn btn-light">
+                    <i class="bx bx-file me-1"></i> TXT
+                </a>
+                <a href="{{ route('development-history.export', ['format' => 'md']) . '?' . request()->getQueryString() }}" class="btn btn-light">
+                    <i class="bx bx-file-blank me-1"></i> Markdown
+                </a>
+                <a href="{{ route('development-history.export', ['format' => 'pdf']) . '?' . request()->getQueryString() }}" class="btn btn-light">
+                    <i class="bx bx-file-pdf me-1"></i> PDF
+                </a>
+                <a href="{{ route('development-history.export', ['format' => 'excel']) . '?' . request()->getQueryString() }}" class="btn btn-light">
+                    <i class="bx bx-spreadsheet me-1"></i> Excel
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -465,20 +567,108 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Commit tracking berhasil! ' + data.message);
-                location.reload();
+                showNotification('Commit tracking berhasil! ' + data.message, 'success');
+                setTimeout(() => location.reload(), 2000);
             } else {
-                alert('Error: ' + data.message);
+                showNotification('Error: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            alert('Terjadi kesalahan saat menjalankan commit tracking');
+            showNotification('Terjadi kesalahan saat menjalankan commit tracking', 'error');
             console.error(error);
         })
         .finally(() => {
             button.innerHTML = originalText;
             button.classList.remove('disabled');
         });
+    }
+
+    // Function to regenerate documentation
+    function regenerateDocumentation() {
+        if (!confirm('Regenerasi file dokumentasi riwayat pengembangan?')) {
+            return;
+        }
+
+        // Show loading
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Processing...';
+        button.disabled = true;
+
+        // Make AJAX request to regenerate documentation
+        fetch('/admin/regenerate-documentation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Dokumentasi berhasil diregenerasi!', 'success');
+            } else {
+                showNotification('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Terjadi kesalahan saat meregenerasi dokumentasi', 'error');
+            console.error(error);
+        })
+        .finally(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    }
+
+    // Function to show notifications
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+        notification.innerHTML = `
+            <i class="bx bx-${type === 'success' ? 'check-circle' : type === 'error' ? 'error-circle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        // Add to page
+        document.body.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Add loading overlay to page
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.id = 'loadingOverlay';
+        loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="mt-3">Memproses...</h5>
+                <p class="text-muted">Mohon tunggu sebentar</p>
+            </div>
+        `;
+        document.body.appendChild(loadingOverlay);
+    });
+
+    // Show loading overlay
+    function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    // Hide loading overlay
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
     }
 </script>
 @endsection

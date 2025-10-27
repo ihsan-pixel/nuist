@@ -287,4 +287,294 @@ class DevelopmentHistoryController extends Controller
 
         return $baseDescription . $context;
     }
+
+    /**
+     * Export development history to various formats
+     */
+    public function export(Request $request, $format)
+    {
+        // Check if user is super_admin or pengurus
+        if (!in_array(auth()->user()->role, ['super_admin', 'pengurus'])) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $query = DevelopmentHistory::query();
+
+        // Apply same filters as index
+        if ($request->has('type') && $request->type !== '') {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->has('source') && $request->source !== '') {
+            if ($request->source === 'commits') {
+                $query->whereNotNull('details->commit_hash');
+            } elseif ($request->source === 'manual') {
+                $query->whereNull('details->commit_hash');
+            }
+        }
+
+        if ($request->has('date_from') && $request->date_from !== '') {
+            $query->where('development_date', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to !== '') {
+            $query->where('development_date', '<=', $request->date_to);
+        }
+
+        $histories = $query->orderBy('development_date', 'desc')
+                          ->orderBy('created_at', 'desc')
+                          ->get();
+
+        $filename = 'riwayat_pengembangan_' . now()->format('Y-m-d_H-i-s');
+
+        switch ($format) {
+            case 'txt':
+                return $this->exportTxt($histories, $filename . '.txt');
+            case 'md':
+                return $this->exportMarkdown($histories, $filename . '.md');
+            case 'pdf':
+                return $this->exportPdf($histories, $filename . '.pdf');
+            case 'excel':
+                return $this->exportExcel($histories, $filename . '.xlsx');
+            default:
+                abort(400, 'Unsupported export format');
+        }
+    }
+
+    /**
+     * Regenerate development history documentation files
+     */
+    public function regenerateDocumentation(Request $request)
+    {
+        // Check if user is super_admin
+        if (auth()->user()->role !== 'super_admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
+        try {
+            // Run the documentation generation command
+            $exitCode = \Artisan::call('development:generate-txt', [
+                '--format' => 'txt'
+            ]);
+
+            $exitCode2 = \Artisan::call('development:generate-txt', [
+                '--format' => 'todo',
+                '--output' => 'riwayat_pengembangan.md'
+            ]);
+
+            if ($exitCode === 0 && $exitCode2 === 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Documentation files regenerated successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to regenerate documentation files'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error regenerating documentation: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Export to TXT format
+     */
+    private function exportTxt($histories, $filename)
+    {
+        $content = $this->generateTxtContent($histories);
+
+        return response($content)
+            ->header('Content-Type', 'text/plain')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Export to Markdown format
+     */
+    private function exportMarkdown($histories, $filename)
+    {
+        $content = $this->generateMarkdownContent($histories);
+
+        return response($content)
+            ->header('Content-Type', 'text/markdown')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Export to PDF format
+     */
+    private function exportPdf($histories, $filename)
+    {
+        // For PDF export, we'll use a simple HTML to PDF conversion
+        // In a real application, you might want to use libraries like dompdf or tcpdf
+        $html = $this->generateHtmlContent($histories);
+
+        // For now, return HTML that can be printed as PDF
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Export to Excel format (CSV for simplicity)
+     */
+    private function exportExcel($histories, $filename)
+    {
+        $content = $this->generateCsvContent($histories);
+
+        return response($content)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    /**
+     * Generate TXT content
+     */
+    private function generateTxtContent($histories)
+    {
+        $content = "RIWAYAT PENGEMBANGAN APLIKASI\n";
+        $content .= "Generated: " . now()->format('d F Y H:i:s') . "\n";
+        $content .= "Total Entries: " . $histories->count() . "\n\n";
+
+        foreach ($histories as $history) {
+            $content .= "================================\n";
+            $content .= "Date: " . $history->formatted_date . "\n";
+            $content .= "Type: " . ucfirst($history->type) . "\n";
+            $content .= "Title: " . $history->title . "\n";
+            $content .= "Description: " . $history->description . "\n";
+
+            if ($history->version) {
+                $content .= "Version: " . $history->version . "\n";
+            }
+
+            if ($history->migration_file) {
+                $content .= "Migration: " . $history->migration_file . "\n";
+            }
+
+            if ($history->details && isset($history->details['commit_hash'])) {
+                $content .= "Commit: " . substr($history->details['commit_hash'], 0, 7) . "\n";
+                $content .= "Author: " . ($history->details['commit_author'] ?? 'Unknown') . "\n";
+            }
+
+            $content .= "\n";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Generate Markdown content
+     */
+    private function generateMarkdownContent($histories)
+    {
+        $content = "# Riwayat Pengembangan Aplikasi\n\n";
+        $content .= "**Generated:** " . now()->format('d F Y H:i:s') . "\n";
+        $content .= "**Total Entries:** " . $histories->count() . "\n\n";
+
+        $groupedByDate = $histories->groupBy(function($item) {
+            return $item->development_date->format('Y-m-d');
+        });
+
+        foreach ($groupedByDate as $date => $dayHistories) {
+            $dateObj = Carbon::parse($date);
+            $content .= "## " . $dateObj->format('d F Y') . "\n\n";
+
+            foreach ($dayHistories as $history) {
+                $content .= "### " . $history->title . "\n\n";
+                $content .= "- **Type:** " . ucfirst($history->type) . "\n";
+                $content .= "- **Description:** " . $history->description . "\n";
+
+                if ($history->version) {
+                    $content .= "- **Version:** " . $history->version . "\n";
+                }
+
+                if ($history->migration_file) {
+                    $content .= "- **Migration:** `" . $history->migration_file . "`\n";
+                }
+
+                if ($history->details && isset($history->details['commit_hash'])) {
+                    $content .= "- **Commit:** `" . substr($history->details['commit_hash'], 0, 7) . "`\n";
+                    $content .= "- **Author:** " . ($history->details['commit_author'] ?? 'Unknown') . "\n";
+                }
+
+                $content .= "\n";
+            }
+        }
+
+        return $content;
+    }
+
+    /**
+     * Generate HTML content for PDF
+     */
+    private function generateHtmlContent($histories)
+    {
+        $html = "<!DOCTYPE html><html><head><title>Riwayat Pengembangan</title>";
+        $html .= "<style>body{font-family:Arial,sans-serif;margin:20px;}";
+        $html .= "h1{color:#333;} .entry{border:1px solid #ddd;padding:10px;margin:10px 0;}";
+        $html .= ".date{color:#666;font-size:0.9em;} .type{background:#f0f0f0;padding:2px 5px;border-radius:3px;}</style>";
+        $html .= "</head><body>";
+
+        $html .= "<h1>Riwayat Pengembangan Aplikasi</h1>";
+        $html .= "<p><strong>Generated:</strong> " . now()->format('d F Y H:i:s') . "</p>";
+        $html .= "<p><strong>Total Entries:</strong> " . $histories->count() . "</p><hr>";
+
+        foreach ($histories as $history) {
+            $html .= "<div class='entry'>";
+            $html .= "<h3>" . htmlspecialchars($history->title) . "</h3>";
+            $html .= "<p class='date'>" . $history->formatted_date . " | <span class='type'>" . ucfirst($history->type) . "</span></p>";
+            $html .= "<p>" . nl2br(htmlspecialchars($history->description)) . "</p>";
+
+            if ($history->version) {
+                $html .= "<p><strong>Version:</strong> " . htmlspecialchars($history->version) . "</p>";
+            }
+
+            if ($history->migration_file) {
+                $html .= "<p><strong>Migration:</strong> <code>" . htmlspecialchars($history->migration_file) . "</code></p>";
+            }
+
+            if ($history->details && isset($history->details['commit_hash'])) {
+                $html .= "<p><strong>Commit:</strong> <code>" . substr($history->details['commit_hash'], 0, 7) . "</code></p>";
+                $html .= "<p><strong>Author:</strong> " . htmlspecialchars($history->details['commit_author'] ?? 'Unknown') . "</p>";
+            }
+
+            $html .= "</div>";
+        }
+
+        $html .= "</body></html>";
+        return $html;
+    }
+
+    /**
+     * Generate CSV content
+     */
+    private function generateCsvContent($histories)
+    {
+        $content = "Date,Type,Title,Description,Version,Migration,Commit,Author\n";
+
+        foreach ($histories as $history) {
+            $row = [
+                $history->development_date->format('Y-m-d'),
+                ucfirst($history->type),
+                '"' . str_replace('"', '""', $history->title) . '"',
+                '"' . str_replace('"', '""', $history->description) . '"',
+                $history->version ?? '',
+                $history->migration_file ?? '',
+                isset($history->details['commit_hash']) ? substr($history->details['commit_hash'], 0, 7) : '',
+                isset($history->details['commit_author']) ? $history->details['commit_author'] : ''
+            ];
+
+            $content .= implode(',', $row) . "\n";
+        }
+
+        return $content;
+    }
 }
