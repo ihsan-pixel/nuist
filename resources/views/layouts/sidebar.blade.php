@@ -152,12 +152,14 @@
                     </a>
                 </li>
 
+                @if($userRole === 'super_admin')
                 <li>
                     <a href="{{ route('fake-location.index') }}" class="waves-effect">
                         <i class="bx bx-error-circle"></i>
                         <span>Deteksi Fake Location</span>
                     </a>
                 </li>
+                @endif
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))

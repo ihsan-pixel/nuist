@@ -1,4 +1,4 @@
-# Dashboard Super Admin Improvement Plan
+git add .\g# Dashboard Super Admin Improvement Plan
 
 ## Information Gathered
 - Current dashboard has basic card layout for super admin statistics
