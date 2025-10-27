@@ -105,6 +105,15 @@
                 </li>
                 @endif
 
+                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
+                <li>
+                    <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar"></i>
+                        <span>Jadwal Mengajar</span>
+                    </a>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="#presensiAdminSubmenu" data-bs-toggle="collapse" class="has-arrow">
@@ -137,7 +146,7 @@
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
 
-                <li class="menu-title">APLIKASI</li>
+                <li class="menu-title">ABOUT</li>
 
                 <li>
                     <a href="{{ route('development-history.index') }}" class="waves-effect">
@@ -174,15 +183,6 @@
                     </a>
                 </li>
                 @endif
-                @endif
-
-                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
-                <li>
-                    <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
-                        <i class="bx bx-calendar"></i>
-                        <span>Jadwal Mengajar</span>
-                    </a>
-                </li>
                 @endif
 
             </ul>
