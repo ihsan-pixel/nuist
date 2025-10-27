@@ -64,6 +64,15 @@
                 </li>
                 @endif
 
+                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
+                <li>
+                    <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
+                        <i class="bx bx-calendar"></i>
+                        <span>Jadwal Mengajar</span>
+                    </a>
+                </li>
+                @endif
+
                 @php
                     $isAdminOnly = $userRole === 'admin';
                 @endphp
@@ -101,15 +110,6 @@
                     <a href="{{ route('teaching-attendances.index') }}" class="waves-effect">
                         <i class="bx bx-calendar-check"></i>
                         <span>Presensi Mengajar</span>
-                    </a>
-                </li>
-                @endif
-
-                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']) || ($userRole === 'tenaga_pendidik' && auth()->user()->ketugasan === 'kepala madrasah/sekolah'))
-                <li>
-                    <a href="{{ route('teaching-schedules.index') }}" class="waves-effect">
-                        <i class="bx bx-calendar"></i>
-                        <span>Jadwal Mengajar</span>
                     </a>
                 </li>
                 @endif
