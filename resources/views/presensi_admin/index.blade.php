@@ -1056,7 +1056,9 @@ $(document).ready(function () {
     });
 
     // Handle export monthly trigger button specifically
-    $('#exportMonthlyTriggerBtn').on('click', function() {
+    $('#exportMonthlyTriggerBtn').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Export Monthly Trigger Button clicked');
         $('#exportMonthlyModal').modal('show');
     });
