@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         // Share current app settings with all views
         View::composer('*', function ($view) {
             $view->with('app_version', $this->getCurrentAppVersion());
-            $view->with('app_name', config('app.name', 'NUIST'));
+            $view->with('app_name', Cache::get('app_name', config('app.name', 'NUIST')));
         });
     }
 

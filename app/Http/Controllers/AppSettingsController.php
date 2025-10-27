@@ -76,6 +76,9 @@ class AppSettingsController extends Controller
             'session_lifetime' => $request->session_lifetime,
         ], now()->addHours(24)); // Cache for 24 hours
 
+        // Update app name in cache for immediate effect
+        Cache::put('app_name', $request->app_name, now()->addHours(24));
+
         // If maintenance mode changed
         if ($request->boolean('maintenance_mode')) {
             \Artisan::call('down');
