@@ -433,8 +433,8 @@
     </div>
 
     <!-- Export Monthly Modal -->
-    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="exportMonthlyModal" tabindex="-1" role="dialog" aria-labelledby="exportMonthlyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exportMonthlyModalLabel">Export Data Presensi Bulanan</h5>
@@ -443,8 +443,8 @@
                 <div class="modal-body">
                     <p class="mb-3">Pilih bulan untuk export data presensi bulanan:</p>
                     <div class="mb-3">
-                        <label for="exportMonth" class="form-label">Bulan:</label>
-                        <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
+                        <label for="exportMonthInput" class="form-label">Bulan:</label>
+                        <input type="month" class="form-control" id="exportMonthInput" value="{{ date('Y-m') }}">
                     </div>
                     <div class="d-grid">
                         <button type="button" class="btn btn-success" id="exportMonthlyBtn">
@@ -999,7 +999,7 @@ $(document).ready(function () {
 
     // Handle export monthly for admin
     $('#exportMonthlyBtn').on('click', function() {
-        let month = $('#exportMonth').val();
+        let month = $('#exportMonthInput').val();
         if (month) {
             window.location.href = '{{ route('presensi_admin.export_monthly') }}?month=' + month;
         }
