@@ -11,7 +11,7 @@
 @endcomponent
 
 <div class="row">
-    <div class="col-4">
+    <div class="col-lg-4 col-12">
         <!-- Welcome Card - Mobile Optimized -->
         <div class="card overflow-hidden mb-3">
             <div class="bg-success-subtle">
@@ -50,7 +50,7 @@
         @if(Auth::user()->role === 'admin' && isset($madrasahData))
         <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -75,7 +75,7 @@
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -105,7 +105,7 @@
         @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData))
         <div class="row">
             {{-- Address Information --}}
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -130,7 +130,7 @@
             </div>
 
             {{-- Map Display --}}
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title mb-3">
@@ -238,7 +238,7 @@
 
     {{-- Admin Statistics Section - Right side --}}
     @if(Auth::user()->role === 'admin' && isset($adminStats))
-    <div class="col-xl-8">
+    <div class="col-xl-8 col-12">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
             <div class="card-body p-4">
@@ -483,7 +483,7 @@
 
     {{-- Super Admin Statistics Section --}}
     @if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($superAdminStats))
-    <div class="col-xl-8">
+    <div class="col-xl-8 col-12">
         <!-- Statistics Overview Header -->
         <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
             <div class="card-body p-4">
