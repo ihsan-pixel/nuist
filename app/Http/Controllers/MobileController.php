@@ -344,7 +344,135 @@ class MobileController extends Controller
     // Izin (leave) stubs
     public function storeIzin(Request $request)
     {
-        return redirect()->back();
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $type = $request->input('type');
+
+        // Common: tanggal presence
+        if (empty($type)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Tipe izin tidak diketahui.'], 422);
+            }
+            return redirect()->back()->with('error', 'Tipe izin tidak diketahui.');
+        }
+
+        // Normalize type
+        $type = strtolower($type);
+
+        // Validate and map input per type
+        $filePath = null;
+        $keterangan = '';
+        $tanggal = $request->input('tanggal');
+
+        // Prevent duplicate presensi records on same date
+        if ($tanggal) {
+            $existing = Presensi::where('user_id', $user->id)->where('tanggal', $tanggal)->first();
+            if ($existing) {
+                $msg = 'Anda sudah memiliki catatan kehadiran pada tanggal ini.';
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $msg], 400);
+                }
+                return redirect()->back()->with('error', $msg);
+            }
+        }
+
+        switch ($type) {
+            case 'sakit':
+                $request->validate([
+                    'tanggal' => 'required|date',
+                    'keterangan' => 'required|string',
+                    'surat_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $keterangan = $request->input('keterangan');
+                if ($request->hasFile('surat_izin')) {
+                    $filePath = $request->file('surat_izin')->store('surat_izin', 'public');
+                }
+                break;
+
+            case 'tidak_masuk':
+                $request->validate([
+                    'tanggal' => 'required|date',
+                    'alasan' => 'required|string',
+                    'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $keterangan = $request->input('alasan');
+                if ($request->hasFile('file_izin')) {
+                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                }
+                break;
+
+            case 'terlambat':
+                $request->validate([
+                    'tanggal' => 'required|date',
+                    'alasan' => 'required|string',
+                    'waktu_masuk' => 'required',
+                    'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $keterangan = $request->input('alasan') . ' (Waktu masuk: ' . $request->input('waktu_masuk') . ')';
+                if ($request->hasFile('file_izin')) {
+                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                }
+                break;
+
+            case 'tugas_luar':
+                $request->validate([
+                    'tanggal' => 'required|date',
+                    'deskripsi_tugas' => 'required|string',
+                    'lokasi_tugas' => 'required|string',
+                    'waktu_masuk' => 'required',
+                    'waktu_keluar' => 'required',
+                    'file_tugas' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $keterangan = $request->input('deskripsi_tugas') . '\nLokasi: ' . $request->input('lokasi_tugas') . '\n' . 'Waktu: ' . $request->input('waktu_masuk') . ' - ' . $request->input('waktu_keluar');
+                if ($request->hasFile('file_tugas')) {
+                    $filePath = $request->file('file_tugas')->store('surat_izin', 'public');
+                }
+                break;
+
+            default:
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Tipe izin tidak dikenali.'], 422);
+                }
+                return redirect()->back()->with('error', 'Tipe izin tidak dikenali.');
+        }
+
+        // Create Presensi record with status 'izin'
+        $presensi = Presensi::create([
+            'user_id' => $user->id,
+            'tanggal' => $tanggal,
+            'status' => 'izin',
+            'keterangan' => $keterangan,
+            'surat_izin_path' => $filePath,
+            'status_izin' => 'pending',
+            'status_kepegawaian_id' => $user->status_kepegawaian_id,
+        ]);
+
+        // Notify user
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'izin_submitted',
+            'title' => 'Izin Diajukan',
+            'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
+            'data' => [
+                'presensi_id' => $presensi->id,
+                'tanggal' => $tanggal,
+                'type' => $type,
+            ]
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Izin berhasil diajukan dan menunggu persetujuan.']);
+        }
+
+        return redirect()->route('mobile.riwayat-presensi')->with('success', 'Izin berhasil diajukan dan menunggu persetujuan.');
     }
 
     public function izin()
