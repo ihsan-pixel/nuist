@@ -173,10 +173,27 @@ class MobileController extends Controller
         return $presensiController->store($request);
     }
 
-    // Riwayat presensi (stub)
-    public function riwayatPresensi()
+    // Riwayat presensi
+    public function riwayatPresensi(Request $request)
     {
-        return view('mobile.riwayat-presensi');
+        $user = Auth::user();
+
+        // only tenaga_pendidik may access mobile pages
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        // allow optional month navigation via ?month=2025-10-01
+        $selectedMonth = $request->input('month') ? Carbon::parse($request->input('month')) : Carbon::now();
+
+        // Fetch presensi for the selected month for the authenticated user
+        $presensiHistory = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $selectedMonth->year)
+            ->whereMonth('tanggal', $selectedMonth->month)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('mobile.riwayat-presensi', compact('presensiHistory'));
     }
 
     // Jadwal view (mobile)
