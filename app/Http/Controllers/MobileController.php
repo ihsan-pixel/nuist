@@ -390,6 +390,33 @@ class MobileController extends Controller
         }
     }
 
+    public function kelolaIzin(Request $request)
+    {
+        $user = Auth::user();
+
+        // Check if user is kepala sekolah
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            abort(403, 'Unauthorized. Only kepala sekolah can access this page.');
+        }
+
+        $status = $request->get('status', 'pending');
+
+        $query = Presensi::where('status', 'izin')
+            ->with('user')
+            ->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            });
+
+        if ($status !== 'all') {
+            $query->where('status_izin', $status);
+        }
+
+        $izinRequests = $query->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('mobile.kelola-izin', compact('izinRequests', 'status'));
+    }
+
 
 
 
