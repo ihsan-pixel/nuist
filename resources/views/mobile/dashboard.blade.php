@@ -268,7 +268,7 @@
                 <i class="bx bx-edit" style="font-size: 20px; margin-bottom: 4px;"></i>
                 <span>Kelola Izin</span>
             </a>
-            <a href="{{ route('mobile.data-presensi') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+            <a href="{{ route('mobile.monitor-presensi') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
                 <i class="bx bx-calendar-check" style="font-size: 20px; margin-bottom: 4px;"></i>
                 <span>Data Presensi</span>
             </a>
