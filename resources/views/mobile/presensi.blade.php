@@ -443,7 +443,7 @@
         </a>
     </div>
 
-    <!-- Monitoring Presensi: Sudah / Belum -->
+    {{-- <!-- Monitoring Presensi: Sudah / Belum -->
     <div class="presensi-form">
         <h6 class="section-title">Monitoring Presensi Madrasah</h6>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -494,7 +494,7 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 @endsection
 
