@@ -21,15 +21,21 @@
             margin-bottom: 10px;
         }
 
-        .btn-outline-light {
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
+        .back-btn {
+            background: none;
+            border: none;
+            color: #004b4c;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-outline-light:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: #fff;
-            color: #fff;
+        .back-btn:hover {
+            background: #f0f8f0;
         }
 
         .monitor-header h6 {
@@ -182,6 +188,12 @@
         }
     </style>
 
+    <!-- Back Button -->
+    <button onclick="history.back()" class="back-btn">
+        <i class="bx bx-arrow-back"></i>
+        <span>Kembali</span>
+    </button>
+
     <!-- Header -->
     <div class="monitor-header">
         <div class="d-flex justify-content-between align-items-center">
@@ -189,13 +201,8 @@
                 <h6 class="mb-1">Monitoring Presensi</h6>
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
             </div>
-            <div class="d-flex align-items-center">
-                <a href="{{ route('mobile.dashboard') }}" class="btn btn-sm btn-outline-light me-2">
-                    <i class="bx bx-arrow-back"></i>
-                </a>
-                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                     class="rounded-circle border border-white" width="32" height="32" alt="User">
-            </div>
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
