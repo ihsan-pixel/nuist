@@ -180,35 +180,55 @@ class MobileController extends Controller
     public function jadwal()
     {
         $user = Auth::user();
-
-        // Check if user is kepala sekolah
-        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
-            abort(403, 'Unauthorized. Only kepala sekolah can access this page.');
+        
+        // Allow all tenaga_pendidik to access jadwal
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
         }
 
-        // Get all teaching schedules for the madrasah
-        $schedules = TeachingSchedule::with(['teacher', 'school'])
-            ->where('school_id', $user->madrasah_id)
-            ->orderBy('day')
-            ->orderBy('start_time')
-            ->get()
-            ->groupBy('day');
+        // If kepala madrasah, show madrasah-level schedules; otherwise show personal schedules for the teacher
+        if ($user->ketugasan === 'kepala madrasah/sekolah') {
+            $schedules = TeachingSchedule::with(['teacher', 'school'])
+                ->where('school_id', $user->madrasah_id)
+                ->orderBy('day')
+                ->orderBy('start_time')
+                ->get()
+                ->groupBy('day');
 
-        // Get classes and subjects
-        $classes = TeachingSchedule::where('school_id', $user->madrasah_id)
-            ->select('class_name')
-            ->distinct()
-            ->pluck('class_name')
-            ->sort();
+            $classes = TeachingSchedule::where('school_id', $user->madrasah_id)
+                ->select('class_name')
+                ->distinct()
+                ->pluck('class_name')
+                ->sort();
 
-        $subjects = TeachingSchedule::where('school_id', $user->madrasah_id)
-            ->select('subject')
-            ->distinct()
-            ->pluck('subject')
-            ->sort();
+            $subjects = TeachingSchedule::where('school_id', $user->madrasah_id)
+                ->select('subject')
+                ->distinct()
+                ->pluck('subject')
+                ->sort();
+        } else {
+            // Personal schedules for non-kepala teachers
+            $schedules = TeachingSchedule::with(['teacher', 'school'])
+                ->where('teacher_id', $user->id)
+                ->orderBy('day')
+                ->orderBy('start_time')
+                ->get()
+                ->groupBy('day');
 
-    // Use existing mobile.jadwal view
-    return view('mobile.jadwal', compact('schedules', 'classes', 'subjects'));
+            $classes = TeachingSchedule::where('teacher_id', $user->id)
+                ->select('class_name')
+                ->distinct()
+                ->pluck('class_name')
+                ->sort();
+
+            $subjects = TeachingSchedule::where('teacher_id', $user->id)
+                ->select('subject')
+                ->distinct()
+                ->pluck('subject')
+                ->sort();
+        }
+
+        return view('mobile.jadwal', compact('schedules', 'classes', 'subjects'));
     }
 
     // Profile and account management stubs
