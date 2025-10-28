@@ -106,7 +106,8 @@ class MobileController extends Controller
             })
             ->get();
 
-        return view('mobile.data-presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
+    // Use existing mobile.presensi view (legacy mobile.data-presensi route name kept for compatibility)
+    return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
     }
 
     // Store presensi (stub)
@@ -153,7 +154,8 @@ class MobileController extends Controller
             ->pluck('subject')
             ->sort();
 
-        return view('mobile.data-jadwal', compact('schedules', 'classes', 'subjects'));
+    // Use existing mobile.jadwal view
+    return view('mobile.jadwal', compact('schedules', 'classes', 'subjects'));
     }
 
     // Profile and account management stubs
