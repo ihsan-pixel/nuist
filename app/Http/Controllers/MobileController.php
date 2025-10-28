@@ -301,9 +301,39 @@ class MobileController extends Controller
     }
 
     // Teaching attendances (mobile)
-    public function teachingAttendances()
+    public function teachingAttendances(Request $request)
     {
-        return view('mobile.teaching-attendances');
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        // allow optional date query param for browsing
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        // Build schedule query with today's teaching attendances
+        $query = TeachingSchedule::with(['teacher', 'school', 'teachingAttendances' => function ($q) use ($selectedDate) {
+            $q->whereDate('tanggal', $selectedDate);
+        }]);
+
+        // Kepala sees school schedules, ordinary teachers see their own
+        if ($user->ketugasan === 'kepala madrasah/sekolah') {
+            $query->where('school_id', $user->madrasah_id);
+        } else {
+            $query->where('teacher_id', $user->id);
+        }
+
+        $schedules = $query->orderBy('day')->orderBy('start_time')->get();
+
+        // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
+        $schedules->each(function ($schedule) {
+            $schedule->attendance = $schedule->teachingAttendances->first() ?? null;
+        });
+
+        $today = $selectedDate->toDateString();
+
+        return view('mobile.teaching-attendances', compact('today', 'schedules'));
     }
 
     // Account change
