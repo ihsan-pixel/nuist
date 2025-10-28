@@ -534,7 +534,7 @@ class MobileController extends Controller
         $status = request('status', 'pending');
 
         // Kepala madrasah: show requests for the whole madrasah
-        if ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') {
+        if ((($user->role === 'tenaga_pendidik') || ($user->role === 'admin')) && $user->ketugasan === 'kepala madrasah/sekolah') {
             $izinQuery = Presensi::with('user')
                 ->whereHas('user', function ($q) use ($user) {
                     $q->where('madrasah_id', $user->madrasah_id);
