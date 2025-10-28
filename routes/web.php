@@ -92,9 +92,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\MobileController::class, 'dashboard'])->name('dashboard');
     Route::get('/presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('presensi');
+    // Backwards-compatible route names used by some mobile views
+    Route::get('/data-presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('data-presensi');
     Route::post('/presensi', [App\Http\Controllers\MobileController::class, 'storePresensi'])->name('presensi.store');
     Route::get('/riwayat-presensi', [App\Http\Controllers\MobileController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
+    Route::get('/data-jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('data-jadwal');
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
     Route::post('/profile/update-profile', [App\Http\Controllers\MobileController::class, 'updateProfile'])->name('profile.update-profile');
 
