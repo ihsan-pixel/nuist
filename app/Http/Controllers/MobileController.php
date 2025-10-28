@@ -234,7 +234,14 @@ class MobileController extends Controller
     // Profile and account management stubs
     public function profile()
     {
-        return view('mobile.profile');
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        // pass the authenticated user to the view so blade can reference $user
+        return view('mobile.profile', compact('user'));
     }
 
     public function updateProfile(Request $request)
