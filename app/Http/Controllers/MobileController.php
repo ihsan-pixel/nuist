@@ -168,8 +168,9 @@ class MobileController extends Controller
     // Store presensi (stub)
     public function storePresensi(Request $request)
     {
-        // Implementation left as-is; redirect back for now
-        return redirect()->back();
+        // Delegate to main PresensiController so we keep a single source of truth
+        $presensiController = app(\App\Http\Controllers\PresensiController::class);
+        return $presensiController->store($request);
     }
 
     // Riwayat presensi (stub)

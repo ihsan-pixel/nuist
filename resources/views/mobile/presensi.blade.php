@@ -749,10 +749,29 @@ window.addEventListener('load', function() {
                                 location.reload();
                             });
                         } else {
+                            // Map common backend messages to clearer explanations
+                            let title = 'Peringatan';
+                            let text = response.message || 'Presensi gagal.';
+
+                            const msg = (response.message || '').toLowerCase();
+                            if (msg.includes('luar area') || msg.includes('di luar area')) {
+                                title = 'Diluar Area Sekolah';
+                                text = 'Lokasi Anda berada di luar area presensi madrasah. Pastikan GPS aktif dan Anda berada di lingkungan sekolah.';
+                            } else if (msg.includes('waktu presensi masuk telah berakhir') || msg.includes('waktu presensi masuk')) {
+                                title = 'Waktu Masuk Habis';
+                                text = 'Batas waktu untuk presensi masuk telah lewat. Jika Anda terlambat, silakan ajukan izin atau hubungi admin.';
+                            } else if (msg.includes('belum waktunya presensi masuk')) {
+                                title = 'Belum Waktunya Masuk';
+                                text = 'Masih belum waktunya untuk melakukan presensi masuk. Silakan coba kembali pada jam yang ditentukan.';
+                            } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
+                                title = 'Belum Waktunya Pulang';
+                                text = 'Belum waktunya melakukan presensi pulang. Tunggu hingga jam pulang yang ditentukan.';
+                            }
+
                             Swal.fire({
                                 icon: 'warning',
-                                title: 'Peringatan',
-                                text: response.message,
+                                title: title,
+                                text: text,
                                 confirmButtonText: 'Oke'
                             });
                             $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
@@ -760,6 +779,7 @@ window.addEventListener('load', function() {
                     },
                     error: function(xhr, status, error) {
                         let errorMessage = 'Terjadi kesalahan tidak diketahui';
+                        let title = 'Kesalahan';
 
                         if (status === 'timeout') {
                             errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
@@ -769,9 +789,24 @@ window.addEventListener('load', function() {
                             errorMessage = xhr.responseJSON.message;
                         }
 
+                        const msg = (xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : errorMessage).toLowerCase();
+                        if (msg.includes('luar area') || msg.includes('di luar area')) {
+                            title = 'Diluar Area Sekolah';
+                            errorMessage = 'Lokasi Anda berada di luar area presensi madrasah. Periksa lokasi dan coba lagi.';
+                        } else if (msg.includes('waktu presensi masuk telah berakhir') || msg.includes('waktu presensi masuk')) {
+                            title = 'Waktu Masuk Habis';
+                            errorMessage = 'Batas waktu presensi masuk telah lewat.';
+                        } else if (msg.includes('belum waktunya presensi masuk')) {
+                            title = 'Belum Waktunya Masuk';
+                            errorMessage = 'Masih belum waktunya untuk presensi masuk.';
+                        } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
+                            title = 'Belum Waktunya Pulang';
+                            errorMessage = 'Belum waktunya melakukan presensi pulang.';
+                        }
+
                         Swal.fire({
                             icon: 'error',
-                            title: 'Kesalahan',
+                            title: title,
                             text: errorMessage,
                             confirmButtonText: 'Oke'
                         });
