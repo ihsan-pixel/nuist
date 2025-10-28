@@ -1,70 +1,266 @@
 @extends('layouts.mobile')
 
 @section('title', 'Monitoring Presensi')
-@section('subtitle', 'Pantau Kehadiran Tenaga Pendidik')
+@section('subtitle', 'Data Presensi Madrasah')
 
 @section('content')
-<div class="container py-3" style="max-width:420px;margin:auto;">
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Monitoring Presensi</h6>
-        <form method="GET" action="{{ route('mobile.monitor-presensi') }}">
-            <input type="date" name="date" value="{{ $selectedDate->toDateString() }}" onchange="this.form.submit()" class="form-control form-control-sm">
-        </form>
+<div class="container py-3" style="max-width: 420px; margin: auto;">
+    <style>
+        body {
+            background: #f8f9fb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+        }
+
+        .monitor-header {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 10px;
+            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .monitor-header h6 {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .monitor-header h5 {
+            font-size: 14px;
+        }
+
+        .date-nav {
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .date-nav button {
+            background: none;
+            border: none;
+            color: #0e8549;
+            font-size: 16px;
+            padding: 5px;
+        }
+
+        .date-nav .current-date {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .presensi-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 5px;
+        }
+
+        .presensi-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .presensi-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .presensi-item:last-child {
+            border-bottom: none;
+        }
+
+        .presensi-info {
+            flex: 1;
+        }
+
+        .presensi-info .name {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .presensi-info .status {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        .presensi-time {
+            text-align: right;
+        }
+
+        .presensi-time .time {
+            font-weight: 600;
+            font-size: 12px;
+            color: #0e8549;
+        }
+
+        .presensi-time .sub-time {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .pagination-custom {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .pagination-custom .page-link {
+            color: #0e8549;
+            border-color: #0e8549;
+            margin: 0 2px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .pagination-custom .page-link:hover {
+            background-color: #0e8549;
+            color: #fff;
+        }
+
+        .pagination-custom .page-item.active .page-link {
+            background-color: #0e8549;
+            border-color: #0e8549;
+        }
+    </style>
+
+    <!-- Header -->
+    <div class="monitor-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">Monitoring Presensi</h6>
+                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
+            </div>
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+        </div>
     </div>
 
-    <div style="background:#fff;padding:12px;border-radius:8px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-        <h6 class="mb-2">Sudah Presensi ({{ $presensis->total() }})</h6>
+    <!-- Date Navigation -->
+    <div class="date-nav">
+        <button type="button" onclick="changeDate('{{ $selectedDate->copy()->subDay()->toDateString() }}')">
+            <i class="bx bx-chevron-left"></i>
+        </button>
+        <div class="current-date">{{ $selectedDate->format('d M Y') }}</div>
+        <button type="button" onclick="changeDate('{{ $selectedDate->copy()->addDay()->toDateString() }}')">
+            <i class="bx bx-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Sudah Presensi -->
+    <div class="presensi-section">
+        <h6 class="section-title">
+            <i class="bx bx-check-circle text-success"></i>
+            Sudah Presensi ({{ $presensis->total() }})
+        </h6>
         @if($presensis->isEmpty())
-            <p class="text-muted">Belum ada presensi untuk tanggal ini.</p>
+            <div class="empty-state">
+                <i class="bx bx-calendar-x"></i>
+                <p>Belum ada presensi pada tanggal ini.</p>
+            </div>
         @else
-            <ul style="list-style:none;padding:0;margin:0;">
+            <ul class="presensi-list">
                 @foreach($presensis as $p)
-                    <li style="padding:8px 0;border-bottom:1px solid #f1f1f1;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <div style="font-weight:600;">{{ $p->user->name ?? '-' }}</div>
-                                <small class="text-muted">{{ $p->user->statusKepegawaian?->name ?? '' }}</small>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-weight:600;">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
-                                @if($p->waktu_keluar)
-                                    <small class="text-muted">Keluar {{ $p->waktu_keluar->format('H:i') }}</small>
-                                @endif
-                            </div>
+                    <li class="presensi-item">
+                        <div class="presensi-info">
+                            <div class="name">{{ $p->user->name ?? '-' }}</div>
+                            <div class="status">{{ $p->user->statusKepegawaian?->name ?? '-' }}</div>
+                        </div>
+                        <div class="presensi-time">
+                            <div class="time">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
+                            @if($p->waktu_keluar)
+                                <div class="sub-time">Keluar {{ $p->waktu_keluar->format('H:i') }}</div>
+                            @else
+                                <div class="sub-time">Belum keluar</div>
+                            @endif
                         </div>
                     </li>
                 @endforeach
             </ul>
-
-            <div class="mt-2">
-                {{ $presensis->appends(request()->query())->links() }}
-            </div>
+            @if($presensis->hasPages())
+                <div class="pagination-custom">
+                    {{ $presensis->appends(request()->query())->links() }}
+                </div>
+            @endif
         @endif
     </div>
 
-    <div style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-        <h6 class="mb-2">Belum Presensi ({{ $belumPresensi->total() }})</h6>
+    <!-- Belum Presensi -->
+    <div class="presensi-section">
+        <h6 class="section-title">
+            <i class="bx bx-x-circle text-warning"></i>
+            Belum Presensi ({{ $belumPresensi->total() }})
+        </h6>
         @if($belumPresensi->isEmpty())
-            <p class="text-muted">Semua tenaga pendidik telah melakukan presensi.</p>
+            <div class="empty-state">
+                <i class="bx bx-check-circle"></i>
+                <p>Semua tenaga pendidik telah melakukan presensi.</p>
+            </div>
         @else
-            <ul style="list-style:none;padding:0;margin:0;">
+            <ul class="presensi-list">
                 @foreach($belumPresensi as $u)
-                    <li style="padding:8px 0;border-bottom:1px solid #f1f1f1;display:flex;justify-content:space-between;align-items:center;">
-                        <div>
-                            <div style="font-weight:600;">{{ $u->name }}</div>
-                            <small class="text-muted">{{ $u->statusKepegawaian?->name ?? '' }}</small>
+                    <li class="presensi-item">
+                        <div class="presensi-info">
+                            <div class="name">{{ $u->name }}</div>
+                            <div class="status">{{ $u->statusKepegawaian?->name ?? '-' }}</div>
                         </div>
-                        <div>
-                            <small class="text-muted">{{ $u->nuist_id ?? '' }}</small>
+                        <div class="presensi-time">
+                            <div class="time">-</div>
+                            <div class="sub-time">Belum presensi</div>
                         </div>
                     </li>
                 @endforeach
             </ul>
-
-            <div class="mt-2">
-                {{ $belumPresensi->appends(request()->query())->links() }}
-            </div>
+            @if($belumPresensi->hasPages())
+                <div class="pagination-custom">
+                    {{ $belumPresensi->appends(request()->query())->links() }}
+                </div>
+            @endif
         @endif
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+function changeDate(date) {
+    window.location.href = '{{ route("mobile.monitor-presensi") }}?date=' + date;
+}
+</script>
 @endsection
