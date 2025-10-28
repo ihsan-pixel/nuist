@@ -106,8 +106,56 @@ class MobileController extends Controller
             })
             ->get();
 
-    // Use existing mobile.presensi view (legacy mobile.data-presensi route name kept for compatibility)
-    return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
+        // Additional data expected by the mobile.presensi view
+        $dateString = $selectedDate->toDateString();
+
+        // Check holiday
+        $isHoliday = \App\Models\Holiday::isHoliday($dateString);
+        $holiday = $isHoliday ? \App\Models\Holiday::getHoliday($dateString) : null;
+
+        // Presensi of the current user for the selected date
+        $presensiHariIni = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $selectedDate)
+            ->first();
+
+        // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
+        $timeRanges = null;
+        if ($user->madrasah && $user->madrasah->hari_kbm) {
+            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday
+            $hariKbm = $user->madrasah->hari_kbm;
+
+            if ($hariKbm == '5') {
+                $masukStart = '06:00';
+                $masukEnd = '07:00';
+                $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30';
+                $pulangEnd = '17:00';
+            } elseif ($hariKbm == '6') {
+                $masukStart = '06:00';
+                $masukEnd = '07:00';
+                $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00';
+                $pulangEnd = '17:00';
+            } else {
+                $masukStart = '06:00';
+                $masukEnd = '07:00';
+                $pulangStart = '13:00';
+                $pulangEnd = '17:00';
+            }
+
+            $timeRanges = [
+                'masuk_start' => $masukStart,
+                'masuk_end' => $masukEnd,
+                'pulang_start' => $pulangStart,
+                'pulang_end' => $pulangEnd,
+            ];
+
+            // Adjust for users without pemenuhan_beban_kerja_lain
+            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
+                // Mirror behavior from PresensiController: shorten masuk_end for special users
+                $timeRanges['masuk_end'] = '08:00';
+            }
+        }
+
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges'));
     }
 
     // Store presensi (stub)
