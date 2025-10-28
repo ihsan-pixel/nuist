@@ -442,6 +442,59 @@
             Izin
         </a>
     </div>
+
+    <!-- Monitoring Presensi: Sudah / Belum -->
+    <div class="presensi-form">
+        <h6 class="section-title">Monitoring Presensi Madrasah</h6>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="background:#fff; padding:8px; border-radius:8px;">
+                <strong>Sudah Presensi ({{ $presensis->count() }})</strong>
+                @if($presensis->isEmpty())
+                    <p class="text-muted" style="font-size:12px; margin:6px 0 0;">Belum ada presensi hari ini.</p>
+                @else
+                    <ul style="list-style:none; padding:0; margin:6px 0 0;">
+                        @foreach($presensis as $p)
+                            <li style="padding:6px 0; border-bottom:1px solid #f1f1f1; font-size:12px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <div style="font-weight:600;">{{ $p->user->name ?? '-' }}</div>
+                                        <small class="text-muted">{{ $p->user->statusKepegawaian?->name ?? '' }}</small>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-weight:600;">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
+                                        @if($p->waktu_keluar)
+                                            <small class="text-muted">Keluar {{ $p->waktu_keluar->format('H:i') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+
+            <div style="background:#fff; padding:8px; border-radius:8px;">
+                <strong>Belum Presensi ({{ $belumPresensi->count() }})</strong>
+                @if($belumPresensi->isEmpty())
+                    <p class="text-muted" style="font-size:12px; margin:6px 0 0;">Semua tenaga pendidik telah melakukan presensi.</p>
+                @else
+                    <ul style="list-style:none; padding:0; margin:6px 0 0;">
+                        @foreach($belumPresensi as $u)
+                            <li style="padding:6px 0; border-bottom:1px solid #f1f1f1; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:600;">{{ $u->name }}</div>
+                                    <small class="text-muted">{{ $u->statusKepegawaian?->name ?? '' }}</small>
+                                </div>
+                                <div>
+                                    <small class="text-muted">{{ $u->nuist_id ?? '' }}</small>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
