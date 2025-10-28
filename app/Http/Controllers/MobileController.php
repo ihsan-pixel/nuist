@@ -477,7 +477,37 @@ class MobileController extends Controller
 
     public function izin()
     {
-        return view('mobile.izin');
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $type = request('type');
+
+        // If no specific type requested, show menu
+        if (!$type) {
+            return view('mobile.izin');
+        }
+
+        // Normalize
+        $type = strtolower($type);
+
+        switch ($type) {
+            case 'sakit':
+                return view('mobile.izin-sakit');
+            case 'terlambat':
+                return view('mobile.izin-terlambat');
+            case 'tidak_masuk':
+            case 'tidak-masuk':
+                return view('mobile.izin-tidak-masuk');
+            case 'tugas_luar':
+            case 'tugas-luar':
+                return view('mobile.izin-tugas-luar');
+            default:
+                // Unknown type -> show menu with flash
+                return redirect()->route('mobile.izin')->with('error', 'Tipe izin tidak dikenali.');
+        }
     }
 
     public function kelolaIzin()
