@@ -190,7 +190,28 @@ class MobileController extends Controller
 
     public function kelolaIzin()
     {
-        return view('mobile.kelola-izin');
+        $user = Auth::user();
+
+        // Only kepala madrasah/sekolah should access this (middleware already restricts but double-check)
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            abort(403, 'Unauthorized. Only kepala madrasah can access this page.');
+        }
+
+        $status = request('status', 'pending');
+
+        $izinQuery = Presensi::with('user')
+            ->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            })
+            ->orderBy('tanggal', 'desc');
+
+        if ($status !== 'all') {
+            $izinQuery->where('status_izin', $status);
+        }
+
+        $izinRequests = $izinQuery->paginate(10);
+
+        return view('mobile.kelola-izin', compact('izinRequests'));
     }
 
     // Laporan (reports) stubs
