@@ -98,6 +98,8 @@ Route::middleware(['auth', 'role:tenaga_pendidik'])->prefix('mobile')->name('mob
     Route::get('/riwayat-presensi', [App\Http\Controllers\MobileController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
     Route::get('/data-jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('data-jadwal');
+    // Monitoring presensi (kepala madrasah)
+    Route::get('/monitor-presensi', [App\Http\Controllers\MobileController::class, 'monitorPresensi'])->name('monitor-presensi');
     Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
     Route::post('/profile/update-profile', [App\Http\Controllers\MobileController::class, 'updateProfile'])->name('profile.update-profile');
 

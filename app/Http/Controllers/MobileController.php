@@ -82,29 +82,34 @@ class MobileController extends Controller
     {
         $user = Auth::user();
 
-        // Check if user is kepala sekolah
-        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
-            abort(403, 'Unauthorized. Only kepala sekolah can access this page.');
+        // Allow all tenaga_pendidik to access presensi form; kepala madrasah will see madrasah-level monitoring data
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
-        // Get presensi data for the madrasah
-        $presensis = Presensi::with(['user', 'statusKepegawaian'])
-            ->whereHas('user', function ($q) use ($user) {
-                $q->where('madrasah_id', $user->madrasah_id);
-            })
-            ->whereDate('tanggal', $selectedDate)
-            ->orderBy('waktu_masuk', 'desc')
-            ->get();
+        // If kepala madrasah, fetch madrasah-level presensi lists; otherwise, leave empty (non-kepala see personal presensi only)
+        $presensis = collect();
+        $belumPresensi = collect();
+        if ($user->ketugasan === 'kepala madrasah/sekolah') {
+            // Get presensi data for the madrasah
+            $presensis = Presensi::with(['user', 'statusKepegawaian'])
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('madrasah_id', $user->madrasah_id);
+                })
+                ->whereDate('tanggal', $selectedDate)
+                ->orderBy('waktu_masuk', 'desc')
+                ->get();
 
-        // Get users who haven't done presensi
-        $belumPresensi = User::where('role', 'tenaga_pendidik')
-            ->where('madrasah_id', $user->madrasah_id)
-            ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
-                $q->whereDate('tanggal', $selectedDate);
-            })
-            ->get();
+            // Get users who haven't done presensi
+            $belumPresensi = User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $user->madrasah_id)
+                ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
+                    $q->whereDate('tanggal', $selectedDate);
+                })
+                ->get();
+        }
 
         // Additional data expected by the mobile.presensi view
         $dateString = $selectedDate->toDateString();
@@ -285,5 +290,36 @@ class MobileController extends Controller
     public function ubahAkun()
     {
         return view('mobile.ubah-akun');
+    }
+
+    /**
+     * Monitoring presensi page for kepala madrasah
+     */
+    public function monitorPresensi(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            abort(403, 'Unauthorized. Only kepala madrasah can access this page.');
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        $presensis = Presensi::with(['user', 'statusKepegawaian'])
+            ->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            })
+            ->whereDate('tanggal', $selectedDate)
+            ->orderBy('waktu_masuk', 'desc')
+            ->paginate(15);
+
+        $belumPresensi = User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $user->madrasah_id)
+            ->whereDoesntHave('presensis', function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate);
+            })
+            ->paginate(15);
+
+        return view('mobile.monitor-presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
     }
 }
