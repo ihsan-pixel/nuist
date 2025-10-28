@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class MobileController extends Controller
 {
@@ -180,7 +182,7 @@ class MobileController extends Controller
     public function jadwal()
     {
         $user = Auth::user();
-        
+
         // Allow all tenaga_pendidik to access jadwal
         if ($user->role !== 'tenaga_pendidik') {
             abort(403, 'Unauthorized.');
@@ -246,17 +248,96 @@ class MobileController extends Controller
 
     public function updateProfile(Request $request)
     {
-        return redirect()->back();
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:30',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->no_hp = $request->input('phone');
+        $user->tempat_lahir = $request->input('tempat_lahir');
+        $user->tanggal_lahir = $request->input('tanggal_lahir') ?: null;
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Profil berhasil diperbarui']);
+        }
+
+        return redirect()->back()->with('success', 'Profil berhasil diperbarui');
     }
 
     public function updateAvatar(Request $request)
     {
-        return redirect()->back();
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:4096',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            // delete old avatar if exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
+            $user->save();
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Foto profil berhasil diperbarui', 'avatar' => $user->avatar]);
+        }
+
+        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
     }
 
     public function updatePassword(Request $request)
     {
-        return redirect()->back();
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Password lama tidak sesuai'], 422);
+            }
+            return redirect()->back()->withErrors(['current_password' => 'Password lama tidak sesuai']);
+        }
+
+        $user->password = Hash::make($validated['password']);
+        // mark that the user has changed the password if such column exists
+        if (isset($user->password_changed)) {
+            $user->password_changed = true;
+        }
+        $user->save();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Password berhasil diperbarui']);
+        }
+
+        return redirect()->back()->with('success', 'Password berhasil diperbarui');
     }
 
     // Izin (leave) stubs
