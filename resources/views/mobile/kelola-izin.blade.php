@@ -212,7 +212,7 @@
 
             @if($presensi->surat_izin_path)
             <div class="mb-3">
-                <a href="{{ asset('storage/app/public/' . $presensi->surat_izin_path) }}"
+                     <a href="{{ asset('storage/' . $presensi->surat_izin_path) }}"
                    target="_blank"
                    class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
