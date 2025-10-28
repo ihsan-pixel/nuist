@@ -1,4 +1,31 @@
-public function dataPresensi()
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\Presensi;
+use App\Models\User;
+use App\Models\TeachingSchedule;
+
+class MobileController extends Controller
+{
+    // Mobile dashboard for tenaga_pendidik
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        // simple role check (middleware already restricts but keep safe-guard)
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('mobile.dashboard');
+    }
+
+    // Presensi view (mobile)
+    public function presensi(Request $request)
     {
         $user = Auth::user();
 
@@ -7,7 +34,7 @@ public function dataPresensi()
             abort(403, 'Unauthorized. Only kepala sekolah can access this page.');
         }
 
-        $selectedDate = request('date') ? Carbon::parse(request('date')) : Carbon::today();
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
         // Get presensi data for the madrasah
         $presensis = Presensi::with(['user', 'statusKepegawaian'])
@@ -29,7 +56,21 @@ public function dataPresensi()
         return view('mobile.data-presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
     }
 
-    public function dataJadwal()
+    // Store presensi (stub)
+    public function storePresensi(Request $request)
+    {
+        // Implementation left as-is; redirect back for now
+        return redirect()->back();
+    }
+
+    // Riwayat presensi (stub)
+    public function riwayatPresensi()
+    {
+        return view('mobile.riwayat-presensi');
+    }
+
+    // Jadwal view (mobile)
+    public function jadwal()
     {
         $user = Auth::user();
 
@@ -61,3 +102,64 @@ public function dataPresensi()
 
         return view('mobile.data-jadwal', compact('schedules', 'classes', 'subjects'));
     }
+
+    // Profile and account management stubs
+    public function profile()
+    {
+        return view('mobile.profile');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        return redirect()->back();
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        return redirect()->back();
+    }
+
+    public function updatePassword(Request $request)
+    {
+        return redirect()->back();
+    }
+
+    // Izin (leave) stubs
+    public function storeIzin(Request $request)
+    {
+        return redirect()->back();
+    }
+
+    public function izin()
+    {
+        return view('mobile.izin');
+    }
+
+    public function kelolaIzin()
+    {
+        return view('mobile.kelola-izin');
+    }
+
+    // Laporan (reports) stubs
+    public function laporan()
+    {
+        return view('mobile.laporan');
+    }
+
+    public function laporanMengajar()
+    {
+        return view('mobile.laporan-mengajar');
+    }
+
+    // Teaching attendances (mobile)
+    public function teachingAttendances()
+    {
+        return view('mobile.teaching-attendances');
+    }
+
+    // Account change
+    public function ubahAkun()
+    {
+        return view('mobile.ubah-akun');
+    }
+}
