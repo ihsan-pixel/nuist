@@ -356,26 +356,41 @@ class MobileController extends Controller
     {
         $user = Auth::user();
 
-        // Only kepala madrasah/sekolah should access this (middleware already restricts but double-check)
-        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
-            abort(403, 'Unauthorized. Only kepala madrasah can access this page.');
-        }
-
         $status = request('status', 'pending');
 
-        $izinQuery = Presensi::with('user')
-            ->whereHas('user', function ($q) use ($user) {
-                $q->where('madrasah_id', $user->madrasah_id);
-            })
-            ->orderBy('tanggal', 'desc');
+        // Kepala madrasah: show requests for the whole madrasah
+        if ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') {
+            $izinQuery = Presensi::with('user')
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('madrasah_id', $user->madrasah_id);
+                })
+                ->orderBy('tanggal', 'desc');
 
-        if ($status !== 'all') {
-            $izinQuery->where('status_izin', $status);
+            if ($status !== 'all') {
+                $izinQuery->where('status_izin', $status);
+            }
+
+            $izinRequests = $izinQuery->paginate(10);
+
+            return view('mobile.kelola-izin', compact('izinRequests'));
         }
 
-        $izinRequests = $izinQuery->paginate(10);
+        // Regular tenaga_pendidik: show only their own izin requests
+        if ($user->role === 'tenaga_pendidik') {
+            $izinQuery = Presensi::with('user')
+                ->where('user_id', $user->id)
+                ->orderBy('tanggal', 'desc');
 
-        return view('mobile.kelola-izin', compact('izinRequests'));
+            if ($status !== 'all') {
+                $izinQuery->where('status_izin', $status);
+            }
+
+            $izinRequests = $izinQuery->paginate(10);
+            return view('mobile.kelola-izin', compact('izinRequests'));
+        }
+
+        // Fallback: unauthorized for other roles
+        abort(403, 'Unauthorized.');
     }
 
     // Laporan (reports) stubs
