@@ -535,7 +535,9 @@ class MobileController extends Controller
 
         // Kepala madrasah: show requests for the whole madrasah
         if ((($user->role === 'tenaga_pendidik') || ($user->role === 'admin')) && $user->ketugasan === 'kepala madrasah/sekolah') {
+            // Only show presensi records that are izin submissions
             $izinQuery = Presensi::with('user')
+                ->where('status', 'izin')
                 ->whereHas('user', function ($q) use ($user) {
                     $q->where('madrasah_id', $user->madrasah_id);
                 })
@@ -552,8 +554,10 @@ class MobileController extends Controller
 
         // Regular tenaga_pendidik: show only their own izin requests
         if ($user->role === 'tenaga_pendidik') {
+            // Regular tenaga_pendidik should only see their own izin submissions
             $izinQuery = Presensi::with('user')
                 ->where('user_id', $user->id)
+                ->where('status', 'izin')
                 ->orderBy('tanggal', 'desc');
 
             if ($status !== 'all') {
