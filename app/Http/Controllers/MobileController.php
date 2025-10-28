@@ -346,7 +346,13 @@ class MobileController extends Controller
     // Account change
     public function ubahAkun()
     {
-        return view('mobile.ubah-akun');
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('mobile.ubah-akun', compact('user'));
     }
 
     /**
