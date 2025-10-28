@@ -21,6 +21,17 @@
             margin-bottom: 10px;
         }
 
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+            color: #fff;
+        }
+
         .monitor-header h6 {
             font-weight: 600;
             font-size: 12px;
@@ -124,6 +135,17 @@
             color: #6c757d;
         }
 
+        .izin-badge {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
         .empty-state {
             text-align: center;
             padding: 20px;
@@ -167,8 +189,13 @@
                 <h6 class="mb-1">Monitoring Presensi</h6>
                 <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah' }}</h5>
             </div>
-            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
+            <div class="d-flex align-items-center">
+                <a href="{{ route('mobile.dashboard') }}" class="btn btn-sm btn-outline-light me-2">
+                    <i class="bx bx-arrow-back"></i>
+                </a>
+                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                     class="rounded-circle border border-white" width="32" height="32" alt="User">
+            </div>
         </div>
     </div>
 
@@ -199,15 +226,25 @@
                 @foreach($presensis as $p)
                     <li class="presensi-item">
                         <div class="presensi-info">
-                            <div class="name">{{ $p->user->name ?? '-' }}</div>
+                            <div class="name">
+                                {{ $p->user->name ?? '-' }}
+                                @if($p->status === 'izin')
+                                    <span class="izin-badge">IZIN</span>
+                                @endif
+                            </div>
                             <div class="status">{{ $p->user->statusKepegawaian?->name ?? '-' }}</div>
                         </div>
                         <div class="presensi-time">
-                            <div class="time">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
-                            @if($p->waktu_keluar)
-                                <div class="sub-time">Keluar {{ $p->waktu_keluar->format('H:i') }}</div>
+                            @if($p->status === 'izin')
+                                <div class="time">Izin</div>
+                                <div class="sub-time">{{ $p->keterangan ? Str::limit($p->keterangan, 20) : 'Tanpa keterangan' }}</div>
                             @else
-                                <div class="sub-time">Belum keluar</div>
+                                <div class="time">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
+                                @if($p->waktu_keluar)
+                                    <div class="sub-time">Keluar {{ $p->waktu_keluar->format('H:i') }}</div>
+                                @else
+                                    <div class="sub-time">Belum keluar</div>
+                                @endif
                             @endif
                         </div>
                     </li>
