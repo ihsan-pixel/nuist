@@ -661,4 +661,38 @@ class MobileController extends Controller
 
         return view('mobile.monitor-presensi', compact('presensis', 'belumPresensi', 'selectedDate'));
     }
+
+    /**
+     * Monitoring jadwal mengajar page for kepala madrasah
+     */
+    public function monitorJadwalMengajar(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            abort(403, 'Unauthorized. Only kepala madrasah can access this page.');
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        // Get day name in Indonesian for the selected date
+        $dayName = $selectedDate->locale('id')->dayName;
+
+        // Fetch teaching schedules for the madrasah on the selected day
+        $schedules = TeachingSchedule::with(['teacher', 'teachingAttendances' => function ($q) use ($selectedDate) {
+            $q->whereDate('tanggal', $selectedDate);
+        }])
+        ->where('school_id', $user->madrasah_id)
+        ->where('day', $dayName)
+        ->orderBy('start_time')
+        ->get();
+
+        // Attach attendance status to each schedule
+        $schedules->each(function ($schedule) {
+            $schedule->attendance_status = $schedule->teachingAttendances->first() ? 'hadir' : 'belum';
+            $schedule->attendance_time = $schedule->teachingAttendances->first() ? $schedule->teachingAttendances->first()->waktu : null;
+        });
+
+        return view('mobile.monitor-jadwal-mengajar', compact('schedules', 'selectedDate'));
+    }
 }
