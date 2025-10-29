@@ -189,10 +189,10 @@
     </style>
 
     <!-- Back Button -->
-    <button onclick="history.back()" class="back-btn">
+    <a href="{{ route('mobile.dashboard') }}" class="back-btn" style="text-decoration: none;">
         <i class="bx bx-arrow-back"></i>
         <span>Kembali</span>
-    </button>
+    </a>
 
     <!-- Header -->
     <div class="monitor-header">
