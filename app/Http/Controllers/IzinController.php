@@ -88,6 +88,53 @@ class IzinController extends Controller
             'approved_by' => Auth::id(),
         ]);
 
+        // If this is a cuti approval, create presensi records for each day in the range
+        if (str_contains($presensi->keterangan, 'Tanggal:')) {
+            // Extract date range from keterangan (format: "alasan\nTanggal: start sampai end")
+            $lines = explode('\n', $presensi->keterangan);
+            $tanggalLine = collect($lines)->first(function ($line) {
+                return str_starts_with($line, 'Tanggal:');
+            });
+
+            if ($tanggalLine) {
+                $dates = str_replace('Tanggal: ', '', $tanggalLine);
+                $dateParts = explode(' sampai ', $dates);
+
+                if (count($dateParts) === 2) {
+                    $startDate = trim($dateParts[0]);
+                    $endDate = trim($dateParts[1]);
+
+                    $start = \Carbon\Carbon::parse($startDate);
+                    $end = \Carbon\Carbon::parse($endDate);
+
+                    // Create presensi records for each day in the range (except the original record date)
+                    $current = $start->copy();
+                    while ($current->lte($end)) {
+                        if ($current->format('Y-m-d') !== $presensi->tanggal) {
+                            // Check if presensi already exists for this date
+                            $existing = Presensi::where('user_id', $presensi->user_id)
+                                ->where('tanggal', $current->format('Y-m-d'))
+                                ->first();
+
+                            if (!$existing) {
+                                Presensi::create([
+                                    'user_id' => $presensi->user_id,
+                                    'tanggal' => $current->format('Y-m-d'),
+                                    'status' => 'izin',
+                                    'keterangan' => 'Cuti - ' . $startDate . ' sampai ' . $endDate,
+                                    'surat_izin_path' => $presensi->surat_izin_path,
+                                    'status_izin' => 'approved',
+                                    'status_kepegawaian_id' => $presensi->status_kepegawaian_id,
+                                    'approved_by' => Auth::id(),
+                                ]);
+                            }
+                        }
+                        $current->addDay();
+                    }
+                }
+            }
+        }
+
         // Create notification for user about approval
         Notification::create([
             'user_id' => $presensi->user_id,

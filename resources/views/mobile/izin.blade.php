@@ -42,6 +42,11 @@
             <i class="bx bx-briefcase"></i>
             <div class="label">Izin Tugas Diluar</div>
         </a>
+
+        <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="izin-action">
+            <i class="bx bx-calendar-star"></i>
+            <div class="label">Izin Cuti</div>
+        </a>
     </div>
 </div>
 @endsection

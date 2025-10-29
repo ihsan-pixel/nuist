@@ -454,6 +454,21 @@ class MobileController extends Controller
                 }
                 break;
 
+            case 'cuti':
+                $request->validate([
+                    'tanggal_mulai' => 'required|date',
+                    'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                    'alasan' => 'required|string',
+                    'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                ]);
+
+                $tanggal = $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai');
+                $keterangan = $request->input('alasan') . '\nTanggal: ' . $tanggal;
+                if ($request->hasFile('file_izin')) {
+                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                }
+                break;
+
             default:
                 if ($request->wantsJson() || $request->ajax()) {
                     return response()->json(['success' => false, 'message' => 'Tipe izin tidak dikenali.'], 422);
@@ -521,6 +536,8 @@ class MobileController extends Controller
             case 'tugas_luar':
             case 'tugas-luar':
                 return view('mobile.izin-tugas-luar');
+            case 'cuti':
+                return view('mobile.izin-cuti');
             default:
                 // Unknown type -> show menu with flash
                 return redirect()->route('mobile.izin')->with('error', 'Tipe izin tidak dikenali.');
