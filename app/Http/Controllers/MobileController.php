@@ -592,10 +592,11 @@ class MobileController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        // allow optional date query param for browsing
-        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        // Always use today's date, ignore any date param to show only current day data
+        $selectedDate = Carbon::today();
+        $todayName = $selectedDate->locale('id')->dayName;
 
-        // Build schedule query with today's teaching attendances
+        // Build schedule query with today's teaching attendances, filtered by current day
         $query = TeachingSchedule::with(['teacher', 'school', 'teachingAttendances' => function ($q) use ($selectedDate) {
             $q->whereDate('tanggal', $selectedDate);
         }]);
@@ -607,7 +608,10 @@ class MobileController extends Controller
             $query->where('teacher_id', $user->id);
         }
 
-        $schedules = $query->orderBy('day')->orderBy('start_time')->get();
+        // Filter by current day's name
+        $query->where('day', $todayName);
+
+        $schedules = $query->orderBy('start_time')->get();
 
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {
