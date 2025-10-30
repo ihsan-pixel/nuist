@@ -106,43 +106,88 @@ class PresensiController extends Controller
         $isFakeLocation = false;
         $fakeLocationAnalysis = [];
 
-        // Analisis fake location detection dengan 2 readings
+        // Analisis fake location detection dengan 4 readings
         if ($request->has('location_readings')) {
             $locationReadings = json_decode($request->location_readings, true);
 
-            if (count($locationReadings) >= 2) {
+            if (count($locationReadings) >= 4) {
                 $reading1 = $locationReadings[0];
                 $reading2 = $locationReadings[1];
+                $reading3 = $locationReadings[2];
+                $reading4 = $locationReadings[3];
 
-                // Calculate distance between the two readings
+                // Calculate distances between consecutive readings
                 $distance12 = $this->calculateDistance(
                     $reading1['latitude'], $reading1['longitude'],
                     $reading2['latitude'], $reading2['longitude']
+                );
+                $distance23 = $this->calculateDistance(
+                    $reading2['latitude'], $reading2['longitude'],
+                    $reading3['latitude'], $reading3['longitude']
+                );
+                $distance34 = $this->calculateDistance(
+                    $reading3['latitude'], $reading3['longitude'],
+                    $reading4['latitude'], $reading4['longitude']
                 );
 
                 $issues = [];
                 $severity = 0;
 
-                // Check if both readings are identical (within 1 meter)
-                if ($distance12 < 0.001) {
-                    $issues[] = 'Kedua pembacaan lokasi identik';
-                    $severity += 8;
+                // Count identical readings
+                $identicalCount = 0;
+                $firstReading = $reading1;
+
+                foreach ($locationReadings as $reading) {
+                    $latDiff = abs($reading['latitude'] - $firstReading['latitude']);
+                    $lngDiff = abs($reading['longitude'] - $firstReading['longitude']);
+
+                    // If difference is less than 0.000001 degrees (about 0.1 meter), consider identical
+                    if ($latDiff < 0.000001 && $lngDiff < 0.000001) {
+                        $identicalCount++;
+                    }
                 }
 
-                // Check if readings are too close together (within 10 meters)
-                if ($distance12 < 0.01) {
-                    $issues[] = 'Pembacaan 1 dan 2 terlalu dekat (< 10m)';
-                    $severity += 2;
+                // New logic: if all 4 readings are identical = fake location
+                if ($identicalCount >= 4) {
+                    $issues[] = 'Semua 4 pembacaan lokasi identik';
+                    $severity += 10;
+                }
+                // If exactly 3 readings are identical = not fake (natural variation)
+                elseif ($identicalCount == 3) {
+                    // This is considered normal variation, no severity added
+                }
+                // If less than 3 identical, check other suspicious patterns
+                else {
+                    // Check if readings are too close together (within 10 meters)
+                    if ($distance12 < 0.01) {
+                        $issues[] = 'Pembacaan 1 dan 2 terlalu dekat (< 10m)';
+                        $severity += 2;
+                    }
+                    if ($distance23 < 0.01) {
+                        $issues[] = 'Pembacaan 2 dan 3 terlalu dekat (< 10m)';
+                        $severity += 2;
+                    }
+                    if ($distance34 < 0.01) {
+                        $issues[] = 'Pembacaan 3 dan 4 terlalu dekat (< 10m)';
+                        $severity += 2;
+                    }
                 }
 
-                // Check for suspicious time difference (should be reasonable for button click)
-                $timeDiff = abs($reading2['timestamp'] - $reading1['timestamp']) / 1000; // seconds
-                if ($timeDiff < 1) {
-                    $issues[] = 'Waktu pembacaan terlalu cepat (< 1 detik)';
+                // Check for suspicious time differences
+                $timeDiff12 = abs($reading2['timestamp'] - $reading1['timestamp']) / 1000; // seconds
+                $timeDiff23 = abs($reading3['timestamp'] - $reading2['timestamp']) / 1000; // seconds
+                $timeDiff34 = abs($reading4['timestamp'] - $reading3['timestamp']) / 1000; // seconds
+
+                if ($timeDiff12 < 1) {
+                    $issues[] = 'Waktu pembacaan 1-2 terlalu cepat (< 1 detik)';
                     $severity += 1;
                 }
-                if ($timeDiff > 30) {
-                    $issues[] = 'Waktu pembacaan terlalu lama (> 30 detik)';
+                if ($timeDiff23 < 4) {
+                    $issues[] = 'Waktu pembacaan 2-3 terlalu cepat (< 4 detik)';
+                    $severity += 1;
+                }
+                if ($timeDiff34 < 1) {
+                    $issues[] = 'Waktu pembacaan 3-4 terlalu cepat (< 1 detik)';
                     $severity += 1;
                 }
 
@@ -160,8 +205,11 @@ class PresensiController extends Controller
                         'device_info' => $request->device_info,
                     ],
                     'distances' => [
-                        'reading1_reading2' => $distance12
-                    ]
+                        'reading1_reading2' => $distance12,
+                        'reading2_reading3' => $distance23,
+                        'reading3_reading4' => $distance34
+                    ],
+                    'identical_readings' => $identicalCount
                 ]);
 
                 if ($severity >= 5) {
