@@ -335,9 +335,40 @@
                 Pengaturan Akun
             </a>
 
+            <a href="#" id="install-pwa-btn" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
+                <i class="bx bx-download"></i>
+                Install Aplikasi PWA
+            </a>
+
         </div>
     </div>
 
 
 
+@endsection
+
+@section('script')
+<script>
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    document.getElementById('install-pwa-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            alert('Aplikasi PWA sudah terinstall atau tidak tersedia untuk diinstall.');
+        }
+    });
+</script>
 @endsection
