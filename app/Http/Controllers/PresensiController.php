@@ -98,6 +98,27 @@ class PresensiController extends Controller
             ->where('tanggal', $today)
             ->first();
 
+        // Jika belum ada presensi hari ini, cek apakah ada izin yang sudah diajukan
+        if (!$presensi) {
+            $izinHariIni = Presensi::where('user_id', $user->id)
+                ->where('tanggal', $today)
+                ->where('status', 'izin')
+                ->first();
+
+            if ($izinHariIni) {
+                // Cek apakah ini adalah izin terlambat yang sudah disetujui
+                $isApprovedTerlambat = $izinHariIni->status_izin === 'approved' &&
+                    str_contains($izinHariIni->keterangan, 'Waktu masuk:');
+
+                if (!$isApprovedTerlambat) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda telah mengajukan izin untuk hari ini. Presensi masuk tidak diizinkan kecuali izin terlambat yang telah disetujui.'
+                    ], 400);
+                }
+            }
+        }
+
         // Ambil data madrasah dari user yang sedang login
         $madrasah = $user->madrasah;
         $madrasahTambahan = $user->madrasahTambahan;
