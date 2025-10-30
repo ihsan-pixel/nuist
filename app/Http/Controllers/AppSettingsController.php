@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DevelopmentHistory;
+use App\Models\AppSetting;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class AppSettingsController extends Controller
 {
@@ -25,16 +27,20 @@ class AppSettingsController extends Controller
         // Get latest development history for version info
         $latestHistory = DevelopmentHistory::orderBy('development_date', 'desc')->first();
 
-        // Get app settings from config/database
+        // Get app settings from database
+        $appSettings = AppSetting::getSettings();
+
         $settings = [
-            'app_name' => Cache::get('app_name', config('app.name', 'NUIST')),
+            'app_name' => $appSettings->app_name,
             'app_version' => $currentVersion,
-            'maintenance_mode' => app()->isDownForMaintenance(),
-            'timezone' => config('app.timezone', 'Asia/Jakarta'),
-            'locale' => config('app.locale', 'id'),
-            'debug_mode' => config('app.debug', false),
-            'cache_enabled' => config('cache.default') !== 'array',
-            'session_lifetime' => config('session.lifetime', 120),
+            'banner_image' => $appSettings->banner_image,
+            'banner_image_url' => $appSettings->banner_image_url,
+            'maintenance_mode' => $appSettings->maintenance_mode,
+            'timezone' => $appSettings->timezone,
+            'locale' => $appSettings->locale,
+            'debug_mode' => $appSettings->debug_mode,
+            'cache_enabled' => $appSettings->cache_enabled,
+            'session_lifetime' => $appSettings->session_lifetime,
             'max_upload_size' => ini_get('upload_max_filesize'),
             'memory_limit' => ini_get('memory_limit'),
         ];
@@ -55,6 +61,7 @@ class AppSettingsController extends Controller
         $request->validate([
             'app_name' => 'required|string|max:255',
             'app_version' => 'required|string|max:50',
+            'banner_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'maintenance_mode' => 'boolean',
             'timezone' => 'required|string',
             'locale' => 'required|string',
@@ -63,18 +70,32 @@ class AppSettingsController extends Controller
             'session_lifetime' => 'required|integer|min:1|max:525600',
         ]);
 
-        // Update config values (in production, this would update .env or database)
-        // For now, we'll store in cache or session as example
-        Cache::put('app_settings', [
+        // Get or create app settings
+        $appSettings = AppSetting::getSettings();
+
+        // Handle banner image upload
+        $bannerImagePath = $appSettings->banner_image;
+        if ($request->hasFile('banner_image')) {
+            // Delete old banner if exists
+            if ($bannerImagePath && Storage::disk('public')->exists($bannerImagePath)) {
+                Storage::disk('public')->delete($bannerImagePath);
+            }
+            // Store new banner
+            $bannerImagePath = $request->file('banner_image')->store('banners', 'public');
+        }
+
+        // Update settings
+        $appSettings->update([
             'app_name' => $request->app_name,
             'app_version' => $request->app_version,
+            'banner_image' => $bannerImagePath,
             'maintenance_mode' => $request->boolean('maintenance_mode'),
             'timezone' => $request->timezone,
             'locale' => $request->locale,
             'debug_mode' => $request->boolean('debug_mode'),
             'cache_enabled' => $request->boolean('cache_enabled'),
             'session_lifetime' => $request->session_lifetime,
-        ], now()->addHours(24)); // Cache for 24 hours
+        ]);
 
         // Update app name in cache for immediate effect
         Cache::put('app_name', $request->app_name, now()->addHours(24));

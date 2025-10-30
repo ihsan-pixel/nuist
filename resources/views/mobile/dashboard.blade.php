@@ -213,7 +213,34 @@
             font-size: 12px;
             margin: 0;
         }
+
+        /* Banner Modal Styles */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
+
+    <!-- Show banner modal on page load -->
+    @if($bannerImage)
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeBannerModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            welcomeModal.show();
+
+            // Auto hide after 5 seconds
+            setTimeout(function() {
+                welcomeModal.hide();
+            }, 5000);
+        });
+    </script>
+    @endif
 
     <!-- Header -->
     <div class="dashboard-header">
@@ -226,6 +253,26 @@
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
+
+    <!-- Banner Modal -->
+    @if($bannerImage)
+    <div class="modal fade" id="welcomeBannerModal" tabindex="-1" aria-labelledby="welcomeBannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0" style="background: transparent;">
+                <div class="modal-body p-0">
+                    <div class="text-center">
+                        <img src="{{ $bannerImage }}" alt="Welcome Banner" class="img-fluid rounded" style="max-height: 60vh; width: auto;">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0 bg-transparent">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
+                        <i class="bx bx-x me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Stats Form -->
     <div class="stats-form">

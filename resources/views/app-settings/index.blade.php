@@ -259,6 +259,19 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="banner_image" class="form-label">Banner Selamat Datang</label>
+                                <input type="file" class="form-control" id="banner_image" name="banner_image"
+                                       accept="image/*">
+                                <div class="form-text">Upload gambar banner yang akan ditampilkan di dashboard mobile (max 2MB, JPG/PNG)</div>
+                                @if($settings['banner_image_url'])
+                                    <div class="mt-2">
+                                        <img src="{{ $settings['banner_image_url'] }}" alt="Current Banner" class="img-thumbnail" style="max-width: 200px;">
+                                        <p class="text-muted small mt-1">Banner saat ini</p>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="timezone" class="form-label">Timezone</label>
                                 <select class="form-select" id="timezone" name="timezone">
                                     <option value="Asia/Jakarta" {{ $settings['timezone'] == 'Asia/Jakarta' ? 'selected' : '' }}>Asia/Jakarta (WIB)</option>

@@ -23,6 +23,10 @@ class MobileController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        // Get banner image from app settings
+        $appSettings = \App\Models\AppSetting::getSettings();
+        $bannerImage = $appSettings->banner_image_url;
+
         // Determine start date for attendance calculation (first presensi or account creation)
         $firstPresensiDate = Presensi::where('user_id', $user->id)
             ->orderBy('tanggal', 'asc')
@@ -76,7 +80,7 @@ class MobileController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'sakit', 'userInfo', 'todaySchedules'));
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'sakit', 'userInfo', 'todaySchedules', 'bannerImage'));
     }
 
     // Presensi view (mobile)
