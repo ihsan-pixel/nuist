@@ -415,6 +415,14 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         console.log('SW registered: ', registration);
+
+                        // Listen for messages from service worker
+                        navigator.serviceWorker.addEventListener('message', event => {
+                            if (event.data && event.data.type === 'SESSION_EXPIRED') {
+                                clearInterval(sessionCheckInterval);
+                                showSessionExpiredAlert();
+                            }
+                        });
                     })
                     .catch(registrationError => {
                         console.log('SW registration failed: ', registrationError);
@@ -464,6 +472,81 @@
                 .catch(error => console.error('Error updating notification badge:', error));
         }
 
+        // Session check for PWA - check every 5 minutes
+        let sessionCheckInterval;
+
+        function checkSession() {
+            fetch('/api/session-check', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Session expired, redirect to login
+                    clearInterval(sessionCheckInterval);
+                    showSessionExpiredAlert();
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.authenticated) {
+                    console.log('Session valid');
+                }
+            })
+            .catch(error => {
+                console.log('Session check failed:', error);
+                // If network error and we're in PWA mode, assume session expired
+                if ('serviceWorker' in navigator && navigator.onLine === false) {
+                    clearInterval(sessionCheckInterval);
+                    showSessionExpiredAlert();
+                }
+            });
+        }
+
+        function showSessionExpiredAlert() {
+            // Create alert modal
+            const alertModal = document.createElement('div');
+            alertModal.className = 'modal fade';
+            alertModal.id = 'sessionExpiredModal';
+            alertModal.setAttribute('data-bs-backdrop', 'static');
+            alertModal.setAttribute('data-bs-keyboard', 'false');
+            alertModal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title text-white">
+                                <i class="bx bx-time-five me-2"></i>Session Berakhir
+                            </h5>
+                        </div>
+                        <div class="modal-body text-center">
+                            <i class="bx bx-log-out-circle text-warning" style="font-size: 48px;"></i>
+                            <h6 class="mt-3">Sesi Anda telah berakhir</h6>
+                            <p class="text-muted">Silakan login kembali untuk melanjutkan.</p>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <a href="{{ route('login') }}" class="btn btn-primary">
+                                <i class="bx bx-log-in me-1"></i>Login Kembali
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(alertModal);
+            const modal = new bootstrap.Modal(alertModal);
+            modal.show();
+
+            // Auto redirect after 10 seconds
+            setTimeout(() => {
+                window.location.href = '{{ route('login') }}';
+            }, 10000);
+        }
+
         // Mobile optimizations
         document.addEventListener('DOMContentLoaded', () => {
             // Prevent zoom on input focus
@@ -490,6 +573,12 @@
 
             // Update badge every 30 seconds
             setInterval(updateNotificationBadge, 30000);
+
+            // Start session checking for PWA
+            if ('serviceWorker' in navigator) {
+                checkSession(); // Check immediately
+                sessionCheckInterval = setInterval(checkSession, 5 * 60 * 1000); // Check every 5 minutes
+            }
         });
     </script>
 

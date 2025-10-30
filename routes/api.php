@@ -19,4 +19,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Session check endpoint for PWA
+Route::middleware('auth')->get('/session-check', function (Request $request) {
+    return response()->json([
+        'authenticated' => true,
+        'user' => $request->user()->only(['id', 'name', 'email']),
+        'timestamp' => now()->timestamp
+    ]);
+});
+
 Route::post('github-commit', [GithubWebhookController::class, 'handle']);

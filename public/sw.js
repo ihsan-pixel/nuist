@@ -66,6 +66,41 @@ self.addEventListener('fetch', event => {
     // Skip external requests
     if (!url.origin.includes(self.location.origin)) return;
 
+    // Handle session check API requests specially
+    if (url.pathname === '/api/session-check') {
+        event.respondWith(
+            fetch(request)
+                .then(response => {
+                    if (response.status === 401) {
+                        // Session expired, notify clients
+                        self.clients.matchAll().then(clients => {
+                            clients.forEach(client => {
+                                client.postMessage({
+                                    type: 'SESSION_EXPIRED',
+                                    message: 'Session has expired'
+                                });
+                            });
+                        });
+                    }
+                    return response;
+                })
+                .catch(error => {
+                    console.log('Session check failed:', error);
+                    // If offline, assume session expired for security
+                    self.clients.matchAll().then(clients => {
+                        clients.forEach(client => {
+                            client.postMessage({
+                                type: 'SESSION_EXPIRED',
+                                message: 'Network error - assuming session expired'
+                            });
+                        });
+                    });
+                    throw error;
+                })
+        );
+        return;
+    }
+
     // Handle API requests
     if (url.pathname.startsWith('/api/') || url.pathname.includes('/presensi/store')) {
         event.respondWith(
