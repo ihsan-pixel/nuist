@@ -191,7 +191,8 @@ class PresensiController extends Controller
                     $severity += 1;
                 }
 
-                $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, [
+                // Store detailed analysis for logging/admin monitoring
+                $detailedAnalysis = array_merge($fakeLocationAnalysis, [
                     'issues' => $issues,
                     'severity' => $severity,
                     'severity_label' => $this->getSeverityLabel($severity),
@@ -212,9 +213,75 @@ class PresensiController extends Controller
                     'identical_readings' => $identicalCount
                 ]);
 
+                // Create simplified fake location data for database storage
+                $fakeLocationData = null;
                 if ($severity >= 5) {
                     $isFakeLocation = true;
+
+                    // Determine the primary reason and relevant readings
+                    $primaryReason = '';
+                    $relevantReadings = [];
+
+                    if ($identicalCount >= 4) {
+                        $primaryReason = 'All 4 location readings are identical';
+                        $relevantReadings = [
+                            'reading1' => $reading1,
+                            'reading2' => $reading2,
+                            'reading3' => $reading3,
+                            'reading4' => $reading4
+                        ];
+                    } elseif ($identicalCount >= 2) {
+                        // Find which readings are identical
+                        $identicalReadings = [];
+                        for ($i = 0; $i < count($locationReadings) - 1; $i++) {
+                            for ($j = $i + 1; $j < count($locationReadings); $j++) {
+                                $latDiff = abs($locationReadings[$i]['latitude'] - $locationReadings[$j]['latitude']);
+                                $lngDiff = abs($locationReadings[$i]['longitude'] - $locationReadings[$j]['longitude']);
+                                if ($latDiff < 0.000001 && $lngDiff < 0.000001) {
+                                    $identicalReadings[] = ['reading' . ($i + 1), 'reading' . ($j + 1)];
+                                }
+                            }
+                        }
+                        if (!empty($identicalReadings)) {
+                            $firstPair = $identicalReadings[0];
+                            $primaryReason = 'Identical coordinates between ' . $firstPair[0] . ' and ' . $firstPair[1];
+                            $relevantReadings = [
+                                $firstPair[0] => $locationReadings[intval(substr($firstPair[0], -1)) - 1],
+                                $firstPair[1] => $locationReadings[intval(substr($firstPair[1], -1)) - 1]
+                            ];
+                        }
+                    } elseif ($distance12 < 0.01 || $distance23 < 0.01 || $distance34 < 0.01) {
+                        $primaryReason = 'Location readings are too close together';
+                        $relevantReadings = [
+                            'reading1' => $reading1,
+                            'reading2' => $reading2,
+                            'reading3' => $reading3,
+                            'reading4' => $reading4
+                        ];
+                    } elseif ($timeDiff12 < 1 || $timeDiff23 < 4 || $timeDiff34 < 1) {
+                        $primaryReason = 'Suspicious time differences between readings';
+                        $relevantReadings = [
+                            'reading1' => $reading1,
+                            'reading2' => $reading2,
+                            'reading3' => $reading3,
+                            'reading4' => $reading4
+                        ];
+                    }
+
+                    if (!empty($primaryReason)) {
+                        $fakeLocationData = [
+                            'reason' => $primaryReason,
+                            'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
+                        ];
+
+                        // Add relevant readings
+                        foreach ($relevantReadings as $key => $reading) {
+                            $fakeLocationData[$key] = $reading;
+                        }
+                    }
                 }
+
+                $fakeLocationAnalysis = $detailedAnalysis;
             }
         }
 
@@ -349,7 +416,7 @@ class PresensiController extends Controller
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
                 'is_fake_location' => $isFakeLocation,
-                'fake_location_analysis' => $isFakeLocation ? $fakeLocationAnalysis : null,
+                'fake_location_analysis' => $isFakeLocation ? json_encode($fakeLocationData) : null,
                 'accuracy' => $request->accuracy,
                 'altitude' => $request->altitude,
                 'speed' => $request->speed,
@@ -414,7 +481,7 @@ class PresensiController extends Controller
                     'longitude' => $request->longitude,
                     'lokasi' => $request->lokasi,
                     'is_fake_location' => $isFakeLocation,
-                    'fake_location_analysis' => $isFakeLocation ? $fakeLocationAnalysis : null,
+                    'fake_location_analysis' => $isFakeLocation ? json_encode($fakeLocationData) : null,
                     'accuracy' => $request->accuracy,
                     'altitude' => $request->altitude,
                     'speed' => $request->speed,
