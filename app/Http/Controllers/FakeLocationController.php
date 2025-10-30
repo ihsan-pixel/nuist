@@ -63,7 +63,12 @@ class FakeLocationController extends Controller
 
             // Check if this presensi has fake location detection data
             if ($presensi->is_fake_location && $presensi->fake_location_analysis) {
-                $analysisData = json_decode($presensi->fake_location_analysis, true);
+                $analysisData = $presensi->fake_location_analysis;
+
+                // Handle both JSON string and array formats (for backward compatibility)
+                if (is_string($analysisData)) {
+                    $analysisData = json_decode($analysisData, true);
+                }
 
                 if ($analysisData) {
                     // Generate detailed issues based on the stored analysis
