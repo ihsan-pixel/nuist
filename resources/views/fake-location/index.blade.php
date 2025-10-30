@@ -59,7 +59,7 @@
 
                 <!-- Summary Cards -->
                 <div class="row mb-4">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card bg-danger text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
@@ -76,7 +76,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card bg-warning text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
@@ -93,7 +93,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card bg-info text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
@@ -110,7 +110,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card bg-secondary text-white">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
@@ -121,6 +121,40 @@
                                     <div class="avatar-sm">
                                         <span class="avatar-title bg-white text-secondary rounded-circle">
                                             <i class="bx bx-low-vision font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">{{ count(array_filter($fakeLocationData, fn($item) => $item['analysis']['fake_location_masuk'])) }}</h5>
+                                        <p class="mb-0">Fake Masuk</p>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-white text-primary rounded-circle">
+                                            <i class="bx bx-log-in font-size-24"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-dark text-white">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">{{ count(array_filter($fakeLocationData, fn($item) => $item['analysis']['fake_location_keluar'])) }}</h5>
+                                        <p class="mb-0">Fake Keluar</p>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-white text-dark rounded-circle">
+                                            <i class="bx bx-log-out font-size-24"></i>
                                         </span>
                                     </div>
                                 </div>
@@ -140,6 +174,7 @@
                                 <th>Kabupaten</th>
                                 <th>Tanggal</th>
                                 <th>Waktu Masuk</th>
+                                <th>Waktu Keluar</th>
                                 <th>Koordinat</th>
                                 <th>Lokasi</th>
                                 <th>Tingkat Kecurigaan</th>
@@ -173,6 +208,7 @@
                                     <td>{{ $item['presensi']->user->madrasah->kabupaten ?? '-' }}</td>
                                     <td>{{ $item['presensi']->tanggal->format('d/m/Y') }}</td>
                                     <td>{{ $item['presensi']->waktu_masuk ? $item['presensi']->waktu_masuk->format('H:i') : '-' }}</td>
+                                    <td>{{ $item['presensi']->waktu_keluar ? $item['presensi']->waktu_keluar->format('H:i') : '-' }}</td>
                                     <td>
                                         <small>
                                             {{ number_format($item['presensi']->latitude, 6) }},
@@ -232,6 +268,22 @@
                                                    target="_blank" class="btn btn-sm btn-outline-info">
                                                     <i class="bx bx-map"></i> Map
                                                 </a>
+                                            @endif
+                                            @if($item['analysis']['fake_location_masuk'] || $item['analysis']['fake_location_keluar'])
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning dropdown-toggle"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bx bx-error"></i> Status
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        @if($item['analysis']['fake_location_masuk'])
+                                                            <li><span class="dropdown-item-text text-danger"><i class="bx bx-log-in"></i> Fake Location Masuk</span></li>
+                                                        @endif
+                                                        @if($item['analysis']['fake_location_keluar'])
+                                                            <li><span class="dropdown-item-text text-danger"><i class="bx bx-log-out"></i> Fake Location Keluar</span></li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
                                             @endif
                                         </div>
                                     </td>
@@ -313,6 +365,15 @@ function viewDetails(presensiId) {
                         </table>
                     </div>
                     <div class="col-md-6">
+                        <h6>Data Lokasi & Perangkat (Keluar)</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Koordinat Keluar:</strong></td><td>${data.presensi.latitude_keluar ? data.presensi.latitude_keluar + ', ' + data.presensi.longitude_keluar : '-'}</td></tr>
+                            <tr><td><strong>Akurasi GPS Keluar:</strong></td><td>${data.presensi.accuracy_keluar ? data.presensi.accuracy_keluar + ' m' : '-'}</td></tr>
+                            <tr><td><strong>Kecepatan Keluar:</strong></td><td>${data.presensi.speed_keluar ? (data.presensi.speed_keluar * 3.6).toFixed(1) + ' km/h' : '-'}</td></tr>
+                            <tr><td><strong>Ketinggian Keluar:</strong></td><td>${data.presensi.altitude_keluar ? data.presensi.altitude_keluar + ' m' : '-'}</td></tr>
+                            <tr><td><strong>Status Fake Location Keluar:</strong></td><td><span class="badge bg-${data.presensi.is_fake_location_keluar ? 'danger' : 'success'}">${data.presensi.is_fake_location_keluar ? 'Terdeteksi' : 'Valid'}</span></td></tr>
+                        </table>
+
                         <h6>Riwayat Presensi (10 terakhir)</h6>
                         <div style="max-height: 300px; overflow-y: auto;">
                             <table class="table table-sm table-striped">

@@ -56,12 +56,12 @@ class FakeLocationController extends Controller
 
         $presensis = $query->orderBy('created_at', 'desc')->get();
 
-        // Analyze each presensi for fake location indicators
+        // Analyze each presensi for fake location indicators (both masuk and keluar)
         $fakeLocationData = [];
         foreach ($presensis as $presensi) {
             $issues = [];
 
-            // Check if this presensi has fake location detection data
+            // Check if this presensi has fake location detection data for masuk
             if ($presensi->is_fake_location && $presensi->fake_location_analysis) {
                 $analysisData = $presensi->fake_location_analysis;
 
@@ -72,7 +72,23 @@ class FakeLocationController extends Controller
 
                 if ($analysisData) {
                     // Generate detailed issues based on the stored analysis
-                    $issues = $this->generateDetailedIssues($analysisData, $presensi);
+                    $issues = $this->generateDetailedIssues($analysisData, $presensi, 'masuk');
+                }
+            }
+
+            // Check if this presensi has fake location detection data for keluar
+            if ($presensi->is_fake_location_keluar && $presensi->fake_location_analysis_keluar) {
+                $analysisDataKeluar = $presensi->fake_location_analysis_keluar;
+
+                // Handle both JSON string and array formats (for backward compatibility)
+                if (is_string($analysisDataKeluar)) {
+                    $analysisDataKeluar = json_decode($analysisDataKeluar, true);
+                }
+
+                if ($analysisDataKeluar) {
+                    // Generate detailed issues based on the stored analysis for keluar
+                    $keluarIssues = $this->generateDetailedIssues($analysisDataKeluar, $presensi, 'keluar');
+                    $issues = array_merge($issues, $keluarIssues);
                 }
             }
 
@@ -83,12 +99,24 @@ class FakeLocationController extends Controller
                 $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
 
                 if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
-                    $issues[] = 'Presensi diluar waktu yang ditentukan';
+                    $issues[] = 'Presensi masuk diluar waktu yang ditentukan';
                 }
             }
 
+            // Check waktu keluar jika ada
+            if ($presensi->waktu_keluar && $madrasah) {
+                $timeRanges = $this->getPresensiTimeRanges($madrasah->hari_kbm, $presensi->tanggal);
+                $keluarTime = Carbon::parse($presensi->waktu_keluar)->format('H:i');
+
+                if ($keluarTime < $timeRanges['pulang_start']) {
+                    $issues[] = 'Presensi keluar diluar waktu yang ditentukan';
+                }
+            }
+
+            $isSuspicious = $presensi->is_fake_location || $presensi->is_fake_location_keluar;
+
             $analysis = [
-                'is_suspicious' => $presensi->is_fake_location,
+                'is_suspicious' => $isSuspicious,
                 'issues' => $issues,
                 'severity' => count($issues),
                 'severity_label' => $this->getSeverityLabel(count($issues)),
@@ -98,10 +126,12 @@ class FakeLocationController extends Controller
                         $presensi->user->madrasah->longitude,
                         $presensi->latitude,
                         $presensi->longitude
-                    ) : 0
+                    ) : 0,
+                'fake_location_masuk' => $presensi->is_fake_location,
+                'fake_location_keluar' => $presensi->is_fake_location_keluar
             ];
 
-            if ($analysis['is_suspicious']) {
+            if ($isSuspicious) {
                 $fakeLocationData[] = [
                     'presensi' => $presensi,
                     'analysis' => $analysis
@@ -127,7 +157,7 @@ class FakeLocationController extends Controller
     /**
      * Generate detailed issues from stored fake location analysis
      */
-    private function generateDetailedIssues($analysisData, $presensi)
+    private function generateDetailedIssues($analysisData, $presensi, $type = 'masuk')
     {
         $issues = [];
 
@@ -174,31 +204,32 @@ class FakeLocationController extends Controller
         }
 
         // Generate issues based on the reason
+        $typeLabel = $type === 'keluar' ? 'keluar' : 'masuk';
         if (strpos($reason, 'All 4 location readings are identical') !== false) {
             if ($mostCommonCoord) {
-                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS (' . $typeLabel . ')';
             }
-            $issues[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik';
+            $issues[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik (' . $typeLabel . ')';
             if ($mostCommonAccuracy && $mostCommonAccuracy <= 1) {
-                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan';
+                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan (' . $typeLabel . ')';
             }
         } elseif (strpos($reason, 'Identical coordinates between') !== false) {
             if ($mostCommonCoord) {
-                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS (' . $typeLabel . ')';
             }
-            $issues[] = 'Koordinat terdeteksi: ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali';
+            $issues[] = 'Koordinat terdeteksi: ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali (' . $typeLabel . ')';
             if ($mostCommonAccuracy && $mostCommonAccuracy <= 1) {
-                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan';
+                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan (' . $typeLabel . ')';
             }
         } elseif (strpos($reason, 'Location readings are too close together') !== false) {
-            $issues[] = 'Pembacaan lokasi terlalu berdekatan (< 10 meter)';
+            $issues[] = 'Pembacaan lokasi terlalu berdekatan (< 10 meter) (' . $typeLabel . ')';
             if ($mostCommonCoord) {
-                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS (' . $typeLabel . ')';
             }
         } elseif (strpos($reason, 'Suspicious time differences') !== false) {
-            $issues[] = 'Waktu pembacaan lokasi tidak natural';
+            $issues[] = 'Waktu pembacaan lokasi tidak natural (' . $typeLabel . ')';
             if ($mostCommonCoord) {
-                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS (' . $typeLabel . ')';
             }
         }
 

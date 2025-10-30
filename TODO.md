@@ -1,17 +1,20 @@
-# TODO: Separate Fake Location Analysis for Presensi Keluar
+# TODO: Update Fake Location Detection for Both Masuk and Keluar
 
 ## Overview
-Create separate database columns for fake location analysis to prevent overwriting presensi masuk data when presensi keluar is processed.
+Update the fake location detection page to show both presensi masuk and keluar fake location detections.
 
 ## Tasks
-- [x] Create database migration for new columns: is_fake_location_keluar, fake_location_analysis_keluar
-- [x] Update Presensi model fillable and casts arrays
-- [x] Modify PresensiController store method to use new fields for presensi keluar
-- [x] Test the implementation to ensure data separation works correctly
+- [x] Update FakeLocationController to analyze both masuk and keluar fake locations
+- [x] Modify the view to display waktu keluar column and fake location status indicators
+- [x] Add summary cards for fake masuk and fake keluar counts
+- [x] Update detail modal to show keluar location data
+- [x] Test the updated functionality
 
 ## Implementation Details
-- Migration: database/migrations/2025_10_30_112126_add_fake_location_keluar_to_presensis_table.php
-- Model: app/Models/Presensi.php
-- Controller: app/Http/Controllers/PresensiController.php
-- New fields: is_fake_location_keluar (boolean), fake_location_analysis_keluar (json)
-- Logic: Use separate variables and fields for keluar analysis to avoid overwriting masuk data
+- Controller: app/Http/Controllers/FakeLocationController.php
+- View: resources/views/fake-location/index.blade.php
+- Added analysis for both is_fake_location and is_fake_location_keluar fields
+- Added waktu_keluar column to table
+- Added status dropdown to show which type of fake location was detected
+- Added summary cards for fake masuk and fake keluar counts
+- Updated detail modal to show keluar location data
