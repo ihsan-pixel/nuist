@@ -407,22 +407,27 @@ class PresensiController extends Controller
             $waktuMasuk = $request->input('waktu_masuk') ?? $now;
             $keterangan = null;
 
-            // Jika waktu presensi setelah 07:00, hitung keterlambatan
-            if ($now > '07:00:00') {
-                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                $sekarang = Carbon::now('Asia/Jakarta');
-                $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                if ($sekarang->lessThan($batas)) {
-                    $terlambatMenit = 0;
-                } else {
-                    $terlambatMenit = abs(round($terlambatMenit));
-                }
-
-                $keterangan = "Terlambat {$terlambatMenit} menit";
-            } else {
+            // Jika user memiliki pemenuhan beban kerja lain, tidak ada keterangan terlambat
+            if ($user->pemenuhan_beban_kerja_lain) {
                 $keterangan = "tidak terlambat";
+            } else {
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    if ($sekarang->lessThan($batas)) {
+                        $terlambatMenit = 0;
+                    } else {
+                        $terlambatMenit = abs(round($terlambatMenit));
+                    }
+
+                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                } else {
+                    $keterangan = "tidak terlambat";
+                }
             }
 
             // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
@@ -474,22 +479,27 @@ class PresensiController extends Controller
                 $waktuMasuk = $request->input('waktu_masuk') ?? $now;
                 $keterangan = null;
 
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
-
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
-                } else {
+                // Jika user memiliki pemenuhan beban kerja lain, tidak ada keterangan terlambat
+                if ($user->pemenuhan_beban_kerja_lain) {
                     $keterangan = "tidak terlambat";
+                } else {
+                    // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                    if ($now > '07:00:00') {
+                        $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                        $sekarang = Carbon::now('Asia/Jakarta');
+                        $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                        // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                        if ($sekarang->lessThan($batas)) {
+                            $terlambatMenit = 0;
+                        } else {
+                            $terlambatMenit = abs(round($terlambatMenit));
+                        }
+
+                        $keterangan = "Terlambat {$terlambatMenit} menit";
+                    } else {
+                        $keterangan = "tidak terlambat";
+                    }
                 }
 
                 // Keterangan fake GPS akan ditampilkan di menu deteksi fake location untuk super admin
