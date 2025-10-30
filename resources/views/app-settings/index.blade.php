@@ -232,7 +232,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form id="settingsForm" method="POST" action="{{ route('app-settings.update') }}">
+                <form id="settingsForm" method="POST" action="{{ route('app-settings.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
