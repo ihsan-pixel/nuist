@@ -549,9 +549,209 @@ class PresensiController extends Controller
                     ], 400);
                 }
 
+                // Analisis fake location detection untuk presensi keluar
+                $isFakeLocationKeluar = false;
+                $fakeLocationAnalysisKeluar = [];
+
+                // Analisis fake location detection dengan 4 readings
+                if ($request->has('location_readings')) {
+                    $locationReadings = json_decode($request->location_readings, true);
+
+                    if (count($locationReadings) >= 4) {
+                        $reading1 = $locationReadings[0];
+                        $reading2 = $locationReadings[1];
+                        $reading3 = $locationReadings[2];
+                        $reading4 = $locationReadings[3];
+
+                        // Calculate distances between consecutive readings
+                        $distance12 = $this->calculateDistance(
+                            $reading1['latitude'], $reading1['longitude'],
+                            $reading2['latitude'], $reading2['longitude']
+                        );
+                        $distance23 = $this->calculateDistance(
+                            $reading2['latitude'], $reading2['longitude'],
+                            $reading3['latitude'], $reading3['longitude']
+                        );
+                        $distance34 = $this->calculateDistance(
+                            $reading3['latitude'], $reading3['longitude'],
+                            $reading4['latitude'], $reading4['longitude']
+                        );
+
+                        $issues = [];
+                        $severity = 0;
+
+                        // Count identical readings
+                        $identicalCount = 0;
+                        $firstReading = $reading1;
+
+                        foreach ($locationReadings as $reading) {
+                            $latDiff = abs($reading['latitude'] - $firstReading['latitude']);
+                            $lngDiff = abs($reading['longitude'] - $firstReading['longitude']);
+
+                            // If difference is less than 0.000001 degrees (about 0.1 meter), consider identical
+                            if ($latDiff < 0.000001 && $lngDiff < 0.000001) {
+                                $identicalCount++;
+                            }
+                        }
+
+                        // New logic: if all 4 readings are identical = fake location
+                        if ($identicalCount >= 4) {
+                            $issues[] = 'Semua 4 pembacaan lokasi identik';
+                            $severity += 10;
+                        }
+                        // If exactly 3 readings are identical = not fake (natural variation)
+                        elseif ($identicalCount == 3) {
+                            // This is considered normal variation, no severity added
+                        }
+                        // If less than 3 identical, check other suspicious patterns
+                        else {
+                            // Check if readings are too close together (within 10 meters)
+                            if ($distance12 < 0.01) {
+                                $issues[] = 'Pembacaan 1 dan 2 terlalu dekat (< 10m)';
+                                $severity += 2;
+                            }
+                            if ($distance23 < 0.01) {
+                                $issues[] = 'Pembacaan 2 dan 3 terlalu dekat (< 10m)';
+                                $severity += 2;
+                            }
+                            if ($distance34 < 0.01) {
+                                $issues[] = 'Pembacaan 3 dan 4 terlalu dekat (< 10m)';
+                                $severity += 2;
+                            }
+                        }
+
+                        // Check for suspicious time differences
+                        $timeDiff12 = abs($reading2['timestamp'] - $reading1['timestamp']) / 1000; // seconds
+                        $timeDiff23 = abs($reading3['timestamp'] - $reading2['timestamp']) / 1000; // seconds
+                        $timeDiff34 = abs($reading4['timestamp'] - $reading3['timestamp']) / 1000; // seconds
+
+                        if ($timeDiff12 < 1) {
+                            $issues[] = 'Waktu pembacaan 1-2 terlalu cepat (< 1 detik)';
+                            $severity += 1;
+                        }
+                        if ($timeDiff23 < 4) {
+                            $issues[] = 'Waktu pembacaan 2-3 terlalu cepat (< 4 detik)';
+                            $severity += 1;
+                        }
+                        if ($timeDiff34 < 1) {
+                            $issues[] = 'Waktu pembacaan 3-4 terlalu cepat (< 1 detik)';
+                            $severity += 1;
+                        }
+
+                        // Store detailed analysis for logging/admin monitoring
+                        $detailedAnalysis = array_merge($fakeLocationAnalysisKeluar, [
+                            'issues' => $issues,
+                            'severity' => $severity,
+                            'severity_label' => $this->getSeverityLabel($severity),
+                            'checked_at' => Carbon::now('Asia/Jakarta')->toISOString(),
+                            'location_data' => [
+                                'latitude' => $request->latitude,
+                                'longitude' => $request->longitude,
+                                'accuracy' => $request->accuracy,
+                                'altitude' => $request->altitude,
+                                'speed' => $request->speed,
+                                'device_info' => $request->device_info,
+                            ],
+                            'distances' => [
+                                'reading1_reading2' => $distance12,
+                                'reading2_reading3' => $distance23,
+                                'reading3_reading4' => $distance34
+                            ],
+                            'identical_readings' => $identicalCount
+                        ]);
+
+                        // Create simplified fake location data for database storage
+                        $fakeLocationData = null;
+                        if ($severity >= 5) {
+                            $isFakeLocationKeluar = true;
+
+                            // Determine the primary reason and relevant readings
+                            $primaryReason = '';
+                            $relevantReadings = [];
+
+                            if ($identicalCount >= 4) {
+                                $primaryReason = 'All 4 location readings are identical';
+                                $relevantReadings = [
+                                    'reading1' => $reading1,
+                                    'reading2' => $reading2,
+                                    'reading3' => $reading3,
+                                    'reading4' => $reading4
+                                ];
+                            } elseif ($identicalCount >= 2) {
+                                // Find which readings are identical
+                                $identicalReadings = [];
+                                for ($i = 0; $i < count($locationReadings) - 1; $i++) {
+                                    for ($j = $i + 1; $j < count($locationReadings); $j++) {
+                                        $latDiff = abs($locationReadings[$i]['latitude'] - $locationReadings[$j]['latitude']);
+                                        $lngDiff = abs($locationReadings[$i]['longitude'] - $locationReadings[$j]['longitude']);
+                                        if ($latDiff < 0.000001 && $lngDiff < 0.000001) {
+                                            $identicalReadings[] = ['reading' . ($i + 1), 'reading' . ($j + 1)];
+                                        }
+                                    }
+                                }
+                                if (!empty($identicalReadings)) {
+                                    $firstPair = $identicalReadings[0];
+                                    $primaryReason = 'Identical coordinates between ' . $firstPair[0] . ' and ' . $firstPair[1];
+                                    $relevantReadings = [
+                                        $firstPair[0] => $locationReadings[intval(substr($firstPair[0], -1)) - 1],
+                                        $firstPair[1] => $locationReadings[intval(substr($firstPair[1], -1)) - 1]
+                                    ];
+                                }
+                            } elseif ($distance12 < 0.01 || $distance23 < 0.01 || $distance34 < 0.01) {
+                                $primaryReason = 'Location readings are too close together';
+                                $relevantReadings = [
+                                    'reading1' => $reading1,
+                                    'reading2' => $reading2,
+                                    'reading3' => $reading3,
+                                    'reading4' => $reading4
+                                ];
+                            } elseif ($timeDiff12 < 1 || $timeDiff23 < 4 || $timeDiff34 < 1) {
+                                $primaryReason = 'Suspicious time differences between readings';
+                                $relevantReadings = [
+                                    'reading1' => $reading1,
+                                    'reading2' => $reading2,
+                                    'reading3' => $reading3,
+                                    'reading4' => $reading4
+                                ];
+                            }
+
+                            if (!empty($primaryReason)) {
+                                $fakeLocationData = [
+                                    'reason' => $primaryReason,
+                                    'detected_at' => Carbon::now('Asia/Jakarta')->toISOString()
+                                ];
+
+                                // Add relevant readings
+                                foreach ($relevantReadings as $key => $reading) {
+                                    $fakeLocationData[$key] = $reading;
+                                }
+                            }
+                        }
+
+                        $fakeLocationAnalysisKeluar = $detailedAnalysis;
+                    }
+                }
+
+                // Analisis fake location sebelum validasi poligon untuk presensi keluar
+                $additionalFakeLocationAnalysisKeluar = $this->analyzeFakeLocation($request, $user, $madrasah, $madrasahTambahan);
+                $isFakeLocationKeluar = $isFakeLocationKeluar || $additionalFakeLocationAnalysisKeluar['is_fake'];
+                $fakeLocationAnalysisKeluar = array_merge($fakeLocationAnalysisKeluar, $additionalFakeLocationAnalysisKeluar);
+
+                // Jika terdeteksi fake location untuk presensi keluar, tetap izinkan presensi tapi log untuk monitoring
+                if ($isFakeLocationKeluar) {
+                    \Log::warning('Fake location detected for presensi keluar - presensi allowed but flagged', [
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'madrasah' => $madrasah ? $madrasah->name : 'N/A',
+                        'analysis' => $fakeLocationAnalysisKeluar
+                    ]);
+                }
+
                 // Presensi keluar
                 $presensi->update([
                     'waktu_keluar' => $now,
+                    'is_fake_location_keluar' => $isFakeLocationKeluar,
+                    'fake_location_analysis_keluar' => $isFakeLocationKeluar ? json_encode($fakeLocationData) : null,
                 ]);
 
                 // Create success notification for presensi keluar
