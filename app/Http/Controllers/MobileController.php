@@ -601,7 +601,22 @@ class MobileController extends Controller
 
     public function laporanMengajar()
     {
-        return view('mobile.laporan-mengajar');
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $selectedMonth = Carbon::now();
+
+        $history = \App\Models\TeachingAttendance::with(['teachingSchedule.school'])
+            ->where('user_id', $user->id)
+            ->whereYear('tanggal', $selectedMonth->year)
+            ->whereMonth('tanggal', $selectedMonth->month)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('mobile.laporan-mengajar', compact('history'));
     }
 
     // Teaching attendances (mobile)
