@@ -59,57 +59,42 @@ class FakeLocationController extends Controller
         // Analyze each presensi for fake location indicators
         $fakeLocationData = [];
         foreach ($presensis as $presensi) {
-            // Use the new database fields if available, otherwise analyze from data
-            if ($presensi->is_fake_location !== null) {
-                $issues = [];
+            $issues = [];
 
-                // Tambahkan detail masalah untuk fake GPS detection (updated for 4 identical readings)
-                if ($presensi->fake_location_analysis && isset($presensi->fake_location_analysis['reason'])) {
-                    if ($presensi->fake_location_analysis['reason'] === 'All 4 readings have identical coordinates') {
-                        // Add coordinate details from the analysis
-                        if (isset($presensi->fake_location_analysis['duplicate_coordinates'])) {
-                            $coord = $presensi->fake_location_analysis['duplicate_coordinates'];
-                            $issues[] = 'Koordinat ' . $coord['latitude'] . ', ' . $coord['longitude'] . ' muncul ' . $coord['count'] . ' kali - indikasi fake GPS';
-                        }
+            // Check if this presensi has fake location detection data
+            if ($presensi->is_fake_location && $presensi->fake_location_analysis) {
+                $analysisData = json_decode($presensi->fake_location_analysis, true);
 
-                        // Add problem details if available
-                        if (isset($presensi->fake_location_analysis['problem_details'])) {
-                            foreach ($presensi->fake_location_analysis['problem_details'] as $detail) {
-                                $issues[] = $detail;
-                            }
-                        }
-                    }
+                if ($analysisData) {
+                    // Generate detailed issues based on the stored analysis
+                    $issues = $this->generateDetailedIssues($analysisData, $presensi);
                 }
-
-                // Tambahkan detail masalah untuk presensi di luar waktu yang ditentukan
-                $madrasah = $presensi->user->madrasah;
-                if ($presensi->waktu_masuk && $madrasah) {
-                    $timeRanges = $this->getPresensiTimeRanges($madrasah->hari_kbm, $presensi->tanggal);
-                    $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
-
-                    if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
-                        $issues[] = 'Presensi diluar waktu yang ditentukan';
-                    }
-                }
-
-                $analysis = [
-                    'is_suspicious' => $presensi->is_fake_location,
-                    'issues' => $issues,
-                    'severity' => count($issues),
-                    'severity_label' => $this->getSeverityLabel(count($issues)),
-                    'distance' => $presensi->user->madrasah && $presensi->user->madrasah->latitude ?
-                        $this->calculateDistance(
-                            $presensi->user->madrasah->latitude,
-                            $presensi->user->madrasah->longitude,
-                            $presensi->latitude,
-                            $presensi->longitude
-                        ) : 0
-                ];
-
-            } else {
-                // Fallback to analysis method for older records
-                $analysis = $this->analyzePresensiForFakeLocation($presensi);
             }
+
+            // Tambahkan detail masalah untuk presensi di luar waktu yang ditentukan
+            $madrasah = $presensi->user->madrasah;
+            if ($presensi->waktu_masuk && $madrasah) {
+                $timeRanges = $this->getPresensiTimeRanges($madrasah->hari_kbm, $presensi->tanggal);
+                $presensiTime = Carbon::parse($presensi->waktu_masuk)->format('H:i');
+
+                if ($presensiTime < $timeRanges['masuk_start'] || $presensiTime > $timeRanges['masuk_end']) {
+                    $issues[] = 'Presensi diluar waktu yang ditentukan';
+                }
+            }
+
+            $analysis = [
+                'is_suspicious' => $presensi->is_fake_location,
+                'issues' => $issues,
+                'severity' => count($issues),
+                'severity_label' => $this->getSeverityLabel(count($issues)),
+                'distance' => $presensi->user->madrasah && $presensi->user->madrasah->latitude ?
+                    $this->calculateDistance(
+                        $presensi->user->madrasah->latitude,
+                        $presensi->user->madrasah->longitude,
+                        $presensi->latitude,
+                        $presensi->longitude
+                    ) : 0
+            ];
 
             if ($analysis['is_suspicious']) {
                 $fakeLocationData[] = [
@@ -135,7 +120,102 @@ class FakeLocationController extends Controller
     }
 
     /**
-     * Analyze a presensi record for fake location indicators
+     * Generate detailed issues from stored fake location analysis
+     */
+    private function generateDetailedIssues($analysisData, $presensi)
+    {
+        $issues = [];
+
+        $reason = $analysisData['reason'] ?? '';
+        $detectedAt = $analysisData['detected_at'] ?? '';
+
+        // Count how many times the same coordinate appears
+        $coordinateCounts = [];
+        $accuracyCounts = [];
+
+        // Collect all readings
+        $readings = [];
+        foreach ($analysisData as $key => $value) {
+            if (preg_match('/^reading\d+$/', $key) && is_array($value)) {
+                $readings[] = $value;
+                $coordKey = number_format($value['latitude'], 6) . ',' . number_format($value['longitude'], 6);
+                $coordinateCounts[$coordKey] = ($coordinateCounts[$coordKey] ?? 0) + 1;
+
+                if (isset($value['accuracy'])) {
+                    $accuracyKey = number_format($value['accuracy'], 1);
+                    $accuracyCounts[$accuracyKey] = ($accuracyCounts[$accuracyKey] ?? 0) + 1;
+                }
+            }
+        }
+
+        // Find the most common coordinate
+        $mostCommonCoord = '';
+        $maxCount = 0;
+        foreach ($coordinateCounts as $coord => $count) {
+            if ($count > $maxCount) {
+                $maxCount = $count;
+                $mostCommonCoord = $coord;
+            }
+        }
+
+        // Find the most common accuracy
+        $mostCommonAccuracy = '';
+        $maxAccuracyCount = 0;
+        foreach ($accuracyCounts as $accuracy => $count) {
+            if ($count > $maxAccuracyCount) {
+                $maxAccuracyCount = $count;
+                $mostCommonAccuracy = $accuracy;
+            }
+        }
+
+        // Generate issues based on the reason
+        if (strpos($reason, 'All 4 location readings are identical') !== false) {
+            if ($mostCommonCoord) {
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+            }
+            $issues[] = 'Semua 4 pembacaan lokasi memiliki koordinat yang identik';
+            if ($mostCommonAccuracy && $mostCommonAccuracy <= 1) {
+                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan';
+            }
+        } elseif (strpos($reason, 'Identical coordinates between') !== false) {
+            if ($mostCommonCoord) {
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+            }
+            $issues[] = 'Koordinat terdeteksi: ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali';
+            if ($mostCommonAccuracy && $mostCommonAccuracy <= 1) {
+                $issues[] = 'Akurasi lokasi terlalu sempurna (' . $mostCommonAccuracy . ' meter) pada ' . $maxAccuracyCount . ' pembacaan';
+            }
+        } elseif (strpos($reason, 'Location readings are too close together') !== false) {
+            $issues[] = 'Pembacaan lokasi terlalu berdekatan (< 10 meter)';
+            if ($mostCommonCoord) {
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+            }
+        } elseif (strpos($reason, 'Suspicious time differences') !== false) {
+            $issues[] = 'Waktu pembacaan lokasi tidak natural';
+            if ($mostCommonCoord) {
+                $issues[] = 'Koordinat ' . $mostCommonCoord . ' muncul ' . $maxCount . ' kali - indikasi fake GPS';
+            }
+        }
+
+        // Add general issues if we have suspicious patterns
+        if (count($readings) >= 4) {
+            // Check for perfect accuracy across readings
+            $perfectAccuracyCount = 0;
+            foreach ($readings as $reading) {
+                if (isset($reading['accuracy']) && $reading['accuracy'] <= 1) {
+                    $perfectAccuracyCount++;
+                }
+            }
+            if ($perfectAccuracyCount >= 4) {
+                $issues[] = 'Akurasi lokasi terlalu sempurna (≤1 meter) pada 4 pembacaan';
+            }
+        }
+
+        return $issues;
+    }
+
+    /**
+     * Analyze a presensi record for fake location indicators (fallback)
      */
     private function analyzePresensiForFakeLocation($presensi)
     {
