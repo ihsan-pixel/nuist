@@ -466,8 +466,8 @@ class MobileController extends Controller
                     'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
 
-                $tanggal = $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai');
-                $keterangan = $request->input('alasan') . '\nTanggal: ' . $tanggal;
+                $tanggal = $request->input('tanggal_mulai');
+                $keterangan = $request->input('alasan') . '\nTanggal: ' . $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai');
                 if ($request->hasFile('file_izin')) {
                     $filePath = $request->file('file_izin')->store('surat_izin', 'public');
                 }
