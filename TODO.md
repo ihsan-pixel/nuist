@@ -7,9 +7,9 @@
 - [x] Update MobileController to fetch multiple presensi records
 
 ## Remaining Tasks
-- [ ] Run migration to apply database changes
-- [ ] Test dual presensi functionality
+- [x] Run migration to apply database changes
+- [x] Test dual presensi functionality
 - [x] Update mobile views to display presensi for both madrasahs
-- [ ] Update riwayat presensi to show dual presensi records
-- [ ] Update laporan features to handle dual presensi
+- [x] Update riwayat presensi to show dual presensi records
+- [x] Update laporan features to handle dual presensi
 - [ ] Test edge cases (polygon validation, time restrictions, etc.)

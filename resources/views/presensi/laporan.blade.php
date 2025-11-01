@@ -97,7 +97,7 @@
                                 <tr>
                                     <td>{{ $presensis->firstItem() + $index }}</td>
                                     <td>{{ $presensi->user->name }}</td>
-                                    <td>{{ $presensi->user->madrasah?->name ?? '-' }}</td>
+                                    <td>{{ $presensi->madrasah?->name ?? '-' }}</td>
                                     <td>{{ $presensi->tanggal->format('d/m/Y') }}</td>
                                     <td>{{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}</td>
                                     <td>{{ $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : '-' }}</td>

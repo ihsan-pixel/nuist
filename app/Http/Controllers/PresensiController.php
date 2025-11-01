@@ -802,9 +802,7 @@ class PresensiController extends Controller
         } elseif ($user->role === 'admin') {
             // Admin bisa melihat presensi dari madrasah yang sama
             if ($user->madrasah_id) {
-                $query->whereHas('user', function($q) use ($user) {
-                    $q->where('madrasah_id', $user->madrasah_id);
-                });
+                $query->where('madrasah_id', $user->madrasah_id);
             }
         }
         // Super admin dan pengurus bisa melihat semua
