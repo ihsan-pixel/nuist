@@ -261,13 +261,7 @@ class PresensiAdminController extends Controller
                              });
                     })
                     // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                    ->orWhere(function ($subQ) use ($user) {
-                        $subQ->whereNotNull('madrasah_id')
-                             ->where('madrasah_id', $user->madrasah_id)
-                             ->whereHas('user', function ($userQ) use ($user) {
-                                 $userQ->where('madrasah_id', $user->madrasah_id);
-                             });
-                    });
+                    ->orWhere('madrasah_id', $user->madrasah_id);
                 });
             }
 
@@ -672,13 +666,7 @@ class PresensiAdminController extends Controller
                                  });
                         })
                         // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere(function ($subQ) use ($user) {
-                            $subQ->whereNotNull('madrasah_id')
-                                 ->where('madrasah_id', $user->madrasah_id)
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        });
+                        ->orWhere('madrasah_id', $user->madrasah_id);
                     })
                     ->distinct('user_id')
                     ->count('user_id');
@@ -694,13 +682,7 @@ class PresensiAdminController extends Controller
                                  });
                         })
                         // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere(function ($subQ) use ($user) {
-                            $subQ->whereNotNull('madrasah_id')
-                                 ->where('madrasah_id', $user->madrasah_id)
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        });
+                        ->orWhere('madrasah_id', $user->madrasah_id);
                     })
                     ->exists();
                 $summary['sekolah_presensi'] = $hasPresensi ? 1 : 0;
