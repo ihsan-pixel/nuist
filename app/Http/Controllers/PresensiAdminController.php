@@ -333,6 +333,42 @@ class PresensiAdminController extends Controller
             }
 
             return response()->json($madrasahData);
+        } elseif (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
+            // For admin and tenaga_pendidik kepala, return filtered data for their madrasah
+            $madrasah = \App\Models\Madrasah::find($user->madrasah_id);
+            if (!$madrasah) {
+                return response()->json(['error' => 'Madrasah not found'], 404);
+            }
+
+            $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                ->where('madrasah_id', $user->madrasah_id)
+                ->with(['presensis' => function ($q) use ($selectedDate) {
+                    $q->whereDate('tanggal', $selectedDate);
+                }])
+                ->get();
+
+            $presensiData = [];
+            foreach ($tenagaPendidik as $tp) {
+                $presensi = $tp->presensis->first();
+                $presensiData[] = [
+                    'user_id' => $tp->id,
+                    'nama' => $tp->name,
+                    'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                    'waktu_masuk' => $presensi ? $presensi->waktu_masuk : null,
+                    'waktu_keluar' => $presensi ? $presensi->waktu_keluar : null,
+                    'keterangan' => $presensi ? $presensi->keterangan : null,
+                    'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                ];
+            }
+
+            $madrasahData = [
+                [
+                    'madrasah' => $madrasah,
+                    'presensi' => $presensiData,
+                ]
+            ];
+
+            return response()->json($madrasahData);
         }
 
         return response()->json(['error' => 'Unauthorized'], 403);
