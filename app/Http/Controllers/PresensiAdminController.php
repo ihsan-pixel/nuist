@@ -252,8 +252,17 @@ class PresensiAdminController extends Controller
 
             // If user is admin or tenaga_pendidik kepala, filter by madrasah_id
             if (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
-                $query->whereHas('user', function ($q) use ($user) {
-                    $q->where('madrasah_id', $user->madrasah_id);
+                $query->where(function ($q) use ($user) {
+                    // Jika madrasah_id di presensis adalah 0/null, tampilkan presensi dimana user.madrasah_id == admin.madrasah_id
+                    $q->where(function ($subQ) use ($user) {
+                        $subQ->whereNull('madrasah_id')
+                             ->orWhere('madrasah_id', 0)
+                             ->whereHas('user', function ($userQ) use ($user) {
+                                 $userQ->where('madrasah_id', $user->madrasah_id);
+                             });
+                    })
+                    // Jika madrasah_id di presensis terisi (bukan 0/null), tampilkan presensi dimana presensi.madrasah_id == admin.madrasah_id
+                    ->orWhere('madrasah_id', $user->madrasah_id);
                 });
             }
 
@@ -649,16 +658,34 @@ class PresensiAdminController extends Controller
             // For admin and tenaga_pendidik kepala: filter by madrasah
             if ($user->madrasah_id) {
                 $presensiUsers = Presensi::whereDate('tanggal', $selectedDate)
-                    ->whereHas('user', function ($q) use ($user) {
-                        $q->where('madrasah_id', $user->madrasah_id);
+                    ->where(function ($q) use ($user) {
+                        // Jika madrasah_id di presensis adalah 0/null, tampilkan presensi dimana user.madrasah_id == admin.madrasah_id
+                        $q->where(function ($subQ) use ($user) {
+                            $subQ->whereNull('madrasah_id')
+                                 ->orWhere('madrasah_id', 0)
+                                 ->whereHas('user', function ($userQ) use ($user) {
+                                     $userQ->where('madrasah_id', $user->madrasah_id);
+                                 });
+                        })
+                        // Jika madrasah_id di presensis terisi (bukan 0/null), tampilkan presensi dimana presensi.madrasah_id == admin.madrasah_id
+                        ->orWhere('madrasah_id', $user->madrasah_id);
                     })
                     ->distinct('user_id')
                     ->count('user_id');
                 $summary['users_presensi'] = $presensiUsers;
 
                 $hasPresensi = Presensi::whereDate('tanggal', $selectedDate)
-                    ->whereHas('user', function ($q) use ($user) {
-                        $q->where('madrasah_id', $user->madrasah_id);
+                    ->where(function ($q) use ($user) {
+                        // Jika madrasah_id di presensis adalah 0/null, tampilkan presensi dimana user.madrasah_id == admin.madrasah_id
+                        $q->where(function ($subQ) use ($user) {
+                            $subQ->whereNull('madrasah_id')
+                                 ->orWhere('madrasah_id', 0)
+                                 ->whereHas('user', function ($userQ) use ($user) {
+                                     $userQ->where('madrasah_id', $user->madrasah_id);
+                                 });
+                        })
+                        // Jika madrasah_id di presensis terisi (bukan 0/null), tampilkan presensi dimana presensi.madrasah_id == admin.madrasah_id
+                        ->orWhere('madrasah_id', $user->madrasah_id);
                     })
                     ->exists();
                 $summary['sekolah_presensi'] = $hasPresensi ? 1 : 0;
