@@ -160,7 +160,7 @@
                                         @endif
                                     </td>
                                     <td>{{ $presensi->user->name }}</td>
-                                    <td>{{ $presensi->user->madrasah?->name ?? '-' }}</td>
+                                    <td>{{ $presensi->madrasah?->name ?? '-' }}</td>
                                     <td>{{ $presensi->statusKepegawaian->name ?? '-' }}</td>
                                     <td>{{ $presensi->tanggal->format('d/m/Y') }}</td>
                                     <td>{{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}</td>
