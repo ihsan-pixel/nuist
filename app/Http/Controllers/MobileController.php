@@ -124,10 +124,10 @@ class MobileController extends Controller
         $isHoliday = \App\Models\Holiday::isHoliday($dateString);
         $holiday = $isHoliday ? \App\Models\Holiday::getHoliday($dateString) : null;
 
-        // Presensi of the current user for the selected date
+        // Presensi of the current user for the selected date (all madrasahs for dual presensi)
         $presensiHariIni = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $selectedDate)
-            ->first();
+            ->get();
 
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
         $timeRanges = null;
@@ -191,7 +191,8 @@ class MobileController extends Controller
         $selectedMonth = $request->input('month') ? Carbon::parse($request->input('month')) : Carbon::now();
 
         // Fetch presensi for the selected month for the authenticated user
-        $presensiHistory = Presensi::where('user_id', $user->id)
+        $presensiHistory = Presensi::with('madrasah')
+            ->where('user_id', $user->id)
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
             ->orderBy('tanggal', 'desc')

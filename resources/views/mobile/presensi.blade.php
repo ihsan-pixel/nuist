@@ -304,7 +304,7 @@
             </div>
         </div>
     </div>
-    @elseif($presensiHariIni)
+    @elseif($presensiHariIni && $presensiHariIni->count() > 0)
     <div class="status-card success">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -312,11 +312,20 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk->format('H:i') }}</strong></p>
-                @if($presensiHariIni->waktu_keluar)
-                <p class="mb-0">Keluar: <strong>{{ $presensiHariIni->waktu_keluar->format('H:i') }}</strong></p>
+                @foreach($presensiHariIni as $presensi)
+                <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                    <small class="text-white-50">{{ $presensi->madrasah->name ?? 'Madrasah' }}</small>
+                    <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
+                    @if($presensi->waktu_keluar)
+                    <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
+                    @else
+                    <p class="mb-0 text-muted">Belum presensi keluar</p>
+                    @endif
+                </div>
+                @endforeach
+                @if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count())
                 <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
-                    <small><i class="bx bx-check me-1"></i> Presensi hari ini lengkap!</small>
+                    <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
                 </div>
                 @else
                 <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
@@ -332,7 +341,7 @@
             <div class="status-icon">
                 <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
             </div>
-            <h6 class="section-title mb-0">{{ $presensiHariIni ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
+        <h6 class="section-title mb-0">{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
         </div>
 
     <!-- Location Status -->
@@ -373,7 +382,7 @@
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
                 disabled
-                {{ ($presensiHariIni && $presensiHariIni->waktu_keluar) || $isHoliday ? 'disabled' : '' }}>
+                {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
             {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Mengumpulkan data lokasi...' }}
         </button>
@@ -595,8 +604,11 @@ window.addEventListener('load', function() {
                 </div>
             `);
 
-            // Enable presensi button
-            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+            // Enable presensi button - check if all presensi records have waktu_keluar
+            var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
+            var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
+            var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Presensi Masuk";
+            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
 
         } catch (error) {
             $('#location-info').html(`
@@ -810,9 +822,9 @@ window.addEventListener('load', function() {
                             text: errorMessage,
                             confirmButtonText: 'Oke'
                         });
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
-                    }
-                });
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
+                        }
+                        });
             },
             function(error) {
                 Swal.fire({

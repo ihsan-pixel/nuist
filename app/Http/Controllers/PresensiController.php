@@ -93,9 +93,48 @@ class PresensiController extends Controller
         $user = Auth::user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Cek apakah sudah presensi hari ini
+        // Determine which madrasah the presensi is for based on polygon check
+        $madrasah = $user->madrasah;
+        $madrasahTambahan = $user->madrasahTambahan;
+        $targetMadrasahId = null;
+
+        // Pre-check polygons to determine target madrasah
+        $madrasahsToCheck = [];
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            $madrasahsToCheck[] = $madrasah;
+        }
+        if ($user->pemenuhan_beban_kerja_lain && $madrasahTambahan && $madrasahTambahan->polygon_koordinat) {
+            $madrasahsToCheck[] = $madrasahTambahan;
+        }
+        // Jika madrasah utama mengaktifkan dual polygon, tambahkan polygon kedua
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $madrasahsToCheck[] = (object)['id' => $madrasah->id, 'polygon_koordinat' => $madrasah->polygon_koordinat_2];
+        }
+
+        foreach ($madrasahsToCheck as $m) {
+            try {
+                $polygonGeometry = json_decode($m->polygon_koordinat, true);
+                $polygon = $polygonGeometry['coordinates'][0];
+                if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                    $targetMadrasahId = $m->id;
+                    break;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        if (!$targetMadrasahId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi Anda berada di luar area presensi yang telah ditentukan.'
+            ], 400);
+        }
+
+        // Cek apakah sudah presensi hari ini untuk madrasah yang sama
         $presensi = Presensi::where('user_id', $user->id)
             ->where('tanggal', $today)
+            ->where('madrasah_id', $targetMadrasahId)
             ->first();
 
         // Jika belum ada presensi hari ini, cek apakah ada izin yang sudah diajukan
@@ -311,50 +350,8 @@ class PresensiController extends Controller
         $isFakeLocation = $isFakeLocation || $additionalFakeLocationAnalysis['is_fake'];
         $fakeLocationAnalysis = array_merge($fakeLocationAnalysis, $additionalFakeLocationAnalysis);
 
-        // Validasi lokasi user berada di dalam poligon madrasah utama atau tambahan jika berlaku
-        $isWithinPolygon = false;
-        $validMadrasah = null;
-
-        $madrasahsToCheck = [];
-        if ($madrasah && $madrasah->polygon_koordinat) {
-            $madrasahsToCheck[] = $madrasah;
-        }
-        if ($user->pemenuhan_beban_kerja_lain && $madrasahTambahan && $madrasahTambahan->polygon_koordinat) {
-            $madrasahsToCheck[] = $madrasahTambahan;
-        }
-
-        // Jika madrasah utama mengaktifkan dual polygon, tambahkan polygon kedua
-        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
-            $madrasahsToCheck[] = (object)['polygon_koordinat' => $madrasah->polygon_koordinat_2];
-        }
-
-        if (empty($madrasahsToCheck)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Area presensi (poligon) untuk madrasah Anda belum diatur. Silakan hubungi administrator.'
-            ], 400);
-        }
-
-        foreach ($madrasahsToCheck as $m) {
-            try {
-                $polygonGeometry = json_decode($m->polygon_koordinat, true);
-                $polygon = $polygonGeometry['coordinates'][0];
-                if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                    $isWithinPolygon = true;
-                    $validMadrasah = $m;
-                    break;
-                }
-            } catch (\Exception $e) {
-                continue; // Skip invalid polygon
-            }
-        }
-
-        if (!$isWithinPolygon) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lokasi Anda berada di luar area presensi yang telah ditentukan.'
-            ], 400);
-        }
+        // Validasi lokasi sudah dilakukan di atas, gunakan $targetMadrasahId
+        $validMadrasah = \App\Models\Madrasah::find($targetMadrasahId);
 
         // Jika terdeteksi fake location, tetap izinkan presensi tapi log untuk monitoring
         // Super admin dapat memeriksa di menu deteksi fake location
@@ -436,6 +433,7 @@ class PresensiController extends Controller
             // Presensi masuk
             $presensi = Presensi::create([
                 'user_id' => $user->id,
+                'madrasah_id' => $targetMadrasahId,
                 'tanggal' => $today,
                 'waktu_masuk' => $waktuMasuk,
                 'latitude' => $request->latitude,
@@ -507,6 +505,7 @@ class PresensiController extends Controller
 
                 $presensi->update([
                     'status' => 'hadir',
+                    'madrasah_id' => $targetMadrasahId,
                     'waktu_masuk' => $waktuMasuk,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,

@@ -1,15 +1,15 @@
-# Banner Feature Implementation TODO
+# TODO: Implement Dual Presensi for Tenaga Pendidik with Beban Kerja Lain
 
 ## Completed Tasks
-- [x] Create migration for app_settings table with banner_image column
-- [x] Create AppSetting model with banner image handling
-- [x] Update AppSettingsController to handle banner upload and retrieval
-- [x] Update app-settings/index.blade.php to add banner upload form
-- [x] Update mobile/dashboard.blade.php to add banner modal
-- [x] Update MobileController to pass banner data to view
+- [x] Create migration to add madrasah_id to presensis table
+- [x] Update Presensi model fillable and relationships
+- [x] Modify PresensiController::store() to handle dual presensi logic
+- [x] Update MobileController to fetch multiple presensi records
 
 ## Remaining Tasks
-- [ ] Run migration to create app_settings table
-- [ ] Test banner upload functionality
-- [ ] Test banner display on mobile dashboard
-- [ ] Verify modal shows on page load and auto-hides after 5 seconds
+- [ ] Run migration to apply database changes
+- [ ] Test dual presensi functionality
+- [x] Update mobile views to display presensi for both madrasahs
+- [ ] Update riwayat presensi to show dual presensi records
+- [ ] Update laporan features to handle dual presensi
+- [ ] Test edge cases (polygon validation, time restrictions, etc.)

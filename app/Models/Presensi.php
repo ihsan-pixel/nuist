@@ -13,6 +13,7 @@ class Presensi extends Model
 
     protected $fillable = [
         'user_id',
+        'madrasah_id',
         'tanggal',
         'waktu_masuk',
         'waktu_keluar',
@@ -59,7 +60,7 @@ class Presensi extends Model
 
     public function madrasah()
     {
-        return $this->hasOneThrough(Madrasah::class, User::class, 'id', 'id', 'user_id', 'madrasah_id');
+        return $this->belongsTo(\App\Models\Madrasah::class, 'madrasah_id');
     }
 
     public function approvedBy()

@@ -123,28 +123,34 @@
 
     <!-- History List -->
     @if($presensiHistory->count() > 0)
-        @foreach($presensiHistory as $presensi)
+        @php
+            $groupedPresensi = $presensiHistory->groupBy('tanggal');
+        @endphp
+        @foreach($groupedPresensi as $date => $presensis)
             <div class="history-item">
                 <div class="history-date">
-                    {{ \Carbon\Carbon::parse($presensi->tanggal)->format('d M Y') }}
-                    <span class="text-muted">({{ \Carbon\Carbon::parse($presensi->tanggal)->locale('id')->dayName }})</span>
+                    {{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                    <span class="text-muted">({{ \Carbon\Carbon::parse($date)->locale('id')->dayName }})</span>
                 </div>
-                <div class="history-details">
-                    <div class="time-info">
-                        @if($presensi->waktu_masuk)
-                            <div>Masuk: {{ \Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i') }}</div>
-                        @endif
-                        @if($presensi->waktu_keluar)
-                            <div>Keluar: {{ \Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i') }}</div>
-                        @endif
-                        @if($presensi->keterangan)
-                            <div class="text-muted small">{{ $presensi->keterangan }}</div>
-                        @endif
+                @foreach($presensis as $presensi)
+                    <div class="history-details mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                        <div class="time-info">
+                            <small class="fw-bold text-primary">{{ $presensi->madrasah->name ?? 'Madrasah' }}</small>
+                            @if($presensi->waktu_masuk)
+                                <div>Masuk: {{ \Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i') }}</div>
+                            @endif
+                            @if($presensi->waktu_keluar)
+                                <div>Keluar: {{ \Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i') }}</div>
+                            @endif
+                            @if($presensi->keterangan)
+                                <div class="text-muted small">{{ $presensi->keterangan }}</div>
+                            @endif
+                        </div>
+                        <div class="status-badge status-{{ $presensi->status }}">
+                            {{ ucfirst($presensi->status) }}
+                        </div>
                     </div>
-                    <div class="status-badge status-{{ $presensi->status }}">
-                        {{ ucfirst($presensi->status) }}
-                    </div>
-                </div>
+                @endforeach
             </div>
         @endforeach
     @else
