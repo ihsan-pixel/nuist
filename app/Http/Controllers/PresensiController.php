@@ -541,20 +541,23 @@ class PresensiController extends Controller
                     'data' => $presensi
                 ]);
             } else {
-                // Validasi batas diperbolehkan presensi pulang
-                if ($batasPulang && $now < $batasPulang) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Belum waktunya presensi pulang.'
-                    ], 400);
-                }
+                // Skip time validations for users with pemenuhan_beban_kerja_lain
+                if (!$user->pemenuhan_beban_kerja_lain) {
+                    // Validasi batas diperbolehkan presensi pulang
+                    if ($batasPulang && $now < $batasPulang) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Belum waktunya presensi pulang.'
+                        ], 400);
+                    }
 
-                // Validasi batas akhir presensi pulang (tidak boleh terlalu malam)
-                if ($batasPulang && isset($timeRanges['pulang_end']) && $now > $timeRanges['pulang_end']) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Waktu presensi pulang telah berakhir.'
-                    ], 400);
+                    // Validasi batas akhir presensi pulang (tidak boleh terlalu malam)
+                    if ($batasPulang && isset($timeRanges['pulang_end']) && $now > $timeRanges['pulang_end']) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Waktu presensi pulang telah berakhir.'
+                        ], 400);
+                    }
                 }
 
                 // Validasi tanggal presensi keluar harus sama dengan tanggal presensi masuk
