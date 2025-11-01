@@ -143,7 +143,7 @@ class MobileController extends Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '06:00';
                 $masukEnd = '07:00';
-                $pulangStart = ($dayOfWeek == 6) ? '12:00' : '12:00';
+                $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00';
                 $pulangEnd = '17:00';
             } else {
                 $masukStart = '06:00';

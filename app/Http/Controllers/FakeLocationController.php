@@ -388,20 +388,24 @@ class FakeLocationController extends Controller
             $masukStart = '06:00';
             $masukEnd = '07:00';
             $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30';
+            $pulangEnd = '17:00';
         } elseif ($hariKbm == '6') {
             $masukStart = '06:00';
             $masukEnd = '07:00';
             $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00';
+            $pulangEnd = '17:00';
         } else {
             $masukStart = '06:00';
             $masukEnd = '07:00';
             $pulangStart = '13:00';
+            $pulangEnd = '17:00';
         }
 
         return [
             'masuk_start' => $masukStart,
             'masuk_end' => $masukEnd,
             'pulang_start' => $pulangStart,
+            'pulang_end' => $pulangEnd,
         ];
     }
 

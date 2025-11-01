@@ -549,6 +549,14 @@ class PresensiController extends Controller
                     ], 400);
                 }
 
+                // Validasi batas akhir presensi pulang (tidak boleh terlalu malam)
+                if ($batasPulang && isset($timeRanges['pulang_end']) && $now > $timeRanges['pulang_end']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Waktu presensi pulang telah berakhir.'
+                    ], 400);
+                }
+
                 // Validasi tanggal presensi keluar harus sama dengan tanggal presensi masuk
                 $tanggalSekarang = Carbon::now('Asia/Jakarta')->toDateString();
                 if ($tanggalSekarang !== $presensi->tanggal->toDateString()) {
@@ -843,7 +851,7 @@ class PresensiController extends Controller
         } elseif ($hariKbm == '6') {
             $masukStart = '06:00';
             $masukEnd = '07:00';
-            $pulangStart = ($dayOfWeek == 6) ? '12:00' : '12:00'; // Saturday starts at 12:00, other days at 13:00
+            $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00'; // Saturday starts at 12:00, other days at 13:00
             $pulangEnd = '17:00';
         } else {
             // Default or fallback
