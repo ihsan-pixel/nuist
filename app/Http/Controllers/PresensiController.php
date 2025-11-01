@@ -131,10 +131,9 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Cek apakah sudah presensi hari ini untuk madrasah yang sama
+        // Cek apakah sudah presensi hari ini (di madrasah mana saja)
         $presensi = Presensi::where('user_id', $user->id)
             ->where('tanggal', $today)
-            ->where('madrasah_id', $targetMadrasahId)
             ->first();
 
         // Jika belum ada presensi hari ini, cek apakah ada izin yang sudah diajukan
