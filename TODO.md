@@ -17,3 +17,15 @@
 - [x] Include legend and summary statistics below the map
 - [x] Ensure responsive design matching existing mobile theme
 - [x] Test map rendering and marker functionality
+
+## New Feature: Dedicated Monitor Map Page for Kepala Madrasah
+
+## Completed Tasks
+- [x] Create dedicated route /mobile/monitor-map for kepala madrasah only
+- [x] Add monitorMap() method in MobileController with authorization check
+- [x] Create resources/views/mobile/monitor-map.blade.php with full-page map layout
+- [x] Implement date selector for choosing different dates
+- [x] Add navigation menu buttons (list view, presensi, dashboard)
+- [x] Style the dedicated page with consistent mobile theme
+- [x] Add "Monitor Map Presensi" button on main presensi page for kepala madrasah
+- [x] Ensure proper responsive design and mobile optimization

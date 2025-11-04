@@ -451,6 +451,16 @@
         </a>
     </div>
 
+    <!-- Monitor Map: dedicated button for kepala madrasah -->
+    @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+    <div class="presensi-form">
+        <a href="{{ route('mobile.monitor-map') }}" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
+            <i class="bx bx-map me-1"></i>
+            Monitor Map Presensi
+        </a>
+    </div>
+    @endif
+
     <!-- Monitoring Presensi: Map View -->
     @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
     <div class="presensi-form">
