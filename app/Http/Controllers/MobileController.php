@@ -202,12 +202,116 @@ class MobileController extends Controller
         return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData'));
     }
 
-    // Store presensi (stub)
+    // Store presensi (mobile)
     public function storePresensi(Request $request)
     {
-        // Delegate to main PresensiController so we keep a single source of truth
-        $presensiController = app(\App\Http\Controllers\PresensiController::class);
-        return $presensiController->store($request);
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'lokasi' => 'nullable|string',
+            'accuracy' => 'nullable|numeric',
+            'altitude' => 'nullable|numeric',
+            'speed' => 'nullable|numeric',
+            'device_info' => 'nullable|string',
+            'location_readings' => 'nullable|string',
+        ]);
+
+        $tanggal = Carbon::today()->toDateString();
+        $now = Carbon::now('Asia/Jakarta');
+
+        // Check if user already has presensi for today
+        $existingPresensi = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal)
+            ->first();
+
+        $isPresensiMasuk = !$existingPresensi || !$existingPresensi->waktu_masuk;
+        $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Determine if this is presensi masuk or keluar
+        if ($isPresensiMasuk) {
+            // Presensi Masuk
+            $status = 'hadir';
+            $waktuMasuk = $now;
+            $waktuKeluar = null;
+
+            // Calculate lateness
+            $keterangan = "tidak terlambat";
+            if ($user->pemenuhan_beban_kerja_lain) {
+                $keterangan = "tidak terlambat";
+            } else {
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    $terlambatMenit = max(0, round($terlambatMenit));
+                    $keterangan = "terlambat {$terlambatMenit} menit";
+                }
+            }
+
+            // Create new presensi record
+            $presensi = Presensi::create([
+                'user_id' => $user->id,
+                'tanggal' => $tanggal,
+                'waktu_masuk' => $waktuMasuk,
+                'waktu_keluar' => $waktuKeluar,
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'lokasi' => $request->lokasi,
+                'accuracy' => $request->accuracy,
+                'altitude' => $request->altitude,
+                'speed' => $request->speed,
+                'device_info' => $request->device_info,
+                'location_readings' => $request->location_readings,
+                'status_kepegawaian_id' => $user->status_kepegawaian_id,
+            ]);
+
+            $message = 'Presensi masuk berhasil dicatat!';
+
+        } elseif ($isPresensiKeluar) {
+            // Presensi Keluar - update existing record
+            $existingPresensi->update([
+                'waktu_keluar' => $now,
+                'latitude_keluar' => $request->latitude,
+                'longitude_keluar' => $request->longitude,
+                'lokasi_keluar' => $request->lokasi,
+                'accuracy_keluar' => $request->accuracy,
+                'altitude_keluar' => $request->altitude,
+                'speed_keluar' => $request->speed,
+                'device_info_keluar' => $request->device_info,
+                'location_readings_keluar' => $request->location_readings,
+            ]);
+
+            $presensi = $existingPresensi;
+            $message = 'Presensi keluar berhasil dicatat!';
+
+        } else {
+            // Both masuk and keluar already done
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi hari ini sudah lengkap.'
+            ], 400);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'presensi' => $presensi
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     // Riwayat presensi
