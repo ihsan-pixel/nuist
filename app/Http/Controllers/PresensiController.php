@@ -363,23 +363,11 @@ class PresensiController extends Controller
             ]);
         }
 
-        // Jika user memiliki pemenuhan beban kerja lain, lewati validasi waktu
-        if ($user->pemenuhan_beban_kerja_lain) {
-            $batasAwalMasuk = null;
-            $batasAkhirMasuk = null;
-            $batasPulang = null;
-        } else {
-            // Ambil pengaturan waktu berdasarkan hari_kbm madrasah yang valid
-            $hariKbm = $validMadrasah ? $validMadrasah->hari_kbm : null;
-            $timeRanges = $this->getPresensiTimeRanges($hariKbm, $today);
-            $batasAwalMasuk = $timeRanges['masuk_start'];
-            $batasAkhirMasuk = $timeRanges['masuk_end'];
-            $batasPulang = $timeRanges['pulang_start'];
-            // Adjust for special users
-            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                $batasAkhirMasuk = '08:00';
-            }
-        }
+        // Remove time restrictions for presensi entry - allow anytime
+        // Keep late calculation for non-pemenuhan_beban_kerja_lain users if >07:00
+        $batasAwalMasuk = null;
+        $batasAkhirMasuk = null;
+        $batasPulang = null;
 
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
@@ -392,13 +380,7 @@ class PresensiController extends Controller
                 ], 400);
             }
 
-            // Validasi batas akhir presensi masuk
-            if ($batasAkhirMasuk && $now > $batasAkhirMasuk) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Waktu presensi masuk telah berakhir.'
-                ], 400);
-            }
+            // Note: Presensi masuk diizinkan setelah batas akhir, namun akan diberi keterangan terlambat
 
             $waktuMasuk = $request->input('waktu_masuk') ?? $now;
             $keterangan = null;

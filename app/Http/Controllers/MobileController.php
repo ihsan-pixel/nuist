@@ -159,11 +159,8 @@ class MobileController extends Controller
                 'pulang_end' => $pulangEnd,
             ];
 
-            // Adjust for users without pemenuhan_beban_kerja_lain
-            if ($user->role === 'tenaga_pendidik' && !$user->pemenuhan_beban_kerja_lain) {
-                // Mirror behavior from PresensiController: shorten masuk_end for special users
-                $timeRanges['masuk_end'] = '08:00';
-            }
+            // Remove masuk_end to indicate no time limit for presensi entry
+            $timeRanges['masuk_end'] = null;
         }
 
         return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges'));

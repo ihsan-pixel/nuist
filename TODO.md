@@ -1,15 +1,7 @@
-# TODO: Implement Dual Presensi for Tenaga Pendidik with Beban Kerja Lain
+# TODO: Remove Presensi Time Restrictions
 
 ## Completed Tasks
-- [x] Create migration to add madrasah_id to presensis table
-- [x] Update Presensi model fillable and relationships
-- [x] Modify PresensiController::store() to handle dual presensi logic
-- [x] Update MobileController to fetch multiple presensi records
-
-## Remaining Tasks
-- [x] Run migration to apply database changes
-- [x] Test dual presensi functionality
-- [x] Update mobile views to display presensi for both madrasahs
-- [x] Update riwayat presensi to show dual presensi records
-- [x] Update laporan features to handle dual presensi
-- [ ] Test edge cases (polygon validation, time restrictions, etc.)
+- [x] Remove "Belum waktunya presensi masuk" validation in PresensiController.php store() method for all users
+- [x] Keep late calculation logic for non-pemenuhan_beban_kerja_lain users when >07:00
+- [x] Remove masuk_end from timeRanges in MobileController.php presensi() method for all users
+- [x] Update resources/views/mobile/presensi.blade.php to show "anytime" or remove end time display for masuk
