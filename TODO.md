@@ -5,6 +5,7 @@
 - [x] Change time ranges to allow presensi from 05:00 to 07:00 in MobileController.php and PresensiController.php
 - [x] Update UI text to show "Terlambat setelah 07:00" in mobile/presensi.blade.php
 - [x] Implement presensi store logic directly in MobileController.php instead of delegating to PresensiController
+- [x] Modify keterangan to only show "terlambat X menit" for users who presensi after 07:00, leave empty for on-time presensi
 
 ## Followup steps
 - [ ] Test that presensi can be done from 5 AM and late is calculated correctly starting at 07:00
