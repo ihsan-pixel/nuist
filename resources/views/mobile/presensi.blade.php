@@ -70,6 +70,38 @@
             margin-bottom: 10px;
         }
 
+        .user-location-map-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .map-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1;
+        }
+
+        .map-placeholder i {
+            font-size: 32px;
+            color: #adb5bd;
+            margin-bottom: 8px;
+        }
+
+        .map-placeholder span {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+        }
+
         .izin-section {
             background: #fff;
             border-radius: 12px;
@@ -288,6 +320,29 @@
             </div>
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
+        </div>
+    </div>
+
+    <!-- User Location Map -->
+    <div class="presensi-form">
+        <div class="d-flex align-items-center mb-2">
+            <div class="status-icon">
+                <i class="bx bx-map-pin"></i>
+            </div>
+            <h6 class="section-title mb-0">Lokasi Anda Saat Ini</h6>
+        </div>
+        <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
+            <div id="map-placeholder" class="map-placeholder">
+                <i class="bx bx-map"></i>
+                <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
+            </div>
+            <div id="user-location-map" style="height: 100%; width: 100%;"></div>
+        </div>
+        <div class="mt-2 text-center">
+            <small class="text-muted" style="font-size: 10px;">
+                <i class="bx bx-info-circle me-1"></i>
+                Titik merah menunjukkan lokasi Anda saat ini
+            </small>
         </div>
     </div>
 
@@ -558,6 +613,9 @@ window.addEventListener('load', function() {
                     $('#latitude').val(reading.latitude.toFixed(6));
                     $('#longitude').val(reading.longitude.toFixed(6));
 
+                    // Update user location map
+                    updateUserLocationMap(reading.latitude, reading.longitude);
+
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
 
@@ -728,6 +786,9 @@ window.addEventListener('load', function() {
                 $('#latitude').val(reading4Lat.toFixed(6));
                 $('#longitude').val(reading4Lng.toFixed(6));
 
+                // Update user location map with final position
+                updateUserLocationMap(reading4Lat, reading4Lng);
+
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
 
@@ -842,6 +903,78 @@ window.addEventListener('load', function() {
         );
     });
 });
+
+// Initialize user location map
+let userLocationMap;
+let userLocationMarker;
+
+function initializeUserLocationMap(lat, lng) {
+    if (userLocationMap) {
+        userLocationMap.remove();
+    }
+
+    userLocationMap = L.map('user-location-map').setView([lat, lng], 18);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(userLocationMap);
+
+    // Add user location marker with custom icon (animated pulsing effect)
+    const userIcon = L.divIcon({
+        html: '<div style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); width: 20px; height: 20px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 8px rgba(0,0,0,0.4); position: relative; animation: pulse 2s infinite;"><div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #004b4c;"></div></div><style>@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }</style>',
+        className: 'user-location-marker',
+        iconSize: [20, 20],
+        iconAnchor: [10, 20]
+    });
+
+    userLocationMarker = L.marker([lat, lng], { icon: userIcon }).addTo(userLocationMap);
+
+    // Add accuracy circle if available
+    if (locationReadings.length > 0) {
+        const latestReading = locationReadings[locationReadings.length - 1];
+        if (latestReading.accuracy) {
+            L.circle([lat, lng], {
+                color: 'rgba(14, 133, 73, 0.4)',
+                fillColor: 'rgba(14, 133, 73, 0.15)',
+                fillOpacity: 0.4,
+                radius: latestReading.accuracy,
+                weight: 2
+            }).addTo(userLocationMap);
+        }
+    }
+
+    // Add popup with location info
+    const popupContent = `
+        <div style="font-family: 'Poppins', sans-serif; font-size: 12px; text-align: center;">
+            <strong style="color: #004b4c;">📍 Lokasi Anda</strong><br>
+            <small style="color: #666;">${lat.toFixed(6)}, ${lng.toFixed(6)}</small><br>
+            <small style="color: #666;">Akurasi: ${locationReadings.length > 0 ? Math.round(locationReadings[locationReadings.length - 1].accuracy) + 'm' : 'N/A'}</small>
+        </div>
+    `;
+    userLocationMarker.bindPopup(popupContent).openPopup();
+
+    // Set zoom limits
+    userLocationMap.setMinZoom(15);
+    userLocationMap.setMaxZoom(20);
+
+    // Disable scroll wheel zoom to prevent accidental zooming
+    userLocationMap.scrollWheelZoom.disable();
+}
+
+// Update user location map when coordinates are collected
+function updateUserLocationMap(lat, lng) {
+    // Hide placeholder and show map
+    $('#map-placeholder').fadeOut(300, function() {
+        if (userLocationMap && userLocationMarker) {
+            userLocationMap.setView([lat, lng], 18);
+            userLocationMarker.setLatLng([lat, lng]);
+        } else {
+            initializeUserLocationMap(lat, lng);
+        }
+    });
+}
 
 // Initialize map for kepala madrasah monitoring
 @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
