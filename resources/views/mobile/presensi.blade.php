@@ -410,14 +410,12 @@
                 <p>{{ $timeRanges['pulang_start'] }} - {{ $timeRanges['pulang_end'] }}</p>
             </div>
         </div>
-        @if(auth()->user()->madrasah && auth()->user()->madrasah->hari_kbm == '6')
         <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
-                <strong>Catatan:</strong> Sabtu pulang mulai 12:00, hari lain 13:00.
+                <strong>Catatan:</strong> Pulang dapat dilakukan mulai pukul 15:00 hingga 23:55.
             </small>
         </div>
-        @endif
     </div>
     @else
     <div class="alert-custom warning">
