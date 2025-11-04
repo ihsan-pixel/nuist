@@ -367,7 +367,7 @@ class PresensiController extends Controller
         // Keep late calculation for non-pemenuhan_beban_kerja_lain users if >07:00
         $batasAwalMasuk = null;
         $batasAkhirMasuk = null;
-        $batasPulang = null;
+        $batasPulang = $timeRanges['pulang_start'];
 
         $now = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
@@ -830,19 +830,19 @@ class PresensiController extends Controller
         if ($hariKbm == '5') {
             $masukStart = '05:00';
             $masukEnd = '07:00';
-            $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30'; // Friday starts at 14:00
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         } elseif ($hariKbm == '6') {
             $masukStart = '05:00';
             $masukEnd = '07:00';
-            $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00'; // Saturday starts at 12:00, other days at 13:00
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         } else {
             // Default or fallback
             $masukStart = '05:00';
             $masukEnd = '07:00';
-            $pulangStart = '13:00';
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         }
 
         return [

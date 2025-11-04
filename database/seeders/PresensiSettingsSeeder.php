@@ -20,8 +20,8 @@ class PresensiSettingsSeeder extends Seeder
                 [
                     'waktu_mulai_presensi_masuk' => '06:30:00',
                     'waktu_akhir_presensi_masuk' => '07:00:00',
-                    'waktu_mulai_presensi_pulang' => '13:00:00',
-                    'waktu_akhir_presensi_pulang' => '15:00:00',
+                    'waktu_mulai_presensi_pulang' => '15:00:00',
+                    'waktu_akhir_presensi_pulang' => '23:55:00',
                 ]
             );
         }

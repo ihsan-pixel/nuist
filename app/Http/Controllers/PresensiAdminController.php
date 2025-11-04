@@ -62,19 +62,19 @@ class PresensiAdminController extends Controller
         if ($hariKbm == '5') {
             $masukStart = '06:00';
             $masukEnd = '07:00';
-            $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30'; // Friday starts at 14:00
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         } elseif ($hariKbm == '6') {
             $masukStart = '06:00';
             $masukEnd = '07:00';
-            $pulangStart = '13:00';
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         } else {
             // Default or fallback
             $masukStart = '06:00';
             $masukEnd = '07:00';
-            $pulangStart = '13:00';
-            $pulangEnd = '17:00';
+            $pulangStart = '15:00';
+            $pulangEnd = '23:55';
         }
 
         return [
