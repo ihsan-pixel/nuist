@@ -451,63 +451,53 @@
         </a>
     </div>
 
-    {{-- <!-- Monitoring Presensi: Sudah / Belum -->
+    <!-- Monitoring Presensi: Map View -->
+    @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
     <div class="presensi-form">
-        <h6 class="section-title">Monitoring Presensi Madrasah</h6>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div style="background:#fff; padding:8px; border-radius:8px;">
-                <strong>Sudah Presensi ({{ $presensis->count() }})</strong>
-                @if($presensis->isEmpty())
-                    <p class="text-muted" style="font-size:12px; margin:6px 0 0;">Belum ada presensi hari ini.</p>
-                @else
-                    <ul style="list-style:none; padding:0; margin:6px 0 0;">
-                        @foreach($presensis as $p)
-                            <li style="padding:6px 0; border-bottom:1px solid #f1f1f1; font-size:12px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <div>
-                                        <div style="font-weight:600;">{{ $p->user->name ?? '-' }}</div>
-                                        <small class="text-muted">{{ $p->user->statusKepegawaian?->name ?? '' }}</small>
-                                    </div>
-                                    <div style="text-align:right;">
-                                        <div style="font-weight:600;">{{ $p->waktu_masuk?->format('H:i') ?? '-' }}</div>
-                                        @if($p->waktu_keluar)
-                                            <small class="text-muted">Keluar {{ $p->waktu_keluar->format('H:i') }}</small>
-                                        @endif
-                                    </div>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+        <div class="d-flex align-items-center mb-2">
+            <div class="status-icon">
+                <i class="bx bx-map"></i>
             </div>
+            <h6 class="section-title mb-0">Monitoring Lokasi Presensi</h6>
+        </div>
 
-            <div style="background:#fff; padding:8px; border-radius:8px;">
-                <strong>Belum Presensi ({{ $belumPresensi->count() }})</strong>
-                @if($belumPresensi->isEmpty())
-                    <p class="text-muted" style="font-size:12px; margin:6px 0 0;">Semua tenaga pendidik telah melakukan presensi.</p>
-                @else
-                    <ul style="list-style:none; padding:0; margin:6px 0 0;">
-                        @foreach($belumPresensi as $u)
-                            <li style="padding:6px 0; border-bottom:1px solid #f1f1f1; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <div style="font-weight:600;">{{ $u->name }}</div>
-                                    <small class="text-muted">{{ $u->statusKepegawaian?->name ?? '' }}</small>
-                                </div>
-                                <div>
-                                    <small class="text-muted">{{ $u->nuist_id ?? '' }}</small>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+        <!-- Map Container -->
+        <div id="presensi-map" style="height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+
+        <!-- Legend -->
+        <div class="d-flex justify-content-center mt-2" style="gap: 12px;">
+            <div class="d-flex align-items-center">
+                <div style="width: 12px; height: 12px; background: #0e8549; border-radius: 50%; margin-right: 4px;"></div>
+                <small style="font-size: 10px;">Sudah Presensi</small>
+            </div>
+            <div class="d-flex align-items-center">
+                <div style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; margin-right: 4px;"></div>
+                <small style="font-size: 10px;">Belum Presensi</small>
             </div>
         </div>
-    </div> --}}
+
+        <!-- Summary Stats -->
+        <div class="mt-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <div style="background: rgba(14, 133, 73, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
+                <div style="font-weight: 600; font-size: 12px; color: #0e8549;">{{ $presensis->count() }}</div>
+                <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
+            </div>
+            <div style="background: rgba(220, 53, 69, 0.1); padding: 6px; border-radius: 6px; text-align: center;">
+                <div style="font-weight: 600; font-size: 12px; color: #dc3545;">{{ $belumPresensi->count() }}</div>
+                <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
@@ -843,6 +833,82 @@ window.addEventListener('load', function() {
     });
 });
 
+// Initialize map for kepala madrasah monitoring
+@if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    const map = L.map('presensi-map').setView([-6.2088, 106.8456], 13); // Default Jakarta
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom icons
+    const presensiIcon = L.divIcon({
+        html: '<div style="background: #0e8549; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+        className: 'custom-marker',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    const belumPresensiIcon = L.divIcon({
+        html: '<div style="background: #dc3545; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+        className: 'custom-marker',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    // Add markers
+    const mapData = @json($mapData);
+    let bounds = [];
+
+    mapData.forEach(function(user) {
+        const lat = parseFloat(user.latitude);
+        const lng = parseFloat(user.longitude);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            bounds.push([lat, lng]);
+
+            const icon = user.marker_type === 'presensi' ? presensiIcon : belumPresensiIcon;
+
+            const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+
+            // Create popup content
+            let popupContent = `
+                <div style="font-family: 'Poppins', sans-serif; font-size: 12px; max-width: 200px;">
+                    <strong>${user.name}</strong><br>
+                    <small style="color: #666;">${user.status_kepegawaian}</small><br>
+                    <small><strong>Status:</strong> ${user.marker_type === 'presensi' ? 'Sudah Presensi' : 'Belum Presensi'}</small><br>
+            `;
+
+            if (user.marker_type === 'presensi') {
+                popupContent += `
+                    <small><strong>Masuk:</strong> ${user.waktu_masuk || '-'}</small><br>
+                    <small><strong>Keluar:</strong> ${user.waktu_keluar || '-'}</small><br>
+                `;
+            }
+
+            popupContent += `
+                    <small><strong>Lokasi:</strong> ${user.lokasi}</small>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        }
+    });
+
+    // Fit map to show all markers
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [20, 20] });
+    }
+
+    // Set minimum zoom level
+    map.setMinZoom(10);
+    map.setMaxZoom(18);
+});
+@endif
 
 </script>
 @endsection

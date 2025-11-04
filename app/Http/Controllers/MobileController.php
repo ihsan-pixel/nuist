@@ -98,6 +98,7 @@ class MobileController extends Controller
         // If kepala madrasah, fetch madrasah-level presensi lists; otherwise, leave empty (non-kepala see personal presensi only)
         $presensis = collect();
         $belumPresensi = collect();
+        $mapData = [];
         if ($user->ketugasan === 'kepala madrasah/sekolah') {
             // Get presensi data for the madrasah
             $presensis = Presensi::with(['user', 'statusKepegawaian'])
@@ -115,6 +116,42 @@ class MobileController extends Controller
                     $q->whereDate('tanggal', $selectedDate);
                 })
                 ->get();
+
+            // Prepare map data
+            $madrasahLat = $user->madrasah->latitude ?? -6.2088; // Default Jakarta coordinates
+            $madrasahLng = $user->madrasah->longitude ?? 106.8456;
+
+            // Add markers for users who have done presensi
+            foreach ($presensis as $presensi) {
+                $mapData[] = [
+                    'id' => $presensi->user->id,
+                    'name' => $presensi->user->name,
+                    'status' => $presensi->status,
+                    'latitude' => $presensi->latitude ?? $madrasahLat,
+                    'longitude' => $presensi->longitude ?? $madrasahLng,
+                    'waktu_masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : null,
+                    'waktu_keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : null,
+                    'lokasi' => $presensi->lokasi ?? 'Lokasi tidak tersedia',
+                    'marker_type' => 'presensi',
+                    'status_kepegawaian' => $presensi->user->statusKepegawaian?->name ?? '-'
+                ];
+            }
+
+            // Add markers for users who haven't done presensi (at madrasah location)
+            foreach ($belumPresensi as $userBelum) {
+                $mapData[] = [
+                    'id' => $userBelum->id,
+                    'name' => $userBelum->name,
+                    'status' => 'belum_presensi',
+                    'latitude' => $madrasahLat,
+                    'longitude' => $madrasahLng,
+                    'waktu_masuk' => null,
+                    'waktu_keluar' => null,
+                    'lokasi' => $user->madrasah->alamat ?? 'Alamat madrasah',
+                    'marker_type' => 'belum_presensi',
+                    'status_kepegawaian' => $userBelum->statusKepegawaian?->name ?? '-'
+                ];
+            }
         }
 
         // Additional data expected by the mobile.presensi view
@@ -162,7 +199,7 @@ class MobileController extends Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData'));
     }
 
     // Store presensi (stub)
