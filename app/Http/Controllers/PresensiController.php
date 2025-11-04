@@ -846,18 +846,18 @@ class PresensiController extends Controller
         $dayOfWeek = Carbon::parse($today)->dayOfWeek; // 0=Sunday, 5=Friday
 
         if ($hariKbm == '5') {
-            $masukStart = '06:00';
+            $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30'; // Friday starts at 14:00
             $pulangEnd = '17:00';
         } elseif ($hariKbm == '6') {
-            $masukStart = '06:00';
+            $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = ($dayOfWeek == 6) ? '12:00' : '13:00'; // Saturday starts at 12:00, other days at 13:00
             $pulangEnd = '17:00';
         } else {
             // Default or fallback
-            $masukStart = '06:00';
+            $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = '13:00';
             $pulangEnd = '17:00';

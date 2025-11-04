@@ -136,17 +136,17 @@ class MobileController extends Controller
             $hariKbm = $user->madrasah->hari_kbm;
 
             if ($hariKbm == '5') {
-                $masukStart = '06:00';
+                $masukStart = '05:00';
                 $masukEnd = '07:00';
                 $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30';
                 $pulangEnd = '17:00';
             } elseif ($hariKbm == '6') {
-                $masukStart = '06:00';
+                $masukStart = '05:00';
                 $masukEnd = '07:00';
                 $pulangStart = ($dayOfWeek == 6) ? '12:00' : '12:00';
                 $pulangEnd = '17:00';
             } else {
-                $masukStart = '06:00';
+                $masukStart = '05:00';
                 $masukEnd = '07:00';
                 $pulangStart = '13:00';
                 $pulangEnd = '17:00';

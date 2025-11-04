@@ -402,6 +402,7 @@
                 <i class="bx bx-log-in-circle text-primary"></i>
                 <h6 class="text-primary">Masuk</h6>
                 <p>{{ $timeRanges['masuk_start'] }} - {{ $timeRanges['masuk_end'] }}</p>
+                <small>Terlambat setelah 07:00</small>
             </div>
             <div class="schedule-item pulang">
                 <i class="bx bx-log-out-circle text-success"></i>
