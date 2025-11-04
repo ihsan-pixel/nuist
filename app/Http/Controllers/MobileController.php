@@ -132,24 +132,23 @@ class MobileController extends Controller
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
         $timeRanges = null;
         if ($user->madrasah && $user->madrasah->hari_kbm) {
-            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday
             $hariKbm = $user->madrasah->hari_kbm;
 
             if ($hariKbm == '5') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                $pulangStart = ($dayOfWeek == 5) ? '14:00' : '14:30';
-                $pulangEnd = '17:00';
+                $pulangStart = '15:00';
+                $pulangEnd = '23:55';
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                $pulangStart = ($dayOfWeek == 6) ? '12:00' : '12:00';
-                $pulangEnd = '17:00';
+                $pulangStart = '15:00';
+                $pulangEnd = '23:55';
             } else {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                $pulangStart = '13:00';
-                $pulangEnd = '17:00';
+                $pulangStart = '15:00';
+                $pulangEnd = '23:55';
             }
 
             $timeRanges = [
