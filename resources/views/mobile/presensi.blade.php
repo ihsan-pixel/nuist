@@ -315,7 +315,7 @@
                 @foreach($presensiHariIni as $presensi)
                 <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
                     <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }}</small>
-                    <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
+                    <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : '-' }}</strong></p>
                     @if($presensi->waktu_keluar)
                     <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
                     @else
