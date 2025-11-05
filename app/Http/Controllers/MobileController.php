@@ -250,6 +250,43 @@ class MobileController extends Controller
             ], 400);
         }
 
+        // Location validation using polygon from madrasah
+        $madrasah = $user->madrasah;
+        $isWithinPolygon = false;
+
+        $polygonsToCheck = [];
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat;
+        }
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
+        }
+
+        if (!empty($polygonsToCheck)) {
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinPolygon = true;
+                            break; // Jika sudah ada yang valid, tidak perlu cek yang lain
+                        }
+                    }
+                } catch (\Exception $e) {
+                    continue; // Skip invalid polygon
+                }
+            }
+        }
+
+        // Strict polygon validation: must be within madrasah polygon
+        if (!$isWithinPolygon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
+            ], 400);
+        }
+
         // Determine if this is presensi masuk or keluar
         if ($isPresensiMasuk) {
             // Presensi Masuk
@@ -968,5 +1005,34 @@ class MobileController extends Controller
         }
 
         return view('mobile.monitor-map', compact('mapData', 'selectedDate', 'presensis', 'belumPresensi'));
+    }
+
+    /**
+     * Checks if a point is inside a polygon using the ray-casting algorithm.
+     * @param array $point The point to check, in [longitude, latitude] format.
+     * @param array $polygon An array of polygon vertices, each in [longitude, latitude] format.
+     * @return bool True if the point is inside the polygon, false otherwise.
+     */
+    private function isPointInPolygon(array $point, array $polygon): bool
+    {
+        $pointLng = $point[0];
+        $pointLat = $point[1];
+        $isInside = false;
+        $j = count($polygon) - 1;
+
+        for ($i = 0; $i < count($polygon); $j = $i++) {
+            $vertexiLat = $polygon[$i][1];
+            $vertexiLng = $polygon[$i][0];
+            $vertexjLat = $polygon[$j][1];
+            $vertexjLng = $polygon[$j][0];
+
+            // This is the core of the ray-casting algorithm
+            if ((($vertexiLat > $pointLat) != ($vertexjLat > $pointLat)) &&
+                ($pointLng < ($vertexjLng - $vertexiLng) * ($pointLat - $vertexiLat) / ($vertexjLat - $vertexiLat) + $vertexiLng)) {
+                $isInside = !$isInside;
+            }
+        }
+
+        return $isInside;
     }
 }
