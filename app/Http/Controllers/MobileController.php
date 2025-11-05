@@ -340,6 +340,24 @@ class MobileController extends Controller
             $message = 'Presensi masuk berhasil dicatat!';
 
         } elseif ($isPresensiKeluar) {
+            // Check if it's time to go home (after pulang_start time)
+            $pulangStart = '15:00:00'; // Default pulang start time
+            if ($user->madrasah && $user->madrasah->hari_kbm) {
+                $hariKbm = $user->madrasah->hari_kbm;
+                if ($hariKbm == '5' || $hariKbm == '6') {
+                    $pulangStart = '15:00:00';
+                } else {
+                    $pulangStart = '15:00:00';
+                }
+            }
+
+            if ($now->format('H:i:s') < $pulangStart) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
+                ], 400);
+            }
+
             // Presensi Keluar - update existing record
             $existingPresensi->update([
                 'waktu_keluar' => $now,
