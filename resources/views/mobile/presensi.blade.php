@@ -568,8 +568,8 @@ window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 3;
-    const readingInterval = 5000; // 5 seconds
+    const totalReadings = 1; // Reduced to 1 reading for faster loading
+    const readingInterval = 1000; // Reduced to 1 second
 
     // Function to collect location readings
     function collectLocationReading(readingNumber) {
@@ -626,8 +626,8 @@ window.addEventListener('load', function() {
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 30000
+                    timeout: 5000, // Reduced timeout for faster response
+                    maximumAge: 10000 // Allow cached location for faster loading
                 }
             );
         });
@@ -639,7 +639,7 @@ window.addEventListener('load', function() {
             for (let i = 1; i <= totalReadings; i++) {
                 await collectLocationReading(i);
 
-                // Wait 5 seconds between readings (except for the last one)
+                // Wait between readings (except for the last one)
                 if (i < totalReadings) {
                     await new Promise(resolve => setTimeout(resolve, readingInterval));
                 }
@@ -745,8 +745,8 @@ window.addEventListener('load', function() {
                 // Build location readings array from all stored readings
                 let allReadings = [];
 
-                // Add readings 1-3 from sessionStorage
-                for (let i = 1; i <= 3; i++) {
+                // Add readings 1-1 from sessionStorage
+                for (let i = 1; i <= 1; i++) {
                     let lat = sessionStorage.getItem(`reading${i}_latitude`);
                     let lng = sessionStorage.getItem(`reading${i}_longitude`);
                     let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
