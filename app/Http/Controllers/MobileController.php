@@ -242,10 +242,9 @@ class MobileController extends Controller
 
             // Calculate lateness - only set keterangan if late (after 07:00)
             $keterangan = "";
-            if (!$user->pemenuhan_beban_kerja_lain && $now > '07:00:00') {
-                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                $sekarang = Carbon::now('Asia/Jakarta');
-                $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+            $lateThreshold = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta')->setDateFrom($now);
+            if (!$user->pemenuhan_beban_kerja_lain && $now->greaterThan($lateThreshold)) {
+                $terlambatMenit = $now->floatDiffInMinutes($lateThreshold);
 
                 // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
                 $terlambatMenit = max(0, round($terlambatMenit));
