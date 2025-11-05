@@ -195,17 +195,28 @@ class TeachingAttendanceController extends Controller
         $madrasah = $schedule->school;
         $isWithinPolygon = false;
 
+        $polygonsToCheck = [];
         if ($madrasah && $madrasah->polygon_koordinat) {
-            try {
-                $polygonGeometry = json_decode($madrasah->polygon_koordinat, true);
-                if (isset($polygonGeometry['coordinates'][0])) {
-                    $polygon = $polygonGeometry['coordinates'][0];
-                    if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                        $isWithinPolygon = true;
+            $polygonsToCheck[] = $madrasah->polygon_koordinat;
+        }
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
+        }
+
+        if (!empty($polygonsToCheck)) {
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinPolygon = true;
+                            break; // Jika sudah ada yang valid, tidak perlu cek yang lain
+                        }
                     }
+                } catch (\Exception $e) {
+                    continue; // Skip invalid polygon
                 }
-            } catch (\Exception $e) {
-                // Handle error silently for frontend
             }
         }
 
