@@ -201,7 +201,7 @@ class MobileController extends Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user'));
     }
 
     // Store presensi (mobile)
