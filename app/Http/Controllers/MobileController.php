@@ -303,28 +303,6 @@ class MobileController extends Controller
             $message = 'Presensi masuk berhasil dicatat!';
 
         } elseif ($isPresensiKeluar) {
-            // Presensi Keluar - validate time restrictions for users without pemenuhan_beban_kerja_lain
-            if (!$user->pemenuhan_beban_kerja_lain) {
-                // Check if current time is within allowed pulang time range
-                $currentTime = $now->format('H:i:s');
-                $pulangStart = '15:00:00'; // Default pulang start time
-
-                // Get madrasah-specific time ranges if available
-                if ($user->madrasah && $user->madrasah->hari_kbm) {
-                    $hariKbm = $user->madrasah->hari_kbm;
-                    if ($hariKbm == '5' || $hariKbm == '6') {
-                        $pulangStart = '15:00:00';
-                    }
-                }
-
-                if ($currentTime < $pulangStart) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Belum waktunya presensi pulang. Presensi keluar dapat dilakukan mulai pukul ' . substr($pulangStart, 0, 5) . '.'
-                    ], 400);
-                }
-            }
-
             // Presensi Keluar - update existing record
             $existingPresensi->update([
                 'waktu_keluar' => $now,
