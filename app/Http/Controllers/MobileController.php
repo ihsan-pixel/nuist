@@ -225,13 +225,30 @@ class MobileController extends Controller
         $tanggal = Carbon::today()->toDateString();
         $now = Carbon::now('Asia/Jakarta');
 
-        // Check if user already has presensi for today
+        // Check if user already has presensi for today with stricter validation
         $existingPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
             ->first();
 
-        $isPresensiMasuk = !$existingPresensi || !$existingPresensi->waktu_masuk;
+        // Determine presensi type with additional checks
+        $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Prevent double submission for masuk if already exists
+        if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi masuk hari ini sudah dicatat. Silakan lakukan presensi keluar jika belum.'
+            ], 400);
+        }
+
+        // Prevent double submission for keluar if already exists
+        if ($isPresensiKeluar && $existingPresensi && $existingPresensi->waktu_keluar) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi keluar hari ini sudah dicatat. Presensi hari ini sudah lengkap.'
+            ], 400);
+        }
 
         // Determine if this is presensi masuk or keluar
         if ($isPresensiMasuk) {
@@ -286,6 +303,28 @@ class MobileController extends Controller
             $message = 'Presensi masuk berhasil dicatat!';
 
         } elseif ($isPresensiKeluar) {
+            // Presensi Keluar - validate time restrictions for users without pemenuhan_beban_kerja_lain
+            if (!$user->pemenuhan_beban_kerja_lain) {
+                // Check if current time is within allowed pulang time range
+                $currentTime = $now->format('H:i:s');
+                $pulangStart = '15:00:00'; // Default pulang start time
+
+                // Get madrasah-specific time ranges if available
+                if ($user->madrasah && $user->madrasah->hari_kbm) {
+                    $hariKbm = $user->madrasah->hari_kbm;
+                    if ($hariKbm == '5' || $hariKbm == '6') {
+                        $pulangStart = '15:00:00';
+                    }
+                }
+
+                if ($currentTime < $pulangStart) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Belum waktunya presensi pulang. Presensi keluar dapat dilakukan mulai pukul ' . substr($pulangStart, 0, 5) . '.'
+                    ], 400);
+                }
+            }
+
             // Presensi Keluar - update existing record
             $existingPresensi->update([
                 'waktu_keluar' => $now,
@@ -303,10 +342,10 @@ class MobileController extends Controller
             $message = 'Presensi keluar berhasil dicatat!';
 
         } else {
-            // Both masuk and keluar already done
+            // Both masuk and keluar already done or invalid state
             return response()->json([
                 'success' => false,
-                'message' => 'Presensi hari ini sudah lengkap.'
+                'message' => 'Presensi hari ini sudah lengkap atau dalam keadaan tidak valid.'
             ], 400);
         }
 

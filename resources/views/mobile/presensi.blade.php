@@ -716,7 +716,12 @@ window.addEventListener('load', function() {
     }
 
     // Handle presensi button
+    let isProcessing = false;
     $('#btn-presensi').click(function() {
+        if (isProcessing) {
+            return; // Prevent double clicks
+        }
+
         if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
@@ -727,6 +732,7 @@ window.addEventListener('load', function() {
             return;
         }
 
+        isProcessing = true;
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
@@ -809,6 +815,7 @@ window.addEventListener('load', function() {
                     data: postData,
                     timeout: 30000, // 30 detik timeout
                     success: function(response) {
+                        isProcessing = false;
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -838,6 +845,9 @@ window.addEventListener('load', function() {
                             } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
                                 title = 'Belum Waktunya Pulang';
                                 text = 'Belum waktunya melakukan presensi pulang. Tunggu hingga jam pulang yang ditentukan.';
+                            } else if (msg.includes('Belum waktunya presensi pulang')) {
+                                title = 'Belum Waktunya Pulang';
+                                text = response.message;
                             }
 
                             Swal.fire({
@@ -846,10 +856,11 @@ window.addEventListener('load', function() {
                                 text: text,
                                 confirmButtonText: 'Oke'
                             });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
                         }
                     },
                     error: function(xhr, status, error) {
+                        isProcessing = false;
                         let errorMessage = 'Terjadi kesalahan tidak diketahui';
                         let title = 'Kesalahan';
 
@@ -874,6 +885,9 @@ window.addEventListener('load', function() {
                         } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
                             title = 'Belum Waktunya Pulang';
                             errorMessage = 'Belum waktunya melakukan presensi pulang.';
+                        } else if (msg.includes('Belum waktunya presensi pulang')) {
+                            title = 'Belum Waktunya Pulang';
+                            errorMessage = xhr.responseJSON.message;
                         }
 
                         Swal.fire({
@@ -882,18 +896,18 @@ window.addEventListener('load', function() {
                             text: errorMessage,
                             confirmButtonText: 'Oke'
                         });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
-                        }
-                        });
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
+                    }
             },
             function(error) {
+                isProcessing = false;
                 Swal.fire({
                     icon: 'error',
                     title: 'Kesalahan',
                     text: 'Gagal mendapatkan lokasi: ' + error.message,
                     confirmButtonText: 'Oke'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
             },
             {
                 enableHighAccuracy: true,
