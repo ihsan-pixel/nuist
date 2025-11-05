@@ -716,12 +716,7 @@ window.addEventListener('load', function() {
     }
 
     // Handle presensi button
-    let isProcessing = false;
     $('#btn-presensi').click(function() {
-        if (isProcessing) {
-            return; // Prevent double clicks
-        }
-
         if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
@@ -732,7 +727,6 @@ window.addEventListener('load', function() {
             return;
         }
 
-        isProcessing = true;
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
@@ -815,7 +809,6 @@ window.addEventListener('load', function() {
                     data: postData,
                     timeout: 30000, // 30 detik timeout
                     success: function(response) {
-                        isProcessing = false;
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -857,7 +850,6 @@ window.addEventListener('load', function() {
                         }
                     },
                     error: function(xhr, status, error) {
-                        isProcessing = false;
                         let errorMessage = 'Terjadi kesalahan tidak diketahui';
                         let title = 'Kesalahan';
 
@@ -894,7 +886,6 @@ window.addEventListener('load', function() {
                     }
             },
             function(error) {
-                isProcessing = false;
                 Swal.fire({
                     icon: 'error',
                     title: 'Kesalahan',
