@@ -341,7 +341,7 @@
         <div class="mt-2 text-center">
             <small class="text-muted" style="font-size: 10px;">
                 <i class="bx bx-info-circle me-1"></i>
-                Titik merah menunjukkan lokasi Anda saat ini
+                Titik hijau menunjukkan lokasi Anda saat ini
             </small>
         </div>
     </div>
