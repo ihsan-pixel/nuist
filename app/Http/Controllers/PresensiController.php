@@ -835,7 +835,8 @@ class PresensiController extends Controller
         } elseif ($hariKbm == '6') {
             $masukStart = '05:00';
             $masukEnd = '07:00';
-            $pulangStart = '15:00';
+            // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
+            $pulangStart = ($dayOfWeek == 5) ? '14:30' : '15:00';
             $pulangEnd = '22:00';
         } else {
             // Default or fallback

@@ -170,6 +170,7 @@ class MobileController extends Controller
         $timeRanges = null;
         if ($user->madrasah && $user->madrasah->hari_kbm) {
             $hariKbm = $user->madrasah->hari_kbm;
+            $dayOfWeek = Carbon::parse($selectedDate)->dayOfWeek; // 0=Sunday, 5=Friday
 
             if ($hariKbm == '5') {
                 $masukStart = '05:00';
@@ -179,7 +180,8 @@ class MobileController extends Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                $pulangStart = '15:00';
+                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
+                $pulangStart = ($dayOfWeek == 5) ? '14:30' : '15:00';
                 $pulangEnd = '22:00';
             } else {
                 $masukStart = '05:00';
