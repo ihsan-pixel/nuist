@@ -217,17 +217,20 @@ class TeachingScheduleController extends Controller
             }
 
             // Check if class schedule already exists for the same school, day, and time
-            $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
-                ->where('class_name', $scheduleData['class_name'])
-                ->where('day', $scheduleData['day'])
-                ->where(function ($query) use ($scheduleData) {
-                    $query->where('start_time', '<', $scheduleData['end_time'])
-                          ->where('end_time', '>', $scheduleData['start_time']);
-                })
-                ->exists();
+            // Skip class overlap check for madrasah ID 8 and 9 (allow multiple teachers in same class at same time)
+            if (!in_array($request->school_id, [8, 9])) {
+                $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
+                    ->where('class_name', $scheduleData['class_name'])
+                    ->where('day', $scheduleData['day'])
+                    ->where(function ($query) use ($scheduleData) {
+                        $query->where('start_time', '<', $scheduleData['end_time'])
+                              ->where('end_time', '>', $scheduleData['start_time']);
+                    })
+                    ->exists();
 
-            if ($classOverlap) {
-                return back()->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $scheduleData['day'] . '.'])->withInput()->with('alert', 'Jam mengajar pada kelas sudah terisi.');
+                if ($classOverlap) {
+                    return back()->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $scheduleData['day'] . '.'])->withInput()->with('alert', 'Jam mengajar pada kelas sudah terisi.');
+                }
             }
 
             TeachingSchedule::create([
@@ -327,6 +330,23 @@ class TeachingScheduleController extends Controller
 
         if ($overlap) {
             return back()->withErrors(['overlap' => 'Jadwal bentrok dengan jadwal lain pada hari yang sama.'])->withInput();
+        }
+
+        // Check class overlap, excluding current (skip for madrasah ID 8 and 9)
+        if (!in_array($request->school_id, [8, 9])) {
+            $classOverlap = TeachingSchedule::where('school_id', $request->school_id)
+                ->where('class_name', $request->class_name)
+                ->where('day', $request->day)
+                ->where('id', '!=', $id)
+                ->where(function ($query) use ($request) {
+                    $query->where('start_time', '<', $request->end_time)
+                          ->where('end_time', '>', $request->start_time);
+                })
+                ->exists();
+
+            if ($classOverlap) {
+                return back()->withErrors(['class_overlap' => 'Jadwal bentrok dengan jadwal lain pada kelas yang sama di hari ' . $request->day . '.'])->withInput();
+            }
         }
 
         $schedule->update($request->only([

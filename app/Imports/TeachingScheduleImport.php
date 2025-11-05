@@ -83,18 +83,20 @@ class TeachingScheduleImport implements ToModel, WithHeadingRow
                 throw new \Exception("Jadwal guru {$teacher->name} bentrok pada hari {$row['day']}");
             }
 
-            // Check class schedule overlap
-            $classOverlap = TeachingSchedule::where('school_id', $madrasah->id)
-                ->where('class_name', $row['class_name'])
-                ->where('day', $row['day'])
-                ->where(function ($query) use ($row) {
-                    $query->where('start_time', '<', $row['end_time'])
-                          ->where('end_time', '>', $row['start_time']);
-                })
-                ->exists();
+            // Check class schedule overlap (skip for madrasah ID 8 and 9)
+            if (!in_array($madrasah->id, [8, 9])) {
+                $classOverlap = TeachingSchedule::where('school_id', $madrasah->id)
+                    ->where('class_name', $row['class_name'])
+                    ->where('day', $row['day'])
+                    ->where(function ($query) use ($row) {
+                        $query->where('start_time', '<', $row['end_time'])
+                              ->where('end_time', '>', $row['start_time']);
+                    })
+                    ->exists();
 
-            if ($classOverlap) {
-                throw new \Exception("Jadwal kelas {$row['class_name']} bentrok pada hari {$row['day']}");
+                if ($classOverlap) {
+                    throw new \Exception("Jadwal kelas {$row['class_name']} bentrok pada hari {$row['day']}");
+                }
             }
 
             Log::info('Successfully importing teaching schedule for teacher NUist ID: ' . $teacher->nuist_id . ' (' . $teacher->name . ') - ' . $row['subject']);
