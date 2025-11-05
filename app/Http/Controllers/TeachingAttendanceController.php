@@ -31,6 +31,12 @@ class TeachingAttendanceController extends Controller
             ->orderBy('start_time')
             ->get();
 
+        // Filter to show only schedules that are not past (end_time >= current time)
+        $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
+        $schedules = $schedules->filter(function ($schedule) use ($currentTime) {
+            return $schedule->end_time >= $currentTime;
+        });
+
         // Attach attendance status for each schedule
         foreach ($schedules as $schedule) {
             $attendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)

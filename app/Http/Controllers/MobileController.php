@@ -774,7 +774,7 @@ class MobileController extends Controller
         }
 
         // Always use today's date, ignore any date param to show only current day data
-        $selectedDate = Carbon::today();
+        $selectedDate = Carbon::today('Asia/Jakarta');
         $todayName = $selectedDate->locale('id')->dayName;
 
         // Build schedule query with today's teaching attendances, filtered by current day
@@ -793,6 +793,12 @@ class MobileController extends Controller
         $query->where('day', $todayName);
 
         $schedules = $query->orderBy('start_time')->get();
+
+        // Filter to show only schedules that are not past (end_time >= current time)
+        $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
+        $schedules = $schedules->filter(function ($schedule) use ($currentTime) {
+            return $schedule->end_time >= $currentTime;
+        });
 
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {
