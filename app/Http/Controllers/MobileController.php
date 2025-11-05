@@ -242,13 +242,26 @@ class MobileController extends Controller
 
             // Calculate lateness - only set keterangan if late (after 07:00)
             $keterangan = "";
-            $lateThreshold = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta')->setDateFrom($now);
-            if (!$user->pemenuhan_beban_kerja_lain && $now->greaterThan($lateThreshold)) {
-                $terlambatMenit = $now->floatDiffInMinutes($lateThreshold);
+            if ($user->pemenuhan_beban_kerja_lain) {
+                $keterangan = "tidak terlambat";
+            } else {
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now->format('H:i:s') > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
 
-                // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                $terlambatMenit = max(0, round($terlambatMenit));
-                $keterangan = "terlambat {$terlambatMenit} menit";
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    if ($sekarang->lessThan($batas)) {
+                        $terlambatMenit = 0;
+                    } else {
+                        $terlambatMenit = abs(round($terlambatMenit));
+                    }
+
+                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                } else {
+                    $keterangan = "tidak terlambat";
+                }
             }
 
             // Create new presensi record
