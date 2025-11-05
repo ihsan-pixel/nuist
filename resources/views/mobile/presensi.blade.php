@@ -845,6 +845,9 @@ window.addEventListener('load', function() {
                             } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
                                 title = 'Belum Waktunya Pulang';
                                 text = 'Belum waktunya melakukan presensi pulang. Tunggu hingga jam pulang yang ditentukan.';
+                            } else if (msg.includes('Belum waktunya presensi pulang')) {
+                                title = 'Belum Waktunya Pulang';
+                                text = response.message;
                             }
 
                             Swal.fire({
@@ -882,6 +885,9 @@ window.addEventListener('load', function() {
                         } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
                             title = 'Belum Waktunya Pulang';
                             errorMessage = 'Belum waktunya melakukan presensi pulang.';
+                        } else if (msg.includes('Belum waktunya presensi pulang')) {
+                            title = 'Belum Waktunya Pulang';
+                            errorMessage = xhr.responseJSON.message;
                         }
 
                         Swal.fire({
