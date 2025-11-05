@@ -1,4 +1,4 @@
-@extends('layouts.mobile')
+git @extends('layouts.mobile')
 
 @section('title', 'Presensi')
 @section('subtitle', 'Catat Kehadiran')
@@ -406,7 +406,7 @@
                     <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
                         <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/3 - Pastikan GPS aktif</small>
+                        <br><small class="text-muted">Reading 1/1 - Pastikan GPS aktif</small>
                     </div>
                 </div>
             </div>
@@ -597,17 +597,7 @@ window.addEventListener('load', function() {
                     readingCount++;
 
                     // Update UI
-                    $('#location-info').html(`
-                        <div class="location-info info">
-                            <div class="d-flex align-items-center">
-                                <i class="bx bx-loader-alt bx-spin me-2"></i>
-                                <div>
-                                    <strong class="small">Mengumpulkan data lokasi...</strong>
-                                    <br><small class="text-muted">Reading ${readingCount}/${totalReadings} - ${readingCount < totalReadings ? 'Tunggu sebentar...' : 'Selesai!'}</small>
-                                </div>
-                            </div>
-                        </div>
-                    `);
+                    $('#location-info').html('<div class="location-info info"><div class="d-flex align-items-center"><i class="bx bx-loader-alt bx-spin me-2"></i><div><strong class="small">Mengumpulkan data lokasi...</strong><br><small class="text-muted">Reading ' + readingCount + '/' + totalReadings + ' - ' + (readingCount < totalReadings ? 'Tunggu sebentar...' : 'Selesai!') + '</small></div></div></div>');
 
                     // Update coordinates display with latest reading
                     $('#latitude').val(reading.latitude.toFixed(6));
@@ -649,17 +639,7 @@ window.addEventListener('load', function() {
             latitude = locationReadings[locationReadings.length - 1].latitude;
             longitude = locationReadings[locationReadings.length - 1].longitude;
 
-            $('#location-info').html(`
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-2"></i>
-                        <div>
-                            <strong class="small">Data lokasi lengkap!</strong>
-                            <br><small class="text-muted">Siap untuk presensi</small>
-                        </div>
-                    </div>
-                </div>
-            `);
+            $('#location-info').html('<div class="location-info success"><div class="d-flex align-items-center"><i class="bx bx-check-circle me-2"></i><div><strong class="small">Data lokasi lengkap!</strong><br><small class="text-muted">Siap untuk presensi</small></div></div></div>');
 
             // Enable presensi button - check if all presensi records have waktu_keluar
             var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
@@ -668,17 +648,7 @@ window.addEventListener('load', function() {
             $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
 
         } catch (error) {
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
-                        </div>
-                    </div>
-                </div>
-            `);
+        $('#location-info').html('<div class="location-info error"><div class="d-flex align-items-center"><i class="bx bx-error-circle me-2"></i><div><strong class="small">Gagal mendapatkan lokasi</strong><br><small class="text-muted">' + error.message + '</small></div></div></div>');
         }
     }
 
@@ -686,17 +656,7 @@ window.addEventListener('load', function() {
     if (navigator.geolocation) {
         startLocationCollection();
     } else {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
-                    </div>
-                </div>
-            </div>
-        `);
+        $('#location-info').html('<div class="location-info error"><div class="d-flex align-items-center"><i class="bx bx-error-circle me-2"></i><div><strong class="small">Browser tidak mendukung GPS</strong><br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small></div></div></div>');
     }
 
     // Get address from coordinates
@@ -798,16 +758,7 @@ window.addEventListener('load', function() {
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
 
-                $('#location-info').html(`
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2"></i>
-                            <div>
-                                <strong class="small">Lokasi berhasil didapatkan!</strong>
-                            </div>
-                        </div>
-                    </div>
-                `);
+                $('#location-info').html('<div class="location-info success"><div class="d-flex align-items-center"><i class="bx bx-check-circle me-2"></i><div><strong class="small">Lokasi berhasil didapatkan!</strong></div></div></div>');
 
                 $.ajax({
                     url: '{{ route("mobile.presensi.store") }}',
@@ -954,13 +905,7 @@ function initializeUserLocationMap(lat, lng) {
     }
 
     // Add popup with location info
-    const popupContent = `
-        <div style="font-family: 'Poppins', sans-serif; font-size: 12px; text-align: center;">
-            <strong style="color: #004b4c;">📍 Lokasi Anda</strong><br>
-            <small style="color: #666;">${lat.toFixed(6)}, ${lng.toFixed(6)}</small><br>
-            <small style="color: #666;">Akurasi: ${locationReadings.length > 0 ? Math.round(locationReadings[locationReadings.length - 1].accuracy) + 'm' : 'N/A'}</small>
-        </div>
-    `;
+    const popupContent = '<div style="font-family: \'Poppins\', sans-serif; font-size: 12px; text-align: center;"><strong style="color: #004b4c;">📍 Lokasi Anda</strong><br><small style="color: #666;">' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</small><br><small style="color: #666;">Akurasi: ' + (locationReadings.length > 0 ? Math.round(locationReadings[locationReadings.length - 1].accuracy) + 'm' : 'N/A') + '</small></div>';
     userLocationMarker.bindPopup(popupContent).openPopup();
 
     // Set zoom limits
@@ -1027,24 +972,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
 
             // Create popup content
-            let popupContent = `
-                <div style="font-family: 'Poppins', sans-serif; font-size: 12px; max-width: 200px;">
-                    <strong>${user.name}</strong><br>
-                    <small style="color: #666;">${user.status_kepegawaian}</small><br>
-                    <small><strong>Status:</strong> ${user.marker_type === 'presensi' ? 'Sudah Presensi' : 'Belum Presensi'}</small><br>
-            `;
+            let popupContent = '<div style="font-family: \'Poppins\', sans-serif; font-size: 12px; max-width: 200px;"><strong>' + user.name + '</strong><br><small style="color: #666;">' + user.status_kepegawaian + '</small><br><small><strong>Status:</strong> ' + (user.marker_type === 'presensi' ? 'Sudah Presensi' : 'Belum Presensi') + '</small><br>';
 
             if (user.marker_type === 'presensi') {
-                popupContent += `
-                    <small><strong>Masuk:</strong> ${user.waktu_masuk || '-'}</small><br>
-                    <small><strong>Keluar:</strong> ${user.waktu_keluar || '-'}</small><br>
-                `;
+                popupContent += '<small><strong>Masuk:</strong> ' + (user.waktu_masuk || '-') + '</small><br><small><strong>Keluar:</strong> ' + (user.waktu_keluar || '-') + '</small><br>';
             }
 
-            popupContent += `
-                    <small><strong>Lokasi:</strong> ${user.lokasi}</small>
-                </div>
-            `;
+            popupContent += '<small><strong>Lokasi:</strong> ' + user.lokasi + '</small></div>';
 
             marker.bindPopup(popupContent);
         }
