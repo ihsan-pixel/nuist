@@ -831,18 +831,18 @@ class PresensiController extends Controller
             $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = '15:00';
-            $pulangEnd = '23:55';
+            $pulangEnd = '22:00';
         } elseif ($hariKbm == '6') {
             $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = '15:00';
-            $pulangEnd = '23:55';
+            $pulangEnd = '22:00';
         } else {
             // Default or fallback
             $masukStart = '05:00';
             $masukEnd = '07:00';
             $pulangStart = '15:00';
-            $pulangEnd = '23:55';
+            $pulangEnd = '22:00';
         }
 
         return [

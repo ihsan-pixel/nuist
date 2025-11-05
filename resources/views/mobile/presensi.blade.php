@@ -468,7 +468,7 @@
         <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
-                <strong>Catatan:</strong> Pulang dapat dilakukan mulai pukul 15:00 hingga 23:55.
+                <strong>Catatan:</strong> Pulang dapat dilakukan mulai pukul 15:00 hingga 22:00.
             </small>
         </div>
     </div>
