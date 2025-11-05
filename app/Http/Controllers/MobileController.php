@@ -782,12 +782,8 @@ class MobileController extends Controller
             $q->whereDate('tanggal', $selectedDate);
         }]);
 
-        // Kepala sees school schedules, ordinary teachers see their own
-        if ($user->ketugasan === 'kepala madrasah/sekolah') {
-            $query->where('school_id', $user->madrasah_id);
-        } else {
-            $query->where('teacher_id', $user->id);
-        }
+        // Always show only the user's own teaching schedules
+        $query->where('teacher_id', $user->id);
 
         // Filter by current day's name
         $query->where('day', $todayName);
