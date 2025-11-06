@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Events\ActiveUsersUpdated;
 
 class UpdateLastSeen
 {
@@ -17,6 +18,7 @@ class UpdateLastSeen
     {
         if (auth()->check()) {
             auth()->user()->update(['last_seen' => now()]);
+            broadcast(new ActiveUsersUpdated());
         }
 
         return $next($request);

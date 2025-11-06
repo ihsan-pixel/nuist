@@ -1,13 +1,28 @@
-# TODO: Implement Real-Time Active Users Display
+# TODO: Implement Realtime Active Users with Laravel Reverb
 
-## Steps to Complete
+## 1. Install Laravel Reverb
+- Add "laravel/reverb": "^1.0" to composer.json require section
+- Run composer install
 
-- [x] Add API route for fetching active users in routes/api.php
-- [x] Add API method in ActiveUsersController to return active users as JSON
-- [x] Modify resources/views/active-users/index.blade.php to include JavaScript for periodic AJAX updates
-- [x] Test the real-time functionality by running the application and checking updates without reload
+## 2. Configure Broadcasting
+- Publish Reverb configuration: php artisan reverb:install
+- Update config/broadcasting.php to use reverb driver
+- Update config/reverb.php with appropriate settings for production
 
-## Notes
-- Use polling every 30 seconds to fetch active users via AJAX
-- Update the DOM elements dynamically without page reload
-- Ensure authentication is handled for the API endpoint
+## 3. Create ActiveUsersUpdated Event
+- Create app/Events/ActiveUsersUpdated.php
+- Implement ShouldBroadcast interface
+- Broadcast on 'active-users' channel with active users data
+
+## 4. Fire Event on User Activity
+- Update app/Http/Middleware/UpdateLastSeen.php to fire the event after updating last_seen
+
+## 5. Update Frontend
+- Add laravel-echo and pusher-js to package.json dependencies
+- Run npm install
+- Update resources/views/active-users/index.blade.php to use Echo for realtime updates instead of polling
+
+## 6. Test and Deploy
+- Test locally with php artisan reverb:start
+- Ensure hosting supports WebSockets
+- Deploy changes to hosting
