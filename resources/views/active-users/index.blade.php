@@ -104,7 +104,7 @@
         </div>
     </div>
 
-    @foreach($activeUsersByRole as $role => $users)
+    @foreach($roleLabels as $role => $label)
     <div class="col-xl-3 col-md-6">
         <div class="card stats-card" data-role="{{ $role }}">
             <div class="card-body">
@@ -115,8 +115,8 @@
                         </span>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">{{ $roleLabels[$role] ?? ucfirst($role) }}</p>
-                        <h5 class="mb-0">{{ $users->count() }}</h5>
+                        <p class="text-muted mb-2">{{ $label }}</p>
+                        <h5 class="mb-0">{{ $activeUsersByRole[$role]->count() ?? 0 }}</h5>
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
 <div class="row">
     @foreach($activeUsersByRole as $role => $users)
     <div class="col-lg-6 col-xl-4 mb-4">
-        <div class="card user-card">
+        <div class="card user-card" data-role="{{ $role }}">
             <div class="role-header">
                 <h5 class="mb-0">
                     <i class="bx bx-group me-2"></i>
@@ -175,40 +175,48 @@
     @endforeach
 </div>
 
-@endsection
-
-@section('js')
 <script>
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
     function updateActiveUsers() {
-        $.ajax({
-            url: '/api/active-users',
+        fetch('/api/active-users', {
             method: 'GET',
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
             },
-            success: function(data) {
-                // Update total active
-                $('[data-role="total"] h5').text(data.totalActive);
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Data received:', data); // Debug log
 
-                // Update role stats and lists
-                for (let role in data.activeUsersByRole) {
-                    let users = data.activeUsersByRole[role];
+            // Update all cards
+            document.querySelectorAll('[data-role]').forEach(card => {
+                let role = card.getAttribute('data-role');
+                if (role === 'total') {
+                    let h5 = card.querySelector('h5');
+                    if (h5) h5.textContent = data.totalActive;
+                } else {
+                    let users = data.activeUsersByRole[role] || [];
                     let count = users.length;
+                    let h5 = card.querySelector('h5');
+                    if (h5) h5.textContent = count;
+                    let badge = card.querySelector('.badge');
+                    if (badge) badge.textContent = count;
 
-                    // Update count in stats card
-                    $(`[data-role="${role}"] h5`).text(count);
-
-                    // Update badge in role header
-                    $(`[data-role="${role}"] .badge`).text(count);
-
-                    // Update user list
-                    let userListHtml = '';
-                    if (count === 0) {
-                        userListHtml = '<div class="text-center py-4"><p class="text-muted mb-0">Tidak ada pengguna aktif</p></div>';
-                    } else {
-                        users.forEach(user => {
-                            userListHtml += `
+                    let userList = card.querySelector('.user-list');
+                    if (userList) {
+                        let userListHtml = '';
+                        if (count === 0) {
+                            userListHtml = '<div class="text-center py-4"><p class="text-muted mb-0">Tidak ada pengguna aktif</p></div>';
+                        } else {
+                            users.forEach(user => {
+                                userListHtml += `
 <div class="user-item">
     <div class="d-flex align-items-center">
         <img src="${user.avatar}" alt="Avatar" class="user-avatar me-3">
@@ -221,15 +229,16 @@ $(document).ready(function() {
         <div class="text-end"><small class="text-muted">${user.nuist_id}</small></div>
     </div>
 </div>
-                            `;
-                        });
+                                `;
+                            });
+                        }
+                        userList.innerHTML = userListHtml;
                     }
-                    $(`[data-role="${role}"] .user-list`).html(userListHtml);
                 }
-            },
-            error: function(xhr, status, error) {
-                console.log('Error fetching active users:', error);
-            }
+            });
+        })
+        .catch(error => {
+            console.log('Error fetching active users:', error);
         });
     }
 
@@ -240,4 +249,5 @@ $(document).ready(function() {
     setInterval(updateActiveUsers, 30000);
 });
 </script>
+
 @endsection
