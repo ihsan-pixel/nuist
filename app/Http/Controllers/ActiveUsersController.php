@@ -19,7 +19,7 @@ class ActiveUsersController extends Controller
         }
 
         // Get active users (last_seen within 5 minutes)
-        $activeUsersByRole = User::where('last_seen', '>=', now()->subMinutes(0))
+        $activeUsersByRole = User::where('last_seen', '>=', now()->subMinutes(1))
             ->with(['madrasah', 'statusKepegawaian'])
             ->get()
             ->groupBy('role');
