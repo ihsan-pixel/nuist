@@ -1,4 +1,4 @@
-<div wire:poll.5s="refreshData">
+<div wire:poll.1s="refreshData">
     {{-- Statistics --}}
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6">
