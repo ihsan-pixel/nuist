@@ -116,7 +116,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">{{ $label }}</p>
-                        <h5 class="mb-0">{{ $activeUsersByRole[$role]->count() ?? 0 }}</h5>
+                        <h5 class="mb-0">{{ isset($activeUsersByRole[$role]) ? $activeUsersByRole[$role]->count() : 0 }}</h5>
                     </div>
                 </div>
             </div>
