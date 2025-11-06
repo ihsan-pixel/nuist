@@ -87,7 +87,7 @@
         }
     @endphp
     <div class="col-xl-3 col-md-6">
-        <div class="card stats-card">
+        <div class="card stats-card" data-role="total">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar-sm flex-shrink-0">
@@ -106,7 +106,7 @@
 
     @foreach($activeUsersByRole as $role => $users)
     <div class="col-xl-3 col-md-6">
-        <div class="card stats-card">
+        <div class="card stats-card" data-role="{{ $role }}">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="avatar-sm flex-shrink-0">
@@ -175,4 +175,69 @@
     @endforeach
 </div>
 
+@endsection
+
+@section('js')
+<script>
+$(document).ready(function() {
+    function updateActiveUsers() {
+        $.ajax({
+            url: '/api/active-users',
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+                // Update total active
+                $('[data-role="total"] h5').text(data.totalActive);
+
+                // Update role stats and lists
+                for (let role in data.activeUsersByRole) {
+                    let users = data.activeUsersByRole[role];
+                    let count = users.length;
+
+                    // Update count in stats card
+                    $(`[data-role="${role}"] h5`).text(count);
+
+                    // Update badge in role header
+                    $(`[data-role="${role}"] .badge`).text(count);
+
+                    // Update user list
+                    let userListHtml = '';
+                    if (count === 0) {
+                        userListHtml = '<div class="text-center py-4"><p class="text-muted mb-0">Tidak ada pengguna aktif</p></div>';
+                    } else {
+                        users.forEach(user => {
+                            userListHtml += `
+<div class="user-item">
+    <div class="d-flex align-items-center">
+        <img src="${user.avatar}" alt="Avatar" class="user-avatar me-3">
+        <div class="flex-grow-1">
+            <h6 class="mb-1">${user.name}</h6>
+            <p class="text-muted mb-0 small"><i class="bx bx-envelope me-1"></i>${user.email}</p>
+            ${user.madrasah ? `<p class="text-muted mb-0 small"><i class="bx bx-building me-1"></i>${user.madrasah}</p>` : ''}
+            <p class="text-muted mb-0 small"><i class="bx bx-time me-1"></i>Terakhir aktif: ${user.last_seen}</p>
+        </div>
+        <div class="text-end"><small class="text-muted">${user.nuist_id}</small></div>
+    </div>
+</div>
+                            `;
+                        });
+                    }
+                    $(`[data-role="${role}"] .user-list`).html(userListHtml);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Error fetching active users:', error);
+            }
+        });
+    }
+
+    // Initial load
+    updateActiveUsers();
+
+    // Poll every 30 seconds
+    setInterval(updateActiveUsers, 30000);
+});
+</script>
 @endsection
