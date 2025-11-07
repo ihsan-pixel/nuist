@@ -134,7 +134,7 @@
                                                     <div class="col-auto">
                                                         <button type="submit"
                                                                 class="btn btn-primary btn-lg rounded-pill px-4"
-                                                                :disabled="!message.trim()"
+                                                                :disabled="!$wire.message.trim()"
                                                                 wire:loading.attr="disabled">
                                                             <span wire:loading.remove>
                                                                 <i class="bx bx-send"></i>
