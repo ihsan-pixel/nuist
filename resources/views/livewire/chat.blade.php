@@ -27,7 +27,7 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="avatar-xs me-3">
                                                             @if($user['avatar'])
-                                                                <img src="{{ asset('storage/' . $user['avatar']) }}"
+                                                                <img src="{{ asset('storage/app/public/' . $user['avatar']) }}"
                                                                      class="img-fluid rounded-circle"
                                                                      alt="{{ $user['name'] }}">
                                                             @else
@@ -73,7 +73,7 @@
                                             @if($selectedUserData)
                                                 <div class="avatar-xs me-3">
                                                     @if($selectedUserData['avatar'])
-                                                        <img src="{{ asset('storage/' . $selectedUserData['avatar']) }}"
+                                                        <img src="{{ asset('storage/app/public/' . $selectedUserData['avatar']) }}"
                                                              class="img-fluid rounded-circle"
                                                              alt="{{ $selectedUserData['name'] }}">
                                                     @else
