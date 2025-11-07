@@ -13,11 +13,13 @@ class Chat extends Model
         'message',
         'is_read',
         'read_at',
+        'sent_at',
     ];
 
     protected $casts = [
         'is_read' => 'boolean',
         'read_at' => 'datetime',
+        'sent_at' => 'datetime',
     ];
 
     public function sender(): BelongsTo
@@ -53,6 +55,13 @@ class Chat extends Model
         $this->update([
             'is_read' => true,
             'read_at' => now(),
+        ]);
+    }
+
+    public function markAsSent()
+    {
+        $this->update([
+            'sent_at' => now(),
         ]);
     }
 }

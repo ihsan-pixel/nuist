@@ -102,6 +102,7 @@ class Chat extends Component
             'sender_id' => $currentUser->id,
             'receiver_id' => $this->selectedUserId,
             'message' => trim($this->message),
+            'sent_at' => now(),
         ]);
 
         $this->message = '';

@@ -116,6 +116,16 @@
                                                 <p class="chat-time mb-0">
                                                     <i class="bx bx-time-five align-middle me-1"></i>
                                                     {{ \Carbon\Carbon::parse($message['created_at'])->format('H:i') }}
+                                                    @if($message['sender_id'] == Auth::id())
+                                                        @if($message['sent_at'])
+                                                            <i class="bx bx-check align-middle ms-1 text-success"></i>
+                                                        @else
+                                                            <i class="bx bx-check align-middle ms-1"></i>
+                                                        @endif
+                                                        @if($message['is_read'])
+                                                            <i class="bx bx-check align-middle text-success"></i>
+                                                        @endif
+                                                    @endif
                                                 </p>
                                             </div>
                                         </div>
