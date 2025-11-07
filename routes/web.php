@@ -39,6 +39,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export'])->name('presensi_admin.export');
     Route::get('/presensi-admin/export-madrasah/{madrasahId}', [PresensiAdminController::class, 'exportMadrasah'])->name('presensi_admin.export_madrasah');
 
+    // Teaching Progress Routes - Super Admin Only
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index'])->name('admin.teaching_progress');
+    });
+
     // Development History Routes - Super Admin Only
     Route::middleware(['role:super_admin,pengurus'])->group(function () {
         Route::get('/development-history', [DevelopmentHistoryController::class, 'index'])->name('development-history.index');

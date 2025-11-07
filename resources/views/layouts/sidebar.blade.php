@@ -55,6 +55,15 @@
                 </li>
                 @endif
 
+                @if($userRole === 'super_admin')
+                <li>
+                    <a href="{{ route('admin.teaching_progress') }}" class="waves-effect">
+                        <i class="bx bx-trending-up"></i>
+                        <span>Progres Mengajar</span>
+                    </a>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="{{ route('madrasah.profile') }}" class="waves-effect">
