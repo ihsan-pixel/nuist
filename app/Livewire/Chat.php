@@ -46,10 +46,14 @@ class Chat extends Component
         if ($currentUser->role === 'super_admin') {
             $this->users = User::select('users.*', \DB::raw('MAX(chats.created_at) as latest_message_at'))
                 ->leftJoin('chats', function ($join) use ($currentUser) {
-                    $join->on('users.id', '=', 'chats.sender_id')
-                         ->where('chats.receiver_id', '=', $currentUser->id)
-                         ->orOn('users.id', '=', 'chats.receiver_id')
-                         ->where('chats.sender_id', '=', $currentUser->id);
+                    $join->where(function ($query) use ($currentUser) {
+                        $query->where('chats.sender_id', '=', 'users.id')
+                              ->where('chats.receiver_id', '=', $currentUser->id);
+                    })
+                    ->orWhere(function ($query) use ($currentUser) {
+                        $query->where('chats.receiver_id', '=', 'users.id')
+                              ->where('chats.sender_id', '=', $currentUser->id);
+                    });
                 })
                 ->where('users.role', $oppositeRole)
                 ->where('users.id', '!=', $currentUser->id)
@@ -58,7 +62,7 @@ class Chat extends Component
                           ->orWhere('users.email', 'like', '%' . $this->search . '%');
                 })
                 ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.remember_token', 'users.created_at', 'users.updated_at', 'users.role', 'users.nuest_id', 'users.tempat_lahir', 'users.tanggal_lahir', 'users.no_hp', 'users.kartanu', 'users.nip', 'users.nuptk', 'users.npk', 'users.madrasah_id', 'users.pendidikan_terakhir', 'users.tahun_lulus', 'users.program_studi', 'users.status_kepegawaian_id', 'users.tmt', 'users.ketugasan', 'users.mengajar', 'users.avatar', 'users.alamat', 'users.pemenuhan_beban_kerja_lain', 'users.madrasah_id_tambahan', 'users.password_changed', 'users.last_seen', 'users.jabatan')
-                ->orderByRaw('latest_message_at IS NULL ASC, latest_message_at DESC')
+                ->orderByRaw('MAX(chats.created_at) IS NULL ASC, MAX(chats.created_at) DESC')
                 ->orderBy('users.name')
                 ->get();
         } else {
