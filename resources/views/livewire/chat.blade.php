@@ -141,14 +141,15 @@
 
                     <!-- Message Input -->
                     <div class="p-3 chat-input-section">
-                        <form wire:submit.prevent="sendMessage">
+                        <form wire:submit.prevent="sendMessage" id="chat-form">
                             <div class="row">
                                 <div class="col">
                                     <div class="position-relative">
                                         <input type="text"
                                                class="form-control chat-input @error('message') is-invalid @enderror"
                                                placeholder="Ketik pesan..."
-                                               wire:model="message">
+                                               wire:model="message"
+                                               wire:keydown.enter.prevent="sendMessage">
                                         @error('message')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -157,7 +158,8 @@
                                 <div class="col-auto">
                                     <button type="submit"
                                             class="btn btn-primary btn-rounded chat-send w-md waves-effect waves-light"
-                                            wire:loading.attr="disabled">
+                                            wire:loading.attr="disabled"
+                                            wire:loading.class="btn-loading">
                                         <span wire:loading.remove>Kirim</span>
                                         <span wire:loading>Mengirim...</span>
                                         <i class="mdi mdi-send"></i>
@@ -205,10 +207,11 @@ document.addEventListener('livewire:loaded', () => {
         }
     }, 100);
 
-    // Handle form submission to prevent page reload
-    document.addEventListener('submit', function(e) {
-        if (e.target.closest('[wire\\:submit\\.prevent]')) {
+    // Prevent form submission on Enter key to avoid double submission
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.closest('#chat-form')) {
             e.preventDefault();
+            // Let Livewire handle the submission
         }
     });
 

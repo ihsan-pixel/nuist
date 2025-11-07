@@ -132,7 +132,7 @@ class Chat extends Component
             'sent_at' => now(),
         ]);
 
-        $this->message = '';
+        $this->reset('message');
         $this->loadMessages();
         $this->loadUsers(); // Reload users to update order for super_admin
 
