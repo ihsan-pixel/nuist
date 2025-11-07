@@ -105,7 +105,7 @@
 
                     <!-- Messages -->
                     <div class="chat-conversation p-3">
-                        <ul class="list-unstyled mb-0" data-simplebar style="max-height: 486px;" wire:poll.3s="loadMessages">
+                        <ul class="list-unstyled mb-0" data-simplebar style="max-height: 486px;" wire:poll.3s="loadMessages" id="chat-messages">
                             @if(count($messages) > 0)
                                 @foreach($messages as $message)
                                     <li class="{{ $message['sender_id'] == Auth::id() ? 'right' : '' }}">
@@ -189,17 +189,28 @@
 document.addEventListener('livewire:loaded', () => {
     // Auto scroll to bottom when new messages arrive
     Livewire.on('messageSent', () => {
+        setTimeout(() => {
+            const chatContainer = document.querySelector('.chat-conversation .simplebar-content-wrapper');
+            if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }, 100);
+    });
+
+    // Scroll to bottom on initial load
+    setTimeout(() => {
         const chatContainer = document.querySelector('.chat-conversation .simplebar-content-wrapper');
         if (chatContainer) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-    });
+    }, 100);
 
-    // Scroll to bottom on initial load
-    const chatContainer = document.querySelector('.chat-conversation .simplebar-content-wrapper');
-    if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
+    // Handle form submission to prevent page reload
+    document.addEventListener('submit', function(e) {
+        if (e.target.closest('[wire\\:submit\\.prevent]')) {
+            e.preventDefault();
+        }
+    });
 });
 </script>
 @endpush

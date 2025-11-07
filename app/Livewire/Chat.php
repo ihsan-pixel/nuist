@@ -42,14 +42,30 @@ class Chat extends Component
         // Get users with opposite roles only
         $oppositeRole = $currentUser->role === 'admin' ? 'super_admin' : 'admin';
 
-        $this->users = User::where('role', $oppositeRole)
+        $query = User::where('role', $oppositeRole)
             ->where('id', '!=', $currentUser->id)
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
+
+        // For super_admin, order by latest message timestamp (most recent first)
+        if ($currentUser->role === 'super_admin') {
+            $query->leftJoin('chats', function ($join) use ($currentUser) {
+                $join->on('users.id', '=', 'chats.sender_id')
+                     ->where('chats.receiver_id', $currentUser->id)
+                     ->orOn('users.id', '=', 'chats.receiver_id')
+                     ->where('chats.sender_id', $currentUser->id);
             })
-            ->orderBy('name')
-            ->get();
+            ->select('users.*', \DB::raw('MAX(chats.created_at) as latest_message_at'))
+            ->groupBy('users.id')
+            ->orderBy('latest_message_at', 'desc')
+            ->orderBy('users.name');
+        } else {
+            $query->orderBy('name');
+        }
+
+        $this->users = $query->get();
     }
 
     public function loadMessages()
@@ -107,6 +123,7 @@ class Chat extends Component
 
         $this->message = '';
         $this->loadMessages();
+        $this->loadUsers(); // Reload users to update order for super_admin
 
         // Send email notification to super_admin if receiver is super_admin
         if ($receiver->role === 'super_admin') {
