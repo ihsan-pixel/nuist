@@ -1,13 +1,14 @@
 # Chat Feature Implementation TODO
 
 ## Completed Tasks
-- [x] Create Chat model with sender_id, receiver_id, message, is_read fields
-- [x] Create migration for chats table
-- [x] Create Chat Livewire component with validation for role-based access
-- [x] Update chat.blade.php to use Livewire component
-- [x] Create ChatNotification Mailable class for email notifications
-- [x] Add chat routes to web.php
-- [x] Update sidebar to include chat menu for admin/super_admin
+- [ ] Create Chat model with sender_id, receiver_id, message, is_read, sent_at
+- [ ] Create migration for chats table
+- [ ] Create Chat Livewire component with role validation
+- [ ] Create chat.blade.php with modern, attractive UI (using popular chat UI patterns)
+- [ ] Add chat routes to web.php
+- [ ] Update sidebar.blade.php to include chat menu for admin/super_admin
+- [ ] Create ChatNotification Mailable for email alerts
+- [ ] Create email notification template
 
 ## Followup Steps
 - [ ] Run migration: `php artisan migrate`
