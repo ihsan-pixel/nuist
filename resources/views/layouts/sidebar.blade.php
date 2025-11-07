@@ -179,6 +179,17 @@
                     </a>
                 </li>
 
+                <li class="menu-title">CHAT</li>
+
+                @if(in_array($userRole, ['super_admin', 'admin']))
+                <li>
+                    <a href="{{ route('chat.index') }}" class="waves-effect">
+                        <i class="bx bx-chat"></i>
+                        <span>Chat Admin</span>
+                    </a>
+                </li>
+                @endif
+
                 <li class="menu-title">SETTING</li>
 
                 <li>
