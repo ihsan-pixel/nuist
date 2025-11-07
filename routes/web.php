@@ -72,6 +72,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/fake-location', [App\Http\Controllers\FakeLocationController::class, 'index'])->name('fake-location.index');
     });
+
+    // Chat Routes - Super Admin and Admin
+    Route::middleware(['role:super_admin,admin'])->group(function () {
+        Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    });
 });
 
 Auth::routes(['verify' => true]);
