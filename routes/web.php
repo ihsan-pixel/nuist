@@ -255,12 +255,7 @@ Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang'
 // Sitemap route
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
-// Chat Routes - Admin and Super Admin Only
-Route::middleware(['auth', 'role:admin,super_admin'])->group(function () {
-    Route::get('/chat', function () {
-        return view('chat');
-    })->name('chat');
-});
+
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');

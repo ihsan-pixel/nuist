@@ -92,14 +92,7 @@
                 </li>
                 @endif --}}
 
-                @if(in_array($userRole, ['admin', 'super_admin']))
-                <li>
-                    <a href="{{ route('chat') }}" class="waves-effect">
-                        <i class="bx bx-message-detail"></i>
-                        <span>Chat</span>
-                    </a>
-                </li>
-                @endif
+
 
                 <li class="menu-title">PRESENSI</li>
 
