@@ -100,7 +100,7 @@
                                                          style="max-width: 70%; word-wrap: break-word;">
                                                         <p class="mb-1">{{ $chat['message'] }}</p>
                                                         <small class="{{ $chat['sender_id'] == auth()->id() ? 'text-white-50' : 'text-muted' }}">
-                                                            {{ \Carbon\Carbon::parse($chat['sent_at'])->format('H:i') }}
+                                                            {{ \Carbon\Carbon::parse($chat['created_at'])->format('H:i') }}
                                                         </small>
                                                     </div>
                                                 </div>

@@ -14,13 +14,11 @@ class Chat extends Model
         'sender_id',
         'receiver_id',
         'message',
-        'is_read',
-        'sent_at'
+        'is_read'
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
-        'sent_at' => 'datetime'
+        'is_read' => 'boolean'
     ];
 
     /**

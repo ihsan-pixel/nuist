@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('receiver_id');
             $table->text('message');
             $table->boolean('is_read')->default(false);
-            $table->timestamp('sent_at')->useCurrent();
             $table->timestamps();
 
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
@@ -26,7 +25,6 @@ return new class extends Migration
             // Index for performance
             $table->index(['sender_id', 'receiver_id']);
             $table->index(['receiver_id', 'is_read']);
-            $table->index('sent_at');
         });
     }
 

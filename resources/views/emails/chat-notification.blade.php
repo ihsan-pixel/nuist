@@ -62,7 +62,7 @@
         <div class="message">
             <p><strong>Pesan:</strong></p>
             <p>{{ $chat->message }}</p>
-            <p><small>Dikirim pada: {{ $chat->sent_at->format('d M Y H:i') }}</small></p>
+            <p><small>Dikirim pada: {{ $chat->created_at->format('d M Y H:i') }}</small></p>
         </div>
 
         <p>

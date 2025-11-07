@@ -84,7 +84,7 @@ class Chat extends Component
 
         $this->chats = ChatModel::betweenUsers(Auth::id(), $this->selectedUser)
             ->with(['sender', 'receiver'])
-            ->orderBy('sent_at', 'asc')
+            ->orderBy('created_at', 'asc')
             ->get()
             ->toArray();
     }
@@ -104,7 +104,6 @@ class Chat extends Component
             'sender_id' => Auth::id(),
             'receiver_id' => $this->selectedUser,
             'message' => trim($this->message),
-            'sent_at' => now(),
         ]);
 
         $this->message = '';
