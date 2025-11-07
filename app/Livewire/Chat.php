@@ -61,7 +61,7 @@ class Chat extends Component
                     $query->where('users.name', 'like', '%' . $this->search . '%')
                           ->orWhere('users.email', 'like', '%' . $this->search . '%');
                 })
-                ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.remember_token', 'users.created_at', 'users.updated_at', 'users.role', 'users.nuest_id', 'users.tempat_lahir', 'users.tanggal_lahir', 'users.no_hp', 'users.kartanu', 'users.nip', 'users.nuptk', 'users.npk', 'users.madrasah_id', 'users.pendidikan_terakhir', 'users.tahun_lulus', 'users.program_studi', 'users.status_kepegawaian_id', 'users.tmt', 'users.ketugasan', 'users.mengajar', 'users.avatar', 'users.alamat', 'users.pemenuhan_beban_kerja_lain', 'users.madrasah_id_tambahan', 'users.password_changed', 'users.last_seen', 'users.jabatan')
+                ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.remember_token', 'users.created_at', 'users.updated_at', 'users.role', 'users.nuist_id', 'users.tempat_lahir', 'users.tanggal_lahir', 'users.no_hp', 'users.kartanu', 'users.nip', 'users.nuptk', 'users.npk', 'users.madrasah_id', 'users.pendidikan_terakhir', 'users.tahun_lulus', 'users.program_studi', 'users.status_kepegawaian_id', 'users.tmt', 'users.ketugasan', 'users.mengajar', 'users.avatar', 'users.alamat', 'users.pemenuhan_beban_kerja_lain', 'users.madrasah_id_tambahan', 'users.password_changed', 'users.last_seen', 'users.jabatan')
                 ->orderByRaw('MAX(chats.created_at) IS NULL ASC, MAX(chats.created_at) DESC')
                 ->orderBy('users.name')
                 ->get();
