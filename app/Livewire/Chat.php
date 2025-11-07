@@ -63,7 +63,7 @@ class Chat extends Component
             })
             ->select('users.*', \DB::raw('MAX(chats.created_at) as latest_message_at'))
             ->groupBy('users.id', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.remember_token', 'users.created_at', 'users.updated_at', 'users.role', 'users.nuest_id', 'users.tempat_lahir', 'users.tanggal_lahir', 'users.no_hp', 'users.kartanu', 'users.nip', 'users.nuptk', 'users.npk', 'users.madrasah_id', 'users.pendidikan_terakhir', 'users.tahun_lulus', 'users.program_studi', 'users.status_kepegawaian_id', 'users.tmt', 'users.ketugasan', 'users.mengajar', 'users.avatar', 'users.alamat', 'users.pemenuhan_beban_kerja_lain', 'users.madrasah_id_tambahan', 'users.password_changed', 'users.last_seen', 'users.jabatan')
-            ->orderByRaw('latest_message_at DESC NULLS LAST')
+            ->orderByRaw('latest_message_at IS NULL ASC, latest_message_at DESC')
             ->orderBy('users.name');
         } else {
             $query->orderBy('name');
