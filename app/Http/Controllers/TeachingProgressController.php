@@ -67,13 +67,22 @@ class TeachingProgressController extends Controller
                     ->count('user_id');
 
                     $attendancePercentage = round(($teachersWithAttendance / $totalTeachers) * 100);
-                    $attendanceDonePercentage = $attendancePercentage;
                     $attendancePendingPercentage = 100 - $attendancePercentage;
+
+                    // Calculate details
+                    $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedules;
+                    $teachersWithoutAttendance = $totalTeachers - $teachersWithAttendance;
 
                     $madrasah->schedule_input_percentage = $scheduleInputPercentage;
                     $madrasah->attendance_percentage = $attendancePercentage;
-                    $madrasah->attendance_done_percentage = $attendanceDonePercentage;
                     $madrasah->attendance_pending_percentage = $attendancePendingPercentage;
+
+                    // Add details for tooltips/rich display
+                    $madrasah->total_teachers = $totalTeachers;
+                    $madrasah->teachers_with_schedule = $teachersWithSchedules;
+                    $madrasah->teachers_without_schedule = $teachersWithoutSchedule;
+                    $madrasah->teachers_with_attendance = $teachersWithAttendance;
+                    $madrasah->teachers_without_attendance = $teachersWithoutAttendance;
 
                     return $madrasah;
                 });
