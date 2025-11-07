@@ -211,6 +211,11 @@ document.addEventListener('livewire:loaded', () => {
             e.preventDefault();
         }
     });
+
+    // Remove React DevTools console message
+    if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+        window.__REACT_DEVTOOLS_GLOBAL_HOOK__._renderers = {};
+    }
 });
 </script>
 @endpush
