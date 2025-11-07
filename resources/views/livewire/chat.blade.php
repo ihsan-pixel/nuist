@@ -124,7 +124,8 @@
                                                                    wire:model="message"
                                                                    class="form-control form-control-lg bg-light border-0 pe-5"
                                                                    placeholder="Ketik pesan Anda..."
-                                                                   style="border-radius: 25px; padding: 12px 20px;">
+                                                                   style="border-radius: 25px; padding: 12px 20px;"
+                                                                   wire:keydown.enter="sendMessage">
                                                             @error('message')
                                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                                             @enderror
