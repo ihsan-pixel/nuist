@@ -698,29 +698,7 @@
 <script>
     window.MODEL_PATH = '{{ asset('models') }}';
 </script>
-<!-- Dynamically load face-recognition.js only if it's reachable to avoid 404 and make error handling clearer -->
-<script>
-    (async function() {
-        const scriptUrl = "{{ asset('js/face-recognition.js') }}";
-        try {
-            // Try a HEAD request first to detect 404 early (safer than relying on browser script load error alone)
-            const resp = await fetch(scriptUrl, { method: 'HEAD' });
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
-            const s = document.createElement('script');
-            s.src = scriptUrl;
-            s.onload = () => console.log('face-recognition.js loaded');
-            s.onerror = (e) => {
-                console.error('Failed to load face-recognition.js', e);
-                try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition gagal dimuat.'; } catch(e){}
-            };
-            document.head.appendChild(s);
-        } catch (err) {
-            console.error('face-recognition.js not reachable:', err);
-            try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition tidak ditemukan di server.'; } catch(e){}
-        }
-    })();
-</script>
+<script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
@@ -942,25 +920,14 @@ window.addEventListener('load', function() {
     const faceRequired = {{ Auth::user()->face_verification_required ? 'true' : 'false' }};
     const hasFaceData = {{ !empty(Auth::user()->face_data) ? 'true' : 'false' }};
 
-    // Wait for the FaceRecognition class to be available (guard against load/order/race issues)
-    function waitForFaceRecognition(timeout = 7000) {
-        return new Promise((resolve, reject) => {
-            const start = Date.now();
-            (function check() {
-                if (window.FaceRecognition) return resolve();
-                if (Date.now() - start > timeout) return reject(new Error('FaceRecognition tidak tersedia'));
-                setTimeout(check, 100);
-            })();
-        });
-    }
-
     if (faceRequired && hasFaceData) {
-        waitForFaceRecognition().then(() => {
+        // FaceRecognition should be loaded synchronously now
+        if (window.FaceRecognition) {
             initializeFaceRecognition();
-        }).catch(err => {
-            console.error('FaceRecognition not available:', err);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + err.message;
-        });
+        } else {
+            console.error('FaceRecognition class not found');
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: FaceRecognition class tidak ditemukan';
+        }
     }
 
     async function initializeFaceRecognition() {
@@ -997,13 +964,7 @@ window.addEventListener('load', function() {
 
         try {
             if (!faceRecognition) {
-                // Try to wait for and initialize FaceRecognition if it's available but not yet created
-                try {
-                    await waitForFaceRecognition();
-                    await initializeFaceRecognition();
-                } catch (err) {
-                    throw new Error('Face recognition belum diinisialisasi: ' + err.message);
-                }
+                throw new Error('Face recognition belum diinisialisasi');
             }
 
             // Generate challenge sequence
@@ -1030,13 +991,13 @@ window.addEventListener('load', function() {
     $('#start-face-enrollment').click(function() {
         $('#face-enrollment-prompt').hide();
         $('#face-enrollment-interface').show();
-        // Ensure FaceRecognition class is available before initializing enrollment
-        waitForFaceRecognition().then(() => {
+        // FaceRecognition should be loaded synchronously
+        if (window.FaceRecognition) {
             initializeFaceEnrollment();
-        }).catch(err => {
-            console.error('FaceRecognition not available on enrollment click:', err);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + err.message;
-        });
+        } else {
+            console.error('FaceRecognition class not found for enrollment');
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: FaceRecognition class tidak ditemukan';
+        }
     });
 
     async function initializeFaceEnrollment() {

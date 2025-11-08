@@ -362,6 +362,13 @@
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
 
+    <!-- Face Recognition Scripts -->
+    <script>
+        window.MODEL_PATH = "{{ asset('models') }}";
+    </script>
+    <script defer src="{{ asset('js/face-api.min.js') }}"></script>
+    <script defer src="{{ asset('js/face-recognition.js') }}"></script>
+
     <!-- Mobile-specific scripts -->
     <script>
         // PWA Install Prompt
