@@ -151,6 +151,59 @@
 
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
+<script>
+    // Add challenge instruction display and progress updates
+    let currentChallengeIndex = 0;
+
+    // Override the showChallengeInstruction method to update UI
+    FaceRecognition.prototype.showChallengeInstruction = function(challenge) {
+        const instructionElement = document.getElementById('instruction-text');
+        const subInstructionElement = document.getElementById('sub-instruction');
+
+        if (instructionElement) {
+            instructionElement.innerText = challenge.instruction;
+        }
+        if (subInstructionElement) {
+            subInstructionElement.innerText = 'Lakukan gerakan yang diminta';
+        }
+
+        // Update progress dots
+        updateProgress(currentChallengeIndex + 1);
+    };
+
+    // Override waitForChallengeCompletion to show progress
+    FaceRecognition.prototype.waitForChallengeCompletion = function(videoElement, challenge, timeout = 10000) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+
+            const checkChallenge = async () => {
+                try {
+                    const result = await this.performLivenessCheck(videoElement, challenge);
+
+                    if (result.completed) {
+                        // Add to completed challenges
+                        this.completedChallenges.push(challenge);
+                        currentChallengeIndex++;
+                        resolve(result);
+                        return;
+                    }
+
+                    if (Date.now() - startTime > timeout) {
+                        reject(new Error(`Waktu habis. Silakan coba lagi: ${challenge.instruction}`));
+                        return;
+                    }
+
+                    // Continue checking
+                    setTimeout(checkChallenge, 100);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            checkChallenge();
+        });
+    };
+</script>
 
 <script>
 let faceRecognition = null;
@@ -195,6 +248,7 @@ async function startEnrollment() {
     try {
         document.getElementById('start-enrollment').disabled = true;
         document.getElementById('start-enrollment').textContent = 'Mendaftarkan...';
+        currentChallengeIndex = 0; // Reset challenge index
 
         const videoElement = document.getElementById('camera-preview');
         // Ensure consent checked
@@ -203,16 +257,18 @@ async function startEnrollment() {
             throw new Error('Anda harus menyetujui penggunaan data wajah untuk melanjutkan pendaftaran.');
         }
 
-        const enrollmentResult = await faceRecognition.enrollFace(videoElement);
+        const enrollmentResult = await faceRecognition.performFullEnrollment(videoElement);
 
         // Build payload expected by FaceController@enroll
         const payload = {
             user_id: window.CURRENT_USER_ID,
-            face_data: enrollmentResult
+            face_data: enrollmentResult.faceDescriptor,
+            liveness_score: enrollmentResult.livenessScore,
+            liveness_challenges: enrollmentResult.challenges.map(c => c.type || 'unknown')
         };
 
         // Send enrollment data to server
-        const response = await fetch('{{ route("face.enroll") }}', {
+        const response = await fetch('{{ route("mobile.face.enroll") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -227,7 +283,7 @@ async function startEnrollment() {
         if (result.success) {
             showSuccess('Pendaftaran wajah berhasil!');
             setTimeout(() => {
-                window.location.href = '{{ route("presensi") }}';
+                window.location.href = '{{ route("mobile.presensi") }}';
             }, 2000);
         } else {
             throw new Error(result.message || 'Pendaftaran gagal');
@@ -246,6 +302,7 @@ async function startEnrollment() {
 function retryEnrollment() {
     document.getElementById('retry-enrollment').style.display = 'none';
     document.getElementById('start-enrollment').disabled = false;
+    currentChallengeIndex = 0; // Reset challenge index
     updateInstruction('Siap untuk pendaftaran', 'Klik tombol di bawah untuk memulai');
 }
 
