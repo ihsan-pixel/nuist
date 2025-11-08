@@ -717,6 +717,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- face-api.js (required by face-recognition.js). Loaded from CDN to ensure `faceapi` is available. -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
@@ -918,10 +920,29 @@ window.addEventListener('load', function() {
     const faceRequired = {{ Auth::user()->face_verification_required ? 'true' : 'false' }};
     const hasFaceData = {{ !empty(Auth::user()->face_data) ? 'true' : 'false' }};
 
-    if (faceRequired && hasFaceData) {
-        initializeFaceRecognition();
-    } else if (faceRequired && !hasFaceData) {
-        initializeFaceEnrollment();
+    // Wait for the FaceRecognition class to be available (guard against load/order/race issues)
+    function waitForFaceRecognition(timeout = 7000) {
+        return new Promise((resolve, reject) => {
+            const start = Date.now();
+            (function check() {
+                if (window.FaceRecognition) return resolve();
+                if (Date.now() - start > timeout) return reject(new Error('FaceRecognition tidak tersedia'));
+                setTimeout(check, 100);
+            })();
+        });
+    }
+
+    if (faceRequired) {
+        waitForFaceRecognition().then(() => {
+            if (hasFaceData) {
+                initializeFaceRecognition();
+            } else {
+                initializeFaceEnrollment();
+            }
+        }).catch(err => {
+            console.error('FaceRecognition not available:', err);
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + err.message;
+        });
     }
 
     async function initializeFaceRecognition() {
