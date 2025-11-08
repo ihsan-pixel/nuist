@@ -278,7 +278,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         //     }
         // }
 
-        // Location validation using polygon from madrasah
+        // Location validation using polygon from madrasah - temporarily relaxed during face recognition repair
         $madrasah = $user->madrasah;
         $isWithinPolygon = false;
 
@@ -307,12 +307,18 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-        // Strict polygon validation: must be within madrasah polygon
+        // Temporarily allow presensi even outside polygon during face recognition repair
+        // if (!$isWithinPolygon) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
+        //     ], 400);
+        // }
+
+        // Add location validation note if outside polygon
+        $locationNote = '';
         if (!$isWithinPolygon) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
-            ], 400);
+            $locationNote = ' (Diluar area madrasah - sementara diperbolehkan selama perbaikan face recognition)';
         }
 
         // Determine if this is presensi masuk or keluar
@@ -353,7 +359,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'waktu_masuk' => $waktuMasuk,
                 'waktu_keluar' => $waktuKeluar,
                 'status' => $status,
-                'keterangan' => $keterangan,
+                'keterangan' => $keterangan . $locationNote,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'lokasi' => $request->lokasi,
@@ -372,7 +378,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
-            $message = 'Presensi masuk berhasil dicatat!';
+            $message = 'Presensi masuk berhasil dicatat!' . ($locationNote ? ' (Diluar area madrasah)' : '');
 
         } elseif ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)

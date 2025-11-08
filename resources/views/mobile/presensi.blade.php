@@ -578,12 +578,12 @@
     @endif
 
     <!-- Important Notice -->
-    <div class="alert-custom danger">
+    <div class="alert-custom warning">
         <div class="d-flex">
-            <i class="bx bx-error-circle text-danger me-1"></i>
+            <i class="bx bx-info-circle text-warning me-1"></i>
             <div>
-                <strong class="text-danger">Penting!</strong>
-                <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
+                <strong class="text-warning">Informasi Sementara</strong>
+                <p class="mb-0 text-muted">Selama perbaikan face recognition, presensi dapat dilakukan dari lokasi manapun. Pastikan berada di lingkungan madrasah setelah sistem normal kembali.</p>
             </div>
         </div>
     </div>
@@ -783,15 +783,15 @@ window.addEventListener('load', function() {
             longitude = locationReadings[locationReadings.length - 1].longitude;
 
             $('#location-info').html(`
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-2"></i>
-                        <div>
-                            <strong class="small">Data lokasi lengkap!</strong>
-                            <br><small class="text-muted">Siap untuk presensi</small>
-                        </div>
-                    </div>
+        <div class="location-info success">
+            <div class="d-flex align-items-center">
+                <i class="bx bx-check-circle me-2"></i>
+                <div>
+                    <strong class="small">Data lokasi lengkap!</strong>
+                    <br><small class="text-muted">Siap untuk presensi (lokasi akan divalidasi setelah face recognition diperbaiki)</small>
                 </div>
+            </div>
+        </div>
             `);
 
             // Enable presensi button - check if all presensi records have waktu_keluar
