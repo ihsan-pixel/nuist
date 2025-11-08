@@ -1024,7 +1024,7 @@ window.addEventListener('load', function() {
             };
 
             // Send enrollment data to server
-            const response = await fetch('{{ route("face.enroll") }}', {
+            const response = await fetch('{{ route("mobile.face.enroll") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
