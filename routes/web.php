@@ -101,31 +101,43 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Mobile routes for tenaga_pendidik and admin (some pages are accessible to admin when they are kepala madrasah)
 Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->name('mobile.')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\MobileController::class, 'dashboard'])->name('dashboard');
-    Route::get('/presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('presensi');
-    // Backwards-compatible route names used by some mobile views
-    Route::get('/data-presensi', [App\Http\Controllers\MobileController::class, 'presensi'])->name('data-presensi');
-    Route::post('/presensi', [App\Http\Controllers\MobileController::class, 'storePresensi'])->name('presensi.store');
-    Route::get('/riwayat-presensi', [App\Http\Controllers\MobileController::class, 'riwayatPresensi'])->name('riwayat-presensi');
-    Route::get('/jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('jadwal');
-    Route::get('/data-jadwal', [App\Http\Controllers\MobileController::class, 'jadwal'])->name('data-jadwal');
-    // Monitoring presensi (kepala madrasah)
-    Route::get('/monitor-presensi', [App\Http\Controllers\MobileController::class, 'monitorPresensi'])->name('monitor-presensi');
-    Route::get('/monitor-map', [App\Http\Controllers\MobileController::class, 'monitorMap'])->name('monitor-map');
-    Route::get('/profile', [App\Http\Controllers\MobileController::class, 'profile'])->name('profile');
-    Route::post('/profile/update-profile', [App\Http\Controllers\MobileController::class, 'updateProfile'])->name('profile.update-profile');
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
 
-    Route::post('/profile/update-avatar', [App\Http\Controllers\MobileController::class, 'updateAvatar'])->name('profile.update-avatar');
-    Route::post('/profile/update-password', [App\Http\Controllers\MobileController::class, 'updatePassword'])->name('profile.update-password');
-    Route::post('/izin', [App\Http\Controllers\MobileController::class, 'storeIzin'])->name('izin.store');
-    Route::get('/laporan', [App\Http\Controllers\MobileController::class, 'laporan'])->name('laporan');
+    // Presensi
+    Route::get('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('presensi');
+    // Backwards-compatible route names used by some mobile views
+    Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('data-presensi');
+    Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
+    Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
+
+    // Jadwal
+    Route::get('/jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('jadwal');
+    Route::get('/data-jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('data-jadwal');
+
+    // Profile
+    Route::get('/profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'profile'])->name('profile');
+    Route::post('/profile/update-profile', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateProfile'])->name('profile.update-profile');
+    Route::post('/profile/update-avatar', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
+    Route::post('/profile/update-password', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::get('/ubah-akun', [App\Http\Controllers\Mobile\Profile\ProfileController::class, 'ubahAkun'])->name('ubah-akun');
+
+    // Izin
+    Route::post('/izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'storeIzin'])->name('izin.store');
+    Route::get('/izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'izin'])->name('izin');
+    Route::get('/kelola-izin', [App\Http\Controllers\Mobile\Izin\IzinController::class, 'kelolaIzin'])->name('kelola-izin');
+
+    // Laporan
+    Route::get('/laporan', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporan'])->name('laporan');
     // Mobile laporan presensi mengajar (riwayat)
-    Route::get('/laporan/mengajar', [App\Http\Controllers\MobileController::class, 'laporanMengajar'])->name('laporan.mengajar');
+    Route::get('/laporan/mengajar', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'laporanMengajar'])->name('laporan.mengajar');
     // Mobile presensi mengajar (mobile-optimized view)
-    Route::get('/teaching-attendances', [App\Http\Controllers\MobileController::class, 'teachingAttendances'])->name('teaching-attendances');
-    Route::get('/izin', [App\Http\Controllers\MobileController::class, 'izin'])->name('izin');
-    Route::get('/kelola-izin', [App\Http\Controllers\MobileController::class, 'kelolaIzin'])->name('kelola-izin');
-    Route::get('/ubah-akun', [App\Http\Controllers\MobileController::class, 'ubahAkun'])->name('ubah-akun');
+    Route::get('/teaching-attendances', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'teachingAttendances'])->name('teaching-attendances');
+
+    // Monitoring (kepala madrasah)
+    Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');
+    Route::get('/monitor-map', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorMap'])->name('monitor-map');
+    Route::get('/monitor-jadwal-mengajar', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorJadwalMengajar'])->name('monitor-jadwal-mengajar');
 
     // Notification routes
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications');
