@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const modelsLoaded = await faceRecognition.loadModels();
 
         if (!modelsLoaded) {
-            throw new Error('Gagal memuat model face recognition');
+            throw new Error('Gagal memuat model pengenalan wajah. Pastikan file model tersedia di /models/');
         }
 
         // Initialize camera
@@ -268,7 +268,7 @@ async function startEnrollment() {
         };
 
         // Send enrollment data to server
-        const response = await fetch('{{ route("mobile.face.enroll") }}', {
+        const response = await fetch('{{ route("face.enroll") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -283,7 +283,7 @@ async function startEnrollment() {
         if (result.success) {
             showSuccess('Pendaftaran wajah berhasil!');
             setTimeout(() => {
-                window.location.href = '{{ route("mobile.presensi") }}';
+                window.location.href = '{{ route("presensi") }}';
             }, 2000);
         } else {
             throw new Error(result.message || 'Pendaftaran gagal');
