@@ -42,7 +42,7 @@ class AutoInsertAbsence extends Command
         }
 
         // Skip if it's Sunday (day 0 in Carbon)
-        if ($date->dayOfWeek === Carbon::SUNDAY) {
+        if (Carbon::parse($date)->dayOfWeek === Carbon::SUNDAY) {
             $this->info("Skipping Sunday");
             return;
         }
@@ -53,8 +53,10 @@ class AutoInsertAbsence extends Command
 
         $this->info("Waktu akhir presensi pulang: {$waktuAkhirPulang->format('H:i')}");
 
-        // Get all tenaga_pendidik users
-        $tenagaPendidikUsers = User::where('role', 'tenaga_pendidik')->get();
+        // Get all tenaga_pendidik users with their madrasah hari_kbm
+        $tenagaPendidikUsers = User::where('role', 'tenaga_pendidik')
+            ->with('madrasah:id,hari_kbm')
+            ->get();
 
         $this->info("Found {$tenagaPendidikUsers->count()} tenaga_pendidik users");
 
@@ -62,6 +64,25 @@ class AutoInsertAbsence extends Command
         $updatedCount = 0;
 
         foreach ($tenagaPendidikUsers as $user) {
+            // Determine if this date is a working day based on madrasah hari_kbm
+            $hariKbm = $user->madrasah ? $user->madrasah->hari_kbm : '5'; // Default to 5 if not set
+            $dayOfWeek = Carbon::parse($date)->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+            $isWorkingDay = false;
+            if ($hariKbm == '5') {
+                // 5 hari KBM: Monday to Friday (1-5)
+                $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5]);
+            } elseif ($hariKbm == '6') {
+                // 6 hari KBM: Monday to Saturday (1-6)
+                $isWorkingDay = in_array($dayOfWeek, [1, 2, 3, 4, 5, 6]);
+            }
+
+            // Skip if not a working day for this user's madrasah
+            if (!$isWorkingDay) {
+                $this->line("Skipping non-working day for: {$user->name} (hari_kbm: {$hariKbm})");
+                continue;
+            }
+
             // Check if user already has presensi record for this date
             $existingPresensi = Presensi::where('user_id', $user->id)
                 ->where('tanggal', $date)
@@ -73,7 +94,7 @@ class AutoInsertAbsence extends Command
                     'user_id' => $user->id,
                     'tanggal' => $date,
                     'status' => 'alpha',
-                    'keterangan' => 'Tidak hadir',
+                    'keterangan' => 'Tidak presensi',
                     'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
 

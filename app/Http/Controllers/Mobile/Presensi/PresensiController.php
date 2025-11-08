@@ -155,6 +155,56 @@ class PresensiController extends \App\Http\Controllers\Controller
         $tanggal = Carbon::today()->toDateString();
         $now = Carbon::now('Asia/Jakarta');
 
+        // Check if it's a holiday or Sunday - prevent presensi
+        $isHoliday = Holiday::isHoliday($tanggal);
+        $isSunday = Carbon::parse($tanggal)->dayOfWeek === Carbon::SUNDAY;
+
+        if ($isHoliday || $isSunday) {
+            $holiday = $isHoliday ? Holiday::getHoliday($tanggal) : null;
+            $reason = $isHoliday ? "hari libur ({$holiday->name})" : "hari Minggu";
+            return response()->json([
+                'success' => false,
+                'message' => "Presensi tidak dapat dilakukan pada {$reason}."
+            ], 400);
+        }
+
+        // Check if time is after 22:00 - mark as alpha
+        if ($now->format('H:i:s') > '22:00:00') {
+            // Check if user already has presensi for today
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if (!$existingPresensi) {
+                // Create alpha record
+                Presensi::create([
+                    'user_id' => $user->id,
+                    'tanggal' => $tanggal,
+                    'status' => 'alpha',
+                    'keterangan' => 'Tidak masuk',
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                    'lokasi' => $request->lokasi,
+                    'accuracy' => $request->accuracy,
+                    'altitude' => $request->altitude,
+                    'speed' => $request->speed,
+                    'device_info' => $request->device_info,
+                    'location_readings' => $request->location_readings,
+                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk.'
+                ], 400);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi hari ini sudah dicatat.'
+                ], 400);
+            }
+        }
+
         // Check if user already has presensi for today with stricter validation
         $existingPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
