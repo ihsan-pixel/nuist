@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="public/js/face-recognition.js"></script>
+</head>
+<body>
+    <h1>Face Recognition Test</h1>
+    <div>
+        <video id="video" width="640" height="480" autoplay muted></video>
+    </div>
+    <div>
+        <button id="startBtn">Start Face Recognition</button>
+        <button id="stopBtn">Stop</button>
+    </div>
+    <div id="status"></div>
+
+    <script>
+        let faceRecognition = null;
+
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            document.getElementById('status').textContent = 'Initializing...';
+
+            try {
+                faceRecognition = new FaceRecognition();
+
+                const modelsLoaded = await faceRecognition.loadModels();
+                if (!modelsLoaded) {
+                    throw new Error('Failed to load models');
+                }
+
+                const videoElement = document.getElementById('video');
+                await faceRecognition.initializeCamera(videoElement);
+
+                document.getElementById('status').textContent = 'Face recognition initialized successfully!';
+            } catch (error) {
+                document.getElementById('status').textContent = 'Error: ' + error.message;
+                console.error(error);
+            }
+        });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            if (faceRecognition) {
+                faceRecognition.stopCamera();
+                document.getElementById('status').textContent = 'Camera stopped';
+            }
+        });
+    </script>
+</body>
+</html>

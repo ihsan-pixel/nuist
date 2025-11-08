@@ -559,31 +559,62 @@
     </div>
     @endif
 
-    <!-- Face Verification Section - Temporarily Disabled -->
+    <!-- Face Verification Section -->
     @if(Auth::user()->face_verification_required ?? true)
     <div class="face-verification-section">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
                 <i class="bx bx-face"></i>
             </div>
-            <h6 class="section-title mb-0">Verifikasi Wajah (Dalam Perbaikan)</h6>
+            <h6 class="section-title mb-0">Verifikasi Wajah</h6>
         </div>
 
+        @if(empty(Auth::user()->face_data))
+        <!-- Face Enrollment Required -->
         <div class="alert-custom warning">
             <i class="bx bx-info-circle me-1"></i>
-            <strong>Verifikasi Wajah Sedang Dalam Perbaikan</strong>
-            <p class="mb-0 text-muted small">Saat ini presensi dapat dilakukan tanpa verifikasi wajah. Sistem akan kembali normal setelah perbaikan selesai.</p>
+            <strong>Pendaftaran Wajah Diperlukan</strong>
+            <p class="mb-0 text-muted small">Anda perlu mendaftarkan wajah terlebih dahulu sebelum dapat melakukan presensi.</p>
         </div>
+        <a href="{{ route('mobile.face.enrollment') }}" class="btn btn-primary-custom" style="display: block; text-decoration: none; color: #fff; text-align: center; margin-top: 8px;">
+            <i class="bx bx-face me-1"></i>
+            Daftar Wajah
+        </a>
+        @else
+        <!-- Face Verification Interface -->
+        <div id="face-verification-container">
+            <div class="face-camera-container">
+                <video id="face-camera" class="face-camera-preview" autoplay playsinline muted></video>
+                <div id="face-instruction-overlay" class="face-instruction">
+                    <div id="face-instruction-text">Memuat kamera...</div>
+                </div>
+            </div>
+
+            <div class="challenge-progress">
+                <div class="challenge-dot" id="challenge-1"></div>
+                <div class="challenge-dot" id="challenge-2"></div>
+                <div class="challenge-dot" id="challenge-3"></div>
+            </div>
+
+            <div id="face-verification-status" style="display: none; margin-top: 8px;">
+                <small class="text-muted"></small>
+            </div>
+
+            <button id="start-face-verification" class="btn btn-primary-custom" style="margin-top: 8px;" disabled>
+                <i class="bx bx-play me-1"></i>Mulai Verifikasi
+            </button>
+        </div>
+        @endif
     </div>
     @endif
 
     <!-- Important Notice -->
-    <div class="alert-custom warning">
+    <div class="alert-custom info">
         <div class="d-flex">
-            <i class="bx bx-info-circle text-warning me-1"></i>
+            <i class="bx bx-info-circle text-info me-1"></i>
             <div>
-                <strong class="text-warning">Informasi Sementara</strong>
-                <p class="mb-0 text-muted">Selama perbaikan face recognition, presensi dapat dilakukan dari lokasi manapun. Pastikan berada di lingkungan madrasah setelah sistem normal kembali.</p>
+                <strong class="text-info">Informasi Sistem</strong>
+                <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem face recognition telah aktif kembali.</p>
             </div>
         </div>
     </div>
@@ -919,13 +950,9 @@ window.addEventListener('load', function() {
         });
     }
 
-    if (faceRequired) {
+    if (faceRequired && hasFaceData) {
         waitForFaceRecognition().then(() => {
-            if (hasFaceData) {
-                initializeFaceRecognition();
-            } else {
-                initializeFaceEnrollment();
-            }
+            initializeFaceRecognition();
         }).catch(err => {
             console.error('FaceRecognition not available:', err);
             document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + err.message;
@@ -1193,18 +1220,18 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Check face verification if required - temporarily disabled
-        // if (faceRequired) {
-        //     if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             title: 'Verifikasi Wajah Diperlukan',
-        //             text: 'Silakan jalankan verifikasi wajah sebelum melakukan presensi.',
-        //             confirmButtonText: 'Oke'
-        //         });
-        //         return;
-        //     }
-        // }
+        // Check face verification if required
+        if (faceRequired && hasFaceData) {
+            if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Verifikasi Wajah Diperlukan',
+                    text: 'Silakan jalankan verifikasi wajah sebelum melakukan presensi.',
+                    confirmButtonText: 'Oke'
+                });
+                return;
+            }
+        }
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
@@ -1273,15 +1300,15 @@ window.addEventListener('load', function() {
                     location_readings: JSON.stringify(allReadings)
                 };
 
-                // Include face verification result if available - temporarily disabled
-                // if (window.lastFaceVerificationResult) {
-                //     const fv = window.lastFaceVerificationResult;
-                //     postData.face_id_used = fv.face_id;
-                //     postData.face_similarity_score = fv.similarity_score;
-                //     postData.liveness_score = fv.liveness_score;
-                //     postData.liveness_challenges = JSON.stringify(fv.liveness_challenges);
-                //     postData.face_verified = fv.face_verified ? 1 : 0;
-                // }
+                // Include face verification result if available
+                if (window.lastFaceVerificationResult) {
+                    const fv = window.lastFaceVerificationResult;
+                    postData.face_id_used = fv.face_id;
+                    postData.face_similarity_score = fv.similarity_score;
+                    postData.liveness_score = fv.liveness_score;
+                    postData.liveness_challenges = JSON.stringify(fv.liveness_challenges);
+                    postData.face_verified = fv.face_verified ? 1 : 0;
+                }
 
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
