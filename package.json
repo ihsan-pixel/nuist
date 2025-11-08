@@ -29,6 +29,7 @@
     },
     "dependencies": {
         "bootstrap": "5.3.5",
-        "vite-plugin-static-copy": "^0.13.1"
+        "vite-plugin-static-copy": "^0.13.1",
+        "face-api.js": "^0.22.2"
     }
 }

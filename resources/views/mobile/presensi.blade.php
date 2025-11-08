@@ -70,6 +70,58 @@
             margin-bottom: 10px;
         }
 
+        .face-verification-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+
+        .face-camera-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            margin: 8px 0;
+        }
+
+        .face-camera-preview {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .face-instruction {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .challenge-progress {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+        }
+
+        .challenge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dee2e6;
+            margin: 0 2px;
+        }
+
+        .challenge-dot.active {
+            background: #0e8549;
+        }
+
+        .challenge-dot.completed {
+            background: #0e8549;
+        }
+
         .user-location-map-container {
             position: relative;
             overflow: hidden;
@@ -309,6 +361,24 @@
         .alert-custom.info {
             border-left: 4px solid #0dcaf0;
         }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary-custom:hover {
+            color: #fff;
+            background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
+        }
     </style>
 
     <!-- Header -->
@@ -489,6 +559,80 @@
     </div>
     @endif
 
+    <!-- Face Verification Section -->
+    @if(Auth::user()->face_verification_required ?? true)
+    <div class="face-verification-section">
+        <div class="d-flex align-items-center mb-2">
+            <div class="status-icon">
+                <i class="bx bx-face"></i>
+            </div>
+            <h6 class="section-title mb-0">Verifikasi Wajah</h6>
+        </div>
+
+        <div id="face-verification-container">
+            <!-- Face enrollment prompt if not enrolled -->
+            @if(empty(Auth::user()->face_data))
+            <div id="face-enrollment-prompt" class="text-center">
+                <i class="bx bx-face text-warning" style="font-size: 48px;"></i>
+                <h6 class="mt-2">Pendaftaran Wajah Diperlukan</h6>
+                <p class="text-muted small">Anda perlu mendaftarkan wajah terlebih dahulu untuk dapat melakukan presensi.</p>
+                <button id="start-face-enrollment" class="btn btn-primary-custom">
+                    <i class="bx bx-plus me-1"></i>Daftar Wajah Sekarang
+                </button>
+            </div>
+
+            <!-- Face enrollment interface (hidden initially) -->
+            <div id="face-enrollment-interface" style="display: none;">
+                <div class="face-camera-container">
+                    <video id="face-camera" class="face-camera-preview" autoplay playsinline muted></video>
+                    <div id="face-instruction-overlay" class="face-instruction">
+                        <div id="face-instruction-text">Memuat kamera...</div>
+                    </div>
+                </div>
+
+                <div class="challenge-progress">
+                    <div class="challenge-dot" id="challenge-1"></div>
+                    <div class="challenge-dot" id="challenge-2"></div>
+                    <div class="challenge-dot" id="challenge-3"></div>
+                </div>
+
+                <button id="start-enrollment-process" class="btn btn-primary-custom" disabled>
+                    <i class="bx bx-play me-1"></i>Mulai Pendaftaran
+                </button>
+
+                <div id="face-enrollment-status" class="mt-2 text-center" style="display: none;">
+                    <small class="text-muted">Status pendaftaran akan muncul di sini</small>
+                </div>
+            </div>
+            @else
+            <!-- Face verification interface -->
+            <div id="face-verification-interface">
+                <div class="face-camera-container">
+                    <video id="face-camera" class="face-camera-preview" autoplay playsinline muted></video>
+                    <div id="face-instruction-overlay" class="face-instruction">
+                        <div id="face-instruction-text">Memuat kamera...</div>
+                    </div>
+                </div>
+
+                <div class="challenge-progress">
+                    <div class="challenge-dot" id="challenge-1"></div>
+                    <div class="challenge-dot" id="challenge-2"></div>
+                    <div class="challenge-dot" id="challenge-3"></div>
+                </div>
+
+                <button id="start-face-verification" class="btn btn-primary-custom" disabled>
+                    <i class="bx bx-play me-1"></i>Mulai Verifikasi
+                </button>
+
+                <div id="face-verification-status" class="mt-2 text-center" style="display: none;">
+                    <small class="text-muted">Status verifikasi akan muncul di sini</small>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- Important Notice -->
     <div class="alert-custom danger">
         <div class="d-flex">
@@ -573,6 +717,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
@@ -580,6 +725,12 @@ window.addEventListener('load', function() {
     let readingCount = 0;
     const totalReadings = 3;
     const readingInterval = 5000; // 5 seconds
+
+    // Face recognition variables
+    let faceRecognition = null;
+    let currentChallengeIndex = 0;
+    let challengeSequence = [];
+    let isVerificationRunning = false;
 
     // Function to collect location readings
     function collectLocationReading(readingNumber) {
@@ -725,6 +876,242 @@ window.addEventListener('load', function() {
             });
     }
 
+    // Initialize face recognition if required
+    const faceRequired = {{ Auth::user()->face_verification_required ? 'true' : 'false' }};
+    const hasFaceData = {{ !empty(Auth::user()->face_data) ? 'true' : 'false' }};
+
+    if (faceRequired && hasFaceData) {
+        initializeFaceRecognition();
+    } else if (faceRequired && !hasFaceData) {
+        initializeFaceEnrollment();
+    }
+
+    async function initializeFaceRecognition() {
+        try {
+            faceRecognition = new FaceRecognition();
+
+            // Load models
+            const modelsLoaded = await faceRecognition.loadModels();
+            if (!modelsLoaded) {
+                throw new Error('Gagal memuat model pengenalan wajah');
+            }
+
+            // Initialize camera
+            const videoElement = document.getElementById('face-camera');
+            await faceRecognition.initializeCamera(videoElement);
+
+            // Update UI
+            document.getElementById('face-instruction-text').innerText = 'Siap untuk verifikasi wajah';
+            $('#start-face-verification').prop('disabled', false);
+
+        } catch (error) {
+            console.error('Face recognition initialization error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + error.message;
+        }
+    }
+
+    // Handle start face verification
+    $('#start-face-verification').click(async function() {
+        if (isVerificationRunning) return;
+
+        isVerificationRunning = true;
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memulai...');
+
+        try {
+            if (!faceRecognition) {
+                throw new Error('Face recognition belum diinisialisasi');
+            }
+
+            // Generate challenge sequence
+            challengeSequence = faceRecognition.generateChallengeSequence();
+            currentChallengeIndex = 0;
+
+            // Reset progress dots
+            $('.challenge-dot').removeClass('active completed');
+
+            // Start verification process
+            await runVerificationSequence();
+
+        } catch (error) {
+            console.error('Verification start error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
+            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
+        } finally {
+            isVerificationRunning = false;
+            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Verifikasi');
+        }
+    });
+
+    // Handle start face enrollment
+    $('#start-face-enrollment').click(function() {
+        $('#face-enrollment-prompt').hide();
+        $('#face-enrollment-interface').show();
+        initializeFaceEnrollment();
+    });
+
+    async function initializeFaceEnrollment() {
+        try {
+            faceRecognition = new FaceRecognition();
+
+            // Load models
+            const modelsLoaded = await faceRecognition.loadModels();
+            if (!modelsLoaded) {
+                throw new Error('Gagal memuat model pengenalan wajah');
+            }
+
+            // Initialize camera
+            const videoElement = document.getElementById('face-camera');
+            await faceRecognition.initializeCamera(videoElement);
+
+            // Update UI
+            document.getElementById('face-instruction-text').innerText = 'Siap untuk pendaftaran wajah';
+            $('#start-enrollment-process').prop('disabled', false);
+
+        } catch (error) {
+            console.error('Face enrollment initialization error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + error.message;
+        }
+    }
+
+    // Handle start enrollment process
+    $('#start-enrollment-process').click(async function() {
+        if (isVerificationRunning) return;
+
+        isVerificationRunning = true;
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Mendaftarkan...');
+
+        try {
+            if (!faceRecognition) {
+                throw new Error('Face recognition belum diinisialisasi');
+            }
+
+            // Generate challenge sequence for enrollment
+            challengeSequence = faceRecognition.generateChallengeSequence();
+            currentChallengeIndex = 0;
+
+            // Reset progress dots
+            $('.challenge-dot').removeClass('active completed');
+
+            // Start enrollment process
+            await runEnrollmentSequence();
+
+        } catch (error) {
+            console.error('Enrollment start error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
+            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
+        } finally {
+            isVerificationRunning = false;
+            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Pendaftaran');
+        }
+    });
+
+    async function runEnrollmentSequence() {
+        try {
+            // Run full enrollment with liveness challenges
+            const result = await faceRecognition.performFullEnrollment(
+                document.getElementById('face-camera')
+            );
+
+            // Build payload for enrollment
+            const payload = {
+                user_id: {{ Auth::user()->id }},
+                face_data: result.faceDescriptor,
+                liveness_score: result.livenessScore,
+                liveness_challenges: result.challenges,
+                device_info: navigator.userAgent
+            };
+
+            // Send enrollment data to server
+            const response = await fetch('{{ route("face.enroll") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+
+            const serverResult = await response.json();
+
+            if (serverResult.success) {
+                document.getElementById('face-instruction-text').innerText = 'Pendaftaran berhasil ✓';
+                $('#face-enrollment-status').show().html(`
+                    <small class="text-success">
+                        Wajah berhasil didaftarkan! Liveness: ${result.livenessScore.toFixed(2)}
+                    </small>
+                `);
+
+                // Mark all challenge dots as completed
+                $('.challenge-dot').addClass('completed');
+
+                // Reload page after success
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+
+            } else {
+                throw new Error(serverResult.message || 'Pendaftaran gagal');
+            }
+
+        } catch (error) {
+            console.error('Enrollment sequence error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Pendaftaran gagal ✗';
+            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
+        }
+    }
+
+    async function runVerificationSequence() {
+        const registeredFaceData = {{ json_encode(Auth::user()->face_data) }};
+
+        try {
+            // Run full verification with liveness challenges
+            const result = await faceRecognition.performFullVerification(
+                document.getElementById('face-camera'),
+                registeredFaceData
+            );
+
+            // Store result globally for presensi submission
+            window.lastFaceVerificationResult = {
+                face_verified: result.faceVerified,
+                face_id: result.faceId,
+                similarity_score: result.faceSimilarity,
+                liveness_score: result.livenessScore,
+                liveness_challenges: result.challenges,
+                timestamp: result.timestamp
+            };
+
+            // Update UI based on result
+            if (result.faceVerified && result.livenessScore >= 0.7) {
+                document.getElementById('face-instruction-text').innerText = 'Verifikasi berhasil ✓';
+                $('#face-verification-status').show().html(`
+                    <small class="text-success">
+                        Wajah cocok (${(result.faceSimilarity * 100).toFixed(1)}%) •
+                        Liveness: ${result.livenessScore.toFixed(2)}
+                    </small>
+                `);
+
+                // Mark all challenge dots as completed
+                $('.challenge-dot').addClass('completed');
+
+            } else {
+                let reason = '';
+                if (!result.faceVerified) reason += 'Wajah tidak cocok. ';
+                if (result.livenessScore < 0.7) reason += 'Liveness check gagal.';
+
+                document.getElementById('face-instruction-text').innerText = 'Verifikasi gagal ✗';
+                $('#face-verification-status').show().html(`<small class="text-danger">${reason}</small>`);
+            }
+
+        } catch (error) {
+            console.error('Verification sequence error:', error);
+            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
+            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
+        }
+    }
+
     // Handle presensi button
     $('#btn-presensi').click(function() {
         if (!latitude || !longitude) {
@@ -735,6 +1122,19 @@ window.addEventListener('load', function() {
                 confirmButtonText: 'Oke'
             });
             return;
+        }
+
+        // Check face verification if required
+        if (faceRequired) {
+            if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Verifikasi Wajah Diperlukan',
+                    text: 'Silakan jalankan verifikasi wajah sebelum melakukan presensi.',
+                    confirmButtonText: 'Oke'
+                });
+                return;
+            }
         }
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
@@ -792,6 +1192,16 @@ window.addEventListener('load', function() {
                     location_readings: JSON.stringify(allReadings)
                 };
 
+                // Include face verification result if available
+                if (window.lastFaceVerificationResult) {
+                    const fv = window.lastFaceVerificationResult;
+                    postData.face_id_used = fv.face_id;
+                    postData.face_similarity_score = fv.similarity_score;
+                    postData.liveness_score = fv.liveness_score;
+                    postData.liveness_challenges = JSON.stringify(fv.liveness_challenges);
+                    postData.face_verified = fv.face_verified ? 1 : 0;
+                }
+
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
                 $('#longitude').val(reading4Lng.toFixed(6));
@@ -817,251 +1227,49 @@ window.addEventListener('load', function() {
                     url: '{{ route("mobile.presensi.store") }}',
                     method: 'POST',
                     data: postData,
-                    timeout: 30000, // 30 detik timeout
-                    success: function(response) {
-                        if (response.success) {
+                    timeout: 30000,
+                    success: function(resp) {
+                        if (resp && resp.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                confirmButtonText: 'Oke',
-                                timer: 3000,
-                                timerProgressBar: true
+                                title: 'Berhasil',
+                                text: resp.message || 'Presensi berhasil dicatat',
+                                timer: 1500,
+                                showConfirmButton: false
                             }).then(() => {
                                 location.reload();
                             });
                         } else {
-                            // Map common backend messages to clearer explanations
-                            let title = 'Peringatan';
-                            let text = response.message || 'Presensi gagal.';
-
-                            const msg = (response.message || '').toLowerCase();
-                            if (msg.includes('luar area') || msg.includes('di luar area')) {
-                                title = 'Diluar Area Sekolah';
-                                text = 'Lokasi Anda berada di luar area presensi madrasah. Pastikan GPS aktif dan Anda berada di lingkungan sekolah.';
-                            } else if (msg.includes('waktu presensi masuk telah berakhir') || msg.includes('waktu presensi masuk')) {
-                                title = 'Waktu Masuk Habis';
-                                text = 'Batas waktu untuk presensi masuk telah lewat. Jika Anda terlambat, silakan ajukan izin atau hubungi admin.';
-                            } else if (msg.includes('belum waktunya presensi masuk')) {
-                                title = 'Belum Waktunya Masuk';
-                                text = 'Masih belum waktunya untuk melakukan presensi masuk. Silakan coba kembali pada jam yang ditentukan.';
-                            } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
-                                title = 'Belum Waktunya Pulang';
-                                text = 'Belum waktunya melakukan presensi pulang. Tunggu hingga jam pulang yang ditentukan.';
-                            }
-
                             Swal.fire({
-                                icon: 'warning',
-                                title: title,
-                                text: text,
-                                confirmButtonText: 'Oke'
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
                             });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
+                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
                         }
                     },
-                    error: function(xhr, status, error) {
-                        let errorMessage = 'Terjadi kesalahan tidak diketahui';
-                        let title = 'Kesalahan';
-
-                        if (status === 'timeout') {
-                            errorMessage = 'Waktu koneksi habis. Silakan coba lagi.';
-                        } else if (xhr.status === 0) {
-                            errorMessage = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-
-                        const msg = (xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : errorMessage).toLowerCase();
-                        if (msg.includes('luar area') || msg.includes('di luar area')) {
-                            title = 'Diluar Area Sekolah';
-                            errorMessage = 'Lokasi Anda berada di luar area presensi madrasah. Periksa lokasi dan coba lagi.';
-                        } else if (msg.includes('waktu presensi masuk telah berakhir') || msg.includes('waktu presensi masuk')) {
-                            title = 'Waktu Masuk Habis';
-                            errorMessage = 'Batas waktu presensi masuk telah lewat.';
-                        } else if (msg.includes('belum waktunya presensi masuk')) {
-                            title = 'Belum Waktunya Masuk';
-                            errorMessage = 'Masih belum waktunya untuk presensi masuk.';
-                        } else if (msg.includes('belum waktunya presensi pulang') || msg.includes('presensi keluar harus')) {
-                            title = 'Belum Waktunya Pulang';
-                            errorMessage = 'Belum waktunya melakukan presensi pulang.';
-                        }
-
+                    error: function(xhr, status, err) {
+                        let message = 'Gagal menghubungi server.';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
                         Swal.fire({
                             icon: 'error',
-                            title: title,
-                            text: errorMessage,
-                            confirmButtonText: 'Oke'
+                            title: 'Kesalahan',
+                            text: message
                         });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? "Presensi Keluar" : "Presensi Masuk" }}');
-                        }
-                        });
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                    }
+                });
+
             },
-            function(error) {
+            function(err){
                 Swal.fire({
                     icon: 'error',
-                    title: 'Kesalahan',
-                    text: 'Gagal mendapatkan lokasi: ' + error.message,
-                    confirmButtonText: 'Oke'
+                    title: 'Kesalahan GPS',
+                    text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-2"></i>{{ $presensiHariIni ? "Presensi Keluar" : "Presensi Masuk" }}');
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 10000
-            }
-        );
-    });
+                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+        });
 });
-
-// Initialize user location map
-let userLocationMap;
-let userLocationMarker;
-
-function initializeUserLocationMap(lat, lng) {
-    if (userLocationMap) {
-        userLocationMap.remove();
-    }
-
-    userLocationMap = L.map('user-location-map').setView([lat, lng], 18);
-
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(userLocationMap);
-
-    // Add user location marker with custom icon (animated pulsing effect)
-    const userIcon = L.divIcon({
-        html: '<div style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); width: 20px; height: 20px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 8px rgba(0,0,0,0.4); position: relative; animation: pulse 2s infinite;"><div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 8px solid #004b4c;"></div></div><style>@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }</style>',
-        className: 'user-location-marker',
-        iconSize: [20, 20],
-        iconAnchor: [10, 20]
-    });
-
-    userLocationMarker = L.marker([lat, lng], { icon: userIcon }).addTo(userLocationMap);
-
-    // Add accuracy circle if available
-    if (locationReadings.length > 0) {
-        const latestReading = locationReadings[locationReadings.length - 1];
-        if (latestReading.accuracy) {
-            L.circle([lat, lng], {
-                color: 'rgba(14, 133, 73, 0.4)',
-                fillColor: 'rgba(14, 133, 73, 0.15)',
-                fillOpacity: 0.4,
-                radius: latestReading.accuracy,
-                weight: 2
-            }).addTo(userLocationMap);
-        }
-    }
-
-    // Add popup with location info
-    const popupContent = `
-        <div style="font-family: 'Poppins', sans-serif; font-size: 12px; text-align: center;">
-            <strong style="color: #004b4c;">📍 Lokasi Anda</strong><br>
-            <small style="color: #666;">${lat.toFixed(6)}, ${lng.toFixed(6)}</small><br>
-            <small style="color: #666;">Akurasi: ${locationReadings.length > 0 ? Math.round(locationReadings[locationReadings.length - 1].accuracy) + 'm' : 'N/A'}</small>
-        </div>
-    `;
-    userLocationMarker.bindPopup(popupContent).openPopup();
-
-    // Set zoom limits
-    userLocationMap.setMinZoom(15);
-    userLocationMap.setMaxZoom(20);
-
-    // Disable scroll wheel zoom to prevent accidental zooming
-    userLocationMap.scrollWheelZoom.disable();
-}
-
-// Update user location map when coordinates are collected
-function updateUserLocationMap(lat, lng) {
-    // Hide placeholder and show map
-    $('#map-placeholder').fadeOut(300, function() {
-        if (userLocationMap && userLocationMarker) {
-            userLocationMap.setView([lat, lng], 18);
-            userLocationMarker.setLatLng([lat, lng]);
-        } else {
-            initializeUserLocationMap(lat, lng);
-        }
-    });
-}
-
-// Initialize map for kepala madrasah monitoring
-@if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize map
-    const map = L.map('presensi-map').setView([-6.2088, 106.8456], 13); // Default Jakarta
-
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
-
-    // Custom icons
-    const presensiIcon = L.divIcon({
-        html: '<div style="background: #0e8549; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
-        className: 'custom-marker',
-        iconSize: [12, 12],
-        iconAnchor: [6, 6]
-    });
-
-    const belumPresensiIcon = L.divIcon({
-        html: '<div style="background: #dc3545; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
-        className: 'custom-marker',
-        iconSize: [12, 12],
-        iconAnchor: [6, 6]
-    });
-
-    // Add markers
-    const mapData = @json($mapData);
-    let bounds = [];
-
-    mapData.forEach(function(user) {
-        const lat = parseFloat(user.latitude);
-        const lng = parseFloat(user.longitude);
-
-        if (!isNaN(lat) && !isNaN(lng)) {
-            bounds.push([lat, lng]);
-
-            const icon = user.marker_type === 'presensi' ? presensiIcon : belumPresensiIcon;
-
-            const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
-
-            // Create popup content
-            let popupContent = `
-                <div style="font-family: 'Poppins', sans-serif; font-size: 12px; max-width: 200px;">
-                    <strong>${user.name}</strong><br>
-                    <small style="color: #666;">${user.status_kepegawaian}</small><br>
-                    <small><strong>Status:</strong> ${user.marker_type === 'presensi' ? 'Sudah Presensi' : 'Belum Presensi'}</small><br>
-            `;
-
-            if (user.marker_type === 'presensi') {
-                popupContent += `
-                    <small><strong>Masuk:</strong> ${user.waktu_masuk || '-'}</small><br>
-                    <small><strong>Keluar:</strong> ${user.waktu_keluar || '-'}</small><br>
-                `;
-            }
-
-            popupContent += `
-                    <small><strong>Lokasi:</strong> ${user.lokasi}</small>
-                </div>
-            `;
-
-            marker.bindPopup(popupContent);
-        }
-    });
-
-    // Fit map to show all markers
-    if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [20, 20] });
-    }
-
-    // Set minimum zoom level
-    map.setMinZoom(10);
-    map.setMaxZoom(18);
-});
-@endif
-
 </script>
 @endsection

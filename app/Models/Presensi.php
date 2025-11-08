@@ -28,6 +28,12 @@ class Presensi extends Model
         'altitude',
         'speed',
         'device_info',
+        'face_id_used',
+        'face_similarity_score',
+        'liveness_score',
+        'liveness_challenges',
+        'face_verified',
+        'face_verification_notes',
         'location_readings',
         'status',
         'keterangan',
@@ -50,6 +56,10 @@ class Presensi extends Model
         'accuracy' => 'decimal:2',
         'altitude' => 'decimal:2',
         'speed' => 'decimal:2',
+        'face_similarity_score' => 'decimal:2',
+        'liveness_score' => 'decimal:2',
+        'liveness_challenges' => 'array',
+        'face_verified' => 'boolean',
         'location_readings' => 'array',
     ];
 

@@ -40,6 +40,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'ketugasan',
         'mengajar',
         'avatar',
+        'face_data',
+        'face_id',
+        'face_registered_at',
+        'face_verification_required',
         'alamat',
         'pemenuhan_beban_kerja_lain',
         'madrasah_id_tambahan',
@@ -58,6 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'tmt' => 'date',
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
+        'face_data' => 'array',
+        'face_registered_at' => 'datetime',
+        'face_verification_required' => 'boolean',
     ];
 
     protected static function boot()

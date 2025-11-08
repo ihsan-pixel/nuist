@@ -84,6 +84,14 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+// Admin face enrollment management (only admin and super_admin)
+Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(function () {
+    Route::get('/face-enrollment', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'index'])->name('face.enrollment.list');
+    Route::get('/face-enrollment/{userId}', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'show'])->name('face.enrollment');
+    Route::delete('/face-enrollment/{userId}', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'destroy'])->name('face.enrollment.destroy');
+    Route::post('/face-enrollment/{userId}/toggle-verification', [App\Http\Controllers\Admin\FaceEnrollmentController::class, 'toggleVerification'])->name('face.enrollment.toggle-verification');
+});
+
 Auth::routes(['verify' => true]);
 
 // Email Verification Routes
@@ -111,6 +119,10 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
     Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha'])->name('riwayat-presensi-alpha');
+
+    // Face enrollment (mobile)
+    Route::get('/face-enrollment', function () { return view('mobile.face-enrollment'); })->name('face.enrollment');
+    Route::post('/face-enroll', [App\Http\Controllers\Api\FaceController::class, 'enroll'])->name('face.enroll');
 
     // Jadwal
     Route::get('/jadwal', [App\Http\Controllers\Mobile\Jadwal\JadwalController::class, 'jadwal'])->name('jadwal');

@@ -150,6 +150,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
+            // Face verification fields (optional)
+            'face_id_used' => 'nullable|string',
+            'face_similarity_score' => 'nullable|numeric',
+            'liveness_score' => 'nullable|numeric',
+            'liveness_challenges' => 'nullable',
+            'face_verified' => 'nullable|boolean',
+            'face_verification_notes' => 'nullable|string',
         ]);
 
         $tanggal = Carbon::today()->toDateString();
@@ -228,6 +235,47 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'success' => false,
                 'message' => 'Presensi keluar hari ini sudah dicatat. Presensi hari ini sudah lengkap.'
             ], 400);
+        }
+
+        // Face verification validation if required
+        if ($user->face_verification_required) {
+            $faceVerified = $request->input('face_verified', false);
+            $faceSimilarityScore = $request->input('face_similarity_score', 0);
+            $livenessScore = $request->input('liveness_score', 0);
+
+            // Check if face verification was performed
+            if (!$faceVerified) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verifikasi wajah diperlukan untuk melakukan presensi. Silakan lakukan verifikasi wajah terlebih dahulu.',
+                    'needs_face_enrollment' => !$user->face_registered_at
+                ], 400);
+            }
+
+            // Validate face similarity score (threshold: 0.8)
+            if ($faceSimilarityScore < 0.8) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verifikasi wajah gagal. Wajah tidak cocok dengan data yang terdaftar. Silakan coba lagi.'
+                ], 400);
+            }
+
+            // Validate liveness score (threshold: 0.7)
+            if ($livenessScore < 0.7) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verifikasi liveness gagal. Pastikan Anda melakukan semua instruksi verifikasi wajah dengan benar.'
+                ], 400);
+            }
+
+            // Validate liveness challenges were completed
+            $livenessChallenges = $request->input('liveness_challenges');
+            if (!$livenessChallenges || !is_array($livenessChallenges) || count($livenessChallenges) < 3) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verifikasi liveness tidak lengkap. Pastikan semua tantangan verifikasi wajah diselesaikan.'
+                ], 400);
+            }
         }
 
         // Location validation using polygon from madrasah
@@ -314,6 +362,13 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
                 'location_readings' => $request->location_readings,
+                // optionally store face verification results
+                'face_id_used' => $request->input('face_id_used'),
+                'face_similarity_score' => $request->input('face_similarity_score'),
+                'liveness_score' => $request->input('liveness_score'),
+                'liveness_challenges' => $request->input('liveness_challenges'),
+                'face_verified' => $request->input('face_verified'),
+                'face_verification_notes' => $request->input('face_verification_notes'),
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
