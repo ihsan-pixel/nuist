@@ -1307,7 +1307,84 @@ window.addEventListener('load', function() {
                 });
                 $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
-        });
+    });
 });
+
+// Initialize map for kepala madrasah monitoring
+@if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    const map = L.map('presensi-map').setView([-6.2088, 106.8456], 13); // Default Jakarta
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom icons
+    const presensiIcon = L.divIcon({
+        html: '<div style="background: #0e8549; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+        className: 'custom-marker',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    const belumPresensiIcon = L.divIcon({
+        html: '<div style="background: #dc3545; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+        className: 'custom-marker',
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+
+    // Add markers
+    const mapData = @json($mapData);
+    let bounds = [];
+
+    mapData.forEach(function(user) {
+        const lat = parseFloat(user.latitude);
+        const lng = parseFloat(user.longitude);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            bounds.push([lat, lng]);
+
+            const icon = user.marker_type === 'presensi' ? presensiIcon : belumPresensiIcon;
+
+            const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+
+            // Create popup content
+            let popupContent = `
+                <div style="font-family: 'Poppins', sans-serif; font-size: 12px; max-width: 200px;">
+                    <strong>${user.name}</strong><br>
+                    <small style="color: #666;">${user.status_kepegawaian}</small><br>
+                    <small><strong>Status:</strong> ${user.marker_type === 'presensi' ? 'Sudah Presensi' : 'Belum Presensi'}</small><br>
+            `;
+
+            if (user.marker_type === 'presensi') {
+                popupContent += `
+                    <small><strong>Masuk:</strong> ${user.waktu_masuk || '-'}</small><br>
+                    <small><strong>Keluar:</strong> ${user.waktu_keluar || '-'}</small><br>
+                `;
+            }
+
+            popupContent += `
+                    <small><strong>Lokasi:</strong> ${user.lokasi}</small>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        }
+    });
+
+    // Fit map to show all markers
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [20, 20] });
+    }
+
+    // Set minimum zoom level
+    map.setMinZoom(10);
+    map.setMaxZoom(18);
+});
+@endif
 </script>
 @endsection
