@@ -92,6 +92,35 @@
             color: #6c757d;
         }
 
+        .face-verification-info {
+            background: rgba(14, 133, 73, 0.05);
+            border-radius: 6px;
+            padding: 6px;
+            margin-top: 4px;
+            font-size: 10px;
+        }
+
+        .face-verified {
+            color: #0e8549;
+        }
+
+        .face-failed {
+            color: #dc3545;
+        }
+
+        .face-score {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .face-score.similarity {
+            color: #0d6efd;
+        }
+
+        .face-score.liveness {
+            color: #198754;
+        }
+
         .no-history {
             text-align: center;
             padding: 40px 20px;
@@ -144,6 +173,17 @@
                             @endif
                             @if($presensi->keterangan)
                                 <div class="text-muted small">{{ $presensi->keterangan }}</div>
+                            @endif
+                            @if($presensi->face_verified !== null)
+                            <div class="face-verification-info">
+                                <i class="bx bx-{{ $presensi->face_verified ? 'check-circle' : 'x-circle' }} face-{{ $presensi->face_verified ? 'verified' : 'failed' }} me-1"></i>
+                                <span class="face-score similarity">
+                                    <i class="bx bx-target-lock"></i> {{ number_format($presensi->face_similarity_score * 100, 1) }}%
+                                </span>
+                                <span class="face-score liveness">
+                                    <i class="bx bx-pulse"></i> {{ number_format($presensi->liveness_score * 100, 1) }}%
+                                </span>
+                            </div>
                             @endif
                         </div>
                         <div class="status-badge status-{{ $presensi->status }}">

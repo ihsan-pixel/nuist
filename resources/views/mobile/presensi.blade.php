@@ -732,6 +732,10 @@ window.addEventListener('load', function() {
     let challengeSequence = [];
     let isVerificationRunning = false;
 
+    // Map variables
+    let userLocationMap = null;
+    let userLocationMarker = null;
+
     // Function to collect location readings
     function collectLocationReading(readingNumber) {
         return new Promise((resolve, reject) => {
@@ -841,6 +845,40 @@ window.addEventListener('load', function() {
                 </div>
             `);
         }
+    }
+
+    // Initialize user location map
+    function initializeUserLocationMap() {
+        if (userLocationMap) return; // Already initialized
+
+        userLocationMap = L.map('user-location-map').setView([-6.2, 106.816666], 13); // Default to Jakarta
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(userLocationMap);
+
+        // Hide placeholder
+        $('#map-placeholder').hide();
+    }
+
+    // Update user location map
+    function updateUserLocationMap(lat, lng) {
+        if (!userLocationMap) {
+            initializeUserLocationMap();
+        }
+
+        // Remove existing marker
+        if (userLocationMarker) {
+            userLocationMap.removeLayer(userLocationMarker);
+        }
+
+        // Add new marker
+        userLocationMarker = L.marker([lat, lng]).addTo(userLocationMap)
+            .bindPopup('Lokasi Anda saat ini')
+            .openPopup();
+
+        // Center map on location
+        userLocationMap.setView([lat, lng], 16);
     }
 
     // Check if geolocation is supported
