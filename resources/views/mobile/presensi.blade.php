@@ -719,7 +719,29 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- face-api.js (required by face-recognition.js). Loaded from CDN to ensure `faceapi` is available. -->
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-<script src="{{ asset('js/face-recognition.js') }}"></script>
+<!-- Dynamically load face-recognition.js only if it's reachable to avoid 404 and make error handling clearer -->
+<script>
+    (async function() {
+        const scriptUrl = "{{ asset('js/face-recognition.js') }}";
+        try {
+            // Try a HEAD request first to detect 404 early (safer than relying on browser script load error alone)
+            const resp = await fetch(scriptUrl, { method: 'HEAD' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+            const s = document.createElement('script');
+            s.src = scriptUrl;
+            s.onload = () => console.log('face-recognition.js loaded');
+            s.onerror = (e) => {
+                console.error('Failed to load face-recognition.js', e);
+                try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition gagal dimuat.'; } catch(e){}
+            };
+            document.head.appendChild(s);
+        } catch (err) {
+            console.error('face-recognition.js not reachable:', err);
+            try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition tidak ditemukan di server.'; } catch(e){}
+        }
+    })();
+</script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
@@ -851,6 +873,11 @@ window.addEventListener('load', function() {
 
     // Initialize user location map
     function initializeUserLocationMap() {
+        // Defensive: avoid initializing the same Leaflet container more than once.
+        const container = document.getElementById('user-location-map');
+        if (!container) return;
+        // If Leaflet already attached an id to the element, skip initialization
+        if (container._leaflet_id) return;
         if (userLocationMap) return; // Already initialized
 
         userLocationMap = L.map('user-location-map').setView([-6.2, 106.816666], 13); // Default to Jakarta
