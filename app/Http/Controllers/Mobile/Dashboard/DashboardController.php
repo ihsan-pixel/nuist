@@ -79,6 +79,6 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->orderBy('start_time')
             ->get();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'sakit', 'userInfo', 'todaySchedules', 'bannerImage'));
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedules', 'bannerImage'));
     }
 }

@@ -300,10 +300,10 @@
             </div>
             <div class="stat-item">
                 <div class="icon-container">
-                    <i class="bx bx-plus-medical text-danger"></i>
+                    <i class="bx bx-x text-danger"></i>
                 </div>
-                <h6>{{ $sakit }}</h6>
-                <small>Sakit</small>
+                <h6>{{ $alpha }}</h6>
+                <small>Tidak Hadir</small>
             </div>
         </div>
     </div>
