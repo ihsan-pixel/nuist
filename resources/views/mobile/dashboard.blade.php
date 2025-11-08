@@ -303,7 +303,9 @@
                     <i class="bx bx-x text-danger"></i>
                 </div>
                 <h6>{{ $alpha }}</h6>
-                <small>Tidak Hadir</small>
+                <small>
+                    <a href="{{ route('mobile.riwayat-presensi-alpha') }}" class="text-decoration-none text-danger" style="font-size: 9px;">Tidak Hadir</a>
+                </small>
             </div>
         </div>
     </div>
