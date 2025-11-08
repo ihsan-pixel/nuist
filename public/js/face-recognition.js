@@ -1,6 +1,7 @@
 class FaceRecognition {
     constructor() {
-        this.MODEL_URL = '/public/models';
+        // Use Laravel's asset helper to get the correct path
+        this.MODEL_URL = window.MODEL_PATH || '/models';
         this.videoStream = null;
         this.videoEl = null;
         this.challenges = ['blink', 'smile', 'head_turn'];

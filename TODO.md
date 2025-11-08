@@ -35,7 +35,9 @@ Mengimplementasikan validasi Face ID menggunakan TensorFlow.js untuk mencegah pr
 ### Phase 1: Perbaikan Sistem Face Recognition (1-2 minggu)
 #### 1.1 Perbaikan Face Verification di Presensi ✅ COMPLETED
 - [x] Debug dan perbaiki error di face verification sequence
-- [x] Pastikan face-api.js models dimuat dengan benar
+- [x] **FIXED: Model Path Issue** - Updated face-recognition.js to use Laravel's asset() helper instead of hardcoded `/public/models`
+- [x] **FIXED: Model Loading** - Set window.MODEL_PATH in blade templates to provide correct model URL to JavaScript
+- [x] Pastikan face-api.js models dimuat dengan benar dari `/models/` path
 - [x] Implementasi fallback jika face recognition gagal (allow presensi tanpa face temporarily)
 - [x] Update UI feedback untuk face verification status
 - [x] Re-enable face verification di mobile presensi view

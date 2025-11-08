@@ -150,6 +150,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<!-- Set model path for face-recognition.js -->
+<script>
+    window.MODEL_PATH = '{{ asset('models') }}';
+</script>
 <script src="{{ asset('js/face-recognition.js') }}"></script>
 <script>
     // Add challenge instruction display and progress updates
