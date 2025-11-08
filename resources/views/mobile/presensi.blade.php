@@ -979,7 +979,13 @@ window.addEventListener('load', function() {
 
         try {
             if (!faceRecognition) {
-                throw new Error('Face recognition belum diinisialisasi');
+                // Try to wait for and initialize FaceRecognition if it's available but not yet created
+                try {
+                    await waitForFaceRecognition();
+                    await initializeFaceRecognition();
+                } catch (err) {
+                    throw new Error('Face recognition belum diinisialisasi: ' + err.message);
+                }
             }
 
             // Generate challenge sequence
@@ -1006,7 +1012,13 @@ window.addEventListener('load', function() {
     $('#start-face-enrollment').click(function() {
         $('#face-enrollment-prompt').hide();
         $('#face-enrollment-interface').show();
-        initializeFaceEnrollment();
+        // Ensure FaceRecognition class is available before initializing enrollment
+        waitForFaceRecognition().then(() => {
+            initializeFaceEnrollment();
+        }).catch(err => {
+            console.error('FaceRecognition not available on enrollment click:', err);
+            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + err.message;
+        });
     });
 
     async function initializeFaceEnrollment() {
