@@ -766,39 +766,55 @@ window.addEventListener('load', function() {
         });
     }
 
-    // Start collecting multiple readings
+    // Start collecting multiple readings - modified to allow presensi with at least one reading
     async function startLocationCollection() {
         try {
             for (let i = 1; i <= totalReadings; i++) {
-                await collectLocationReading(i);
+                try {
+                    await collectLocationReading(i);
 
-                // Wait 5 seconds between readings (except for the last one)
-                if (i < totalReadings) {
-                    await new Promise(resolve => setTimeout(resolve, readingInterval));
+                    // Enable presensi button after first successful reading
+                    if (i === 1 && locationReadings.length > 0) {
+                        latitude = locationReadings[locationReadings.length - 1].latitude;
+                        longitude = locationReadings[locationReadings.length - 1].longitude;
+
+                        // Enable presensi button early
+                        var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
+                        var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
+                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Presensi Masuk";
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
+                    }
+
+                    // Wait 5 seconds between readings (except for the last one)
+                    if (i < totalReadings) {
+                        await new Promise(resolve => setTimeout(resolve, readingInterval));
+                    }
+                } catch (readingError) {
+                    console.warn(`Reading ${i} failed:`, readingError);
+                    // Continue to next reading instead of failing completely
+                    continue;
                 }
             }
 
-            // All readings collected successfully
-            latitude = locationReadings[locationReadings.length - 1].latitude;
-            longitude = locationReadings[locationReadings.length - 1].longitude;
+            // Update final status
+            if (locationReadings.length > 0) {
+                latitude = locationReadings[locationReadings.length - 1].latitude;
+                longitude = locationReadings[locationReadings.length - 1].longitude;
 
-            $('#location-info').html(`
-        <div class="location-info success">
-            <div class="d-flex align-items-center">
-                <i class="bx bx-check-circle me-2"></i>
-                <div>
-                    <strong class="small">Data lokasi lengkap!</strong>
-                    <br><small class="text-muted">Siap untuk presensi (lokasi akan divalidasi setelah face recognition diperbaiki)</small>
+                $('#location-info').html(`
+            <div class="location-info success">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-check-circle me-2"></i>
+                    <div>
+                        <strong class="small">Data lokasi lengkap!</strong>
+                        <br><small class="text-muted">Siap untuk presensi (lokasi akan divalidasi setelah face recognition diperbaiki)</small>
+                    </div>
                 </div>
             </div>
-        </div>
-            `);
-
-            // Enable presensi button - check if all presensi records have waktu_keluar
-            var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
-            var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
-            var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Presensi Masuk";
-            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
+                `);
+            } else {
+                throw new Error('Tidak dapat mendapatkan lokasi setelah beberapa percobaan');
+            }
 
         } catch (error) {
             $('#location-info').html(`
@@ -1166,6 +1182,17 @@ window.addEventListener('load', function() {
             return;
         }
 
+        // Allow presensi even if not all readings were collected (at least one reading is enough)
+        if (locationReadings.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan',
+                text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
         // Check face verification if required - temporarily disabled
         // if (faceRequired) {
         //     if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
@@ -1188,10 +1215,10 @@ window.addEventListener('load', function() {
                 let reading4Lng = position.coords.longitude;
                 let reading4Timestamp = Date.now();
 
-                // Build location readings array from all stored readings
+                // Build location readings array from all stored readings (use available readings)
                 let allReadings = [];
 
-                // Add readings 1-3 from sessionStorage
+                // Add readings 1-3 from sessionStorage if available
                 for (let i = 1; i <= 3; i++) {
                     let lat = sessionStorage.getItem(`reading${i}_latitude`);
                     let lng = sessionStorage.getItem(`reading${i}_longitude`);
@@ -1210,6 +1237,18 @@ window.addEventListener('load', function() {
                             speed: speed ? parseFloat(speed) : null
                         });
                     }
+                }
+
+                // If no stored readings, use current location as reading 1
+                if (allReadings.length === 0 && latitude && longitude) {
+                    allReadings.push({
+                        latitude: latitude,
+                        longitude: longitude,
+                        timestamp: Date.now(),
+                        accuracy: position.coords.accuracy,
+                        altitude: position.coords.altitude,
+                        speed: position.coords.speed
+                    });
                 }
 
                 // Add reading 4 (button click)
