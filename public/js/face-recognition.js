@@ -260,7 +260,7 @@ class FaceRecognition {
         let smileDetected = false;
 
         while (Date.now() - start < timeoutMs) {
-            const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+            const detection = await faceapi.detectSingleFace(this.videoEl, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
             if (detection && detection.landmarks) {
                 const mouth = detection.landmarks.getMouth();
                 if (mouth && mouth.length >= 4) {
@@ -292,7 +292,7 @@ class FaceRecognition {
         let headTurnDetected = false;
 
         while (Date.now() - start < timeoutMs) {
-            const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+            const detection = await faceapi.detectSingleFace(this.videoEl, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
             if (detection && detection.landmarks) {
                 const nose = detection.landmarks.getNose();
                 if (nose && nose.length > 0) {
