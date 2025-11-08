@@ -366,8 +366,8 @@
     <script>
         window.MODEL_PATH = "{{ asset('models') }}";
     </script>
-    <script defer src="{{ asset('js/face-api.min.js') }}"></script>
-    <script defer src="{{ asset('js/face-recognition.js') }}"></script>
+    <script src="{{ asset('js/face-api.min.js') }}"></script>
+    <script src="{{ asset('js/face-recognition.js') }}"></script>
 
     <!-- Mobile-specific scripts -->
     <script>
