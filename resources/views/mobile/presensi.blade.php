@@ -100,28 +100,6 @@
             font-size: 12px;
         }
 
-        .challenge-progress {
-            display: flex;
-            justify-content: center;
-            margin: 8px 0;
-        }
-
-        .challenge-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dee2e6;
-            margin: 0 2px;
-        }
-
-        .challenge-dot.active {
-            background: #0e8549;
-        }
-
-        .challenge-dot.completed {
-            background: #0e8549;
-        }
-
         .user-location-map-container {
             position: relative;
             overflow: hidden;
@@ -588,12 +566,6 @@
                 <div id="face-instruction-overlay" class="face-instruction">
                     <div id="face-instruction-text">Memuat kamera...</div>
                 </div>
-            </div>
-
-            <div class="challenge-progress">
-                <div class="challenge-dot" id="challenge-1"></div>
-                <div class="challenge-dot" id="challenge-2"></div>
-                <div class="challenge-dot" id="challenge-3"></div>
             </div>
 
             <div id="face-verification-status" style="display: none; margin-top: 8px;">
@@ -1105,7 +1077,7 @@ window.addEventListener('load', function() {
         const registeredFaceData = {{ json_encode(Auth::user()->face_data) }};
 
         try {
-            // Run full verification with liveness challenges
+            // Run simplified face verification
             const result = await window.faceRecognition.performFullVerification(
                 document.getElementById('face-camera'),
                 registeredFaceData
@@ -1114,33 +1086,22 @@ window.addEventListener('load', function() {
             // Store result globally for presensi submission
             window.lastFaceVerificationResult = {
                 face_verified: result.faceVerified,
-                face_id: result.faceId,
                 similarity_score: result.faceSimilarity,
-                liveness_score: result.livenessScore,
-                liveness_challenges: result.challenges,
                 timestamp: result.timestamp
             };
 
             // Update UI based on result
-            if (result.faceVerified && result.livenessScore >= 0.7) {
+            if (result.faceVerified) {
                 document.getElementById('face-instruction-text').innerText = 'Verifikasi berhasil ✓';
                 $('#face-verification-status').show().html(`
                     <small class="text-success">
-                        Wajah cocok (${(result.faceSimilarity * 100).toFixed(1)}%) •
-                        Liveness: ${result.livenessScore.toFixed(2)}
+                        Wajah cocok (${(result.faceSimilarity * 100).toFixed(1)}%)
                     </small>
                 `);
 
-                // Mark all challenge dots as completed
-                $('.challenge-dot').addClass('completed');
-
             } else {
-                let reason = '';
-                if (!result.faceVerified) reason += 'Wajah tidak cocok. ';
-                if (result.livenessScore < 0.7) reason += 'Liveness check gagal.';
-
                 document.getElementById('face-instruction-text').innerText = 'Verifikasi gagal ✗';
-                $('#face-verification-status').show().html(`<small class="text-danger">${reason}</small>`);
+                $('#face-verification-status').show().html(`<small class="text-danger">Wajah tidak cocok</small>`);
             }
 
         } catch (error) {
@@ -1256,10 +1217,7 @@ window.addEventListener('load', function() {
                 // Include face verification result if available
                 if (window.lastFaceVerificationResult) {
                     const fv = window.lastFaceVerificationResult;
-                    postData.face_id_used = fv.face_id;
                     postData.face_similarity_score = fv.similarity_score;
-                    postData.liveness_score = fv.liveness_score;
-                    postData.liveness_challenges = JSON.stringify(fv.liveness_challenges);
                     postData.face_verified = fv.face_verified ? 1 : 0;
                 }
 
