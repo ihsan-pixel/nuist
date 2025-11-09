@@ -426,7 +426,7 @@
                     <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
                         <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/4 - Pastikan GPS aktif</small>
+                        <br><small class="text-muted">Reading 1/1 - Pastikan GPS aktif</small>
                     </div>
                 </div>
             </div>
@@ -640,7 +640,7 @@ window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 1; // Temporarily set to 1 for testing selfie without multiple readings
+    const totalReadings = 1; // Single location reading only
     const readingInterval = 5000; // 5 seconds
 
 
@@ -728,8 +728,8 @@ window.addEventListener('load', function() {
                             <div class="d-flex align-items-center">
                                 <i class="bx bx-error-circle me-2"></i>
                                 <div>
-                                    <strong class="small">Reading ${readingNumber} gagal</strong>
-                                    <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
+                                <strong class="small">Reading ${readingNumber} gagal</strong>
+                                <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
                                 </div>
                             </div>
                         </div>
@@ -858,8 +858,8 @@ window.addEventListener('load', function() {
                             <div class="d-flex align-items-center">
                                 <i class="bx bx-check-circle me-2"></i>
                                 <div>
-                                    <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
-                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
+                                <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
+                                <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
                                 </div>
                             </div>
                         </div>
@@ -912,7 +912,7 @@ window.addEventListener('load', function() {
                             <i class="bx bx-loader-alt bx-spin me-2"></i>
                             <div>
                                 <strong class="small">Mencoba lagi...</strong>
-                                <br><small class="text-muted">Reading 1/4 - Auto retry</small>
+                                <br><small class="text-muted">Reading 1/1 - Auto retry</small>
                             </div>
                         </div>
                     </div>
@@ -1181,7 +1181,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Allow presensi even if not all readings were collected (at least one reading is enough)
+        // Allow presensi even if location reading failed (single reading is enough)
         if (locationReadings.length === 0) {
             Swal.fire({
                 icon: 'error',
@@ -1201,43 +1201,10 @@ window.addEventListener('load', function() {
                 let reading4Lng = position.coords.longitude;
                 let reading4Timestamp = Date.now();
 
-                // Build location readings array from all stored readings (use available readings)
+                // Build location readings array - single reading only
                 let allReadings = [];
 
-                // Add readings 1-4 from sessionStorage if available
-                for (let i = 1; i <= 4; i++) {
-                    let lat = sessionStorage.getItem(`reading${i}_latitude`);
-                    let lng = sessionStorage.getItem(`reading${i}_longitude`);
-                    let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
-                    let accuracy = sessionStorage.getItem(`reading${i}_accuracy`);
-                    let altitude = sessionStorage.getItem(`reading${i}_altitude`);
-                    let speed = sessionStorage.getItem(`reading${i}_speed`);
-
-                    if (lat && lng && timestamp) {
-                        allReadings.push({
-                            latitude: parseFloat(lat),
-                            longitude: parseFloat(lng),
-                            timestamp: parseInt(timestamp),
-                            accuracy: parseFloat(accuracy) || null,
-                            altitude: altitude ? parseFloat(altitude) : null,
-                            speed: speed ? parseFloat(speed) : null
-                        });
-                    }
-                }
-
-                // If no stored readings, use current location as reading 1
-                if (allReadings.length === 0 && latitude && longitude) {
-                    allReadings.push({
-                        latitude: latitude,
-                        longitude: longitude,
-                        timestamp: Date.now(),
-                        accuracy: position.coords.accuracy,
-                        altitude: position.coords.altitude,
-                        speed: position.coords.speed
-                    });
-                }
-
-                // Add reading 5 (button click)
+                // Use current location as the single reading
                 allReadings.push({
                     latitude: reading4Lat,
                     longitude: reading4Lng,

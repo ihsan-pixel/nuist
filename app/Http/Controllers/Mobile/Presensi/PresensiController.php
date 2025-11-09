@@ -249,17 +249,7 @@ class PresensiController extends \App\Http\Controllers\Controller
 
 
 
-        // New validation: Check location consistency in readings
-        $locationValidationResult = $this->validateLocationConsistency($request->location_readings);
-        if (!$locationValidationResult['valid']) {
-            // Save selfie even if location consistency fails for verification
-            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
-
-            return response()->json([
-                'success' => false,
-                'message' => $locationValidationResult['message'] . ' Foto selfie telah disimpan untuk verifikasi admin.'
-            ], 400);
-        }
+        // Location consistency validation removed - presensi will proceed regardless
 
         // Location validation using polygon from madrasah
         $madrasah = $user->madrasah;
