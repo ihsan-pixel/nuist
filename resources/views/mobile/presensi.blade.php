@@ -1118,11 +1118,15 @@ window.addEventListener('load', function() {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
-        // Center the image on canvas for portrait crop
-        const sourceX = (video.videoWidth - canvasWidth) / 2;
-        const sourceY = (video.videoHeight - canvasHeight) / 2;
+    // Center the image on canvas for portrait crop
+    const sourceX = (video.videoWidth - canvasWidth) / 2;
+    const sourceY = (video.videoHeight - canvasHeight) / 2;
 
-        ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+    // Balik horizontal sebelum menggambar agar hasil tidak terbalik
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform setelah menggambar
 
         const imageData = canvas.toDataURL('image/jpeg', 0.8);
         const selfieDataInput = document.getElementById('selfie-data');
