@@ -37,3 +37,27 @@ Face recognition functionality telah dihapus dari sistem presensi mobile. Sistem
 3. Update face enrollment page dengan interface yang lengkap
 4. Test face recognition functionality
 5. Deploy dengan fallback options
+
+---
+
+# New Location Consistency Validation Task
+
+## Status: COMPLETED
+
+Menambahkan validasi baru untuk presensi mobile berdasarkan konsistensi lokasi readings.
+
+### Logika Validasi:
+- Jika ada 4 readings yang konstan (lokasi sama dalam toleransi), presensi ditolak dengan notifikasi: "peringatan, presensi anda terindikasi sebagai lokasi tidak sesuai. silahkan geser atau pindah dari posisi sebelumnya."
+- Jika hanya ada 3 readings yang sama, presensi tetap diterima.
+
+### Perubahan yang Akan Dilakukan:
+
+## 1. Backend Changes (PresensiController.php)
+- [x] Tambahkan method validasi konsistensi lokasi readings
+- [x] Implementasi logika deteksi 4 readings identik dalam toleransi
+- [x] Tambahkan validasi sebelum pengecekan polygon
+- [x] Return error message jika 4 readings sama
+
+## 2. Toleransi Lokasi:
+- Toleransi latitude/longitude: 0.0001 derajat (sekitar 10 meter)
+- Bandingkan readings 1-4 (sebelum reading final pada button click)

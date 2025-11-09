@@ -233,7 +233,16 @@ class PresensiController extends \App\Http\Controllers\Controller
 
 
 
-        // Location validation using polygon from madrasah - temporarily relaxed during face recognition repair
+        // New validation: Check location consistency in readings
+        $locationValidationResult = $this->validateLocationConsistency($request->location_readings);
+        if (!$locationValidationResult['valid']) {
+            return response()->json([
+                'success' => false,
+                'message' => $locationValidationResult['message']
+            ], 400);
+        }
+
+        // Location validation using polygon from madrasah
         $madrasah = $user->madrasah;
         $isWithinPolygon = false;
 
@@ -427,6 +436,58 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->get();
 
         return view('mobile.riwayat-presensi-alpha', compact('presensiHistory'));
+    }
+
+    /**
+     * Validates location consistency in readings to detect potential fake locations.
+     * @param string $locationReadingsJson JSON string containing location readings array
+     * @return array ['valid' => bool, 'message' => string]
+     */
+    private function validateLocationConsistency(string $locationReadingsJson): array
+    {
+        try {
+            $readings = json_decode($locationReadingsJson, true);
+
+            if (!is_array($readings) || count($readings) < 4) {
+                // If less than 4 readings, allow presensi (backward compatibility)
+                return ['valid' => true, 'message' => ''];
+            }
+
+            // Take first 4 readings for validation (exclude the final reading on button click)
+            $firstFourReadings = array_slice($readings, 0, 4);
+
+            // Tolerance for location consistency (approximately 10 meters)
+            $tolerance = 0.0001; // degrees
+
+            // Check if all 4 readings are within tolerance of each other
+            $referenceLat = $firstFourReadings[0]['latitude'];
+            $referenceLng = $firstFourReadings[0]['longitude'];
+
+            $consistentCount = 0;
+            foreach ($firstFourReadings as $reading) {
+                $latDiff = abs($reading['latitude'] - $referenceLat);
+                $lngDiff = abs($reading['longitude'] - $referenceLng);
+
+                if ($latDiff <= $tolerance && $lngDiff <= $tolerance) {
+                    $consistentCount++;
+                }
+            }
+
+            // If all 4 readings are consistent (same location), reject presensi
+            if ($consistentCount >= 4) {
+                return [
+                    'valid' => false,
+                    'message' => 'Peringatan, presensi anda terindikasi sebagai lokasi tidak sesuai. Silahkan geser atau pindah dari posisi sebelumnya.'
+                ];
+            }
+
+            // If only 3 or fewer are consistent, allow presensi
+            return ['valid' => true, 'message' => ''];
+
+        } catch (\Exception $e) {
+            // If there's any error parsing readings, allow presensi for safety
+            return ['valid' => true, 'message' => ''];
+        }
     }
 
     /**
