@@ -219,12 +219,12 @@ class PresensiController extends \App\Http\Controllers\Controller
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
 
-        // Check if entry presensi is attempted before 05:00
-        if ($isPresensiMasuk && $now->format('H:i:s') < '05:00:00') {
+        // Check if entry presensi is attempted before 01:00
+        if ($isPresensiMasuk && $now->format('H:i:s') < '01:00:00') {
             $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, true);
             return response()->json([
                 'success' => false,
-                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00. Foto selfie telah disimpan untuk verifikasi admin.'
+                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 01:00. Foto selfie telah disimpan untuk verifikasi admin.'
             ], 400);
         }
 
@@ -333,6 +333,11 @@ class PresensiController extends \App\Http\Controllers\Controller
                 } else {
                     $keterangan = "tidak terlambat";
                 }
+            }
+
+            // Special handling for early presensi (between 01:00 and 05:00)
+            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
+                $keterangan = "Presensi dini (sebelum pukul 05:00)";
             }
 
             // Create new presensi record
