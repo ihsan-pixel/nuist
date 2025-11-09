@@ -640,7 +640,7 @@ window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 4;
+    const totalReadings = 1; // Temporarily set to 1 for testing selfie without multiple readings
     const readingInterval = 5000; // 5 seconds
 
 
