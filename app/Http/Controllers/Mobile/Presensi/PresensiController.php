@@ -152,7 +152,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
-            'selfie_data' => 'required|string',
+            'selfie_data' => 'required|string|min:100', // Ensure it's not empty and has minimum length
 
         ]);
 

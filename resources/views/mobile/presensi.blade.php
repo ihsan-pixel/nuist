@@ -1076,6 +1076,10 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
+                let selfieDataValue = document.getElementById('selfie-data').value;
+                console.log('Selfie data length:', selfieDataValue.length);
+                console.log('Selfie data starts with:', selfieDataValue.substring(0, 50));
+
                 let postData = {
                     _token: '{{ csrf_token() }}',
                     latitude: reading4Lat,
@@ -1086,7 +1090,7 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed,
                     device_info: navigator.userAgent,
                     location_readings: JSON.stringify(allReadings),
-                    selfie_data: document.getElementById('selfie-data').value
+                    selfie_data: selfieDataValue
                 };
 
 
