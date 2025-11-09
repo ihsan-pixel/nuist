@@ -17,11 +17,13 @@
 ### Pending Tasks:
 - [x] Run composer install after adding package
 - [x] Run migration after creating it
+- [x] Fix JavaScript null reference errors in selfie camera functionality
 - [ ] Test selfie capture and compression functionality
 - [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)
 
 ### Followup Steps:
 - [x] Run composer install after adding package
 - [x] Run migration after creating it
+- [x] Fix JavaScript null reference errors in selfie camera functionality
 - [ ] Test selfie capture and compression functionality
 - [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)
