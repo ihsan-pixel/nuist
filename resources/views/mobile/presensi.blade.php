@@ -454,7 +454,7 @@
                     <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
                         <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/3 - Pastikan GPS aktif</small>
+                        <br><small class="text-muted">Reading 1/4 - Pastikan GPS aktif</small>
                     </div>
                 </div>
             </div>
@@ -537,48 +537,7 @@
     </div>
     @endif
 
-    <!-- Face Verification Section -->
-    @if(Auth::user()->face_verification_required ?? true)
-    <div class="face-verification-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-face"></i>
-            </div>
-            <h6 class="section-title mb-0">Verifikasi Wajah</h6>
-        </div>
 
-        @if(empty(Auth::user()->face_data))
-        <!-- Face Enrollment Required -->
-        <div class="alert-custom warning">
-            <i class="bx bx-info-circle me-1"></i>
-            <strong>Pendaftaran Wajah Diperlukan</strong>
-            <p class="mb-0 text-muted small">Anda perlu mendaftarkan wajah terlebih dahulu sebelum dapat melakukan presensi.</p>
-        </div>
-        <a href="{{ route('mobile.face.enrollment') }}" class="btn btn-primary-custom" style="display: block; text-decoration: none; color: #fff; text-align: center; margin-top: 8px;">
-            <i class="bx bx-face me-1"></i>
-            Daftar Wajah
-        </a>
-        @else
-        <!-- Face Verification Interface -->
-        <div id="face-verification-container">
-            <div class="face-camera-container">
-                <video id="face-camera" class="face-camera-preview" autoplay playsinline muted></video>
-                <div id="face-instruction-overlay" class="face-instruction">
-                    <div id="face-instruction-text">Memuat kamera...</div>
-                </div>
-            </div>
-
-            <div id="face-verification-status" style="display: none; margin-top: 8px;">
-                <small class="text-muted"></small>
-            </div>
-
-            <button id="start-face-verification" class="btn btn-primary-custom" style="margin-top: 8px;" disabled>
-                <i class="bx bx-play me-1"></i>Mulai Verifikasi
-            </button>
-        </div>
-        @endif
-    </div>
-    @endif
 
     <!-- Important Notice -->
     <div class="alert-custom info">
@@ -586,7 +545,7 @@
             <i class="bx bx-info-circle text-info me-1"></i>
             <div>
                 <strong class="text-info">Informasi Sistem</strong>
-                <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem face recognition telah aktif kembali.</p>
+                <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem menggunakan validasi lokasi koordinat madrasah.</p>
             </div>
         </div>
     </div>
@@ -669,11 +628,10 @@ window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 3;
+    const totalReadings = 4;
     const readingInterval = 5000; // 5 seconds
 
-    // Face recognition variables
-    let isVerificationRunning = false;
+
 
     // Map variables
     let userLocationMap = null;
@@ -782,7 +740,7 @@ window.addEventListener('load', function() {
                     <i class="bx bx-check-circle me-2"></i>
                     <div>
                         <strong class="small">Data lokasi lengkap!</strong>
-                        <br><small class="text-muted">Siap untuk presensi (lokasi akan divalidasi setelah face recognition diperbaiki)</small>
+                        <br><small class="text-muted">Siap untuk presensi</small>
                     </div>
                 </div>
             </div>
@@ -878,227 +836,21 @@ window.addEventListener('load', function() {
             });
     }
 
-    // Initialize face recognition if required
-    const faceRequired = {{ Auth::user()->face_verification_required ? 'true' : 'false' }};
-    const hasFaceData = {{ !empty(Auth::user()->face_data) ? 'true' : 'false' }};
 
-    if (faceRequired && hasFaceData) {
-        // FaceRecognition should be loaded synchronously now
-        if (window.FaceRecognition) {
-            initializeFaceRecognition();
-        } else {
-            console.error('FaceRecognition class not found');
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: FaceRecognition class tidak ditemukan';
-        }
-    }
 
-    async function initializeFaceRecognition() {
-        try {
-            // Use global instance
-            if (!window.faceRecognition) {
-                throw new Error('Face recognition belum dimuat');
-            }
 
-            // Load models
-            const modelsLoaded = await window.faceRecognition.loadModels();
-            if (!modelsLoaded) {
-                throw new Error('Gagal memuat model pengenalan wajah');
-            }
 
-            // Initialize camera
-            const videoElement = document.getElementById('face-camera');
-            await window.faceRecognition.initializeCamera(videoElement);
 
-            // Update UI
-            document.getElementById('face-instruction-text').innerText = 'Siap untuk verifikasi wajah';
-            $('#start-face-verification').prop('disabled', false);
 
-        } catch (error) {
-            console.error('Face recognition initialization error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + error.message;
-        }
-    }
 
-    // Handle start face verification
-    $('#start-face-verification').click(async function() {
-        if (isVerificationRunning) return;
 
-        isVerificationRunning = true;
-        const btn = $(this);
-        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memverifikasi...');
 
-        try {
-            if (!window.faceRecognition) {
-                throw new Error('Face recognition belum diinisialisasi');
-            }
 
-            // Start verification process
-            await runVerificationSequence();
 
-        } catch (error) {
-            console.error('Verification start error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        } finally {
-            isVerificationRunning = false;
-            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Verifikasi');
-        }
-    });
 
-    // Handle start face enrollment
-    $('#start-face-enrollment').click(function() {
-        $('#face-enrollment-prompt').hide();
-        $('#face-enrollment-interface').show();
-        // FaceRecognition should be loaded synchronously
-        if (window.FaceRecognition) {
-            initializeFaceEnrollment();
-        } else {
-            console.error('FaceRecognition class not found for enrollment');
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: FaceRecognition class tidak ditemukan';
-        }
-    });
 
-    async function initializeFaceEnrollment() {
-        try {
-            // Use global instance
-            if (!window.faceRecognition) {
-                throw new Error('Face recognition belum dimuat');
-            }
 
-            // Load models
-            const modelsLoaded = await window.faceRecognition.loadModels();
-            if (!modelsLoaded) {
-                throw new Error('Gagal memuat model pengenalan wajah');
-            }
 
-            // Initialize camera
-            const videoElement = document.getElementById('face-camera');
-            await window.faceRecognition.initializeCamera(videoElement);
-
-            // Update UI
-            document.getElementById('face-instruction-text').innerText = 'Siap untuk pendaftaran wajah';
-            $('#start-enrollment-process').prop('disabled', false);
-
-        } catch (error) {
-            console.error('Face enrollment initialization error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + error.message;
-        }
-    }
-
-    // Handle start enrollment process
-    $('#start-enrollment-process').click(async function() {
-        if (isVerificationRunning) return;
-
-        isVerificationRunning = true;
-        const btn = $(this);
-        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Mendaftarkan...');
-
-        try {
-            if (!window.faceRecognition) {
-                throw new Error('Face recognition belum diinisialisasi');
-            }
-
-            // Start enrollment process
-            await runEnrollmentSequence();
-
-        } catch (error) {
-            console.error('Enrollment start error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        } finally {
-            isVerificationRunning = false;
-            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Pendaftaran');
-        }
-    });
-
-    async function runEnrollmentSequence() {
-        try {
-            // Run simplified enrollment
-            const result = await window.faceRecognition.performFullEnrollment(
-                document.getElementById('face-camera')
-            );
-
-            // Build payload for enrollment
-            const payload = {
-                user_id: {{ Auth::user()->id }},
-                face_data: result.faceDescriptor,
-                device_info: navigator.userAgent
-            };
-
-            // Send enrollment data to server
-            const response = await fetch('/api/face/enroll', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(payload)
-            });
-
-            const serverResult = await response.json();
-
-            if (serverResult.success) {
-                document.getElementById('face-instruction-text').innerText = 'Pendaftaran berhasil ✓';
-                $('#face-enrollment-status').show().html(`
-                    <small class="text-success">
-                        Wajah berhasil didaftarkan!
-                    </small>
-                `);
-
-                // Reload page after success
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-
-            } else {
-                throw new Error(serverResult.message || 'Pendaftaran gagal');
-            }
-
-        } catch (error) {
-            console.error('Enrollment sequence error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Pendaftaran gagal ✗';
-            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        }
-    }
-
-    async function runVerificationSequence() {
-        const registeredFaceData = {{ json_encode(Auth::user()->face_data) }};
-
-        try {
-            // Run simplified face verification
-            const result = await window.faceRecognition.performFullVerification(
-                document.getElementById('face-camera'),
-                registeredFaceData
-            );
-
-            // Store result globally for presensi submission
-            window.lastFaceVerificationResult = {
-                face_verified: result.faceVerified,
-                similarity_score: result.faceSimilarity,
-                timestamp: result.timestamp
-            };
-
-            // Update UI based on result
-            if (result.faceVerified) {
-                document.getElementById('face-instruction-text').innerText = 'Verifikasi berhasil ✓';
-                $('#face-verification-status').show().html(`
-                    <small class="text-success">
-                        Wajah cocok (${(result.faceSimilarity * 100).toFixed(1)}%)
-                    </small>
-                `);
-
-            } else {
-                document.getElementById('face-instruction-text').innerText = 'Verifikasi gagal ✗';
-                $('#face-verification-status').show().html(`<small class="text-danger">Wajah tidak cocok</small>`);
-            }
-
-        } catch (error) {
-            console.error('Verification sequence error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        }
-    }
 
     // Handle presensi button
     $('#btn-presensi').click(function() {
@@ -1123,18 +875,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Check face verification if required
-        if (faceRequired && hasFaceData) {
-            if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Verifikasi Wajah Diperlukan',
-                    text: 'Silakan jalankan verifikasi wajah sebelum melakukan presensi.',
-                    confirmButtonText: 'Oke'
-                });
-                return;
-            }
-        }
+
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
@@ -1148,8 +889,8 @@ window.addEventListener('load', function() {
                 // Build location readings array from all stored readings (use available readings)
                 let allReadings = [];
 
-                // Add readings 1-3 from sessionStorage if available
-                for (let i = 1; i <= 3; i++) {
+                // Add readings 1-4 from sessionStorage if available
+                for (let i = 1; i <= 4; i++) {
                     let lat = sessionStorage.getItem(`reading${i}_latitude`);
                     let lng = sessionStorage.getItem(`reading${i}_longitude`);
                     let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
@@ -1181,7 +922,7 @@ window.addEventListener('load', function() {
                     });
                 }
 
-                // Add reading 4 (button click)
+                // Add reading 5 (button click)
                 allReadings.push({
                     latitude: reading4Lat,
                     longitude: reading4Lng,
@@ -1203,12 +944,7 @@ window.addEventListener('load', function() {
                     location_readings: JSON.stringify(allReadings)
                 };
 
-                // Include face verification result if available
-                if (window.lastFaceVerificationResult) {
-                    const fv = window.lastFaceVerificationResult;
-                    postData.face_similarity_score = fv.similarity_score;
-                    postData.face_verified = fv.face_verified ? 1 : 0;
-                }
+
 
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
