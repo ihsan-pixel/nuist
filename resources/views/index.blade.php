@@ -1,4 +1,4 @@
-@extends('layouts.master')
+{{-- @extends('layouts.master')
 
 @section('title') @lang('translation.Dashboards') @endsection
 
@@ -703,4 +703,4 @@
 
 <!-- dashboard init -->
 <script src="{{ asset('build/js/pages/dashboard.init.js') }}"></script>
-@endsection
+@endsection --}}
