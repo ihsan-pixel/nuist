@@ -22,25 +22,25 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
 
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo favicon 1.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/logo favicon 1.png') }}">
+    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
 
     <!-- Open Graph for better social sharing -->
     <meta property="og:title" content="@yield('title') | NUIST Mobile" />
     <meta property="og:description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="{{ asset('build/images/logo favicon 1.png') }}" />
+    <meta property="og:image" content="{{ asset('build/images/logo-light.png') }}" />
 
     @include('layouts.head-css')
 
@@ -246,7 +246,7 @@
     <!-- PWA Install Prompt -->
     <div id="pwa-install-prompt" class="pwa-install-prompt">
         <div class="d-flex align-items-center">
-            <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
+            <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
             <div class="flex-grow-1">
                 <h6 class="mb-1">Install NUIST Mobile</h6>
                 <small class="text-muted">Akses lebih cepat dan offline</small>
@@ -263,7 +263,7 @@
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="NUIST" height="32" class="me-2">
+                    <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
                         <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
                         <small class="text-muted">@yield('subtitle', 'Sistem Informasi Digital')</small>

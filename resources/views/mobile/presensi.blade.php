@@ -742,7 +742,13 @@ window.addEventListener('load', function() {
         const container = document.getElementById('user-location-map');
         if (!container) return;
         // If Leaflet already attached an id to the element, skip initialization
-        if (container._leaflet_id) return;
+        if (container._leaflet_id) {
+            // Remove existing map instance if it exists
+            if (userLocationMap) {
+                userLocationMap.remove();
+                userLocationMap = null;
+            }
+        }
         if (userLocationMap) return; // Already initialized
 
         userLocationMap = L.map('user-location-map').setView([-6.2, 106.816666], 13); // Default to Jakarta
@@ -760,6 +766,8 @@ window.addEventListener('load', function() {
         if (!userLocationMap) {
             initializeUserLocationMap();
         }
+
+        if (!userLocationMap) return; // Still not initialized
 
         // Remove existing marker
         if (userLocationMarker) {
@@ -923,7 +931,9 @@ window.addEventListener('load', function() {
                 $('#longitude').val(reading4Lng.toFixed(6));
 
                 // Update user location map with final position
-                updateUserLocationMap(reading4Lat, reading4Lng);
+                if (userLocationMap) {
+                    updateUserLocationMap(reading4Lat, reading4Lng);
+                }
 
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
@@ -991,6 +1001,12 @@ window.addEventListener('load', function() {
 // Initialize map for kepala madrasah monitoring
 @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if map is already initialized
+    const container = document.getElementById('presensi-map');
+    if (container && container._leaflet_id) {
+        return; // Map already initialized
+    }
+
     // Initialize map
     const map = L.map('presensi-map').setView([-6.2088, 106.8456], 13); // Default Jakarta
 
