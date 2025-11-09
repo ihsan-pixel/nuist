@@ -652,8 +652,15 @@ window.addEventListener('load', function() {
     // Function to collect location readings
     function collectLocationReading(readingNumber) {
         return new Promise((resolve, reject) => {
+            // Add timeout wrapper for additional safety
+            const timeoutId = setTimeout(() => {
+                reject(new Error(`Reading ${readingNumber} timed out`));
+            }, 15000); // 15 second total timeout
+
             navigator.geolocation.getCurrentPosition(
                 function(position) {
+                    clearTimeout(timeoutId); // Clear timeout on success
+
                     const reading = {
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
@@ -674,20 +681,21 @@ window.addEventListener('load', function() {
                     locationReadings.push(reading);
                     readingCount++;
 
-                    // Update UI
+                    // Update UI with smooth progress
+                    const progressText = readingCount < totalReadings ? 'Mengumpulkan...' : 'Data lengkap!';
                     $('#location-info').html(`
                         <div class="location-info info">
                             <div class="d-flex align-items-center">
                                 <i class="bx bx-loader-alt bx-spin me-2"></i>
                                 <div>
-                                    <strong class="small">Mengumpulkan data lokasi...</strong>
-                                    <br><small class="text-muted">Reading ${readingCount}/${totalReadings} - ${readingCount < totalReadings ? 'Tunggu sebentar...' : 'Selesai!'}</small>
+                                    <strong class="small">Reading ${readingCount}/${totalReadings} - ${progressText}</strong>
+                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
                                 </div>
                             </div>
                         </div>
                     `);
 
-        // Update coordinates display with latest reading
+                    // Update coordinates display with latest reading
                     $('#latitude').val(reading.latitude.toFixed(6));
                     $('#longitude').val(reading.longitude.toFixed(6));
 
@@ -697,72 +705,107 @@ window.addEventListener('load', function() {
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
 
-                    // Enable selfie camera after first location reading
-                    if (i === 1 && !selfieCaptured) {
-                        initializeSelfieCamera();
+                    // Enable selfie camera after first successful location reading
+                    if (readingNumber === 1 && !selfieCaptured) {
+                        setTimeout(() => {
+                            initializeSelfieCamera();
+                        }, 1000); // Small delay to ensure UI is updated
                     }
 
                     resolve(reading);
                 },
                 function(error) {
+                    clearTimeout(timeoutId); // Clear timeout on error
+                    console.warn(`Reading ${readingNumber} failed:`, error);
+
+                    // Provide user-friendly error message
+                    const errorMessage = error.code === 1 ? 'Izin lokasi ditolak' :
+                                       error.code === 2 ? 'Sinyal GPS lemah' :
+                                       error.code === 3 ? 'Waktu habis' : 'Error tidak diketahui';
+
+                    $('#location-info').html(`
+                        <div class="location-info warning">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-error-circle me-2"></i>
+                                <div>
+                                    <strong class="small">Reading ${readingNumber} gagal</strong>
+                                    <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
                     reject(error);
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
+                    timeout: 10000, // 10 second timeout for each reading
                     maximumAge: 30000
                 }
             );
         });
     }
 
-    // Start collecting multiple readings - modified to allow presensi with at least one reading
+    // Start collecting multiple readings - enhanced for reliability
     async function startLocationCollection() {
+        let successfulReadings = 0;
+        let lastSuccessfulReading = null;
+
         try {
             for (let i = 1; i <= totalReadings; i++) {
                 try {
-                    await collectLocationReading(i);
+                    const reading = await collectLocationReading(i);
+                    successfulReadings++;
+                    lastSuccessfulReading = reading;
 
                     // Enable presensi button after first successful reading
-                    if (i === 1 && locationReadings.length > 0) {
-                        latitude = locationReadings[locationReadings.length - 1].latitude;
-                        longitude = locationReadings[locationReadings.length - 1].longitude;
+                    if (successfulReadings === 1) {
+                        latitude = reading.latitude;
+                        longitude = reading.longitude;
 
-        // Enable presensi button early
+                        // Enable presensi button early
                         var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
                         var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
                         var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Ambil Selfie";
                         $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>' + buttonText);
                     }
 
-                    // Wait 5 seconds between readings (except for the last one)
+                    // Wait between readings (except for the last one)
                     if (i < totalReadings) {
                         await new Promise(resolve => setTimeout(resolve, readingInterval));
                     }
                 } catch (readingError) {
                     console.warn(`Reading ${i} failed:`, readingError);
                     // Continue to next reading instead of failing completely
+                    // Add a small delay before next attempt
+                    if (i < totalReadings) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
                     continue;
                 }
             }
 
-            // Update final status
-            if (locationReadings.length > 0) {
-                latitude = locationReadings[locationReadings.length - 1].latitude;
-                longitude = locationReadings[locationReadings.length - 1].longitude;
+            // Final status update based on successful readings
+            if (successfulReadings > 0) {
+                latitude = lastSuccessfulReading.latitude;
+                longitude = lastSuccessfulReading.longitude;
+
+                const successMessage = successfulReadings === totalReadings ?
+                    'Semua reading berhasil!' : `${successfulReadings}/${totalReadings} reading berhasil`;
 
                 $('#location-info').html(`
-            <div class="location-info success">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-check-circle me-2"></i>
-                    <div>
-                        <strong class="small">Data lokasi lengkap!</strong>
-                        <br><small class="text-muted">Siap untuk presensi</small>
+                    <div class="location-info success">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-check-circle me-2"></i>
+                            <div>
+                                <strong class="small">Data lokasi lengkap!</strong>
+                                <br><small class="text-muted">${successMessage}</small>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
                 `);
             } else {
+                // No successful readings at all
                 $('#location-info').html(`
                     <div class="location-info error">
                         <div class="d-flex align-items-center">
@@ -779,18 +822,19 @@ window.addEventListener('load', function() {
             }
 
         } catch (error) {
+            console.error('Critical error in location collection:', error);
             $('#location-info').html(`
                 <div class="location-info error">
                     <div class="d-flex align-items-center">
                         <i class="bx bx-error-circle me-2"></i>
                         <div>
-                            <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">Pastikan GPS aktif dan beri izin lokasi</small>
+                            <strong class="small">Error sistem lokasi</strong>
+                            <br><small class="text-muted">Silakan refresh halaman dan coba lagi</small>
                         </div>
                     </div>
                 </div>
             `);
-            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
+            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>System Error');
         }
     }
 
