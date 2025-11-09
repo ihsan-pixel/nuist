@@ -746,10 +746,12 @@ window.addEventListener('load', function() {
         });
     }
 
-    // Start collecting multiple readings - enhanced for reliability
+    // Start collecting multiple readings - enhanced for reliability with GPS fallback
     async function startLocationCollection() {
         let successfulReadings = 0;
         let lastSuccessfulReading = null;
+        let consecutiveFailures = 0;
+        const maxConsecutiveFailures = 3;
 
         try {
             for (let i = 1; i <= totalReadings; i++) {
@@ -757,6 +759,7 @@ window.addEventListener('load', function() {
                     const reading = await collectLocationReading(i);
                     successfulReadings++;
                     lastSuccessfulReading = reading;
+                    consecutiveFailures = 0; // Reset failure counter
 
                     // Enable presensi button after first successful reading
                     if (successfulReadings === 1) {
@@ -776,6 +779,17 @@ window.addEventListener('load', function() {
                     }
                 } catch (readingError) {
                     console.warn(`Reading ${i} failed:`, readingError);
+                    consecutiveFailures++;
+
+                    // If too many consecutive failures, try alternative approach
+                    if (consecutiveFailures >= maxConsecutiveFailures) {
+                        console.log('Too many consecutive failures, trying alternative GPS settings...');
+                        await tryAlternativeGPSApproach(i);
+                        consecutiveFailures = 0; // Reset after alternative attempt
+                        i--; // Retry the same reading number
+                        continue;
+                    }
+
                     // Continue to next reading instead of failing completely
                     // Add a small delay before next attempt
                     if (i < totalReadings) {
@@ -805,37 +819,107 @@ window.addEventListener('load', function() {
                     </div>
                 `);
             } else {
-                // No successful readings at all
-                $('#location-info').html(`
-                    <div class="location-info error">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-error-circle me-2"></i>
-                            <div>
-                                <strong class="small">Gagal mendapatkan lokasi</strong>
-                                <br><small class="text-muted">Pastikan GPS aktif dan beri izin lokasi</small>
-                            </div>
-                        </div>
-                    </div>
-                `);
-                $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
+                // No successful readings at all - provide detailed troubleshooting
+                await showGPSTroubleshootingGuide();
                 return;
             }
 
         } catch (error) {
             console.error('Critical error in location collection:', error);
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Error sistem lokasi</strong>
-                            <br><small class="text-muted">Silakan refresh halaman dan coba lagi</small>
+            await showGPSTroubleshootingGuide();
+        }
+    }
+
+    // Alternative GPS approach for when standard geolocation fails
+    async function tryAlternativeGPSApproach(readingNumber) {
+        return new Promise((resolve, reject) => {
+            // Try with different settings
+            const alternativeTimeout = setTimeout(() => {
+                reject(new Error('Alternative GPS approach timed out'));
+            }, 20000);
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    clearTimeout(alternativeTimeout);
+                    console.log('Alternative GPS approach succeeded');
+
+                    const reading = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now(),
+                        accuracy: position.coords.accuracy,
+                        altitude: position.coords.altitude,
+                        speed: position.coords.speed
+                    };
+
+                    // Update UI with success message
+                    $('#location-info').html(`
+                        <div class="location-info success">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-check-circle me-2"></i>
+                                <div>
+                                    <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
+                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
+                                </div>
+                            </div>
                         </div>
+                    `);
+
+                    resolve(reading);
+                },
+                function(error) {
+                    clearTimeout(alternativeTimeout);
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: false, // Try without high accuracy first
+                    timeout: 15000,
+                    maximumAge: 60000 // Allow older cached positions
+                }
+            );
+        });
+    }
+
+    // Comprehensive GPS troubleshooting guide
+    async function showGPSTroubleshootingGuide() {
+        $('#location-info').html(`
+            <div class="location-info error">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <div>
+                        <strong class="small">GPS Tidak Tersedia</strong>
+                        <br><small class="text-muted">Coba langkah berikut:</small>
                     </div>
                 </div>
-            `);
-            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>System Error');
-        }
+                <div style="margin-top: 8px; font-size: 11px;">
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Pastikan GPS aktif</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Berikan izin lokasi ke browser</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Coba di luar ruangan</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-refresh text-primary me-1"></i> Refresh halaman</div>
+                </div>
+            </div>
+        `);
+
+        $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
+
+        // Auto-retry after 10 seconds
+        setTimeout(() => {
+            if (locationReadings.length === 0) {
+                console.log('Auto-retrying GPS collection...');
+                $('#location-info').html(`
+                    <div class="location-info info">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-loader-alt bx-spin me-2"></i>
+                            <div>
+                                <strong class="small">Mencoba lagi...</strong>
+                                <br><small class="text-muted">Reading 1/4 - Auto retry</small>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                startLocationCollection();
+            }
+        }, 10000);
     }
 
     // Initialize user location map
