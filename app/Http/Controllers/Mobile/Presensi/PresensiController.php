@@ -194,12 +194,13 @@ class PresensiController extends \App\Http\Controllers\Controller
                     'speed' => $request->speed,
                     'device_info' => $request->device_info,
                     'location_readings' => $request->location_readings,
+                    'selfie_masuk_path' => $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, true),
                     'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk.'
+                    'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk. Foto selfie telah disimpan untuk verifikasi.'
                 ], 400);
             } else {
                 return response()->json([
@@ -217,6 +218,15 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Determine presensi type with additional checks
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Check if entry presensi is attempted before 05:00
+        if ($isPresensiMasuk && $now->format('H:i:s') < '05:00:00') {
+            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, true);
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00. Foto selfie telah disimpan untuk verifikasi admin.'
+            ], 400);
+        }
 
         // Process and save selfie image
         $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
@@ -242,9 +252,12 @@ class PresensiController extends \App\Http\Controllers\Controller
         // New validation: Check location consistency in readings
         $locationValidationResult = $this->validateLocationConsistency($request->location_readings);
         if (!$locationValidationResult['valid']) {
+            // Save selfie even if location consistency fails for verification
+            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
+
             return response()->json([
                 'success' => false,
-                'message' => $locationValidationResult['message']
+                'message' => $locationValidationResult['message'] . ' Foto selfie telah disimpan untuk verifikasi admin.'
             ], 400);
         }
 
@@ -279,9 +292,12 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         // Location validation using polygon from madrasah
         if (!$isWithinPolygon) {
+            // Save selfie even if location is outside polygon for verification
+            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
+                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi. Foto selfie telah disimpan untuk verifikasi admin.'
             ], 400);
         }
 
@@ -354,9 +370,12 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
 
             if ($now->format('H:i:s') < $pulangStart) {
+                // Save selfie even if time is too early for verification
+                $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, false);
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
+                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '. Foto selfie telah disimpan untuk verifikasi admin.'
                 ], 400);
             }
 

@@ -755,7 +755,19 @@ window.addEventListener('load', function() {
             </div>
                 `);
             } else {
-                throw new Error('Tidak dapat mendapatkan lokasi setelah beberapa percobaan');
+                $('#location-info').html(`
+                    <div class="location-info error">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-error-circle me-2"></i>
+                            <div>
+                                <strong class="small">Gagal mendapatkan lokasi</strong>
+                                <br><small class="text-muted">Pastikan GPS aktif dan beri izin lokasi</small>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
+                return;
             }
 
         } catch (error) {
@@ -765,11 +777,12 @@ window.addEventListener('load', function() {
                         <i class="bx bx-error-circle me-2"></i>
                         <div>
                             <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
+                            <br><small class="text-muted">Pastikan GPS aktif dan beri izin lokasi</small>
                         </div>
                     </div>
                 </div>
             `);
+            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
         }
     }
 
@@ -820,22 +833,23 @@ window.addEventListener('load', function() {
         userLocationMap.setView([lat, lng], 16);
     }
 
-    // Check if geolocation is supported
-    if (navigator.geolocation) {
-        startLocationCollection();
-    } else {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+        // Check if geolocation is supported
+        if (navigator.geolocation) {
+            startLocationCollection();
+        } else {
+            $('#location-info').html(`
+                <div class="location-info error">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <div>
+                            <strong class="small">Browser tidak mendukung GPS</strong>
+                            <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `);
-    }
+            `);
+            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Tidak Didukung');
+        }
 
     // Get address from coordinates
     function getAddressFromCoordinates(lat, lng) {
