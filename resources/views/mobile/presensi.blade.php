@@ -884,17 +884,27 @@ window.addEventListener('load', function() {
             video.srcObject = stream;
             video.style.display = 'block';
             document.getElementById('btn-capture-selfie').style.display = 'block';
+
+            // Auto-capture selfie after 3 seconds
             document.getElementById('selfie-status').innerHTML = `
                 <div class="location-info success">
                     <div class="d-flex align-items-center">
                         <i class="bx bx-camera me-1"></i>
                         <div>
                             <strong>Kamera aktif</strong>
-                            <br><small class="text-muted">Klik "Ambil Foto" untuk mengambil selfie</small>
+                            <br><small class="text-muted">Foto akan diambil otomatis dalam 3 detik...</small>
                         </div>
                     </div>
                 </div>
             `;
+
+            // Auto capture after 3 seconds
+            setTimeout(() => {
+                if (!selfieCaptured) {
+                    captureSelfie();
+                }
+            }, 3000);
+
         } catch (error) {
             console.error('Error accessing camera:', error);
             document.getElementById('selfie-status').innerHTML = `
@@ -908,6 +918,7 @@ window.addEventListener('load', function() {
                     </div>
                 </div>
             `;
+            throw error; // Re-throw to handle in calling function
         }
     }
 
@@ -942,11 +953,17 @@ window.addEventListener('load', function() {
                     <i class="bx bx-check-circle me-1"></i>
                     <div>
                         <strong>Selfie berhasil diambil</strong>
-                        <br><small class="text-muted">Foto siap untuk dikirim</small>
+                        <br><small class="text-muted">Klik tombol presensi lagi untuk melanjutkan</small>
                     </div>
                 </div>
             </div>
         `;
+
+        // Auto-proceed to location validation after selfie is captured
+        setTimeout(() => {
+            // Simulate button click to proceed with presensi
+            document.getElementById('btn-presensi').click();
+        }, 1000);
     }
 
     // Retake selfie
@@ -962,7 +979,25 @@ window.addEventListener('load', function() {
     document.getElementById('btn-retake-selfie').addEventListener('click', retakeSelfie);
 
     // Handle presensi button
-    $('#btn-presensi').click(function() {
+    $('#btn-presensi').click(async function() {
+        // First, request camera access and take selfie
+        if (!selfieCaptured) {
+            try {
+                await initializeSelfieCamera();
+                // Camera initialized, selfie will be auto-captured in 3 seconds
+                return;
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kamera Tidak Dapat Diakses',
+                    text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
+                    confirmButtonText: 'Oke'
+                });
+                return;
+            }
+        }
+
+        // If selfie is already captured, proceed with location validation
         if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
@@ -979,17 +1014,6 @@ window.addEventListener('load', function() {
                 icon: 'error',
                 title: 'Kesalahan',
                 text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
-                confirmButtonText: 'Oke'
-            });
-            return;
-        }
-
-        // Check if selfie is captured
-        if (!selfieCaptured) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Selfie Wajib',
-                text: 'Silakan ambil foto selfie terlebih dahulu sebelum melakukan presensi.',
                 confirmButtonText: 'Oke'
             });
             return;
