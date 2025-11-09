@@ -491,7 +491,15 @@
                 disabled
                 {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Mengumpulkan data lokasi...' }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Ambil Selfie' }}
+        </button>
+
+        <!-- Submit Button (hidden initially) -->
+        <button type="button" id="btn-submit-presensi"
+                class="presensi-btn"
+                style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <i class="bx bx-send me-1"></i>
+            Kirim Presensi
         </button>
     </div>
 
@@ -720,11 +728,11 @@ window.addEventListener('load', function() {
                         latitude = locationReadings[locationReadings.length - 1].latitude;
                         longitude = locationReadings[locationReadings.length - 1].longitude;
 
-                        // Enable presensi button early
+        // Enable presensi button early
                         var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
                         var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
-                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Presensi Masuk";
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
+                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Ambil Selfie";
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>' + buttonText);
                     }
 
                     // Wait 5 seconds between readings (except for the last one)
@@ -967,21 +975,23 @@ window.addEventListener('load', function() {
                     <i class="bx bx-check-circle me-1"></i>
                     <div>
                         <strong>Selfie berhasil diambil</strong>
-                        <br><small class="text-muted">Klik tombol presensi lagi untuk melanjutkan</small>
+                        <br><small class="text-muted">Klik tombol "Kirim Presensi" untuk menyelesaikan</small>
                     </div>
                 </div>
             </div>
         `;
 
-        // Auto-proceed to location validation after selfie is captured
+        // Show submit button after selfie is captured
         setTimeout(() => {
             // Verify selfie data is set before proceeding
             const selfieData = document.getElementById('selfie-data').value;
-            console.log('Auto-proceeding with selfie data length:', selfieData.length);
+            console.log('Selfie captured with data length:', selfieData.length);
 
             if (selfieData && selfieData.length > 100) {
-                // Simulate button click to proceed with presensi
-                document.getElementById('btn-presensi').click();
+                // Show submit button and hide presensi button
+                $('#btn-presensi').hide();
+                $('#btn-submit-presensi').show();
+                $('#btn-submit-presensi').prop('disabled', false);
             } else {
                 console.error('Selfie data not properly set, length:', selfieData.length);
                 Swal.fire({
@@ -990,7 +1000,7 @@ window.addEventListener('load', function() {
                     text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
                     confirmButtonText: 'Oke'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>Ambil Selfie');
             }
         }, 1000);
     }
@@ -1000,6 +1010,9 @@ window.addEventListener('load', function() {
         document.getElementById('selfie-preview').style.display = 'none';
         document.getElementById('selfie-data').value = '';
         selfieCaptured = false;
+        // Hide submit button and show presensi button again
+        $('#btn-submit-presensi').hide();
+        $('#btn-presensi').show();
         initializeSelfieCamera();
     }
 
@@ -1007,7 +1020,7 @@ window.addEventListener('load', function() {
     document.getElementById('btn-capture-selfie').addEventListener('click', captureSelfie);
     document.getElementById('btn-retake-selfie').addEventListener('click', retakeSelfie);
 
-    // Handle presensi button
+    // Handle presensi button (Ambil Selfie)
     $('#btn-presensi').click(async function() {
         // First, request camera access and take selfie
         if (!selfieCaptured) {
@@ -1025,7 +1038,10 @@ window.addEventListener('load', function() {
                 return;
             }
         }
+    });
 
+    // Handle submit presensi button
+    $('#btn-submit-presensi').click(async function() {
         // If selfie is already captured, proceed with location validation
         if (!latitude || !longitude) {
             Swal.fire({
@@ -1047,8 +1063,6 @@ window.addEventListener('load', function() {
             });
             return;
         }
-
-
 
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
@@ -1112,7 +1126,7 @@ window.addEventListener('load', function() {
                 // Ensure selfie data is valid before sending
                 if (!selfieDataValue || selfieDataValue.length < 100) {
                     console.error('Selfie data validation failed, length:', selfieDataValue.length);
-                    $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                    $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     Swal.fire({
                         icon: 'error',
                         title: 'Kesalahan',
@@ -1134,8 +1148,6 @@ window.addEventListener('load', function() {
                     location_readings: JSON.stringify(allReadings),
                     selfie_data: selfieDataValue
                 };
-
-
 
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
@@ -1182,7 +1194,7 @@ window.addEventListener('load', function() {
                                 title: 'Gagal',
                                 text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
                             });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                            $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
                     error: function(xhr, status, err) {
@@ -1193,7 +1205,7 @@ window.addEventListener('load', function() {
                             title: 'Kesalahan',
                             text: message
                         });
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                        $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
 
@@ -1204,7 +1216,7 @@ window.addEventListener('load', function() {
                     title: 'Kesalahan GPS',
                     text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
 });
