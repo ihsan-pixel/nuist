@@ -287,7 +287,7 @@ async function startEnrollment() {
         if (result.success) {
             showSuccess('Pendaftaran wajah berhasil!');
             setTimeout(() => {
-                window.location.href = '{{ route("presensi") }}';
+                window.location.href = '{{ route("mobile.presensi") }}';
             }, 2000);
         } else {
             throw new Error(result.message || 'Pendaftaran gagal');
