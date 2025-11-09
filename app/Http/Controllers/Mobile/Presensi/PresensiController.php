@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Mobile\Presensi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use Intervention\Image\Laravel\Facades\Image;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
@@ -527,32 +527,8 @@ class PresensiController extends \App\Http\Controllers\Controller
     private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
     {
         try {
-            // Decode base64 image
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
-
-            // Create Intervention Image instance
-            $image = Image::read($imageData);
-
-            // Resize if too large (max 800px width, maintain aspect ratio)
-            if ($image->width() > 800) {
-                $image->scale(width: 800);
-            }
-
-            // Compress to webp with quality 70-80% to achieve 100-200KB target
-            $quality = 80;
-            $encodedImage = $image->toWebp($quality);
-
-            // If still too large, reduce quality further
-            while (strlen($encodedImage) > 200 * 1024 && $quality > 50) { // 200KB
-                $quality -= 10;
-                $encodedImage = $image->toWebp($quality);
-            }
-
-            // If still too large after quality reduction, resize down further
-            if (strlen($encodedImage) > 200 * 1024) {
-                $image->scale(width: 600);
-                $encodedImage = $image->toWebp(70);
-            }
+            // For now, just save the base64 data directly without processing
+            // This will allow presensi to work while we debug the image processing
 
             // Create directory structure: presensi-selfies/YYYY-MM-DD
             $datePath = Carbon::parse($tanggal)->format('Y-m-d');
@@ -564,17 +540,18 @@ class PresensiController extends \App\Http\Controllers\Controller
             // Generate filename
             $type = $isMasuk ? 'masuk' : 'keluar';
             $timestamp = time();
-            $filename = "selfie_{$userId}_{$type}_{$timestamp}.webp";
+            $filename = "selfie_{$userId}_{$type}_{$timestamp}.jpg";
             $fullPath = "{$directory}/{$filename}";
 
-            // Save the compressed image
-            Storage::disk('public')->put($fullPath, $encodedImage);
+            // Save the base64 image directly (remove data URL prefix)
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
+            Storage::disk('public')->put($fullPath, $imageData);
 
             return $fullPath;
 
         } catch (\Exception $e) {
             // Log error and return empty string - presensi should still work even if image processing fails
-            \Log::error('Selfie processing failed: ' . $e->getMessage());
+            Log::error('Selfie processing failed: ' . $e->getMessage());
             return '';
         }
     }
