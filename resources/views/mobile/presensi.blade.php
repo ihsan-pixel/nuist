@@ -463,9 +463,13 @@
                 <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
             </div>
             <div id="selfie-container" style="position: relative;">
-                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></video>
-                <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></canvas>
-                <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
+                <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
+                    <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
+                    <span style="color: #6c757d; font-size: 14px;">Kamera akan muncul di sini</span>
+                </div>
+                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
+                <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none;"></canvas>
+                <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
                 <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
                     <i class="bx bx-camera me-1"></i>Ambil Foto
                 </button>
@@ -682,11 +686,15 @@ window.addEventListener('load', function() {
                     readingCount++;
 
                     // Update UI with smooth progress
-                    const progressText = readingCount < totalReadings ? 'Mengumpulkan...' : 'Data lengkap!';
+                    const isComplete = readingCount >= totalReadings;
+                    const progressText = isComplete ? 'Data lengkap!' : 'Mengumpulkan...';
+                    const iconClass = isComplete ? 'bx bx-check-circle text-success me-2' : 'bx bx-loader-alt bx-spin me-2';
+                    const infoClass = isComplete ? 'location-info success' : 'location-info info';
+
                     $('#location-info').html(`
-                        <div class="location-info info">
+                        <div class="${infoClass}">
                             <div class="d-flex align-items-center">
-                                <i class="bx bx-loader-alt bx-spin me-2"></i>
+                                <i class="${iconClass}"></i>
                                 <div>
                                     <strong class="small">Reading ${readingCount}/${totalReadings} - ${progressText}</strong>
                                     <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
@@ -810,7 +818,7 @@ window.addEventListener('load', function() {
                 $('#location-info').html(`
                     <div class="location-info success">
                         <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2"></i>
+                            <i class="bx bx-check-circle text-success me-2"></i>
                             <div>
                                 <strong class="small">Data lokasi lengkap!</strong>
                                 <br><small class="text-muted">${successMessage}</small>
@@ -856,7 +864,7 @@ window.addEventListener('load', function() {
                     $('#location-info').html(`
                         <div class="location-info success">
                             <div class="d-flex align-items-center">
-                                <i class="bx bx-check-circle me-2"></i>
+                                <i class="bx bx-check-circle text-success me-2"></i>
                                 <div>
                                 <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
                                 <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
@@ -1027,47 +1035,67 @@ window.addEventListener('load', function() {
     async function initializeSelfieCamera() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: 640, height: 480 }
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 480 },
+                    height: { ideal: 640 },
+                    aspectRatio: 3/4
+                }
             });
             selfieStream = stream;
             const video = document.getElementById('selfie-video');
-            video.srcObject = stream;
-            video.style.display = 'block';
-            document.getElementById('btn-capture-selfie').style.display = 'block';
+            if (video) {
+                video.srcObject = stream;
+                video.style.display = 'block';
+            }
 
-            // Auto-capture selfie after 3 seconds
-            document.getElementById('selfie-status').innerHTML = `
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-camera me-1"></i>
-                        <div>
-                            <strong>Kamera aktif</strong>
-                            <br><small class="text-muted">Foto akan diambil otomatis dalam 3 detik...</small>
+            // Hide the placeholder and show video
+            const container = document.getElementById('selfie-container');
+            if (container) {
+                const placeholder = container.querySelector('.text-center');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+            }
+
+            // Show capture button
+            const captureBtn = document.getElementById('btn-capture-selfie');
+            if (captureBtn) {
+                captureBtn.style.display = 'block';
+            }
+
+            // Update status to show camera is ready
+            const statusElement = document.getElementById('selfie-status');
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div class="location-info success">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-camera me-1"></i>
+                            <div>
+                                <strong>Kamera aktif</strong>
+                                <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-
-            // Auto capture after 3 seconds
-            setTimeout(() => {
-                if (!selfieCaptured) {
-                    captureSelfie();
-                }
-            }, 3000);
+                `;
+            }
 
         } catch (error) {
             console.error('Error accessing camera:', error);
-            document.getElementById('selfie-status').innerHTML = `
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-1"></i>
-                        <div>
-                            <strong>Kamera tidak dapat diakses</strong>
-                            <br><small class="text-muted">Pastikan memberikan izin kamera</small>
+            const statusElement = document.getElementById('selfie-status');
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div class="location-info error">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-error-circle me-1"></i>
+                            <div>
+                                <strong>Kamera tidak dapat diakses</strong>
+                                <br><small class="text-muted">Pastikan memberikan izin kamera</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             throw error; // Re-throw to handle in calling function
         }
     }
@@ -1078,17 +1106,49 @@ window.addEventListener('load', function() {
         const canvas = document.getElementById('selfie-canvas');
         const ctx = canvas.getContext('2d');
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Set canvas to portrait dimensions (3:4 aspect ratio)
+        const aspectRatio = 3/4;
+        const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
+        const canvasHeight = canvasWidth / aspectRatio;
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Center the image on canvas for portrait crop
+        const sourceX = (video.videoWidth - canvasWidth) / 2;
+        const sourceY = (video.videoHeight - canvasHeight) / 2;
+
+        ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 
         const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        document.getElementById('selfie-data').value = imageData;
-        document.getElementById('selfie-preview').src = imageData;
-        document.getElementById('selfie-preview').style.display = 'block';
-        document.getElementById('selfie-video').style.display = 'none';
-        document.getElementById('btn-capture-selfie').style.display = 'none';
-        document.getElementById('btn-retake-selfie').style.display = 'block';
+        const selfieDataInput = document.getElementById('selfie-data');
+        const selfiePreview = document.getElementById('selfie-preview');
+
+        if (selfieDataInput) {
+            selfieDataInput.value = imageData;
+        }
+
+        if (selfiePreview) {
+            selfiePreview.src = imageData;
+            selfiePreview.style.display = 'block';
+        }
+
+        // Hide video and show preview
+        if (video) {
+            video.style.display = 'none';
+        }
+
+        // Hide capture button and show retake button
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        const retakeBtn = document.getElementById('btn-retake-selfie');
+
+        if (captureBtn) {
+            captureBtn.style.display = 'none';
+        }
+
+        if (retakeBtn) {
+            retakeBtn.style.display = 'block';
+        }
 
         // Stop camera stream
         if (selfieStream) {
@@ -1135,8 +1195,17 @@ window.addEventListener('load', function() {
 
     // Retake selfie
     function retakeSelfie() {
-        document.getElementById('selfie-preview').style.display = 'none';
-        document.getElementById('selfie-data').value = '';
+        const selfiePreview = document.getElementById('selfie-preview');
+        const selfieDataInput = document.getElementById('selfie-data');
+
+        if (selfiePreview) {
+            selfiePreview.style.display = 'none';
+        }
+
+        if (selfieDataInput) {
+            selfieDataInput.value = '';
+        }
+
         selfieCaptured = false;
         // Hide submit button and show presensi button again
         $('#btn-submit-presensi').hide();
@@ -1145,16 +1214,24 @@ window.addEventListener('load', function() {
     }
 
     // Event listeners for selfie buttons
-    document.getElementById('btn-capture-selfie').addEventListener('click', captureSelfie);
-    document.getElementById('btn-retake-selfie').addEventListener('click', retakeSelfie);
+    const captureBtn = document.getElementById('btn-capture-selfie');
+    const retakeBtn = document.getElementById('btn-retake-selfie');
+
+    if (captureBtn) {
+        captureBtn.addEventListener('click', captureSelfie);
+    }
+
+    if (retakeBtn) {
+        retakeBtn.addEventListener('click', retakeSelfie);
+    }
 
     // Handle presensi button (Ambil Selfie)
     $('#btn-presensi').click(async function() {
-        // First, request camera access and take selfie
+        // First, request camera access and show camera interface
         if (!selfieCaptured) {
             try {
                 await initializeSelfieCamera();
-                // Camera initialized, selfie will be auto-captured in 3 seconds
+                // Camera initialized, user can now click the capture button manually
                 return;
             } catch (error) {
                 Swal.fire({
@@ -1214,7 +1291,8 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
-                let selfieDataValue = document.getElementById('selfie-data').value;
+                const selfieDataInput = document.getElementById('selfie-data');
+                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
                 console.log('Final selfie data length:', selfieDataValue.length);
                 console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
 
@@ -1259,7 +1337,7 @@ window.addEventListener('load', function() {
                 $('#location-info').html(`
                     <div class="location-info success">
                         <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2"></i>
+                            <i class="bx bx-check-circle text-success me-2"></i>
                             <div>
                                 <strong class="small">Lokasi berhasil didapatkan!</strong>
                             </div>
