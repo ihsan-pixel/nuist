@@ -207,7 +207,6 @@
 </script>
 
 <script>
-let faceRecognition = null;
 let enrollmentStep = 0;
 const totalSteps = 3;
 
@@ -216,11 +215,14 @@ window.CURRENT_USER_ID = {{ Auth::user()->id ?? 'null' }};
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        faceRecognition = new FaceRecognition();
+        // Use global instance
+        if (!window.faceRecognition) {
+            throw new Error('Face recognition belum dimuat');
+        }
 
         // Load models
         updateInstruction('Memuat model pengenalan wajah...', 'Mohon tunggu sebentar');
-        const modelsLoaded = await faceRecognition.loadModels();
+        const modelsLoaded = await window.faceRecognition.loadModels();
 
         if (!modelsLoaded) {
             throw new Error('Gagal memuat model pengenalan wajah. Pastikan file model tersedia di /models/');
@@ -229,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize camera
         updateInstruction('Mengakses kamera...', 'Pastikan Anda memberikan izin akses kamera');
         const videoElement = document.getElementById('camera-preview');
-        await faceRecognition.initializeCamera(videoElement);
+        await window.faceRecognition.initializeCamera(videoElement);
 
         // Hide overlay and show enrollment button
         document.getElementById('camera-overlay').style.display = 'none';
@@ -258,7 +260,7 @@ async function startEnrollment() {
             throw new Error('Anda harus menyetujui penggunaan data wajah untuk melanjutkan pendaftaran.');
         }
 
-        const enrollmentResult = await faceRecognition.performFullEnrollment(videoElement);
+        const enrollmentResult = await window.faceRecognition.performFullEnrollment(videoElement);
 
         // Build payload expected by FaceController@enroll
         const payload = {

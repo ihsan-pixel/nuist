@@ -701,7 +701,6 @@ window.addEventListener('load', function() {
     const readingInterval = 5000; // 5 seconds
 
     // Face recognition variables
-    let faceRecognition = null;
     let isVerificationRunning = false;
 
     // Map variables
@@ -923,17 +922,20 @@ window.addEventListener('load', function() {
 
     async function initializeFaceRecognition() {
         try {
-            faceRecognition = new FaceRecognition();
+            // Use global instance
+            if (!window.faceRecognition) {
+                throw new Error('Face recognition belum dimuat');
+            }
 
             // Load models
-            const modelsLoaded = await faceRecognition.loadModels();
+            const modelsLoaded = await window.faceRecognition.loadModels();
             if (!modelsLoaded) {
                 throw new Error('Gagal memuat model pengenalan wajah');
             }
 
             // Initialize camera
             const videoElement = document.getElementById('face-camera');
-            await faceRecognition.initializeCamera(videoElement);
+            await window.faceRecognition.initializeCamera(videoElement);
 
             // Update UI
             document.getElementById('face-instruction-text').innerText = 'Siap untuk verifikasi wajah';
@@ -954,7 +956,7 @@ window.addEventListener('load', function() {
         btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memulai...');
 
         try {
-            if (!faceRecognition) {
+            if (!window.faceRecognition) {
                 throw new Error('Face recognition belum diinisialisasi');
             }
 
@@ -989,17 +991,20 @@ window.addEventListener('load', function() {
 
     async function initializeFaceEnrollment() {
         try {
-            faceRecognition = new FaceRecognition();
+            // Use global instance
+            if (!window.faceRecognition) {
+                throw new Error('Face recognition belum dimuat');
+            }
 
             // Load models
-            const modelsLoaded = await faceRecognition.loadModels();
+            const modelsLoaded = await window.faceRecognition.loadModels();
             if (!modelsLoaded) {
                 throw new Error('Gagal memuat model pengenalan wajah');
             }
 
             // Initialize camera
             const videoElement = document.getElementById('face-camera');
-            await faceRecognition.initializeCamera(videoElement);
+            await window.faceRecognition.initializeCamera(videoElement);
 
             // Update UI
             document.getElementById('face-instruction-text').innerText = 'Siap untuk pendaftaran wajah';
@@ -1020,7 +1025,7 @@ window.addEventListener('load', function() {
         btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Mendaftarkan...');
 
         try {
-            if (!faceRecognition) {
+            if (!window.faceRecognition) {
                 throw new Error('Face recognition belum diinisialisasi');
             }
 
@@ -1043,7 +1048,7 @@ window.addEventListener('load', function() {
     async function runEnrollmentSequence() {
         try {
             // Run full enrollment with liveness challenges
-            const result = await faceRecognition.performFullEnrollment(
+            const result = await window.faceRecognition.performFullEnrollment(
                 document.getElementById('face-camera')
             );
 
@@ -1101,7 +1106,7 @@ window.addEventListener('load', function() {
 
         try {
             // Run full verification with liveness challenges
-            const result = await faceRecognition.performFullVerification(
+            const result = await window.faceRecognition.performFullVerification(
                 document.getElementById('face-camera'),
                 registeredFaceData
             );
