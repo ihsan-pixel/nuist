@@ -961,8 +961,23 @@ window.addEventListener('load', function() {
 
         // Auto-proceed to location validation after selfie is captured
         setTimeout(() => {
-            // Simulate button click to proceed with presensi
-            document.getElementById('btn-presensi').click();
+            // Verify selfie data is set before proceeding
+            const selfieData = document.getElementById('selfie-data').value;
+            console.log('Auto-proceeding with selfie data length:', selfieData.length);
+
+            if (selfieData && selfieData.length > 100) {
+                // Simulate button click to proceed with presensi
+                document.getElementById('btn-presensi').click();
+            } else {
+                console.error('Selfie data not properly set, length:', selfieData.length);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
+                    confirmButtonText: 'Oke'
+                });
+                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+            }
         }, 1000);
     }
 
@@ -1077,8 +1092,21 @@ window.addEventListener('load', function() {
                 });
 
                 let selfieDataValue = document.getElementById('selfie-data').value;
-                console.log('Selfie data length:', selfieDataValue.length);
-                console.log('Selfie data starts with:', selfieDataValue.substring(0, 50));
+                console.log('Final selfie data length:', selfieDataValue.length);
+                console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
+
+                // Ensure selfie data is valid before sending
+                if (!selfieDataValue || selfieDataValue.length < 100) {
+                    console.error('Selfie data validation failed, length:', selfieDataValue.length);
+                    $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan',
+                        text: 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
+                        confirmButtonText: 'Oke'
+                    });
+                    return;
+                }
 
                 let postData = {
                     _token: '{{ csrf_token() }}',
