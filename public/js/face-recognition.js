@@ -156,6 +156,25 @@ FaceRecognition.prototype.waitForChallengeCompletion = async function(videoEleme
         checkChallenge();
     });
 };
+// Tambahkan ke dalam class FaceRecognition (misal sebelum performFullEnrollment)
+generateChallengeSequence() {
+    // Daftar tantangan untuk uji liveness
+    const challenges = [
+        { type: 'blink', description: 'Kedipkan mata Anda' },
+        { type: 'turn_left', description: 'Putar kepala ke kiri' },
+        { type: 'turn_right', description: 'Putar kepala ke kanan' },
+        { type: 'smile', description: 'Tersenyum ke kamera' }
+    ];
+
+    // Acak urutan tantangan agar berbeda tiap kali
+    for (let i = challenges.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [challenges[i], challenges[j]] = [challenges[j], challenges[i]];
+    }
+
+    console.log('Challenge sequence generated:', challenges);
+    return challenges;
+}
 
 FaceRecognition.prototype.performFullEnrollment = async function(videoElement) {
     const sequence = this.generateChallengeSequence();
