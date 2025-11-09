@@ -289,12 +289,9 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <li><a class="dropdown-item" href="#" onclick="logoutUser()">
                                 <i class="bx bx-log-out me-2"></i>Logout
                             </a></li>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
                         </ul>
                     </div>
                 </div>
@@ -469,6 +466,24 @@
                     }
                 })
                 .catch(error => console.error('Error updating notification badge:', error));
+        }
+
+        // Logout function to handle CSRF token refresh
+        function logoutUser() {
+            // Create a fresh form with current CSRF token
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("logout") }}';
+            form.style.display = 'none';
+
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
         }
 
         // Mobile optimizations
