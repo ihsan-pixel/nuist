@@ -408,7 +408,7 @@
             </div>
         </div>
     </div>
-    @elseif($presensiHariIni && $presensiHariIni->waktu_masuk)
+    @elseif($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_masuk)
     <div class="status-card success">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -416,7 +416,7 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Masuk Berhasil</h6>
-                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk ? $presensiHariIni->waktu_masuk->format('H:i') : '-' }}</strong></p>
+                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->first()->waktu_masuk ? $presensiHariIni->first()->waktu_masuk->format('H:i') : '-' }}</strong></p>
                 <p class="mb-0 text-muted">Sekarang Anda dapat melakukan presensi keluar.</p>
             </div>
         </div>
@@ -475,15 +475,21 @@
             <div class="alert-custom info" style="margin-bottom: 8px;">
                 <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
             </div>
+            <div class="alert-custom warning" style="margin-bottom: 8px;">
+                <small><i class="bx bx-error-circle me-1"></i><strong>Peringatan:</strong> Jangan terlalu dekat dengan kamera. Pastikan wajah terlihat jelas dalam frame.</small>
+            </div>
             <div id="selfie-container" style="position: relative;">
+                <div style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6;">
+                    <div class="text-center">
+                        <i class="bx bx-camera text-muted" style="font-size: 24px;"></i>
+                        <br><small class="text-muted">Klik tombol di bawah untuk mengambil foto</small>
+                    </div>
+                </div>
                 <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></video>
                 <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></canvas>
                 <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
-                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
-                    <i class="bx bx-camera me-1"></i>Ambil Foto
-                </button>
-                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
-                    <i class="bx bx-refresh me-1"></i>Ulang
+                <button type="button" id="btn-open-selfie-modal" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);">
+                    <i class="bx bx-camera me-1"></i>Ambil Selfie
                 </button>
             </div>
             <input type="hidden" id="selfie-data" name="selfie_data">
@@ -492,7 +498,7 @@
                     <i class="bx bx-camera-off me-1"></i>
                     <div>
                         <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
+                        <br><small class="text-muted">Klik tombol "Ambil Selfie" untuk membuka kamera</small>
                     </div>
                 </div>
             </div>
@@ -504,7 +510,7 @@
                 disabled
                 {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : (($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Ambil Selfie') }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : (($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Lanjutkan') }}
         </button>
 
         <!-- Selfie Presensi Button (shown when presensi masuk is done) -->
@@ -1214,7 +1220,9 @@ window.addEventListener('load', function() {
         }
 
         // Check if presensi masuk already done - redirect to selfie page
-        if (presensiHariIni && presensiHariIni.waktu_masuk && !presensiHariIni.waktu_keluar) {
+        var hasPresensiMasuk = {{ ($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_masuk) ? 'true' : 'false' }};
+        var hasPresensiKeluar = {{ ($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_keluar) ? 'true' : 'false' }};
+        if (hasPresensiMasuk && !hasPresensiKeluar) {
             Swal.fire({
                 icon: 'info',
                 title: 'Presensi Masuk Sudah Berhasil',
