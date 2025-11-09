@@ -15,15 +15,13 @@
 - [x] Limit selfie capture to once per attendance session
 
 ### Pending Tasks:
-- [x] Run composer install after adding package
-- [x] Run migration after creating it
-- [x] Fix JavaScript null reference errors in selfie camera functionality
+- [ ] Run composer install after adding package
+- [ ] Run migration after creating it
 - [ ] Test selfie capture and compression functionality
 - [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)
 
 ### Followup Steps:
-- [x] Run composer install after adding package
-- [x] Run migration after creating it
-- [x] Fix JavaScript null reference errors in selfie camera functionality
+- [ ] Run composer install after adding package
+- [ ] Run migration after creating it
 - [ ] Test selfie capture and compression functionality
 - [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)

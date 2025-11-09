@@ -408,19 +408,6 @@
             </div>
         </div>
     </div>
-    @elseif($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_masuk)
-    <div class="status-card success">
-        <div class="d-flex align-items-center">
-            <div class="status-icon">
-                <i class="bx bx-check-circle"></i>
-            </div>
-            <div>
-                <h6 class="mb-1">Presensi Masuk Berhasil</h6>
-                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->first()->waktu_masuk ? $presensiHariIni->first()->waktu_masuk->format('H:i') : '-' }}</strong></p>
-                <p class="mb-0 text-muted">Sekarang Anda dapat melakukan presensi keluar.</p>
-            </div>
-        </div>
-    </div>
     @endif
 
     <!-- Presensi Form -->
@@ -475,21 +462,15 @@
             <div class="alert-custom info" style="margin-bottom: 8px;">
                 <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
             </div>
-            <div class="alert-custom warning" style="margin-bottom: 8px;">
-                <small><i class="bx bx-error-circle me-1"></i><strong>Peringatan:</strong> Jangan terlalu dekat dengan kamera. Pastikan wajah terlihat jelas dalam frame.</small>
-            </div>
             <div id="selfie-container" style="position: relative;">
-                <div style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6;">
-                    <div class="text-center">
-                        <i class="bx bx-camera text-muted" style="font-size: 24px;"></i>
-                        <br><small class="text-muted">Klik tombol di bawah untuk mengambil foto</small>
-                    </div>
-                </div>
                 <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></video>
                 <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></canvas>
                 <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
-                <button type="button" id="btn-open-selfie-modal" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);">
-                    <i class="bx bx-camera me-1"></i>Ambil Selfie
+                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
+                    <i class="bx bx-camera me-1"></i>Ambil Foto
+                </button>
+                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
+                    <i class="bx bx-refresh me-1"></i>Ulang
                 </button>
             </div>
             <input type="hidden" id="selfie-data" name="selfie_data">
@@ -498,7 +479,7 @@
                     <i class="bx bx-camera-off me-1"></i>
                     <div>
                         <strong>Selfie belum diambil</strong>
-                        <br><small class="text-muted">Klik tombol "Ambil Selfie" untuk membuka kamera</small>
+                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
                     </div>
                 </div>
             </div>
@@ -510,16 +491,8 @@
                 disabled
                 {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : (($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Lanjutkan') }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Ambil Selfie' }}
         </button>
-
-        <!-- Selfie Presensi Button (shown when presensi masuk is done) -->
-        @if($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == 0)
-        <a href="{{ route('mobile.selfie-presensi') }}" class="presensi-btn" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); text-decoration: none; color: #fff; display: block; text-align: center; margin-top: 8px;">
-            <i class="bx bx-camera me-1"></i>
-            Ambil Selfie Keluar
-        </a>
-        @endif
 
         <!-- Submit Button (hidden initially) -->
         <button type="button" id="btn-submit-presensi"
@@ -1058,35 +1031,22 @@ window.addEventListener('load', function() {
             });
             selfieStream = stream;
             const video = document.getElementById('selfie-video');
-            if (video) {
-                video.srcObject = stream;
-                video.style.display = 'block';
-            }
-
-            // Hide the placeholder and show video
-            const container = document.getElementById('selfie-container');
-            if (container) {
-                const placeholder = container.querySelector('.text-center');
-                if (placeholder) {
-                    placeholder.style.display = 'none';
-                }
-            }
+            video.srcObject = stream;
+            video.style.display = 'block';
+            document.getElementById('btn-capture-selfie').style.display = 'block';
 
             // Auto-capture selfie after 3 seconds
-            const statusElement = document.getElementById('selfie-status');
-            if (statusElement) {
-                statusElement.innerHTML = `
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-camera me-1"></i>
-                            <div>
-                                <strong>Kamera aktif</strong>
-                                <br><small class="text-muted">Foto akan diambil otomatis dalam 3 detik...</small>
-                            </div>
+            document.getElementById('selfie-status').innerHTML = `
+                <div class="location-info success">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera me-1"></i>
+                        <div>
+                            <strong>Kamera aktif</strong>
+                            <br><small class="text-muted">Foto akan diambil otomatis dalam 3 detik...</small>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
 
             // Auto capture after 3 seconds
             setTimeout(() => {
@@ -1097,20 +1057,17 @@ window.addEventListener('load', function() {
 
         } catch (error) {
             console.error('Error accessing camera:', error);
-            const statusElement = document.getElementById('selfie-status');
-            if (statusElement) {
-                statusElement.innerHTML = `
-                    <div class="location-info error">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-error-circle me-1"></i>
-                            <div>
-                                <strong>Kamera tidak dapat diakses</strong>
-                                <br><small class="text-muted">Pastikan memberikan izin kamera</small>
-                            </div>
+            document.getElementById('selfie-status').innerHTML = `
+                <div class="location-info error">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-1"></i>
+                        <div>
+                            <strong>Kamera tidak dapat diakses</strong>
+                            <br><small class="text-muted">Pastikan memberikan izin kamera</small>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
             throw error; // Re-throw to handle in calling function
         }
     }
@@ -1121,32 +1078,17 @@ window.addEventListener('load', function() {
         const canvas = document.getElementById('selfie-canvas');
         const ctx = canvas.getContext('2d');
 
-        if (!video || !canvas || !ctx) {
-            console.error('Required elements not found for selfie capture');
-            return;
-        }
-
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        const selfieDataInput = document.getElementById('selfie-data');
-        const selfiePreview = document.getElementById('selfie-preview');
-
-        if (selfieDataInput) {
-            selfieDataInput.value = imageData;
-        }
-
-        if (selfiePreview) {
-            selfiePreview.src = imageData;
-            selfiePreview.style.display = 'block';
-        }
-
-        // Hide video and show preview
-        if (video) {
-            video.style.display = 'none';
-        }
+        document.getElementById('selfie-data').value = imageData;
+        document.getElementById('selfie-preview').src = imageData;
+        document.getElementById('selfie-preview').style.display = 'block';
+        document.getElementById('selfie-video').style.display = 'none';
+        document.getElementById('btn-capture-selfie').style.display = 'none';
+        document.getElementById('btn-retake-selfie').style.display = 'block';
 
         // Stop camera stream
         if (selfieStream) {
@@ -1155,25 +1097,22 @@ window.addEventListener('load', function() {
         }
 
         selfieCaptured = true;
-        const statusElement = document.getElementById('selfie-status');
-        if (statusElement) {
-            statusElement.innerHTML = `
-                <div class="location-info success">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-check-circle me-1"></i>
-                        <div>
-                            <strong>Selfie berhasil diambil</strong>
-                            <br><small class="text-muted">Klik tombol "Kirim Presensi" untuk menyelesaikan</small>
-                        </div>
+        document.getElementById('selfie-status').innerHTML = `
+            <div class="location-info success">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-check-circle me-1"></i>
+                    <div>
+                        <strong>Selfie berhasil diambil</strong>
+                        <br><small class="text-muted">Klik tombol "Kirim Presensi" untuk menyelesaikan</small>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
 
         // Show submit button after selfie is captured
         setTimeout(() => {
             // Verify selfie data is set before proceeding
-            const selfieData = selfieDataInput ? selfieDataInput.value : '';
+            const selfieData = document.getElementById('selfie-data').value;
             console.log('Selfie captured with data length:', selfieData.length);
 
             if (selfieData && selfieData.length > 100) {
@@ -1196,17 +1135,8 @@ window.addEventListener('load', function() {
 
     // Retake selfie
     function retakeSelfie() {
-        const selfiePreview = document.getElementById('selfie-preview');
-        const selfieDataInput = document.getElementById('selfie-data');
-
-        if (selfiePreview) {
-            selfiePreview.style.display = 'none';
-        }
-
-        if (selfieDataInput) {
-            selfieDataInput.value = '';
-        }
-
+        document.getElementById('selfie-preview').style.display = 'none';
+        document.getElementById('selfie-data').value = '';
         selfieCaptured = false;
         // Hide submit button and show presensi button again
         $('#btn-submit-presensi').hide();
@@ -1215,16 +1145,8 @@ window.addEventListener('load', function() {
     }
 
     // Event listeners for selfie buttons
-    const captureBtn = document.getElementById('btn-capture-selfie');
-    const retakeBtn = document.getElementById('btn-retake-selfie');
-
-    if (captureBtn) {
-        captureBtn.addEventListener('click', captureSelfie);
-    }
-
-    if (retakeBtn) {
-        retakeBtn.addEventListener('click', retakeSelfie);
-    }
+    document.getElementById('btn-capture-selfie').addEventListener('click', captureSelfie);
+    document.getElementById('btn-retake-selfie').addEventListener('click', retakeSelfie);
 
     // Handle presensi button (Ambil Selfie)
     $('#btn-presensi').click(async function() {
@@ -1270,22 +1192,6 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Check if presensi masuk already done - redirect to selfie page
-        var hasPresensiMasuk = {{ ($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_masuk) ? 'true' : 'false' }};
-        var hasPresensiKeluar = {{ ($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->first()->waktu_keluar) ? 'true' : 'false' }};
-        if (hasPresensiMasuk && !hasPresensiKeluar) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Presensi Masuk Sudah Berhasil',
-                text: 'Anda akan diarahkan ke halaman selfie untuk presensi keluar.',
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                window.location.href = '{{ route("mobile.selfie-presensi") }}';
-            });
-            return;
-        }
-
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
@@ -1308,8 +1214,7 @@ window.addEventListener('load', function() {
                     speed: position.coords.speed
                 });
 
-                const selfieDataInput = document.getElementById('selfie-data');
-                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
+                let selfieDataValue = document.getElementById('selfie-data').value;
                 console.log('Final selfie data length:', selfieDataValue.length);
                 console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
 
