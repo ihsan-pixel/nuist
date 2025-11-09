@@ -384,5 +384,10 @@ FaceRecognition.prototype.enrollFace = async function(videoElement, options = { 
     return await this.performFullEnrollment(videoElement);
 };
 
-// Export for usage in pages that include this script
-window.FaceRecognition = FaceRecognition;
+// Pastikan hanya satu instance dibuat global
+if (!window.faceRecognition) {
+    window.faceRecognition = new FaceRecognition();
+    console.log("faceRecognition instance created ✅");
+} else {
+    console.log("faceRecognition already exists, reusing instance.");
+}
