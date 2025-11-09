@@ -709,8 +709,6 @@ window.addEventListener('load', function() {
 
     // Face recognition variables
     let faceRecognition = null;
-    let currentChallengeIndex = 0;
-    let challengeSequence = [];
     let isVerificationRunning = false;
 
     // Map variables
@@ -967,10 +965,6 @@ window.addEventListener('load', function() {
                 throw new Error('Face recognition belum diinisialisasi');
             }
 
-            // Generate challenge sequence
-            challengeSequence = faceRecognition.generateChallengeSequence();
-            currentChallengeIndex = 0;
-
             // Reset progress dots
             $('.challenge-dot').removeClass('active completed');
 
@@ -1037,10 +1031,6 @@ window.addEventListener('load', function() {
                 throw new Error('Face recognition belum diinisialisasi');
             }
 
-            // Generate challenge sequence for enrollment
-            challengeSequence = faceRecognition.generateChallengeSequence();
-            currentChallengeIndex = 0;
-
             // Reset progress dots
             $('.challenge-dot').removeClass('active completed');
 
@@ -1069,7 +1059,7 @@ window.addEventListener('load', function() {
                 user_id: {{ Auth::user()->id }},
                 face_data: result.faceDescriptor,
                 liveness_score: result.livenessScore,
-                liveness_challenges: result.challenges,
+                liveness_challenges: result.challenges.map(c => c.type || 'unknown'),
                 device_info: navigator.userAgent
             };
 
