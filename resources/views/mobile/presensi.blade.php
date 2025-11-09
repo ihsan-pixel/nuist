@@ -408,6 +408,19 @@
             </div>
         </div>
     </div>
+    @elseif($presensiHariIni && $presensiHariIni->waktu_masuk)
+    <div class="status-card success">
+        <div class="d-flex align-items-center">
+            <div class="status-icon">
+                <i class="bx bx-check-circle"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">Presensi Masuk Berhasil</h6>
+                <p class="mb-1">Masuk: <strong>{{ $presensiHariIni->waktu_masuk ? $presensiHariIni->waktu_masuk->format('H:i') : '-' }}</strong></p>
+                <p class="mb-0 text-muted">Sekarang Anda dapat melakukan presensi keluar.</p>
+            </div>
+        </div>
+    </div>
     @endif
 
     <!-- Presensi Form -->
@@ -491,8 +504,16 @@
                 disabled
                 {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Ambil Selfie' }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : (($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Ambil Selfie') }}
         </button>
+
+        <!-- Selfie Presensi Button (shown when presensi masuk is done) -->
+        @if($presensiHariIni && $presensiHariIni->count() > 0 && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == 0)
+        <a href="{{ route('mobile.selfie-presensi') }}" class="presensi-btn" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); text-decoration: none; color: #fff; display: block; text-align: center; margin-top: 8px;">
+            <i class="bx bx-camera me-1"></i>
+            Ambil Selfie Keluar
+        </a>
+        @endif
 
         <!-- Submit Button (hidden initially) -->
         <button type="button" id="btn-submit-presensi"
@@ -1188,6 +1209,20 @@ window.addEventListener('load', function() {
                 title: 'Kesalahan',
                 text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
                 confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        // Check if presensi masuk already done - redirect to selfie page
+        if (presensiHariIni && presensiHariIni.waktu_masuk && !presensiHariIni.waktu_keluar) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Presensi Masuk Sudah Berhasil',
+                text: 'Anda akan diarahkan ke halaman selfie untuk presensi keluar.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = '{{ route("mobile.selfie-presensi") }}';
             });
             return;
         }

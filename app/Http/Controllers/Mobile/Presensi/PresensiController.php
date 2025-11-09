@@ -215,29 +215,12 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $tanggal)
             ->first();
 
-        // Determine presensi type with additional checks
-        $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
-        $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
-
-        // Check if entry presensi is attempted before 01:00
-        if ($isPresensiMasuk && $now->format('H:i:s') < '01:00:00') {
-            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, true);
-            return response()->json([
-                'success' => false,
-                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 01:00. Foto selfie telah disimpan untuk verifikasi admin.'
-            ], 400);
-        }
+        // For selfie presensi, always perform presensi keluar
+        $isPresensiMasuk = false;
+        $isPresensiKeluar = true;
 
         // Process and save selfie image
         $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
-
-        // Prevent double submission for masuk if already exists
-        if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Presensi masuk hari ini sudah dicatat. Silakan lakukan presensi keluar jika belum.'
-            ], 400);
-        }
 
         // Prevent double submission for keluar if already exists
         if ($isPresensiKeluar && $existingPresensi && $existingPresensi->waktu_keluar) {
@@ -246,8 +229,6 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'message' => 'Presensi keluar hari ini sudah dicatat. Presensi hari ini sudah lengkap.'
             ], 400);
         }
-
-
 
         // Location consistency validation removed - presensi will proceed regardless
 
@@ -294,65 +275,8 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Add location validation note if outside polygon
         $locationNote = '';
 
-        // Determine if this is presensi masuk or keluar
-        if ($isPresensiMasuk) {
-            // Presensi Masuk
-            $status = 'hadir';
-            $waktuMasuk = $now;
-            $waktuKeluar = null;
-
-            // Calculate lateness - only set keterangan if late (after 07:00)
-            $keterangan = "";
-            if ($user->pemenuhan_beban_kerja_lain) {
-                $keterangan = "tidak terlambat";
-            } else {
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now->format('H:i:s') > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
-
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
-
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
-                } else {
-                    $keterangan = "tidak terlambat";
-                }
-            }
-
-            // Special handling for early presensi (between 01:00 and 05:00)
-            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
-                $keterangan = "Presensi dini (sebelum pukul 05:00)";
-            }
-
-            // Create new presensi record
-            $presensi = Presensi::create([
-                'user_id' => $user->id,
-                'tanggal' => $tanggal,
-                'waktu_masuk' => $waktuMasuk,
-                'waktu_keluar' => $waktuKeluar,
-                'status' => $status,
-                'keterangan' => $keterangan,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'lokasi' => $request->lokasi,
-                'accuracy' => $request->accuracy,
-                'altitude' => $request->altitude,
-                'speed' => $request->speed,
-                'device_info' => $request->device_info,
-                'location_readings' => $request->location_readings,
-                'selfie_masuk_path' => $selfiePath,
-                'status_kepegawaian_id' => $user->status_kepegawaian_id,
-            ]);
-
-            $message = 'Presensi masuk berhasil dicatat!';
-
-        } elseif ($isPresensiKeluar) {
+        // For selfie presensi, always perform presensi keluar
+        if ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)
             $pulangStart = '15:00:00'; // Default pulang start time
             if ($user->madrasah && $user->madrasah->hari_kbm) {
@@ -549,6 +473,297 @@ class PresensiController extends \App\Http\Controllers\Controller
             Log::error('Selfie processing failed: ' . $e->getMessage());
             return '';
         }
+    }
+
+    /**
+     * Selfie Presensi page (separate from main presensi)
+     */
+    public function selfiePresensi(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        // Check if user already has presensi for today
+        $presensiHariIni = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $selectedDate)
+            ->first();
+
+        // Determine if this should be presensi masuk or keluar
+        $isPresensiMasuk = !$presensiHariIni || (!$presensiHariIni->waktu_masuk && !$presensiHariIni->waktu_keluar);
+        $isPresensiKeluar = $presensiHariIni && $presensiHariIni->waktu_masuk && !$presensiHariIni->waktu_keluar;
+
+        // If presensi masuk not done yet, redirect to main presensi page
+        if (!$presensiHariIni || !$presensiHariIni->waktu_masuk) {
+            return redirect()->route('mobile.presensi')->with('warning', 'Silakan lakukan presensi masuk terlebih dahulu.');
+        }
+
+        // If presensi keluar already done, redirect back
+        if ($presensiHariIni && $presensiHariIni->waktu_keluar) {
+            return redirect()->route('mobile.presensi')->with('info', 'Presensi keluar sudah dilakukan hari ini.');
+        }
+
+        return view('mobile.selfie-presensi', compact('presensiHariIni', 'isPresensiMasuk', 'isPresensiKeluar', 'selectedDate'));
+    }
+
+    /**
+     * Store selfie presensi (separate endpoint)
+     */
+    public function storeSelfiePresensi(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'tenaga_pendidik') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'lokasi' => 'nullable|string',
+            'accuracy' => 'nullable|numeric',
+            'altitude' => 'nullable|numeric',
+            'speed' => 'nullable|numeric',
+            'device_info' => 'nullable|string',
+            'location_readings' => 'nullable|string',
+            'selfie_data' => 'required|string|min:100', // Ensure it's not empty and has minimum length
+        ]);
+
+        $tanggal = Carbon::today()->toDateString();
+        $now = Carbon::now('Asia/Jakarta');
+
+        // Check if it's a holiday or Sunday - prevent presensi
+        $isHoliday = Holiday::isHoliday($tanggal);
+        $isSunday = Carbon::parse($tanggal)->dayOfWeek === Carbon::SUNDAY;
+
+        if ($isHoliday || $isSunday) {
+            $holiday = $isHoliday ? Holiday::getHoliday($tanggal) : null;
+            $reason = $isHoliday ? "hari libur ({$holiday->name})" : "hari Minggu";
+            return response()->json([
+                'success' => false,
+                'message' => "Presensi tidak dapat dilakukan pada {$reason}."
+            ], 400);
+        }
+
+        // Check if time is after 22:00 - mark as alpha
+        if ($now->format('H:i:s') > '22:00:00') {
+            // Check if user already has presensi for today
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if (!$existingPresensi) {
+                // Create alpha record
+                Presensi::create([
+                    'user_id' => $user->id,
+                    'tanggal' => $tanggal,
+                    'status' => 'alpha',
+                    'keterangan' => 'Tidak masuk',
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                    'lokasi' => $request->lokasi,
+                    'accuracy' => $request->accuracy,
+                    'altitude' => $request->altitude,
+                    'speed' => $request->speed,
+                    'device_info' => $request->device_info,
+                    'location_readings' => $request->location_readings,
+                    'selfie_masuk_path' => $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, true),
+                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk. Foto selfie telah disimpan untuk verifikasi.'
+                ], 400);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi hari ini sudah dicatat.'
+                ], 400);
+            }
+        }
+
+        // Check if user already has presensi for today with stricter validation
+        $existingPresensi = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal)
+            ->first();
+
+        // For selfie presensi, always treat as keluar since masuk is already done
+        $isPresensiMasuk = false;
+        $isPresensiKeluar = true;
+
+        // Process and save selfie image
+        $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
+
+        // Prevent double submission for keluar if already exists
+        if ($isPresensiKeluar && $existingPresensi && $existingPresensi->waktu_keluar) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi keluar hari ini sudah dicatat. Presensi hari ini sudah lengkap.'
+            ], 400);
+        }
+
+        // Location validation using polygon from madrasah
+        $madrasah = $user->madrasah;
+        $isWithinPolygon = false;
+
+        $polygonsToCheck = [];
+        if ($madrasah && $madrasah->polygon_koordinat) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat;
+        }
+        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
+            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
+        }
+
+        if (!empty($polygonsToCheck)) {
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinPolygon = true;
+                            break; // Jika sudah ada yang valid, tidak perlu cek yang lain
+                        }
+                    }
+                } catch (\Exception $e) {
+                    continue; // Skip invalid polygon
+                }
+            }
+        }
+
+        // Location validation using polygon from madrasah
+        if (!$isWithinPolygon) {
+            // Save selfie even if location is outside polygon for verification
+            $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi. Foto selfie telah disimpan untuk verifikasi admin.'
+            ], 400);
+        }
+
+        // Add location validation note if outside polygon
+        $locationNote = '';
+
+        // Determine if this is presensi masuk or keluar
+        if ($isPresensiMasuk) {
+            // Presensi Masuk
+            $status = 'hadir';
+            $waktuMasuk = $now;
+            $waktuKeluar = null;
+
+            // Calculate lateness - only set keterangan if late (after 07:00)
+            $keterangan = "";
+            if ($user->pemenuhan_beban_kerja_lain) {
+                $keterangan = "tidak terlambat";
+            } else {
+                // Jika waktu presensi setelah 07:00, hitung keterlambatan
+                if ($now->format('H:i:s') > '07:00:00') {
+                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                    $sekarang = Carbon::now('Asia/Jakarta');
+                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
+
+                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                    if ($sekarang->lessThan($batas)) {
+                        $terlambatMenit = 0;
+                    } else {
+                        $terlambatMenit = abs(round($terlambatMenit));
+                    }
+
+                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                } else {
+                    $keterangan = "tidak terlambat";
+                }
+            }
+
+            // Special handling for early presensi (between 01:00 and 05:00)
+            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
+                $keterangan = "Presensi dini (sebelum pukul 05:00)";
+            }
+
+            // Create new presensi record
+            $presensi = Presensi::create([
+                'user_id' => $user->id,
+                'tanggal' => $tanggal,
+                'waktu_masuk' => $waktuMasuk,
+                'waktu_keluar' => $waktuKeluar,
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'lokasi' => $request->lokasi,
+                'accuracy' => $request->accuracy,
+                'altitude' => $request->altitude,
+                'speed' => $request->speed,
+                'device_info' => $request->device_info,
+                'location_readings' => $request->location_readings,
+                'selfie_masuk_path' => $selfiePath,
+                'status_kepegawaian_id' => $user->status_kepegawaian_id,
+            ]);
+
+            $message = 'Presensi masuk berhasil dicatat!';
+
+        } elseif ($isPresensiKeluar) {
+            // Check if it's time to go home (after pulang_start time)
+            $pulangStart = '15:00:00'; // Default pulang start time
+            if ($user->madrasah && $user->madrasah->hari_kbm) {
+                $hariKbm = $user->madrasah->hari_kbm;
+                if ($hariKbm == '5' || $hariKbm == '6') {
+                    $pulangStart = '15:00:00';
+                } else {
+                    $pulangStart = '15:00:00';
+                }
+            }
+
+            if ($now->format('H:i:s') < $pulangStart) {
+                // Save selfie even if time is too early for verification
+                $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, false);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '. Foto selfie telah disimpan untuk verifikasi admin.'
+                ], 400);
+            }
+
+            // Presensi Keluar - update existing record
+            $existingPresensi->update([
+                'waktu_keluar' => $now,
+                'latitude_keluar' => $request->latitude,
+                'longitude_keluar' => $request->longitude,
+                'lokasi_keluar' => $request->lokasi,
+                'accuracy_keluar' => $request->accuracy,
+                'altitude_keluar' => $request->altitude,
+                'speed_keluar' => $request->speed,
+                'device_info_keluar' => $request->device_info,
+                'location_readings_keluar' => $request->location_readings,
+                'selfie_keluar_path' => $selfiePath,
+            ]);
+
+            $presensi = $existingPresensi;
+            $message = 'Presensi keluar berhasil dicatat!';
+
+        } else {
+            // Both masuk and keluar already done or invalid state
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi hari ini sudah lengkap atau dalam keadaan tidak valid.'
+            ], 400);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'presensi' => $presensi
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**

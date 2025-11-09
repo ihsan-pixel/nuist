@@ -117,6 +117,10 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     // Backwards-compatible route names used by some mobile views
     Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('data-presensi');
     Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
+
+    // Selfie Presensi (separate page)
+    Route::get('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'selfiePresensi'])->name('selfie-presensi');
+    Route::post('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storeSelfiePresensi'])->name('selfie-presensi.store');
     Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha'])->name('riwayat-presensi-alpha');
 
