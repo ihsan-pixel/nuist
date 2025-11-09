@@ -453,6 +453,38 @@
             <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
         </div>
 
+        <!-- Selfie Section -->
+        <div class="form-section">
+            <div class="d-flex align-items-center mb-1">
+                <i class="bx bx-camera text-primary me-1"></i>
+                <label class="section-title mb-0">Foto Selfie</label>
+            </div>
+            <div class="alert-custom info" style="margin-bottom: 8px;">
+                <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
+            </div>
+            <div id="selfie-container" style="position: relative;">
+                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></video>
+                <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; display: none;"></canvas>
+                <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 200px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
+                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
+                    <i class="bx bx-camera me-1"></i>Ambil Foto
+                </button>
+                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
+                    <i class="bx bx-refresh me-1"></i>Ulang
+                </button>
+            </div>
+            <input type="hidden" id="selfie-data" name="selfie_data">
+            <div id="selfie-status" class="location-info info" style="margin-top: 8px;">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Presensi Button -->
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
@@ -647,7 +679,7 @@ window.addEventListener('load', function() {
                         </div>
                     `);
 
-                    // Update coordinates display with latest reading
+        // Update coordinates display with latest reading
                     $('#latitude').val(reading.latitude.toFixed(6));
                     $('#longitude').val(reading.longitude.toFixed(6));
 
@@ -656,6 +688,11 @@ window.addEventListener('load', function() {
 
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
+
+                    // Enable selfie camera after first location reading
+                    if (i === 1 && !selfieCaptured) {
+                        initializeSelfieCamera();
+                    }
 
                     resolve(reading);
                 },
@@ -832,6 +869,98 @@ window.addEventListener('load', function() {
 
 
 
+    // Selfie variables
+    let selfieStream = null;
+    let selfieCaptured = false;
+
+    // Initialize selfie camera
+    async function initializeSelfieCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: 640, height: 480 }
+            });
+            selfieStream = stream;
+            const video = document.getElementById('selfie-video');
+            video.srcObject = stream;
+            video.style.display = 'block';
+            document.getElementById('btn-capture-selfie').style.display = 'block';
+            document.getElementById('selfie-status').innerHTML = `
+                <div class="location-info success">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera me-1"></i>
+                        <div>
+                            <strong>Kamera aktif</strong>
+                            <br><small class="text-muted">Klik "Ambil Foto" untuk mengambil selfie</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            document.getElementById('selfie-status').innerHTML = `
+                <div class="location-info error">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-1"></i>
+                        <div>
+                            <strong>Kamera tidak dapat diakses</strong>
+                            <br><small class="text-muted">Pastikan memberikan izin kamera</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Capture selfie
+    function captureSelfie() {
+        const video = document.getElementById('selfie-video');
+        const canvas = document.getElementById('selfie-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('selfie-data').value = imageData;
+        document.getElementById('selfie-preview').src = imageData;
+        document.getElementById('selfie-preview').style.display = 'block';
+        document.getElementById('selfie-video').style.display = 'none';
+        document.getElementById('btn-capture-selfie').style.display = 'none';
+        document.getElementById('btn-retake-selfie').style.display = 'block';
+
+        // Stop camera stream
+        if (selfieStream) {
+            selfieStream.getTracks().forEach(track => track.stop());
+            selfieStream = null;
+        }
+
+        selfieCaptured = true;
+        document.getElementById('selfie-status').innerHTML = `
+            <div class="location-info success">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-check-circle me-1"></i>
+                    <div>
+                        <strong>Selfie berhasil diambil</strong>
+                        <br><small class="text-muted">Foto siap untuk dikirim</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Retake selfie
+    function retakeSelfie() {
+        document.getElementById('selfie-preview').style.display = 'none';
+        document.getElementById('selfie-data').value = '';
+        selfieCaptured = false;
+        initializeSelfieCamera();
+    }
+
+    // Event listeners for selfie buttons
+    document.getElementById('btn-capture-selfie').addEventListener('click', captureSelfie);
+    document.getElementById('btn-retake-selfie').addEventListener('click', retakeSelfie);
+
     // Handle presensi button
     $('#btn-presensi').click(function() {
         if (!latitude || !longitude) {
@@ -850,6 +979,17 @@ window.addEventListener('load', function() {
                 icon: 'error',
                 title: 'Kesalahan',
                 text: 'Tidak dapat mendapatkan lokasi. Pastikan GPS aktif dan coba lagi.',
+                confirmButtonText: 'Oke'
+            });
+            return;
+        }
+
+        // Check if selfie is captured
+        if (!selfieCaptured) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selfie Wajib',
+                text: 'Silakan ambil foto selfie terlebih dahulu sebelum melakukan presensi.',
                 confirmButtonText: 'Oke'
             });
             return;
@@ -921,7 +1061,8 @@ window.addEventListener('load', function() {
                     altitude: position.coords.altitude,
                     speed: position.coords.speed,
                     device_info: navigator.userAgent,
-                    location_readings: JSON.stringify(allReadings)
+                    location_readings: JSON.stringify(allReadings),
+                    selfie_data: document.getElementById('selfie-data').value
                 };
 
 

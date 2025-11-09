@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Mobile\Presensi;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Intervention\Image\Laravel\Facades\Image;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\Holiday;
@@ -150,6 +152,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
+            'selfie_data' => 'required|string',
 
         ]);
 
@@ -214,6 +217,13 @@ class PresensiController extends \App\Http\Controllers\Controller
         // Determine presensi type with additional checks
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Determine presensi type with additional checks
+        $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
+        $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Process and save selfie image
+        $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
 
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
@@ -329,7 +339,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
                 'location_readings' => $request->location_readings,
-
+                'selfie_masuk_path' => $selfiePath,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
@@ -365,6 +375,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed_keluar' => $request->speed,
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
+                'selfie_keluar_path' => $selfiePath,
             ]);
 
             $presensi = $existingPresensi;
@@ -487,6 +498,69 @@ class PresensiController extends \App\Http\Controllers\Controller
         } catch (\Exception $e) {
             // If there's any error parsing readings, allow presensi for safety
             return ['valid' => true, 'message' => ''];
+        }
+    }
+
+    /**
+     * Process and save selfie image with compression
+     * @param string $selfieData Base64 image data
+     * @param int $userId User ID
+     * @param string $tanggal Date string
+     * @param bool $isMasuk Whether this is presensi masuk
+     * @return string Path to saved image
+     */
+    private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
+    {
+        try {
+            // Decode base64 image
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
+
+            // Create Intervention Image instance
+            $image = Image::read($imageData);
+
+            // Resize if too large (max 800px width, maintain aspect ratio)
+            if ($image->width() > 800) {
+                $image->scale(width: 800);
+            }
+
+            // Compress to webp with quality 70-80% to achieve 100-200KB target
+            $quality = 80;
+            $encodedImage = $image->toWebp($quality);
+
+            // If still too large, reduce quality further
+            while (strlen($encodedImage) > 200 * 1024 && $quality > 50) { // 200KB
+                $quality -= 10;
+                $encodedImage = $image->toWebp($quality);
+            }
+
+            // If still too large after quality reduction, resize down further
+            if (strlen($encodedImage) > 200 * 1024) {
+                $image->scale(width: 600);
+                $encodedImage = $image->toWebp(70);
+            }
+
+            // Create directory structure: presensi-selfies/YYYY-MM-DD
+            $datePath = Carbon::parse($tanggal)->format('Y-m-d');
+            $directory = "presensi-selfies/{$datePath}";
+
+            // Ensure directory exists
+            Storage::disk('public')->makeDirectory($directory);
+
+            // Generate filename
+            $type = $isMasuk ? 'masuk' : 'keluar';
+            $timestamp = time();
+            $filename = "selfie_{$userId}_{$type}_{$timestamp}.webp";
+            $fullPath = "{$directory}/{$filename}";
+
+            // Save the compressed image
+            Storage::disk('public')->put($fullPath, $encodedImage);
+
+            return $fullPath;
+
+        } catch (\Exception $e) {
+            // Log error and return empty string - presensi should still work even if image processing fails
+            \Log::error('Selfie processing failed: ' . $e->getMessage());
+            return '';
         }
     }
 
