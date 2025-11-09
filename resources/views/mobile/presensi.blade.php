@@ -70,35 +70,7 @@
             margin-bottom: 10px;
         }
 
-        .face-verification-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
-        }
 
-        .face-camera-container {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #000;
-            margin: 8px 0;
-        }
-
-        .face-camera-preview {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .face-instruction {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-size: 12px;
-        }
 
         .user-location-map-container {
             position: relative;
