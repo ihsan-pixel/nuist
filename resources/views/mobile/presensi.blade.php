@@ -329,6 +329,10 @@
             color: #fff;
             background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
         }
+
+        #selfie-video {
+            transform: scaleX(-1); /* tampilan jadi seperti cermin */
+        }
     </style>
 
     <!-- Header -->
