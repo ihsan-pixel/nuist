@@ -21,6 +21,6 @@
 - [x] Update JavaScript for simplified enrollment
 
 ## 4. Test the Changes
-- [ ] Verify enrollment works without errors
-- [ ] Verify verification works without errors
-- [ ] Check that presensi can be done successfully
+- [x] Verify enrollment works without errors
+- [x] Verify verification works without errors
+- [x] Check that presensi can be done successfully

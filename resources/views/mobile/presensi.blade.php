@@ -925,15 +925,12 @@ window.addEventListener('load', function() {
 
         isVerificationRunning = true;
         const btn = $(this);
-        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memulai...');
+        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memverifikasi...');
 
         try {
             if (!window.faceRecognition) {
                 throw new Error('Face recognition belum diinisialisasi');
             }
-
-            // Reset progress dots
-            $('.challenge-dot').removeClass('active completed');
 
             // Start verification process
             await runVerificationSequence();
@@ -1001,9 +998,6 @@ window.addEventListener('load', function() {
                 throw new Error('Face recognition belum diinisialisasi');
             }
 
-            // Reset progress dots
-            $('.challenge-dot').removeClass('active completed');
-
             // Start enrollment process
             await runEnrollmentSequence();
 
@@ -1019,7 +1013,7 @@ window.addEventListener('load', function() {
 
     async function runEnrollmentSequence() {
         try {
-            // Run full enrollment with liveness challenges
+            // Run simplified enrollment
             const result = await window.faceRecognition.performFullEnrollment(
                 document.getElementById('face-camera')
             );
@@ -1028,8 +1022,6 @@ window.addEventListener('load', function() {
             const payload = {
                 user_id: {{ Auth::user()->id }},
                 face_data: result.faceDescriptor,
-                liveness_score: result.livenessScore,
-                liveness_challenges: result.challenges.map(c => c.type || 'unknown'),
                 device_info: navigator.userAgent
             };
 
@@ -1050,12 +1042,9 @@ window.addEventListener('load', function() {
                 document.getElementById('face-instruction-text').innerText = 'Pendaftaran berhasil ✓';
                 $('#face-enrollment-status').show().html(`
                     <small class="text-success">
-                        Wajah berhasil didaftarkan! Liveness: ${result.livenessScore.toFixed(2)}
+                        Wajah berhasil didaftarkan!
                     </small>
                 `);
-
-                // Mark all challenge dots as completed
-                $('.challenge-dot').addClass('completed');
 
                 // Reload page after success
                 setTimeout(() => {

@@ -68,20 +68,7 @@
             width: 100%;
         }
 
-        .progress-bar-custom {
-            height: 4px;
-            background: #e9ecef;
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 16px 0;
-        }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
     </style>
 
     <div class="enrollment-card">
@@ -100,9 +87,7 @@
             </div>
         </div>
 
-        <div class="progress-bar-custom">
-            <div class="progress-fill" id="progress-fill"></div>
-        </div>
+
 
         <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" value="1" id="consent" />
@@ -176,9 +161,7 @@ async function startEnrollment() {
             throw new Error('Anda harus menyetujui penggunaan data wajah untuk melanjutkan pendaftaran.');
         }
 
-        updateProgress(0.5); // Show progress
         const enrollmentResult = await window.faceRecognition.performFullEnrollment(videoElement);
-        updateProgress(1); // Complete progress
 
         // Build simplified payload
         const payload = {
@@ -229,10 +212,7 @@ function updateInstruction(mainText, subText = '') {
     document.getElementById('sub-instruction').textContent = subText;
 }
 
-function updateProgress(step) {
-    const progress = step * 100; // Simple progress for enrollment
-    document.getElementById('progress-fill').style.width = progress + '%';
-}
+
 
 function showError(message) {
     updateInstruction('Error', message);
