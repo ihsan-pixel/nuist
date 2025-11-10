@@ -21,7 +21,7 @@
     <!-- Header -->
     <div class="presensi-header d-flex align-items-center">
         <div class="me-2">
-            <h6 class="mb-1">Presensi-Mengajar</h6>
+            <h6 class="mb-1">Presensi Mengajar</h6>
             <h5 class="fw-bold mb-0">{{ Auth::user()->name ?? Auth::user()->username ?? 'User' }}</h5>
         </div>
         <div class="ms-auto">
