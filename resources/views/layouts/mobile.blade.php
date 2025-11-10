@@ -416,34 +416,50 @@
             offlineIndicator.style.display = 'block';
         });
 
-        // Service worker registration
+        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
+        <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
+            window.addEventListener('load', async () => {
+                try {
+                    // Unregister old service workers first
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of regs) await reg.update();
 
-                        // Cek update SW otomatis
-                        registration.onupdatefound = () => {
-                            const newWorker = registration.installing;
-                            newWorker.onstatechange = () => {
-                                if (newWorker.state === 'activated') {
-                                    // Jika versi baru aktif, reload otomatis
-                                    window.location.reload();
-                                }
-                            };
-                        };
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
+                    // Register new SW
+                    const reg = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered:', reg.scope);
+
+                    // Auto refresh when new SW is ready
+                    if (reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('New SW installed, reloading...');
+                                window.location.reload();
+                            }
+                        });
                     });
-            });
 
-            // Jika SW berubah karena versi baru
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload();
+                    // Listen for controller change (new SW taking over)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('Controller changed → reload');
+                        window.location.reload();
+                    });
+
+                    // Clear old caches automatically
+                    caches.keys().then(names => {
+                        for (let name of names) caches.delete(name);
+                    });
+                } catch (e) {
+                    console.warn('SW registration failed:', e);
+                }
             });
         }
+        </script>
 
         // Pull to refresh functionality
         let startY = 0;
