@@ -96,6 +96,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $selectedDate)
             ->get();
 
+        // Check if there are any unclosed presensi from previous days
+        $hasUnclosedPresensiYesterday = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', '<', $selectedDate)
+            ->whereNotNull('waktu_masuk')
+            ->whereNull('waktu_keluar')
+            ->exists();
+
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
         $timeRanges = null;
         if ($user->madrasah && $user->madrasah->hari_kbm) {
@@ -131,7 +138,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user', 'hasUnclosedPresensiYesterday'));
     }
 
     // Store presensi (mobile)
@@ -214,6 +221,13 @@ class PresensiController extends \App\Http\Controllers\Controller
         $existingPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
             ->first();
+
+        // Check if there are any unclosed presensi from previous days
+        $hasUnclosedPresensiYesterday = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', '<', $tanggal)
+            ->whereNotNull('waktu_masuk')
+            ->whereNull('waktu_keluar')
+            ->exists();
 
         // Determine presensi type with additional checks
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
@@ -324,6 +338,11 @@ class PresensiController extends \App\Http\Controllers\Controller
             // Special handling for early presensi (between 01:00 and 05:00)
             if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
                 $keterangan = "Presensi dini (sebelum pukul 05:00)";
+            }
+
+            // Add note if there are unclosed presensi from previous days
+            if ($hasUnclosedPresensiYesterday) {
+                $keterangan .= ($keterangan ? "; " : "") . "Ada presensi hari sebelumnya yang belum keluar";
             }
 
             // Create new presensi record

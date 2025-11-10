@@ -1,27 +1,20 @@
-# Selfie Validation for Mobile Attendance - Implementation Plan
+# TODO: Implementasi Presensi Masuk Meskipun Ada Hari Sebelumnya Belum Keluar
 
-## Current Status: In Progress
+## Tugas Utama
+- [x] Tambahkan logika di PresensiController untuk mendeteksi presensi hari sebelumnya yang belum keluar
+- [x] Update view untuk menampilkan warning jika ada hari sebelumnya yang belum keluar
+- [x] Pastikan presensi masuk tetap diizinkan meskipun ada hari sebelumnya yang belum keluar
+- [x] Tambahkan keterangan di presensi jika ada hari sebelumnya yang belum keluar
 
-### Completed Tasks:
-- [x] Analyze codebase and create implementation plan
-- [x] Get user approval for plan
-- [x] Install Intervention Image package (composer.json)
-- [x] Create migration for selfie fields (selfie_masuk_path, selfie_keluar_path)
-- [x] Update Presensi model to include new selfie fields
-- [x] Update mobile presensi view with camera functionality and madrasah environment text
-- [x] Update PresensiController for selfie upload, compression, and validation
-- [x] Implement file storage by date structure
-- [x] Add validation to ensure selfie is taken before presensi submission
-- [x] Limit selfie capture to once per attendance session
+## Langkah Implementasi
+1. [x] Modifikasi method `presensi` di PresensiController untuk query presensi hari sebelumnya
+2. [x] Pass data `$hasUnclosedPresensiYesterday` ke view
+3. [x] Update view presensi.blade.php untuk menampilkan alert warning
+4. [x] Modifikasi method `storePresensi` untuk menambahkan keterangan jika ada hari sebelumnya yang belum keluar
+5. [ ] Test implementasi dengan skenario presensi hari sebelumnya belum keluar
 
-### Pending Tasks:
-- [ ] Run composer install after adding package
-- [ ] Run migration after creating it
-- [ ] Test selfie capture and compression functionality
-- [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)
-
-### Followup Steps:
-- [ ] Run composer install after adding package
-- [ ] Run migration after creating it
-- [ ] Test selfie capture and compression functionality
-- [ ] Verify file storage structure (storage/app/public/presensi-selfies/YYYY-MM-DD/)
+## Testing
+- [ ] Test presensi masuk hari ini ketika ada hari sebelumnya yang belum keluar
+- [ ] Verifikasi warning muncul di view
+- [ ] Pastikan presensi masuk berhasil dicatat
+- [ ] Cek keterangan presensi mencerminkan kondisi hari sebelumnya
