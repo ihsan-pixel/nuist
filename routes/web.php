@@ -310,9 +310,6 @@ use App\Http\Controllers\Auth\LoginController;
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-// Tambahkan ini di bawah semua route lain, sebelum Route::fallback(...)
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
 
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
