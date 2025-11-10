@@ -1,0 +1,16 @@
+# Cache control for dynamic pages to prevent caching issues
+<IfModule mod_headers.c>
+    # Prevent caching of authentication-related pages
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+
+    # Specific routes that should never be cached
+    <LocationMatch "/login|/logout|/dashboard|/mobile/.*">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </LocationMatch>
+</IfModule>

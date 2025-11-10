@@ -94,6 +94,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(fu
 
 Auth::routes(['verify' => true]);
 
+// CSRF token endpoint for JavaScript updates
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
 // Email Verification Routes
 Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])->name('verification.verify');

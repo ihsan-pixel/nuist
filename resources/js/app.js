@@ -7,6 +7,27 @@ Contact: themesbrand@gmail.com
 File: Main Js File
 */
 
+// CSRF Token management for dynamic updates
+window.csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+// Set up axios defaults
+if (typeof axios !== 'undefined') {
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = window.csrfToken;
+}
+
+// Update CSRF token when window regains focus
+window.addEventListener('focus', () => {
+    fetch('/csrf-token')
+        .then(res => res.json())
+        .then(data => {
+            window.csrfToken = data.token;
+            if (typeof axios !== 'undefined') {
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = data.token;
+            }
+        })
+        .catch(error => console.error('Failed to update CSRF token:', error));
+});
+
 
 (function ($) {
 
