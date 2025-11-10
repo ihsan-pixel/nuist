@@ -417,7 +417,6 @@
         });
 
         //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
-        <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 try {
@@ -459,7 +458,6 @@
                 }
             });
         }
-        </script>
 
         // Pull to refresh functionality
         let startY = 0;
