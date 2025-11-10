@@ -14,7 +14,8 @@
 5. [ ] Test implementasi dengan skenario presensi hari sebelumnya belum keluar
 
 ## Testing
-- [ ] Test presensi masuk hari ini ketika ada hari sebelumnya yang belum keluar
-- [ ] Verifikasi warning muncul di view
-- [ ] Pastikan presensi masuk berhasil dicatat
-- [ ] Cek keterangan presensi mencerminkan kondisi hari sebelumnya
+- [x] Test presensi masuk hari ini ketika ada hari sebelumnya yang belum keluar
+- [x] Verifikasi warning muncul di view
+- [x] Pastikan presensi masuk berhasil dicatat
+- [x] Cek keterangan presensi mencerminkan kondisi hari sebelumnya
+- [x] Perbaiki error CSRF token mismatch dengan menambahkan middleware web dan auth

@@ -13,6 +13,11 @@ use App\Models\Holiday;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['web', 'auth']);
+    }
+
     // Presensi view (mobile)
     public function presensi(Request $request)
     {
