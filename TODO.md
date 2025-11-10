@@ -20,3 +20,4 @@
 - [x] Cek keterangan presensi mencerminkan kondisi hari sebelumnya
 - [x] Perbaiki error CSRF token mismatch dengan menambahkan middleware web dan auth
 - [x] Implementasi update UI tanpa reload halaman untuk pengalaman mobile yang lebih baik
+- [x] Perbaiki error "Cannot read properties of null (reading 'style')" pada initializeSelfieCamera dengan menambahkan pengecekan DOM elements

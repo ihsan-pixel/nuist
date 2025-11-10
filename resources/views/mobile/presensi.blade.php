@@ -1050,6 +1050,17 @@ window.addEventListener('load', function() {
     // Initialize selfie camera
     async function initializeSelfieCamera() {
         try {
+            // Check if required DOM elements exist
+            const video = document.getElementById('selfie-video');
+            const container = document.getElementById('selfie-container');
+            const captureBtn = document.getElementById('btn-capture-selfie');
+            const statusElement = document.getElementById('selfie-status');
+
+            if (!video || !container || !captureBtn || !statusElement) {
+                console.error('Required DOM elements for selfie camera not found');
+                throw new Error('DOM elements not ready');
+            }
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'user',
@@ -1059,42 +1070,31 @@ window.addEventListener('load', function() {
                 }
             });
             selfieStream = stream;
-            const video = document.getElementById('selfie-video');
-            if (video) {
-                video.srcObject = stream;
-                video.style.display = 'block';
-            }
+
+            video.srcObject = stream;
+            video.style.display = 'block';
 
             // Hide the placeholder and show video
-            const container = document.getElementById('selfie-container');
-            if (container) {
-                const placeholder = container.querySelector('.text-center');
-                if (placeholder) {
-                    placeholder.style.display = 'none';
-                }
+            const placeholder = container.querySelector('.text-center');
+            if (placeholder) {
+                placeholder.style.display = 'none';
             }
 
             // Show capture button
-            const captureBtn = document.getElementById('btn-capture-selfie');
-            if (captureBtn) {
-                captureBtn.style.display = 'block';
-            }
+            captureBtn.style.display = 'block';
 
             // Update status to show camera is ready
-            const statusElement = document.getElementById('selfie-status');
-            if (statusElement) {
-                statusElement.innerHTML = `
-                    <div class="location-info success">
-                        <div class="d-flex align-items-center">
-                            <i class="bx bx-camera me-1"></i>
-                            <div>
-                                <strong>Kamera aktif</strong>
-                                <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
-                            </div>
+            statusElement.innerHTML = `
+                <div class="location-info success">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera me-1"></i>
+                        <div>
+                            <strong>Kamera aktif</strong>
+                            <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
 
         } catch (error) {
             console.error('Error accessing camera:', error);
