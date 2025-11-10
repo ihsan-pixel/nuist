@@ -27,15 +27,12 @@ class TeachingAttendanceController extends Controller
         // Get today's schedules for the teacher
         $schedules = TeachingSchedule::with(['school', 'teacher'])
             ->where('teacher_id', $user->id)
-            ->where('day', $dayOfWeek)
+            ->whereRaw('LOWER(day) = ?', [strtolower($dayOfWeek)])
             ->orderBy('start_time')
             ->get();
 
-        // Filter to show only schedules that are not past (end_time >= current time)
-        $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
-        $schedules = $schedules->filter(function ($schedule) use ($currentTime) {
-            return $schedule->end_time >= $currentTime;
-        });
+        // Show all schedules for the day, including past ones (UI will handle disabling buttons)
+        // Removed time filter to allow viewing all schedules for the day
 
         // Attach attendance status for each schedule
         foreach ($schedules as $schedule) {

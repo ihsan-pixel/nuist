@@ -76,7 +76,7 @@ class MobileController extends Controller
         // Today's schedules for the teacher
         $todayName = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
         $todaySchedules = TeachingSchedule::where('teacher_id', $user->id)
-            ->where('day', $todayName)
+            ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
 
@@ -859,16 +859,13 @@ class MobileController extends Controller
         // Always show only the user's own teaching schedules
         $query->where('teacher_id', $user->id);
 
-        // Filter by current day's name
-        $query->where('day', $todayName);
+        // Filter by current day's name (case insensitive)
+        $query->whereRaw('LOWER(day) = ?', [strtolower($todayName)]);
 
         $schedules = $query->orderBy('start_time')->get();
 
-        // Filter to show only schedules that are not past (end_time >= current time)
-        $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
-        $schedules = $schedules->filter(function ($schedule) use ($currentTime) {
-            return $schedule->end_time >= $currentTime;
-        });
+        // Show all schedules for the day, including past ones (UI will handle disabling buttons)
+        // Removed time filter to allow viewing all schedules for the day
 
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {

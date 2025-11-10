@@ -63,7 +63,7 @@ class MonitoringController extends \App\Http\Controllers\Controller
             $q->whereDate('tanggal', $selectedDate);
         }])
         ->where('school_id', $user->madrasah_id)
-        ->where('day', $dayName)
+        ->whereRaw('LOWER(day) = ?', [strtolower($dayName)])
         ->orderBy('start_time')
         ->get();
 
