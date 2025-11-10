@@ -354,6 +354,12 @@
                         <span>Profil</span>
                     </a>
                 </div>
+                <div class="col">
+                    <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bx bx-log-out"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
