@@ -422,10 +422,26 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         console.log('SW registered: ', registration);
+
+                        // Cek update SW otomatis
+                        registration.onupdatefound = () => {
+                            const newWorker = registration.installing;
+                            newWorker.onstatechange = () => {
+                                if (newWorker.state === 'activated') {
+                                    // Jika versi baru aktif, reload otomatis
+                                    window.location.reload();
+                                }
+                            };
+                        };
                     })
                     .catch(registrationError => {
                         console.log('SW registration failed: ', registrationError);
                     });
+            });
+
+            // Jika SW berubah karena versi baru
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
             });
         }
 
