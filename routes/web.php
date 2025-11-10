@@ -13,6 +13,7 @@ use App\Http\Controllers\PresensiAdminController;
 use App\Http\Controllers\DevelopmentHistoryController;
 use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\IzinController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TeachingScheduleController;
 
 
@@ -305,6 +306,8 @@ Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang'
 // Sitemap route
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
+// Tambahkan ini di bawah semua route lain, sebelum Route::fallback(...)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // fallback, jangan ganggu dashboard & lainnya

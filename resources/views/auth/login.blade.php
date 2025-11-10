@@ -497,4 +497,41 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script>
+// ==== Force reload login page if cached by Service Worker ====
+if ('serviceWorker' in navigator) {
+    // Pastikan login page tidak diambil dari cache
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+            registration.active?.postMessage({ type: 'CLEAR_LOGIN_CACHE' });
+        }
+    });
+
+    // Jika SW masih aktif dan mencoba ambil cache login
+    caches.keys().then(function(names) {
+        for (let name of names) {
+            caches.delete(name);
+        }
+    });
+}
+
+// ==== Disable browser back cache (bypass 419 issue) ====
+if (window.history && window.history.pushState) {
+    window.history.pushState('forward', null, '');
+    window.onpopstate = function() {
+        window.location.href = '/login';
+    };
+}
+
+// ==== Force reload on focus (jaga session token) ====
+window.addEventListener('focus', () => {
+    fetch('/csrf-token')
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.token);
+        });
+});
+</script>
+
+
 @endsection
