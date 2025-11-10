@@ -18,10 +18,10 @@
                 <div class="row align-items-center">
                     <div class="col-8">
                         <div class="text-white p-3">
-                            <h5 class="text-white">Selamat Datang!</h5>
+                            <h5 class="text-white">Selamat-Datang!</h5>
                             <p class="mb-0 text-white-50">Aplikasi NUIST</p>
                         </div>
-                    </div>
+                    </div>s
                     <div class="col-4 text-end">
                         {{-- <img src="{{ asset('build/images/logo 1.png') }}" alt="" class="img-fluid" style="max-height: 60px;"> --}}
                     </div>
