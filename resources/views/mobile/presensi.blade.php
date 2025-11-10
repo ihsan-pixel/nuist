@@ -1379,7 +1379,8 @@ window.addEventListener('load', function() {
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                location.reload();
+                                // Instead of full reload, update the UI dynamically
+                                updatePresensiUI(resp);
                             });
                         } else {
                             Swal.fire({
@@ -1413,6 +1414,116 @@ window.addEventListener('load', function() {
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
 });
+
+// Function to update presensi UI after successful submission
+function updatePresensiUI(resp) {
+    // Update the status card to show presensi has been recorded
+    const statusCardHtml = `
+        <div class="status-card success">
+            <div class="d-flex align-items-center">
+                <div class="status-icon">
+                    <i class="bx bx-check-circle"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1">Presensi Sudah Dicatat</h6>
+                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                        <small class="text-white-50">${resp.madrasah_name || 'Madrasah'}</small>
+                        <p class="mb-1">Masuk: <strong>${resp.waktu_masuk || new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</strong></p>
+                        <p class="mb-0 text-muted">Belum presensi keluar</p>
+                    </div>
+                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Find and replace the status card
+    const statusCardContainer = document.querySelector('.alert-custom.warning, .alert-custom.success, .status-card');
+    if (statusCardContainer) {
+        statusCardContainer.outerHTML = statusCardHtml;
+    }
+
+    // Update the presensi button to show "Presensi Keluar"
+    const presensiBtn = document.getElementById('btn-presensi');
+    if (presensiBtn) {
+        presensiBtn.innerHTML = '<i class="bx bx-log-out-circle me-1"></i>Presensi Keluar';
+        presensiBtn.disabled = false;
+    }
+
+    // Hide submit button
+    const submitBtn = document.getElementById('btn-submit-presensi');
+    if (submitBtn) {
+        submitBtn.style.display = 'none';
+    }
+
+    // Reset selfie section for next use
+    resetSelfieSection();
+
+    // Update the header subtitle if needed
+    const subtitle = document.querySelector('.presensi-header h5');
+    if (subtitle && resp.madrasah_name) {
+        subtitle.textContent = resp.madrasah_name;
+    }
+}
+
+// Function to reset selfie section
+function resetSelfieSection() {
+    // Hide video and preview
+    const video = document.getElementById('selfie-video');
+    const preview = document.getElementById('selfie-preview');
+    const canvas = document.getElementById('selfie-canvas');
+
+    if (video) video.style.display = 'none';
+    if (preview) preview.style.display = 'none';
+    if (canvas) canvas.style.display = 'none';
+
+    // Hide buttons
+    const captureBtn = document.getElementById('btn-capture-selfie');
+    const retakeBtn = document.getElementById('btn-retake-selfie');
+
+    if (captureBtn) captureBtn.style.display = 'none';
+    if (retakeBtn) retakeBtn.style.display = 'none';
+
+    // Show placeholder
+    const container = document.getElementById('selfie-container');
+    if (container) {
+        const placeholder = container.querySelector('.text-center');
+        if (placeholder) {
+            placeholder.style.display = 'block';
+        }
+    }
+
+    // Reset status
+    const statusElement = document.getElementById('selfie-status');
+    if (statusElement) {
+        statusElement.innerHTML = `
+            <div class="location-info info">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Clear selfie data
+    const selfieDataInput = document.getElementById('selfie-data');
+    if (selfieDataInput) {
+        selfieDataInput.value = '';
+    }
+
+    // Reset flag
+    selfieCaptured = false;
+
+    // Stop any active camera stream
+    if (selfieStream) {
+        selfieStream.getTracks().forEach(track => track.stop());
+        selfieStream = null;
+    }
+}
 
 // Initialize map for kepala madrasah monitoring
 @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))

@@ -420,7 +420,9 @@ class PresensiController extends \App\Http\Controllers\Controller
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'presensi' => $presensi
+                'presensi' => $presensi,
+                'madrasah_name' => $user->madrasah?->name ?? 'Madrasah',
+                'waktu_masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : now()->format('H:i')
             ]);
         }
 
