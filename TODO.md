@@ -21,3 +21,4 @@
 - [x] Perbaiki error CSRF token mismatch dengan menambahkan middleware web dan auth
 - [x] Implementasi update UI tanpa reload halaman untuk pengalaman mobile yang lebih baik
 - [x] Perbaiki error "Cannot read properties of null (reading 'style')" pada initializeSelfieCamera dengan menambahkan pengecekan DOM elements
+- [x] Tambahkan route redirect dari /index ke halaman login untuk akses nuist.id/index

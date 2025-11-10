@@ -104,6 +104,11 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 })->middleware('auth')->name('root');
 
+// Jika akses link nuist.id/index maka akan tertuju halaman login
+Route::get('/index', function () {
+    return redirect()->route('login');
+})->name('index');
+
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
