@@ -383,18 +383,7 @@
             </div>
         </div>
     </div>
-    @elseif($hasUnclosedPresensiYesterday)
-    <div class="alert-custom warning">
-        <div class="d-flex align-items-center">
-            <div class="status-icon">
-                <i class="bx bx-error-circle"></i>
-            </div>
-            <div>
-                <h6 class="mb-0">Peringatan: Presensi Hari Sebelumnya Belum Lengkap</h6>
-                <p class="mb-0">Anda memiliki presensi masuk yang belum presensi keluar dari hari sebelumnya. Anda tetap dapat melakukan presensi masuk hari ini.</p>
-            </div>
-        </div>
-    </div>
+
     @elseif($presensiHariIni && $presensiHariIni->count() > 0)
     <div class="status-card success">
         <div class="d-flex align-items-center">

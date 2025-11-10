@@ -101,12 +101,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $selectedDate)
             ->get();
 
-        // Check if there are any unclosed presensi from previous days
-        $hasUnclosedPresensiYesterday = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', '<', $selectedDate)
-            ->whereNotNull('waktu_masuk')
-            ->whereNull('waktu_keluar')
-            ->exists();
+
 
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
         $timeRanges = null;
@@ -143,7 +138,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $timeRanges['masuk_end'] = null;
         }
 
-        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user', 'hasUnclosedPresensiYesterday'));
+        return view('mobile.presensi', compact('presensis', 'belumPresensi', 'selectedDate', 'isHoliday', 'holiday', 'presensiHariIni', 'timeRanges', 'mapData', 'user'));
     }
 
     // Store presensi (mobile)
@@ -227,12 +222,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $tanggal)
             ->first();
 
-        // Check if there are any unclosed presensi from previous days
-        $hasUnclosedPresensiYesterday = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', '<', $tanggal)
-            ->whereNotNull('waktu_masuk')
-            ->whereNull('waktu_keluar')
-            ->exists();
+
 
         // Determine presensi type with additional checks
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
@@ -345,10 +335,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 $keterangan = "Presensi dini (sebelum pukul 05:00)";
             }
 
-            // Add note if there are unclosed presensi from previous days
-            if ($hasUnclosedPresensiYesterday) {
-                $keterangan .= ($keterangan ? "; " : "") . "Ada presensi hari sebelumnya yang belum keluar";
-            }
+
 
             // Create new presensi record
             $presensi = Presensi::create([
