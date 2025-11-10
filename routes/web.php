@@ -109,6 +109,11 @@ Route::get('/index', function () {
     return redirect()->route('login');
 })->name('index-redirect');
 
+// Redirect /login to /login/auth for proper authentication
+Route::get('/login', function () {
+    return redirect('/login/auth');
+})->name('login');
+
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
