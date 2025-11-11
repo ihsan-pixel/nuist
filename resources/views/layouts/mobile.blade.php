@@ -239,88 +239,37 @@
             position: relative;
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
+            height: 180px;
             border-bottom-left-radius: 50% 40px;
             border-bottom-right-radius: 50% 40px;
-            padding: 14px 18px 30px 18px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Baris utama header */
-        .header-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Kiri: logo + teks */
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-left img {
-            height: 40px;
-            width: 40px;
-            object-fit: contain;
-            margin-right: 10px;
-        }
-
-        .header-text {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            padding: 20px 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        .header-text h6 {
-            font-size: 15px;
+        .header-rounded h5 {
             font-weight: 600;
-            margin-bottom: 2px;
-            color: #fff;
-        }
-
-        .header-text small {
-            font-size: 12px;
-            color: rgba(255,255,255,0.85);
-        }
-
-        /* Kanan: notifikasi + avatar */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-right a {
-            color: white;
-            font-size: 22px;
-            position: relative;
-        }
-
-        .header-right img {
-            border-radius: 50%;
-            border: 2px solid white;
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-        }
-
-        /* Teks sambutan di bawah header */
-        .header-welcome {
-            margin-top: 18px;
-            text-align: left;
-        }
-
-        .header-welcome h5 {
-            font-weight: 600;
+            margin-bottom: 6px;
             font-size: 18px;
-            margin-bottom: 4px;
-            color: #fff;
         }
 
-        .header-welcome small {
-            font-size: 13px;
+        .header-rounded small {
             opacity: 0.9;
-            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+        }
+
+        .header-rounded::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: radial-gradient(circle at top, rgba(0,0,0,0.1), transparent 80%);
+            z-index: 0;
         }
 
     </style>
@@ -395,58 +344,11 @@
     <!-- Main Content -->
     <main class="mobile-content">
 
-        {{-- HEADER HIJAU KHUSUS DASHBOARD --}}
+        {{-- Header hanya muncul di halaman Dashboard --}}
         @if (request()->routeIs('mobile.dashboard'))
             <div class="header-rounded">
-                <div class="header-main">
-                    <!-- KIRI: logo + teks -->
-                    <div class="header-left">
-                        <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST Logo">
-                        <div class="header-text">
-                            <h6>NUIST Mobile</h6>
-                            <small>Ringkasan Aktivitas</small>
-                        </div>
-                    </div>
-
-                    <!-- KANAN: notifikasi + foto profil -->
-                    <div class="header-right">
-                        <a href="{{ route('mobile.notifications') }}">
-                            <i class="bx bx-bell"></i>
-                            <span id="notificationBadge"
-                                class="badge bg-danger rounded-pill position-absolute"
-                                style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">
-                                0
-                            </span>
-                        </a>
-                        <!-- User Avatar Dropdown -->
-                        <div class="dropdown">
-                            <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                                <div class="avatar-sm">
-                                    <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                    class="rounded-circle border border-white" width="44" height="44" alt="User">
-                                </div>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="bx bx-log-out me-2"></i>Logout
-                                </a></li>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                    @csrf
-                                </form>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TEKS SAMBUTAN -->
-                <div class="header-welcome">
-                    <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
-                    <small>Sistem Informasi Digital NUIST Mobile</small>
-                </div>
+                <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
+                <small>Sistem Informasi Digital NUIST Mobile</small>
             </div>
         @endif
 
@@ -454,6 +356,7 @@
             @yield('content')
         </div>
     </main>
+
 
     <!-- Mobile Bottom Navigation -->
     @php
