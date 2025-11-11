@@ -12,10 +12,19 @@
             font-size: 13px;
         }
 
+        .dashboard-semicircle {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            height: 40px;
+            width: 100%;
+            border-radius: 50% 50% 0 0;
+            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            margin-bottom: -10px;
+        }
+
         .dashboard-header {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: #fff;
-            border-radius: 12px;
+            border-radius: 0 0 12px 12px;
             padding: 12px 10px;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
             margin-bottom: 10px;
@@ -242,6 +251,9 @@
         });
     </script>
     @endif
+
+    <!-- Semicircle -->
+    <div class="dashboard-semicircle"></div>
 
     <!-- Header -->
     <div class="dashboard-header">
