@@ -418,27 +418,25 @@
                                 0
                             </span>
                         </a>
+                        <!-- User Avatar Dropdown -->
                         <div class="dropdown">
                             <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                                <img src="{{ isset(Auth::user()->avatar)
-                                    ? asset('storage/app/public/' . Auth::user()->avatar)
-                                    : asset('build/images/users/avatar-11.jpg') }}"
-                                    alt="User">
+                                <div class="avatar-sm">
+                                    <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                    class="rounded-circle border border-white" width="44" height="44" alt="User">
+                                </div>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="bx bx-log-out me-2"></i>Logout
-                                    </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
-                                </li>
+                                </a></li>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
                             </ul>
                         </div>
                     </div>
