@@ -402,7 +402,7 @@
         <div class="services-grid">
             <a href="{{ route('mobile.presensi') }}" class="service-item">
                 <div class="icon-container">
-                    <i class="bx bx-check-square"></i>
+                    <i class="bx bx-fingerprint"></i>
                 </div>
                 <h6>Presensi</h6>
             </a>
@@ -426,7 +426,7 @@
             </a>
             <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
                 <div class="icon-container">
-                    <i class="bx bx-medical"></i>
+                    <i class="bx bx-plus-medical"></i>
                 </div>
                 <h6>Izin Sakit</h6>
             </a>
@@ -460,6 +460,20 @@
                 </div>
                 <h6>Pengaturan</h6>
             </a>
+            @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+            <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-edit"></i>
+                </div>
+                <h6>Kelola Izin</h6>
+            </a>
+            <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-calendar-check"></i>
+                </div>
+                <h6>Data Presensi</h6>
+            </a>
+            @endif
         </div>
     </div>
 
