@@ -394,9 +394,7 @@
     </div>
     @endif
 
-    <div style="margin-bottom: 8px;">
-        <small>Layanan</small>
-    </div>
+    <small>Layanan</small>
 
     <!-- Services Form -->
     <div class="services-form">
@@ -462,7 +460,7 @@
                 <h6>Pengaturan</h6>
             </a>
         </div>
-    </div>
+    {{-- </div> --}}
 
     <!-- Teacher Info -->
     <div class="info-section">
