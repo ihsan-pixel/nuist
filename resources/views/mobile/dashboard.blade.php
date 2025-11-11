@@ -19,6 +19,8 @@
             padding: 12px 10px;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
             margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
         }
 
         .dashboard-header img {
@@ -34,12 +36,34 @@
             font-size: 14px;
         }
 
+        /* === BACKGROUND DASHBOARD MELENGKUNG (VERSI HALUS) === */
+        .dashboard-bg-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            z-index: 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .dashboard-bg-svg svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            transform: translateY(-10px);
+        }
+
+        /* Cards & section styles */
         .stats-form {
             background: #fff;
             border-radius: 12px;
             padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
         }
 
         .stats-grid {
@@ -74,12 +98,16 @@
             color: #6c757d;
         }
 
-        .info-section {
+        .info-section,
+        .schedule-section,
+        .quick-actions {
             background: #fff;
             border-radius: 12px;
             padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
         }
 
         .info-grid {
@@ -104,14 +132,6 @@
             color: #333;
         }
 
-        .schedule-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
-        }
-
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -132,13 +152,6 @@
         .schedule-item small {
             color: #6c757d;
             font-size: 10px;
-        }
-
-        .quick-actions {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
         }
 
         .quick-actions-header {
@@ -214,7 +227,7 @@
             margin: 0;
         }
 
-        /* Banner Modal Styles */
+        /* Modal Styles */
         .modal-content {
             border-radius: 15px;
         }
@@ -222,57 +235,22 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8);
         }
-
-        /* === BACKGROUND DASHBOARD MELENGKUNG (SVG) === */
-        .dashboard-bg-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        .dashboard-bg-svg svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
     </style>
 
-    <!-- Show banner modal on page load -->
-    @if($bannerImage)
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeBannerModal'), {
-                backdrop: 'static',
-                keyboard: false
-            });
-            welcomeModal.show();
-
-            // Auto hide after 5 seconds
-            setTimeout(function() {
-                welcomeModal.hide();
-            }, 5000);
-        });
-    </script>
-    @endif
-
-    <!-- Header -->
+    <!-- Background SVG Halus -->
     <div class="dashboard-bg-svg">
-        <svg viewBox="0 0 375 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path d="M0,0 L375,0 L375,120 Q187.5,200 0,120 Z" fill="url(#grad)" />
+        <svg viewBox="0 0 375 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#004b4c; stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#0e8549; stop-opacity:1" />
+                    <stop offset="0%" stop-color="#004b4c" />
+                    <stop offset="100%" stop-color="#0e8549" />
                 </linearGradient>
             </defs>
+            <path d="M0,0 L375,0 L375,130 Q187.5,200 0,130 Z" fill="url(#grad)" />
         </svg>
     </div>
 
+    <!-- Header -->
     <div class="dashboard-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -283,26 +261,6 @@
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
-
-    <!-- Banner Modal -->
-    @if($bannerImage)
-    <div class="modal fade" id="welcomeBannerModal" tabindex="-1" aria-labelledby="welcomeBannerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0" style="background: transparent;">
-                <div class="modal-body p-0">
-                    <div class="text-center">
-                        <img src="{{ $bannerImage }}" alt="Welcome Banner" class="img-fluid rounded" style="max-height: 60vh; width: auto;">
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-center border-0 bg-transparent">
-                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
-                        <i class="bx bx-x me-1"></i>Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 
     <!-- Stats Form -->
     <div class="stats-form">
@@ -341,27 +299,17 @@
     </div>
 
     @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-    <div class="info-section" style="margin-bottom: 12px;">
+    <div class="info-section">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <a href="{{ route('mobile.kelola-izin') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-edit" style="font-size: 20px; margin-bottom: 4px;"></i>
+            <a href="{{ route('mobile.kelola-izin') }}" class="action-button">
+                <i class="bx bx-edit"></i>
                 <span>Kelola Izin</span>
             </a>
-            <a href="{{ route('mobile.monitor-presensi') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-calendar-check" style="font-size: 20px; margin-bottom: 4px;"></i>
+            <a href="{{ route('mobile.monitor-presensi') }}" class="action-button">
+                <i class="bx bx-calendar-check"></i>
                 <span>Data Presensi</span>
             </a>
         </div>
-        {{-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-            <a href="{{ route('mobile.monitor-jadwal-mengajar') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-calendar-event" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Jadwal Mengajar</span>
-            </a>
-            <a href="{{ route('mobile.data-jadwal') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-chalkboard" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Data Kelas & Jadwal</span>
-            </a>
-        </div> --}}
     </div>
     @endif
 
@@ -369,54 +317,12 @@
     <div class="info-section">
         <h6 class="section-title">Informasi Tenaga Pendidik</h6>
         <div class="info-grid">
-            <div class="info-item">
-                <small class="d-block">NUIST ID</small>
-                <strong>{{ $userInfo['nuist_id'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Status Kepegawaian</small>
-                <strong>{{ $userInfo['status_kepegawaian'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Ketugasan</small>
-                <strong>{{ $userInfo['ketugasan'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Tempat Lahir</small>
-                <strong>{{ $userInfo['tempat_lahir'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Tanggal Lahir</small>
-                <strong>{{ $userInfo['tanggal_lahir'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">TMT</small>
-                <strong>{{ $userInfo['tmt'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">NUPTK</small>
-                <strong>{{ $userInfo['nuptk'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">NPK</small>
-                <strong>{{ $userInfo['npk'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Kartanu</small>
-                <strong>{{ $userInfo['kartanu'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">NIP Ma'arif</small>
-                <strong>{{ $userInfo['nip'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Pendidikan Terakhir</small>
-                <strong>{{ $userInfo['pendidikan_terakhir'] }}</strong>
-            </div>
-            <div class="info-item">
-                <small class="d-block">Program Studi</small>
-                <strong>{{ $userInfo['program_studi'] }}</strong>
-            </div>
+            @foreach($userInfo as $key => $value)
+                <div class="info-item">
+                    <small class="d-block">{{ ucfirst(str_replace('_', ' ', $key)) }}</small>
+                    <strong>{{ $value ?: '-' }}</strong>
+                </div>
+            @endforeach
         </div>
     </div>
 
@@ -448,22 +354,23 @@
         </div>
         <div class="quick-actions-content">
             <div class="action-grid">
-            <a href="{{ route('mobile.presensi') }}" class="action-button">
-                <i class="bx bx-check-square"></i>
-                <span>Presensi</span>
-            </a>
-            <a href="{{ route('mobile.laporan') }}" class="action-button">
-                <i class="bx bx-file"></i>
-                <span>Laporan</span>
-            </a>
-            <a href="{{ route('mobile.teaching-attendances') }}" class="action-button">
-                <i class="bx bx-chalkboard"></i>
-                <span>Mengajar</span>
-            </a>
-            <a href="{{ route('mobile.ubah-akun') }}" class="action-button">
-                <i class="bx bx-cog"></i>
-                <span>Pengaturan</span>
-            </a>
+                <a href="{{ route('mobile.presensi') }}" class="action-button">
+                    <i class="bx bx-check-square"></i>
+                    <span>Presensi</span>
+                </a>
+                <a href="{{ route('mobile.laporan') }}" class="action-button">
+                    <i class="bx bx-file"></i>
+                    <span>Laporan</span>
+                </a>
+                <a href="{{ route('mobile.teaching-attendances') }}" class="action-button">
+                    <i class="bx bx-chalkboard"></i>
+                    <span>Mengajar</span>
+                </a>
+                <a href="{{ route('mobile.ubah-akun') }}" class="action-button">
+                    <i class="bx bx-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>
