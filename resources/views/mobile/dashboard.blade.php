@@ -4,7 +4,7 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3 position-relative" style="max-width: 420px; margin: auto;">
     <style>
         body {
             background: #f8f9fb;
@@ -223,24 +223,21 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* === BACKGROUND MELENGKUNG DI DASHBOARD === */
-        .dashboard-bg {
+        /* === BACKGROUND DASHBOARD MELENGKUNG (SVG) === */
+        .dashboard-bg-svg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 220px;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            border-bottom-left-radius: 50% 60px;
-            border-bottom-right-radius: 50% 60px;
-            z-index: 0;
+            height: 180px;
             overflow: hidden;
+            z-index: 0;
         }
 
-        /* Pastikan konten dashboard berada di atas background */
-        .dashboard-content {
-            position: relative;
-            z-index: 2;
+        .dashboard-bg-svg svg {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
     </style>
@@ -264,7 +261,17 @@
     @endif
 
     <!-- Header -->
-    <div class="dashboard-bg"></div>
+    <div class="dashboard-bg-svg">
+        <svg viewBox="0 0 375 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0,0 L375,0 L375,120 Q187.5,200 0,120 Z" fill="url(#grad)" />
+            <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#004b4c; stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#0e8549; stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
 
     <div class="dashboard-header">
         <div class="d-flex justify-content-between align-items-center">
