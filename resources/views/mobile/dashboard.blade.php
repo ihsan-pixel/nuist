@@ -244,7 +244,7 @@
     @endif
 
     <!-- Header -->
-    <div class="dashboard-header">
+    {{-- <div class="dashboard-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
@@ -253,7 +253,7 @@
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
-    </div>
+    </div> --}}
 
     <!-- Banner Modal -->
     @if($bannerImage)
