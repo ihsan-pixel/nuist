@@ -324,7 +324,7 @@
     </div>
 
     @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-    <div class="info-section" style="margin-bottom: 12px;">
+    <div class="info-section" style="margin-bottom: 8px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <a href="{{ route('mobile.kelola-izin') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
                 <i class="bx bx-edit" style="font-size: 20px; margin-bottom: 4px;"></i>
@@ -348,7 +348,7 @@
     </div>
     @endif
 
-    <small class="mb-2">Layanan</small>
+    <small style="margin-bottom: 8px;">Layanan</small>
 
     <!-- Teacher Info -->
     <div class="info-section">
