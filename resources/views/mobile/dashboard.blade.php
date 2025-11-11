@@ -89,8 +89,7 @@
         .services-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            color: #fff
-            gap: 6px;
+            gap: 8px;
         }
 
         .service-item {
