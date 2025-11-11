@@ -309,6 +309,30 @@
                 </small>
             </div>
         </div>
+        @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+        <div class="info-section" style="margin-bottom: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <a href="{{ route('mobile.kelola-izin') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+                    <i class="bx bx-edit" style="font-size: 20px; margin-bottom: 4px;"></i>
+                    <span>Kelola Izin</span>
+                </a>
+                <a href="{{ route('mobile.monitor-presensi') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+                    <i class="bx bx-calendar-check" style="font-size: 20px; margin-bottom: 4px;"></i>
+                    <span>Data Presensi</span>
+                </a>
+            </div>
+            {{-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                <a href="{{ route('mobile.monitor-jadwal-mengajar') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+                    <i class="bx bx-calendar-event" style="font-size: 20px; margin-bottom: 4px;"></i>
+                    <span>Jadwal Mengajar</span>
+                </a>
+                <a href="{{ route('mobile.data-jadwal') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+                    <i class="bx bx-chalkboard" style="font-size: 20px; margin-bottom: 4px;"></i>
+                    <span>Data Kelas & Jadwal</span>
+                </a>
+            </div> --}}
+        </div>
+        @endif
     </div>
 
     @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
