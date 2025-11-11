@@ -397,7 +397,7 @@
     <small>Layanan</small>
 
     <!-- Services Form -->
-    <div class="services-form">
+    {{-- <div class="services-form"> --}}
         <div class="services-grid">
             <a href="{{ route('mobile.presensi') }}" class="service-item">
                 <div class="icon-container">
