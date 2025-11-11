@@ -260,6 +260,7 @@
     </div>
 
     <!-- Mobile Header -->
+    @if(!request()->routeIs('mobile.dashboard'))
     <header class="bg-white border-bottom d-md-none">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
@@ -302,13 +303,22 @@
             </div>
         </div>
     </header>
+    @endif
 
     <!-- Main Content -->
-    <main class="mobile-content">
-        <div class="container-fluid px-3 py-3">
-            @yield('content')
-        </div>
+    <main class="mobile-content" style="padding-top: 0;">
+        {{-- Jika halaman Dashboard, hilangkan header putih dan beri ruang penuh --}}
+        @if(request()->routeIs('mobile.dashboard'))
+            <div class="position-relative" style="margin-top:-10px;">
+                @yield('content')
+            </div>
+        @else
+            <div class="container-fluid px-3 py-3">
+                @yield('content')
+            </div>
+        @endif
     </main>
+
 
     <!-- Mobile Bottom Navigation -->
     @php
