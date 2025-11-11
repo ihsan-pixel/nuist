@@ -222,45 +222,6 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8);
         }
-        /* === HEADER SETENGAH LINGKARAN HIJAU === */
-        .header-rounded {
-            position: relative;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: white;
-            height: 180px;
-            border-bottom-left-radius: 50% 40px;
-            border-bottom-right-radius: 50% 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px 24px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        /* Judul dan subjudul di header */
-        .header-rounded h5 {
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 18px;
-        }
-
-        .header-rounded small {
-            opacity: 0.9;
-            font-size: 13px;
-        }
-
-        /* Tambahkan efek gradient lembut di bawah lingkaran */
-        .header-rounded::after {
-            content: "";
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: radial-gradient(circle at top, rgba(0,0,0,0.1), transparent 80%);
-            z-index: 0;
-        }
 
     </style>
 
@@ -283,16 +244,14 @@
     @endif
 
     <!-- Header -->
-    <div class="header-rounded">
-        <div class="dashboard-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
-                    <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
-                </div>
-                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                    class="rounded-circle border border-white" width="32" height="32" alt="User">
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
+                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
             </div>
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
