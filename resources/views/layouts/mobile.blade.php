@@ -298,7 +298,7 @@
     </div>
 
     <!-- Mobile Header -->
-    <header class="bg-white border-bottom d-md-none">
+    {{-- <header class="bg-white border-bottom d-md-none">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
@@ -339,7 +339,7 @@
                 </div>
             </div>
         </div>
-    </header>
+    </header> --}}
 
     <!-- Main Content -->
     <main class="mobile-content">
