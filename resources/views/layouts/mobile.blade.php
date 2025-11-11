@@ -298,20 +298,21 @@
             </div>
         </div>
     </div>
+    <!-- Header Hijau Setengah Lingkaran -->
+    {{-- <div class="header-rounded">
+        <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
+        <small>Sistem Informasi Digital NUIST Mobile</small>
+    </div> --}}
 
     <!-- Mobile Header -->
-    <header class="bg-white border-bottom d-md-none">
+    <div class="header-rounded">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
-                <!-- Header Hijau Setengah Lingkaran -->
-                <div class="header-rounded">
-                    <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
-                    <small>Sistem Informasi Digital NUIST Mobile</small>
-                </div>
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
-                        <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
+                        <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
+                        {{-- <h6 class="mb-0 fw-bold">NUIST Mobile</h6> --}}
                         <small class="text-muted">@yield('subtitle', 'Sistem Informasi Digital')</small>
                     </div>
                 </div>
