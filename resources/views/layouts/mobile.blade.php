@@ -239,53 +239,88 @@
             position: relative;
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
-            height: 180px;
             border-bottom-left-radius: 50% 40px;
             border-bottom-right-radius: 50% 40px;
+            padding: 14px 18px 30px 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Baris utama header */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Kiri: logo + teks */
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left img {
+            height: 40px;
+            width: 40px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+
+        .header-text {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 20px 24px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        .header-rounded h5 {
+        .header-text h6 {
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 18px;
+            margin-bottom: 2px;
+            color: #fff;
         }
 
-        .header-rounded small {
-            opacity: 0.9;
-            font-size: 13px;
+        .header-text small {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
         }
 
-        .header-rounded::after {
-            content: "";
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            right: 0;
+        /* Kanan: notifikasi + avatar */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-right a {
+            color: white;
+            font-size: 22px;
+            position: relative;
+        }
+
+        .header-right img {
+            border-radius: 50%;
+            border: 2px solid white;
+            width: 40px;
             height: 40px;
-            background: radial-gradient(circle at top, rgba(0,0,0,0.1), transparent 80%);
-            z-index: 0;
+            object-fit: cover;
         }
 
-        /* Teks sambutan di bawah baris utama */
-        .header-rounded .welcome {
+        /* Teks sambutan di bawah header */
+        .header-welcome {
             margin-top: 18px;
+            text-align: left;
         }
 
-        .header-rounded .welcome h5 {
+        .header-welcome h5 {
             font-weight: 600;
             font-size: 18px;
             margin-bottom: 4px;
+            color: #fff;
         }
 
-        .header-rounded .welcome small {
+        .header-welcome small {
             font-size: 13px;
             opacity: 0.9;
+            color: rgba(255,255,255,0.9);
         }
 
     </style>
@@ -360,19 +395,21 @@
     <!-- Main Content -->
     <main class="mobile-content">
 
-        {{-- HEADER HIJAU HANYA UNTUK DASHBOARD --}}
+        {{-- HEADER HIJAU KHUSUS DASHBOARD --}}
         @if (request()->routeIs('mobile.dashboard'))
             <div class="header-rounded">
-                <div class="header-top">
+                <div class="header-main">
+                    <!-- KIRI: logo + teks -->
                     <div class="header-left">
-                        <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST">
-                        <div>
-                            <p class="app-name mb-0">NUIST Mobile</p>
+                        <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST Logo">
+                        <div class="header-text">
+                            <h6>NUIST Mobile</h6>
                             <small>Ringkasan Aktivitas</small>
                         </div>
                     </div>
+
+                    <!-- KANAN: notifikasi + foto profil -->
                     <div class="header-right">
-                        <!-- Notifikasi -->
                         <a href="{{ route('mobile.notifications') }}">
                             <i class="bx bx-bell"></i>
                             <span id="notificationBadge"
@@ -381,8 +418,6 @@
                                 0
                             </span>
                         </a>
-
-                        <!-- Foto profil dropdown -->
                         <div class="dropdown">
                             <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                                 <img src="{{ isset(Auth::user()->avatar)
@@ -397,8 +432,8 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="bx bx-log-out me-2"></i>Logout
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bx bx-log-out me-2"></i>Logout
                                     </a>
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                         @csrf
@@ -409,8 +444,8 @@
                     </div>
                 </div>
 
-                <!-- Teks sambutan -->
-                <div class="welcome">
+                <!-- TEKS SAMBUTAN -->
+                <div class="header-welcome">
                     <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
                     <small>Sistem Informasi Digital NUIST Mobile</small>
                 </div>
@@ -421,9 +456,6 @@
             @yield('content')
         </div>
     </main>
-
-
-
 
     <!-- Mobile Bottom Navigation -->
     @php
