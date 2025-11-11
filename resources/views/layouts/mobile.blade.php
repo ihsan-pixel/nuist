@@ -272,6 +272,22 @@
             z-index: 0;
         }
 
+        /* Teks sambutan di bawah baris utama */
+        .header-rounded .welcome {
+            margin-top: 18px;
+        }
+
+        .header-rounded .welcome h5 {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .header-rounded .welcome small {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
     </style>
 </head>
 
@@ -344,46 +360,57 @@
     <!-- Main Content -->
     <main class="mobile-content">
 
-        {{-- HEADER HANYA UNTUK DASHBOARD MOBILE --}}
+        {{-- HEADER HIJAU HANYA UNTUK DASHBOARD --}}
         @if (request()->routeIs('mobile.dashboard'))
             <div class="header-rounded">
-                <!-- Ikon notifikasi & avatar -->
-                <div class="header-top-icons">
-                    <a href="{{ route('mobile.notifications') }}" class="position-relative">
-                        <i class="bx bx-bell"></i>
-                        <span id="notificationBadge"
-                            class="badge bg-danger rounded-pill position-absolute"
-                            style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">
-                            0
-                        </span>
-                    </a>
-                    <div class="dropdown">
-                        <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                            <img src="{{ isset(Auth::user()->avatar)
-                                ? asset('storage/app/public/' . Auth::user()->avatar)
-                                : asset('build/images/users/avatar-11.jpg') }}"
-                                alt="User">
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="bx bx-log-out me-2"></i>Logout
-                                </a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                    @csrf
-                                </form>
-                            </li>
-                        </ul>
+                <div class="header-top">
+                    <div class="header-left">
+                        <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST">
+                        <div>
+                            <p class="app-name mb-0">NUIST Mobile</p>
+                            <small>Ringkasan Aktivitas</small>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <!-- Notifikasi -->
+                        <a href="{{ route('mobile.notifications') }}">
+                            <i class="bx bx-bell"></i>
+                            <span id="notificationBadge"
+                                class="badge bg-danger rounded-pill position-absolute"
+                                style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">
+                                0
+                            </span>
+                        </a>
+
+                        <!-- Foto profil dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
+                                <img src="{{ isset(Auth::user()->avatar)
+                                    ? asset('storage/app/public/' . Auth::user()->avatar)
+                                    : asset('build/images/users/avatar-11.jpg') }}"
+                                    alt="User">
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="bx bx-log-out me-2"></i>Logout
+                                    </a>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                        @csrf
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Teks sambutan -->
-                <div style="margin-top: 70px;">
+                <div class="welcome">
                     <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
                     <small>Sistem Informasi Digital NUIST Mobile</small>
                 </div>
@@ -394,6 +421,7 @@
             @yield('content')
         </div>
     </main>
+
 
 
 
