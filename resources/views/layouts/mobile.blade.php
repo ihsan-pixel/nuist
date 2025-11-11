@@ -346,7 +346,7 @@
 
         {{-- Header hanya muncul di halaman Dashboard --}}
         @if (request()->routeIs('mobile.dashboard'))
-            <div class="container-fluid px-3 py-2">
+            <div class="header-rounded">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
