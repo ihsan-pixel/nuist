@@ -78,6 +78,52 @@
             color: #6c757d;
         }
 
+        .services-form {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .service-item {
+            text-align: center;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .service-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .service-item .icon-container {
+            margin-bottom: 4px;
+        }
+
+        .service-item i {
+            font-size: 18px;
+            color: #004b4c;
+        }
+
+        .service-item h6 {
+            font-size: 10px;
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #333;
+        }
+
         .info-section {
             background: #fff;
             border-radius: 12px;
@@ -348,7 +394,73 @@
     </div>
     @endif
 
-    <small style="margin-bottom: 8px;">Layanan</small>
+    <small>Layanan</small>
+
+    <!-- Services Form -->
+    <div class="services-form">
+        <div class="services-grid">
+            <a href="{{ route('mobile.presensi') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-check-square"></i>
+                </div>
+                <h6>Presensi</h6>
+            </a>
+            <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-chalkboard"></i>
+                </div>
+                <h6>Presensi Mengajar</h6>
+            </a>
+            <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-calendar-star"></i>
+                </div>
+                <h6>Izin Cuti</h6>
+            </a>
+            <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-time-five"></i>
+                </div>
+                <h6>Izin Terlambat</h6>
+            </a>
+            <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-medical"></i>
+                </div>
+                <h6>Izin Sakit</h6>
+            </a>
+            <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-briefcase"></i>
+                </div>
+                <h6>Izin Dinas Luar</h6>
+            </a>
+            <a href="{{ route('mobile.jadwal') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-calendar"></i>
+                </div>
+                <h6>Jadwal Mengajar</h6>
+            </a>
+            <a href="{{ route('mobile.laporan') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-file"></i>
+                </div>
+                <h6>Laporan</h6>
+            </a>
+            <a href="{{ route('mobile.profile') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-user"></i>
+                </div>
+                <h6>Profile</h6>
+            </a>
+            <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
+                <div class="icon-container">
+                    <i class="bx bx-cog"></i>
+                </div>
+                <h6>Pengaturan</h6>
+            </a>
+        </div>
+    </div>
 
     <!-- Teacher Info -->
     <div class="info-section">

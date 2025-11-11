@@ -1,8 +1,22 @@
-# TODO: Remove Logic for Unclosed Presensi from Previous Days
+# TODO: Tambahkan Menu Button Layanan di Dashboard Mobile
 
-## Tasks
-- [x] Remove $hasUnclosedPresensiYesterday logic from PresensiController.php
-- [x] Remove alert warning from presensi.blade.php view
-- [x] Remove keterangan addition for previous days in storePresensi method
-- [x] Update TODO.md to reflect changes
-- [x] Test implementation to ensure presensi works normally without warnings for previous days
+## Tugas Utama
+- Tambahkan menu button layanan di bawah bagian "Layanan" pada dashboard mobile
+- Menu: presensi, presensi mengajar, izin cuti, izin terlambat, izin sakit, izin dinas luar, jadwal mengajar, laporan, profile, pengaturan
+- Tampilan sama seperti Stats Form (grid 4 kolom)
+
+## Langkah-langkah
+- [x] Tambahkan CSS untuk .services-form, .services-grid, .service-item di dalam <style> tag
+- [x] Tambahkan HTML untuk bagian services setelah <small>Layanan</small> dan sebelum <!-- Teacher Info -->
+- [x] Pastikan routes untuk setiap menu button benar
+- [ ] Test tampilan dan fungsionalitas
+
+## Status
+- [x] Analisis file dashboard.blade.php
+- [x] Cari routes mobile yang ada
+- [x] Buat rencana edit
+- [x] Dapat konfirmasi dari user
+- [x] Implementasi CSS
+- [x] Implementasi HTML
+- [x] Verifikasi routes
+- [ ] Testing
