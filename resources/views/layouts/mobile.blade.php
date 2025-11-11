@@ -344,11 +344,49 @@
     <!-- Main Content -->
     <main class="mobile-content">
 
-        {{-- Header hanya muncul di halaman Dashboard --}}
+        {{-- HEADER HANYA UNTUK DASHBOARD MOBILE --}}
         @if (request()->routeIs('mobile.dashboard'))
             <div class="header-rounded">
-                <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
-                <small>Sistem Informasi Digital NUIST Mobile</small>
+                <!-- Ikon notifikasi & avatar -->
+                <div class="header-top-icons">
+                    <a href="{{ route('mobile.notifications') }}" class="position-relative">
+                        <i class="bx bx-bell"></i>
+                        <span id="notificationBadge"
+                            class="badge bg-danger rounded-pill position-absolute"
+                            style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">
+                            0
+                        </span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
+                            <img src="{{ isset(Auth::user()->avatar)
+                                ? asset('storage/app/public/' . Auth::user()->avatar)
+                                : asset('build/images/users/avatar-11.jpg') }}"
+                                alt="User">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bx bx-log-out me-2"></i>Logout
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Teks sambutan -->
+                <div style="margin-top: 70px;">
+                    <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
+                    <small>Sistem Informasi Digital NUIST Mobile</small>
+                </div>
             </div>
         @endif
 
@@ -356,6 +394,7 @@
             @yield('content')
         </div>
     </main>
+
 
 
     <!-- Mobile Bottom Navigation -->
