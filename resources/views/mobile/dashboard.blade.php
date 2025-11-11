@@ -17,7 +17,7 @@
             color: #fff;
             border-radius: 12px;
             padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            /* box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3); */
             margin-bottom: 10px;
         }
 
