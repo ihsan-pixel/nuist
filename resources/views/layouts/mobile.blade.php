@@ -350,7 +350,8 @@
                 <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
                 <small>Sistem Informasi Digital NUIST Mobile</small>
             </div>
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
                         <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
@@ -386,6 +387,7 @@
                         </ul>
                     </div>
                 </div>
+            </div>
         @endif
 
         <div class="container-fluid px-3 py-3">
