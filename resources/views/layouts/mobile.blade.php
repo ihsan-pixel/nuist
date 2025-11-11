@@ -233,6 +233,45 @@
             z-index: 1035;
             display: none;
         }
+
+        /* === HEADER SETENGAH LINGKARAN HIJAU === */
+        .header-rounded {
+            position: relative;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            height: 180px;
+            border-bottom-left-radius: 50% 40px;
+            border-bottom-right-radius: 50% 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-rounded h5 {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 18px;
+        }
+
+        .header-rounded small {
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .header-rounded::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: radial-gradient(circle at top, rgba(0,0,0,0.1), transparent 80%);
+            z-index: 0;
+        }
+
     </style>
 </head>
 
@@ -304,10 +343,20 @@
 
     <!-- Main Content -->
     <main class="mobile-content">
+
+        {{-- Header hanya muncul di halaman Dashboard --}}
+        @if (request()->routeIs('mobile.dashboard'))
+            <div class="header-rounded">
+                <h5>Selamat Datang, {{ Auth::user()->name ?? 'User' }}</h5>
+                <small>Sistem Informasi Digital NUIST Mobile</small>
+            </div>
+        @endif
+
         <div class="container-fluid px-3 py-3">
             @yield('content')
         </div>
     </main>
+
 
     <!-- Mobile Bottom Navigation -->
     @php
