@@ -348,6 +348,8 @@
     </div>
     @endif
 
+    <small class="welcome-text mb-1">Layanan</small>
+
     <!-- Teacher Info -->
     <div class="info-section">
         <h6 class="section-title">Informasi Tenaga Pendidik</h6>
