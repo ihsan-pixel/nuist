@@ -394,10 +394,12 @@
     </div>
     @endif
 
-    <small>Layanan</small>
+    <div style="margin-bottom: 8px;">
+        <small>Layanan</small>
+    </div>
 
     <!-- Services Form -->
-    {{-- <div class="services-form"> --}}
+    <div class="services-form">
         <div class="services-grid">
             <a href="{{ route('mobile.presensi') }}" class="service-item">
                 <div class="icon-container">
@@ -460,7 +462,7 @@
                 <h6>Pengaturan</h6>
             </a>
         </div>
-    {{-- </div> --}}
+    </div>
 
     <!-- Teacher Info -->
     <div class="info-section">
