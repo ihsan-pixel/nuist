@@ -79,10 +79,10 @@
         }
 
         .services-form {
-            background: #fff;
+            /* background: #fff; */
             border-radius: 12px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
             margin-bottom: 12px;
         }
 
@@ -397,7 +397,7 @@
     <small>Layanan</small>
 
     <!-- Services Form -->
-    {{-- <div class="services-form"> --}}
+    <div class="services-form">
         <div class="services-grid">
             <a href="{{ route('mobile.presensi') }}" class="service-item">
                 <div class="icon-container">
@@ -460,7 +460,7 @@
                 <h6>Pengaturan</h6>
             </a>
         </div>
-    {{-- </div> --}}
+    </div>
 
     <!-- Teacher Info -->
     <div class="info-section">
