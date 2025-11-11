@@ -234,6 +234,22 @@
             display: none;
         }
 
+        /* Sticky header untuk mobile */
+        .mobile-header {
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        /* Efek saat scroll */
+        .mobile-header.scrolled {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
     </style>
 </head>
 
@@ -259,8 +275,8 @@
         </div>
     </div>
 
-    <!-- Mobile Header -->
-    <header class="bg-white border-bottom d-md-none">
+    <!-- Mobile Header (Sticky) -->
+    <header class="mobile-header bg-white border-bottom d-md-none shadow-sm">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
@@ -532,6 +548,18 @@
             setInterval(updateNotificationBadge, 30000);
         });
     </script>
+    <script>
+        // Tambahkan efek shadow saat user scroll
+        document.addEventListener('scroll', () => {
+            const header = document.querySelector('.mobile-header');
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+
 
     @yield('script')
 </body>
