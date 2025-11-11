@@ -282,8 +282,8 @@
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
-                        <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
-                        <small class="text-muted">@yield('subtitle', 'Sistem Informasi Digital')</small>
+                        <h5 class="mb-0 fw-bold">NUIST Mobile</h5>
+                        <small class="text-muted">{{ Auth::user()->name }}</small>
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
