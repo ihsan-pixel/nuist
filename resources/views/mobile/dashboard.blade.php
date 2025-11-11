@@ -284,7 +284,7 @@
         <div class="dashboard-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <small class="welcome-text">Selamat Datang,</small>
+                    <small class="welcome-text mb-1">Asal Madrasah/Sekolah</small>
                     <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
                 </div>
             </div>
