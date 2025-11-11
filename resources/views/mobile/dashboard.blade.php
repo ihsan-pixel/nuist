@@ -12,22 +12,31 @@
             font-size: 13px;
         }
 
+        .dashboard-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
         .dashboard-semicircle {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            height: 40px;
+            height: 80px;
             width: 100%;
             border-radius: 50% 50% 0 0;
             box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: -10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
         .dashboard-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: transparent;
             color: #fff;
             border-radius: 0 0 12px 12px;
             padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
-            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            margin-top: 20px;
         }
 
         .dashboard-header img {
@@ -252,18 +261,18 @@
     </script>
     @endif
 
-    <!-- Semicircle -->
-    <div class="dashboard-semicircle"></div>
-
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
-                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
+    <!-- Dashboard Container with Semicircle Background -->
+    <div class="dashboard-container">
+        <div class="dashboard-semicircle"></div>
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
+                    <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
+                </div>
+                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                     class="rounded-circle border border-white" width="32" height="32" alt="User">
             </div>
-            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
 
