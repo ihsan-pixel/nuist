@@ -96,7 +96,7 @@
         .service-item {
             text-align: center;
             padding: 6px;
-            background: #f8f9fa;
+            background: #fff;
             border-radius: 6px;
             text-decoration: none;
             color: inherit;
@@ -105,7 +105,7 @@
         }
 
         .service-item:hover {
-            background: #e9ecef;
+            background: #f8f9fa;
             transform: translateY(-1px);
         }
 
