@@ -348,7 +348,7 @@
     </div>
     @endif
 
-    <small>Layanan</small>
+    <small class="mb-2">Layanan</small>
 
     <!-- Teacher Info -->
     <div class="info-section">
