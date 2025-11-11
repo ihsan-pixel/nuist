@@ -223,6 +223,26 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
+        /* === BACKGROUND MELENGKUNG DI DASHBOARD === */
+        .dashboard-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-bottom-left-radius: 50% 60px;
+            border-bottom-right-radius: 50% 60px;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Pastikan konten dashboard berada di atas background */
+        .dashboard-content {
+            position: relative;
+            z-index: 2;
+        }
+
     </style>
 
     <!-- Show banner modal on page load -->
@@ -244,6 +264,8 @@
     @endif
 
     <!-- Header -->
+    <div class="dashboard-bg"></div>
+
     <div class="dashboard-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
