@@ -234,44 +234,6 @@
             display: none;
         }
 
-        /* === HEADER SETENGAH LINGKARAN HIJAU === */
-        .header-rounded {
-            position: relative;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: white;
-            height: 180px;
-            border-bottom-left-radius: 50% 40px;
-            border-bottom-right-radius: 50% 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px 24px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .header-rounded h5 {
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 18px;
-        }
-
-        .header-rounded small {
-            opacity: 0.9;
-            font-size: 13px;
-        }
-
-        .header-rounded::after {
-            content: "";
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: radial-gradient(circle at top, rgba(0,0,0,0.1), transparent 80%);
-            z-index: 0;
-        }
-
     </style>
 </head>
 
@@ -343,56 +305,10 @@
 
     <!-- Main Content -->
     <main class="mobile-content">
-
-        {{-- Header hanya muncul di halaman Dashboard --}}
-        @if (request()->routeIs('mobile.dashboard'))
-            <div class="header-rounded">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
-                    <div>
-                        <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
-                        <small class="text-muted">@yield('subtitle', 'Sistem Informasi Digital')</small>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center">
-                    <!-- Notification Bell -->
-                    <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-3 position-relative">
-                        <i class="bx bx-bell" style="font-size: 24px; color: #0e8549;"></i>
-                        <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">0</span>
-                    </a>
-
-                    <!-- User Avatar Dropdown -->
-                    <div class="dropdown">
-                        <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                            <div class="avatar-sm">
-                                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="44" height="44" alt="User">
-                            </div>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bx bx-log-out me-2"></i>Logout
-                            </a></li>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @endif
-
         <div class="container-fluid px-3 py-3">
             @yield('content')
         </div>
     </main>
-
 
     <!-- Mobile Bottom Navigation -->
     @php
