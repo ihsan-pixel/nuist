@@ -104,8 +104,9 @@
         }
 
         .service-item:hover {
-            background: #f8f9fa;
+            background: #ffffff;
             transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .service-item .icon-container {
