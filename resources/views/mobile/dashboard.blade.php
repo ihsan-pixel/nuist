@@ -96,7 +96,7 @@
         .service-item {
             text-align: center;
             padding: 6px;
-            background: #fff;
+            background: #a4ff9f;
             border-radius: 6px;
             text-decoration: none;
             color: inherit;
