@@ -52,37 +52,37 @@
         }
 
         .date-nav button {
-            background: #f4f8f5;
-            border: 1px solid #d8e5da;
-            color: #0e8549;
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        background: #f4f8f5;
+        border: 1px solid #d8e5da;
+        color: #0e8549;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
 
-        .date-nav button:hover {
-            background: #0e8549;
-            color: #fff;
-            transform: scale(1.05);
-        }
+    .date-nav button:hover {
+        background: #0e8549;
+        color: #fff;
+        transform: scale(1.05);
+    }
 
-        .date-nav i {
-            font-size: 20px;
-            line-height: 1;
-        }
+    .date-nav i {
+        font-size: 20px;
+        line-height: 1;
+    }
 
-        .date-nav .current-date {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-            flex: 1;
-            text-align: center;
-        }
+    .date-nav .current-date {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        flex: 1;
+        text-align: center;
+    }
 
         .presensi-section {
             background: #fff;
@@ -174,54 +174,29 @@
             margin-bottom: 8px;
         }
 
-        /* --- Pagination Laravel Default --- */
-        /* .pagination {
+        .pagination-custom {
             display: flex;
             justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 12px;
+            margin-top: 10px;
+        }
+
+        .pagination-custom .page-link {
+            color: #0e8549;
+            border-color: #0e8549;
+            margin: 0 2px;
+            padding: 5px 10px;
             font-size: 12px;
         }
 
-        .pagination li {
-            list-style: none;
-        }
-
-        .pagination .page-item .page-link {
-            border: 1px solid #d8e5da;
-            color: #0e8549;
-            padding: 5px 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .pagination .page-item.active .page-link {
+        .pagination-custom .page-link:hover {
             background-color: #0e8549;
             color: #fff;
+        }
+
+        .pagination-custom .page-item.active .page-link {
+            background-color: #0e8549;
             border-color: #0e8549;
         }
-
-        .pagination .page-item.disabled .page-link {
-            color: #a6b5a8;
-            background: #f6faf7;
-        }
-
-        .pagination .page-link:hover {
-            background-color: #0e8549;
-            color: #fff;
-        } */
-
-        /* --- Info text seperti 'Showing 1 to 15 of 69 results' --- */
-        /* .pagination-info {
-            text-align: center;
-            font-size: 11px;
-            color: #6c757d;
-            margin-top: 4px;
-        } */
 
         /* Modal Foto */
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); }
