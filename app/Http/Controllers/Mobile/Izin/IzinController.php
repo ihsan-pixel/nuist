@@ -31,6 +31,8 @@ class IzinController extends \App\Http\Controllers\Controller
         // Normalize type
         $type = strtolower($type);
 
+        $tanggal = $request->input('tanggal');
+
         // Cek apakah tanggal sudah ada di presensi, kecuali jika type adalah 'tugas_luar'
         if ($tanggal && $type !== 'tugas_luar') {
             $existing = Presensi::where('user_id', $user->id)->where('tanggal', $tanggal)->first();
