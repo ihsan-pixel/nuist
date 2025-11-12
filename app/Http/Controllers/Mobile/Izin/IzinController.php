@@ -31,21 +31,6 @@ class IzinController extends \App\Http\Controllers\Controller
         // Normalize type
         $type = strtolower($type);
 
-        $tanggal = $request->input('tanggal');
-
-        // Cek apakah tanggal sudah ada di presensi, kecuali jika type adalah 'tugas_luar'
-        if ($tanggal && $type !== 'tugas_luar') {
-            $existing = Presensi::where('user_id', $user->id)->where('tanggal', $tanggal)->first();
-            if ($existing) {
-                $msg = 'Anda sudah memiliki catatan kehadiran pada tanggal ini.';
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json(['success' => false, 'message' => $msg], 400);
-                }
-                return redirect()->back()->with('error', $msg);
-            }
-        }
-
-
         // Validate and map input per type
         $filePath = null;
         $keterangan = '';
@@ -152,20 +137,6 @@ class IzinController extends \App\Http\Controllers\Controller
             'status_izin' => 'pending',
             'status_kepegawaian_id' => $user->status_kepegawaian_id,
         ]);
-
-        // Jika tipe tugas luar, otomatis buat presensi pulang
-        if ($type === 'tugas_luar') {
-            // Misal presensi keluar otomatis tercatat dengan status 'pulang'
-            Presensi::create([
-                'user_id' => $user->id,
-                'tanggal' => $tanggal,
-                'status' => 'pulang_otomatis',
-                'keterangan' => 'Pulang otomatis dari tugas luar (' . $request->input('lokasi_tugas') . ')',
-                'waktu_keluar' => $request->input('waktu_keluar'),
-                'status_kepegawaian_id' => $user->status_kepegawaian_id,
-            ]);
-        }
-
 
         // Notify user
         \App\Models\Notification::create([
