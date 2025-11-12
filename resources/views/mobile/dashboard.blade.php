@@ -117,14 +117,14 @@
 
         .service-item i {
             font-size: 18px;
-            color: #004b4c;
+            color: #ffffff;
         }
 
         .service-item h6 {
             font-size: 10px;
             margin-bottom: 0;
             font-weight: 600;
-            color: #333;
+            color: #ffffff;
         }
 
         .info-section {
