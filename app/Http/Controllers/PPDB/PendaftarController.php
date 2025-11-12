@@ -112,7 +112,7 @@ class PendaftarController extends Controller
         $year = now()->year;
         // Ambil 4 huruf pertama dari slug, uppercase
         $schoolCode = strtoupper(substr($ppdbSetting->slug, 0, 4));
-        
+
         // Hitung jumlah pendaftar tahun ini untuk sekolah ini
         $count = PPDBPendaftar::where('ppdb_setting_id', $ppdbSetting->id)
             ->whereYear('created_at', $year)

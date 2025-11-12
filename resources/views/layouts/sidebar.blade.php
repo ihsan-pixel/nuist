@@ -158,7 +158,7 @@
                 @if(in_array($userRole, ['super_admin', 'pengurus', 'admin', 'admin_sekolah', 'admin_lp']))
 
                 <li class="menu-title">PPDB</li>
-                
+
                 @if($userRole === 'admin_sekolah')
                 <!-- Admin Sekolah PPDB Menu -->
                 <li>

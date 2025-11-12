@@ -59,7 +59,7 @@
                 <!-- Section 1: Data Pribadi -->
                 <div>
                     <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-green-600">👤 Data Pribadi</h2>
-                    
+
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -104,7 +104,7 @@
                 <!-- Section 2: Pilihan Jalur & Jurusan -->
                 <div>
                     <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-blue-600">🎯 Pilihan Program</h2>
-                    
+
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -147,7 +147,7 @@
                 <!-- Section 3: Upload Berkas -->
                 <div>
                     <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-orange-600">📄 Upload Berkas</h2>
-                    
+
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -237,7 +237,7 @@
     document.getElementById('berkas_kk').addEventListener('change', function(e) {
         document.getElementById('berkas_kk_name').textContent = this.files[0]?.name || '';
     });
-    
+
     document.getElementById('berkas_ijazah').addEventListener('change', function(e) {
         document.getElementById('berkas_ijazah_name').textContent = this.files[0]?.name || '';
     });

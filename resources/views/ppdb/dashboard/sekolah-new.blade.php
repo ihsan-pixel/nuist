@@ -14,7 +14,7 @@
                 </div>
                 <div class="text-right">
                     <p class="text-sm text-gray-600">Status Pendaftaran:</p>
-                    <span class="inline-block px-4 py-2 rounded-full font-bold 
+                    <span class="inline-block px-4 py-2 rounded-full font-bold
                         {{ $ppdbSetting->status === 'buka' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                         {{ ucfirst($ppdbSetting->status) }}
                     </span>
@@ -113,7 +113,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <a href="{{ route('ppdb.sekolah.verifikasi') }}" 
+            <a href="{{ route('ppdb.sekolah.verifikasi') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-yellow-500">
                 <h3 class="text-lg font-semibold text-gray-900">📋 Verifikasi Data</h3>
                 <p class="text-gray-600 text-sm mt-2">Periksa dan verifikasi dokumen pendaftar</p>
@@ -122,7 +122,7 @@
                 </span>
             </a>
 
-            <a href="{{ route('ppdb.sekolah.seleksi') }}" 
+            <a href="{{ route('ppdb.sekolah.seleksi') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-blue-500">
                 <h3 class="text-lg font-semibold text-gray-900">⭐ Seleksi & Nilai</h3>
                 <p class="text-gray-600 text-sm mt-2">Input nilai dan ranking pendaftar</p>
@@ -131,7 +131,7 @@
                 </span>
             </a>
 
-            <a href="{{ route('ppdb.sekolah.export') }}" 
+            <a href="{{ route('ppdb.sekolah.export') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-green-500">
                 <h3 class="text-lg font-semibold text-gray-900">📊 Export Data</h3>
                 <p class="text-gray-600 text-sm mt-2">Download data pendaftar ke Excel/PDF</p>
