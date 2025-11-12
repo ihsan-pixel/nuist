@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.master-without-nav')
 
 @section('title') PPDB NUIST 2025 @endsection
 
@@ -24,14 +24,14 @@
             <h3 class="text-xl font-bold text-gray-800 mb-2">Pendaftaran Mudah</h3>
             <p class="text-gray-600">Proses pendaftaran yang simple dan cepat hanya dalam 3 langkah</p>
         </div>
-        
+
         <!-- Card 2 -->
         <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-blue-600">
             <div class="text-3xl mb-3">🔒</div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Data Aman</h3>
             <p class="text-gray-600">Sistem keamanan terjamin untuk melindungi data pribadi Anda</p>
         </div>
-        
+
         <!-- Card 3 -->
         <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-green-600">
             <div class="text-3xl mb-3">⚡</div>
@@ -46,7 +46,7 @@
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-gray-800 mb-2 text-center">Pilih Sekolah/Madrasah</h2>
         <p class="text-center text-gray-600 mb-10">Daftar Madrasah/Sekolah yang membuka PPDB NUIST 2025</p>
-        
+
         @if($sekolah->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($sekolah as $item)
@@ -58,7 +58,7 @@
                                 {{ $item->nama_sekolah }}
                             </h3>
                         </div>
-                        
+
                         <!-- Content -->
                         <div class="p-6">
                             <div class="flex items-center mb-4">
@@ -66,7 +66,7 @@
                                     {{ $item->tahun }}
                                 </span>
                             </div>
-                            
+
                             <!-- Status -->
                             <div class="mb-4 pb-4 border-b border-gray-200">
                                 @php
@@ -76,7 +76,7 @@
                                 @endphp
                                 <p class="text-sm {{ $statusColor }} font-semibold">{{ $statusText }}</p>
                             </div>
-                            
+
                             <!-- Jadwal Info -->
                             <div class="space-y-2 mb-4 text-sm text-gray-600">
                                 <div class="flex items-start">
@@ -88,7 +88,7 @@
                                     <span>Tutup: <strong>{{ $item->jadwal_tutup->format('d M Y') }}</strong></span>
                                 </div>
                             </div>
-                            
+
                             <!-- Button -->
                             <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
                                 Pelajari & Daftar →
@@ -131,26 +131,26 @@
 <div class="bg-gray-50 py-12">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Pertanyaan Umum</h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <!-- FAQ 1 -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-2">❓ Syarat pendaftaran apa saja?</h4>
                 <p class="text-gray-600">Siapa saja yang ingin melanjutkan sekolah dapat mendaftar dengan melengkapi dokumen yang diminta (KK dan Ijazah)</p>
             </div>
-            
+
             <!-- FAQ 2 -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-2">❓ Berapa biaya pendaftaran?</h4>
                 <p class="text-gray-600">Pendaftaran online PPDB NUIST sepenuhnya GRATIS, tanpa ada biaya apapun</p>
             </div>
-            
+
             <!-- FAQ 3 -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-2">❓ Kapan hasil pengumuman?</h4>
                 <p class="text-gray-600">Hasil seleksi akan diumumkan sesuai jadwal yang telah ditetapkan oleh masing-masing sekolah</p>
             </div>
-            
+
             <!-- FAQ 4 -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h4 class="text-lg font-bold text-gray-800 mb-2">❓ Bisa daftar di multiple sekolah?</h4>
