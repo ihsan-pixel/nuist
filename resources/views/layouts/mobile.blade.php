@@ -456,14 +456,17 @@
                 <i class="bx bx-history"></i>
                 <span>Jadwal</span>
             </a>
-            <div></div>
+            <a href="">
+                <i></i>
+                <span></span>
+            </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
                 <a href="{{ route('mobile.presensi') }}" class="center-action">
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
-            <div></div>
+
             <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
                 <i class="bx bx-bar-chart"></i>
                 <span>Mengajar</span>
