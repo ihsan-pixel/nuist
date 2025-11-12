@@ -167,7 +167,7 @@
             background: #fff;
             border-radius: 12px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
             margin-bottom: 12px;
         }
 
@@ -521,7 +521,7 @@
 
     <!-- Schedule Section -->
     <div class="schedule-section">
-        <h6 class="section-title">Jadwal Hari Ini</h6>
+        {{-- <h6 class="section-title">Jadwal Hari Ini</h6> --}}
         @if($todaySchedules->count() > 0)
             <div class="schedule-grid">
                 @foreach($todaySchedules as $schedule)
