@@ -1,4 +1,4 @@
-@extends('layouts.master-without-nav')
+@extends('layouts.master-with-nav')
 
 @section('content')
 <div class="container py-4">
