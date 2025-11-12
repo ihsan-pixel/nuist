@@ -347,7 +347,8 @@
         </div>
     </div>
 
-    <!-- Mobile Header (Sticky) -->
+    <!-- Mobile Header (Sticky) hanya muncul di halaman dashboard -->
+    @if (request()->routeIs('mobile.dashboard'))
     <header class="mobile-header bg-white border-bottom d-md-none shadow-sm">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
@@ -370,7 +371,7 @@
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                             <div class="avatar-sm">
                                 <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="44" height="44" alt="User">
+                                    class="rounded-circle border border-white" width="44" height="44" alt="User">
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -378,9 +379,11 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bx bx-log-out me-2"></i>Logout
-                            </a></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bx bx-log-out me-2"></i>Logout
+                                </a>
+                            </li>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
@@ -390,6 +393,7 @@
             </div>
         </div>
     </header>
+    @endif
 
     <!-- Main Content -->
     <main class="mobile-content">
