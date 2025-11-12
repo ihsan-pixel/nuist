@@ -91,28 +91,34 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
+            text-align: center;
         }
 
         .service-item {
-            text-align: center;
-            padding: 6px;
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: #fff;
-            border-radius: 6px;
-            text-decoration: none;
-            /* color: inherit; */
-            display: block;
-            transition: all 0.2s;
+            border-radius: 10px;
+            padding: 14px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
         }
 
         .service-item:hover {
-            /* background: #ffffff; */
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
         }
 
-        .service-item .icon-container {
-            margin-bottom: 4px;
+        .service-item i {
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .service-label {
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+            color: #333;
         }
 
         .service-item i {
@@ -377,82 +383,84 @@
     <!-- Services Form -->
     <div class="services-form">
         <div class="services-grid">
-            <a href="{{ route('mobile.presensi') }}" class="service-item">
-                <div class="icon-container">
+            <div>
+                <a href="{{ route('mobile.presensi') }}" class="service-item">
                     <i class="bx bx-fingerprint"></i>
-                </div>
-                <h6>Presensi</h6>
-            </a>
-            <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Presensi</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
                     <i class="bx bx-chalkboard"></i>
-                </div>
-                <h6>Presensi Mengajar</h6>
-            </a>
-            <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Presensi Mengajar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
                     <i class="bx bx-calendar-star"></i>
-                </div>
-                <h6>Izin Cuti</h6>
-            </a>
-            <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Izin Cuti</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
                     <i class="bx bx-time-five"></i>
-                </div>
-                <h6>Izin Terlambat</h6>
-            </a>
-            <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Izin Terlambat</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
                     <i class="bx bx-plus-medical"></i>
-                </div>
-                <h6>Izin Sakit</h6>
-            </a>
-            <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Izin Sakit</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
                     <i class="bx bx-briefcase"></i>
-                </div>
-                <h6>Izin Dinas Luar</h6>
-            </a>
-            <a href="{{ route('mobile.jadwal') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Izin Dinas Luar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.jadwal') }}" class="service-item">
                     <i class="bx bx-calendar"></i>
-                </div>
-                <h6>Jadwal Mengajar</h6>
-            </a>
-            <a href="{{ route('mobile.laporan') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Jadwal Mengajar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.laporan') }}" class="service-item">
                     <i class="bx bx-file"></i>
-                </div>
-                <h6>Laporan</h6>
-            </a>
-            <a href="{{ route('mobile.profile') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Laporan</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.profile') }}" class="service-item">
                     <i class="bx bx-user"></i>
-                </div>
-                <h6>Profile</h6>
-            </a>
-            <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Profile</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
                     <i class="bx bx-cog"></i>
-                </div>
-                <h6>Pengaturan</h6>
-            </a>
+                </a>
+                <div class="service-label">Pengaturan</div>
+            </div>
+
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-            <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
-                <div class="icon-container">
+            <div>
+                <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
                     <i class="bx bx-edit"></i>
-                </div>
-                <h6>Kelola Izin</h6>
-            </a>
-            <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
-                <div class="icon-container">
+                </a>
+                <div class="service-label">Kelola Izin</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
                     <i class="bx bx-calendar-check"></i>
-                </div>
-                <h6>Data Presensi</h6>
-            </a>
+                </a>
+                <div class="service-label">Data Presensi</div>
+            </div>
             @endif
         </div>
     </div>
+
 
     <!-- Teacher Info -->
     {{-- <div class="info-section">
