@@ -292,7 +292,7 @@
         }
 
         .custom-bottom-nav .nav-link.active {
-            color: #004b4c;
+            color: #ffffff;
         }
 
         /* Tombol tengah melingkar */
