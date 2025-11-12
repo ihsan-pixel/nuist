@@ -155,13 +155,62 @@
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
 
-                @if(in_array($userRole, ['super_admin', 'pengurus']))
+                @if(in_array($userRole, ['super_admin', 'pengurus', 'admin', 'admin_sekolah', 'admin_lp']))
 
                 <li class="menu-title">PPDB</li>
+                
+                @if($userRole === 'admin_sekolah')
+                <!-- Admin Sekolah PPDB Menu -->
+                <li>
+                    <a href="{{ route('ppdb.sekolah.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-chart"></i>
+                        <span>Dashboard PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.verifikasi') }}" class="waves-effect">
+                        <i class="bx bx-check-square"></i>
+                        <span>Verifikasi Pendaftar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.seleksi') }}" class="waves-effect">
+                        <i class="bx bx-list-check"></i>
+                        <span>Seleksi & Hasil Akhir</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.export') }}" class="waves-effect">
+                        <i class="bx bx-download"></i>
+                        <span>Export Data</span>
+                    </a>
+                </li>
+                @elseif($userRole === 'admin_lp')
+                <!-- Admin LP PPDB Menu -->
+                <li>
+                    <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-sitemap"></i>
+                        <span>Dashboard LP</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('ppdb') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Data Pendaftaran</span>
+                    </a>
+                </li>
+                @elseif(in_array($userRole, ['super_admin', 'pengurus', 'admin']))
+                <!-- Super Admin / Pengurus PPDB Menu -->
                 <li>
                     <a href="{{ url('ppdb') }}" class="waves-effect">
                         <i class="bx bx-cog"></i>
                         <span>Pengaturan PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-sitemap"></i>
+                        <span>Monitoring LP</span>
                     </a>
                 </li>
                 <li>
@@ -170,6 +219,7 @@
                         <span>Data Pendaftaran</span>
                     </a>
                 </li>
+                @endif
 
                 <li class="menu-title">ABOUT</li>
 
