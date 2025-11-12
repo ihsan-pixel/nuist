@@ -15,6 +15,13 @@ use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\TeachingScheduleController;
 
+use App\Http\Controllers\PPDB\{
+    PPDBController,
+    PendaftarController,
+    AdminSekolahController,
+    AdminLPController
+};
+
 
 /*
 |--------------------------------------------------------------------------
@@ -320,4 +327,25 @@ Route::middleware(['role:super_admin'])->group(function () {
     Route::post('/app-settings/update-version', [App\Http\Controllers\AppSettingsController::class, 'updateVersion'])->name('app-settings.update-version');
     Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])->name('app-settings.check-updates');
     Route::post('/app-settings/turn-off-debug', [App\Http\Controllers\AppSettingsController::class, 'turnOffDebug'])->name('app-settings.turn-off-debug');
+});
+
+// HALAMAN UMUM
+Route::prefix('ppdb')->group(function () {
+    Route::get('/', [PPDBController::class, 'index'])->name('ppdb.index');
+    Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
+    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
+    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
+});
+
+// ADMIN SEKOLAH
+Route::middleware(['auth', 'role:admin_sekolah'])->prefix('ppdb/sekolah')->group(function () {
+    Route::get('/dashboard', [AdminSekolahController::class, 'index'])->name('ppdb.sekolah.dashboard');
+    Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi'])->name('ppdb.sekolah.verifikasi');
+    Route::get('/seleksi', [AdminSekolahController::class, 'seleksi'])->name('ppdb.sekolah.seleksi');
+    Route::get('/export', [AdminSekolahController::class, 'export'])->name('ppdb.sekolah.export');
+});
+
+// ADMIN LP. MA’ARIF
+Route::middleware(['auth', 'role:admin_lp'])->prefix('ppdb/lp')->group(function () {
+    Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
 });
