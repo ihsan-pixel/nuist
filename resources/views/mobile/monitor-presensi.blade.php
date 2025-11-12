@@ -52,17 +52,36 @@
         }
 
         .date-nav button {
-            background: none;
-            border: none;
+            background: #f4f8f5;
+            border: 1px solid #d8e5da;
             color: #0e8549;
-            font-size: 16px;
-            padding: 5px;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .date-nav button:hover {
+            background: #0e8549;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .date-nav i {
+            font-size: 20px;
+            line-height: 1;
         }
 
         .date-nav .current-date {
             font-weight: 600;
             font-size: 14px;
             color: #333;
+            flex: 1;
+            text-align: center;
         }
 
         .presensi-section {
