@@ -3,22 +3,38 @@
 namespace App\Http\Controllers\PPDB;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PPDBSetting;
+use Illuminate\Http\Request;
 
 class PPDBController extends Controller
 {
-    // Halaman utama daftar PPDB semua sekolah
+    /**
+     * Menampilkan halaman utama PPDB NUIST
+     * Daftar madrasah/sekolah yang membuka PPDB
+     */
     public function index()
     {
-        $sekolah = PPDBSetting::where('status', 'buka')->get();
-        return view('ppdb.index', compact('sekolah'));
+        $ppdbSettings = PPDBSetting::where('tahun', now()->year)
+            ->with('sekolah')
+            ->orderBy('jadwal_buka', 'asc')
+            ->get();
+
+        return view('ppdb.index', compact('ppdbSettings'));
     }
 
-    // Halaman PPDB per sekolah
+    /**
+     * Menampilkan halaman PPDB per sekolah
+     * Informasi, jadwal, dan tombol daftar
+     */
     public function showSekolah($slug)
     {
-        $ppdb = PPDBSetting::where('slug', $slug)->firstOrFail();
-        return view('ppdb.sekolah', compact('ppdb'));
+        $ppdbSetting = PPDBSetting::where('slug', $slug)
+            ->where('tahun', now()->year)
+            ->with('sekolah')
+            ->firstOrFail();
+
+        $pendaftarCount = $ppdbSetting->pendaftars()->count();
+
+        return view('ppdb.sekolah', compact('ppdbSetting', 'pendaftarCount'));
     }
 }
