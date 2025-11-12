@@ -338,7 +338,7 @@ Route::prefix('ppdb')->group(function () {
 });
 
 // ADMIN SEKOLAH
-Route::middleware(['auth', 'role:admin_sekolah'])->prefix('ppdb/sekolah')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('ppdb/sekolah')->group(function () {
     Route::get('/dashboard', [AdminSekolahController::class, 'index'])->name('ppdb.sekolah.dashboard');
     Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi'])->name('ppdb.sekolah.verifikasi');
     Route::get('/seleksi', [AdminSekolahController::class, 'seleksi'])->name('ppdb.sekolah.seleksi');
@@ -346,6 +346,6 @@ Route::middleware(['auth', 'role:admin_sekolah'])->prefix('ppdb/sekolah')->group
 });
 
 // ADMIN LP. MA’ARIF
-Route::middleware(['auth', 'role:admin_lp'])->prefix('ppdb/lp')->group(function () {
+Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(function () {
     Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
 });
