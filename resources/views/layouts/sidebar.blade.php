@@ -159,13 +159,13 @@
 
                 <li class="menu-title">PPDB</li>
                 <li>
-                    <a href="{{ route('ppdb') }}" class="waves-effect">
+                    <a href="#" class="waves-effect">
                         <i class="bx bx-cog"></i>
                         <span>Pengaturan PPDB</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('ppdb') }}" class="waves-effect">
+                    <a href="#" class="waves-effect">
                         <i class="bx bx-file"></i>
                         <span>Data Pendaftaran</span>
                     </a>
