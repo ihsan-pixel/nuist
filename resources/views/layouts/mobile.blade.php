@@ -452,7 +452,7 @@
                 <i class="bx bx-home"></i>
                 <span>Home</span>
             </a>
-            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.presensi*') ? 'active' : '' }}">
+            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
                 <i class="bx bx-history"></i>
                 <span>Jadwal</span>
             </a>
@@ -464,7 +464,7 @@
                 </a>
             </div>
 
-            <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
+            <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
                 <i class="bx bx-bar-chart"></i>
                 <span>Mengajar</span>
             </a>
