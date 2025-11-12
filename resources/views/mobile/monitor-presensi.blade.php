@@ -239,7 +239,7 @@
                             <div class="status">{{ $p->user->statusKepegawaian?->name ?? '-' }}</div>
                             @if($p->selfie_masuk_path || $p->selfie_keluar_path)
                                 <button class="foto-btn"
-                                    onclick="showFoto('{{ asset('storage/' . $p->selfie_masuk_path) }}', '{{ asset('storage/app/public/presensi-selfies/' . $p->selfie_keluar_path) }}')">
+                                    onclick="showFoto('{{ asset('storage/app/public/presensi-selfies/' . $p->selfie_masuk_path) }}', '{{ asset('storage/app/public/presensi-selfies/' . $p->selfie_keluar_path) }}')">
                                     📷 Lihat Foto
                                 </button>
                             @endif
