@@ -157,6 +157,20 @@
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
 
+                <li class="menu-title">PPDB</li>
+                <li>
+                    <a href="{{ route('ppdb.settings') }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.applications') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Data Pendaftaran</span>
+                    </a>
+                </li>
+
                 <li class="menu-title">ABOUT</li>
 
                 <li>
