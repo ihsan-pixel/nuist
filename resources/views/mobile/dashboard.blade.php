@@ -517,6 +517,8 @@
         </div>
     </div> --}}
 
+    <small>Jadwal Hari Ini</small>
+
     <!-- Schedule Section -->
     <div class="schedule-section">
         <h6 class="section-title">Jadwal Hari Ini</h6>
