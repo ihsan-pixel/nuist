@@ -458,7 +458,7 @@
             </a>
             <a href="">
                 <i></i>
-                <span>|                 |</span>
+                <span>|--------------|</span>
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
