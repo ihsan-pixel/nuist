@@ -90,44 +90,35 @@
         .services-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
             text-align: center;
         }
 
-        .service-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .service-item {
-            width: 70px; /* ukuran kotak */
-            height: 70px; /* biar persegi */
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-radius: 10px;
+            padding: 14px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
         .service-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
         }
 
         .service-item i {
-            font-size: 28px; /* ikon lebih besar */
+            font-size: 20px;
             color: #fff;
         }
 
         .service-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             margin-top: 6px;
             color: #333;
-            line-height: 1.2;
         }
 
         .service-item i {
@@ -392,70 +383,61 @@
     <!-- Services Form -->
     <div class="services-form">
         <div class="services-grid">
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
                     <i class="bx bx-fingerprint"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
                     <i class="bx bx-chalkboard"></i>
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
                     <i class="bx bx-calendar-star"></i>
                 </a>
                 <div class="service-label">Izin Cuti</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
                     <i class="bx bx-time-five"></i>
                 </a>
                 <div class="service-label">Izin Terlambat</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
                     <i class="bx bx-plus-medical"></i>
                 </a>
                 <div class="service-label">Izin Sakit</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
                     <i class="bx bx-briefcase"></i>
                 </a>
                 <div class="service-label">Izin Dinas Luar</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.jadwal') }}" class="service-item">
                     <i class="bx bx-calendar"></i>
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.laporan') }}" class="service-item">
                     <i class="bx bx-file"></i>
                 </a>
                 <div class="service-label">Laporan</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.profile') }}" class="service-item">
                     <i class="bx bx-user"></i>
                 </a>
                 <div class="service-label">Profile</div>
             </div>
-
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
                     <i class="bx bx-cog"></i>
                 </a>
@@ -463,13 +445,13 @@
             </div>
 
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
                     <i class="bx bx-edit"></i>
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
-            <div class="service-wrapper">
+            <div>
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
                     <i class="bx bx-calendar-check"></i>
                 </a>
@@ -478,6 +460,7 @@
             @endif
         </div>
     </div>
+
 
     <!-- Teacher Info -->
     {{-- <div class="info-section">
