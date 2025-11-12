@@ -122,7 +122,7 @@
         }
 
         .service-item i {
-            font-size: 18px;
+            font-size: 24px;
             color: #ffffff;
         }
 
