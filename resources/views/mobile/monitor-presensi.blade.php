@@ -174,28 +174,53 @@
             margin-bottom: 8px;
         }
 
-        .pagination-custom {
+        /* --- Pagination Laravel Default --- */
+        .pagination {
             display: flex;
             justify-content: center;
-            margin-top: 10px;
-        }
-
-        .pagination-custom .page-link {
-            color: #0e8549;
-            border-color: #0e8549;
-            margin: 0 2px;
-            padding: 5px 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
             font-size: 12px;
         }
 
-        .pagination-custom .page-link:hover {
+        .pagination li {
+            list-style: none;
+        }
+
+        .pagination .page-item .page-link {
+            border: 1px solid #d8e5da;
+            color: #0e8549;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0e8549;
+            color: #fff;
+            border-color: #0e8549;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #a6b5a8;
+            background: #f6faf7;
+        }
+
+        .pagination .page-link:hover {
             background-color: #0e8549;
             color: #fff;
         }
 
-        .pagination-custom .page-item.active .page-link {
-            background-color: #0e8549;
-            border-color: #0e8549;
+        /* --- Info text seperti 'Showing 1 to 15 of 69 results' --- */
+        .pagination-info {
+            text-align: center;
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 4px;
         }
 
         /* Modal Foto */
