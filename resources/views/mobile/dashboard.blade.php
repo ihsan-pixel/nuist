@@ -96,10 +96,11 @@
         .service-item {
             text-align: center;
             padding: 6px;
-            background: #a4ff9f;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: #fff;
             border-radius: 6px;
             text-decoration: none;
-            color: inherit;
+            /* color: inherit; */
             display: block;
             transition: all 0.2s;
         }
