@@ -322,6 +322,110 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.25);
         }
+        /* === Modern Floating Bottom Nav === */
+        .modern-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: #fff;
+            border-top: 1px solid #eaeaea;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modern-bottom-nav .nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            padding: 0 12px;
+        }
+
+        .modern-bottom-nav .nav-item {
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            color: #1c6d45;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s ease;
+            position: relative;
+            padding: 6px 0;
+            border-radius: 12px;
+        }
+
+        .modern-bottom-nav .nav-item i {
+            font-size: 22px;
+            opacity: 0.9;
+            transition: all 0.2s ease;
+        }
+
+        /* Menu aktif diberi highlight */
+        .modern-bottom-nav .nav-item.active {
+            color: #fff;
+            background: linear-gradient(135deg, #004b4c, #0e8549);
+            box-shadow: 0 2px 6px rgba(14,133,73,0.3);
+            transform: translateY(-4px);
+        }
+
+        .modern-bottom-nav .nav-item.active i {
+            color: #fff;
+        }
+
+        /* Tombol tengah bulat menonjol */
+        .center-wrapper {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .center-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #004b4c, #0e8549);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 30px;
+            box-shadow: 0 6px 20px rgba(0, 75, 76, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .center-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0, 75, 76, 0.45);
+        }
+
+        /* Animasi bounce saat klik */
+        .center-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsif */
+        @media (max-width: 400px) {
+            .center-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 26px;
+            }
+            .modern-bottom-nav {
+                height: 70px;
+            }
+        }
+
     </style>
 </head>
 
@@ -446,31 +550,37 @@
             </div>
         </div>
     </nav> --}}
-    <nav class="mobile-nav d-md-none custom-bottom-nav">
-        <div class="nav-container">
-            <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
+    <nav class="mobile-nav d-md-none modern-bottom-nav">
+        <div class="nav-inner">
+            <a href="{{ route('mobile.dashboard') }}"
+            class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
                 <i class="bx bx-home"></i>
                 <span>Home</span>
             </a>
-            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
-                <i class="bx bx-history"></i>
+
+            <a href="{{ route('mobile.jadwal') }}"
+            class="nav-item {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
+                <i class="bx bx-time-five"></i>
                 <span>Jadwal</span>
             </a>
 
             <!-- Tombol Tengah -->
-            <div class="nav-center-btn">
-                <a href="{{ route('mobile.presensi') }}" class="center-action">
+            <div class="center-wrapper">
+                <a href="{{ route('mobile.presensi') }}" class="center-btn">
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
 
-            <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
-                <i class="bx bx-bar-chart"></i>
+            <a href="{{ route('mobile.teaching-attendances') }}"
+            class="nav-item {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
+                <i class="bx bx-bar-chart-alt-2"></i>
                 <span>Mengajar</span>
             </a>
-            <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
+
+            <a href="{{ route('mobile.profile') }}"
+            class="nav-item {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
                 <i class="bx bx-user"></i>
-                <span>Profile</span>
+                <span>Profil</span>
             </a>
         </div>
     </nav>
