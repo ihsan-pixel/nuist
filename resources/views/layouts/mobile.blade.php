@@ -459,7 +459,7 @@
 
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="{{ route('mobile.scan') }}" class="center-action">
+                <a href="{{ route('mobile.jadwal') }}" class="center-action">
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
