@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.master-without-nav')
 
 @section('title', 'Verifikasi Pendaftar - ' . $ppdbSetting->nama_sekolah)
 

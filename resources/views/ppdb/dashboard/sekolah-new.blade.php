@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.master-without-nav')
 
 @section('title', 'Dashboard PPDB - ' . $ppdbSetting->nama_sekolah)
 
