@@ -456,6 +456,7 @@
                 <i class="bx bx-history"></i>
                 <span>Jadwal</span>
             </a>
+            <a href=""></a>
 
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
@@ -463,6 +464,7 @@
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
+            <a href=""></a>
 
             <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
                 <i class="bx bx-bar-chart"></i>
