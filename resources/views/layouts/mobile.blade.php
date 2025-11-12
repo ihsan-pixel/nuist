@@ -452,25 +452,25 @@
                 <i class="bx bx-home"></i>
                 <span>Home</span>
             </a>
-            <a href="{{ route('mobile.presensi') }}" class="nav-link {{ request()->routeIs('mobile.presensi*') ? 'active' : '' }}">
+            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.presensi*') ? 'active' : '' }}">
                 <i class="bx bx-history"></i>
-                <span>Mutasi</span>
+                <span>Jadwal</span>
             </a>
 
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="{{ route('mobile.jadwal') }}" class="center-action">
+                <a href="{{ route('mobile.presensi') }}" class="center-action">
                     <i class="bx bx-scan"></i>
                 </a>
             </div>
 
-            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
+            <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
                 <i class="bx bx-bar-chart"></i>
-                <span>Aktivitas</span>
+                <span>Mengajar</span>
             </a>
             <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
                 <i class="bx bx-user"></i>
-                <span>Akun</span>
+                <span>Profile</span>
             </a>
         </div>
     </nav>
