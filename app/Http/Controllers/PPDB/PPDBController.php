@@ -14,12 +14,12 @@ class PPDBController extends Controller
      */
     public function index()
     {
-        $ppdbSettings = PPDBSetting::where('tahun', now()->year)
+        $sekolah = PPDBSetting::where('tahun', now()->year)
             ->with('sekolah')
             ->orderBy('jadwal_buka', 'asc')
             ->get();
 
-        return view('ppdb.index', compact('ppdbSettings'));
+        return view('ppdb.index', compact('sekolah'));
     }
 
     /**
