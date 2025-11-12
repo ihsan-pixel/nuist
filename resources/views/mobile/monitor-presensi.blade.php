@@ -175,7 +175,7 @@
         }
 
         /* --- Pagination Laravel Default --- */
-        .pagination {
+        /* .pagination {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -213,15 +213,15 @@
         .pagination .page-link:hover {
             background-color: #0e8549;
             color: #fff;
-        }
+        } */
 
         /* --- Info text seperti 'Showing 1 to 15 of 69 results' --- */
-        .pagination-info {
+        /* .pagination-info {
             text-align: center;
             font-size: 11px;
             color: #6c757d;
             margin-top: 4px;
-        }
+        } */
 
         /* Modal Foto */
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); }
