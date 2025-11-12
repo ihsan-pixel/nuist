@@ -250,6 +250,78 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.1);
         }
 
+        /* Custom Bottom Navigation (Floating Center Button) */
+        .custom-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #eaeaea;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .custom-bottom-nav .nav-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+        }
+
+        .custom-bottom-nav .nav-link {
+            color: #0e8549;
+            text-align: center;
+            flex: 1;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .custom-bottom-nav .nav-link i {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        .custom-bottom-nav .nav-link.active {
+            color: #004b4c;
+        }
+
+        /* Tombol tengah melingkar */
+        .nav-center-btn {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        .center-action {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #0e8549, #004b4c);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: #fff;
+            font-size: 26px;
+            transition: all 0.3s ease;
+        }
+
+        .center-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+        }
     </style>
 </head>
 
@@ -338,7 +410,7 @@
         }
     @endphp
     @if($showNav)
-    <nav class="mobile-nav d-md-none">
+    {{-- <nav class="mobile-nav d-md-none">
         <div class="container-fluid">
             <div class="row g-0">
                 <div class="col">
@@ -373,7 +445,36 @@
                 </div>
             </div>
         </div>
+    </nav> --}}
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
+                <i class="bx bx-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('mobile.presensi') }}" class="nav-link {{ request()->routeIs('mobile.presensi*') ? 'active' : '' }}">
+                <i class="bx bx-history"></i>
+                <span>Mutasi</span>
+            </a>
+
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="{{ route('mobile.scan') }}" class="center-action">
+                    <i class="bx bx-scan"></i>
+                </a>
+            </div>
+
+            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
+                <i class="bx bx-bar-chart"></i>
+                <span>Aktivitas</span>
+            </a>
+            <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
+                <i class="bx bx-user"></i>
+                <span>Akun</span>
+            </a>
+        </div>
     </nav>
+
     @endif
 
     <!-- JAVASCRIPT -->
