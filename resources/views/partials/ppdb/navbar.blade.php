@@ -13,7 +13,7 @@
 
         <!-- Menu Items -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
                 </li>
@@ -27,11 +27,6 @@
                     <a class="nav-link" href="#kontak">Kontak</a>
                 </li>
             </ul>
-
-            <!-- Button Daftar di sebelah kanan -->
-            <div class="d-flex">
-                <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary">Daftar</a>
-            </div>
         </div>
     </div>
 </nav>
