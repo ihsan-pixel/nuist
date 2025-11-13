@@ -115,7 +115,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 2.5rem;
+    padding: 1.25rem 3rem;
     min-height: 5rem;
 }
 
@@ -123,6 +123,7 @@ p {
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    margin-right: 2rem;
 }
 
 .navbar-center {
@@ -136,8 +137,9 @@ p {
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     flex-shrink: 0;
+    margin-left: 2rem;
 }
 
 .navbar-logo {
@@ -194,7 +196,7 @@ p {
 .navbar-menu {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
     margin: 0 auto;
     flex: 1;
     justify-content: center;
@@ -955,7 +957,7 @@ p {
 /* Responsive Navbar */
 @media (max-width: 1024px) {
     .navbar-container {
-        padding: 1rem 1.5rem;
+        padding: 1rem 2rem;
     }
 
     .navbar-center {
@@ -963,7 +965,7 @@ p {
     }
 
     .navbar-menu {
-        gap: 2rem;
+        gap: 1.5rem;
     }
 
     .navbar-link {
@@ -984,8 +986,12 @@ p {
 
 @media (max-width: 768px) {
     .navbar-container {
-        padding: 0.875rem 1.25rem;
+        padding: 0.875rem 1.5rem;
         min-height: 3.5rem;
+    }
+
+    .navbar-menu {
+        gap: 1rem;
     }
 
     .navbar-center,
@@ -1036,6 +1042,10 @@ p {
     .navbar-container {
         padding: 0.75rem 1rem;
         min-height: 3rem;
+    }
+
+    .navbar-menu {
+        gap: 0.75rem;
     }
 
     .navbar-logo img {
