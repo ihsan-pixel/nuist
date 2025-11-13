@@ -2,8 +2,8 @@
     <div class="container">
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
-            <img src="{{ asset('images/logo-nuist.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
-            <span class="fw-bold text-primary">PPDB NUIST</span>
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
+            <span class="fw-bold text-primary">PPDB </span>
         </a>
 
         <!-- Toggle Button untuk Mobile -->
