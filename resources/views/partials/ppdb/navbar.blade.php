@@ -31,7 +31,7 @@
                 <span>Masuk</span>
             </a>
             <a href="{{ route('register') }}" class="navbar-btn-primary">
-                <span>Daftarkyfdjy</span>
+                <span>Daftar</span>
             </a>
 
             <!-- Mobile Toggle -->
