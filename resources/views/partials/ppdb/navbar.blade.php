@@ -1,26 +1,26 @@
-<header id="mainNavbar" class="fixed top-0 left-0 w-full z-[9999] transition-all duration-300 bg-white/10 backdrop-blur-md border-b border-white/10">
-    <div class="container mx-auto flex items-center justify-between px-4 py-4">
+<header id="mainNavbar" class="navbar">
+    <div class="navbar-container">
         <!-- Logo -->
-        <a href="{{ url('/') }}" class="flex items-center space-x-2">
-            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo" class="h-10">
-            <span class="text-xl font-semibold text-white">NUIST</span>
+        <a href="{{ url('/') }}" class="navbar-logo">
+            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
+            <span class="navbar-logo-text">NUIST</span>
         </a>
 
         <!-- Desktop Menu -->
-        <nav class="hidden lg:flex items-center space-x-8">
-            <a href="#home" class="nav-link text-white hover:text-green-200 transition">Beranda</a>
-            <a href="#sekolah" class="nav-link text-white hover:text-green-200 transition">Sekolah</a>
-            <a href="#contact" class="nav-link text-white hover:text-green-200 transition">Kontak</a>
+        <nav class="navbar-menu">
+            <a href="#home" class="navbar-link">Beranda</a>
+            <a href="#sekolah" class="navbar-link">Sekolah</a>
+            <a href="#contact" class="navbar-link">Kontak</a>
         </nav>
 
         <!-- Auth Buttons -->
-        <div class="hidden sm:flex items-center space-x-3">
-            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-white hover:text-green-200 transition">Masuk</a>
-            <a href="{{ route('register') }}" class="px-5 py-2 text-sm font-medium text-dark bg-white rounded-lg hover:bg-green-600 hover:text-white transition">Daftar</a>
+        <div class="navbar-auth">
+            <a href="{{ route('login') }}" class="navbar-btn-secondary">Masuk</a>
+            <a href="{{ route('register') }}" class="navbar-btn-primary">Daftar</a>
         </div>
 
         <!-- Mobile Toggle -->
-        <button id="navbarToggler" class="block lg:hidden text-white focus:outline-none">
+        <button id="navbarToggler" class="navbar-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -28,11 +28,11 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="hidden absolute top-full left-0 w-full bg-white/95 shadow-lg backdrop-blur-lg lg:hidden">
-        <nav class="flex flex-col space-y-2 px-6 py-4">
-            <a href="#home" class="block py-2 text-dark hover:text-primary transition">Beranda</a>
-            <a href="#sekolah" class="block py-2 text-dark hover:text-primary transition">Sekolah</a>
-            <a href="#contact" class="block py-2 text-dark hover:text-primary transition">Kontak</a>
+    <div id="mobileMenu" class="navbar-mobile-menu">
+        <nav class="navbar-mobile-nav">
+            <a href="#home" class="navbar-mobile-link">Beranda</a>
+            <a href="#sekolah" class="navbar-mobile-link">Sekolah</a>
+            <a href="#contact" class="navbar-mobile-link">Kontak</a>
         </nav>
     </div>
 </header>
