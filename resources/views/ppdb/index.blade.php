@@ -1,54 +1,43 @@
 @extends('layouts.master-without-nav')
 
-@section('title') PPDB NUIST 2025 @endsection
+@section('title', 'PPDB NUIST 2025')
 
 @section('body')
-
-    <body class="scroll-smooth">
-
+<body class="scroll-smooth">
 @endsection
 
+{{-- Tambahkan CSS di sini --}}
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
+    <link rel="stylesheet" href="{{ asset('src/css/tailwind.css') }}" />
+@endsection
+
+{{-- Mulai konten halaman --}}
 @section('content')
 
-@section('css')
-        <!-- Play Tailwind template CSS (from index.html) -->
-        <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}" />
-        <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}" />
-        <link rel="stylesheet" href="{{ asset('src/css/tailwind.css') }}" />
-@endsection
+    {{-- Navbar --}}
+    @include('partials.ppdb.navbar')
 
-@include('partials.ppdb.navbar')
-
-<!-- ====== Hero Section Start ====== -->
-<div id="home" class="relative overflow-hidden bg-primary pt-[120px] md:pt-[130px] lg:pt-[160px]">
-    <div class="container px-4 mx-auto">
-        <div class="flex flex-wrap items-center -mx-4">
-            <div class="w-full px-4">
-                <div class="hero-content wow fadeInUp mx-auto max-w-[780px] text-center" data-wow-delay=".2s">
-                    <h1 class="mb-6 text-3xl font-bold leading-snug text-white sm:text-4xl lg:text-5xl">PPDB NUIST 2025 — Penerimaan Peserta Didik Baru</h1>
-                    <p class="mx-auto mb-9 max-w-[600px] text-base font-medium text-white sm:text-lg">Selamat datang di portal pendaftaran online NUIST. Pilih madrasah dan daftar sekarang.</p>
-                    <ul class="flex flex-wrap items-center justify-center gap-5 mb-10">
-                        <li>
-                            <a href="{{ url('/') }}" class="inline-flex items-center justify-center rounded-md bg-white px-7 py-[14px] text-base font-medium text-dark shadow-1 hover:bg-gray-2">Kembali ke Beranda</a>
-                        </li>
-                        <li>
-                            <a href="https://github.com/tailgrids/play-tailwind" target="_blank" class="flex items-center gap-4 rounded-md bg-white/[0.12] px-6 py-[14px] text-base font-medium text-white hover:bg-white hover:text-dark">Star Template</a>
-                        </li>
-                    </ul>
+    <!-- ====== Hero Section Start ====== -->
+    <div id="home" class="relative overflow-hidden bg-primary pt-[120px] md:pt-[130px] lg:pt-[160px]">
+        <div class="container mx-auto px-4">
+            <div class="text-center text-white">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">PPDB NUIST 2025 — Penerimaan Peserta Didik Baru</h1>
+                <p class="mb-8 max-w-[600px] mx-auto text-lg">
+                    Selamat datang di portal pendaftaran online NUIST. Pilih madrasah dan daftar sekarang.
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="{{ url('/') }}" class="bg-white text-dark px-6 py-3 rounded-md font-medium shadow hover:bg-gray-200 transition">Kembali ke Beranda</a>
+                    <a href="https://github.com/tailgrids/play-tailwind" target="_blank" class="bg-white/10 text-white px-6 py-3 rounded-md font-medium border border-white hover:bg-white hover:text-dark transition">Star Template</a>
                 </div>
             </div>
-
-            <div class="w-full px-4">
-                <div class="wow fadeInUp relative z-10 mx-auto max-w-[845px]" data-wow-delay=".25s">
-                    <div class="mt-16">
-                        <img src="{{ asset('assets/images/hero/hero-image.jpg') }}" alt="hero" class="max-w-full mx-auto rounded-t-xl rounded-tr-xl" />
-                    </div>
-                </div>
+            <div class="mt-12">
+                <img src="{{ asset('assets/images/hero/hero-image.jpg') }}" alt="hero" class="max-w-full mx-auto rounded-xl shadow-lg" />
             </div>
         </div>
     </div>
-</div>
-<!-- ====== Hero Section End ====== -->
+    <!-- ====== Hero Section End ====== -->
 
 <!-- ====== Features Section Start ====== -->
 <section class="pb-8 pt-20 dark:bg-dark lg:pb-[70px] lg:pt-[120px]">
