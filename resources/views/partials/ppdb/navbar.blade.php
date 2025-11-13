@@ -1,4 +1,4 @@
-<header class="navbar">
+<header id="mainNavbar" class="navbar">
     <div class="navbar-container">
         <!-- Logo -->
         <a href="{{ url('/') }}" class="navbar-logo">
@@ -79,17 +79,33 @@
     // Ubah warna navbar saat scroll
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
-            navbar.classList.add('bg-white/90', 'shadow-md', 'backdrop-blur-md', 'border-transparent');
+            navbar.classList.add('bg-white/95', 'shadow-lg', 'backdrop-blur-lg', 'border-gray-200');
             navbar.classList.remove('bg-white/10', 'border-white/10');
-            navbar.querySelectorAll('.nav-link').forEach(el => {
-                el.classList.add('text-dark');
+            navbar.querySelectorAll('.navbar-link').forEach(el => {
+                el.classList.add('text-black');
+                el.classList.remove('text-white');
+            });
+            navbar.querySelectorAll('.navbar-btn-secondary').forEach(el => {
+                el.classList.add('text-black');
+                el.classList.remove('text-white');
+            });
+            navbar.querySelectorAll('.navbar-toggle').forEach(el => {
+                el.classList.add('text-black');
                 el.classList.remove('text-white');
             });
         } else {
-            navbar.classList.remove('bg-white/90', 'shadow-md', 'backdrop-blur-md', 'border-transparent');
+            navbar.classList.remove('bg-white/95', 'shadow-lg', 'backdrop-blur-lg', 'border-gray-200');
             navbar.classList.add('bg-white/10', 'border-white/10');
-            navbar.querySelectorAll('.nav-link').forEach(el => {
-                el.classList.remove('text-dark');
+            navbar.querySelectorAll('.navbar-link').forEach(el => {
+                el.classList.remove('text-black');
+                el.classList.add('text-white');
+            });
+            navbar.querySelectorAll('.navbar-btn-secondary').forEach(el => {
+                el.classList.remove('text-black');
+                el.classList.add('text-white');
+            });
+            navbar.querySelectorAll('.navbar-toggle').forEach(el => {
+                el.classList.remove('text-black');
                 el.classList.add('text-white');
             });
         }
