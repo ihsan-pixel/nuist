@@ -1,46 +1,76 @@
-<div class="absolute top-0 left-0 z-40 flex items-center w-full bg-transparent ud-header">
-    <div class="container px-4 mx-auto">
-        <div class="relative flex items-center justify-between -mx-4">
-            <div class="max-w-full px-4 w-60">
-                <a href="{{ url('/') }}" class="block w-full py-5 navbar-logo">
-                    <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="logo" class="w-full header-logo"/>
-                </a>
-            </div>
-            <div class="flex items-center justify-between w-full px-4">
-                <div>
-                    <button id="navbarToggler" class="absolute right-4 top-1/2 block -translate-y-1/2 rounded-lg px-3 py-[6px] ring-primary focus:ring-2 lg:hidden">
-                        <span class="relative my-[6px] block h-[2px] w-[30px] bg-white"></span>
-                        <span class="relative my-[6px] block h-[2px] w-[30px] bg-white"></span>
-                        <span class="relative my-[6px] block h-[2px] w-[30px] bg-white"></span>
-                    </button>
-                    <nav id="navbarCollapse" class="absolute right-4 top-full hidden w-full max-w-[250px] rounded-lg bg-white py-5 shadow-lg lg:static lg:block lg:w-full lg:max-w-full lg:bg-transparent lg:px-4 lg:py-0 lg:shadow-none xl:px-6">
-                        <ul class="blcok lg:flex 2xl:ml-20">
-                            <li class="relative group"><a href="#home" class="flex py-2 mx-8 text-base font-medium ud-menu-scroll text-dark group-hover:text-primary lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white">Home</a></li>
-                            <li class="relative group"><a href="#about" class="flex py-2 mx-8 text-base font-medium ud-menu-scroll text-dark group-hover:text-primary lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white">About</a></li>
-                            <li class="relative group"><a href="#pricing" class="flex py-2 mx-8 text-base font-medium ud-menu-scroll text-dark group-hover:text-primary lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white">Pricing</a></li>
-                            <li class="relative group"><a href="#team" class="flex py-2 mx-8 text-base font-medium ud-menu-scroll text-dark group-hover:text-primary lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white">Team</a></li>
-                            <li class="relative group"><a href="#contact" class="flex py-2 mx-8 text-base font-medium ud-menu-scroll text-dark group-hover:text-primary lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white">Contact</a></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="flex items-center justify-end pr-16 lg:pr-0">
-                    <div class="hidden sm:flex">
-                        <a href="{{ route('login') }}" class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70">Sign In</a>
-                        <a href="{{ route('register') }}" class="px-6 py-2 text-base font-medium text-white duration-300 ease-in-out rounded-md bg-white/20 signUpBtn hover:bg-white/100 hover:text-dark">Sign Up</a>
-                    </div>
-                </div>
-            </div>
+<!-- Header/Navbar -->
+<header class="fixed top-0 left-0 z-50 w-full transition-all duration-300 bg-transparent backdrop-blur-sm" id="mainNavbar">
+    <div class="container mx-auto flex items-center justify-between px-4 py-4">
+        <!-- Logo -->
+        <a href="{{ url('/') }}" class="flex items-center space-x-2">
+            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo" class="h-10">
+            <span class="text-xl font-semibold text-white">NUIST</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <nav class="hidden lg:flex items-center space-x-8">
+            <a href="#home" class="nav-link text-white hover:text-primary transition">Home</a>
+            <a href="#about" class="nav-link text-white hover:text-primary transition">About</a>
+            <a href="#pricing" class="nav-link text-white hover:text-primary transition">Pricing</a>
+            <a href="#team" class="nav-link text-white hover:text-primary transition">Team</a>
+            <a href="#contact" class="nav-link text-white hover:text-primary transition">Contact</a>
+        </nav>
+
+        <!-- Auth Buttons -->
+        <div class="hidden sm:flex items-center space-x-3">
+            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-white hover:text-primary transition">Sign In</a>
+            <a href="{{ route('register') }}" class="px-5 py-2 text-sm font-medium text-dark bg-white rounded-lg hover:bg-primary hover:text-white transition">Sign Up</a>
         </div>
+
+        <!-- Mobile Toggle -->
+        <button id="navbarToggler" class="block lg:hidden text-white focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
     </div>
-</div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden absolute top-full left-0 w-full bg-white/95 shadow-lg backdrop-blur-lg lg:hidden">
+        <nav class="flex flex-col space-y-2 px-6 py-4">
+            <a href="#home" class="block py-2 text-dark hover:text-primary transition">Home</a>
+            <a href="#about" class="block py-2 text-dark hover:text-primary transition">About</a>
+            <a href="#pricing" class="block py-2 text-dark hover:text-primary transition">Pricing</a>
+            <a href="#team" class="block py-2 text-dark hover:text-primary transition">Team</a>
+            <a href="#contact" class="block py-2 text-dark hover:text-primary transition">Contact</a>
+            <hr class="my-2 border-gray-200">
+            <a href="{{ route('login') }}" class="block py-2 text-dark hover:text-primary transition">Sign In</a>
+            <a href="{{ route('register') }}" class="block py-2 text-dark font-medium hover:text-primary transition">Sign Up</a>
+        </nav>
+    </div>
+</header>
 
 <script>
-    // small navbar toggler for mobile
-    document.addEventListener('click', function (e) {
-        var t = e.target;
-        if (t && (t.id === 'navbarToggler' || t.closest('#navbarToggler'))) {
-            var nav = document.getElementById('navbarCollapse');
-            if (nav) nav.classList.toggle('hidden');
+    // Navbar toggle untuk mobile
+    const toggler = document.getElementById('navbarToggler');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mainNavbar = document.getElementById('mainNavbar');
+
+    toggler.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Tambahkan efek background saat scroll
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 20) {
+            mainNavbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-md');
+            mainNavbar.classList.remove('bg-transparent');
+            mainNavbar.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-white');
+                link.classList.add('text-dark');
+            });
+        } else {
+            mainNavbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-md');
+            mainNavbar.classList.add('bg-transparent');
+            mainNavbar.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-dark');
+                link.classList.add('text-white');
+            });
         }
     });
 </script>
