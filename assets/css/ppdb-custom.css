@@ -112,6 +112,27 @@ p {
     min-height: 4.5rem;
 }
 
+.navbar-left {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.navbar-center {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+    max-width: 450px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
 .navbar-logo {
     display: flex;
     align-items: center;
@@ -943,9 +964,12 @@ p {
         padding: 1rem 1.5rem;
     }
 
+    .navbar-center {
+        max-width: 350px;
+    }
+
     .navbar-menu {
         gap: 2rem;
-        max-width: 350px;
     }
 
     .navbar-link {
@@ -970,8 +994,9 @@ p {
         min-height: 3.5rem;
     }
 
-    .navbar-menu,
-    .navbar-auth {
+    .navbar-center,
+    .navbar-right .navbar-btn-secondary,
+    .navbar-right .navbar-btn-primary {
         display: none;
     }
 

@@ -1,42 +1,46 @@
 <header id="mainNavbar" class="navbar">
     <div class="navbar-container">
-        <!-- Logo -->
-        <a href="{{ url('/') }}" class="navbar-logo">
-            <div class="navbar-logo-icon">
-                <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
-            </div>
-            <span class="navbar-logo-text">NUIST</span>
-        </a>
+        <!-- Logo (Left) -->
+        <div class="navbar-left">
+            <a href="{{ url('/') }}" class="navbar-logo">
+                <div class="navbar-logo-icon">
+                    <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
+                </div>
+                <span class="navbar-logo-text">NUIST</span>
+            </a>
+        </div>
 
-        <!-- Desktop Menu -->
-        <nav class="navbar-menu">
-            <a href="#home" class="navbar-link">
-                <span>Beranda</span>
-            </a>
-            <a href="#sekolah" class="navbar-link">
-                <span>Sekolah</span>
-            </a>
-            <a href="#contact" class="navbar-link">
-                <span>Kontak</span>
-            </a>
-        </nav>
+        <!-- Desktop Menu (Center) -->
+        <div class="navbar-center">
+            <nav class="navbar-menu">
+                <a href="#home" class="navbar-link">
+                    <span>Beranda</span>
+                </a>
+                <a href="#sekolah" class="navbar-link">
+                    <span>Sekolah</span>
+                </a>
+                <a href="#contact" class="navbar-link">
+                    <span>Kontak</span>
+                </a>
+            </nav>
+        </div>
 
-        <!-- Auth Buttons -->
-        <div class="navbar-auth">
+        <!-- Auth Buttons (Right) -->
+        <div class="navbar-right">
             <a href="{{ route('login') }}" class="navbar-btn-secondary">
                 <span>Masuk</span>
             </a>
             <a href="{{ route('register') }}" class="navbar-btn-primary">
                 <span>Daftar</span>
             </a>
-        </div>
 
-        <!-- Mobile Toggle -->
-        <button id="navbarToggler" class="navbar-toggle">
-            <span class="navbar-toggle-line"></span>
-            <span class="navbar-toggle-line"></span>
-            <span class="navbar-toggle-line"></span>
-        </button>
+            <!-- Mobile Toggle -->
+            <button id="navbarToggler" class="navbar-toggle">
+                <span class="navbar-toggle-line"></span>
+                <span class="navbar-toggle-line"></span>
+                <span class="navbar-toggle-line"></span>
+            </button>
+        </div>
     </div>
 
     <!-- Mobile Menu -->
