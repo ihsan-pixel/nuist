@@ -174,7 +174,7 @@ p {
 }
 
 .navbar-link {
-    color: #374151;
+    color: #000000;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.95rem;
@@ -230,7 +230,7 @@ p {
     padding: 0.75rem 1.5rem;
     background: rgba(255, 255, 255, 0.8);
     border: 2px solid #e5e7eb;
-    color: #374151;
+    color: #000000;
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
@@ -306,7 +306,7 @@ p {
     display: none;
     background: rgba(255, 255, 255, 0.8);
     border: 2px solid #e5e7eb;
-    color: #374151;
+    color: #000000;
     cursor: pointer;
     padding: 0.75rem;
     border-radius: 0.625rem;
@@ -366,7 +366,7 @@ p {
 
 .navbar-mobile-link {
     padding: 1.25rem 1rem;
-    color: #374151;
+    color: #000000;
     text-decoration: none;
     font-weight: 600;
     font-size: 1.1rem;
