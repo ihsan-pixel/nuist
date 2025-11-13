@@ -10,7 +10,7 @@
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        color: white;
+        color: #0f854a;
         padding: 80px 0;
     }
     .navbar-brand img {
