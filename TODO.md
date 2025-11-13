@@ -21,6 +21,8 @@
 - [x] Verify all sections are properly linked in navbar
 
 ## Notes
-- Using placeholder content for About, Galeri, and Berita sections based on description
-- Maintaining existing design consistency with blue/gold theme
-- Ensuring full responsiveness
+- Code has been reverted to original state as requested by user
+- All added sections (About, Galeri, Berita, Kontak) have been removed
+- Navbar links updated to match original structure
+- CSS cleaned up to remove added section styles
+- Responsive design updated accordingly
