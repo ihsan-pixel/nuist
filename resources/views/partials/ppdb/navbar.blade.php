@@ -3,7 +3,7 @@
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
             <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
-            <span class="fw-bold text-primary">PPDB </span>
+            {{-- <span class="fw-bold text-primary">PPDB </span> --}}
         </a>
 
         <!-- Toggle Button untuk Mobile -->
@@ -13,7 +13,7 @@
 
         <!-- Menu Items -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
                 </li>
