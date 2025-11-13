@@ -6,7 +6,10 @@
 <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
 <style>
     .hero-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: url('{{ asset("images/bg_ppdb1.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         color: white;
         padding: 80px 0;
     }
