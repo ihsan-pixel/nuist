@@ -110,35 +110,35 @@ p {
 }
 
 .navbar-container {
-    max-width: 1200px;
-    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 3rem;
-    min-height: 5rem;
+    padding: 1rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
+/* kiri */
 .navbar-left {
+    flex: 1;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
-    margin-right: 2rem;
 }
 
+/* tengah */
 .navbar-center {
+    flex: 2;
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex: 1;
 }
 
+/* kanan */
 .navbar-right {
+    flex: 1;
     display: flex;
+    justify-content: flex-end;
     align-items: center;
-    gap: 1.5rem;
-    flex-shrink: 0;
-    margin-left: 2rem;
+    gap: 1rem;
 }
 
 .navbar-logo {
