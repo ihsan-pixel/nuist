@@ -58,7 +58,7 @@
                 <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-outline-light btn-lg">Daftar Sekarang</a>
             </div>
             <div class="col-lg-6">
-                <img src="{{ asset('images/ppdb-hero.png') }}" alt="PPDB NUIST" class="img-fluid rounded">
+                <img src="{{ asset('images/bg_ppdb1.png') }}" alt="PPDB NUIST" class="img-fluid rounded">
             </div>
         </div>
     </div>
