@@ -24,11 +24,11 @@
         <div class="container">
             <div class="hero-content fade-in-up">
                 <div class="hero-badge">🎓 PPDB NUIST 2025</div>
-                <h1 class="hero-title">Penerimaan Peserta Didik Baru Modern & Terpercaya</h1>
-                <p class="hero-subtitle">Sistem pendaftaran online yang aman, transparan, dan mudah digunakan untuk semua madrasah di bawah naungan NUIST.</p>
+                <h1 class="hero-title">Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</h1>
+                <p class="hero-subtitle">Transformasi Digital Pendidikan untuk Madrasah yang Lebih Maju.</p>
                 <div class="hero-buttons">
-                    <a href="#sekolah" class="btn btn-primary">Pilih Sekolah</a>
-                    <a href="{{ url('/') }}" class="btn btn-outline">Kembali ke Beranda</a>
+                    <a href="#tentang" class="btn btn-primary">Mulai Sekarang</a>
+                    <a href="#demo" class="btn btn-outline">Lihat Demo</a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat-item">
@@ -52,37 +52,77 @@
         </div>
     </section>
 
+    <!-- About Section -->
+    <section id="tentang" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image fade-in-up">
+                    <div class="about-image-placeholder">
+                        <span>🏫</span>
+                    </div>
+                </div>
+                <div class="about-text fade-in-up">
+                    <h2 class="about-title">Tentang Kami</h2>
+                    <p class="about-subtitle">LP. Ma'arif NU PWNU DIY berkomitmen untuk memberikan pendidikan berkualitas melalui transformasi digital yang inovatif.</p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <div class="about-feature-icon">✅</div>
+                            <div class="about-feature-content">
+                                <h4>Terintegrasi dengan Dapodik</h4>
+                                <p>Sistem yang terhubung langsung dengan database pendidikan nasional untuk kemudahan pengelolaan data.</p>
+                            </div>
+                        </div>
+                        <div class="about-feature">
+                            <div class="about-feature-icon">✅</div>
+                            <div class="about-feature-content">
+                                <h4>Layanan Support 24 Jam</h4>
+                                <p>Tim teknis profesional siap membantu Anda kapan saja dengan berbagai kanal komunikasi.</p>
+                            </div>
+                        </div>
+                        <div class="about-feature">
+                            <div class="about-feature-icon">✅</div>
+                            <div class="about-feature-content">
+                                <h4>Sistem Aman dan Teruji</h4>
+                                <p>Enkripsi tingkat enterprise dan protokol keamanan untuk melindungi semua data pendidikan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
-    <section class="features">
+    <section id="fitur" class="features">
         <div class="container">
             <div class="features-header fade-in-up">
-                <h2 class="features-title">Mengapa Memilih PPDB NUIST?</h2>
+                <h2 class="features-title">Fitur Unggulan</h2>
                 <p class="features-subtitle">Platform pendaftaran modern dengan teknologi terkini untuk memastikan pengalaman terbaik bagi siswa dan sekolah.</p>
             </div>
 
             <div class="features-grid">
                 <div class="feature-card fade-in-up">
-                    <div class="feature-icon">⚡</div>
-                    <h3 class="feature-title">Proses Cepat & Mudah</h3>
-                    <p class="feature-description">Daftar dalam hitungan menit dengan interface yang intuitif dan user-friendly.</p>
+                    <div class="feature-icon">🧩</div>
+                    <h3 class="feature-title">Integrasi Dapodik</h3>
+                    <p class="feature-description">Sistem terintegrasi dengan database pendidikan nasional untuk kemudahan pengelolaan data siswa.</p>
+                </div>
+
+                <div class="feature-card fade-in-up">
+                    <div class="feature-icon">⚙️</div>
+                    <h3 class="feature-title">Multi Jalur Pendaftaran</h3>
+                    <p class="feature-description">Berbagai jalur pendaftaran tersedia: reguler, prestasi, dan afirmasi sesuai kebutuhan.</p>
                 </div>
 
                 <div class="feature-card fade-in-up">
                     <div class="feature-icon">🔒</div>
-                    <h3 class="feature-title">Keamanan Data Terjamin</h3>
-                    <p class="feature-description">Enkripsi tingkat enterprise dan protokol keamanan untuk melindungi data pribadi Anda.</p>
+                    <h3 class="feature-title">Manajemen Hak Akses</h3>
+                    <p class="feature-description">Sistem kontrol akses yang ketat untuk melindungi data sensitif dan memastikan keamanan.</p>
                 </div>
 
                 <div class="feature-card fade-in-up">
                     <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">Transparansi Penuh</h3>
-                    <p class="feature-description">Pantau status pendaftaran secara real-time dengan sistem tracking yang akurat.</p>
-                </div>
-
-                <div class="feature-card fade-in-up">
-                    <div class="feature-icon">🎯</div>
-                    <h3 class="feature-title">Fitur Lengkap</h3>
-                    <p class="feature-description">Semua yang Anda butuhkan dalam satu platform: pendaftaran, pembayaran, dan komunikasi.</p>
+                    <h3 class="feature-title">Layanan ASVRI Data Analitik</h3>
+                    <p class="feature-description">Analisis data canggih untuk membantu pengambilan keputusan strategis dalam pendidikan.</p>
                 </div>
 
                 <div class="feature-card fade-in-up">
@@ -97,136 +137,204 @@
                     <p class="feature-description">Tim support siap membantu Anda kapan saja dengan berbagai kanal komunikasi.</p>
                 </div>
             </div>
+            <div class="features-cta fade-in-up">
+                <a href="#galeri" class="btn btn-primary">Lihat Semua Fitur</a>
+            </div>
         </div>
     </section>
 
-    <!-- Schools Section -->
-    <section id="sekolah" class="schools">
+    <!-- Galeri Section -->
+    <section id="galeri" class="galeri">
         <div class="container">
-            <div class="schools-header fade-in-up">
-                <h2 class="schools-title">Pilih Sekolah Impian Anda</h2>
-                <p class="schools-subtitle">Temukan madrasah terbaik yang sesuai dengan visi dan misi pendidikan Anda</p>
+            <div class="galeri-header fade-in-up">
+                <h2 class="galeri-title">Galeri & Tampilan Demo</h2>
+                <p class="galeri-subtitle">Temukan berbagai fitur dan hasil visual dari sistem PPDB NUIST yang telah membantu ribuan siswa</p>
             </div>
 
-            @if($sekolah->count())
-                <div class="schools-grid">
-                    @foreach($sekolah as $item)
-                        <div class="school-card fade-in-up">
-                            <div class="school-image">
-                                <span>{{ substr($item->nama_sekolah, 0, 1) }}</span>
-                            </div>
-                            <div class="school-content">
-                                <h3 class="school-title">{{ $item->nama_sekolah }}</h3>
-                                <div class="school-meta">
-                                    <span>Tahun {{ $item->tahun }}</span>
-                                    @php
-                                        $isPembukaan = $item->jadwal_buka <= now() && $item->jadwal_tutup > now();
-                                    @endphp
-                                    <span class="school-status {{ $isPembukaan ? 'status-open' : 'status-closed' }}">
-                                        {{ $isPembukaan ? '🟢 Dibuka' : '🟡 Ditutup' }}
-                                    </span>
-                                </div>
-                                <div class="school-description">
-                                    <p><strong>Pendaftaran:</strong> {{ $item->jadwal_buka->format('d M Y') }} - {{ $item->jadwal_tutup->format('d M Y') }}</p>
-                                </div>
-                                <a href="{{ route('ppdb.sekolah', $item->slug) }}" class="school-btn">Pelajari & Daftar</a>
+            <div class="galeri-grid">
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>📊</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Dashboard Admin</h4>
+                        <p>Interface modern untuk pengelolaan data siswa</p>
+                    </div>
+                </div>
+
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>📱</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Mobile Responsive</h4>
+                        <p>Akses mudah dari smartphone dan tablet</p>
+                    </div>
+                </div>
+
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>📋</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Form Pendaftaran</h4>
+                        <p>Proses pendaftaran yang intuitif dan cepat</p>
+                    </div>
+                </div>
+
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>📈</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Analitik Data</h4>
+                        <p>Laporan dan statistik real-time</p>
+                    </div>
+                </div>
+
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>🔒</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Keamanan Data</h4>
+                        <p>Enkripsi tingkat enterprise</p>
+                    </div>
+                </div>
+
+                <div class="galeri-item fade-in-up">
+                    <div class="galeri-image">
+                        <span>💬</span>
+                    </div>
+                    <div class="galeri-overlay">
+                        <h4>Support Center</h4>
+                        <p>Bantuan 24/7 untuk semua pengguna</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Berita Section -->
+    <section id="berita" class="berita">
+        <div class="container">
+            <div class="berita-header fade-in-up">
+                <h2 class="berita-title">Berita & Informasi Terbaru</h2>
+                <p class="berita-subtitle">Update terkini seputar PPDB NUIST dan dunia pendidikan</p>
+            </div>
+
+            <div class="berita-grid">
+                <div class="berita-card fade-in-up">
+                    <div class="berita-image">
+                        <span>📢</span>
+                    </div>
+                    <div class="berita-content">
+                        <div class="berita-meta">
+                            <span class="berita-date">15 Jan 2025</span>
+                            <span class="berita-category">Pengumuman</span>
+                        </div>
+                        <h3 class="berita-title-card">PPDB NUIST 2025 Resmi Dibuka</h3>
+                        <p class="berita-excerpt">Penerimaan Peserta Didik Baru tahun ajaran 2025/2026 telah resmi dibuka untuk semua madrasah di bawah naungan LP. Ma'arif NU PWNU DIY.</p>
+                        <a href="#" class="berita-link">Baca Selengkapnya →</a>
+                    </div>
+                </div>
+
+                <div class="berita-card fade-in-up">
+                    <div class="berita-image">
+                        <span>🎓</span>
+                    </div>
+                    <div class="berita-content">
+                        <div class="berita-meta">
+                            <span class="berita-date">12 Jan 2025</span>
+                            <span class="berita-category">Berita</span>
+                        </div>
+                        <h3 class="berita-title-card">Transformasi Digital Pendidikan</h3>
+                        <p class="berita-excerpt">LP. Ma'arif NU PWNU DIY terus berkomitmen untuk memberikan pendidikan berkualitas melalui inovasi teknologi digital.</p>
+                        <a href="#" class="berita-link">Baca Selengkapnya →</a>
+                    </div>
+                </div>
+
+                <div class="berita-card fade-in-up">
+                    <div class="berita-image">
+                        <span>🏆</span>
+                    </div>
+                    <div class="berita-content">
+                        <div class="berita-meta">
+                            <span class="berita-date">10 Jan 2025</span>
+                            <span class="berita-category">Prestasi</span>
+                        </div>
+                        <h3 class="berita-title-card">Madrasah Unggulan NUIST Raih Penghargaan</h3>
+                        <p class="berita-excerpt">Beberapa madrasah binaan NUIST berhasil meraih penghargaan nasional dalam bidang pendidikan dan inovasi teknologi.</p>
+                        <a href="#" class="berita-link">Baca Selengkapnya →</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="berita-cta fade-in-up">
+                <a href="#" class="btn btn-outline">Lihat Semua Berita</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kontak Section -->
+    <section id="kontak" class="kontak">
+        <div class="container">
+            <div class="kontak-content">
+                <div class="kontak-info fade-in-up">
+                    <h2 class="kontak-title">Hubungi Kami</h2>
+                    <p class="kontak-subtitle">Kami siap membantu Anda dengan segala pertanyaan seputar PPDB NUIST</p>
+
+                    <div class="kontak-details">
+                        <div class="kontak-item">
+                            <div class="kontak-icon">📧</div>
+                            <div class="kontak-text">
+                                <h4>Email</h4>
+                                <p>ppdb@nuist.id</p>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="text-center fade-in-up">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">🏫</div>
-                    <h3 style="font-size: 1.5rem; font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">Belum Ada Sekolah yang Membuka PPDB</h3>
-                    <p style="color: #6b7280;">Silakan kembali lagi nanti untuk melihat daftar sekolah yang tersedia.</p>
-                </div>
-            @endif
-        </div>
-    </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container cta-content">
-            <h2 class="cta-title">Siap Memulai Pendaftaran?</h2>
-            <p class="cta-subtitle">Bergabunglah dengan ribuan siswa yang telah berhasil mendaftar melalui platform PPDB NUIST. Prosesnya mudah dan cepat!</p>
-            <div class="cta-buttons">
-                <a href="#sekolah" class="btn btn-primary">Mulai Pendaftaran</a>
-                <a href="tel:+6281234567890" class="btn btn-outline">Hubungi Support</a>
-            </div>
-        </div>
-    </section>
+                        <div class="kontak-item">
+                            <div class="kontak-icon">📞</div>
+                            <div class="kontak-text">
+                                <h4>Telepon</h4>
+                                <p>+62 812 3456 7890</p>
+                            </div>
+                        </div>
 
-    <!-- FAQ Section -->
-    <section id="contact" class="faq">
-        <div class="container">
-            <div class="faq-header fade-in-up">
-                <h2 class="faq-title">Pertanyaan yang Sering Diajukan</h2>
-                <p class="faq-subtitle">Temukan jawaban cepat untuk pertanyaan umum seputar PPDB NUIST</p>
-            </div>
-            <div class="faq-grid">
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">📋 Syarat pendaftaran apa saja?</h4>
-                    <p class="faq-answer">Kartu Keluarga (KK), Ijazah/Rapor terakhir, akta kelahiran, foto berwarna, dan dokumen pendukung lainnya sesuai persyaratan sekolah tujuan.</p>
-                </div>
+                        <div class="kontak-item">
+                            <div class="kontak-icon">💬</div>
+                            <div class="kontak-text">
+                                <h4>WhatsApp</h4>
+                                <p>+62 812 3456 7890</p>
+                            </div>
+                        </div>
 
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">💰 Berapa biaya pendaftaran?</h4>
-                    <p class="faq-answer">Pendaftaran sepenuhnya GRATIS! PPDB NUIST tidak memungut biaya administrasi apapun untuk proses pendaftaran online.</p>
-                </div>
-
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">⏰ Kapan batas waktu pendaftaran?</h4>
-                    <p class="faq-answer">Setiap sekolah memiliki jadwal pendaftaran yang berbeda. Pastikan untuk memeriksa tanggal pembukaan dan penutupan di halaman detail sekolah.</p>
-                </div>
-
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">📱 Bagaimana cara mendaftar?</h4>
-                    <p class="faq-answer">Pilih sekolah tujuan, lengkapi formulir pendaftaran, upload dokumen yang diperlukan, dan lakukan verifikasi data.</p>
-                </div>
-
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">🏫 Bisa daftar ke beberapa sekolah?</h4>
-                    <p class="faq-answer">Ya, Anda dapat mendaftar ke beberapa sekolah sekaligus. Sistem akan melacak semua pendaftaran Anda.</p>
-                </div>
-
-                <div class="faq-item fade-in-up">
-                    <h4 class="faq-question">🔒 Apakah data saya aman?</h4>
-                    <p class="faq-answer">Ya, kami menggunakan enkripsi tingkat enterprise dan protokol keamanan untuk melindungi semua data pribadi Anda.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Info Section -->
-    <section style="padding: 5rem 0; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-        <div class="container">
-            <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 1rem; padding: 3rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">💡</div>
-                    <h3 style="font-size: 1.75rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem;">Tips Sukses Pendaftaran</h3>
-                    <p style="color: #6b7280;">Panduan penting untuk memastikan pendaftaran Anda berjalan lancar</p>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 1rem;">📋</div>
-                        <h4 style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">Persiapkan Dokumen</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">Pastikan semua dokumen lengkap sebelum mulai mendaftar</p>
+                        <div class="kontak-item">
+                            <div class="kontak-icon">📍</div>
+                            <div class="kontak-text">
+                                <h4>Alamat</h4>
+                                <p>LP. Ma'arif NU PWNU DIY<br>Yogyakarta, Indonesia</p>
+                            </div>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 1rem;">📱</div>
-                        <h4 style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">Isi Data dengan Benar</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">Periksa kembali data yang diisi untuk menghindari kesalahan</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 1rem;">💾</div>
-                        <h4 style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">Simpan Nomor Pendaftaran</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">Catat nomor pendaftaran untuk tracking status</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 1rem;">📶</div>
-                        <h4 style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">Koneksi Stabil</h4>
-                        <p style="color: #6b7280; font-size: 0.875rem;">Pastikan internet stabil saat upload dokumen</p>
-                    </div>
+                </div>
+
+                <div class="kontak-form fade-in-up">
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <input type="text" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" placeholder="Subjek" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Pesan Anda" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kirim Pesan</button>
+                    </form>
                 </div>
             </div>
         </div>
