@@ -199,8 +199,8 @@ p {
     gap: 2rem;
     margin: 0 auto;
     flex: 1;
-    justify-content: center;
-    max-width: 500px;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .navbar-link {
@@ -966,6 +966,7 @@ p {
 
     .navbar-menu {
         gap: 1.5rem;
+        justify-content: space-between;
     }
 
     .navbar-link {
@@ -992,6 +993,7 @@ p {
 
     .navbar-menu {
         gap: 1rem;
+        justify-content: center;
     }
 
     .navbar-center,
@@ -1046,6 +1048,7 @@ p {
 
     .navbar-menu {
         gap: 0.75rem;
+        justify-content: center;
     }
 
     .navbar-logo img {
