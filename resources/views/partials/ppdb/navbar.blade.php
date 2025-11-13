@@ -16,16 +16,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
+                <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'sekolah' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'sekolah']) }}#sekolah">Sekolah</a>
+                <a class="nav-link" href="#sekolah">Sekolah</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'about']) }}#about">About</a>
+                <a class="nav-link" href="#about">About</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">Kontak</a>
+                <a class="nav-link" href="#kontak">Kontak</a>
             </li>
         </ul>
     </div>
@@ -44,16 +44,16 @@
         <div class="w-100">
             <ul class="navbar-nav flex-column text-center py-4">
                 <li class="nav-item mb-3">
-                    <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}" onclick="closeMobileMenu()">Beranda</a>
+                    <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}" onclick="closeMobileMenu()">Beranda</a>
                 </li>
                 <li class="nav-item mb-3">
-                    <a class="nav-link {{ request()->get('section') === 'sekolah' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'sekolah']) }}#sekolah" onclick="closeMobileMenu()">Sekolah</a>
+                    <a class="nav-link" href="#sekolah" onclick="closeMobileMenu()">Sekolah</a>
                 </li>
                 <li class="nav-item mb-3">
-                    <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'about']) }}#about" onclick="closeMobileMenu()">About</a>
+                    <a class="nav-link" href="#about" onclick="closeMobileMenu()">About</a>
                 </li>
                 <li class="nav-item mb-3">
-                    <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak" onclick="closeMobileMenu()">Kontak</a>
+                    <a class="nav-link" href="#kontak" onclick="closeMobileMenu()">Kontak</a>
                 </li>
             </ul>
         </div>
@@ -85,23 +85,6 @@
                 }
             });
         }
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                if (href.startsWith('#')) {
-                    e.preventDefault();
-                    const target = document.querySelector(href);
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                }
-            });
-        });
     });
 
     function closeMobileMenu() {
