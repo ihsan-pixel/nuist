@@ -14,7 +14,7 @@
     <meta name="keywords" content="nuist.id, sistem informasi madrasah, LP Ma'arif NU, pendidikan DIY, aplikasi sekolah, aplikasi madrasah, pendidikan digital">
     <meta name="author" content="Nuist.id">
 
-    <!-- Open Graph (untuk preview di WhatsApp, Facebook, dll) -->
+    <!-- Open Graph -->
     <meta property="og:title" content="Nuist.id - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta property="og:description" content="Sistem Informasi Madrasah & Pendidikan berbasis web untuk LP. Ma'arif NU PWNU DIY." />
     <meta property="og:url" content="https://nuist.id" />
@@ -24,19 +24,29 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('build/images/logo favicon 1.png') }}">
 
-    <!-- Prevent caching and force reload -->
+    <!-- Prevent caching -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-
+    {{-- Head CSS (Bootstrap/Tailwind/Core) --}}
     @include('layouts.head-css')
+
+    {{-- Tambahan CSS dari halaman --}}
+    @yield('css')
 </head>
 
+{{-- Body Section --}}
 @yield('body')
 
-@yield('content')
+    {{-- Konten utama halaman --}}
+    @yield('content')
 
-@include('layouts.vendor-scripts')
+    {{-- Vendor Script (default JS) --}}
+    @include('layouts.vendor-scripts')
+
+    {{-- Tambahan script dari halaman --}}
+    @yield('script-bottom')
+
 </body>
 </html>
