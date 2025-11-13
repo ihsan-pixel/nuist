@@ -20,7 +20,7 @@
     @include('partials.ppdb.navbar')
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section id="home" class="hero">
         <div class="container">
             <div class="hero-content fade-in-up">
                 <div class="hero-badge">🎓 PPDB NUIST 2025</div>
@@ -157,7 +157,7 @@
     </section>
 
     <!-- FAQ Section -->
-    <section class="faq">
+    <section id="contact" class="faq">
         <div class="container">
             <div class="faq-header fade-in-up">
                 <h2 class="faq-title">Pertanyaan yang Sering Diajukan</h2>
