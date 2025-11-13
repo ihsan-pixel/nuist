@@ -8,16 +8,15 @@
 
         <!-- Desktop Menu -->
         <nav class="hidden lg:flex items-center space-x-8">
-            <a href="#home" class="nav-link text-white hover:text-green-200 transition">Home</a>
-            <a href="#about" class="nav-link text-white hover:text-green-200 transition">Tentang</a>
-            <a href="#pricing" class="nav-link text-white hover:text-green-200 transition">Fitur</a>
+            <a href="#home" class="nav-link text-white hover:text-green-200 transition">Beranda</a>
+            <a href="#sekolah" class="nav-link text-white hover:text-green-200 transition">Sekolah</a>
             <a href="#contact" class="nav-link text-white hover:text-green-200 transition">Kontak</a>
         </nav>
 
         <!-- Auth Buttons -->
         <div class="hidden sm:flex items-center space-x-3">
-            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-white hover:text-green-200 transition">Sign In</a>
-            <a href="{{ route('register') }}" class="px-5 py-2 text-sm font-medium text-dark bg-white rounded-lg hover:bg-green-600 hover:text-white transition">Sign Up</a>
+            <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium text-white hover:text-green-200 transition">Masuk</a>
+            <a href="{{ route('register') }}" class="px-5 py-2 text-sm font-medium text-dark bg-white rounded-lg hover:bg-green-600 hover:text-white transition">Daftar</a>
         </div>
 
         <!-- Mobile Toggle -->
@@ -31,9 +30,8 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="hidden absolute top-full left-0 w-full bg-white/95 shadow-lg backdrop-blur-lg lg:hidden">
         <nav class="flex flex-col space-y-2 px-6 py-4">
-            <a href="#home" class="block py-2 text-dark hover:text-primary transition">Home</a>
-            <a href="#about" class="block py-2 text-dark hover:text-primary transition">Tentang</a>
-            <a href="#pricing" class="block py-2 text-dark hover:text-primary transition">Fitur</a>
+            <a href="#home" class="block py-2 text-dark hover:text-primary transition">Beranda</a>
+            <a href="#sekolah" class="block py-2 text-dark hover:text-primary transition">Sekolah</a>
             <a href="#contact" class="block py-2 text-dark hover:text-primary transition">Kontak</a>
         </nav>
     </div>
