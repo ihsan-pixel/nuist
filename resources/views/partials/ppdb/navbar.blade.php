@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid px-4">
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
