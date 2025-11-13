@@ -2,7 +2,7 @@
     <div class="navbar-container">
         <!-- Logo -->
         <a href="{{ url('/') }}" class="navbar-logo">
-            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo" style="height: 2rem; width: auto;">
+            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
             <span class="navbar-logo-text">NUIST</span>
         </a>
 
@@ -15,12 +15,12 @@
 
         <!-- Auth Buttons -->
         <div class="navbar-auth">
-            <a href="{{ route('login') }}" style="padding: 0.5rem 1rem; background: none; border: none; color: #4b5563; font-weight: 500; cursor: pointer; transition: color 0.3s ease;">Masuk</a>
-            <a href="{{ route('register') }}" style="padding: 0.5rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 0.5rem; font-weight: 500; text-decoration: none; transition: all 0.3s ease;">Daftar</a>
+            <a href="{{ route('login') }}" class="navbar-btn-secondary">Masuk</a>
+            <a href="{{ route('register') }}" class="navbar-btn-primary">Daftar</a>
         </div>
 
         <!-- Mobile Toggle -->
-        <button id="navbarToggler" style="display: none; background: none; border: none; color: #4b5563; cursor: pointer; padding: 0.5rem;">
+        <button id="navbarToggler" class="navbar-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -28,11 +28,11 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(0, 0, 0, 0.1);">
-        <nav style="display: flex; flex-direction: column; padding: 1rem;">
-            <a href="#home" style="padding: 0.75rem 1rem; color: #1f2937; text-decoration: none; font-weight: 500; transition: color 0.3s ease;">Beranda</a>
-            <a href="#sekolah" style="padding: 0.75rem 1rem; color: #1f2937; text-decoration: none; font-weight: 500; transition: color 0.3s ease;">Sekolah</a>
-            <a href="#contact" style="padding: 0.75rem 1rem; color: #1f2937; text-decoration: none; font-weight: 500; transition: color 0.3s ease;">Kontak</a>
+    <div id="mobileMenu" class="navbar-mobile-menu">
+        <nav class="navbar-mobile-nav">
+            <a href="#home" class="navbar-mobile-link">Beranda</a>
+            <a href="#sekolah" class="navbar-mobile-link">Sekolah</a>
+            <a href="#contact" class="navbar-mobile-link">Kontak</a>
         </nav>
     </div>
 </header>
