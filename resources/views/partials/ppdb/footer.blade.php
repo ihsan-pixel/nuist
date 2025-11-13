@@ -1,5 +1,5 @@
 <footer class="bg-dark text-light py-5 mt-5">
-    <div class="container">
+    <div class="container-fluid px-4">
         <div class="row g-4">
             <!-- Logo dan Deskripsi -->
             <div class="col-lg-4">

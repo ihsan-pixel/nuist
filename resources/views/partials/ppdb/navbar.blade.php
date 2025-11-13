@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
+    <div class="container-fluid px-4">
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
             <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
