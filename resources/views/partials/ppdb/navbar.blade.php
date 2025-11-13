@@ -16,16 +16,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
+                <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#sekolah">Sekolah</a>
+                <a class="nav-link {{ request()->get('section') === 'sekolah' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'sekolah']) }}#sekolah">Sekolah</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#about">About</a>
+                <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'about']) }}#about">About</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#kontak">Kontak</a>
+                <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">Kontak</a>
             </li>
         </ul>
     </div>
