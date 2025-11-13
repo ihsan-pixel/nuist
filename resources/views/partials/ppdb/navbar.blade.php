@@ -2,37 +2,67 @@
     <div class="navbar-container">
         <!-- Logo -->
         <a href="{{ url('/') }}" class="navbar-logo">
-            <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
+            <div class="navbar-logo-icon">
+                <img src="{{ asset('assets/images/logo/logo-white.svg') }}" alt="Logo">
+            </div>
             <span class="navbar-logo-text">NUIST</span>
         </a>
 
         <!-- Desktop Menu -->
         <nav class="navbar-menu">
-            <a href="#home" class="navbar-link">Beranda</a>
-            <a href="#sekolah" class="navbar-link">Sekolah</a>
-            <a href="#contact" class="navbar-link">Kontak</a>
+            <a href="#home" class="navbar-link">
+                <span>Beranda</span>
+            </a>
+            <a href="#sekolah" class="navbar-link">
+                <span>Sekolah</span>
+            </a>
+            <a href="#contact" class="navbar-link">
+                <span>Kontak</span>
+            </a>
         </nav>
 
         <!-- Auth Buttons -->
         <div class="navbar-auth">
-            <a href="{{ route('login') }}" class="navbar-btn-secondary">Masuk</a>
-            <a href="{{ route('register') }}" class="navbar-btn-primary">Daftar</a>
+            <a href="{{ route('login') }}" class="navbar-btn-secondary">
+                <span>Masuk</span>
+            </a>
+            <a href="{{ route('register') }}" class="navbar-btn-primary">
+                <span>Daftar</span>
+            </a>
         </div>
 
         <!-- Mobile Toggle -->
         <button id="navbarToggler" class="navbar-toggle">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
+            <span class="navbar-toggle-line"></span>
+            <span class="navbar-toggle-line"></span>
+            <span class="navbar-toggle-line"></span>
         </button>
     </div>
 
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="navbar-mobile-menu">
         <nav class="navbar-mobile-nav">
-            <a href="#home" class="navbar-mobile-link">Beranda</a>
-            <a href="#sekolah" class="navbar-mobile-link">Sekolah</a>
-            <a href="#contact" class="navbar-mobile-link">Kontak</a>
+            <a href="#home" class="navbar-mobile-link">
+                <span class="navbar-mobile-link-icon">🏠</span>
+                <span>Beranda</span>
+            </a>
+            <a href="#sekolah" class="navbar-mobile-link">
+                <span class="navbar-mobile-link-icon">🏫</span>
+                <span>Sekolah</span>
+            </a>
+            <a href="#contact" class="navbar-mobile-link">
+                <span class="navbar-mobile-link-icon">📞</span>
+                <span>Kontak</span>
+            </a>
+            <div class="navbar-mobile-divider"></div>
+            <a href="{{ route('login') }}" class="navbar-mobile-link navbar-mobile-link-secondary">
+                <span class="navbar-mobile-link-icon">🔑</span>
+                <span>Masuk</span>
+            </a>
+            <a href="{{ route('register') }}" class="navbar-mobile-link navbar-mobile-link-primary">
+                <span class="navbar-mobile-link-icon">✨</span>
+                <span>Daftar</span>
+            </a>
         </nav>
     </div>
 </header>
