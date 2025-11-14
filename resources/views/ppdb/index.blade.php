@@ -649,6 +649,10 @@
 <!-- Tentang Kami Section -->
 <section id="tentang-kami" class="tentang-kami-section py-5">
     <div class="container">
+        <!-- Header Section -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+    <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4" style="color: #004b4c;">Tentang <span style="color: #efaa0c;">PPDB Online</span></h2>
@@ -896,4 +900,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endsection
 @endsection
