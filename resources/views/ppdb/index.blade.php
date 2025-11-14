@@ -374,7 +374,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki SPMB Online</h2>
+                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
                         <i class="fas fa-route"></i>
@@ -390,7 +390,7 @@
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Model Pendaftaran</h5>
-                        <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi SPMB</p>
+                        <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi PPDB</p>
                     </div>
                 </div>
                 <div class="feature-item">
@@ -408,7 +408,7 @@
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Integrasi Data Dapodik</h5>
-                        <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran SPMB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
+                        <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran PPDB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
                     </div>
                 </div>
             </div>
