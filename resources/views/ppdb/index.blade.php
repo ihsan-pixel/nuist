@@ -63,7 +63,7 @@
         border-radius: 15px;
         overflow: hidden;
         background: #ffffff;
-        min-height: 320px;
+        min-height: 260px;
         display: flex;
         flex-direction: column;
     }
@@ -269,7 +269,7 @@
                                         <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
                                         <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
                                     </div>
-                                    <div class="mt-2 text-center">
+                                    <div class="mt-1 text-center">
                                         @if($ppdb && $ppdb->isPembukaan())
                                             <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Lihat Detail</a>
                                         @else
