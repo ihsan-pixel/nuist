@@ -185,7 +185,7 @@
             <!-- Text Kiri -->
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB Online</h1>
-                <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Madrasah Tahun Pelajaran 2026/2027</p>
+                <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah di Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-orange btn-lg me-3">Lihat Sekolah</a>
             </div>
 
