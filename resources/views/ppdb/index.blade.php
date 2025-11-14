@@ -646,50 +646,150 @@
     </div>
 </section>
 
-<!-- About Section -->
-<section id="about" class="about-section">
+<!-- Daftar Sekolah -->
+<section id="sekolah" class="py-5 bg-white">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 animate-slide-in-left">
-                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow animate-bounce-in" style="max-width: 120%; height: auto; transform: scale(1.2);">
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-6 animate-slide-left-on-scroll">
+                <h2 class="display-5 fw-bold mb-4" style="color: #004b4c;">Tentang <span style="color: #efaa0c;">PPDB Online</span></h2>
+                <p class="lead mb-4" style="color: #333;">
+                    Dirancang untuk mendukung PPDB secara online dan efisien.
+                    Dengan pengalaman kami sejak tahun 2003, PPDB Online memiliki kapabilitas untuk memberikan pelayanan optimal baik di tingkat kota/kabupaten maupun provinsi.
+                </p>
+                <p style="color: #555;">
+                    Selain memfasilitasi proses penerimaan murid baru, platform ini juga menyederhanakan langkah-langkah verifikasi dokumen serta menyediakan akses yang mudah bagi calon murid dan orangtua/wali yang terlibat dalam proses tersebut.
+                    Dengan demikian, PPDB Online bukan hanya menjadi solusi efektif dalam administrasi pendidikan, tetapi juga mencerminkan komitmen untuk memudahkan akses dan penggunaan teknologi modern dalam penyelenggaraan kegiatan Penerimaan Murid Baru.
+                </p>
+                <p style="color: #555;">
+                    Sistem ini beroperasi sepanjang tahun, menyediakan akses dan layanan kapan pun diperlukan, memfasilitasi selama proses seleksi PPDB, serta menampilkan arsip data dari pelaksanaan tahun-tahun sebelumnya.
+                </p>
             </div>
-            <div class="col-lg-6 animate-slide-in-right">
-                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-route"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Multi Jalur Seleksi</h5>
-                        <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
+            <div class="col-lg-6 text-center animate-slide-right-on-scroll">
+                <div class="stats-card p-4 rounded shadow animate-bounce-on-scroll" style="background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%); color: white;">
+                    <h3 class="fw-bold mb-3">PPDB Online</h3>
+                    <h4 class="mb-3">Platform Penerimaan</h4>
+                    <h4 class="mb-4">Murid Baru Secara Online</h4>
+                    <p class="mb-0">Sistem layanan inovatif terpadu.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12 text-center animate-on-scroll">
+                <p class="lead" style="color: #333;">
+                    Layanan PPDB Online adalah sistem layanan inovatif terpadu yang dirancang untuk memfasilitasi dan mengoptimalkan proses seleksi dalam pelaksanaan Penerimaan Murid Baru (PPDB), mulai dari proses pendaftaran, seleksi, hingga pengumuman hasil seleksi, yang dilakukan secara online dan berbasis waktu nyata (real-time).
+                    Melalui PPDB Online, para pihak terkait, seperti calon murid dan orang tua atau wali, dapat mengakses platform dengan mudah untuk melakukan pendaftaran, mengunggah dokumen yang diperlukan, serta terlibat dalam proses verifikasi.
+                </p>
+                <p style="color: #555;">
+                    PPDB Online mudah diakses dari manapun melalui berbagai perangkat yang terkoneksi jaringan internet.
+                </p>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12 text-center animate-on-scroll">
+                <h3 class="fw-bold mb-4" style="color: #004b4c;">Manfaat dan Keuntungan menggunakan <span style="color: #efaa0c;">PPDB Online</span></h3>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #004b4c;">
+                    <h4 class="fw-bold mb-3" style="color: #004b4c;">Bagi Dinas Pendidikan dan Sekolah</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Efisiensi Pembiayaan:</strong> Efisiensi pembiayaan dan mengurangi resiko terjadinya KKN</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Reputasi:</strong> Meningkatkan reputasi sekolah</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Bebas Akses:</strong> Memberikan akses yang luas kepada masyarakat</li>
+                        <li class="mb-0" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Integrasi Basis Data:</strong> Tersedianya sebuah basis data terintegrasi</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #efaa0c;">
+                    <h4 class="fw-bold mb-3" style="color: #004b4c;">Bagi Murid dan Orang Tua Murid</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pendaftaran Yang Mudah:</strong> Mempermudah untuk melakukan pendaftaran murid baru</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Update Informasi:</strong> Mempermudah akses informasi penerimaan murid baru</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Memantau Pendaftaran:</strong> Pendaftaran menjadi lebih tertib dan mudah dipantau</li>
+                        <li class="mb-0" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pelayanan Maksimal:</strong> Fasilitas dan pelayanan memuaskan</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-center mb-5">
+            <div class="col-12 animate-on-scroll">
+                <div class="stats-container p-4 rounded shadow" style="background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%); color: white;">
+                    <h4 class="fw-bold mb-3">Berpengalaman lebih dari 20 Tahun</h4>
+                    <p class="mb-3">PPDB Online telah beroperasi sejak tahun 2003 hingga saat ini. Dipercayai melaksanakan PPDB Online mulai dari ujung Barat pulau Sumatera hingga ujung Timur pulau Papua.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h2 class="display-4 fw-bold" style="color: #efaa0c;">147</h2>
+                            <p style="color: white;">Dinas Pendidikan</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h2 class="display-4 fw-bold" style="color: #efaa0c;">7000+</h2>
+                            <p style="color: white;">Sekolah</p>
+                        </div>
                     </div>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Multi Model Pendaftaran</h5>
-                        <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi PPDB</p>
-                    </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 text-center mb-4 animate-on-scroll">
+                <h3 class="fw-bold" style="color: #004b4c;">Keunggulan <span style="color: #efaa0c;">PPDB Online</span></h3>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-cloud-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Tanpa Instalasi & Berbasis Cloud</h5>
+                    <p style="color: #555;">Tidak perlu menginstal perangkat lunak atau perangkat keras khusus, hanya perlu akses internet.</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Manajemen Hak Akses</h5>
-                        <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
-                    </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-device-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi Platform & Multi Akses</h5>
+                    <p style="color: #555;">Dapat diakses melalui desktop, laptop, tablet, maupun ponsel pintar baik melalui internet, SMS, maupun aplikasi Android.</p>
                 </div>
-                <div class="feature-item">
-                    <div class="feature-icon">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Integrasi Data Dapodik</h5>
-                        <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran PPDB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
-                    </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-database-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Integrasi Data Dapodik</h5>
+                    <p style="color: #555;">Memastikan seluruh data pendaftaran calon murid selaras dengan data pendidikan nasional.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-phone-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Responsive Design</h5>
+                    <p style="color: #555;">Tampilan dapat disesuaikan dengan perangkat yang digunakan.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-diagram-3-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi Model Alur Pendaftaran</h5>
+                    <p style="color: #555;">Menyediakan berbagai macam alur pendaftaran sesuai dengan petunjuk teknis.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: white; height: 100%;">
+                    <i class="bi bi-signpost-split-fill display-4 mb-3" style="color: #004b4c;"></i>
+                    <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi Jalur Seleksi</h5>
+                    <p style="color: #555;">Mendukung PPDB Online dengan berbagai jalur sesuai dengan Permendikbud.</p>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="feature-card p-4 rounded shadow text-center animate-on-scroll" style="background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%); color: white;">
+                    <i class="bi bi-clock-fill display-4 mb-3"></i>
+                    <h5 class="fw-bold mb-3">Real Time Process</h5>
+                    <p style="color: white;">Memproses data pendaftaran calon murid secara real time mulai dari pendaftaran hingga pengumuman hasil seleksi.</p>
                 </div>
             </div>
         </div>
