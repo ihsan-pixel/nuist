@@ -245,6 +245,121 @@
         color: #666;
         font-size: 1rem;
     }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.8s ease-out;
+    }
+
+    .animate-slide-in-right {
+        animation: slideInRight 0.8s ease-out;
+    }
+
+    .animate-bounce-in {
+        animation: bounceIn 1s ease-out;
+    }
+
+    .animate-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    /* Enhanced hover effects */
+    .school-card:hover .card-img-top {
+        transform: scale(1.1) rotate(2deg);
+    }
+
+    .contact-card:hover .bi {
+        animation: bounceIn 0.6s ease-out;
+    }
+
+    .feature-icon:hover {
+        animation: pulse 0.6s ease-out;
+    }
+
+    .btn:hover {
+        animation: bounceIn 0.4s ease-out;
+    }
+
+    /* Staggered animations for cards */
+    .school-card:nth-child(1) { animation-delay: 0.1s; }
+    .school-card:nth-child(2) { animation-delay: 0.2s; }
+    .school-card:nth-child(3) { animation-delay: 0.3s; }
+    .school-card:nth-child(4) { animation-delay: 0.4s; }
+    .school-card:nth-child(5) { animation-delay: 0.5s; }
+    .school-card:nth-child(6) { animation-delay: 0.6s; }
+    .school-card:nth-child(7) { animation-delay: 0.7s; }
+    .school-card:nth-child(8) { animation-delay: 0.8s; }
+
+    .contact-card:nth-child(1) { animation-delay: 0.1s; }
+    .contact-card:nth-child(2) { animation-delay: 0.2s; }
+    .contact-card:nth-child(3) { animation-delay: 0.3s; }
 </style>
 @endsection
 
@@ -254,10 +369,10 @@
 <section class="hero-section">
 
     <!-- Flayer di atas -->
-    <div class="container hero-flayer">
+    <div class="container hero-flayer animate-fade-in-up">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded" alt="Flayer PPDB">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
             </div>
         </div>
     </div>
@@ -267,17 +382,17 @@
         <div class="row align-items-center">
 
             <!-- Text Kiri -->
-            <div class="col-lg-6">
+            <div class="col-lg-6 animate-slide-in-left">
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB <span style="color: #efaa0c;">Online</span></h1>
                 <p class="lead">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah </p>
                 <p class="lead"> Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta</p>
                 <p class="lead fw-bold">Tahun Pelajaran 2026/2027</p>
-                <a href="#sekolah" class="btn btn-orange btn-lg me-3">Lihat Sekolah</a>
+                <a href="#sekolah" class="btn btn-orange btn-lg me-3 animate-pulse">Lihat Sekolah</a>
             </div>
 
             <!-- Image Kanan -->
-            <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/hero1.png') }}" alt="PPDB Image" class="img-fluid rounded">
+            <div class="col-lg-6 text-center animate-slide-in-right">
+                <img src="{{ asset('images/hero1.png') }}" alt="PPDB Image" class="img-fluid rounded animate-bounce-in">
             </div>
 
         </div>
@@ -384,10 +499,10 @@
 <section id="about" class="about-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow" style="max-width: 120%; height: auto; transform: scale(1.2);">
+            <div class="col-lg-6 animate-slide-in-left">
+                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow animate-bounce-in" style="max-width: 120%; height: auto; transform: scale(1.2);">
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6 animate-slide-in-right">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
@@ -440,9 +555,9 @@
             </div>
         </div>
 
-        {{-- <div class="row g-4 justify-content-center">
+        <div class="row g-4 justify-content-center">
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-telephone-fill"></i>
                     <h5>Telepon</h5>
                     <p>(021) 1234-5678</p>
@@ -450,7 +565,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-envelope-fill"></i>
                     <h5>Email</h5>
                     <p>ppdb@nuist.id</p>
@@ -458,13 +573,13 @@
             </div>
 
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-geo-alt-fill"></i>
                     <h5>Alamat</h5>
                     <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
                 </div>
-            </div> --}}
-        {{-- </div> --}}
+            </div>
+        </div>
     </div>
 </section>
 
