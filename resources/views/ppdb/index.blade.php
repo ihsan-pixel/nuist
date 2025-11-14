@@ -435,7 +435,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="display-5 fw-bold" style="color: #004b4c;">Hubungi Kami</h2>
+                <h2 class="display-5 fw-bold" style="color: #004b4c;">Hubungi <span style="color: #efaa0c;">Kami</span></h2>
                 <p class="lead" style="color: #666;">Butuh bantuan? Tim kami siap membantu Anda</p>
             </div>
         </div>
