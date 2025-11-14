@@ -79,58 +79,77 @@
             </div>
         </div>
 
+        <!-- Filter dan Search -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <form method="GET" action="{{ route('ppdb.index') }}" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="kabupaten" class="form-label">Filter Kabupaten</label>
+                        <select name="kabupaten" id="kabupaten" class="form-select">
+                            <option value="">Semua Kabupaten</option>
+                            @foreach($kabupatenList as $kabupaten)
+                                <option value="{{ $kabupaten }}" {{ request('kabupaten') == $kabupaten ? 'selected' : '' }}>
+                                    {{ $kabupaten }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Cari Nama Sekolah</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="Masukkan nama sekolah..." value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">Filter</button>
+                        <a href="{{ route('ppdb.index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Contoh Card Sekolah -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card school-card h-100">
-                    <div class="position-relative">
-                        <img src="{{ asset('images/madrasah-1.jpg') }}" class="card-img-top" alt="Madrasah 1" style="height: 200px; object-fit: cover;">
-                        <span class="badge bg-success status-badge">Buka</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Madrasah Ibtidaiyah Al-Huda</h5>
-                        <p class="card-text text-muted">Jl. Pendidikan No. 123, Jakarta</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Kuota: 50 siswa</small>
-                            <a href="{{ route('ppdb.sekolah', 'al-huda') }}" class="btn btn-primary btn-sm">Lihat Detail</a>
+            @forelse($sekolah as $ppdb)
+                <div class="col-lg-4 col-md-6">
+                    <div class="card school-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ $ppdb->sekolah->logo ? asset('storage/' . $ppdb->sekolah->logo) : asset('images/madrasah-default.jpg') }}"
+                                 class="card-img-top"
+                                 alt="{{ $ppdb->sekolah->name }}"
+                                 style="height: 200px; object-fit: cover;">
+                            @if($ppdb->isPembukaan())
+                                <span class="badge bg-success status-badge">Buka</span>
+                            @elseif($ppdb->isStarted())
+                                <span class="badge bg-warning status-badge">Segera</span>
+                            @else
+                                <span class="badge bg-danger status-badge">Tutup</span>
+                            @endif
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $ppdb->sekolah->name }}</h5>
+                            <p class="card-text text-muted">
+                                {{ $ppdb->sekolah->alamat ?: 'Alamat belum diisi' }}
+                                @if($ppdb->sekolah->kabupaten)
+                                    <br><small class="text-primary">{{ $ppdb->sekolah->kabupaten }}</small>
+                                @endif
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Pendaftar: {{ $ppdb->totalPendaftar() }} siswa</small>
+                                @if($ppdb->isPembukaan())
+                                    <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm">Lihat Detail</a>
+                                @else
+                                    <button class="btn btn-secondary btn-sm disabled">Pendaftaran Ditutup</button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card school-card h-100">
-                    <div class="position-relative">
-                        <img src="{{ asset('images/madrasah-2.jpg') }}" class="card-img-top" alt="Madrasah 2" style="height: 200px; object-fit: cover;">
-                        <span class="badge bg-warning status-badge">Segera</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Madrasah Tsanawiyah Al-Falah</h5>
-                        <p class="card-text text-muted">Jl. Kemajuan No. 456, Bandung</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Kuota: 75 siswa</small>
-                            <a href="{{ route('ppdb.sekolah', 'al-falah') }}" class="btn btn-primary btn-sm">Lihat Detail</a>
-                        </div>
+            @empty
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <h5>Tidak ada sekolah yang ditemukan</h5>
+                        <p>Coba ubah filter atau pencarian Anda.</p>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card school-card h-100">
-                    <div class="position-relative">
-                        <img src="{{ asset('images/madrasah-3.jpg') }}" class="card-img-top" alt="Madrasah 3" style="height: 200px; object-fit: cover;">
-                        <span class="badge bg-danger status-badge">Tutup</span>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Madrasah Aliyah Al-Amien</h5>
-                        <p class="card-text text-muted">Jl. Ilmu No. 789, Surabaya</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Kuota: 100 siswa</small>
-                            <a href="{{ route('ppdb.sekolah', 'al-amien') }}" class="btn btn-secondary btn-sm disabled">Pendaftaran Ditutup</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>
