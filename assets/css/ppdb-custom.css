@@ -99,6 +99,10 @@
     padding: 100px 0;
 }
 
+.hero-section .text-left {
+    text-align: left !important;
+}
+
 .hero-section::before {
     content: '';
     position: absolute;
