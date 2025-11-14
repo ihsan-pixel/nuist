@@ -28,7 +28,8 @@
                 <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">Kontak</a>
             </li>
         </ul>
-
+    </div>
+    <div class="collapse navbar-collapse" id="navbarNav">
         <!-- Daftar Button -->
         <div class="d-flex">
             <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary d-none d-lg-inline-block">Daftar</a>
