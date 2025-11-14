@@ -54,7 +54,7 @@
 <section class="hero-section">
     <div class="container-fluid px-4">
         <div class="row align-items-left">
-            <div class="col-lg-6 text-center">
+            <div class="col-lg-6 text-left">
                 <h1 class="display-4 fw-bold mb-4">PPDB NUIST 2025</h1>
                 <p class="lead mb-4">Penerimaan Peserta Didik Baru Madrasah Tahun Pelajaran 2025/2026</p>
                 <a href="#sekolah" class="btn btn-light btn-lg me-3">Lihat Sekolah</a>
