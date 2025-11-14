@@ -440,7 +440,7 @@
             </div>
         </div>
 
-        <div class="row g-4 justify-content-center">
+        {{-- <div class="row g-4 justify-content-center">
             <div class="col-lg-4 col-md-6">
                 <div class="contact-card h-100">
                     <i class="bi bi-telephone-fill"></i>
@@ -463,7 +463,7 @@
                     <h5>Alamat</h5>
                     <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </section>
