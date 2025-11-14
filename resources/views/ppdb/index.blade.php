@@ -385,6 +385,9 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
+                <img src="{{ asset('images/about-ppdb.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
@@ -422,9 +425,6 @@
                         <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran PPDB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <img src="{{ asset('images/about-ppdb.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
             </div>
         </div>
     </div>
