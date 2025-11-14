@@ -646,6 +646,56 @@
     </div>
 </section>
 
+<!-- About Section -->
+<section id="about" class="about-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 animate-slide-in-left">
+                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow animate-bounce-in" style="max-width: 120%; height: auto; transform: scale(1.2);">
+            </div>
+            <div class="col-lg-6 animate-slide-in-right">
+                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Multi Jalur Seleksi</h5>
+                        <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Multi Model Pendaftaran</h5>
+                        <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi PPDB</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Manajemen Hak Akses</h5>
+                        <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #c2facf;">Integrasi Data Dapodik</h5>
+                        <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran PPDB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Tentang Kami Section -->
 <section id="tentang-kami" class="tentang-kami-section py-5">
     <div class="container">
