@@ -91,7 +91,7 @@
         <!-- Tombol Kanan -->
         <div class="d-none d-lg-block">
             <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-orange px-4">
-                Daftar
+                Daftar Sekarang
             </a>
         </div>
     </div>
