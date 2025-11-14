@@ -384,10 +384,10 @@
 <section id="about" class="about-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 text-left" style="margin-left: -15px;">
+            <div class="col-lg-6 text-left">
                 <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow" style="max-width: 120%; height: auto; transform: scale(1.2);">
             </div>
-            <div class="col-lg-6" style="margin-left: 2rem;">
+            <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
