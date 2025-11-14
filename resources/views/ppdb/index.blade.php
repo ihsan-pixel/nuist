@@ -669,25 +669,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.scrollY > 50) navbar.classList.add('navbar-scrolled');
         else navbar.classList.remove('navbar-scrolled');
     });
-
-    // Scroll-triggered animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate');
-            }
-        });
-    }, observerOptions);
-
-    // Observe all elements with scroll animation classes
-    document.querySelectorAll('.animate-on-scroll, .animate-slide-left-on-scroll, .animate-slide-right-on-scroll, .animate-bounce-on-scroll').forEach(el => {
-        observer.observe(el);
-    });
 });
 </script>
 @endsection
