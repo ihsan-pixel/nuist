@@ -30,21 +30,68 @@
     .school-card {
         transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
     }
     .school-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+    }
+    .school-card .card-img-top {
+        transition: transform 0.3s ease;
+    }
+    .school-card:hover .card-img-top {
+        transform: scale(1.05);
     }
     .status-badge {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 4px 12px;
-        border-radius: 20px;
+        top: 15px;
+        right: 15px;
+        padding: 6px 15px;
+        border-radius: 25px;
         font-size: 0.75rem;
         font-weight: bold;
         text-transform: uppercase;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .school-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 0 0 15px 15px;
+    }
+    .school-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .school-details {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    .btn-secondary {
+        background: #f1f5f9;
+        border: none;
+        border-radius: 25px;
+        padding: 8px 20px;
+        color: #64748b;
+        font-weight: 500;
     }
 </style>
 @endsection
@@ -111,13 +158,13 @@
                 @php
                     $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
                 @endphp
-                <div class="col-lg-4 col-md-6">
+                <div class="col-xl-2-4 col-lg-3 col-md-4 col-sm-6">
                     <div class="card school-card h-100">
                         <div class="position-relative">
                             <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
                                  class="card-img-top"
                                  alt="{{ $madrasah->name }}"
-                                 style="height: 200px; object-fit: cover;">
+                                 style="height: 180px; object-fit: cover;">
                             @if($ppdb && $ppdb->isPembukaan())
                                 <span class="badge bg-success status-badge">Buka</span>
                             @elseif($ppdb && $ppdb->isStarted())
@@ -126,21 +173,18 @@
                                 <span class="badge bg-danger status-badge">Tutup</span>
                             @endif
                         </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $madrasah->name }}</h5>
-                            <p class="card-text text-muted">
-                                <small class="text-muted">Madrasah ID: {{ $madrasah->id }}</small><br>
-                                {{ $madrasah->alamat ?: 'Alamat belum diisi' }}
-                                @if($madrasah->kabupaten)
-                                    <br><small class="text-primary">{{ $madrasah->kabupaten }}</small>
-                                @endif
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }} siswa</small>
+                        <div class="school-info">
+                            <h5 class="school-title mb-2">{{ $madrasah->name }}</h5>
+                            <div class="school-details">
+                                <small>SCOD: {{ $madrasah->scod ?: 'Belum diisi' }}</small><br>
+                                <small>{{ $madrasah->kabupaten ?: 'Kabupaten belum diisi' }}</small><br>
+                                <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }} siswa</small>
+                            </div>
+                            <div class="mt-3 text-center">
                                 @if($ppdb && $ppdb->isPembukaan())
-                                    <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm">Lihat Detail</a>
+                                    <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100">Lihat Detail</a>
                                 @else
-                                    <button class="btn btn-secondary btn-sm disabled">Pendaftaran Ditutup</button>
+                                    <button class="btn btn-secondary btn-sm w-100 disabled">Pendaftaran Ditutup</button>
                                 @endif
                             </div>
                         </div>
@@ -148,9 +192,9 @@
                 </div>
             @empty
                 <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <h5>Tidak ada sekolah yang ditemukan</h5>
-                        <p>Coba ubah filter atau pencarian Anda.</p>
+                    <div class="alert alert-info" style="border-radius: 15px; border: none; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);">
+                        <h5 style="color: #667eea;">Tidak ada sekolah yang ditemukan</h5>
+                        <p class="mb-0" style="color: #64748b;">Coba ubah filter atau pencarian Anda.</p>
                     </div>
                 </div>
             @endforelse
