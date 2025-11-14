@@ -138,12 +138,11 @@
 @section('content')
 @include('partials.ppdb.navbar')
 
-<div class="col-lg-6 text-center">
-    <img src="{{ asset('images/flayer1.png') }}" alt="PPDB Image" class="img-fluid rounded">
-</div>
-
 <!-- Hero Section -->
 <section class="hero-section">
+    <div class="col-lg-6 text-center">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded">
+            </div>
     <div class="container">
         <div class="row align-items-left">
             <div class="col-lg-6 text-left">
