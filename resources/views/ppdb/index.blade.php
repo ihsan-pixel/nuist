@@ -364,7 +364,6 @@
 @include('partials.ppdb.footer')
 @endsection
 
-@section('scripts')
 <script>
 // Define function globally first
 window.toggleSchools = function(element) {
@@ -380,7 +379,10 @@ window.toggleSchools = function(element) {
         toggleIcon.style.transform = 'rotate(0deg)';
     }
 };
+</script>
 
+@section('scripts')
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     // Smooth scrolling (tetap)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
