@@ -13,8 +13,8 @@
     </div>
 
     <!-- Menu Items (Centered) -->
-    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-        <ul class="navbar-nav">
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
             </li>
@@ -30,7 +30,9 @@
         </ul>
 
         <!-- Daftar Button -->
-        <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary ms-3 d-none d-lg-inline-block">Daftar</a>
+        <div class="d-flex">
+            <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary d-none d-lg-inline-block">Daftar</a>
+        </div>
     </div>
 </nav>
 
