@@ -361,6 +361,62 @@
     .contact-card:nth-child(2) { animation-delay: 0.2s; }
     .contact-card:nth-child(3) { animation-delay: 0.3s; }
 
+    /* Tentang Kami Section */
+    .tentang-kami-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 80px 0;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .benefit-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        border-left: 5px solid #004b4c;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .stats-container {
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stats-container:hover {
+        transform: translateY(-5px);
+    }
+
     /* Scroll-triggered animations */
     .animate-on-scroll {
         opacity: 0;
@@ -818,6 +874,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!navbar) return;
         if (window.scrollY > 50) navbar.classList.add('navbar-scrolled');
         else navbar.classList.remove('navbar-scrolled');
+    });
+
+    // Scroll-triggered animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all animate-on-scroll elements
+    document.querySelectorAll('.animate-on-scroll, .animate-slide-left-on-scroll, .animate-slide-right-on-scroll, .animate-bounce-on-scroll').forEach(el => {
+        observer.observe(el);
     });
 });
 </script>
