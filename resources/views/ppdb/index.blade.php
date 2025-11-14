@@ -240,7 +240,7 @@
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-3">
-                <h3 class="kabupaten-title" onclick="toggleSchools(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
                     <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                 </h3>
