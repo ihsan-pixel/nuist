@@ -386,8 +386,8 @@ document.addEventListener('DOMContentLoaded', function () {
         else navbar.classList.remove('navbar-scrolled');
     });
 
-    // Toggle kabupaten schools
-    function toggleSchools(element) {
+    // Make function globally available before defining it
+    window.toggleSchools = function(element) {
         const kabupatenSection = element.closest('.kabupaten-section');
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
         const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
@@ -399,10 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
             schoolsDiv.style.display = 'none';
             toggleIcon.style.transform = 'rotate(0deg)';
         }
-    }
-
-    // Make function globally available
-    window.toggleSchools = toggleSchools;
+    };
 });
 </script>
 @endsection
