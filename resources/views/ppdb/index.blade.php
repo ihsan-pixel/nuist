@@ -351,14 +351,23 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">Tentang PPDB NUIST</h2>
-                <p class="lead mb-4">PPDB NUIST adalah sistem penerimaan peserta didik baru yang modern dan transparan untuk madrasah di bawah naungan Nahdlatul Ulama.</p>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Proses pendaftaran online yang mudah</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Transparansi dalam seleksi dan pengumuman</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Dukungan teknis 24/7</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Sistem verifikasi data yang akurat</li>
-                </ul>
+                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki SPMB Online</h2>
+                <div class="feature-item mb-4">
+                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Multi Jalur Seleksi</h5>
+                    <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
+                </div>
+                <div class="feature-item mb-4">
+                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Multi Model Pendaftaran</h5>
+                    <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi SPMB</p>
+                </div>
+                <div class="feature-item mb-4">
+                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Manajemen Hak Akses</h5>
+                    <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
+                </div>
+                <div class="feature-item mb-4">
+                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Integrasi Data Dapodik</h5>
+                    <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran SPMB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
+                </div>
             </div>
             <div class="col-lg-6">
                 <img src="{{ asset('images/about-ppdb.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
