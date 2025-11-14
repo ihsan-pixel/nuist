@@ -2,7 +2,7 @@
     <div class="container-fluid px-4">
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 60px; width: auto;">
             {{-- <span class="fw-bold text-primary">PPDB </span> --}}
         </a>
 
@@ -41,7 +41,7 @@
             </button>
         </div>
 
-        <div class="w-100">
+        <div class="w-200">
             <ul class="navbar-nav flex-column text-center py-4">
                 <li class="nav-item mb-3">
                     <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}" onclick="closeMobileMenu()">Beranda</a>
