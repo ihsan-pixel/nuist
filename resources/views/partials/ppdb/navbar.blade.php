@@ -30,9 +30,9 @@
         background: #0f854a;
         color: #fff !important;
         padding: 10px 24px;
-        font-size: 18px;
+        font-size: 16px;
         border-radius: 10px;
-        font-weight: 500;
+        font-weight: 400;
         transition: background .2s ease;
     }
 
