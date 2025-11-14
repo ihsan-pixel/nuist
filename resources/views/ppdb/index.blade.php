@@ -189,10 +189,21 @@
         border-radius: 50%;
         margin-right: 15px;
         flex-shrink: 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+    }
+    .feature-icon:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        background-color: #a7f3d0;
     }
     .feature-icon .fas {
         color: #166534;
         font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    .feature-icon:hover .fas {
+        color: #14532d;
     }
     .feature-item {
         display: flex;
