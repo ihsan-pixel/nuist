@@ -112,7 +112,7 @@
         flex-grow: 1;
     }
     .btn-primary {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        background: linear-gradient(135deg, #0f854a 0%, #0f854a 100%);
         border: none;
         border-radius: 25px;
         padding: 8px 20px;
@@ -187,7 +187,7 @@
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB <span style="color: #efaa0c;">Online</span></h1>
                 <p class="lead">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah </p>
                 <p class="lead"> Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta</p>
-                <p class="lead">Tahun Pelajaran 2026/2027</p>
+                <p class="lead fw-bold">Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-orange btn-lg me-3">Lihat Sekolah</a>
             </div>
 
