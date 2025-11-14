@@ -190,8 +190,8 @@
         margin-right: 15px;
         flex-shrink: 0;
     }
-    .feature-icon .bi {
-        color: #0c8446;
+    .feature-icon .fas {
+        color: #166534;
         font-size: 1.2rem;
     }
     .feature-item {
