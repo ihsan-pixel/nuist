@@ -161,6 +161,24 @@
     .flyer-img:hover {
         transform: scale(1.05);
     }
+    /* About Section */
+    .about-section {
+        background: linear-gradient(135deg, #0f854a 0%, #16a34a 100%);
+        color: white;
+        padding: 80px 0;
+    }
+    .about-section h2 {
+        color: white;
+    }
+    .about-section p {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    .about-section ul li {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    .about-section .bi-check-circle-fill {
+        color: #efaa0c;
+    }
 </style>
 @endsection
 
@@ -297,21 +315,21 @@
 </section>
 
 <!-- About Section -->
-<section id="about" class="py-5">
+<section id="about" class="about-section">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Tentang PPDB NUIST</h2>
                 <p class="lead mb-4">PPDB NUIST adalah sistem penerimaan peserta didik baru yang modern dan transparan untuk madrasah di bawah naungan Nahdlatul Ulama.</p>
                 <ul class="list-unstyled">
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Proses pendaftaran online yang mudah</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Transparansi dalam seleksi dan pengumuman</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Dukungan teknis 24/7</li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Sistem verifikasi data yang akurat</li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Proses pendaftaran online yang mudah</li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Transparansi dalam seleksi dan pengumuman</li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Dukungan teknis 24/7</li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill me-2"></i>Sistem verifikasi data yang akurat</li>
                 </ul>
             </div>
             <div class="col-lg-6">
-                <img src="{{ asset('images/about-ppdb.png') }}" alt="About PPDB" class="img-fluid rounded">
+                <img src="{{ asset('images/about-ppdb.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
             </div>
         </div>
     </div>
