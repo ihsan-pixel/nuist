@@ -13,7 +13,7 @@
 
         /* FIX TERPENTING */
         display: block; /* buang flex agar elemen tidak ketarik tengah */
-        padding-top: 80px; /* beri ruang flayer lebih kecil */
+        padding-top: 40px; /* beri ruang flayer lebih kecil */
         padding-bottom: 80px;
         min-height: 93vh;
         position: relative;
