@@ -1,3 +1,31 @@
+<style>
+    /* --- FIX FINAL NAVBAR TEXT STYLE PADA NAV BLADE --- */
+    nav.custom-navbar .navbar-nav .nav-link {
+        font-size: 26px !important;
+        font-weight: 800 !important;
+        color: #667085 !important;
+        padding: 12px 20px !important;
+        line-height: 1 !important;
+        transition: color 0.2s ease;
+    }
+
+    /* Hover hijau */
+    nav.custom-navbar .navbar-nav .nav-link:hover {
+        color: #0f854a !important;
+    }
+
+    /* Active hijau */
+    nav.custom-navbar .navbar-nav .nav-link.active {
+        color: #0f854a !important;
+        font-weight: 800 !important;
+    }
+
+    /* Override bootstrap kuat */
+    .navbar-light .navbar-nav .nav-link {
+        font-size: 26px !important;
+        color: #667085 !important;
+    }
+</style>
 <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
     <div class="container d-flex align-items-center justify-content-between">
 
