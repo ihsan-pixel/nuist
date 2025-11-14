@@ -126,6 +126,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ $ppdb->sekolah->name }}</h5>
                             <p class="card-text text-muted">
+                                <small class="text-muted">Madrasah ID: {{ $ppdb->sekolah_id }}</small><br>
                                 {{ $ppdb->sekolah->alamat ?: 'Alamat belum diisi' }}
                                 @if($ppdb->sekolah->kabupaten)
                                     <br><small class="text-primary">{{ $ppdb->sekolah->kabupaten }}</small>
