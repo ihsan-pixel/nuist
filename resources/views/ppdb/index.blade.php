@@ -11,7 +11,7 @@
         background-position: center;
         background-attachment: fixed;
         color: #0f854a;
-        min-height: 90vh;
+        min-height: 95vh;
         display: flex;
         align-items: center;
     }
