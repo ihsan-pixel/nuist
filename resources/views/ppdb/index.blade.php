@@ -377,7 +377,7 @@
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki SPMB Online</h2>
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="bi bi-diagram-3"></i>
+                        <i class="bi bi-funnel"></i>
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Jalur Seleksi</h5>
@@ -386,7 +386,7 @@
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="bi bi-file-earmark-text"></i>
+                        <i class="bi bi-clipboard-data"></i>
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Model Pendaftaran</h5>
@@ -395,7 +395,7 @@
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="bi bi-shield-lock"></i>
+                        <i class="bi bi-key"></i>
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Manajemen Hak Akses</h5>
@@ -404,7 +404,7 @@
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="bi bi-arrow-left-right"></i>
+                        <i class="bi bi-link-45deg"></i>
                     </div>
                     <div class="feature-content">
                         <h5 class="fw-bold mb-2" style="color: #efaa0c;">Integrasi Data Dapodik</h5>
