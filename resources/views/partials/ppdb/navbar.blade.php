@@ -17,7 +17,7 @@
     /* Active hijau */
     nav.custom-navbar .navbar-nav .nav-link.active {
         color: #0f854a !important;
-        font-weight: 800 !important;
+        font-weight: 200 !important;
     }
 
     /* Override bootstrap kuat */
@@ -45,7 +45,7 @@
 
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 55px;">
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 40px;">
         </a>
 
         <!-- Toggle (Mobile) -->
