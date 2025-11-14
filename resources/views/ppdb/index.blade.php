@@ -206,7 +206,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">Daftar Sekolah/Madrasah</h2>
+                <h2 class="display-5 fw-bold">Daftar <span style="color: #efaa0c;">Sekolah/Madrasah</span></h2>
                 <p class="lead text-muted">Pilih madrasah impian Anda untuk melanjutkan pendidikan</p>
             </div>
         </div>
@@ -264,7 +264,7 @@
                                     @endif
                                 </div>
                                 <div class="school-info">
-                                    <h6 class="school-title mb-1" style="font-size: 0.9rem;">{{ $madrasah->name }}</h6>
+                                    <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #0f854a;">{{ $madrasah->name }}</h6>
                                     <div class="school-details" style="font-size: 0.75rem;">
                                         <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
                                         <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
