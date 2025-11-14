@@ -23,8 +23,8 @@
 
 /* --- MENU NAV --- */
 .navbar-nav .nav-link {
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 20px !important;
+    font-weight: 800 !important;
     color: #667085 !important;       /* abu-abu seperti gambar */
     padding: 8px 14px;
     margin: 0 6px;
