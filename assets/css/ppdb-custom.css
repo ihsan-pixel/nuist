@@ -240,3 +240,27 @@ section {
         border: 1px solid #ddd;
     }
 }
+/* Perbaiki ukuran & warna utama menu */
+.custom-navbar .navbar-nav .nav-link {
+    font-size: 22px !important;      /* ukuran besar */
+    font-weight: 700 !important;     /* bold */
+    color: #667085 !important;       /* abu-abu */
+    padding: 10px 18px !important;
+    transition: color 0.2s ease;
+}
+
+/* Hover menjadi hijau */
+.custom-navbar .navbar-nav .nav-link:hover {
+    color: #0f854a !important;
+}
+
+/* Active hijau */
+.custom-navbar .navbar-nav .nav-link.active {
+    color: #0f854a !important;
+}
+
+/* Tambahan agar nav-link Bootstrap tidak menang */
+.navbar-light .navbar-nav .nav-link {
+    color: #667085 !important;
+    font-size: 22px !important;
+}
