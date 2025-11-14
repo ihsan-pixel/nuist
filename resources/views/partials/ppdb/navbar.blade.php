@@ -13,7 +13,7 @@
     </div>
 
     <!-- Menu Items (Centered) -->
-    <div class="collapse navbar-collapse" id="navbarNav">
+    <div class="collapse navbar-collapse mr-100" id="navbarNav">
         <ul class="navbar-nav mx-auto">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
