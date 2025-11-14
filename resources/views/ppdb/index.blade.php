@@ -114,7 +114,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card school-card h-100">
                         <div class="position-relative">
-                            <img src="{{ $madrasah->logo ? asset('storage/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
+                            <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
                                  class="card-img-top"
                                  alt="{{ $madrasah->name }}"
                                  style="height: 200px; object-fit: cover;">
