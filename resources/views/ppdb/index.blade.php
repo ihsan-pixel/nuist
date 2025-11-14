@@ -366,6 +366,21 @@
 
 @section('scripts')
 <script>
+// Define function globally first
+window.toggleSchools = function(element) {
+    const kabupatenSection = element.closest('.kabupaten-section');
+    const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
+    const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
+
+    if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
+        schoolsDiv.style.display = 'block';
+        toggleIcon.style.transform = 'rotate(180deg)';
+    } else {
+        schoolsDiv.style.display = 'none';
+        toggleIcon.style.transform = 'rotate(0deg)';
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     // Smooth scrolling (tetap)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -385,21 +400,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.scrollY > 50) navbar.classList.add('navbar-scrolled');
         else navbar.classList.remove('navbar-scrolled');
     });
-
-    // Make function globally available before defining it
-    window.toggleSchools = function(element) {
-        const kabupatenSection = element.closest('.kabupaten-section');
-        const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
-        const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
-
-        if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
-            schoolsDiv.style.display = 'block';
-            toggleIcon.style.transform = 'rotate(180deg)';
-        } else {
-            schoolsDiv.style.display = 'none';
-            toggleIcon.style.transform = 'rotate(0deg)';
-        }
-    };
 });
 </script>
 @endsection
