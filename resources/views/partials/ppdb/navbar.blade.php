@@ -29,9 +29,9 @@
             </li>
         </ul>
     </div>
+    <!-- Daftar Button -->
     <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- Daftar Button -->
-        <div class="d-flex">
+        <div class="d-flex ms-5">
             <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary d-none d-lg-inline-block">Daftar</a>
         </div>
     </div>
