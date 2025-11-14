@@ -365,7 +365,6 @@
 @endsection
 
 @section('scripts')
-@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Smooth scrolling (tetap)
