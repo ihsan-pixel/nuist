@@ -41,7 +41,7 @@
             </button>
         </div>
 
-        <div class="w-200">
+        <div class="w-100">
             <ul class="navbar-nav flex-column text-center py-4">
                 <li class="nav-item mb-3">
                     <a class="nav-link {{ request()->routeIs('ppdb.index') ? 'active' : '' }}" href="{{ route('ppdb.index') }}" onclick="closeMobileMenu()">Beranda</a>
