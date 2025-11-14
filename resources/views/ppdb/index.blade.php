@@ -185,13 +185,13 @@
         justify-content: center;
         width: 40px;
         height: 40px;
-        background-color: #efaa0c;
+        background-color: #c2facf;
         border-radius: 50%;
         margin-right: 15px;
         flex-shrink: 0;
     }
     .feature-icon .bi {
-        color: #0f854a;
+        color: #0c8446;
         font-size: 1.2rem;
     }
     .feature-item {
@@ -374,13 +374,13 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #b7f9d3;">PPDB Online</span></h2>
+                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
                         <i class="fas fa-route"></i>
                     </div>
                     <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #b7f9d3;">Multi Jalur Seleksi</h5>
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Jalur Seleksi</h5>
                         <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
                     </div>
                 </div>
@@ -389,7 +389,7 @@
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #b7f9d3;">Multi Model Pendaftaran</h5>
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Model Pendaftaran</h5>
                         <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi PPDB</p>
                     </div>
                 </div>
@@ -398,7 +398,7 @@
                         <i class="fas fa-user-shield"></i>
                     </div>
                     <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #b7f9d3;">Manajemen Hak Akses</h5>
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Manajemen Hak Akses</h5>
                         <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
                     </div>
                 </div>
@@ -407,7 +407,7 @@
                         <i class="fas fa-exchange-alt"></i>
                     </div>
                     <div class="feature-content">
-                        <h5 class="fw-bold mb-2" style="color: #b7f9d3;">Integrasi Data Dapodik</h5>
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Integrasi Data Dapodik</h5>
                         <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran PPDB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
                     </div>
                 </div>
