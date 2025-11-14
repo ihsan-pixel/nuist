@@ -200,7 +200,7 @@
 </section>
 
 <!-- Daftar Sekolah -->
-<section id="sekolah" class="py-5 bg-light">
+<section id="sekolah" class="py-5 bg-white">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
