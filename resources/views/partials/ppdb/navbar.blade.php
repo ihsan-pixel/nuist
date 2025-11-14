@@ -1,41 +1,60 @@
-<nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid px-4">
-        <!-- Logo dan Nama Aplikasi -->
+<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 60px; width: auto;">
-            {{-- <span class="fw-bold text-primary">PPDB </span> --}}
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 55px;">
         </a>
 
-        <!-- Toggle Button untuk Mobile -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- Toggle (Mobile) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-    </div>
 
-    <!-- Menu Items (Centered) -->
-    <div class="collapse navbar-collapse mr-100" id="navbarNav">
-        <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'sekolah' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'sekolah']) }}#sekolah">Sekolah</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'about']) }}#about">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">Kontak</a>
-            </li>
-        </ul>
-    </div>
-    <!-- Daftar Button -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <div class="d-flex ms-5">
-            <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary d-none d-lg-inline-block">Daftar</a>
+        <!-- Menu Tengah -->
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav gap-4">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}"
+                        href="{{ route('ppdb.index') }}">
+                        Beranda
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->get('section') === 'sekolah' ? 'active' : '' }}"
+                        href="{{ route('ppdb.index', ['section' => 'sekolah']) }}#sekolah">
+                        Sekolah
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}"
+                        href="{{ route('ppdb.index', ['section' => 'about']) }}#about">
+                        About
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}"
+                        href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">
+                        Kontak
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Tombol Kanan -->
+        <div class="d-none d-lg-block">
+            <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-orange px-4">
+                Daftar
+            </a>
         </div>
     </div>
 </nav>
+
 
 <!-- Mobile Menu Overlay -->
 <div class="mobile-menu-overlay" id="mobileMenuOverlay" style="display: none;">
