@@ -1,8 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid px-4">
-        <!-- Daftar Button -->
-        <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary me-3 d-none d-lg-inline-block">Daftar</a>
-
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
             <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 60px; width: auto;">
@@ -31,6 +28,9 @@
                 <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}" href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">Kontak</a>
             </li>
         </ul>
+
+        <!-- Daftar Button -->
+        <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary ms-3 d-none d-lg-inline-block">Daftar</a>
     </div>
 </nav>
 
