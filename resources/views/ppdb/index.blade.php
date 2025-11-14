@@ -414,10 +414,10 @@
 <section class="hero-section">
 
     <!-- Flayer di atas -->
-    <div class="container hero-flayer animate-on-scroll">
+    <div class="container hero-flayer animate-fade-in-up">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-on-scroll" alt="Flayer PPDB">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
             </div>
         </div>
     </div>
@@ -427,7 +427,7 @@
         <div class="row align-items-center">
 
             <!-- Text Kiri -->
-            <div class="col-lg-6 animate-slide-left-on-scroll">
+            <div class="col-lg-6 animate-slide-in-left">
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB <span style="color: #efaa0c;">Online</span></h1>
                 <p class="lead">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah </p>
                 <p class="lead"> Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta</p>
@@ -436,8 +436,8 @@
             </div>
 
             <!-- Image Kanan -->
-            <div class="col-lg-6 text-center animate-slide-right-on-scroll">
-                <img src="{{ asset('images/hero1.png') }}" alt="PPDB Image" class="img-fluid rounded animate-bounce-on-scroll">
+            <div class="col-lg-6 text-center animate-slide-in-right">
+                <img src="{{ asset('images/hero1.png') }}" alt="PPDB Image" class="img-fluid rounded animate-bounce-in">
             </div>
 
         </div>
@@ -449,14 +449,14 @@
 <section id="sekolah" class="py-5 bg-white">
     <div class="container">
         <div class="row">
-            <div class="col-12 text-center mb-5 animate-on-scroll">
+            <div class="col-12 text-center mb-5">
                 <h2 class="display-5 fw-bold">Daftar <span style="color: #efaa0c;">Sekolah/Madrasah</span></h2>
                 <p class="lead text-muted">Pilih madrasah impian Anda untuk melanjutkan pendidikan</p>
             </div>
         </div>
 
         <!-- Filter dan Search -->
-        <div class="row mb-4 animate-on-scroll">
+        <div class="row mb-4">
             <div class="col-12">
                 <form method="GET" action="{{ route('ppdb.index') }}" class="row g-3">
                     <div class="col-md-4">
@@ -483,7 +483,7 @@
         </div>
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
-            <div class="kabupaten-section mb-3 animate-on-scroll">
+            <div class="kabupaten-section mb-3">
                 <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #004b4c; font-weight: 600; cursor: pointer; border-bottom: 2px solid #004b4c; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
                     <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
@@ -530,7 +530,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-12 text-center animate-on-scroll">
+            <div class="col-12 text-center">
                 <div class="alert alert-info" style="border-radius: 15px; border: none; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);">
                     <h5 style="color: #667eea;">Tidak ada sekolah yang ditemukan</h5>
                     <p class="mb-0" style="color: #64748b;">Coba ubah filter atau pencarian Anda.</p>
@@ -544,10 +544,10 @@
 <section id="about" class="about-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 animate-slide-left-on-scroll">
-                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow animate-bounce-on-scroll" style="max-width: 120%; height: auto; transform: scale(1.2);">
+            <div class="col-lg-6 animate-slide-in-left">
+                <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow animate-bounce-in" style="max-width: 120%; height: auto; transform: scale(1.2);">
             </div>
-            <div class="col-lg-6 animate-slide-right-on-scroll">
+            <div class="col-lg-6 animate-slide-in-right">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
@@ -594,7 +594,7 @@
 <section id="kontak" class="contact-section">
     <div class="container">
         <div class="row">
-            <div class="col-12 text-center animate-on-scroll">
+            <div class="col-12 text-center">
                 <h2 class="display-5 fw-bold" style="color: #004b4c;">Hubungi <span style="color: #efaa0c;">Kami</span></h2>
                 <p class="lead" style="color: #666;">Butuh bantuan? Tim kami siap membantu Anda</p>
             </div>
@@ -602,7 +602,7 @@
 
         <div class="row g-4 justify-content-center">
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100 animate-on-scroll">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-telephone-fill"></i>
                     <h5>Telepon</h5>
                     <p>(021) 1234-5678</p>
@@ -610,7 +610,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100 animate-on-scroll">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-envelope-fill"></i>
                     <h5>Email</h5>
                     <p>ppdb@nuist.id</p>
@@ -618,7 +618,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6">
-                <div class="contact-card h-100 animate-on-scroll">
+                <div class="contact-card h-100 animate-fade-in-up">
                     <i class="bi bi-geo-alt-fill"></i>
                     <h5>Alamat</h5>
                     <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
