@@ -11,14 +11,12 @@ class PPDBController extends Controller
 {
     /**
      * Menampilkan halaman utama PPDB NUIST
-     * Daftar madrasah/sekolah yang membuka PPDB
+     * Daftar semua madrasah/sekolah dari database
      */
     public function index(Request $request)
     {
-        // Ambil semua madrasah yang memiliki PPDB setting untuk tahun ini
-        $query = Madrasah::whereHas('ppdbSettings', function ($q) {
-            $q->where('tahun', now()->year);
-        })->with(['ppdbSettings' => function ($q) {
+        // Ambil semua madrasah dari database dengan relasi PPDB settings
+        $query = Madrasah::with(['ppdbSettings' => function ($q) {
             $q->where('tahun', now()->year);
         }]);
 
@@ -35,13 +33,11 @@ class PPDBController extends Controller
         $sekolah = $query->orderBy('name')->get();
 
         // Ambil daftar kabupaten unik untuk filter
-        $kabupatenList = Madrasah::whereHas('ppdbSettings', function ($q) {
-            $q->where('tahun', now()->year);
-        })->pluck('kabupaten')
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
+        $kabupatenList = Madrasah::pluck('kabupaten')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('ppdb.index', compact('sekolah', 'kabupatenList'));
     }

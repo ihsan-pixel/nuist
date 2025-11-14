@@ -109,7 +109,7 @@
         <div class="row g-4">
             @forelse($sekolah as $madrasah)
                 @php
-                    $ppdb = $madrasah->ppdbSettings->first(); // Ambil PPDB setting pertama
+                    $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
                 @endphp
                 <div class="col-lg-4 col-md-6">
                     <div class="card school-card h-100">
