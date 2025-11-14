@@ -59,7 +59,7 @@
     .school-card {
         transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 4px 20px rgba(34, 197, 94, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 75, 76, 0.1);
         border-radius: 15px;
         overflow: hidden;
         background: #ffffff;
@@ -69,7 +69,7 @@
     }
     .school-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(34, 197, 94, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 75, 76, 0.2);
     }
     .school-card .card-img-top {
         transition: transform 0.3s ease;
@@ -103,7 +103,7 @@
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 8px;
-        color: #22c55e;
+        color: #004b4c;
     }
     .school-details {
         font-size: 0.85rem;
@@ -112,7 +112,7 @@
         flex-grow: 1;
     }
     .btn-primary {
-        background: linear-gradient(135deg, #0f854a 0%, #0f854a 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         border: none;
         border-radius: 25px;
         padding: 8px 20px;
@@ -120,12 +120,12 @@
         transition: all 0.3s ease;
     }
     .btn-primary:hover {
-        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        box-shadow: 0 5px 15px rgba(0, 75, 76, 0.3);
     }
     .btn-secondary {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         border: none;
         border-radius: 25px;
         padding: 8px 20px;
@@ -134,12 +134,12 @@
         transition: all 0.3s ease;
     }
     .btn-secondary:hover {
-        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        box-shadow: 0 5px 15px rgba(0, 75, 76, 0.3);
     }
     .flyer-section {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         padding: 40px 0;
         color: white;
         text-align: center;
@@ -163,7 +163,7 @@
     }
     /* About Section */
     .about-section {
-        background: linear-gradient(135deg, #0f854a 0%, #16a34a 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #004b4c 100%);
         color: white;
         padding: 80px 0;
     }
@@ -190,20 +190,20 @@
         margin-right: 15px;
         flex-shrink: 0;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 75, 76, 0.2);
     }
     .feature-icon:hover {
         transform: scale(1.1);
-        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.4);
         background-color: #a7f3d0;
     }
     .feature-icon .fas {
-        color: #166534;
+        color: #004b4c;
         font-size: 1.2rem;
         transition: color 0.3s ease;
     }
     .feature-icon:hover .fas {
-        color: #14532d;
+        color: #004b4c;
     }
     .feature-item {
         display: flex;
@@ -233,11 +233,11 @@
     }
     .contact-card .bi {
         font-size: 3rem;
-        color: #22c55e;
+        color: #004b4c;
         margin-bottom: 20px;
     }
     .contact-card h5 {
-        color: #0f854a;
+        color: #004b4c;
         font-weight: 600;
         margin-bottom: 15px;
     }
@@ -324,7 +324,7 @@
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-3">
-                <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #004b4c; font-weight: 600; cursor: pointer; border-bottom: 2px solid #004b4c; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
                     <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                 </h3>
@@ -350,7 +350,7 @@
                                         @endif
                                     </div>
                                     <div class="school-info">
-                                        <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #0f854a;">{{ $madrasah->name }}</h6>
+                                        <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #004b4c;">{{ $madrasah->name }}</h6>
                                         <div class="school-details" style="font-size: 0.75rem;">
                                             <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
                                             <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
@@ -435,7 +435,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold" style="color: #0f854a;">Hubungi Kami</h2>
+                <h2 class="display-5 fw-bold" style="color: #004b4c;">Hubungi Kami</h2>
                 <p class="lead" style="color: #666;">Butuh bantuan? Tim kami siap membantu Anda</p>
             </div>
         </div>
