@@ -140,24 +140,35 @@
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <div class="container">
-        <div class="col-lg-6 text-center">
-            <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded">
+
+    <!-- Bagian Flayer di Atas -->
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded" alt="Flayer PPDB">
+            </div>
         </div>
     </div>
+
+    <!-- Bagian Text + Image Hero -->
     <div class="container">
-        <div class="row align-items-left">
-            <div class="col-lg-6 text-left">
+        <div class="row align-items-center">
+
+            <!-- Text Kiri -->
+            <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB Online</h1>
                 <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Madrasah Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-orange btn-lg me-3">Lihat Sekolah</a>
-                {{-- <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-orange btn-lg">Daftar Sekarang</a> --}}
             </div>
+
+            <!-- Image Kanan -->
             <div class="col-lg-6 text-center">
                 <img src="{{ asset('images/hero1.png') }}" alt="PPDB Image" class="img-fluid rounded">
             </div>
+
         </div>
     </div>
+
 </section>
 
 <!-- Daftar Sekolah -->
