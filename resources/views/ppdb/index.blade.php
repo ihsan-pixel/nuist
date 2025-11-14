@@ -384,7 +384,7 @@
 <section id="about" class="about-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 text-left" style="margin-right: 2rem;">
+            <div class="col-lg-6 text-left">
                 <img src="{{ asset('images/flayer4.png') }}" alt="About PPDB" class="img-fluid rounded shadow" style="max-width: 120%; height: auto; transform: scale(1.2);">
             </div>
             <div class="col-lg-6">
