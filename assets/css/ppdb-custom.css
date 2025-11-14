@@ -133,6 +133,12 @@ section {
     padding: 5rem 0;
 }
 
+/* Container Width Consistency */
+.container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
 #sekolah,
 #kontak {
     background-color: #f8f9fa;
