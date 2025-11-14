@@ -179,6 +179,38 @@
     .about-section .bi-check-circle-fill {
         color: #efaa0c;
     }
+    /* Contact Section */
+    .contact-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 80px 0;
+    }
+    .contact-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        padding: 30px;
+        text-align: center;
+    }
+    .contact-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .contact-card .bi {
+        font-size: 3rem;
+        color: #22c55e;
+        margin-bottom: 20px;
+    }
+    .contact-card h5 {
+        color: #0f854a;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    .contact-card p {
+        color: #666;
+        font-size: 1rem;
+    }
 </style>
 @endsection
 
@@ -336,43 +368,37 @@
 </section>
 
 <!-- Contact Section -->
-<section id="kontak" class="py-5 bg-light">
+<section id="kontak" class="contact-section">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">Hubungi Kami</h2>
-                <p class="lead text-muted">Butuh bantuan? Tim kami siap membantu Anda</p>
+                <h2 class="display-5 fw-bold" style="color: #0f854a;">Hubungi Kami</h2>
+                <p class="lead" style="color: #666;">Butuh bantuan? Tim kami siap membantu Anda</p>
             </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4 text-center">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-telephone-fill text-primary fs-1 mb-3"></i>
-                        <h5 class="card-title">Telepon</h5>
-                        <p class="card-text">(021) 1234-5678</p>
-                    </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card h-100">
+                    <i class="bi bi-telephone-fill"></i>
+                    <h5>Telepon</h5>
+                    <p>(021) 1234-5678</p>
                 </div>
             </div>
 
-            <div class="col-lg-4 text-center">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-envelope-fill text-primary fs-1 mb-3"></i>
-                        <h5 class="card-title">Email</h5>
-                        <p class="card-text">ppdb@nuist.id</p>
-                    </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card h-100">
+                    <i class="bi bi-envelope-fill"></i>
+                    <h5>Email</h5>
+                    <p>ppdb@nuist.id</p>
                 </div>
             </div>
 
-            <div class="col-lg-4 text-center">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <i class="bi bi-geo-alt-fill text-primary fs-1 mb-3"></i>
-                        <h5 class="card-title">Alamat</h5>
-                        <p class="card-text">Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
-                    </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card h-100">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <h5>Alamat</h5>
+                    <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
                 </div>
             </div>
         </div>
