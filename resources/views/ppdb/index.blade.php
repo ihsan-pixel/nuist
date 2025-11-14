@@ -638,24 +638,24 @@
 
         <div class="row g-4 mb-5">
             <div class="col-lg-6">
-                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: white; border-left: 5px solid #004b4c;">
+                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #004b4c;">
                     <h4 class="fw-bold mb-3" style="color: #004b4c;">Bagi Dinas Pendidikan dan Sekolah</h4>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Efisiensi Pembiayaan:</strong> Efisiensi pembiayaan dan mengurangi resiko terjadinya KKN</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Reputasi:</strong> Meningkatkan reputasi sekolah</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Bebas Akses:</strong> Memberikan akses yang luas kepada masyarakat</li>
-                        <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Integrasi Basis Data:</strong> Tersedianya sebuah basis data terintegrasi</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Efisiensi Pembiayaan:</strong> Efisiensi pembiayaan dan mengurangi resiko terjadinya KKN</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Reputasi:</strong> Meningkatkan reputasi sekolah</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Bebas Akses:</strong> Memberikan akses yang luas kepada masyarakat</li>
+                        <li class="mb-0" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Integrasi Basis Data:</strong> Tersedianya sebuah basis data terintegrasi</li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: white; border-left: 5px solid #efaa0c;">
+                <div class="benefit-card p-4 rounded shadow animate-on-scroll" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #efaa0c;">
                     <h4 class="fw-bold mb-3" style="color: #004b4c;">Bagi Murid dan Orang Tua Murid</h4>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pendaftaran Yang Mudah:</strong> Mempermudah untuk melakukan pendaftaran murid baru</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Update Informasi:</strong> Mempermudah akses informasi penerimaan murid baru</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Memantau Pendaftaran:</strong> Pendaftaran menjadi lebih tertib dan mudah dipantau</li>
-                        <li class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pelayanan Maksimal:</strong> Fasilitas dan pelayanan memuaskan</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pendaftaran Yang Mudah:</strong> Mempermudah untuk melakukan pendaftaran murid baru</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Update Informasi:</strong> Mempermudah akses informasi penerimaan murid baru</li>
+                        <li class="mb-2" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Memantau Pendaftaran:</strong> Pendaftaran menjadi lebih tertib dan mudah dipantau</li>
+                        <li class="mb-0" style="color: #333;"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pelayanan Maksimal:</strong> Fasilitas dan pelayanan memuaskan</li>
                     </ul>
                 </div>
             </div>
