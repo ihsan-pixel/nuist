@@ -401,6 +401,9 @@ document.addEventListener('DOMContentLoaded', function () {
             toggleIcon.style.transform = 'rotate(0deg)';
         }
     }
+
+    // Make function globally available
+    window.toggleSchools = toggleSchools;
 });
 </script>
 @endsection
