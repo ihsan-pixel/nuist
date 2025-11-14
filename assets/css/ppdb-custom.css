@@ -23,8 +23,8 @@
 
 /* --- MENU NAV --- */
 .navbar-nav .nav-link {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 800;
     color: #667085 !important;       /* abu-abu seperti gambar */
     padding: 8px 14px;
     margin: 0 6px;
@@ -33,13 +33,13 @@
 
 /* Hover */
 .navbar-nav .nav-link:hover {
-    color: #FF7A00 !important;       /* oranye seperti gambar */
+    color: #0f854a !important;       /* hijau */
 }
 
 /* Active State (menu yang sedang dipilih) */
 .navbar-nav .nav-link.active {
-    color: #FF7A00 !important;
-    font-weight: 600;
+    color: #0f854a !important;
+    font-weight: 800;
 }
 
 /* Hilangkan efek-efek animasi lama */
@@ -48,9 +48,9 @@
     display: none !important;
 }
 
-/* Tombol Orange (Berlangganan/Daftar) */
+/* Tombol Green (Berlangganan/Daftar) */
 .btn-orange {
-    background: #FF7A00;
+    background: #0f854a;
     color: #fff !important;
     padding: 10px 24px;
     font-size: 18px;
@@ -60,7 +60,7 @@
 }
 
 .btn-orange:hover {
-    background: #e86900;
+    background: #0a5f35;
 }
 
 
