@@ -25,6 +25,20 @@
         font-size: 26px !important;
         color: #667085 !important;
     }
+    /* Tombol Green */
+    .btn-orange {
+        background: #0f854a;
+        color: #fff !important;
+        padding: 10px 24px;
+        font-size: 18px;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: background .2s ease;
+    }
+
+    .btn-orange:hover {
+        background: #0a5f35;
+    }
 </style>
 <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
     <div class="container d-flex align-items-center justify-content-between">
