@@ -242,7 +242,9 @@
             <div class="kabupaten-section mb-3">
                 <h3 class="kabupaten-title" onclick="toggleKabupaten(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
-                    <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s;"></i>
+                    <button class="btn btn-sm btn-outline-success toggle-btn" style="border: none; background: none; padding: 0; margin-left: 10px;">
+                        <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
+                    </button>
                 </h3>
                 <div class="kabupaten-schools" style="display: none;">
                     <div class="row g-3 mt-3">
@@ -392,7 +394,7 @@
 
     // Toggle kabupaten schools
     function toggleKabupaten(element) {
-        const kabupatenSection = element.parentElement;
+        const kabupatenSection = element.closest('.kabupaten-section');
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
         const toggleIcon = element.querySelector('.toggle-icon');
 
