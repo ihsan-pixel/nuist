@@ -388,7 +388,7 @@
                 <img src="{{ asset('images/flayer2.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
             </div>
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #c2facf;">PPDB Online</span></h2>
+                <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="feature-item">
                     <div class="feature-icon">
                         <i class="fas fa-route"></i>
