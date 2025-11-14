@@ -655,7 +655,7 @@
                 <h2 class="display-4 fw-bold mb-3" style="color: #004b4c;">Tentang <span style="color: #efaa0c;">PPDB Online</span></h2>
                 <div class="mx-auto" style="max-width: 700px;">
                     <p class="lead mb-0" style="color: #666; font-size: 1.1rem; line-height: 1.6;">
-                        Platform terdepan dalam transformasi digital sistem penerimaan peserta didik baru di Indonesia
+                        Platform terdepan dalam transformasi digital sistem penerimaan peserta didik baru di LP. Ma'arif NU D.I. Yogyakarta
                     </p>
                 </div>
             </div>
@@ -667,8 +667,7 @@
                 <div class="content-wrapper pe-lg-4">
                     <h3 class="h2 fw-bold mb-4" style="color: #004b4c;">Sistem Inovatif Terpadu</h3>
                     <p class="mb-4" style="color: #555; font-size: 1rem; line-height: 1.7;">
-                        PPDB Online adalah platform terdepan dalam transformasi digital sistem penerimaan peserta didik baru di Indonesia.
-                        Dengan pengalaman lebih dari 20 tahun sejak 2003, kami menyediakan solusi lengkap untuk kemudahan akses pendidikan berkualitas.
+                        PPDB Online adalah platform terdepan dalam transformasi digital sistem penerimaan peserta didik baru di LP. Ma'arif NU D.I. Yogyakarta, kami menyediakan solusi lengkap untuk kemudahan akses pendidikan berkualitas.
                     </p>
                     <p class="mb-4" style="color: #555; font-size: 1rem; line-height: 1.7;">
                         Platform ini tidak hanya memfasilitasi proses administrasi, tetapi juga memastikan transparansi, efisiensi,
@@ -731,7 +730,7 @@
                                     <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Efisiensi Pembiayaan</h6>
-                                        <p class="small mb-0" style="color: #666;">Mengurangi biaya operasional dan risiko korupsi</p>
+                                        <p class="small mb-0" style="color: #666;">Mengurangi biaya operasional</p>
                                     </div>
                                 </div>
                             </div>
@@ -828,32 +827,32 @@
                 <div style="position: relative; z-index: 2;">
                     <div class="mb-4">
                         <i class="bi bi-trophy-fill display-4 mb-3" style="color: #efaa0c;"></i>
-                        <h3 class="fw-bold mb-3">Pengalaman 20+ Tahun</h3>
-                        <p class="lead opacity-90 mb-4">Telah dipercaya oleh ribuan institusi pendidikan di seluruh Indonesia</p>
+                        <h3 class="fw-bold mb-3">Madrasah/Sekolah yang Kita Naungi</h3>
+                        <p class="lead opacity-90 mb-4">Madrasah/Sekolah Jenjang SMA/SMK/MA</p>
                     </div>
                     <div class="row g-4 justify-content-center">
                         <div class="col-md-3">
                             <div class="stat-item">
-                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">147</h2>
-                                <p class="mb-0 opacity-75">Dinas Pendidikan</p>
+                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">36</h2>
+                                <p class="mb-0 opacity-75">Madrasah/Sekolah</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="stat-item">
-                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">7000+</h2>
-                                <p class="mb-0 opacity-75">Sekolah/Madrasah</p>
+                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">750+</h2>
+                                <p class="mb-0 opacity-75">Users</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="stat-item">
-                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">20+</h2>
-                                <p class="mb-0 opacity-75">Tahun Pengalaman</p>
+                                <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">6000+</h2>
+                                <p class="mb-0 opacity-75">Peserta Didik</p>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="stat-item">
                                 <h2 class="display-3 fw-bold mb-2" style="color: #efaa0c;">100%</h2>
-                                <p class="mb-0 opacity-75">Tercepat & Terpercaya</p>
+                                <p class="mb-0 opacity-75">Meningkatkan Kualitas Pelayanan</p>
                             </div>
                         </div>
                     </div>
