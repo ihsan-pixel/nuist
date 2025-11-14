@@ -240,9 +240,10 @@
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-3">
-                <h3 class="kabupaten-title" style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span onclick="window.toggleKabupaten(this)" style="cursor: pointer; flex-grow: 1;">{{ $kabupaten ?: 'Kabupaten Belum Diisi' }}</span>
-                    <button class="btn btn-sm btn-outline-success toggle-btn" onclick="window.toggleKabupaten(this)" style="border: none; background: none; padding: 0; margin-left: 10px;">
+                <h3 class="kabupaten-title"
+                    style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <span class="kabupaten-toggle" style="cursor: pointer; flex-grow: 1;">{{ $kabupaten ?: 'Kabupaten Belum Diisi' }}</span>
+                    <button class="btn btn-sm btn-outline-success toggle-btn" style="border: none; background: none; padding: 0; margin-left: 10px;">
                         <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                     </button>
                 </h3>
@@ -367,47 +368,71 @@
 @endsection
 
 @section('scripts')
+@section('scripts')
 <script>
-    // Smooth scrolling untuk anchor links
+document.addEventListener('DOMContentLoaded', function () {
+    // Smooth scrolling (tetap)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
     });
 
-    // Navbar scroll effect
+    // Navbar scroll effect (tetap)
     window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
+        if (!navbar) return;
+        if (window.scrollY > 50) navbar.classList.add('navbar-scrolled');
+        else navbar.classList.remove('navbar-scrolled');
     });
 
-    // Toggle kabupaten schools
-    function toggleKabupaten(element) {
+    // Toggle kabupaten — attach listeners to .kabupaten-toggle and .toggle-btn
+    function toggleKabupatenElement(element) {
         const kabupatenSection = element.closest('.kabupaten-section');
+        if (!kabupatenSection) return;
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
         const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
 
-        if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
-            schoolsDiv.style.display = 'block';
-            toggleIcon.style.transform = 'rotate(180deg)';
+        // Safeguard default display style
+        const isHidden = !schoolsDiv || schoolsDiv.style.display === 'none' || getComputedStyle(schoolsDiv).display === 'none';
+
+        if (isHidden) {
+            if (schoolsDiv) schoolsDiv.style.display = 'block';
+            if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
         } else {
-            schoolsDiv.style.display = 'none';
-            toggleIcon.style.transform = 'rotate(0deg)';
+            if (schoolsDiv) schoolsDiv.style.display = 'none';
+            if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
         }
     }
 
-    // Make function globally available
-    window.toggleKabupaten = toggleKabupaten;
+    // Attach to spans and buttons
+    document.querySelectorAll('.kabupaten-toggle').forEach(span => {
+        span.addEventListener('click', function () {
+            toggleKabupatenElement(this);
+        });
+    });
+
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            // prevent default/button submit
+            e.preventDefault();
+            toggleKabupatenElement(this);
+        });
+    });
+
+    // Also expose a global function if some other code still calls window.toggleKabupaten
+    window.toggleKabupaten = function(el) {
+        // if el is a DOM element or string selector
+        let element = el;
+        if (typeof el === 'string') {
+            element = document.querySelector(el);
+        }
+        if (element) toggleKabupatenElement(element);
+    };
+});
 </script>
 @endsection
