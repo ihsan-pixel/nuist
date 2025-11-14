@@ -79,6 +79,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->get('section') === 'tentang-kami' ? 'active' : '' }}"
+                        href="{{ route('ppdb.index', ['section' => 'tentang-kami']) }}#tentang-kami">
+                        Tentang Kami
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link {{ request()->get('section') === 'kontak' ? 'active' : '' }}"
                         href="{{ route('ppdb.index', ['section' => 'kontak']) }}#kontak">
                         Kontak
@@ -118,6 +125,9 @@
                 </li>
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="#about" onclick="closeMobileMenu()">About</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#tentang-kami" onclick="closeMobileMenu()">Tentang Kami</a>
                 </li>
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="#kontak" onclick="closeMobileMenu()">Kontak</a>
