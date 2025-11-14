@@ -239,47 +239,50 @@
         </div>
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
-            <div class="kabupaten-section mb-5">
-                <h3 class="kabupaten-title mb-4" style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px;">
+            <div class="kabupaten-section mb-3">
+                <h3 class="kabupaten-title" onclick="toggleKabupaten(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
+                    <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s;"></i>
                 </h3>
-                <div class="row g-3">
-                    @foreach($sekolahList as $madrasah)
-                        @php
-                            $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
-                        @endphp
-                        <div class="col-xl-2-4 col-lg-2-4 col-md-3 col-sm-6 col-12">
-                            <div class="card school-card h-100">
-                                <div class="position-relative">
-                                    <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
-                                         class="card-img-top"
-                                         alt="{{ $madrasah->name }}"
-                                         style="height: 120px; object-fit: cover;">
-                                    @if($ppdb && $ppdb->isPembukaan())
-                                        <span class="badge bg-success status-badge">Buka</span>
-                                    @elseif($ppdb && $ppdb->isStarted())
-                                        <span class="badge bg-warning status-badge">Segera</span>
-                                    @else
-                                        <span class="badge bg-danger status-badge">Tutup</span>
-                                    @endif
-                                </div>
-                                <div class="school-info">
-                                    <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #0f854a;">{{ $madrasah->name }}</h6>
-                                    <div class="school-details" style="font-size: 0.75rem;">
-                                        <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
-                                        <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
-                                    </div>
-                                    <div class="mt-1 text-center">
+                <div class="kabupaten-schools" style="display: none;">
+                    <div class="row g-3 mt-3">
+                        @foreach($sekolahList as $madrasah)
+                            @php
+                                $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
+                            @endphp
+                            <div class="col-xl-2-4 col-lg-2-4 col-md-3 col-sm-6 col-12">
+                                <div class="card school-card h-100">
+                                    <div class="position-relative">
+                                        <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
+                                             class="card-img-top"
+                                             alt="{{ $madrasah->name }}"
+                                             style="height: 120px; object-fit: cover;">
                                         @if($ppdb && $ppdb->isPembukaan())
-                                            <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Lihat Detail</a>
+                                            <span class="badge bg-success status-badge">Buka</span>
+                                        @elseif($ppdb && $ppdb->isStarted())
+                                            <span class="badge bg-warning status-badge">Segera</span>
                                         @else
-                                            <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
+                                            <span class="badge bg-danger status-badge">Tutup</span>
                                         @endif
+                                    </div>
+                                    <div class="school-info">
+                                        <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #0f854a;">{{ $madrasah->name }}</h6>
+                                        <div class="school-details" style="font-size: 0.75rem;">
+                                            <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
+                                            <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
+                                        </div>
+                                        <div class="mt-1 text-center">
+                                            @if($ppdb && $ppdb->isPembukaan())
+                                                <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Lihat Detail</a>
+                                            @else
+                                                <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         @empty
@@ -386,5 +389,20 @@
             navbar.classList.remove('navbar-scrolled');
         }
     });
+
+    // Toggle kabupaten schools
+    function toggleKabupaten(element) {
+        const kabupatenSection = element.parentElement;
+        const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
+        const toggleIcon = element.querySelector('.toggle-icon');
+
+        if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
+            schoolsDiv.style.display = 'block';
+            toggleIcon.style.transform = 'rotate(180deg)';
+        } else {
+            schoolsDiv.style.display = 'none';
+            toggleIcon.style.transform = 'rotate(0deg)';
+        }
+    }
 </script>
 @endsection
