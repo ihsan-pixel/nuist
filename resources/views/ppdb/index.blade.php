@@ -385,7 +385,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <img src="{{ asset('images/flayer3.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
+                <img src="{{ asset('images/flayer2.png') }}" alt="About PPDB" class="img-fluid rounded shadow">
             </div>
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki <span style="color: #efaa0c;">PPDB Online</span></h2>
