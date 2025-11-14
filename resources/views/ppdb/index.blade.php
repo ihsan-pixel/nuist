@@ -52,7 +52,7 @@
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <div class="container-fluid px-4">
+    <div class="container">
         <div class="row align-items-left">
             <div class="col-lg-6 text-left">
                 <h1 class="display-4 fw-bold mb-4">PPDB NUIST 2025</h1>
@@ -69,7 +69,7 @@
 
 <!-- Daftar Sekolah -->
 <section id="sekolah" class="py-5 bg-light">
-    <div class="container-fluid px-4">
+    <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h2 class="display-5 fw-bold">Sekolah Terdaftar</h2>
@@ -135,7 +135,7 @@
 
 <!-- About Section -->
 <section id="about" class="py-5">
-    <div class="container-fluid px-4">
+    <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Tentang PPDB NUIST</h2>
@@ -156,7 +156,7 @@
 
 <!-- Contact Section -->
 <section id="kontak" class="py-5 bg-light">
-    <div class="container-fluid px-4">
+    <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h2 class="display-5 fw-bold">Hubungi Kami</h2>

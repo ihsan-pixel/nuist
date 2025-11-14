@@ -134,9 +134,8 @@ section {
 }
 
 /* Container Width Consistency */
-.container-fluid {
+.container {
     max-width: 1400px;
-    margin: 0 auto;
 }
 
 #sekolah,
