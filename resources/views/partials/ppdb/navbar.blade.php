@@ -1,8 +1,8 @@
 <style>
     /* --- FIX FINAL NAVBAR TEXT STYLE PADA NAV BLADE --- */
     nav.custom-navbar .navbar-nav .nav-link {
-        font-size: 26px !important;
-        font-weight: 800 !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
         color: #667085 !important;
         padding: 12px 20px !important;
         line-height: 1 !important;
