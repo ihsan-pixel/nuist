@@ -138,22 +138,9 @@
 @section('content')
 @include('partials.ppdb.navbar')
 
-<!-- Flyer Section -->
-<section class="flyer-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="display-5 fw-bold mb-4">Informasi PPDB 2026/2027</h2>
-                <p class="lead mb-4">Dapatkan informasi lengkap tentang penerimaan peserta didik baru</p>
-                <div class="flyer-images">
-                    <img src="{{ asset('images/flyer1.png') }}" alt="Flyer PPDB 1" class="flyer-img">
-                    <img src="{{ asset('images/flyer2.png') }}" alt="Flyer PPDB 2" class="flyer-img">
-                    <img src="{{ asset('images/flyer3.png') }}" alt="Flyer PPDB 3" class="flyer-img">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<div class="col-lg-6 text-center">
+    <img src="{{ asset('images/flayer1.png') }}" alt="PPDB Image" class="img-fluid rounded">
+</div>
 
 <!-- Hero Section -->
 <section class="hero-section">
