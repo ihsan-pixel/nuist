@@ -240,15 +240,12 @@
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-3">
-                <h3 class="kabupaten-title"
-                    style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span class="kabupaten-toggle" style="cursor: pointer; flex-grow: 1;">{{ $kabupaten ?: 'Kabupaten Belum Diisi' }}</span>
-                    <button class="btn btn-sm btn-outline-success toggle-btn" style="border: none; background: none; padding: 0; margin-left: 10px;">
-                        <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
-                    </button>
+                <h3 class="kabupaten-title" onclick="toggleSchools(this)" style="color: #0f854a; font-weight: 600; cursor: pointer; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
+                    <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                 </h3>
-                <div class="kabupaten-schools" style="display: none;">
-                    <div class="row g-3 mt-3">
+                <div class="kabupaten-schools" style="display: none; margin-top: 15px;">
+                    <div class="row g-3">
                         @foreach($sekolahList as $madrasah)
                             @php
                                 $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
@@ -390,49 +387,20 @@ document.addEventListener('DOMContentLoaded', function () {
         else navbar.classList.remove('navbar-scrolled');
     });
 
-    // Toggle kabupaten — attach listeners to .kabupaten-toggle and .toggle-btn
-    function toggleKabupatenElement(element) {
+    // Toggle kabupaten schools
+    function toggleSchools(element) {
         const kabupatenSection = element.closest('.kabupaten-section');
-        if (!kabupatenSection) return;
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
         const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
 
-        // Safeguard default display style
-        const isHidden = !schoolsDiv || schoolsDiv.style.display === 'none' || getComputedStyle(schoolsDiv).display === 'none';
-
-        if (isHidden) {
-            if (schoolsDiv) schoolsDiv.style.display = 'block';
-            if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
+        if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
+            schoolsDiv.style.display = 'block';
+            toggleIcon.style.transform = 'rotate(180deg)';
         } else {
-            if (schoolsDiv) schoolsDiv.style.display = 'none';
-            if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+            schoolsDiv.style.display = 'none';
+            toggleIcon.style.transform = 'rotate(0deg)';
         }
     }
-
-    // Attach to spans and buttons
-    document.querySelectorAll('.kabupaten-toggle').forEach(span => {
-        span.addEventListener('click', function () {
-            toggleKabupatenElement(this);
-        });
-    });
-
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            // prevent default/button submit
-            e.preventDefault();
-            toggleKabupatenElement(this);
-        });
-    });
-
-    // Also expose a global function if some other code still calls window.toggleKabupaten
-    window.toggleKabupaten = function(el) {
-        // if el is a DOM element or string selector
-        let element = el;
-        if (typeof el === 'string') {
-            element = document.querySelector(el);
-        }
-        if (element) toggleKabupatenElement(element);
-    };
 });
 </script>
 @endsection
