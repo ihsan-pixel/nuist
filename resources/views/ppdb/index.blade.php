@@ -10,7 +10,7 @@
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        color: #0f854a;
+        color: #101010;
         min-height: 93vh;
         display: flex;
         align-items: center;
