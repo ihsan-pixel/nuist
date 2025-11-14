@@ -393,7 +393,7 @@
     });
 
     // Toggle kabupaten schools
-    window.toggleKabupaten = function(element) {
+    function toggleKabupaten(element) {
         const kabupatenSection = element.closest('.kabupaten-section');
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
         const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
@@ -406,5 +406,8 @@
             toggleIcon.style.transform = 'rotate(0deg)';
         }
     }
+
+    // Make function globally available
+    window.toggleKabupaten = toggleKabupaten;
 </script>
 @endsection
