@@ -232,7 +232,7 @@
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">Filter</button>
-                        <a href="{{ route('ppdb.index') }}" class="btn btn-secondary">Reset</a>
+                        <a href="{{ route('ppdb.index') }}" class="btn btn-primary">Reset</a>
                     </div>
                 </form>
             </div>
@@ -240,7 +240,7 @@
 
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-5">
-                <h3 class="kabupaten-title mb-4" style="color: #22c55e; font-weight: 600; border-bottom: 2px solid #22c55e; padding-bottom: 10px;">
+                <h3 class="kabupaten-title mb-4" style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
                 </h3>
                 <div class="row g-3">
