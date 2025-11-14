@@ -10,7 +10,7 @@
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        color: #101010;
+        color: #222222;
         min-height: 93vh;
         display: flex;
         align-items: center;
@@ -57,7 +57,7 @@
     <div class="container">
         <div class="row align-items-left">
             <div class="col-lg-6 text-left">
-                <h1 class="display-4 fw-bold mb-4">PPDB NUIST APP</h1>
+                <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB Online</h1>
                 <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Madrasah Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-light btn-lg me-3">Lihat Sekolah</a>
                 <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-outline-light btn-lg">Daftar Sekarang</a>
