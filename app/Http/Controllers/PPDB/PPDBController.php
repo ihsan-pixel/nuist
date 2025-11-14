@@ -30,7 +30,12 @@ class PPDBController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $sekolah = $query->orderBy('name')->get();
+        $sekolah = $query->get();
+
+        // Kelompokkan berdasarkan kabupaten dan urutkan berdasarkan SCOD dalam setiap kelompok
+        $sekolahGrouped = $sekolah->groupBy('kabupaten')->map(function ($group) {
+            return $group->sortBy('scod');
+        });
 
         // Ambil daftar kabupaten unik untuk filter
         $kabupatenList = Madrasah::pluck('kabupaten')
@@ -39,7 +44,7 @@ class PPDBController extends Controller
             ->sort()
             ->values();
 
-        return view('ppdb.index', compact('sekolah', 'kabupatenList'));
+        return view('ppdb.index', compact('sekolahGrouped', 'kabupatenList'));
     }
 
     /**

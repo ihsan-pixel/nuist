@@ -4,9 +4,6 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
-<!-- Swiper CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-
 <style>
     .hero-section {
         background: url('{{ asset("images/bg_ppdb2.png") }}');
@@ -164,38 +161,6 @@
     .flyer-img:hover {
         transform: scale(1.05);
     }
-    .swiper {
-    padding-bottom: 40px;
-    }
-
-    .swiper-slide {
-        width: 340px !important; /* ukuran card */
-    }
-
-    .school-card {
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        overflow: hidden;
-        transition: .3s ease;
-    }
-
-    .school-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    }
-
-    .status-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        font-size: 12px;
-        padding: 6px 10px;
-        border-radius: 8px;
-    }
-
-    .school-info {
-        padding: 15px;
-    }
 </style>
 @endsection
 
@@ -220,7 +185,7 @@
             <!-- Text Kiri -->
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Transformasi Sistem PPDB Online</h1>
-                <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah di Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta Tahun Pelajaran 2026/2027</p>
+                <p class="lead mb-4">Sistem Penerimaan Peserta Didik Baru Sekolah/Madrasah <b> Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta <b>Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-orange btn-lg me-3">Lihat Sekolah</a>
             </div>
 
@@ -271,68 +236,58 @@
             </div>
         </div>
 
-        <!-- Slider -->
-        <div class="swiper mySwiperSekolah">
-            <div class="swiper-wrapper">
-
-                @forelse($sekolah as $madrasah)
-                    @php
-                        $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first();
-                    @endphp
-
-                    <div class="swiper-slide">
-                        <div class="card school-card h-100">
-                            <div class="position-relative">
-                                <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
-                                    class="card-img-top"
-                                    alt="{{ $madrasah->name }}"
-                                    style="height: 180px; object-fit: cover;">
-
-                                @if($ppdb && $ppdb->isPembukaan())
-                                    <span class="badge bg-success status-badge">Buka</span>
-                                @elseif($ppdb && $ppdb->isStarted())
-                                    <span class="badge bg-warning status-badge">Segera</span>
-                                @else
-                                    <span class="badge bg-danger status-badge">Tutup</span>
-                                @endif
-                            </div>
-
-                            <div class="school-info">
-                                <h5 class="school-title mb-2">{{ $madrasah->name }}</h5>
-                                <div class="school-details">
-                                    <small>SCOD: {{ $madrasah->scod ?: 'Belum diisi' }}</small><br>
-                                    <small>{{ $madrasah->kabupaten ?: 'Kabupaten belum diisi' }}</small><br>
-                                    <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }} siswa</small>
-                                </div>
-
-                                <div class="mt-3 text-center">
+        @forelse($sekolahGrouped as $kabupaten => $sekolahList)
+            <div class="kabupaten-section mb-5">
+                <h3 class="kabupaten-title mb-4" style="color: #22c55e; font-weight: 600; border-bottom: 2px solid #22c55e; padding-bottom: 10px;">
+                    {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
+                </h3>
+                <div class="row g-3">
+                    @foreach($sekolahList as $madrasah)
+                        @php
+                            $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
+                        @endphp
+                        <div class="col-xl-2-4 col-lg-2-4 col-md-3 col-sm-6 col-12">
+                            <div class="card school-card h-100">
+                                <div class="position-relative">
+                                    <img src="{{ $madrasah->logo ? asset('storage/app/public/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
+                                         class="card-img-top"
+                                         alt="{{ $madrasah->name }}"
+                                         style="height: 120px; object-fit: cover;">
                                     @if($ppdb && $ppdb->isPembukaan())
-                                        <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100">
-                                            Lihat Detail
-                                        </a>
+                                        <span class="badge bg-success status-badge">Buka</span>
+                                    @elseif($ppdb && $ppdb->isStarted())
+                                        <span class="badge bg-warning status-badge">Segera</span>
                                     @else
-                                        <button class="btn btn-secondary btn-sm w-100 disabled">Pendaftaran Ditutup</button>
+                                        <span class="badge bg-danger status-badge">Tutup</span>
                                     @endif
                                 </div>
+                                <div class="school-info">
+                                    <h6 class="school-title mb-1" style="font-size: 0.9rem;">{{ $madrasah->name }}</h6>
+                                    <div class="school-details" style="font-size: 0.75rem;">
+                                        <small>SCOD: {{ $madrasah->scod ?: '-' }}</small><br>
+                                        <small>Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }}</small>
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        @if($ppdb && $ppdb->isPembukaan())
+                                            <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Lihat Detail</a>
+                                        @else
+                                            <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                @empty
-                    <div class="swiper-slide">
-                        <div class="alert alert-info text-center">
-                            Tidak ada sekolah ditemukan
-                        </div>
-                    </div>
-                @endforelse
-
+                    @endforeach
+                </div>
             </div>
-
-            <!-- Slider Controls -->
-            <div class="swiper-pagination"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-button-next"></div>
-        </div>
+        @empty
+            <div class="col-12 text-center">
+                <div class="alert alert-info" style="border-radius: 15px; border: none; background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);">
+                    <h5 style="color: #667eea;">Tidak ada sekolah yang ditemukan</h5>
+                    <p class="mb-0" style="color: #64748b;">Coba ubah filter atau pencarian Anda.</p>
+                </div>
+            </div>
+        @endforelse
     </div>
 </section>
 
@@ -430,30 +385,4 @@
         }
     });
 </script>
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-
-<script>
-var swiper = new Swiper(".mySwiperSekolah", {
-    slidesPerView: 1.2,
-    spaceBetween: 20,
-    centeredSlides: false,
-    loop: false,
-    pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-    },
-    navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-    },
-    breakpoints: {
-        576: { slidesPerView: 2.3 },
-        768: { slidesPerView: 3 },
-        992: { slidesPerView: 4 },
-        1200: { slidesPerView: 5 },
-    }
-});
-</script>
-
 @endsection
