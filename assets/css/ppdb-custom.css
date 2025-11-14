@@ -264,3 +264,29 @@ section {
     color: #667085 !important;
     font-size: 22px !important;
 }
+/* FIX FINAL – Override semua nav-link pada navbar utama */
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #667085 !important;
+    padding: 12px 20px !important;
+    line-height: 1 !important;
+}
+
+/* hover */
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link:hover {
+    color: #0f854a !important;
+}
+
+/* active */
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link.active {
+    color: #0f854a !important;
+    font-weight: 800 !important;
+}
+
+/* Hilangkan override Bootstrap */
+.navbar-light .navbar-nav .nav-link {
+    color: #667085 !important;
+    font-size: 26px !important;
+}
+
