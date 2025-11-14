@@ -393,10 +393,10 @@
     });
 
     // Toggle kabupaten schools
-    function toggleKabupaten(element) {
+    window.toggleKabupaten = function(element) {
         const kabupatenSection = element.closest('.kabupaten-section');
         const schoolsDiv = kabupatenSection.querySelector('.kabupaten-schools');
-        const toggleIcon = element.querySelector('.toggle-icon');
+        const toggleIcon = kabupatenSection.querySelector('.toggle-icon');
 
         if (schoolsDiv.style.display === 'none' || schoolsDiv.style.display === '') {
             schoolsDiv.style.display = 'block';
