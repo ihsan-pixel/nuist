@@ -241,8 +241,8 @@
         @forelse($sekolahGrouped as $kabupaten => $sekolahList)
             <div class="kabupaten-section mb-3">
                 <h3 class="kabupaten-title" style="color: #0f854a; font-weight: 600; border-bottom: 2px solid #0f854a; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span onclick="toggleKabupaten(this)" style="cursor: pointer; flex-grow: 1;">{{ $kabupaten ?: 'Kabupaten Belum Diisi' }}</span>
-                    <button class="btn btn-sm btn-outline-success toggle-btn" onclick="toggleKabupaten(this)" style="border: none; background: none; padding: 0; margin-left: 10px;">
+                    <span onclick="window.toggleKabupaten(this)" style="cursor: pointer; flex-grow: 1;">{{ $kabupaten ?: 'Kabupaten Belum Diisi' }}</span>
+                    <button class="btn btn-sm btn-outline-success toggle-btn" onclick="window.toggleKabupaten(this)" style="border: none; background: none; padding: 0; margin-left: 10px;">
                         <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                     </button>
                 </h3>
