@@ -30,17 +30,21 @@
     .school-card {
         transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 4px 20px rgba(34, 197, 94, 0.1);
         border-radius: 15px;
         overflow: hidden;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
     }
     .school-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
+        box-shadow: 0 15px 35px rgba(34, 197, 94, 0.2);
     }
     .school-card .card-img-top {
         transition: transform 0.3s ease;
+        flex-shrink: 0;
     }
     .school-card:hover .card-img-top {
         transform: scale(1.05);
@@ -57,10 +61,14 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .school-info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: white;
         padding: 15px;
         border-radius: 0 0 15px 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
     .school-title {
         font-size: 1.1rem;
@@ -71,9 +79,10 @@
         font-size: 0.85rem;
         opacity: 0.9;
         line-height: 1.4;
+        flex-grow: 1;
     }
     .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         border: none;
         border-radius: 25px;
         padding: 8px 20px;
@@ -81,9 +90,9 @@
         transition: all 0.3s ease;
     }
     .btn-primary:hover {
-        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
     }
     .btn-secondary {
         background: #f1f5f9;
