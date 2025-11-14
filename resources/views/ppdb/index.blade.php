@@ -33,7 +33,7 @@
         box-shadow: 0 4px 20px rgba(34, 197, 94, 0.1);
         border-radius: 15px;
         overflow: hidden;
-        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        background: #ffffff;
         min-height: 320px;
         display: flex;
         flex-direction: column;
@@ -61,8 +61,8 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .school-info {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        color: white;
+        background: #ffffff;
+        color: #333333;
         padding: 15px;
         border-radius: 0 0 15px 15px;
         flex-grow: 1;
@@ -74,10 +74,11 @@
         font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 8px;
+        color: #22c55e;
     }
     .school-details {
         font-size: 0.85rem;
-        opacity: 0.9;
+        color: #666666;
         line-height: 1.4;
         flex-grow: 1;
     }
@@ -95,18 +96,64 @@
         box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
     }
     .btn-secondary {
-        background: #f1f5f9;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         border: none;
         border-radius: 25px;
         padding: 8px 20px;
-        color: #64748b;
+        color: white;
         font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+    }
+    .flyer-section {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        padding: 40px 0;
+        color: white;
+        text-align: center;
+    }
+    .flyer-images {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .flyer-img {
+        width: 200px;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+    .flyer-img:hover {
+        transform: scale(1.05);
     }
 </style>
 @endsection
 
 @section('content')
 @include('partials.ppdb.navbar')
+
+<!-- Flyer Section -->
+<section class="flyer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold mb-4">Informasi PPDB 2026/2027</h2>
+                <p class="lead mb-4">Dapatkan informasi lengkap tentang penerimaan peserta didik baru</p>
+                <div class="flyer-images">
+                    <img src="{{ asset('images/flyer1.png') }}" alt="Flyer PPDB 1" class="flyer-img">
+                    <img src="{{ asset('images/flyer2.png') }}" alt="Flyer PPDB 2" class="flyer-img">
+                    <img src="{{ asset('images/flyer3.png') }}" alt="Flyer PPDB 3" class="flyer-img">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Hero Section -->
 <section class="hero-section">
