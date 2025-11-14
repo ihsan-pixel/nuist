@@ -25,7 +25,7 @@
 .navbar-nav .nav-link {
     font-size: 28px !important;
     font-weight: 800 !important;
-    color: #667085 !important;       /* abu-abu seperti gambar */
+    color: #667085 !important;
     padding: 8px 14px;
     margin: 0 6px;
     transition: color .2s ease;
@@ -33,22 +33,22 @@
 
 /* Hover */
 .navbar-nav .nav-link:hover {
-    color: #0f854a !important;       /* hijau */
+    color: #0f854a !important;
 }
 
-/* Active State (menu yang sedang dipilih) */
+/* Active State */
 .navbar-nav .nav-link.active {
     color: #0f854a !important;
     font-weight: 800;
 }
 
-/* Hilangkan efek-efek animasi lama */
+/* Hilangkan efek animasi lama */
 .navbar-nav .nav-link::before,
 .navbar-nav .nav-link::after {
     display: none !important;
 }
 
-/* Tombol Green (Berlangganan/Daftar) */
+/* Tombol Green */
 .btn-orange {
     background: #0f854a;
     color: #fff !important;
@@ -62,7 +62,6 @@
 .btn-orange:hover {
     background: #0a5f35;
 }
-
 
 /* Hero Section */
 .hero-section {
@@ -133,7 +132,7 @@ section {
     padding: 5rem 0;
 }
 
-/* Container Width Consistency */
+/* Container Width */
 .container {
     max-width: 1400px;
 }
@@ -143,7 +142,7 @@ section {
     background-color: #f8f9fa;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
     .hero-section {
         padding: 3rem 0;
@@ -168,7 +167,7 @@ section {
     }
 }
 
-/* Animation Classes */
+/* Animation */
 .fade-in {
     opacity: 0;
     transform: translateY(30px);
@@ -180,7 +179,7 @@ section {
     transform: translateY(0);
 }
 
-/* Loading Animation */
+/* Loading */
 .loading {
     position: relative;
     overflow: hidden;
@@ -226,7 +225,7 @@ section {
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
-/* Print Styles */
+/* Print */
 @media print {
     .navbar,
     .btn,
@@ -240,53 +239,32 @@ section {
         border: 1px solid #ddd;
     }
 }
-/* Perbaiki ukuran & warna utama menu */
-.custom-navbar .navbar-nav .nav-link {
-    font-size: 22px !important;      /* ukuran besar */
-    font-weight: 700 !important;     /* bold */
-    color: #667085 !important;       /* abu-abu */
-    padding: 10px 18px !important;
-    transition: color 0.2s ease;
-}
 
-/* Hover menjadi hijau */
-.custom-navbar .navbar-nav .nav-link:hover {
-    color: #0f854a !important;
-}
 
-/* Active hijau */
-.custom-navbar .navbar-nav .nav-link.active {
-    color: #0f854a !important;
-}
 
-/* Tambahan agar nav-link Bootstrap tidak menang */
-.navbar-light .navbar-nav .nav-link {
-    color: #667085 !important;
-    font-size: 22px !important;
-}
-/* FIX FINAL – Override semua nav-link pada navbar utama */
+/* ==========================================================
+   FIX NAVBAR TEXT & COLOR — DITAMBAHKAN LANGSUNG DI BAWAH
+   ========================================================== */
+
 nav.custom-navbar .navbar-nav > .nav-item > .nav-link {
     font-size: 26px !important;
     font-weight: 800 !important;
     color: #667085 !important;
     padding: 12px 20px !important;
     line-height: 1 !important;
+    transition: color 0.2s ease;
 }
 
-/* hover */
 nav.custom-navbar .navbar-nav > .nav-item > .nav-link:hover {
     color: #0f854a !important;
 }
 
-/* active */
 nav.custom-navbar .navbar-nav > .nav-item > .nav-link.active {
     color: #0f854a !important;
     font-weight: 800 !important;
 }
 
-/* Hilangkan override Bootstrap */
 .navbar-light .navbar-nav .nav-link {
     color: #667085 !important;
     font-size: 26px !important;
 }
-
