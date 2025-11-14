@@ -591,7 +591,7 @@
 </section>
 
 <!-- Tentang Kami Section -->
-<section id="tentang-kami" class="tentang-kami-section py-5" style="background: linear-gradient(135deg, #094682 0%, #f61a1a 100%);">
+{{-- <section id="tentang-kami" class="tentang-kami-section py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);"> --}}
     <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-lg-6 animate-slide-left-on-scroll">
@@ -738,7 +738,7 @@
             </div>
         </div>
     </div>
-</section>
+{{-- </section> --}}
 
 <!-- Contact Section -->
 <section id="kontak" class="contact-section">
