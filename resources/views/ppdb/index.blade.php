@@ -542,7 +542,7 @@
             <div class="kabupaten-section mb-3">
                 <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #004b4c; font-weight: 600; cursor: pointer; border-bottom: 2px solid #004b4c; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     {{ $kabupaten ?: 'Kabupaten Belum Diisi' }}
-                    <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
+                    <i class="fas fa-chevron-down toggle-icon" style="transition: transform 0.3s; font-size: 1.2rem;"></i>
                 </h3>
                 <div class="kabupaten-schools" style="display: none; margin-top: 15px;">
                     <div class="row g-3">
@@ -675,13 +675,13 @@
                     </p>
                     <div class="key-features d-flex flex-wrap gap-3">
                         <div class="feature-badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 500;">
-                            <i class="bi bi-shield-check me-2"></i>Keamanan Data
+                            <i class="fas fa-shield-alt me-2"></i>Keamanan Data
                         </div>
                         <div class="feature-badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); color: #7b1fa2; font-weight: 500;">
-                            <i class="bi bi-clock-history me-2"></i>Real-time Processing
+                            <i class="fas fa-clock me-2"></i>Real-time Processing
                         </div>
                         <div class="feature-badge px-3 py-2 rounded-pill" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); color: #388e3c; font-weight: 500;">
-                            <i class="bi bi-globe me-2"></i>Multi-Platform
+                            <i class="fas fa-globe me-2"></i>Multi-Platform
                         </div>
                     </div>
                 </div>
@@ -691,7 +691,7 @@
                     <div style="position: absolute; top: -30px; right: -30px; width: 80px; height: 80px; background: rgba(239, 170, 12, 0.1); border-radius: 50%;"></div>
                     <div style="position: absolute; bottom: -20px; left: -20px; width: 60px; height: 60px; background: rgba(239, 170, 12, 0.1); border-radius: 50%;"></div>
                     <div style="position: relative; z-index: 2;">
-                        <i class="bi bi-award-fill display-4 mb-3" style="color: #efaa0c;"></i>
+                        <i class="fas fa-award display-4 mb-3" style="color: #efaa0c;"></i>
                         <h4 class="fw-bold mb-2">PPDB Online</h4>
                         <p class="mb-3 opacity-75">Platform Terpercaya</p>
                         <p class="small opacity-75 mb-0">Sistem layanan inovatif terpadu untuk pendidikan masa depan</p>
@@ -717,7 +717,7 @@
                     <div class="benefit-card p-4 rounded-4 shadow-sm h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #004b4c; transition: all 0.3s ease;">
                         <div class="d-flex align-items-center mb-4">
                             <div class="icon-container me-3" style="background: linear-gradient(135deg, #004b4c 0%, #00695c 100%); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-building-fill text-white fs-5"></i>
+                                <i class="fas fa-school text-white fs-5"></i>
                             </div>
                             <div>
                                 <h4 class="fw-bold mb-0" style="color: #004b4c;">Dinas Pendidikan & Sekolah</h4>
@@ -727,7 +727,7 @@
                         <div class="benefits-list">
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Efisiensi Pembiayaan</h6>
                                         <p class="small mb-0" style="color: #666;">Mengurangi biaya operasional</p>
@@ -736,7 +736,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Reputasi Terjaga</h6>
                                         <p class="small mb-0" style="color: #666;">Meningkatkan kredibilitas dan transparansi sekolah</p>
@@ -745,7 +745,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Akses Universal</h6>
                                         <p class="small mb-0" style="color: #666;">Memberikan akses yang luas kepada masyarakat</p>
@@ -754,7 +754,7 @@
                             </div>
                             <div class="benefit-item">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Data Terintegrasi</h6>
                                         <p class="small mb-0" style="color: #666;">Basis data terpadu untuk perencanaan pendidikan</p>
@@ -770,7 +770,7 @@
                     <div class="benefit-card p-4 rounded-4 shadow-sm h-100" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-left: 5px solid #efaa0c; transition: all 0.3s ease;">
                         <div class="d-flex align-items-center mb-4">
                             <div class="icon-container me-3" style="background: linear-gradient(135deg, #efaa0c 0%, #ff8f00 100%); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-people-fill text-white fs-5"></i>
+                                <i class="fas fa-users text-white fs-5"></i>
                             </div>
                             <div>
                                 <h4 class="fw-bold mb-0" style="color: #004b4c;">Murid & Orang Tua</h4>
@@ -780,7 +780,7 @@
                         <div class="benefits-list">
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Pendaftaran Mudah</h6>
                                         <p class="small mb-0" style="color: #666;">Proses pendaftaran yang sederhana dan cepat</p>
@@ -789,7 +789,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Informasi Real-time</h6>
                                         <p class="small mb-0" style="color: #666;">Update informasi penerimaan secara langsung</p>
@@ -798,7 +798,7 @@
                             </div>
                             <div class="benefit-item mb-3 pb-3 border-bottom border-light">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Monitoring Terpadu</h6>
                                         <p class="small mb-0" style="color: #666;">Pantau status pendaftaran dengan mudah</p>
@@ -807,7 +807,7 @@
                             </div>
                             <div class="benefit-item">
                                 <div class="d-flex align-items-start">
-                                    <i class="bi bi-check-circle-fill text-success me-3 mt-1 flex-shrink-0"></i>
+                                    <i class="fas fa-check-circle text-success me-3 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <h6 class="fw-bold mb-1" style="color: #333;">Pelayanan Prima</h6>
                                         <p class="small mb-0" style="color: #666;">Fasilitas dan pelayanan yang memuaskan</p>
@@ -826,7 +826,7 @@
                 <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.03)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.02)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg></div>
                 <div style="position: relative; z-index: 2;">
                     <div class="mb-4">
-                        <i class="bi bi-trophy-fill display-4 mb-3" style="color: #efaa0c;"></i>
+                        <i class="fas fa-trophy display-4 mb-3" style="color: #efaa0c;"></i>
                         <h3 class="fw-bold mb-3">Madrasah/Sekolah yang Kita Naungi</h3>
                         <p class="lead opacity-90 mb-4">Madrasah/Sekolah Jenjang SMA/SMK/MA</p>
                     </div>
@@ -875,7 +875,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-cloud-fill fs-2" style="color: #1976d2;"></i>
+                            <i class="fas fa-cloud fs-2" style="color: #1976d2;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Cloud-Based System</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Tidak memerlukan instalasi perangkat lunak khusus, hanya perlu koneksi internet untuk akses penuh.</p>
@@ -884,7 +884,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-device-fill fs-2" style="color: #9c27b0;"></i>
+                            <i class="fas fa-mobile-alt fs-2" style="color: #9c27b0;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi-Platform Access</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Dapat diakses melalui berbagai perangkat: desktop, tablet, smartphone dengan interface yang responsif.</p>
@@ -893,7 +893,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-database-fill fs-2" style="color: #388e3c;"></i>
+                            <i class="fas fa-database fs-2" style="color: #388e3c;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Data Integration</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Terintegrasi penuh dengan sistem Dapodik nasional untuk validasi dan sinkronisasi data.</p>
@@ -902,7 +902,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-phone-fill fs-2" style="color: #f57c00;"></i>
+                            <i class="fas fa-mobile-alt fs-2" style="color: #f57c00;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Responsive Design</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Tampilan yang menyesuaikan dengan ukuran layar perangkat untuk pengalaman optimal.</p>
@@ -911,7 +911,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-diagram-3-fill fs-2" style="color: #e91e63;"></i>
+                            <i class="fas fa-sitemap fs-2" style="color: #e91e63;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi-Model Registration</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Berbagai model alur pendaftaran sesuai dengan kebutuhan dan regulasi masing-masing daerah.</p>
@@ -920,7 +920,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="feature-card p-4 rounded-4 shadow-sm text-center h-100" style="background: white; border: 1px solid #e9ecef; transition: all 0.3s ease;">
                         <div class="feature-icon mb-3" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                            <i class="bi bi-signpost-split-fill fs-2" style="color: #009688;"></i>
+                            <i class="fas fa-route fs-2" style="color: #009688;"></i>
                         </div>
                         <h5 class="fw-bold mb-3" style="color: #004b4c;">Multi-Path Selection</h5>
                         <p style="color: #555; line-height: 1.6; font-size: 0.95rem;">Mendukung berbagai jalur seleksi sesuai dengan Permendikbud dan kebijakan daerah.</p>
@@ -930,7 +930,7 @@
                     <div class="feature-card p-4 rounded-4 shadow-lg text-center" style="background: linear-gradient(135deg, #004b4c 0%, #00695c 100%); color: white; border: none;">
                         <div class="d-flex justify-content-center align-items-center mb-3">
                             <div class="feature-icon me-3" style="background: rgba(239, 170, 12, 0.2); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-clock-fill fs-2" style="color: #efaa0c;"></i>
+                                <i class="fas fa-clock fs-2" style="color: #efaa0c;"></i>
                             </div>
                             <div class="text-start">
                                 <h4 class="fw-bold mb-1">Real-Time Processing</h4>
@@ -958,7 +958,7 @@
         <div class="row g-4 justify-content-center">
             <div class="col-lg-4 col-md-6">
                 <div class="contact-card h-100 animate-fade-in-up">
-                    <i class="bi bi-telephone-fill"></i>
+                    <i class="fas fa-phone"></i>
                     <h5>Telepon</h5>
                     <p>(021) 1234-5678</p>
                 </div>
@@ -966,7 +966,7 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="contact-card h-100 animate-fade-in-up">
-                    <i class="bi bi-envelope-fill"></i>
+                    <i class="fas fa-envelope"></i>
                     <h5>Email</h5>
                     <p>ppdb@nuist.id</p>
                 </div>
@@ -974,7 +974,7 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="contact-card h-100 animate-fade-in-up">
-                    <i class="bi bi-geo-alt-fill"></i>
+                    <i class="fas fa-map-marker-alt"></i>
                     <h5>Alamat</h5>
                     <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
                 </div>
