@@ -464,7 +464,7 @@
                     <p>Jl. KH. Wahid Hasyim No. 123<br>Jakarta Pusat, 10250</p>
                 </div>
             </div> --}}
-        </div>
+        {{-- </div> --}}
     </div>
 </section>
 
