@@ -11,7 +11,9 @@
         background-position: center;
         background-attachment: fixed;
         color: #0f854a;
-        padding: 80px 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
     }
     .navbar-brand img {
         height: 40px;
