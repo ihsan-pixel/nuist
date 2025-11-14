@@ -4,7 +4,7 @@
             <!-- Logo dan Deskripsi -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center mb-3">
-                    <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;">
+                    {{-- <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 40px; width: auto;"> --}}
                     <span class="fw-bold text-primary">PPDB NUIST</span>
                 </div>
                 <p class="mb-3">Sistem Penerimaan Peserta Didik Baru Madrasah di bawah naungan LP. Ma'arif NU PWNU D.I. Yogyakarta untuk tahun pelajaran 2026/2027.</p>
