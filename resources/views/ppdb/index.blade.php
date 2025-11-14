@@ -191,7 +191,7 @@
         flex-shrink: 0;
     }
     .feature-icon .bi {
-        color: white;
+        color: #ffffff;
         font-size: 1.2rem;
     }
     .feature-item {
