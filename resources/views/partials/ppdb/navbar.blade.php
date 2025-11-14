@@ -74,7 +74,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->get('section') === 'about' ? 'active' : '' }}"
                         href="{{ route('ppdb.index', ['section' => 'about']) }}#about">
-                        About
+                        Fitur
                     </a>
                 </li>
 
