@@ -587,8 +587,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-lg-6 animate-slide-left-on-scroll">
                 <h2 class="display-5 fw-bold mb-4" style="color: #004b4c;">Tentang <span style="color: #efaa0c;">PPDB Online</span></h2>
