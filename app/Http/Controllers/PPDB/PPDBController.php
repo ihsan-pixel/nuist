@@ -14,35 +14,33 @@ class PPDBController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PPDBSetting::where('tahun', now()->year)
-            ->with('sekolah')
-            ->orderBy('jadwal_buka', 'asc');
+        // Ambil semua madrasah yang memiliki PPDB setting untuk tahun ini
+        $query = Madrasah::whereHas('ppdbSettings', function ($q) {
+            $q->where('tahun', now()->year);
+        })->with(['ppdbSettings' => function ($q) {
+            $q->where('tahun', now()->year);
+        }]);
 
         // Filter berdasarkan kabupaten
         if ($request->filled('kabupaten')) {
-            $query->whereHas('sekolah', function ($q) use ($request) {
-                $q->where('kabupaten', $request->kabupaten);
-            });
+            $query->where('kabupaten', $request->kabupaten);
         }
 
         // Search berdasarkan nama sekolah
         if ($request->filled('search')) {
-            $query->whereHas('sekolah', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
-            });
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $sekolah = $query->get();
+        $sekolah = $query->orderBy('name')->get();
 
         // Ambil daftar kabupaten unik untuk filter
-        $kabupatenList = PPDBSetting::where('tahun', now()->year)
-            ->with('sekolah')
-            ->get()
-            ->pluck('sekolah.kabupaten')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
+        $kabupatenList = Madrasah::whereHas('ppdbSettings', function ($q) {
+            $q->where('tahun', now()->year);
+        })->pluck('kabupaten')
+        ->filter()
+        ->unique()
+        ->sort()
+        ->values();
 
         return view('ppdb.index', compact('sekolah', 'kabupatenList'));
     }

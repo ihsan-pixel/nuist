@@ -60,4 +60,10 @@ class Madrasah extends Model
     {
         return $this->hasManyThrough(TeachingAttendance::class, TeachingSchedule::class, 'school_id', 'teaching_schedule_id');
     }
+
+    // Relasi: satu madrasah punya banyak PPDB settings
+    public function ppdbSettings()
+    {
+        return $this->hasMany(PPDBSetting::class, 'sekolah_id');
+    }
 }

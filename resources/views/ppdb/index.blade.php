@@ -107,34 +107,37 @@
         </div>
 
         <div class="row g-4">
-            @forelse($sekolah as $ppdb)
+            @forelse($sekolah as $madrasah)
+                @php
+                    $ppdb = $madrasah->ppdbSettings->first(); // Ambil PPDB setting pertama
+                @endphp
                 <div class="col-lg-4 col-md-6">
                     <div class="card school-card h-100">
                         <div class="position-relative">
-                            <img src="{{ $ppdb->sekolah->logo ? asset('storage/' . $ppdb->sekolah->logo) : asset('images/madrasah-default.jpg') }}"
+                            <img src="{{ $madrasah->logo ? asset('storage/' . $madrasah->logo) : asset('images/madrasah-default.jpg') }}"
                                  class="card-img-top"
-                                 alt="{{ $ppdb->sekolah->name }}"
+                                 alt="{{ $madrasah->name }}"
                                  style="height: 200px; object-fit: cover;">
-                            @if($ppdb->isPembukaan())
+                            @if($ppdb && $ppdb->isPembukaan())
                                 <span class="badge bg-success status-badge">Buka</span>
-                            @elseif($ppdb->isStarted())
+                            @elseif($ppdb && $ppdb->isStarted())
                                 <span class="badge bg-warning status-badge">Segera</span>
                             @else
                                 <span class="badge bg-danger status-badge">Tutup</span>
                             @endif
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">{{ $ppdb->sekolah->name }}</h5>
+                            <h5 class="card-title">{{ $madrasah->name }}</h5>
                             <p class="card-text text-muted">
-                                <small class="text-muted">Madrasah ID: {{ $ppdb->sekolah_id }}</small><br>
-                                {{ $ppdb->sekolah->alamat ?: 'Alamat belum diisi' }}
-                                @if($ppdb->sekolah->kabupaten)
-                                    <br><small class="text-primary">{{ $ppdb->sekolah->kabupaten }}</small>
+                                <small class="text-muted">Madrasah ID: {{ $madrasah->id }}</small><br>
+                                {{ $madrasah->alamat ?: 'Alamat belum diisi' }}
+                                @if($madrasah->kabupaten)
+                                    <br><small class="text-primary">{{ $madrasah->kabupaten }}</small>
                                 @endif
                             </p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">Pendaftar: {{ $ppdb->totalPendaftar() }} siswa</small>
-                                @if($ppdb->isPembukaan())
+                                <small class="text-muted">Pendaftar: {{ $ppdb ? $ppdb->totalPendaftar() : 0 }} siswa</small>
+                                @if($ppdb && $ppdb->isPembukaan())
                                     <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm">Lihat Detail</a>
                                 @else
                                     <button class="btn btn-secondary btn-sm disabled">Pendaftaran Ditutup</button>
