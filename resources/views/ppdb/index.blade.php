@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
 <style>
     .hero-section {
-        background: url('{{ asset("images/bg_ppdb1.png") }}');
+        background: url('{{ asset("images/bg_ppdb2.png") }}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
