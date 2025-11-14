@@ -10,10 +10,39 @@
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        color: #222222;
+
+        /* FIX TERPENTING */
+        display: block; /* buang flex agar elemen tidak ketarik tengah */
+        padding-top: 120px; /* beri ruang flayer */
+        padding-bottom: 80px;
         min-height: 93vh;
-        display: flex;
-        align-items: center;
+        position: relative;
+    }
+
+    .hero-section .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Flayer selalu center dan berada di paling atas */
+    .hero-flayer {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    /* Tombol orange */
+    .btn-orange {
+        background-color: #ff7f00;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-orange:hover {
+        background-color: #e66f00;
+        color: #fff;
     }
     .navbar-brand img {
         height: 40px;
@@ -138,11 +167,10 @@
 @section('content')
 @include('partials.ppdb.navbar')
 
-<!-- Hero Section -->
 <section class="hero-section">
 
-    <!-- Bagian Flayer di Atas -->
-    <div class="container mb-5">
+    <!-- Flayer di atas -->
+    <div class="container hero-flayer">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
                 <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded" alt="Flayer PPDB">
