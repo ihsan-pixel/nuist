@@ -31,7 +31,7 @@
     </div>
     <!-- Daftar Button -->
     <div class="collapse navbar-collapse" id="navbarNav">
-        <div class="d-flex ms-20">
+        <div class="d-flex ms-10">
             <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary d-none d-lg-inline-block">Daftar</a>
         </div>
     </div>
