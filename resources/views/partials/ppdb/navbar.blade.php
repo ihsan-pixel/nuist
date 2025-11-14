@@ -1,5 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid px-4">
+        <!-- Daftar Button -->
+        <a href="{{ route('ppdb.daftar', 'demo') }}" class="btn btn-primary me-3 d-none d-lg-inline-block">Daftar</a>
+
         <!-- Logo dan Nama Aplikasi -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
             <img src="{{ asset('images/logo1.png') }}" alt="Logo NUIST" class="me-2" style="height: 60px; width: auto;">
@@ -12,9 +15,9 @@
         </button>
     </div>
 
-    <!-- Menu Items (Always Visible on Desktop, Collapsible on Mobile) -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+    <!-- Menu Items (Centered) -->
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('ppdb.index') && !request()->has('section') ? 'active' : '' }}" href="{{ route('ppdb.index') }}">Beranda</a>
             </li>
