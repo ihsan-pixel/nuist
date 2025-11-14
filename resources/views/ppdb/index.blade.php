@@ -179,6 +179,29 @@
     .about-section .bi-check-circle-fill {
         color: #efaa0c;
     }
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: #efaa0c;
+        border-radius: 50%;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .feature-icon .bi {
+        color: white;
+        font-size: 1.2rem;
+    }
+    .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+    .feature-content {
+        flex: 1;
+    }
     /* Contact Section */
     .contact-section {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -352,21 +375,41 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">Beragam Fitur Unggulan dimiliki SPMB Online</h2>
-                <div class="feature-item mb-4">
-                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Multi Jalur Seleksi</h5>
-                    <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Jalur Seleksi</h5>
+                        <p class="mb-0">Penyesuaian jalur seleksi sesuai dengan kondisi</p>
+                    </div>
                 </div>
-                <div class="feature-item mb-4">
-                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Multi Model Pendaftaran</h5>
-                    <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi SPMB</p>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Multi Model Pendaftaran</h5>
+                        <p class="mb-0">Berbagai macam model pendaftaran yang dapat dipilih untuk mensukseskan implementasi SPMB</p>
+                    </div>
                 </div>
-                <div class="feature-item mb-4">
-                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Manajemen Hak Akses</h5>
-                    <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Manajemen Hak Akses</h5>
+                        <p class="mb-0">Peran Admin dapat diatur secara fleksibel</p>
+                    </div>
                 </div>
-                <div class="feature-item mb-4">
-                    <h5 class="fw-bold mb-2" style="color: #efaa0c;"><i class="bi bi-check-circle-fill me-2"></i>Integrasi Data Dapodik</h5>
-                    <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran SPMB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h5 class="fw-bold mb-2" style="color: #efaa0c;">Integrasi Data Dapodik</h5>
+                        <p class="mb-0">Mengakomodir integrasi data Dapodik baik sebagai data awalan untuk pendaftaran SPMB maupun data balikan ke Dapodik dari hasil seleksi akhir.</p>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6">
