@@ -42,7 +42,7 @@
     }
 
     .stat-card {
-        background: rgb(255, 48, 48);
+        background: white;
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -59,7 +59,7 @@
 
     .stat-card.total-sekolah {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: rgb(242, 0, 0);
+        color: white;
     }
 
     .stat-card.total-pendaftar {
