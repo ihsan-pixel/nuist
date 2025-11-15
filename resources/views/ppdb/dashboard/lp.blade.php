@@ -14,11 +14,11 @@
     }
 
     .welcome-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         border-radius: 15px;
         padding: 2rem;
         margin-bottom: 2rem;
-        color: #004b4c;
+        color: white;
         position: relative;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
@@ -31,7 +31,7 @@
         right: 0;
         width: 200px;
         height: 200px;
-        background: rgba(0, 75, 76, 0.1);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 50%;
         transform: translate(50px, -50px);
     }
@@ -123,8 +123,8 @@
     }
 
     .kabupaten-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        color: #004b4c;
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        color: white;
         padding: 1rem 1.5rem;
         font-weight: 600;
         font-size: 1.1rem;
@@ -135,7 +135,7 @@
 
     .kabupaten-header i {
         margin-right: 0.5rem;
-        opacity: 0.7;
+        opacity: 0.9;
     }
 
     .kabupaten-stats {
@@ -169,8 +169,8 @@
     }
 
     .kabupaten-table .table thead th {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        color: #004b4c;
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        color: white;
         border: none;
         font-weight: 600;
         padding: 1rem;
@@ -231,11 +231,11 @@
     }
 
     .action-btn {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 1px solid #dee2e6;
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        border: 1px solid #004b4c;
         border-radius: 8px;
         padding: 0.5rem 1rem;
-        color: #004b4c;
+        color: white;
         text-decoration: none;
         transition: all 0.3s ease;
         position: relative;
@@ -246,8 +246,8 @@
     .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
-        color: #004b4c;
-        background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+        color: white;
+        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
     }
 
     .btn-outline-primary {
