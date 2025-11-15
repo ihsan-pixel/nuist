@@ -674,7 +674,7 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
+                                        <th><i class="mdi mdi-school me-1"></i>Nama Madrasah/Sekolah</th>
                                         <th><i class="mdi mdi-information me-1"></i>Status PPDB</th>
                                         <th class="text-center"><i class="mdi mdi-account-plus me-1"></i>Total</th>
                                         <th class="text-center"><i class="mdi mdi-clock-outline me-1"></i>Pending</th>
@@ -687,11 +687,11 @@
                                 </thead>
                                 <tbody>
                                     @foreach($sekolahs->sortBy(function($item) {
-                                        return $item['sekolah']->nama;
+                                        return $item['sekolah']->name;
                                     }) as $detail)
                                     <tr>
                                         <td>
-                                            <div class="sekolah-name">{{ $detail['sekolah']->nama }}</div>
+                                            <div class="sekolah-name">{{ $detail['sekolah']->name }}</div>
                                             <div class="kabupaten-info">{{ $detail['sekolah']->kabupaten }}, {{ $detail['sekolah']->provinsi }}</div>
                                         </td>
                                         <td>
