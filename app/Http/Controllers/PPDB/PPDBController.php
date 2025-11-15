@@ -53,13 +53,15 @@ class PPDBController extends Controller
      */
     public function showSekolah($slug)
     {
-        $ppdbSetting = PPDBSetting::where('slug', $slug)
+        $ppdb = PPDBSetting::where('slug', $slug)
             ->where('tahun', now()->year)
             ->with('sekolah')
             ->firstOrFail();
 
-        $pendaftarCount = $ppdbSetting->pendaftars()->count();
+        $pendaftarCount = $ppdb->pendaftars()->count();
 
-        return view('ppdb.sekolah', compact('ppdbSetting', 'pendaftarCount'));
+        $madrasah = $ppdb->sekolah;
+
+        return view('ppdb.sekolah', compact('ppdb', 'pendaftarCount', 'madrasah'));
     }
 }
