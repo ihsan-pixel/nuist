@@ -18,7 +18,7 @@
         padding-top: 40px; /* beri ruang flayer lebih kecil */
         padding-bottom: 80px;
         min-height: 93vh;
-        position: absolute;
+        position: relative;
     }
 
     /* .hero-section::before {
@@ -35,7 +35,7 @@
     .hero-content {
         position: relative;
         z-index: 2;
-        color: #004b4c;
+        color: white;
     }
 
     .school-logo {
@@ -50,7 +50,7 @@
     .btn-ppdb {
         background: linear-gradient(135deg, #efaa0c 0%, #ff8f00 100%);
         border: none;
-        color: #004b4c;
+        color: white;
         padding: 15px 40px;
         border-radius: 25px;
         font-weight: 600;
@@ -62,7 +62,7 @@
     .btn-ppdb:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(239, 170, 12, 0.4);
-        color: #004b4c;
+        color: white;
     }
 
     .section-padding {
