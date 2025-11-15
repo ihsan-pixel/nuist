@@ -792,6 +792,58 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Chart
+    const ctx = document.getElementById('statusChart');
+    if (ctx) {
+        const statusChart = new Chart(ctx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
+                datasets: [{
+                    data: [
+                        {{ $statistik['pending'] }},
+                        {{ $statistik['verifikasi'] }},
+                        {{ $statistik['lulus'] }},
+                        {{ $statistik['tidak_lulus'] }}
+                    ],
+                    backgroundColor: [
+                        '#ffc107', // warning
+                        '#0dcaf0', // info
+                        '#198754', // success
+                        '#dc3545'  // danger
+                    ],
+                    borderColor: [
+                        '#ffc107',
+                        '#0dcaf0',
+                        '#198754',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false // Hide legend since we have custom legend
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+<script>
 function exportData() {
     // Implementasi export data
     const confirmed = confirm('Apakah Anda ingin mengexport data PPDB dalam format Excel?');
@@ -811,7 +863,7 @@ function exportData() {
     }
 }
 
-// Chart.js implementation
+// jQuery implementation for animations and interactions
 $(document).ready(function() {
     let autoRefreshInterval;
 
@@ -830,53 +882,6 @@ $(document).ready(function() {
             clearInterval(autoRefreshInterval);
         }
     }
-
-    // Initialize Chart
-    const ctx = document.getElementById('statusChart').getContext('2d');
-    const statusChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
-            datasets: [{
-                data: [
-                    {{ $statistik['pending'] }},
-                    {{ $statistik['verifikasi'] }},
-                    {{ $statistik['lulus'] }},
-                    {{ $statistik['tidak_lulus'] }}
-                ],
-                backgroundColor: [
-                    '#ffc107', // warning
-                    '#0dcaf0', // info
-                    '#198754', // success
-                    '#dc3545'  // danger
-                ],
-                borderColor: [
-                    '#ffc107',
-                    '#0dcaf0',
-                    '#198754',
-                    '#dc3545'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false // Hide legend since we have custom legend
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                        }
-                    }
-                }
-            }
-        }
-    });
 
     // Add smooth animations on page load
     $('.stat-card').each(function(index) {
