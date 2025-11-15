@@ -262,7 +262,236 @@
 @endsection
 
 @section('content')
-@include('partials.ppdb.navbar')
+<!-- Custom Navbar for School Page -->
+<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="{{ route('ppdb.index') }}">
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 40px;">
+        </a>
+
+        <!-- Toggle (Mobile) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavSchool">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Menu Tengah -->
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNavSchool">
+            <ul class="navbar-nav gap-4">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}"
+                        href="{{ route('ppdb.sekolah', request()->route('slug')) }}">
+                        Profil Sekolah
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#jurusan">
+                        Jurusan
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#fasilitas">
+                        Fasilitas
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#kontak">
+                        Kontak
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Tombol Kanan -->
+        <div class="d-none d-lg-block">
+            @if(isset($ppdb->id) && $ppdb->isPembukaan())
+                <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-orange px-4">
+                    Daftar Sekarang
+                </a>
+            @else
+                <a href="{{ route('ppdb.index') }}" class="btn btn-outline-primary px-4">
+                    Kembali ke Beranda
+                </a>
+            @endif
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlaySchool" style="display: none;">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm d-lg-none">
+        <div class="container-fluid px-4">
+            <!-- Close Button -->
+            <button class="btn btn-link text-dark ms-auto" onclick="closeMobileMenuSchool()">
+                <i class="bi bi-x-lg fs-2"></i>
+            </button>
+        </div>
+
+        <div class="w-100">
+            <ul class="navbar-nav flex-column text-center py-4">
+                <li class="nav-item mb-3">
+                    <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}" href="{{ route('ppdb.sekolah', request()->route('slug')) }}" onclick="closeMobileMenuSchool()">Profil Sekolah</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#jurusan" onclick="closeMobileMenuSchool()">Jurusan</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#fasilitas" onclick="closeMobileMenuSchool()">Fasilitas</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#kontak" onclick="closeMobileMenuSchool()">Kontak</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<script>
+    // Mobile menu functionality for school page
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggler = document.querySelector('.navbar-toggler[data-bs-target="#navbarNavSchool"]');
+        const overlay = document.getElementById('mobileMenuOverlaySchool');
+
+        if (toggler && overlay) {
+            toggler.addEventListener('click', function() {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+                if (isExpanded) {
+                    overlay.style.display = 'block';
+                    setTimeout(() => {
+                        overlay.style.opacity = '1';
+                        overlay.classList.add('show');
+                    }, 10);
+                } else {
+                    overlay.style.opacity = '0';
+                    overlay.classList.remove('show');
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+    });
+
+    function closeMobileMenuSchool() {
+        const overlay = document.getElementById('mobileMenuOverlaySchool');
+        const toggler = document.querySelector('.navbar-toggler[data-bs-target="#navbarNavSchool"]');
+
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+
+        // Reset Bootstrap collapse state
+        const bsCollapse = new bootstrap.Collapse(document.getElementById('navbarNavSchool'), {
+            hide: true
+        });
+    }
+
+    // Close mobile menu when clicking outside
+    document.getElementById('mobileMenuOverlaySchool').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeMobileMenuSchool();
+        }
+    });
+</script>
+
+<style>
+    /* --- FIX FINAL NAVBAR TEXT STYLE PADA NAV BLADE --- */
+    nav.custom-navbar .navbar-nav .nav-link {
+        font-size: 16px !important;
+        font-weight: 200 !important;
+        color: #667085 !important;
+        padding: 12px 20px !important;
+        line-height: 1 !important;
+        transition: color 0.2s ease;
+    }
+
+    /* Hover hijau */
+    nav.custom-navbar .navbar-nav .nav-link:hover {
+        color: #0f854a !important;
+    }
+
+    /* Active hijau */
+    nav.custom-navbar .navbar-nav .nav-link.active {
+        color: #0f854a !important;
+        font-weight: 200 !important;
+    }
+
+    /* Override bootstrap kuat */
+    .navbar-light .navbar-nav .nav-link {
+        font-size: 26px !important;
+        color: #667085 !important;
+    }
+    /* Tombol Green */
+    .btn-orange {
+        background: #0f854a;
+        color: #fff !important;
+        padding: 10px 24px;
+        font-size: 16px;
+        border-radius: 10px;
+        font-weight: 400;
+        transition: background .2s ease;
+    }
+
+    .btn-orange:hover {
+        background: #0a5f35;
+    }
+
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-menu-overlay .navbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .mobile-menu-overlay.show .navbar {
+        transform: translateX(0);
+    }
+
+    /* Ensure navbar stays visible when scrolling */
+    .navbar {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1030 !important;
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-menu-overlay .nav-link {
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .mobile-menu-overlay .nav-link:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 
 <!-- Hero Section -->
 <section class="hero-section">
@@ -439,7 +668,7 @@
 
 <!-- Fasilitas Sekolah -->
 @if($madrasah->fasilitas)
-<section class="section-padding">
+<section id="fasilitas" class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -749,7 +978,7 @@
 @endif
 
 <!-- Lokasi & Kontak -->
-<section class="section-padding">
+<section id="kontak" class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12">
