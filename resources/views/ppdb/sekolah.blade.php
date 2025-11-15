@@ -804,7 +804,7 @@
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang
                         </a>
                     @endif
-                    <a href="#jurusan" class="btn btn-outline-light btn-lg px-4">
+                    <a href="#jurusan" class="btn btn-orange btn-lg px-4">
                         <i class="fas fa-graduation-cap me-2"></i>Lihat Jurusan
                     </a>
                 </div>
