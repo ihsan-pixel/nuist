@@ -209,8 +209,8 @@
                 </li>
                 <li>
                     <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
-                        <i class="bx bx-sitemap"></i>
-                        <span>Monitoring LP</span>
+                        <i class="bx bx-bar-chart-alt-2"></i>
+                        <span>Dashboard PPDB</span>
                     </a>
                 </li>
                 <li>
