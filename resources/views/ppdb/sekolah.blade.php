@@ -11,11 +11,14 @@
         background: url('{{ asset("images/bg_ppdb2.png") }}');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
-        min-height: 80vh;
+        background-attachment: absolute;
+
+        /* FIX TERPENTING */
+        display: block; /* buang flex agar elemen tidak ketarik tengah */
+        padding-top: 40px; /* beri ruang flayer lebih kecil */
+        padding-bottom: 80px;
+        min-height: 93vh;
         position: relative;
-        display: flex;
-        align-items: center;
     }
 
     .hero-section::before {
@@ -1379,7 +1382,7 @@
 <section class="section-padding bg-primary text-white">
     <div class="container text-center">
         <h2 class="display-5 fw-bold mb-4">Siap Bergabung dengan {{ $madrasah->name }}?</h2>
-        <p class="lead mb-4">Daftarkan diri Anda sekarang dan jadilah bagian dari komunitas unggul kami</p>
+        <p class="lead mb-4">Daftarkan diri Anda sekarang dan jadilah bagian dari sekolah unggul kami</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             @if(isset($ppdb->id) && $ppdb->isPembukaan())
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb btn-lg">Daftar PPDB Sekarang</a>
