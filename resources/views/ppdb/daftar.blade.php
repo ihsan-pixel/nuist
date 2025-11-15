@@ -966,6 +966,11 @@ function checkNISNAvailability() {
         });
 }
 
+// Make functions globally accessible for HTML onclick/onblur attributes
+window.nextStep = nextStep;
+window.prevStep = prevStep;
+window.checkNISNAvailability = checkNISNAvailability;
+
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
