@@ -966,10 +966,14 @@ function checkNISNAvailability() {
         });
 }
 
-// Make functions globally accessible for HTML onclick/onblur attributes
+// ====================================================
+//   REGISTER ALL FUNCTIONS TO GLOBAL SCOPE (FIX UTAMA)
+// ====================================================
+
 window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.checkNISNAvailability = checkNISNAvailability;
+window.removeFile = removeFile;
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
