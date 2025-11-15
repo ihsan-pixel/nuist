@@ -354,3 +354,10 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(functi
     Route::get('/edit/{id}', [AdminLPController::class, 'edit'])->name('ppdb.lp.edit');
     Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');
 });
+
+// PPDB SETTINGS
+Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/settings')->group(function () {
+    Route::get('/', [PPDBSettingsController::class, 'index'])->name('ppdb.settings.index');
+    Route::get('/edit/{id}', [PPDBSettingsController::class, 'edit'])->name('ppdb.settings.edit');
+    Route::put('/update/{id}', [PPDBSettingsController::class, 'update'])->name('ppdb.settings.update');
+});

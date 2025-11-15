@@ -11,12 +11,23 @@ class PPDBSetting extends Model
     use HasFactory;
     protected $table = 'ppdb_settings';
     protected $fillable = [
-        'sekolah_id', 'slug', 'nama_sekolah', 'tahun', 'status', 'jadwal_buka', 'jadwal_tutup'
+        'sekolah_id', 'slug', 'nama_sekolah', 'tahun', 'status', 'jadwal_buka', 'jadwal_tutup',
+        'kuota_jurusan', 'periode_presensi_mulai', 'periode_presensi_selesai', 'kuota_total',
+        'wajib_unggah_kk', 'syarat_tambahan',
+        'email_kontak', 'telepon_kontak', 'alamat_kontak', 'jadwal_pengumuman', 'catatan_pengumuman',
+        'visi', 'misi', 'fasilitas', 'prestasi', 'ekstrakurikuler', 'biaya_pendidikan', 'informasi_tambahan'
     ];
 
     protected $casts = [
         'jadwal_buka' => 'datetime',
         'jadwal_tutup' => 'datetime',
+        'periode_presensi_mulai' => 'datetime',
+        'periode_presensi_selesai' => 'datetime',
+        'jadwal_pengumuman' => 'datetime',
+        'kuota_jurusan' => 'array',
+        'wajib_unggah_foto' => 'boolean',
+        'wajib_unggah_ijazah' => 'boolean',
+        'wajib_unggah_kk' => 'boolean',
     ];
 
     /**

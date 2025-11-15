@@ -437,6 +437,79 @@
                     <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
+
+            <!-- PPDB Settings Integration -->
+            @if(isset($ppdbSetting))
+            <div class="form-group">
+                <label for="ppdb_visi" class="form-label">Visi PPDB</label>
+                <textarea class="form-control @error('ppdb_visi') is-invalid @enderror"
+                          id="ppdb_visi" name="ppdb_visi" rows="3"
+                          placeholder="Visi khusus untuk PPDB">{{ old('ppdb_visi', $ppdbSetting->visi) }}</textarea>
+                @error('ppdb_visi')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="ppdb_misi" class="form-label">Misi PPDB</label>
+                <textarea class="form-control @error('ppdb_misi') is-invalid @enderror"
+                          id="ppdb_misi" name="ppdb_misi" rows="4"
+                          placeholder="Misi khusus untuk PPDB">{{ old('ppdb_misi', $ppdbSetting->misi) }}</textarea>
+                @error('ppdb_misi')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="fasilitas_ppdb" class="form-label">Fasilitas PPDB</label>
+                <textarea class="form-control @error('fasilitas_ppdb') is-invalid @enderror"
+                          id="fasilitas_ppdb" name="fasilitas_ppdb" rows="4"
+                          placeholder="Fasilitas yang akan ditampilkan di PPDB">{{ old('fasilitas_ppdb', $ppdbSetting->fasilitas) }}</textarea>
+                @error('fasilitas_ppdb')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="prestasi_ppdb" class="form-label">Prestasi PPDB</label>
+                <textarea class="form-control @error('prestasi_ppdb') is-invalid @enderror"
+                          id="prestasi_ppdb" name="prestasi_ppdb" rows="4"
+                          placeholder="Prestasi yang akan ditampilkan di PPDB">{{ old('prestasi_ppdb', $ppdbSetting->prestasi) }}</textarea>
+                @error('prestasi_ppdb')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="ekstrakurikuler_ppdb" class="form-label">Ekstrakurikuler PPDB</label>
+                <textarea class="form-control @error('ekstrakurikuler_ppdb') is-invalid @enderror"
+                          id="ekstrakurikuler_ppdb" name="ekstrakurikuler_ppdb" rows="4"
+                          placeholder="Ekstrakurikuler yang akan ditampilkan di PPDB">{{ old('ekstrakurikuler_ppdb', $ppdbSetting->ekstrakurikuler) }}</textarea>
+                @error('ekstrakurikuler_ppdb')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="biaya_pendidikan_ppdb" class="form-label">Biaya Pendidikan PPDB</label>
+                <textarea class="form-control @error('biaya_pendidikan_ppdb') is-invalid @enderror"
+                          id="biaya_pendidikan_ppdb" name="biaya_pendidikan_ppdb" rows="4"
+                          placeholder="Informasi biaya pendidikan untuk PPDB">{{ old('biaya_pendidikan_ppdb', $ppdbSetting->biaya_pendidikan) }}</textarea>
+                @error('biaya_pendidikan_ppdb')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="informasi_tambahan_ppdb" class="form-label">Informasi Tambahan PPDB</label>
+                <textarea class="form-control @error('informasi_tambahan_ppdb') is-invalid @enderror"
+                          id="informasi_tambahan_ppdb" name="informasi_tambahan_ppdb" rows="4"
+                          placeholder="Informasi tambahan untuk PPDB">{{ old('informasi_tambahan_ppdb', $ppdbSetting->informasi_tambahan) }}</textarea>
+                @error('informasi_tambahan_ppdb')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            @endif
         </div>
 
         <!-- Fasilitas dan Keunggulan -->

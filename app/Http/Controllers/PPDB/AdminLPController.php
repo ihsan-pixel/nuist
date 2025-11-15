@@ -120,7 +120,12 @@ class AdminLPController extends Controller
     {
         $madrasah = \App\Models\Madrasah::findOrFail($id);
 
-        return view('ppdb.dashboard.lp-edit', compact('madrasah'));
+        // Get PPDB Setting for current year
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'ppdbSetting'));
     }
 
     /**
@@ -177,6 +182,14 @@ class AdminLPController extends Controller
             'faq.*' => 'nullable|string',
             'alur_pendaftaran' => 'nullable|array',
             'alur_pendaftaran.*' => 'nullable|string',
+            // PPDB Settings validation
+            'ppdb_visi' => 'nullable|string',
+            'ppdb_misi' => 'nullable|string',
+            'fasilitas_ppdb' => 'nullable|string',
+            'prestasi_ppdb' => 'nullable|string',
+            'ekstrakurikuler_ppdb' => 'nullable|string',
+            'biaya_pendidikan_ppdb' => 'nullable|string',
+            'informasi_tambahan_ppdb' => 'nullable|string',
         ]);
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
@@ -189,6 +202,35 @@ class AdminLPController extends Controller
                     return !empty(trim($value));
                 });
             }
+        }
+
+        // Handle PPDB Settings update
+        $ppdbData = [
+            'visi' => $request->input('ppdb_visi'),
+            'misi' => $request->input('ppdb_misi'),
+            'fasilitas' => $request->input('fasilitas_ppdb'),
+            'prestasi' => $request->input('prestasi_ppdb'),
+            'ekstrakurikuler' => $request->input('ekstrakurikuler_ppdb'),
+            'biaya_pendidikan' => $request->input('biaya_pendidikan_ppdb'),
+            'informasi_tambahan' => $request->input('informasi_tambahan_ppdb'),
+        ];
+
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
+            ->where('tahun', now()->year)
+            ->first();
+
+        if ($ppdbSetting) {
+            $ppdbSetting->update($ppdbData);
+        } else {
+            // Create new PPDB Setting if doesn't exist
+            PPDBSetting::create(array_merge($ppdbData, [
+                'sekolah_id' => $id,
+                'slug' => \Str::slug($madrasah->name),
+                'nama_sekolah' => $madrasah->name,
+                'tahun' => now()->year,
+                'status' => 'tutup',
+                'kuota_total' => 0,
+            ]));
         }
 
         // Handle file uploads
