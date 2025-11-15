@@ -798,11 +798,18 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let statusChartInstance;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Chart
     const ctx = document.getElementById('statusChart');
     if (ctx) {
-        const statusChart = new Chart(ctx.getContext('2d'), {
+        // Jika chart sudah ada → destroy dulu
+        if (statusChartInstance) {
+            statusChartInstance.destroy();
+        }
+
+        statusChartInstance = new Chart(ctx.getContext('2d'), {
             type: 'pie',
             data: {
                 labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
