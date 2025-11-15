@@ -5,6 +5,7 @@ namespace App\Http\Controllers\PPDB;
 use App\Http\Controllers\Controller;
 use App\Models\PPDBSetting;
 use App\Models\PPDBPendaftar;
+use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,24 +16,44 @@ class PendaftarController extends Controller
      */
     public function create($slug)
     {
+        // Coba cari berdasarkan slug PPDB setting
         $ppdbSetting = PPDBSetting::where('slug', $slug)
             ->where('tahun', now()->year)
-            ->where('status', 'buka')
             ->with('sekolah', 'jalurs')
-            ->firstOrFail();
+            ->first();
 
-        // Cek apakah pendaftaran masih buka
-        if (now()->isAfter($ppdbSetting->jadwal_tutup)) {
-            return redirect()->route('ppdb.sekolah', $slug)
-                ->with('error', 'Pendaftaran telah ditutup');
+        // Jika tidak ditemukan berdasarkan slug, coba cari berdasarkan ID madrasah
+        if (!$ppdbSetting && is_numeric($slug)) {
+            $madrasah = Madrasah::find($slug);
+            if ($madrasah) {
+                $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+                    ->where('tahun', now()->year)
+                    ->with('sekolah', 'jalurs')
+                    ->first();
+            }
         }
 
-        if (now()->isBefore($ppdbSetting->jadwal_buka)) {
-            return redirect()->route('ppdb.sekolah', $slug)
-                ->with('info', 'Pendaftaran belum dibuka');
+        // Jika masih tidak ditemukan, buat objek temporary untuk tampilan
+        if (!$ppdbSetting) {
+            $madrasah = is_numeric($slug) ? Madrasah::find($slug) : null;
+            if (!$madrasah) {
+                abort(404, 'Sekolah tidak ditemukan');
+            }
+
+            $ppdbSetting = (object) [
+                'id' => null,
+                'slug' => $slug,
+                'nama_sekolah' => $madrasah->name,
+                'tahun' => now()->year,
+                'status' => 'tutup',
+                'sekolah' => $madrasah,
+                'jalurs' => collect()
+            ];
         }
 
-        $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
+        // Jika PPDB setting ada tapi status tidak buka, tetap tampilkan form
+        // tapi dengan peringatan
+        $jalurs = isset($ppdbSetting->jalurs) ? $ppdbSetting->jalurs()->orderBy('urutan')->get() : collect();
 
         return view('ppdb.daftar', compact('ppdbSetting', 'jalurs'));
     }
@@ -42,15 +63,33 @@ class PendaftarController extends Controller
      */
     public function store(Request $request, $slug)
     {
+        // Coba cari PPDB setting berdasarkan slug
         $ppdbSetting = PPDBSetting::where('slug', $slug)
             ->where('tahun', now()->year)
-            ->where('status', 'buka')
-            ->firstOrFail();
+            ->first();
+
+        // Jika tidak ditemukan, coba cari berdasarkan ID madrasah
+        if (!$ppdbSetting && is_numeric($slug)) {
+            $madrasah = Madrasah::find($slug);
+            if ($madrasah) {
+                $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+                    ->where('tahun', now()->year)
+                    ->first();
+            }
+        }
+
+        // Jika PPDB setting tidak ditemukan atau tidak aktif, redirect dengan error
+        if (!$ppdbSetting || $ppdbSetting->status !== 'buka') {
+            return redirect()->back()
+                ->with('error', 'Pendaftaran belum dibuka atau telah ditutup untuk sekolah ini.')
+                ->withInput();
+        }
 
         // Cek waktu pendaftaran
         if (now()->isAfter($ppdbSetting->jadwal_tutup)) {
-            return redirect()->route('ppdb.sekolah', $slug)
-                ->with('error', 'Pendaftaran telah ditutup');
+            return redirect()->back()
+                ->with('error', 'Pendaftaran telah ditutup')
+                ->withInput();
         }
 
         // Validasi input
