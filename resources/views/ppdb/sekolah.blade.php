@@ -1517,7 +1517,11 @@
     const floatingDaftarBtn = document.getElementById('floatingDaftarBtn');
     if (floatingDaftarBtn) {
         floatingDaftarBtn.addEventListener('click', function() {
-            window.location.href = '{{ route("ppdb.daftar", $ppdb->slug ?? "") }}';
+            @if(isset($ppdb->slug) && $ppdb->slug)
+                window.location.href = '{{ route("ppdb.daftar", $ppdb->slug) }}';
+            @else
+                window.location.href = '{{ route("ppdb.index") }}';
+            @endif
         });
 
         // Show/hide floating button based on scroll
