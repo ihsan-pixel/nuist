@@ -335,6 +335,7 @@ Route::prefix('ppdb')->group(function () {
     Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
     Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
     Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
+    Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN'])->name('ppdb.check-nisn');
 });
 
 // ADMIN SEKOLAH

@@ -540,7 +540,8 @@
                         </label>
                         <input type="text" class="form-control @error('nisn') is-invalid @enderror"
                                id="nisn" name="nisn" value="{{ old('nisn') }}"
-                               placeholder="Nomor Induk Siswa Nasional" required>
+                               placeholder="Nomor Induk Siswa Nasional" required
+                               onblur="checkNISNAvailability()">
                         @error('nisn')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -561,7 +562,7 @@
             </div>
 
             <div class="text-end">
-                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(2)">
+                <button type="button" class="btn btn-next btn-navigation" onclick="window.nextStep(2)">
                     Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -613,10 +614,10 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(1)">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="window.prevStep(1)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
-                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(3)">
+                <button type="button" class="btn btn-next btn-navigation" onclick="window.nextStep(3)">
                     Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -684,7 +685,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(2)">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="window.prevStep(2)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
                 <button type="submit" class="btn btn-submit">
@@ -784,6 +785,15 @@ function validateCurrentStep() {
             field.classList.remove('is-invalid');
         }
     });
+
+    // Special validation for NISN uniqueness in step 1
+    if (currentStep === 1) {
+        const nisnInput = document.getElementById('nisn');
+        const nisnFeedback = nisnInput.parentNode.querySelector('.nisn-feedback');
+        if (nisnFeedback && nisnFeedback.innerHTML.includes('sudah terdaftar')) {
+            isValid = false;
+        }
+    }
 
     // Special validation for file inputs in step 3
     if (currentStep === 3) {
@@ -909,6 +919,52 @@ function validateAllSteps() {
 
     return isValid;
 }
+
+// NISN availability check
+window.checkNISNAvailability = function() {
+    const nisnInput = document.getElementById('nisn');
+    const nisn = nisnInput.value.trim();
+
+    if (nisn.length === 0) return;
+
+    // Remove existing feedback
+    const existingFeedback = nisnInput.parentNode.querySelector('.nisn-feedback');
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+
+    // Show loading
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.className = 'nisn-feedback mt-2';
+    feedbackDiv.innerHTML = '<small class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i>Memeriksa NISN...</small>';
+    nisnInput.parentNode.appendChild(feedbackDiv);
+
+    // Make AJAX request
+    fetch(`/ppdb/check-nisn/${nisn}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            feedbackDiv.innerHTML = '';
+
+            if (data.exists) {
+                feedbackDiv.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>NISN sudah terdaftar</small>';
+                nisnInput.classList.add('is-invalid');
+                nisnInput.classList.remove('is-valid');
+            } else {
+                feedbackDiv.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>NISN tersedia</small>';
+                nisnInput.classList.add('is-valid');
+                nisnInput.classList.remove('is-invalid');
+            }
+        })
+        .catch(error => {
+            console.error('Error checking NISN:', error);
+            feedbackDiv.innerHTML = '<small class="text-warning"><i class="fas fa-exclamation-circle me-1"></i>Gagal memeriksa NISN</small>';
+        });
+};
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

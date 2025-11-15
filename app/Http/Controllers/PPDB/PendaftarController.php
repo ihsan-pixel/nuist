@@ -147,6 +147,16 @@ class PendaftarController extends Controller
     }
 
     /**
+     * Check NISN availability via AJAX
+     */
+    public function checkNISN($nisn)
+    {
+        $exists = PPDBPendaftar::where('nisn', $nisn)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    /**
      * Generate nomor pendaftaran unik
      * Format: SMKM-2025-0001
      */
