@@ -605,9 +605,17 @@
                 <label for="jurusan_pilihan" class="form-label">
                     <i class="fas fa-book me-2"></i>Pilihan Jurusan <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control @error('jurusan_pilihan') is-invalid @enderror"
-                       id="jurusan_pilihan" name="jurusan_pilihan" value="{{ old('jurusan_pilihan') }}"
-                       placeholder="Contoh: IPA, IPS, Teknik Komputer, Bahasa" required>
+                <select class="form-control @error('jurusan_pilihan') is-invalid @enderror"
+                        id="jurusan_pilihan" name="jurusan_pilihan" required>
+                    <option value="">-- Pilih Jurusan --</option>
+                    @if(isset($ppdbSetting->madrasah) && $ppdbSetting->madrasah->jurusan)
+                        @foreach($ppdbSetting->madrasah->jurusan as $jurusan)
+                            <option value="{{ $jurusan }}" {{ old('jurusan_pilihan') == $jurusan ? 'selected' : '' }}>
+                                {{ $jurusan }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
                 @error('jurusan_pilihan')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

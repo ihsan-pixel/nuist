@@ -9,6 +9,7 @@
 - [x] Create edit view (lp-edit.blade.php)
 - [x] Create necessary directories for file uploads
 - [x] Add jurusan field as array input
+- [x] Update daftar.blade.php to use jurusan data from madrasah
 - [ ] Test functionality
 
 ## Next Steps
