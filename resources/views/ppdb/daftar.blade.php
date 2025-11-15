@@ -2,244 +2,962 @@
 
 @section('title', 'Formulir PPDB ' . $ppdbSetting->nama_sekolah)
 
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* Enhanced Registration Form Styles */
+    .hero-section {
+        background: url('{{ asset("images/bg_ppdb2.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 40vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 60px 0;
+        color: #0f854a;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .registration-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-top: -50px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .progress-header {
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-weight: bold;
+        margin: 0 10px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .step.active {
+        background: #efaa0c;
+        color: #004b4c;
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(239, 170, 12, 0.4);
+    }
+
+    .step.completed {
+        background: #28a745;
+        color: white;
+    }
+
+    .step-line {
+        height: 2px;
+        width: 60px;
+        background: rgba(255,255,255,0.3);
+        margin: 0 10px;
+    }
+
+    .step.completed + .step-line {
+        background: #28a745;
+    }
+
+    .form-section {
+        padding: 40px;
+        display: none;
+    }
+
+    .form-section.active {
+        display: block;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #004b4c;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #efaa0c;
+        box-shadow: 0 0 0 0.2rem rgba(239, 170, 12, 0.25);
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #e9ecef;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: #f8f9fa;
+    }
+
+    .file-upload-area:hover {
+        border-color: #efaa0c;
+        background: rgba(239, 170, 12, 0.05);
+    }
+
+    .file-upload-area.dragover {
+        border-color: #efaa0c;
+        background: rgba(239, 170, 12, 0.1);
+        transform: scale(1.02);
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .file-upload-text {
+        color: #004b4c;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .file-upload-hint {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .file-preview {
+        margin-top: 15px;
+        padding: 10px;
+        background: #e9ecef;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-name {
+        font-size: 14px;
+        color: #004b4c;
+        font-weight: 500;
+    }
+
+    .file-remove {
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .btn-navigation {
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-prev {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-prev:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .btn-next {
+        background: linear-gradient(135deg, #efaa0c 0%, #ff8f00 100%);
+        color: white;
+    }
+
+    .btn-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(239, 170, 12, 0.4);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        color: white;
+        padding: 15px 50px;
+        font-size: 18px;
+        border-radius: 30px;
+        border: none;
+        font-weight: 700;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 75, 76, 0.4);
+    }
+
+    .alert-custom {
+        border-radius: 15px;
+        border: none;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border: 1px solid #2196f3;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .section-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .section-title {
+        color: #004b4c;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .section-description {
+        color: #666;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.8s ease-out;
+    }
+
+    .animate-slide-in-right {
+        animation: slideInRight 0.8s ease-out;
+    }
+
+    .animate-bounce-in {
+        animation: bounceIn 1s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 30vh;
+            padding: 40px 0;
+        }
+
+        .registration-container {
+            margin-top: -30px;
+            border-radius: 15px;
+        }
+
+        .progress-header {
+            padding: 20px;
+        }
+
+        .progress-steps {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step-line {
+            width: 2px;
+            height: 30px;
+            margin: 0;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .btn-navigation {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .file-upload-area {
+            padding: 20px;
+        }
+    }
+
+    /* Loading state */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #004b4c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+@endsection
+
 @section('content')
-<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-2xl mx-auto">
-        <!-- Breadcrumb -->
-        <div class="mb-8">
-            <div class="flex items-center space-x-2 text-sm text-gray-600">
-                <a href="{{ route('ppdb.index') }}" class="text-blue-600 hover:text-blue-800">PPDB</a>
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
-                <a href="{{ route('ppdb.sekolah', $ppdbSetting->slug) }}" class="text-blue-600 hover:text-blue-800">{{ $ppdbSetting->nama_sekolah }}</a>
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
-                <span class="text-gray-600">Formulir Pendaftaran</span>
-            </div>
-        </div>
-
-        <!-- Header Card -->
-        <div class="bg-gradient-to-r from-green-700 to-blue-700 text-white rounded-lg shadow-lg p-8 mb-8">
-            <h1 class="text-3xl font-bold mb-2">Formulir Pendaftaran</h1>
-            <p class="text-green-100">{{ $ppdbSetting->nama_sekolah }}</p>
-        </div>
-
-        <!-- Alert Messages -->
-        @if($errors->any())
-            <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                <h3 class="text-red-800 font-semibold mb-2">⚠️ Terjadi Kesalahan</h3>
-                <ul class="text-red-700 text-sm space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li>• {{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        @if(session('success'))
-            <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                <p class="text-green-800 font-semibold">✅ {{ session('success') }}</p>
-            </div>
-        @endif
-
-        <!-- Form Card -->
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <form action="{{ route('ppdb.store', $ppdbSetting->slug) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                @csrf
-
-                <!-- Progress Bar -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-sm font-semibold text-gray-700">Langkah 1 dari 3: Data Pribadi</h3>
-                        <span class="text-xs text-gray-500">33%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-green-600 h-2 rounded-full" style="width: 33%"></div>
-                    </div>
-                </div>
-
-                <!-- Section 1: Data Pribadi -->
-                <div>
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-green-600">👤 Data Pribadi</h2>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nama Lengkap <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}"
-                                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('nama_lengkap') border-red-500 @enderror"
-                                   placeholder="Nama lengkap sesuai KTP/Akte Kelahiran" required>
-                            @error('nama_lengkap')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    NISN <span class="text-red-600">*</span>
-                                </label>
-                                <input type="text" name="nisn" value="{{ old('nisn') }}"
-                                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('nisn') border-red-500 @enderror"
-                                       placeholder="Nomor Induk Siswa Nasional" required>
-                                @error('nisn')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Asal Sekolah <span class="text-red-600">*</span>
-                                </label>
-                                <input type="text" name="asal_sekolah" value="{{ old('asal_sekolah') }}"
-                                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('asal_sekolah') border-red-500 @enderror"
-                                       placeholder="Nama sekolah asal" required>
-                                @error('asal_sekolah')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Pilihan Jalur & Jurusan -->
-                <div>
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-blue-600">🎯 Pilihan Program</h2>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Jalur Pendaftaran <span class="text-red-600">*</span>
-                            </label>
-                            <select name="ppdb_jalur_id"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('ppdb_jalur_id') border-red-500 @enderror"
-                                    required>
-                                <option value="">-- Pilih Jalur Pendaftaran --</option>
-                                @forelse($jalurs as $jalur)
-                                    <option value="{{ $jalur->id }}" {{ old('ppdb_jalur_id') == $jalur->id ? 'selected' : '' }}>
-                                        {{ $jalur->nama_jalur }}
-                                        @if($jalur->keterangan)
-                                            - {{ $jalur->keterangan }}
-                                        @endif
-                                    </option>
-                                @empty
-                                    <option disabled>Tidak ada jalur tersedia</option>
-                                @endforelse
-                            </select>
-                            @error('ppdb_jalur_id')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Pilihan Jurusan <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" name="jurusan_pilihan" value="{{ old('jurusan_pilihan') }}"
-                                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('jurusan_pilihan') border-red-500 @enderror"
-                                   placeholder="Contoh: IPA, IPS, Teknik Komputer" required>
-                            @error('jurusan_pilihan')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Upload Berkas -->
-                <div>
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-orange-600">📄 Upload Berkas</h2>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Kartu Keluarga (KK) <span class="text-red-600">*</span>
-                            </label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors cursor-pointer"
-                                 onclick="document.getElementById('berkas_kk').click()">
-                                <svg class="h-12 w-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                <p class="text-gray-700 font-medium">Klik untuk memilih file</p>
-                                <p class="text-gray-500 text-sm">PDF, JPG, atau PNG (Maksimal 2MB)</p>
-                            </div>
-                            <input type="file" id="berkas_kk" name="berkas_kk" accept=".pdf,.jpg,.jpeg,.png"
-                                   class="hidden @error('berkas_kk') border-red-500 @enderror" required>
-                            <span id="berkas_kk_name" class="text-sm text-gray-600 mt-2 block"></span>
-                            @error('berkas_kk')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Ijazah/SKHUN <span class="text-red-600">*</span>
-                            </label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors cursor-pointer"
-                                 onclick="document.getElementById('berkas_ijazah').click()">
-                                <svg class="h-12 w-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                <p class="text-gray-700 font-medium">Klik untuk memilih file</p>
-                                <p class="text-gray-500 text-sm">PDF, JPG, atau PNG (Maksimal 2MB)</p>
-                            </div>
-                            <input type="file" id="berkas_ijazah" name="berkas_ijazah" accept=".pdf,.jpg,.jpeg,.png"
-                                   class="hidden @error('berkas_ijazah') border-red-500 @enderror" required>
-                            <span id="berkas_ijazah_name" class="text-sm text-gray-600 mt-2 block"></span>
-                            @error('berkas_ijazah')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Info Box -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-blue-800 text-sm">
-                        <span class="font-semibold">ℹ️ Penting:</span> Semua data yang Anda isi harus sesuai dengan dokumen asli. Periksa kembali sebelum mengirim.
-                    </p>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="flex gap-4 pt-4">
-                    <a href="{{ route('ppdb.sekolah', $ppdbSetting->slug) }}"
-                       class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-center">
-                        ← Kembali
-                    </a>
-                    <button type="submit"
-                            class="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-colors">
-                        ✓ Kirim Pendaftaran
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Help Section -->
-        <div class="mt-8 bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">❓ Butuh Bantuan?</h3>
-            <p class="text-gray-700 mb-4">Jika Anda mengalami kendala dalam proses pendaftaran, silakan hubungi panitia PPDB kami:</p>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="https://wa.me/6281234567890" target="_blank"
-                   class="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371 0-.57 0-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004c-1.022 0-2.031.193-3.008.566-.93.361-1.764.87-2.456 1.563-.691.692-1.201 1.526-1.562 2.457-.375.98-.568 1.987-.568 3.008 0 1.019.193 2.031.568 3.008.361.931.871 1.765 1.562 2.457s1.526 1.201 2.456 1.562c.977.375 1.986.568 3.008.568 1.022 0 2.031-.193 3.008-.568.93-.361 1.764-.87 2.456-1.562.691-.692 1.201-1.526 1.562-2.457.375-.977.568-1.986.568-3.008 0-1.022-.193-2.031-.568-3.008-.361-.931-.871-1.765-1.562-2.457-.691-.692-1.526-1.201-2.456-1.562-.977-.375-1.986-.568-3.008-.568z"/></svg>
-                    WhatsApp Kami
-                </a>
-                <a href="mailto:ppdb@nuist.id"
-                   class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
-                    Email Kami
-                </a>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3 animate-fade-in-up">
+                    <i class="fas fa-edit text-warning me-3"></i>Formulir Pendaftaran
+                </h1>
+                <p class="lead mb-0 animate-fade-in-up">{{ $ppdbSetting->nama_sekolah }}</p>
+                <p class="text-muted animate-fade-in-up">Tahun Pelajaran {{ $ppdbSetting->tahun }}/{{ $ppdbSetting->tahun + 1 }}</p>
             </div>
         </div>
     </div>
+</section>
+
+<!-- Registration Form -->
+<div class="container registration-container animate-bounce-in">
+    <!-- Progress Header -->
+    <div class="progress-header">
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">
+                <i class="fas fa-file-upload"></i>
+            </div>
+        </div>
+        <h3 id="progress-title" class="mb-0">Data Pribadi</h3>
+        <p id="progress-description" class="mb-0 opacity-75">Langkah 1 dari 3</p>
+    </div>
+
+    <!-- Alert Messages -->
+    @if($errors->any())
+        <div class="alert alert-danger alert-custom animate-fade-in-up">
+            <h5 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Terjadi Kesalahan
+            </h5>
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success alert-custom animate-fade-in-up">
+            <h5 class="alert-heading">
+                <i class="fas fa-check-circle me-2"></i>Pendaftaran Berhasil!
+            </h5>
+            <p class="mb-0">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-custom animate-fade-in-up">
+            <h5 class="alert-heading">
+                <i class="fas fa-times-circle me-2"></i>Pendaftaran Gagal
+            </h5>
+            <p class="mb-0">{{ session('error') }}</p>
+        </div>
+    @endif
+
+    <!-- Form -->
+    <form id="registrationForm" action="{{ route('ppdb.store', $ppdbSetting->slug) }}" method="POST" enctype="multipart/form-data" class="animate-fade-in-up">
+        @csrf
+
+        <!-- Step 1: Data Pribadi -->
+        <div id="step1" class="form-section active">
+            <div class="text-center mb-4">
+                <div class="section-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h4 class="section-title">Data Pribadi</h4>
+                <p class="section-description">Masukkan informasi pribadi Anda dengan lengkap dan benar</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="nama_lengkap" class="form-label">
+                            <i class="fas fa-signature me-2"></i>Nama Lengkap <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror"
+                               id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap') }}"
+                               placeholder="Nama lengkap sesuai KTP/Akte Kelahiran" required>
+                        @error('nama_lengkap')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="nisn" class="form-label">
+                            <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('nisn') is-invalid @enderror"
+                               id="nisn" name="nisn" value="{{ old('nisn') }}"
+                               placeholder="Nomor Induk Siswa Nasional" required>
+                        @error('nisn')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="asal_sekolah" class="form-label">
+                    <i class="fas fa-school me-2"></i>Asal Sekolah <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control @error('asal_sekolah') is-invalid @enderror"
+                       id="asal_sekolah" name="asal_sekolah" value="{{ old('asal_sekolah') }}"
+                       placeholder="Nama sekolah asal" required>
+                @error('asal_sekolah')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="text-end">
+                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(2)">
+                    Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Pilihan Program -->
+        <div id="step2" class="form-section">
+            <div class="text-center mb-4">
+                <div class="section-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h4 class="section-title">Pilihan Program</h4>
+                <p class="section-description">Pilih jalur dan jurusan yang sesuai dengan minat Anda</p>
+            </div>
+
+            <div class="form-group">
+                <label for="ppdb_jalur_id" class="form-label">
+                    <i class="fas fa-route me-2"></i>Jalur Pendaftaran <span class="text-danger">*</span>
+                </label>
+                <select class="form-control @error('ppdb_jalur_id') is-invalid @enderror"
+                        id="ppdb_jalur_id" name="ppdb_jalur_id" required>
+                    <option value="">-- Pilih Jalur Pendaftaran --</option>
+                    @forelse($jalurs as $jalur)
+                        <option value="{{ $jalur->id }}" {{ old('ppdb_jalur_id') == $jalur->id ? 'selected' : '' }}>
+                            {{ $jalur->nama_jalur }}
+                            @if($jalur->keterangan)
+                                - {{ $jalur->keterangan }}
+                            @endif
+                        </option>
+                    @empty
+                        <option disabled>Tidak ada jalur tersedia</option>
+                    @endforelse
+                </select>
+                @error('ppdb_jalur_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="jurusan_pilihan" class="form-label">
+                    <i class="fas fa-book me-2"></i>Pilihan Jurusan <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control @error('jurusan_pilihan') is-invalid @enderror"
+                       id="jurusan_pilihan" name="jurusan_pilihan" value="{{ old('jurusan_pilihan') }}"
+                       placeholder="Contoh: IPA, IPS, Teknik Komputer, Bahasa" required>
+                @error('jurusan_pilihan')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(1)">
+                    <i class="fas fa-arrow-left me-2"></i> Sebelumnya
+                </button>
+                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(3)">
+                    Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Upload Berkas -->
+        <div id="step3" class="form-section">
+            <div class="text-center mb-4">
+                <div class="section-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h4 class="section-title">Upload Berkas</h4>
+                <p class="section-description">Unggah dokumen pendukung dalam format PDF, JPG, atau PNG</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-users me-2"></i>Kartu Keluarga (KK) <span class="text-danger">*</span>
+                        </label>
+                        <div class="file-upload-area" onclick="document.getElementById('berkas_kk').click()">
+                            <div class="file-upload-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="file-upload-text">Klik untuk memilih file KK</div>
+                            <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                        </div>
+                        <input type="file" id="berkas_kk" name="berkas_kk"
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
+                        @error('berkas_kk')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <div id="berkas_kk_preview" class="file-preview" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHUN <span class="text-danger">*</span>
+                        </label>
+                        <div class="file-upload-area" onclick="document.getElementById('berkas_ijazah').click()">
+                            <div class="file-upload-icon">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                            <div class="file-upload-text">Klik untuk memilih file Ijazah</div>
+                            <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                        </div>
+                        <input type="file" id="berkas_ijazah" name="berkas_ijazah"
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
+                        @error('berkas_ijazah')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <div id="berkas_ijazah_preview" class="file-preview" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h6 class="mb-2">
+                    <i class="fas fa-info-circle text-primary me-2"></i>Penting!
+                </h6>
+                <p class="mb-0">Pastikan semua data yang Anda isi sudah benar dan sesuai dengan dokumen asli. Berkas yang diunggah harus jelas dan dapat dibaca.</p>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(2)">
+                    <i class="fas fa-arrow-left me-2"></i> Sebelumnya
+                </button>
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-paper-plane me-2"></i>Kirim Pendaftaran
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
+<!-- Help Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h3 class="text-primary">
+                    <i class="fas fa-question-circle me-2"></i>Butuh Bantuan?
+                </h3>
+                <p class="text-muted">Tim kami siap membantu Anda dalam proses pendaftaran</p>
+            </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-phone fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title text-primary">Telepon</h5>
+                        <p class="card-text">{{ $ppdbSetting->sekolah->telepon ?? 'Tidak tersedia' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-envelope fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title text-primary">Email</h5>
+                        <p class="card-text">{{ $ppdbSetting->sekolah->email ?? 'Tidak tersedia' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-comments fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title text-primary">WhatsApp</h5>
+                        <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $ppdbSetting->sekolah->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($ppdbSetting->nama_sekolah) }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Hubungi Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Back to School Button -->
+<div class="text-center py-4">
+    <a href="{{ route('ppdb.sekolah', $ppdbSetting->slug) }}" class="btn btn-outline-primary btn-lg">
+        <i class="fas fa-arrow-left me-2"></i>Kembali ke Halaman Sekolah
+    </a>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="text-center">
+        <div class="spinner mb-3"></div>
+        <h5 class="text-primary">Memproses Pendaftaran...</h5>
+        <p class="text-muted">Mohon tunggu sebentar</p>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
 <script>
-    // Handle file upload display
-    document.getElementById('berkas_kk').addEventListener('change', function(e) {
-        document.getElementById('berkas_kk_name').textContent = this.files[0]?.name || '';
+let currentStep = 1;
+const totalSteps = 3;
+
+// Initialize form
+document.addEventListener('DOMContentLoaded', function() {
+    updateProgress();
+    setupFileUploads();
+});
+
+// Navigation functions
+function nextStep(step) {
+    if (validateCurrentStep()) {
+        currentStep = step;
+        showStep(step);
+        updateProgress();
+    }
+}
+
+function prevStep(step) {
+    currentStep = step;
+    showStep(step);
+    updateProgress();
+}
+
+function showStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
     });
 
-    document.getElementById('berkas_ijazah').addEventListener('change', function(e) {
-        document.getElementById('berkas_ijazah_name').textContent = this.files[0]?.name || '';
+    // Show current step
+    document.getElementById('step' + step).classList.add('active');
+}
+
+function updateProgress() {
+    // Update step indicators
+    document.querySelectorAll('.step').forEach((step, index) => {
+        const stepNumber = index + 1;
+        step.classList.remove('active', 'completed');
+
+        if (stepNumber === currentStep) {
+            step.classList.add('active');
+        } else if (stepNumber < currentStep) {
+            step.classList.add('completed');
+        }
     });
+
+    // Update progress text
+    const titles = ['Data Pribadi', 'Pilihan Program', 'Upload Berkas'];
+    const descriptions = ['Langkah 1 dari 3', 'Langkah 2 dari 3', 'Langkah 3 dari 3'];
+
+    document.getElementById('progress-title').textContent = titles[currentStep - 1];
+    document.getElementById('progress-description').textContent = descriptions[currentStep - 1];
+}
+
+function validateCurrentStep() {
+    const currentSection = document.getElementById('step' + currentStep);
+    const requiredFields = currentSection.querySelectorAll('input[required], select[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    return isValid;
+}
+
+// File upload handling
+function setupFileUploads() {
+    // KK file upload
+    document.getElementById('berkas_kk').addEventListener('change', function(e) {
+        handleFileSelect(e.target, 'berkas_kk_preview');
+    });
+
+    // Ijazah file upload
+    document.getElementById('berkas_ijazah').addEventListener('change', function(e) {
+        handleFileSelect(e.target, 'berkas_ijazah_preview');
+    });
+
+    // Drag and drop
+    document.querySelectorAll('.file-upload-area').forEach(area => {
+        area.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        area.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        area.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+
+            const input = this.nextElementSibling;
+            const files = e.dataTransfer.files;
+
+            if (files.length > 0) {
+                input.files = files;
+                handleFileSelect(input, input.id + '_preview');
+            }
+        });
+    });
+}
+
+function handleFileSelect(input, previewId) {
+    const file = input.files[0];
+    const preview = document.getElementById(previewId);
+
+    if (file) {
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File terlalu besar. Maksimal 2MB.');
+            input.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Format file tidak didukung. Gunakan PDF, JPG, atau PNG.');
+            input.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+
+        // Show preview
+        preview.innerHTML = `
+            <span class="file-name">
+                <i class="fas fa-file me-2"></i>${file.name}
+            </span>
+            <span class="file-remove" onclick="removeFile('${input.id}')">
+                <i class="fas fa-times"></i>
+            </span>
+        `;
+        preview.style.display = 'flex';
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function removeFile(inputId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(inputId + '_preview').style.display = 'none';
+}
+
+// Form submission
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    if (!validateAllSteps()) {
+        e.preventDefault();
+        alert('Mohon lengkapi semua data yang diperlukan.');
+        return;
+    }
+
+    // Show loading overlay
+    document.getElementById('loadingOverlay').style.display = 'flex';
+});
+
+function validateAllSteps() {
+    let isValid = true;
+
+    // Check all required fields
+    document.querySelectorAll('input[required], select[required]').forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+
+    return isValid;
+}
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
 </script>
 @endsection
