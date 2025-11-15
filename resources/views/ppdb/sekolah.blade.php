@@ -839,7 +839,6 @@
 </section>
 
 <!-- Jurusan/Program Studi -->
-@if($madrasah->jurusan)
 <section id="jurusan" class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -850,42 +849,50 @@
             </div>
         </div>
         <div class="row">
-            @foreach($madrasah->jurusan ?? [] as $jurusan)
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="major-card">
-                    @if(isset($jurusan['image']) && $jurusan['image'])
-                        <img src="{{ asset('storage/app/public/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
-                    @endif
-                    <h5 class="text-primary mb-3">
-                        <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? '' }}
-                    </h5>
-                    <p class="text-muted mb-3">{{ $jurusan['description'] ?? '' }}</p>
-                    @if(isset($jurusan['prospects']))
-                        <div class="mb-3">
-                            <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
-                            <p class="text-muted small">{{ $jurusan['prospects'] }}</p>
-                        </div>
-                    @endif
-                    @if(isset($jurusan['skills']))
-                        <div>
-                            <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
-                            <ul class="text-muted small">
-                                @foreach($jurusan['skills'] ?? [] as $skill)
-                                    <li>{{ $skill }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+            @if($madrasah->jurusan && count($madrasah->jurusan) > 0)
+                @foreach($madrasah->jurusan as $jurusan)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="major-card">
+                        @if(isset($jurusan['image']) && $jurusan['image'])
+                            <img src="{{ asset('storage/app/public/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
+                        @endif
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? '' }}
+                        </h5>
+                        <p class="text-muted mb-3">{{ $jurusan['description'] ?? '' }}</p>
+                        @if(isset($jurusan['prospects']))
+                            <div class="mb-3">
+                                <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
+                                <p class="text-muted small">{{ $jurusan['prospects'] }}</p>
+                            </div>
+                        @endif
+                        @if(isset($jurusan['skills']))
+                            <div>
+                                <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
+                                <ul class="text-muted small">
+                                    @foreach($jurusan['skills'] ?? [] as $skill)
+                                        <li>{{ $skill }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @else
+                <div class="col-12 text-center">
+                    <div class="card-custom p-5">
+                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Program Studi Akan Segera Ditambahkan</h5>
+                        <p class="text-muted">Informasi jurusan/program studi sedang dalam proses penyusunan.</p>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </section>
-@endif
 
 <!-- Fasilitas Sekolah -->
-@if($madrasah->fasilitas)
 <section id="fasilitas" class="section-padding">
     <div class="container">
         <div class="row">
@@ -896,29 +903,38 @@
             </div>
         </div>
         <div class="row">
-            @foreach($madrasah->fasilitas ?? [] as $fasilitas)
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="facility-card">
-                    @if(isset($fasilitas['image']) && $fasilitas['image'])
-                        <img src="{{ asset('storage/app/public/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="facility-img w-100">
-                    @else
-                        <div class="facility-img bg-light d-flex align-items-center justify-content-center">
-                            <i class="fas fa-building bx-lg text-muted"></i>
+            @if($madrasah->fasilitas && count($madrasah->fasilitas) > 0)
+                @foreach($madrasah->fasilitas as $fasilitas)
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="facility-card">
+                        @if(isset($fasilitas['image']) && $fasilitas['image'])
+                            <img src="{{ asset('storage/app/public/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="facility-img w-100">
+                        @else
+                            <div class="facility-img bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-building bx-lg text-muted"></i>
+                            </div>
+                        @endif
+                        <div class="p-3">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-cog me-2"></i>{{ $fasilitas['name'] ?? '' }}
+                            </h6>
+                            <p class="text-muted small mb-0">{{ $fasilitas['description'] ?? '' }}</p>
                         </div>
-                    @endif
-                    <div class="p-3">
-                        <h6 class="text-primary mb-2">
-                            <i class="fas fa-cog me-2"></i>{{ $fasilitas['name'] ?? '' }}
-                        </h6>
-                        <p class="text-muted small mb-0">{{ $fasilitas['description'] ?? '' }}</p>
                     </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @else
+                <div class="col-12 text-center">
+                    <div class="card-custom p-5">
+                        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Fasilitas Akan Segera Ditambahkan</h5>
+                        <p class="text-muted">Informasi fasilitas sekolah sedang dalam proses penyusunan.</p>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </section>
-@endif
 
 <!-- About Section -->
 <section id="about" class="about-section">
