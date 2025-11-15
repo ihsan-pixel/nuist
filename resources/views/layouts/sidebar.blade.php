@@ -215,7 +215,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="waves-effect">
+                    <a href="{{ route('ppdb.index') }}" class="waves-effect">
                         <i class="bx bx-file"></i>
                         <span>Data Pendaftaran</span>
                     </a>
