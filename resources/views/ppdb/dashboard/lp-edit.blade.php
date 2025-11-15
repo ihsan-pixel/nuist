@@ -430,7 +430,7 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-add-array add-array-item" data-target="misi-container">
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="misi-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Misi
                 </button>
                 @error('misi.*')
@@ -471,7 +471,7 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-add-array add-array-item" data-target="fasilitas-container">
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="fasilitas-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Fasilitas
                 </button>
                 @error('fasilitas.*')
@@ -502,7 +502,7 @@
                         </button>
                     </div>
                 </div>
-                <button type="button" class="btn btn-add-array add-array-item" data-target="keunggulan-container">
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="keunggulan-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Keunggulan
                 </button>
                 @error('keunggulan.*')
@@ -683,7 +683,7 @@
                 <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-cancel">
                     <i class="mdi mdi-close me-1"></i>Batal
                 </a>
-                <button type="submit" class="btn btn-submit">
+                <button type="submit" class="btn btn-submit text-white">
                     <i class="mdi mdi-content-save me-1"></i>Simpan Perubahan
                 </button>
             </div>
