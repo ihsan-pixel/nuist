@@ -1,4 +1,4 @@
-@yield('css')
+@stack('css')
 
 <!-- Bootstrap Css -->
 <link href="{{ asset('build/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
