@@ -117,8 +117,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
-                $pulangStart = ($dayOfWeek == 5) ? '13:00' : '14:00';
+                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 13:00, Sabtu pukul 12:00
+                $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
                 $pulangEnd = '22:00';
             } else {
                 $masukStart = '05:00';
@@ -368,8 +368,8 @@ class PresensiController extends \App\Http\Controllers\Controller
                 $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
 
                 if ($hariKbm == '6') {
-                    // KBM 6 hari: Jumat 13:00, hari lain 14:00
-                    $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : '14:00:00';
+                    // KBM 6 hari: Jumat 13:00, Sabtu 12:00, hari lain 14:00
+                    $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
                 } elseif ($hariKbm == '5') {
                     // KBM 5 hari: tetap 15:00
                     $pulangStart = '15:00:00';

@@ -180,8 +180,8 @@ class MobileController extends Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
-                $pulangStart = ($dayOfWeek == 5) ? '14:30' : '15:00';
+                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30, Sabtu pukul 12:00
+                $pulangStart = ($dayOfWeek == 5) ? '14:30' : (($dayOfWeek == 6) ? '12:00' : '15:00');
                 $pulangEnd = '22:00';
             } else {
                 $masukStart = '05:00';
@@ -346,7 +346,13 @@ class MobileController extends Controller
             $pulangStart = '15:00:00'; // Default pulang start time
             if ($user->madrasah && $user->madrasah->hari_kbm) {
                 $hariKbm = $user->madrasah->hari_kbm;
-                if ($hariKbm == '5' || $hariKbm == '6') {
+                $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+
+                if ($hariKbm == '6') {
+                    // KBM 6 hari: Sabtu 12:00, hari lain 15:00
+                    $pulangStart = ($dayOfWeek == 6) ? '12:00:00' : '15:00:00';
+                } elseif ($hariKbm == '5') {
+                    // KBM 5 hari: tetap 15:00
                     $pulangStart = '15:00:00';
                 } else {
                     $pulangStart = '15:00:00';
