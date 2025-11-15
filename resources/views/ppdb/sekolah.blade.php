@@ -16,7 +16,7 @@
         /* FIX TERPENTING */
         display: block; /* buang flex agar elemen tidak ketarik tengah */
         padding-top: 40px; /* beri ruang flayer lebih kecil */
-        padding-bottom: 80px;
+        padding-bottom: 40px;
         min-height: 93vh;
         position: relative;
     }
@@ -35,7 +35,7 @@
     .hero-content {
         position: relative;
         z-index: 2;
-        color: white;
+        color: #0a5f35;
     }
 
     .school-logo {
