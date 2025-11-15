@@ -48,5 +48,7 @@
     {{-- Tambahan script dari halaman --}}
     @yield('script-bottom')
 
-</body>
+    {{-- Scripts section --}}
+    @yield('scripts')
+
 </html>
