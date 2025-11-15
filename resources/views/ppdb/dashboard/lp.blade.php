@@ -736,7 +736,7 @@
                                                         <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
                                                     </button>
                                                 @endif
-                                                <a href="{{ route('ppdb.lp.edit', $detail['sekolah']->id) }}" class="btn btn-outline-primary btn-sm">
+                                                <a href="{{ route('ppdb.lp.edit', $detail['sekolah']->id) }}" class="btn btn-outline-primary btn-sm text-white">
                                                     <i class="mdi mdi-pencil me-1"></i>Edit Profile
                                                 </a>
                                             </div>
