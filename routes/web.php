@@ -349,4 +349,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('ppdb/sekolah')->group(functio
 // ADMIN LP. MA’ARIF
 Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(function () {
     Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
+    Route::get('/edit/{id}', [AdminLPController::class, 'edit'])->name('ppdb.lp.edit');
+    Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');
 });

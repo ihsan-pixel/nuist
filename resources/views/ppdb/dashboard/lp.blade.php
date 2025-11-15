@@ -726,15 +726,20 @@
                                             </span>
                                         </td>
                                         <td>
-                                            @if($detail['ppdb_setting'])
-                                                <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm">
-                                                    <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                @if($detail['ppdb_setting'])
+                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm">
+                                                        <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                        <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
+                                                    </button>
+                                                @endif
+                                                <a href="{{ route('ppdb.lp.edit', $detail['sekolah']->id) }}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="mdi mdi-pencil me-1"></i>Edit Profile
                                                 </a>
-                                            @else
-                                                <button class="btn btn-outline-secondary btn-sm" disabled>
-                                                    <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
-                                                </button>
-                                            @endif
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach

@@ -112,4 +112,111 @@ class AdminLPController extends Controller
 
         return view('ppdb.dashboard.lp-detail', compact('ppdbSetting', 'pendaftars', 'statistik'));
     }
+
+    /**
+     * Show edit form for school profile
+     */
+    public function edit($id)
+    {
+        $madrasah = \App\Models\Madrasah::findOrFail($id);
+
+        return view('ppdb.dashboard.lp-edit', compact('madrasah'));
+    }
+
+    /**
+     * Update school profile
+     */
+    public function update(Request $request, $id)
+    {
+        $madrasah = \App\Models\Madrasah::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'kabupaten' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'tagline' => 'nullable|string|max:255',
+            'deskripsi_singkat' => 'nullable|string',
+            'tahun_berdiri' => 'nullable|integer|min:1800|max:' . (date('Y') + 1),
+            'sejarah' => 'nullable|string',
+            'akreditasi' => 'nullable|string|max:10',
+            'nilai_nilai' => 'nullable|string',
+            'visi' => 'nullable|string',
+            'misi' => 'nullable|array',
+            'misi.*' => 'nullable|string',
+            'keunggulan' => 'nullable|array',
+            'keunggulan.*' => 'nullable|string',
+            'fasilitas' => 'nullable|array',
+            'fasilitas.*' => 'nullable|string',
+            'jurusan' => 'nullable|array',
+            'jurusan.*' => 'nullable|string',
+            'prestasi' => 'nullable|array',
+            'prestasi.*' => 'nullable|string',
+            'program_unggulan' => 'nullable|array',
+            'program_unggulan.*' => 'nullable|string',
+            'ekstrakurikuler' => 'nullable|array',
+            'ekstrakurikuler.*' => 'nullable|string',
+            'testimoni' => 'nullable|array',
+            'testimoni.*' => 'nullable|string',
+            'kepala_sekolah_nama' => 'nullable|string|max:255',
+            'kepala_sekolah_gelar' => 'nullable|string|max:255',
+            'kepala_sekolah_sambutan' => 'nullable|string',
+            'jumlah_siswa' => 'nullable|integer|min:0',
+            'jumlah_guru' => 'nullable|integer|min:0',
+            'jumlah_jurusan' => 'nullable|integer|min:0',
+            'jumlah_sarana' => 'nullable|integer|min:0',
+            'galeri_foto' => 'nullable|array',
+            'galeri_foto.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video_profile' => 'nullable|string|url',
+            'telepon' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'website' => 'nullable|string|url',
+            'jam_operasional_buka' => 'nullable|date_format:H:i',
+            'jam_operasional_tutup' => 'nullable|date_format:H:i',
+            'brosur_pdf' => 'nullable|file|mimes:pdf|max:5120',
+            'faq' => 'nullable|array',
+            'faq.*' => 'nullable|string',
+            'alur_pendaftaran' => 'nullable|array',
+            'alur_pendaftaran.*' => 'nullable|string',
+        ]);
+
+        $data = $request->except(['galeri_foto', 'brosur_pdf']);
+
+        // Handle array fields
+        $arrayFields = ['misi', 'keunggulan', 'fasilitas', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];
+        foreach ($arrayFields as $field) {
+            if ($request->has($field)) {
+                $data[$field] = array_filter($request->input($field, []), function($value) {
+                    return !empty(trim($value));
+                });
+            }
+        }
+
+        // Handle file uploads
+        if ($request->hasFile('galeri_foto')) {
+            $galeriFiles = [];
+            foreach ($request->file('galeri_foto') as $file) {
+                if ($file->isValid()) {
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('images/madrasah/galeri'), $filename);
+                    $galeriFiles[] = $filename;
+                }
+            }
+            if (!empty($galeriFiles)) {
+                $data['galeri_foto'] = array_merge($madrasah->galeri_foto ?? [], $galeriFiles);
+            }
+        }
+
+        if ($request->hasFile('brosur_pdf')) {
+            $brosurFile = $request->file('brosur_pdf');
+            if ($brosurFile->isValid()) {
+                $filename = time() . '_brosur.' . $brosurFile->getClientOriginalExtension();
+                $brosurFile->move(public_path('uploads/brosur'), $filename);
+                $data['brosur_pdf'] = $filename;
+            }
+        }
+
+        $madrasah->update($data);
+
+        return redirect()->route('ppdb.lp.dashboard')->with('success', 'Profil madrasah berhasil diperbarui.');
+    }
 }
