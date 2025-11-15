@@ -726,19 +726,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Navigation functions
-function nextStep(step) {
+window.nextStep = function(step) {
     if (validateCurrentStep()) {
         currentStep = step;
         showStep(step);
         updateProgress();
     }
-}
+};
 
-function prevStep(step) {
+window.prevStep = function(step) {
     currentStep = step;
     showStep(step);
     updateProgress();
-}
+};
 
 function showStep(step) {
     // Hide all steps
