@@ -562,7 +562,7 @@
             </div>
 
             <div class="text-end">
-                <button type="button" class="btn btn-next btn-navigation" onclick="window.nextStep(2)">
+                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(2)">
                     Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -614,10 +614,10 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-prev btn-navigation" onclick="window.prevStep(1)">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(1)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
-                <button type="button" class="btn btn-next btn-navigation" onclick="window.nextStep(3)">
+                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(3)">
                     Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -685,7 +685,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-prev btn-navigation" onclick="window.prevStep(2)">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(2)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
                 <button type="submit" class="btn btn-submit">
