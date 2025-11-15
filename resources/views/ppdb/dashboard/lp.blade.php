@@ -605,7 +605,9 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-6">
-                        <canvas id="statusChart"></canvas>
+                        <div style="height: 350px;">
+                            <canvas id="statusChart" style="min-height:320px; height:320px; width:100% !important;"></canvas>
+                        </div>
                     </div>
                     <div class="col-lg-6">
                         <div class="chart-legend">
@@ -802,58 +804,60 @@ let statusChartInstance;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Chart
-    const ctx = document.getElementById('statusChart');
-    if (ctx) {
-        // Jika chart sudah ada → destroy dulu
-        if (statusChartInstance) {
-            statusChartInstance.destroy();
-        }
+    const canvas = document.getElementById('statusChart');
+    if (!canvas) return;
 
-        statusChartInstance = new Chart(ctx.getContext('2d'), {
-            type: 'pie',
-            data: {
-                labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
-                datasets: [{
-                    data: [
-                        {{ $statistik['pending'] }},
-                        {{ $statistik['verifikasi'] }},
-                        {{ $statistik['lulus'] }},
-                        {{ $statistik['tidak_lulus'] }}
-                    ],
-                    backgroundColor: [
-                        '#ffc107', // warning
-                        '#0dcaf0', // info
-                        '#198754', // success
-                        '#dc3545'  // danger
-                    ],
-                    borderColor: [
-                        '#ffc107',
-                        '#0dcaf0',
-                        '#198754',
-                        '#dc3545'
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false // Hide legend since we have custom legend
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                            }
+    // Pastikan wrapper memberi tinggi
+    canvas.style.height = "320px";
+
+    // Destroy jika sebelumnya ada instance
+    if (statusChartInstance) {
+        statusChartInstance.destroy();
+    }
+
+    statusChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
+            datasets: [{
+                data: [
+                    {{ $statistik['pending'] }},
+                    {{ $statistik['verifikasi'] }},
+                    {{ $statistik['lulus'] }},
+                    {{ $statistik['tidak_lulus'] }}
+                ],
+                backgroundColor: [
+                    '#ffc107',
+                    '#0dcaf0',
+                    '#198754',
+                    '#dc3545'
+                ],
+                borderColor: [
+                    '#ffc107',
+                    '#0dcaf0',
+                    '#198754',
+                    '#dc3545'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // WAJIB!
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
                         }
                     }
                 }
             }
-        });
-    }
+        }
+    });
 });
 </script>
 <script>
