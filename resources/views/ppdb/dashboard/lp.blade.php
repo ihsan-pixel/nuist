@@ -253,7 +253,7 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
                         <div class="stat-number text-secondary">
-                            {{ $statistik['total_sekolah'] > 0 ? round(($statistik['lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%
+                            {{ $statistik['total_pendaftar'] > 0 ? round(($statistik['lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%
                         </div>
                         <div class="stat-label">Tingkat Kelulusan</div>
                     </div>
