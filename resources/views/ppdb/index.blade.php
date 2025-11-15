@@ -575,7 +575,9 @@
                                             @if($ppdb && $ppdb->isPembukaan())
                                                 <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Lihat Detail</a>
                                             @else
-                                                <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-outline-primary btn-sm w-100 mb-1" style="font-size: 0.7rem; padding: 3px 6px;">Lihat Halaman Sekolah</a>
+                                                @if($ppdb)
+                                                    <a href="{{ route('ppdb.sekolah', $ppdb->slug) }}" class="btn btn-outline-primary btn-sm w-100 mb-1" style="font-size: 0.7rem; padding: 3px 6px;">Lihat Halaman Sekolah</a>
+                                                @endif
                                                 <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
                                             @endif
                                         </div>
