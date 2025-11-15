@@ -11,14 +11,12 @@
         background: url('{{ asset("images/bg_ppdb2.png") }}');
         background-size: cover;
         background-position: center;
-        background-attachment: absolute;
-
-        /* FIX TERPENTING */
-        display: block; /* buang flex agar elemen tidak ketarik tengah */
-        padding-top: 80px; /* beri ruang flayer lebih kecil */
-        padding-bottom: 40px;
+        background-attachment: fixed;
         min-height: 93vh;
         position: relative;
+        display: flex;
+        align-items: center;
+        padding: 80px 0;
     }
 
     /* .hero-section::before {
