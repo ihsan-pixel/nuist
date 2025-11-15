@@ -605,7 +605,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-6">
-                        <canvas id="statusChart" width="400" height="300"></canvas>
+                        <canvas id="statusChart"></canvas>
                     </div>
                     <div class="col-lg-6">
                         <div class="chart-legend">
