@@ -287,6 +287,12 @@
         margin-bottom: 2rem;
     }
 
+    #statusChart {
+        min-height: 320px !important;
+        height: 320px !important;
+        width: 100% !important;
+    }
+
     .animate-fade-in {
         animation: fadeIn 0.8s ease-out;
     }
