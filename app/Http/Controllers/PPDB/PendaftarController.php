@@ -54,10 +54,15 @@ class PendaftarController extends Controller
 
         // Jika PPDB setting ada tapi status tidak buka, tetap tampilkan form
         // tapi dengan peringatan
-        if (isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
-            $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
-        } else {
-            $jalurs = PPDBJalur::orderBy('urutan')->get();
+        try {
+            if (isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
+                $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
+            } else {
+                $jalurs = PPDBJalur::orderBy('urutan')->get();
+            }
+        } catch (\Exception $e) {
+            // Jika tabel tidak ada, gunakan jalur default
+            $jalurs = collect();
         }
 
         // Jika masih kosong, buat jalur default
