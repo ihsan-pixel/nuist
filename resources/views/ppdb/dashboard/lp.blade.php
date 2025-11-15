@@ -4,239 +4,24 @@
 
 @push('css')
 <style>
-    .ppdb-header {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 75, 76, 0.2);
+    .hover-lift {
+        transition: all 0.3s ease;
     }
 
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #004b4c;
-        transition: transform 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-        border-radius: 50%;
-        transform: translate(30px, -30px);
-    }
-
-    .stat-card:hover {
+    .hover-lift:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-card.total-sekolah { border-left-color: #004b4c; }
-    .stat-card.total-pendaftar { border-left-color: #efaa0c; }
-    .stat-card.sekolah-buka { border-left-color: #667eea; }
-    .stat-card.pending { border-left-color: #ffc107; }
-    .stat-card.verifikasi { border-left-color: #17a2b8; }
-    .stat-card.lulus { border-left-color: #28a745; }
-    .stat-card.tidak-lulus { border-left-color: #dc3545; }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin-bottom: 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    .stat-icon {
-        position: relative;
-        z-index: 1;
-    }
-
-    .table-responsive {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .table thead th {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        color: white;
-        border: none;
-        font-weight: 600;
-        padding: 1rem;
-        position: relative;
-    }
-
-    .table thead th::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #efaa0c 0%, #667eea 100%);
-    }
-
-    .table tbody tr {
-        transition: all 0.3s ease;
-        border-bottom: 1px solid #f1f3f4;
-    }
-
-    .table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(0, 75, 76, 0.05) 0%, rgba(239, 170, 12, 0.05) 100%);
-        transform: scale(1.01);
-    }
-
-    .badge-status {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 500;
-        border: 1px solid;
-    }
-
-    .badge-buka {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border-color: #28a745;
-    }
-    .badge-tutup {
-        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-        color: white;
-        border-color: #dc3545;
-    }
-    .badge-belum-buka {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: black;
-        border-color: #ffc107;
-    }
-    .badge-tidak-aktif {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        color: white;
-        border-color: #6c757d;
-    }
-
-    .sekolah-name {
-        font-weight: 600;
-        color: #004b4c;
-        margin-bottom: 0.25rem;
-    }
-
-    .kabupaten-info {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .action-btn {
-        background: linear-gradient(45deg, #004b4c, #667eea);
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        color: white;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .action-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-
-    .action-btn:hover::before {
-        left: 100%;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
-        color: white;
-    }
-
-    .kabupaten-group {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 1px solid #dee2e6;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-    }
-
-    .kabupaten-header {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        color: white;
-        padding: 1rem 1.5rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .kabupaten-header i {
-        margin-right: 0.5rem;
-        opacity: 0.9;
-    }
-
-    .kabupaten-stats {
-        background: rgba(255,255,255,0.9);
-        padding: 0.75rem 1.5rem;
-        border-top: 1px solid rgba(255,255,255,0.3);
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.9);
-    }
-
-    .kabupaten-table {
-        background: white;
-    }
-
-    .kabupaten-table .table thead th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .kabupaten-table .table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    }
-
-    .chart-container {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
     }
 
     .welcome-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         border-radius: 15px;
         padding: 2rem;
         margin-bottom: 2rem;
         color: white;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
     }
 
     .welcome-section::before {
@@ -256,28 +41,247 @@
         z-index: 1;
     }
 
-    @media (max-width: 768px) {
-        .ppdb-header {
-            padding: 1.5rem;
-        }
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .stat-card {
-            margin-bottom: 1rem;
-        }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
 
-        .stat-number {
-            font-size: 2rem;
-        }
+    .stat-card.total-sekolah {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
 
-        .kabupaten-header {
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-        }
+    .stat-card.total-pendaftar {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
 
-        .kabupaten-stats {
-            padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-        }
+    .stat-card.sekolah-buka {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .stat-card.pending {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+    }
+
+    .stat-card.verifikasi {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #004b4c;
+    }
+
+    .stat-card.lulus {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .stat-card.tidak-lulus {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        color: white;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-icon {
+        position: relative;
+        z-index: 1;
+    }
+
+    .kabupaten-group {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .kabupaten-header {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: between;
+    }
+
+    .kabupaten-header i {
+        margin-right: 0.5rem;
+        opacity: 0.9;
+    }
+
+    .kabupaten-stats {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .kabupaten-stats .row > div {
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    .kabupaten-stats .fw-bold {
+        font-size: 1.1rem;
+        color: #004b4c;
+    }
+
+    .kabupaten-stats small {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+
+    .kabupaten-table {
+        background: white;
+    }
+
+    .kabupaten-table .table {
+        margin-bottom: 0;
+        border-radius: 0;
+    }
+
+    .kabupaten-table .table thead th {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #004b4c;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .kabupaten-table .table tbody tr {
+        transition: background-color 0.3s ease;
+        border-bottom: 1px solid #f1f3f4;
+    }
+
+    .kabupaten-table .table tbody tr:hover {
+        background-color: rgba(0, 75, 76, 0.05);
+    }
+
+    .badge-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        border: 1px solid;
+        font-size: 0.8rem;
+    }
+
+    .badge-buka {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-color: #28a745;
+    }
+
+    .badge-tutup {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        color: white;
+        border-color: #dc3545;
+    }
+
+    .badge-belum-buka {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: #004b4c;
+        border-color: #ffc107;
+    }
+
+    .badge-tidak-aktif {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        border-color: #6c757d;
+    }
+
+    .sekolah-name {
+        font-weight: 600;
+        color: #004b4c;
+        margin-bottom: 0.25rem;
+    }
+
+    .kabupaten-info {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .action-btn {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        font-size: 0.9rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
+        color: white;
+    }
+
+    .btn-outline-primary {
+        border-color: #004b4c;
+        color: #004b4c;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #004b4c;
+        border-color: #004b4c;
+        color: white;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+        transform: translateY(-1px);
+    }
+
+    .table-responsive {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
     }
 
     .animate-fade-in {
@@ -302,6 +306,50 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    @media (max-width: 768px) {
+        .welcome-section {
+            padding: 1.5rem;
+        }
+
+        .stat-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .kabupaten-header {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+
+        .kabupaten-stats {
+            padding: 0.75rem 1rem;
+        }
+
+        .kabupaten-stats .row > div {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    .text-dark {
+        color: #004b4c !important;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .fw-semibold {
+        font-weight: 600;
+    }
+
+    .fw-medium {
+        font-weight: 500;
     }
 </style>
 @endpush
@@ -329,120 +377,176 @@
         </div>
     </div>
 
-    <!-- Statistik Utama -->
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card total-sekolah">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-primary">{{ number_format($statistik['total_sekolah']) }}</div>
-                        <div class="stat-label">Total Madrasah</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-building-house" style="font-size: 2.5rem; color: #004b4c;"></i>
-                    </div>
+    <!-- Statistics Overview Header -->
+    <div class="card border-0 shadow-sm mb-4 hover-lift" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="text-white mb-1">Ringkasan PPDB</h4>
+                    <p class="text-white-50 mb-0">Data pendaftaran siswa baru tahun {{ date('Y') }}</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card total-pendaftar">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-warning">{{ number_format($statistik['total_pendaftar']) }}</div>
-                        <div class="stat-label">Total Pendaftar</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-user-plus" style="font-size: 2.5rem; color: #efaa0c;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card sekolah-buka">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-info">{{ number_format($statistik['total_buka']) }}</div>
-                        <div class="stat-label">PPDB Aktif</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-check-circle" style="font-size: 2.5rem; color: #667eea;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card lulus">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-success">{{ number_format($statistik['lulus']) }}</div>
-                        <div class="stat-label">Lulus Seleksi</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-check-double" style="font-size: 2.5rem; color: #28a745;"></i>
+                <div class="avatar-lg">
+                    <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                        <i class="mdi mdi-chart-bar fs-2"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistik Detail -->
-    <div class="row mb-4">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card pending">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-warning">{{ number_format($statistik['pending']) }}</div>
-                        <div class="stat-label">Menunggu Verifikasi</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-time" style="font-size: 2rem; color: #ffc107;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card verifikasi">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-info">{{ number_format($statistik['verifikasi']) }}</div>
-                        <div class="stat-label">Dalam Verifikasi</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-search" style="font-size: 2rem; color: #17a2b8;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card tidak-lulus">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-danger">{{ number_format($statistik['tidak_lulus']) }}</div>
-                        <div class="stat-label">Tidak Lulus</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-x" style="font-size: 2rem; color: #dc3545;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <div class="stat-number text-secondary">
-                            {{ $statistik['total_pendaftar'] > 0 ? round(($statistik['lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%
+    <!-- Primary Statistics Row -->
+    <div class="row g-3 mb-4">
+        {{-- Total Madrasah Card --}}
+        <div class="col-lg-6 col-xl-3">
+            <div class="stat-card h-100 hover-lift total-sekolah">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-white mb-1">{{ number_format($statistik['total_sekolah']) }}</h3>
+                            <p class="text-white-75 mb-0 fs-6">Total Madrasah</p>
                         </div>
-                        <div class="stat-label">Tingkat Kelulusan</div>
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-school fs-3"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-icon">
-                        <i class="bx bx-trending-up" style="font-size: 2rem; color: #6c757d;"></i>
+                    <div class="mt-3">
+                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                            <div class="progress-bar bg-white" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Total Pendaftar Card --}}
+        <div class="col-lg-6 col-xl-3">
+            <div class="stat-card h-100 hover-lift total-pendaftar">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-white mb-1">{{ number_format($statistik['total_pendaftar']) }}</h3>
+                            <p class="text-white-75 mb-0 fs-6">Total Pendaftar</p>
+                        </div>
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-account-plus fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                            <div class="progress-bar bg-white" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- PPDB Aktif Card --}}
+        <div class="col-lg-6 col-xl-3">
+            <div class="stat-card h-100 hover-lift sekolah-buka">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-white mb-1">{{ number_format($statistik['total_buka']) }}</h3>
+                            <p class="text-white-75 mb-0 fs-6">PPDB Aktif</p>
+                        </div>
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-check-circle fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                            <div class="progress-bar bg-white" style="width: {{ $statistik['total_sekolah'] > 0 ? round(($statistik['total_buka'] / $statistik['total_sekolah']) * 100) : 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pending Card --}}
+        <div class="col-lg-6 col-xl-3">
+            <div class="stat-card h-100 hover-lift pending">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h3 class="text-white mb-1">{{ number_format($statistik['pending']) }}</h3>
+                            <p class="text-white-75 mb-0 fs-6">Menunggu Verifikasi</p>
+                        </div>
+                        <div class="avatar-md">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-clock-outline fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                            <div class="progress-bar bg-white" style="width: {{ $statistik['total_pendaftar'] > 0 ? round(($statistik['pending'] / $statistik['total_pendaftar']) * 100) : 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Statistics Row -->
+    <div class="row g-3 mb-4">
+        {{-- Verifikasi Card --}}
+        <div class="col-lg-4">
+            <div class="stat-card h-100 hover-lift verifikasi">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="text-dark mb-1">{{ number_format($statistik['verifikasi']) }}</h4>
+                            <p class="text-muted mb-0 small">Dalam Verifikasi</p>
+                        </div>
+                        <div class="avatar-sm">
+                            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                <i class="mdi mdi-magnify fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Lulus Card --}}
+        <div class="col-lg-4">
+            <div class="stat-card h-100 hover-lift lulus">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="text-white mb-1">{{ number_format($statistik['lulus']) }}</h4>
+                            <p class="text-white-75 mb-0 small">Lulus Seleksi</p>
+                        </div>
+                        <div class="avatar-sm">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-check-circle fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tidak Lulus Card --}}
+        <div class="col-lg-4">
+            <div class="stat-card h-100 hover-lift tidak-lulus">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h4 class="text-white mb-1">{{ number_format($statistik['tidak_lulus']) }}</h4>
+                            <p class="text-white-75 mb-0 small">Tidak Lulus</p>
+                        </div>
+                        <div class="avatar-sm">
+                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <i class="mdi mdi-close-circle fs-4"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
