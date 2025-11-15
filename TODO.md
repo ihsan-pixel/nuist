@@ -38,3 +38,5 @@
 - Removed: periode presensi, persyaratan upload, kontak ppdb as per user request
 - Focus on core PPDB settings: status, jadwal, kuota, jalur, biaya, pengumuman
 - Use existing edit.blade.php as reference for form structure
+- Made PPDB settings section always visible (removed @if isset condition)
+- Made all PPDB fields optional to allow partial updates

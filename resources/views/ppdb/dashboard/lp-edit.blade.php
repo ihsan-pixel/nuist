@@ -513,17 +513,16 @@
         </div>
 
         <!-- Pengaturan PPDB -->
-        @if(isset($ppdbSetting))
         <div class="form-section">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-cog-outline me-2"></i>Pengaturan PPDB
                 </h3>
-                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk tahun {{ $ppdbSetting->tahun }}</p>
+                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk tahun {{ $ppdbSetting->tahun ?? now()->year }}</p>
             </div>
 
             <div class="form-group">
-                <label for="ppdb_status" class="form-label required-field">Status PPDB</label>
+                <label for="ppdb_status" class="form-label">Status PPDB</label>
                 <div class="d-flex align-items-center gap-3">
                     <select class="form-select @error('ppdb_status') is-invalid @enderror" id="ppdb_status" name="ppdb_status" style="max-width: 200px;">
                         <option value="tutup" {{ old('ppdb_status', $ppdbSetting->status) == 'tutup' ? 'selected' : '' }}>Tutup</option>
@@ -540,10 +539,10 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="ppdb_jadwal_buka" class="form-label required-field">Jadwal Buka PPDB</label>
+                        <label for="ppdb_jadwal_buka" class="form-label">Jadwal Buka PPDB</label>
                         <input type="datetime-local" class="form-control @error('ppdb_jadwal_buka') is-invalid @enderror"
                                id="ppdb_jadwal_buka" name="ppdb_jadwal_buka"
-                               value="{{ old('ppdb_jadwal_buka', $ppdbSetting->jadwal_buka ? $ppdbSetting->jadwal_buka->format('Y-m-d\TH:i') : '') }}" required>
+                               value="{{ old('ppdb_jadwal_buka', $ppdbSetting->jadwal_buka ? $ppdbSetting->jadwal_buka->format('Y-m-d\TH:i') : '') }}">
                         @error('ppdb_jadwal_buka')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -552,10 +551,10 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="ppdb_jadwal_tutup" class="form-label required-field">Jadwal Tutup PPDB</label>
+                        <label for="ppdb_jadwal_tutup" class="form-label">Jadwal Tutup PPDB</label>
                         <input type="datetime-local" class="form-control @error('ppdb_jadwal_tutup') is-invalid @enderror"
                                id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
-                               value="{{ old('ppdb_jadwal_tutup', $ppdbSetting->jadwal_tutup ? $ppdbSetting->jadwal_tutup->format('Y-m-d\TH:i') : '') }}" required>
+                               value="{{ old('ppdb_jadwal_tutup', $ppdbSetting->jadwal_tutup ? $ppdbSetting->jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
                         @error('ppdb_jadwal_tutup')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -566,9 +565,9 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="ppdb_kuota_total" class="form-label required-field">Kuota Total</label>
+                        <label for="ppdb_kuota_total" class="form-label">Kuota Total</label>
                         <input type="number" class="form-control @error('ppdb_kuota_total') is-invalid @enderror"
-                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $ppdbSetting->kuota_total) }}" min="1" required>
+                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $ppdbSetting->kuota_total) }}" min="1">
                         <div class="help-text">Total kuota pendaftar untuk semua jurusan</div>
                         @error('ppdb_kuota_total')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -673,7 +672,6 @@
                 @enderror
             </div>
         </div>
-        @endif
 
         <!-- Fasilitas dan Keunggulan -->
         <div class="form-section">
