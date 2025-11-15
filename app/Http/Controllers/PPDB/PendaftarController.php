@@ -5,6 +5,7 @@ namespace App\Http\Controllers\PPDB;
 use App\Http\Controllers\Controller;
 use App\Models\PPDBSetting;
 use App\Models\PPDBPendaftar;
+use App\Models\PPDBJalur;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -56,7 +57,7 @@ class PendaftarController extends Controller
         if (isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
             $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
         } else {
-            $jalurs = collect();
+            $jalurs = PPDBJalur::orderBy('urutan')->get();
         }
 
         return view('ppdb.daftar', compact('ppdbSetting', 'jalurs'));
