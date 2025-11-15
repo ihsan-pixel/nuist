@@ -288,8 +288,10 @@
                     <p class="lead mb-4">{{ $madrasah->deskripsi_singkat }}</p>
                 @endif
                 <div class="d-flex gap-3 flex-wrap">
-                    @if($ppdb && $ppdb->isPembukaan())
+                    @if(isset($ppdb->id) && $ppdb->isPembukaan())
+
                         <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb">Daftar Sekarang</a>
+
                     @endif
                     <a href="#jurusan" class="btn btn-outline-light btn-lg px-4">Lihat Jurusan</a>
                 </div>
@@ -299,11 +301,15 @@
                     <div class="card-custom p-4">
                         <h5 class="text-primary mb-3">PPDB {{ $ppdb->tahun }}</h5>
                         <div class="mb-3">
-                            <span class="badge fs-6 px-3 py-2 {{ $ppdb->isPembukaan() ? 'bg-success' : 'bg-danger' }}">
-                                {{ $ppdb->isPembukaan() ? 'Pendaftaran Dibuka' : 'Pendaftaran Ditutup' }}
+
+                            <span class="badge fs-6 px-3 py-2 {{ isset($ppdb->id) && $ppdb->isPembukaan() ? 'bg-success' : 'bg-danger' }}">
+
+                                {{ isset($ppdb->id) && $ppdb->isPembukaan() ? 'Pendaftaran Dibuka' : 'Pendaftaran Ditutup' }}
+
                             </span>
+
                         </div>
-                        @if($ppdb->isPembukaan())
+                        @if(isset($ppdb->id) && $ppdb->isPembukaan())
                             <p class="mb-2"><strong>Jadwal:</strong></p>
                             <p class="mb-0">{{ $ppdb->jadwal_buka->format('d M Y') }} - {{ $ppdb->jadwal_tutup->format('d M Y') }}</p>
                             <p class="text-muted small">Sisa waktu: {{ $ppdb->remainingDays() }} hari</p>
@@ -859,7 +865,7 @@
         <h2 class="display-5 fw-bold mb-4">Siap Bergabung dengan {{ $madrasah->name }}?</h2>
         <p class="lead mb-4">Daftarkan diri Anda sekarang dan jadilah bagian dari komunitas unggul kami</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-            @if($ppdb && $ppdb->isPembukaan())
+            @if(isset($ppdb->id) && $ppdb->isPembukaan())
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb btn-lg">Daftar PPDB Sekarang</a>
             @endif
             @if($madrasah->brosur_pdf)
