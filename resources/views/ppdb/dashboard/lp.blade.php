@@ -14,11 +14,11 @@
     }
 
     .welcome-section {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-radius: 15px;
         padding: 2rem;
         margin-bottom: 2rem;
-        color: white;
+        color: #004b4c;
         position: relative;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
@@ -31,7 +31,7 @@
         right: 0;
         width: 200px;
         height: 200px;
-        background: rgba(255,255,255,0.1);
+        background: rgba(0, 75, 76, 0.1);
         border-radius: 50%;
         transform: translate(50px, -50px);
     }
@@ -123,8 +123,8 @@
     }
 
     .kabupaten-header {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        color: white;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #004b4c;
         padding: 1rem 1.5rem;
         font-weight: 600;
         font-size: 1.1rem;
@@ -135,7 +135,7 @@
 
     .kabupaten-header i {
         margin-right: 0.5rem;
-        opacity: 0.9;
+        opacity: 0.7;
     }
 
     .kabupaten-stats {
@@ -231,11 +231,11 @@
     }
 
     .action-btn {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        border: none;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
         border-radius: 8px;
         padding: 0.5rem 1rem;
-        color: white;
+        color: #004b4c;
         text-decoration: none;
         transition: all 0.3s ease;
         position: relative;
@@ -246,7 +246,8 @@
     .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
-        color: white;
+        color: #004b4c;
+        background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
     }
 
     .btn-outline-primary {
@@ -263,11 +264,13 @@
     .btn-primary {
         background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         border: none;
+        color: white;
     }
 
     .btn-primary:hover {
         background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
         transform: translateY(-1px);
+        color: white;
     }
 
     .table-responsive {
@@ -357,20 +360,22 @@
 @section('content')
 <div class="container-fluid py-4">
     <!-- Welcome Section -->
-    <div class="welcome-section animate-fade-in">
-        <div class="welcome-content">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h2 class="mb-2">
-                        <i class="mdi mdi-view-dashboard me-2"></i>
-                        Dashboard PPDB Super Admin
-                    </h2>
-                    <p class="mb-0 opacity-90">Pantau dan kelola pendaftaran siswa baru di seluruh madrasah Ma'arif</p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <div class="d-flex align-items-center justify-content-lg-end">
-                        <i class="mdi mdi-calendar-clock me-2"></i>
-                        <span class="fw-semibold">Tahun {{ date('Y') }}</span>
+    <div class="section-wrapper mb-4">
+        <div class="welcome-section animate-fade-in">
+            <div class="welcome-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h2 class="mb-2">
+                            <i class="mdi mdi-view-dashboard me-2"></i>
+                            Dashboard PPDB Super Admin
+                        </h2>
+                        <p class="mb-0 opacity-75">Pantau dan kelola pendaftaran siswa baru di seluruh madrasah Ma'arif</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <div class="d-flex align-items-center justify-content-lg-end">
+                            <i class="mdi mdi-calendar-clock me-2"></i>
+                            <span class="fw-semibold">Tahun {{ date('Y') }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -378,16 +383,18 @@
     </div>
 
     <!-- Statistics Overview Header -->
-    <div class="card border-0 shadow-sm mb-4 hover-lift" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 15px;">
-        <div class="card-body p-4">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h4 class="text-white mb-1">Ringkasan PPDB</h4>
-                    <p class="text-white-50 mb-0">Data pendaftaran siswa baru tahun {{ date('Y') }}</p>
-                </div>
-                <div class="avatar-lg">
-                    <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                        <i class="mdi mdi-chart-bar fs-2"></i>
+    <div class="section-wrapper mb-4">
+        <div class="card border-0 shadow-sm hover-lift" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="text-dark mb-1">Ringkasan PPDB</h4>
+                        <p class="text-muted mb-0">Data pendaftaran siswa baru tahun {{ date('Y') }}</p>
+                    </div>
+                    <div class="avatar-lg">
+                        <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                            <i class="mdi mdi-chart-bar fs-2"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -395,97 +402,99 @@
     </div>
 
     <!-- Primary Statistics Row -->
-    <div class="row g-3 mb-4">
-        {{-- Total Madrasah Card --}}
-        <div class="col-lg-6 col-xl-3">
-            <div class="stat-card h-100 hover-lift total-sekolah">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h3 class="text-white mb-1">{{ number_format($statistik['total_sekolah']) }}</h3>
-                            <p class="text-white-75 mb-0 fs-6">Total Madrasah</p>
-                        </div>
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-school fs-3"></i>
+    <div class="section-wrapper mb-4">
+        <div class="row g-3">
+            {{-- Total Madrasah Card --}}
+            <div class="col-lg-6 col-xl-3">
+                <div class="stat-card h-100 hover-lift total-sekolah">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($statistik['total_sekolah']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Total Madrasah</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-school fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: 100%"></div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Total Pendaftar Card --}}
-        <div class="col-lg-6 col-xl-3">
-            <div class="stat-card h-100 hover-lift total-pendaftar">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h3 class="text-white mb-1">{{ number_format($statistik['total_pendaftar']) }}</h3>
-                            <p class="text-white-75 mb-0 fs-6">Total Pendaftar</p>
-                        </div>
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-account-plus fs-3"></i>
+            {{-- Total Pendaftar Card --}}
+            <div class="col-lg-6 col-xl-3">
+                <div class="stat-card h-100 hover-lift total-pendaftar">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($statistik['total_pendaftar']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Total Pendaftar</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-plus fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: 100%"></div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- PPDB Aktif Card --}}
-        <div class="col-lg-6 col-xl-3">
-            <div class="stat-card h-100 hover-lift sekolah-buka">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h3 class="text-white mb-1">{{ number_format($statistik['total_buka']) }}</h3>
-                            <p class="text-white-75 mb-0 fs-6">PPDB Aktif</p>
-                        </div>
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-check-circle fs-3"></i>
+            {{-- PPDB Aktif Card --}}
+            <div class="col-lg-6 col-xl-3">
+                <div class="stat-card h-100 hover-lift sekolah-buka">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($statistik['total_buka']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">PPDB Aktif</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-check-circle fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: {{ $statistik['total_sekolah'] > 0 ? round(($statistik['total_buka'] / $statistik['total_sekolah']) * 100) : 0 }}%"></div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: {{ $statistik['total_sekolah'] > 0 ? round(($statistik['total_buka'] / $statistik['total_sekolah']) * 100) : 0 }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Pending Card --}}
-        <div class="col-lg-6 col-xl-3">
-            <div class="stat-card h-100 hover-lift pending">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h3 class="text-white mb-1">{{ number_format($statistik['pending']) }}</h3>
-                            <p class="text-white-75 mb-0 fs-6">Menunggu Verifikasi</p>
-                        </div>
-                        <div class="avatar-md">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-clock-outline fs-3"></i>
+            {{-- Pending Card --}}
+            <div class="col-lg-6 col-xl-3">
+                <div class="stat-card h-100 hover-lift pending">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($statistik['pending']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Menunggu Verifikasi</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-clock-outline fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: {{ $statistik['total_pendaftar'] > 0 ? round(($statistik['pending'] / $statistik['total_pendaftar']) * 100) : 0 }}%"></div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: {{ $statistik['total_pendaftar'] > 0 ? round(($statistik['pending'] / $statistik['total_pendaftar']) * 100) : 0 }}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -494,57 +503,59 @@
     </div>
 
     <!-- Secondary Statistics Row -->
-    <div class="row g-3 mb-4">
-        {{-- Verifikasi Card --}}
-        <div class="col-lg-4">
-            <div class="stat-card h-100 hover-lift verifikasi">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h4 class="text-dark mb-1">{{ number_format($statistik['verifikasi']) }}</h4>
-                            <p class="text-muted mb-0 small">Dalam Verifikasi</p>
-                        </div>
-                        <div class="avatar-sm">
-                            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
-                                <i class="mdi mdi-magnify fs-4"></i>
+    <div class="section-wrapper mb-4">
+        <div class="row g-3">
+            {{-- Verifikasi Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift verifikasi">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-dark mb-1">{{ number_format($statistik['verifikasi']) }}</h4>
+                                <p class="text-muted mb-0 small">Dalam Verifikasi</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
+                                    <i class="mdi mdi-magnify fs-4"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Lulus Card --}}
-        <div class="col-lg-4">
-            <div class="stat-card h-100 hover-lift lulus">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h4 class="text-white mb-1">{{ number_format($statistik['lulus']) }}</h4>
-                            <p class="text-white-75 mb-0 small">Lulus Seleksi</p>
-                        </div>
-                        <div class="avatar-sm">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-check-circle fs-4"></i>
+            {{-- Lulus Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift lulus">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-white mb-1">{{ number_format($statistik['lulus']) }}</h4>
+                                <p class="text-white-75 mb-0 small">Lulus Seleksi</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-check-circle fs-4"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Tidak Lulus Card --}}
-        <div class="col-lg-4">
-            <div class="stat-card h-100 hover-lift tidak-lulus">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h4 class="text-white mb-1">{{ number_format($statistik['tidak_lulus']) }}</h4>
-                            <p class="text-white-75 mb-0 small">Tidak Lulus</p>
-                        </div>
-                        <div class="avatar-sm">
-                            <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
-                                <i class="mdi mdi-close-circle fs-4"></i>
+            {{-- Tidak Lulus Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift tidak-lulus">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="text-white mb-1">{{ number_format($statistik['tidak_lulus']) }}</h4>
+                                <p class="text-white-75 mb-0 small">Tidak Lulus</p>
+                            </div>
+                            <div class="avatar-sm">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-close-circle fs-4"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -554,191 +565,226 @@
     </div>
 
     <!-- Detail Pendaftaran per Kabupaten -->
-    <div class="animate-slide-up">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1 text-dark">
-                    <i class="mdi mdi-map-marker-multiple me-2 text-primary"></i>
-                    Detail Pendaftaran per Kabupaten
-                </h4>
-                <p class="text-muted mb-0">Data pendaftaran dikelompokkan berdasarkan kabupaten</p>
+    <div class="section-wrapper">
+        <div class="animate-slide-up">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-1 text-dark">
+                        <i class="mdi mdi-map-marker-multiple me-2 text-primary"></i>
+                        Detail Pendaftaran per Kabupaten
+                    </h4>
+                        <p class="text-muted mb-0">Data pendaftaran dikelompokkan berdasarkan kabupaten</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="window.location.reload()">
+                            <i class="mdi mdi-refresh me-1"></i>Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="exportData()">
+                            <i class="mdi mdi-download me-1"></i>Export Data
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-primary" onclick="window.location.reload()">
-                    <i class="mdi mdi-refresh me-1"></i>Refresh
-                </button>
-                <button class="btn btn-primary" onclick="exportData()">
-                    <i class="mdi mdi-download me-1"></i>Export Data
-                </button>
+
+            <!-- Chart Section -->
+            <div class="chart-container mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="mb-1 text-dark">
+                            <i class="mdi mdi-chart-pie me-2 text-primary"></i>
+                            Distribusi Status Pendaftaran
+                        </h5>
+                        <p class="text-muted mb-0 small">Persentase pendaftaran berdasarkan status</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <canvas id="statusChart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-legend">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="badge bg-warning me-2" style="width: 20px; height: 20px;"></div>
+                                <span class="text-muted">Pending: {{ number_format($statistik['pending']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['pending'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="badge bg-info me-2" style="width: 20px; height: 20px;"></div>
+                                <span class="text-muted">Verifikasi: {{ number_format($statistik['verifikasi']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['verifikasi'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="badge bg-success me-2" style="width: 20px; height: 20px;"></div>
+                                <span class="text-muted">Lulus: {{ number_format($statistik['lulus']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="badge bg-danger me-2" style="width: 20px; height: 20px;"></div>
+                                <span class="text-muted">Tidak Lulus: {{ number_format($statistik['tidak_lulus']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['tidak_lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        @php
-            $groupedByKabupaten = collect($detailSekolah)->groupBy(function($item) {
-                return $item['sekolah']->kabupaten;
-            })->sortKeys();
-        @endphp
-
-        @forelse($groupedByKabupaten as $kabupaten => $sekolahs)
             @php
-                $kabupatenStats = [
-                    'total_madrasah' => $sekolahs->count(),
-                    'total_pendaftar' => $sekolahs->sum('total'),
-                    'total_lulus' => $sekolahs->sum('lulus'),
-                    'total_pending' => $sekolahs->sum('pending'),
-                    'total_verifikasi' => $sekolahs->sum('verifikasi'),
-                    'total_buka' => $sekolahs->where('status_ppdb', 'buka')->count()
-                ];
+                $groupedByKabupaten = collect($detailSekolah)->groupBy(function($item) {
+                    return $item['sekolah']->kabupaten;
+                })->sortKeys();
             @endphp
 
-            <div class="kabupaten-group">
-                <div class="kabupaten-header">
-                    <i class="mdi mdi-city"></i>
-                    <span>{{ $kabupaten }}</span>
-                    <div class="ms-auto">
-                        <small class="badge bg-white bg-opacity-20 text-white me-2">
-                            {{ $kabupatenStats['total_madrasah'] }} Madrasah
-                        </small>
-                        <small class="badge bg-white bg-opacity-20 text-white">
-                            {{ $kabupatenStats['total_pendaftar'] }} Pendaftar
-                        </small>
-                    </div>
-                </div>
+            @forelse($groupedByKabupaten as $kabupaten => $sekolahs)
+                @php
+                    $kabupatenStats = [
+                        'total_madrasah' => $sekolahs->count(),
+                        'total_pendaftar' => $sekolahs->sum('total'),
+                        'total_lulus' => $sekolahs->sum('lulus'),
+                        'total_pending' => $sekolahs->sum('pending'),
+                        'total_verifikasi' => $sekolahs->sum('verifikasi'),
+                        'total_buka' => $sekolahs->where('status_ppdb', 'buka')->count()
+                    ];
+                @endphp
 
-                <div class="kabupaten-stats">
-                    <div class="row g-3">
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">{{ $kabupatenStats['total_buka'] }}</div>
-                                <small class="text-white-50">PPDB Aktif</small>
-                            </div>
+                <div class="kabupaten-group">
+                    <div class="kabupaten-header">
+                        <i class="mdi mdi-city"></i>
+                        <span>{{ $kabupaten }}</span>
+                        <div class="ms-auto">
+                            <small class="badge bg-primary bg-opacity-10 text-primary me-2">
+                                {{ $kabupatenStats['total_madrasah'] }} Madrasah
+                            </small>
+                            <small class="badge bg-primary bg-opacity-10 text-primary">
+                                {{ $kabupatenStats['total_pendaftar'] }} Pendaftar
+                            </small>
                         </div>
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">{{ $kabupatenStats['total_lulus'] }}</div>
-                                <small class="text-white-50">Lulus</small>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">{{ $kabupatenStats['total_pending'] }}</div>
-                                <small class="text-white-50">Pending</small>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">{{ $kabupatenStats['total_verifikasi'] }}</div>
-                                <small class="text-white-50">Verifikasi</small>
-                            </div>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">
-                                    {{ $kabupatenStats['total_pendaftar'] > 0 ? round(($kabupatenStats['total_lulus'] / $kabupatenStats['total_pendaftar']) * 100, 1) : 0 }}%
+                    </div>
+
+                    <div class="kabupaten-stats">
+                        <div class="row g-3">
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">{{ $kabupatenStats['total_buka'] }}</div>
+                                    <small class="text-muted">PPDB Aktif</small>
                                 </div>
-                                <small class="text-white-50">Kelulusan</small>
                             </div>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <div class="text-center">
-                                <div class="fw-bold text-white">{{ $kabupatenStats['total_madrasah'] }}</div>
-                                <small class="text-white-50">Total Madrasah</small>
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">{{ $kabupatenStats['total_lulus'] }}</div>
+                                    <small class="text-muted">Lulus</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">{{ $kabupatenStats['total_pending'] }}</div>
+                                    <small class="text-muted">Pending</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">{{ $kabupatenStats['total_verifikasi'] }}</div>
+                                    <small class="text-muted">Verifikasi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">
+                                        {{ $kabupatenStats['total_pendaftar'] > 0 ? round(($kabupatenStats['total_lulus'] / $kabupatenStats['total_pendaftar']) * 100, 1) : 0 }}%
+                                    </div>
+                                    <small class="text-muted">Kelulusan</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <div class="text-center">
+                                    <div class="fw-bold text-dark">{{ $kabupatenStats['total_madrasah'] }}</div>
+                                    <small class="text-muted">Total Madrasah</small>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="kabupaten-table">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
-                                    <th><i class="mdi mdi-information me-1"></i>Status PPDB</th>
-                                    <th class="text-center"><i class="mdi mdi-account-plus me-1"></i>Total</th>
-                                    <th class="text-center"><i class="mdi mdi-clock-outline me-1"></i>Pending</th>
-                                    <th class="text-center"><i class="mdi mdi-magnify me-1"></i>Verifikasi</th>
-                                    <th class="text-center"><i class="mdi mdi-check-circle me-1"></i>Lulus</th>
-                                    <th class="text-center"><i class="mdi mdi-close-circle me-1"></i>Tidak Lulus</th>
-                                    <th class="text-center"><i class="mdi mdi-chart-line me-1"></i>Kelulusan</th>
-                                    <th><i class="mdi mdi-cog me-1"></i>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($sekolahs->sortBy(function($item) {
-                                    return $item['sekolah']->nama;
-                                }) as $detail)
-                                <tr>
-                                    <td>
-                                        <div class="sekolah-name">{{ $detail['sekolah']->nama }}</div>
-                                        <div class="kabupaten-info">{{ $detail['sekolah']->provinsi }}</div>
-                                    </td>
-                                    <td>
-                                        @if($detail['status_ppdb'] === 'buka')
-                                            <span class="badge badge-buka">Buka</span>
-                                        @elseif($detail['status_ppdb'] === 'tutup')
-                                            <span class="badge badge-tutup">Tutup</span>
-                                        @elseif($detail['status_ppdb'] === 'belum_buka')
-                                            <span class="badge badge-belum-buka">Belum Buka</span>
-                                        @else
-                                            <span class="badge badge-tidak-aktif">Tidak Aktif</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-primary">{{ number_format($detail['total']) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-warning">{{ number_format($detail['pending']) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-info">{{ number_format($detail['verifikasi']) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-success">{{ number_format($detail['lulus']) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-danger">{{ number_format($detail['tidak_lulus']) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge {{ $detail['total'] > 0 ? ($detail['lulus'] / $detail['total'] > 0.5 ? 'bg-success' : 'bg-warning') : 'bg-secondary' }}">
-                                            {{ $detail['total'] > 0 ? round(($detail['lulus'] / $detail['total']) * 100, 1) : 0 }}%
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($detail['ppdb_setting'])
-                                            <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm">
-                                                <i class="mdi mdi-eye me-1"></i>Lihat Detail
-                                            </a>
-                                        @else
-                                            <button class="btn btn-outline-secondary btn-sm" disabled>
-                                                <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
-                                            </button>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <div class="avatar-lg mx-auto mb-3">
-                        <div class="avatar-title bg-light text-muted rounded-circle">
-                            <i class="mdi mdi-information-outline fs-1"></i>
+                    <div class="kabupaten-table">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
+                                        <th><i class="mdi mdi-information me-1"></i>Status PPDB</th>
+                                        <th class="text-center"><i class="mdi mdi-account-plus me-1"></i>Total</th>
+                                        <th class="text-center"><i class="mdi mdi-clock-outline me-1"></i>Pending</th>
+                                        <th class="text-center"><i class="mdi mdi-magnify me-1"></i>Verifikasi</th>
+                                        <th class="text-center"><i class="mdi mdi-check-circle me-1"></i>Lulus</th>
+                                        <th class="text-center"><i class="mdi mdi-close-circle me-1"></i>Tidak Lulus</th>
+                                        <th class="text-center"><i class="mdi mdi-chart-line me-1"></i>Kelulusan</th>
+                                        <th><i class="mdi mdi-cog me-1"></i>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($sekolahs->sortBy(function($item) {
+                                        return $item['sekolah']->nama;
+                                    }) as $detail)
+                                    <tr>
+                                        <td>
+                                            <div class="sekolah-name">{{ $detail['sekolah']->nama }}</div>
+                                            <div class="kabupaten-info">{{ $detail['sekolah']->kabupaten }}, {{ $detail['sekolah']->provinsi }}</div>
+                                        </td>
+                                        <td>
+                                            @if($detail['status_ppdb'] === 'buka')
+                                                <span class="badge badge-buka">Buka</span>
+                                            @elseif($detail['status_ppdb'] === 'tutup')
+                                                <span class="badge badge-tutup">Tutup</span>
+                                            @elseif($detail['status_ppdb'] === 'belum_buka')
+                                                <span class="badge badge-belum-buka">Belum Buka</span>
+                                            @else
+                                                <span class="badge badge-tidak-aktif">Tidak Aktif</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">{{ number_format($detail['total']) }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-warning">{{ number_format($detail['pending']) }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">{{ number_format($detail['verifikasi']) }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-success">{{ number_format($detail['lulus']) }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-danger">{{ number_format($detail['tidak_lulus']) }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $detail['total'] > 0 ? ($detail['lulus'] / $detail['total'] > 0.5 ? 'bg-success' : 'bg-warning') : 'bg-secondary' }}">
+                                                {{ $detail['total'] > 0 ? round(($detail['lulus'] / $detail['total']) * 100, 1) : 0 }}%
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($detail['ppdb_setting'])
+                                                <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm">
+                                                    <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                                </a>
+                                            @else
+                                                <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                    <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <h5 class="text-muted">Belum ada data madrasah</h5>
-                    <p class="text-muted">Data madrasah akan muncul setelah ditambahkan ke sistem</p>
                 </div>
-            </div>
-        @endforelse
-    </div>
-</div>
+            @empty
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <div class="avatar-lg mx-auto mb-3">
+                            <div class="avatar-title bg-light text-muted rounded-circle">
+                                <i class="mdi mdi-information-outline fs-1"></i>
+                            </div>
+                        </div>
+                        <h5 class="text-muted">Belum ada data madrasah</h5>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 function exportData() {
     // Implementasi export data
@@ -759,7 +805,7 @@ function exportData() {
     }
 }
 
-// Auto refresh functionality
+// Chart.js implementation
 $(document).ready(function() {
     let autoRefreshInterval;
 
@@ -779,6 +825,53 @@ $(document).ready(function() {
         }
     }
 
+    // Initialize Chart
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    const statusChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'Verifikasi', 'Lulus', 'Tidak Lulus'],
+            datasets: [{
+                data: [
+                    {{ $statistik['pending'] }},
+                    {{ $statistik['verifikasi'] }},
+                    {{ $statistik['lulus'] }},
+                    {{ $statistik['tidak_lulus'] }}
+                ],
+                backgroundColor: [
+                    '#ffc107', // warning
+                    '#0dcaf0', // info
+                    '#198754', // success
+                    '#dc3545'  // danger
+                ],
+                borderColor: [
+                    '#ffc107',
+                    '#0dcaf0',
+                    '#198754',
+                    '#dc3545'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false // Hide legend since we have custom legend
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     // Add smooth animations on page load
     $('.stat-card').each(function(index) {
         $(this).css('opacity', '0').delay(index * 100).animate({opacity: 1}, 500);
@@ -787,6 +880,8 @@ $(document).ready(function() {
     $('.kabupaten-group').each(function(index) {
         $(this).css('opacity', '0').delay(index * 150).animate({opacity: 1}, 600);
     });
+
+    $('.chart-container').css('opacity', '0').delay(300).animate({opacity: 1}, 800);
 
     // Start auto refresh
     startAutoRefresh();
