@@ -509,6 +509,37 @@
                     <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
+
+            <!-- Jurusan -->
+            <div class="form-group">
+                <label class="form-label">Jurusan</label>
+                <div id="jurusan-container" class="array-input-container">
+                    @php $jurusanArray = old('jurusan', $madrasah->jurusan ?? []); @endphp
+                    @if(is_array($jurusanArray) && count($jurusanArray) > 0)
+                        @foreach($jurusanArray as $index => $jurusan)
+                            <div class="array-input-item">
+                                <input type="text" class="form-control @error('jurusan.' . $index) is-invalid @enderror"
+                                       name="jurusan[]" value="{{ $jurusan }}" placeholder="Contoh: Teknik Informatika">
+                                <button type="button" class="btn btn-remove-array remove-array-item">
+                                    <i class="mdi mdi-minus"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item">
+                        <input type="text" class="form-control" name="jurusan[]" placeholder="Contoh: Teknik Informatika">
+                        <button type="button" class="btn btn-remove-array remove-array-item">
+                            <i class="mdi mdi-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="jurusan-container">
+                    <i class="mdi mdi-plus me-1"></i>Tambah Jurusan
+                </button>
+                @error('jurusan.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <!-- Kepala Sekolah -->
@@ -731,7 +762,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const placeholders = {
             'misi-container': 'Poin misi',
             'fasilitas-container': 'Contoh: Laboratorium Komputer',
-            'keunggulan-container': 'Keunggulan madrasah'
+            'keunggulan-container': 'Keunggulan madrasah',
+            'jurusan-container': 'Contoh: Teknik Informatika'
         };
         return placeholders[containerId] || 'Masukkan teks';
     }
