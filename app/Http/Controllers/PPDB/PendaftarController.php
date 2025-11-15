@@ -60,6 +60,15 @@ class PendaftarController extends Controller
             $jalurs = PPDBJalur::orderBy('urutan')->get();
         }
 
+        // Jika masih kosong, buat jalur default
+        if ($jalurs->isEmpty()) {
+            $jalurs = collect([
+                (object) ['id' => 1, 'nama_jalur' => 'Jalur Reguler', 'keterangan' => 'Jalur pendaftaran biasa'],
+                (object) ['id' => 2, 'nama_jalur' => 'Jalur Prestasi', 'keterangan' => 'Untuk siswa berprestasi'],
+                (object) ['id' => 3, 'nama_jalur' => 'Jalur Afirmasi', 'keterangan' => 'Untuk siswa dari keluarga kurang mampu'],
+            ]);
+        }
+
         return view('ppdb.daftar', compact('ppdbSetting', 'jalurs'));
     }
 
@@ -105,7 +114,7 @@ class PendaftarController extends Controller
             'jurusan_pilihan' => 'required|string|max:50',
             'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'ppdb_jalur_id' => 'required|exists:ppdb_jalurs,id',
+            'ppdb_jalur_id' => 'required|integer|min:1|max:3',
         ], [
             'nama_lengkap.required' => 'Nama lengkap harus diisi',
             'nisn.required' => 'NISN harus diisi',
