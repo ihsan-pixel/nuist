@@ -190,6 +190,18 @@ class AdminLPController extends Controller
             'ekstrakurikuler_ppdb' => 'nullable|string',
             'biaya_pendidikan_ppdb' => 'nullable|string',
             'informasi_tambahan_ppdb' => 'nullable|string',
+            // New PPDB Settings fields
+            'ppdb_status' => 'required|string|in:tutup,buka',
+            'ppdb_jadwal_buka' => 'required|date',
+            'ppdb_jadwal_tutup' => 'required|date|after:ppdb_jadwal_buka',
+            'ppdb_kuota_total' => 'required|integer|min:1',
+            'ppdb_jadwal_pengumuman' => 'nullable|date',
+            'ppdb_kuota_jurusan' => 'nullable|array',
+            'ppdb_kuota_jurusan.*' => 'nullable|string',
+            'ppdb_jalur' => 'nullable|array',
+            'ppdb_jalur.*' => 'nullable|string',
+            'ppdb_biaya_pendaftaran' => 'nullable|string',
+            'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
@@ -213,6 +225,15 @@ class AdminLPController extends Controller
             'ekstrakurikuler' => $request->input('ekstrakurikuler_ppdb'),
             'biaya_pendidikan' => $request->input('biaya_pendidikan_ppdb'),
             'informasi_tambahan' => $request->input('informasi_tambahan_ppdb'),
+            // New PPDB fields
+            'status' => $request->input('ppdb_status'),
+            'jadwal_buka' => $request->input('ppdb_jadwal_buka'),
+            'jadwal_tutup' => $request->input('ppdb_jadwal_tutup'),
+            'kuota_total' => $request->input('ppdb_kuota_total'),
+            'jadwal_pengumuman' => $request->input('ppdb_jadwal_pengumuman'),
+            'kuota_jurusan' => $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', [])),
+            'biaya_pendidikan' => $request->input('ppdb_biaya_pendaftaran'),
+            'catatan_pengumuman' => $request->input('ppdb_catatan_pengumuman'),
         ];
 
         $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
@@ -228,10 +249,11 @@ class AdminLPController extends Controller
                 'slug' => \Str::slug($madrasah->name),
                 'nama_sekolah' => $madrasah->name,
                 'tahun' => now()->year,
-                'status' => 'tutup',
-                'kuota_total' => 0,
             ]));
         }
+
+        // Handle PPDB Jalur (create/update/delete)
+        $this->handlePPDBJalur($ppdbSetting, $request->input('ppdb_jalur', []));
 
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
@@ -260,5 +282,56 @@ class AdminLPController extends Controller
         $madrasah->update($data);
 
         return redirect()->route('ppdb.lp.dashboard')->with('success', 'Profil madrasah berhasil diperbarui.');
+    }
+
+    /**
+     * Process kuota jurusan array into proper format
+     */
+    private function processKuotaJurusan($kuotaJurusan)
+    {
+        $processed = [];
+        if (is_array($kuotaJurusan)) {
+            foreach ($kuotaJurusan as $key => $value) {
+                if (!empty($key) && !empty($value)) {
+                    $processed[$key] = $value;
+                }
+            }
+        }
+        return $processed;
+    }
+
+    /**
+     * Handle PPDB Jalur creation, update, and deletion
+     */
+    private function handlePPDBJalur($ppdbSetting, $jalurArray)
+    {
+        if (!$ppdbSetting) return;
+
+        // Get existing jalur
+        $existingJalur = $ppdbSetting->jalurs->pluck('nama')->toArray();
+
+        // Filter out empty values
+        $newJalur = array_filter($jalurArray, function($jalur) {
+            return !empty(trim($jalur));
+        });
+
+        // Delete jalur that are no longer in the list
+        $toDelete = array_diff($existingJalur, $newJalur);
+        if (!empty($toDelete)) {
+            \App\Models\PPDBJalur::where('ppdb_setting_id', $ppdbSetting->id)
+                ->whereIn('nama', $toDelete)
+                ->delete();
+        }
+
+        // Add new jalur
+        $toAdd = array_diff($newJalur, $existingJalur);
+        foreach ($toAdd as $jalurName) {
+            \App\Models\PPDBJalur::create([
+                'ppdb_setting_id' => $ppdbSetting->id,
+                'nama' => $jalurName,
+                'deskripsi' => null,
+                'status' => 'aktif',
+            ]);
+        }
     }
 }

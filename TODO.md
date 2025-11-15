@@ -1,24 +1,40 @@
-# PPDB Cek Status Feature Implementation
+# PPDB Settings Integration Plan
 
 ## Current Status
-- [x] Plan confirmed by user
-- [x] Add routes for cek-status functionality (GET and POST)
-- [x] Implement cekStatus() method in PendaftarController
-- [x] Create cek-status.blade.php view with comprehensive status display
-- [x] Add "Cek Status Pendaftaran" button to main index page hero section
-- [x] Add "Cek Status" menu item to main navbar (desktop and mobile)
-- [x] Add "Cek Status" menu item to school page navbar (desktop and mobile)
-- [x] Test functionality
+- Analyzing lp-edit.blade.php and PPDBSetting model
+- Identified missing PPDB fields in school profile edit form
 
-## Features Implemented
-1. **Status Check Form**: Users can enter their NISN to check registration status
-2. **Comprehensive Status Display**: Shows personal info, school details, registration timeline, and next steps
-3. **Timeline Visualization**: Visual timeline showing registration progress (pending → verification → selection → enrollment)
-4. **Status Badges**: Color-coded status indicators (pending, verification, lulus/tidak lulus)
-5. **Responsive Design**: Works on all devices with mobile-friendly interface
-6. **Error Handling**: Proper error messages for invalid NISN
-7. **Navigation Integration**: Accessible from multiple locations in the application
+## Tasks to Complete
 
-## Next Steps
-- Test the complete functionality across different devices and browsers
-- Monitor user feedback and make improvements as needed
+### 1. Update lp-edit.blade.php
+- [x] Add new "Pengaturan PPDB" section after existing PPDB fields
+- [x] Include Status PPDB (buka/tutup) with visual indicator
+- [x] Add Jadwal buka/tutup PPDB (datetime-local inputs)
+- [x] Add Kuota total field
+- [x] Add Kuota per jurusan (dynamic array inputs)
+- [x] Add Jalur pendaftaran (dynamic array inputs)
+- [x] Add Biaya pendaftaran field
+- [x] Add Jadwal pengumuman field
+- [x] Update JavaScript for new dynamic elements
+
+### 2. Update AdminLPController.php
+- [x] Add validation rules for new PPDB fields
+- [x] Update update() method to handle PPDBJalur creation/updates
+- [x] Ensure proper array handling for kuota_jurusan and jalur
+- [x] Add proper error handling
+
+### 3. Testing & Verification
+- [ ] Test form submission with all new fields
+- [ ] Verify validation works correctly
+- [ ] Check dynamic array inputs functionality
+- [ ] Verify PPDBJalur relationships are created properly
+- [ ] Test with existing PPDB settings data
+
+## Files to Edit
+- resources/views/ppdb/dashboard/lp-edit.blade.php
+- app/Http/Controllers/PPDB/AdminLPController.php
+
+## Notes
+- Removed: periode presensi, persyaratan upload, kontak ppdb as per user request
+- Focus on core PPDB settings: status, jadwal, kuota, jalur, biaya, pengumuman
+- Use existing edit.blade.php as reference for form structure
