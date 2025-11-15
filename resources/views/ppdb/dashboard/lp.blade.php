@@ -592,45 +592,7 @@
                 </div>
             </div>
 
-            <!-- Chart Section -->
-            <div class="chart-container mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h5 class="mb-1 text-dark">
-                            <i class="mdi mdi-chart-pie me-2 text-primary"></i>
-                            Distribusi Status Pendaftaran
-                        </h5>
-                        <p class="text-muted mb-0 small">Persentase pendaftaran berdasarkan status</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div style="height: 350px;">
-                            <canvas id="statusChart" style="min-height:320px; height:320px; width:100% !important;"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="chart-legend">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="badge bg-warning me-2" style="width: 20px; height: 20px;"></div>
-                                <span class="text-muted">Pending: {{ number_format($statistik['pending']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['pending'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="badge bg-info me-2" style="width: 20px; height: 20px;"></div>
-                                <span class="text-muted">Verifikasi: {{ number_format($statistik['verifikasi']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['verifikasi'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="badge bg-success me-2" style="width: 20px; height: 20px;"></div>
-                                <span class="text-muted">Lulus: {{ number_format($statistik['lulus']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="badge bg-danger me-2" style="width: 20px; height: 20px;"></div>
-                                <span class="text-muted">Tidak Lulus: {{ number_format($statistik['tidak_lulus']) }} ({{ $statistik['total_pendaftar'] > 0 ? round(($statistik['tidak_lulus'] / $statistik['total_pendaftar']) * 100, 1) : 0 }}%)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             @php
                 $groupedByKabupaten = collect($detailSekolah)->groupBy(function($item) {
