@@ -921,7 +921,7 @@ function validateAllSteps() {
 }
 
 // NISN availability check
-window.checkNISNAvailability = function() {
+function checkNISNAvailability() {
     const nisnInput = document.getElementById('nisn');
     const nisn = nisnInput.value.trim();
 
@@ -964,7 +964,7 @@ window.checkNISNAvailability = function() {
             console.error('Error checking NISN:', error);
             feedbackDiv.innerHTML = '<small class="text-warning"><i class="fas fa-exclamation-circle me-1"></i>Gagal memeriksa NISN</small>';
         });
-};
+}
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
