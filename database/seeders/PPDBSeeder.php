@@ -36,9 +36,8 @@ class PPDBSeeder extends Seeder
 
         // Buat Jalur Pendaftaran
         $jalurs = [
-            ['nama_jalur' => 'Jalur Prestasi', 'keterangan' => 'Untuk siswa dengan prestasi akademik', 'urutan' => 1],
-            ['nama_jalur' => 'Jalur Reguler', 'keterangan' => 'Jalur pendaftaran biasa', 'urutan' => 2],
-            ['nama_jalur' => 'Jalur Afirmasi', 'keterangan' => 'Untuk siswa dari keluarga kurang mampu', 'urutan' => 3],
+            ['nama_jalur' => 'Jalur Zonasi', 'keterangan' => 'Berdasarkan domisili/alamat siswa', 'urutan' => 1],
+            ['nama_jalur' => 'Jalur Prestasi', 'keterangan' => 'Untuk siswa dengan prestasi akademik', 'urutan' => 2],
         ];
 
         foreach ($jalurs as $jalur) {
