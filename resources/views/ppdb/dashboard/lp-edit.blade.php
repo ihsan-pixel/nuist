@@ -626,7 +626,8 @@
                     <div class="form-group">
                         <label for="jumlah_jurusan" class="form-label">Jumlah Jurusan</label>
                         <input type="number" class="form-control @error('jumlah_jurusan') is-invalid @enderror"
-                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $madrasah->jumlah_jurusan) }}" min="0">
+                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $madrasah->jumlah_jurusan) }}" min="0" readonly>
+                        <div class="help-text">Otomatis dihitung dari jumlah jurusan yang diisi</div>
                         @error('jumlah_jurusan')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -811,6 +812,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+
+    // Auto-update jumlah jurusan
+    function updateJumlahJurusan() {
+        const jurusanInputs = document.querySelectorAll('input[name="jurusan[]"]');
+        let count = 0;
+        jurusanInputs.forEach(input => {
+            if (input.value.trim() !== '') {
+                count++;
+            }
+        });
+        document.getElementById('jumlah_jurusan').value = count;
+    }
+
+    // Listen for changes in jurusan inputs
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'jurusan[]') {
+            updateJumlahJurusan();
+        }
+    });
+
+    // Also listen for array item additions/removals
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-array-item') || e.target.classList.contains('remove-array-item') ||
+            e.target.closest('.add-array-item') || e.target.closest('.remove-array-item')) {
+            setTimeout(updateJumlahJurusan, 100); // Small delay to ensure DOM updates
+        }
+    });
+
+    // Initialize on page load
+    updateJumlahJurusan();
 
     // Form validation
     const form = document.querySelector('form');

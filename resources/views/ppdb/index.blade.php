@@ -489,6 +489,7 @@
                 <p class="lead"> Bawah Naungan LP. Ma'arif NU PWNU D.I. Yogyakarta</p>
                 <p class="lead fw-bold">Tahun Pelajaran 2026/2027</p>
                 <a href="#sekolah" class="btn btn-orange btn-lg me-3 animate-pulse">Lihat Sekolah</a>
+                <a href="{{ route('ppdb.cek-status') }}" class="btn btn-outline-light btn-lg animate-pulse">Cek Status Pendaftaran</a>
             </div>
 
             <!-- Image Kanan -->

@@ -92,6 +92,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('ppdb.cek-status') ? 'active' : '' }}"
+                        href="{{ route('ppdb.cek-status') }}">
+                        Cek Status
+                    </a>
+                </li>
+
             </ul>
         </div>
 
@@ -131,6 +138,9 @@
                 </li>
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="#kontak" onclick="closeMobileMenu()">Kontak</a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link {{ request()->routeIs('ppdb.cek-status') ? 'active' : '' }}" href="{{ route('ppdb.cek-status') }}" onclick="closeMobileMenu()">Cek Status</a>
                 </li>
             </ul>
         </div>

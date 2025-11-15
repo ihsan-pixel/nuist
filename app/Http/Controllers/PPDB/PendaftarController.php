@@ -172,6 +172,30 @@ class PendaftarController extends Controller
     }
 
     /**
+     * Cek status pendaftaran berdasarkan NISN
+     */
+    public function cekStatus(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'nisn' => 'required|string|max:20',
+            ]);
+
+            $pendaftar = PPDBPendaftar::where('nisn', $request->nisn)
+                ->with(['ppdbSetting.sekolah', 'jalur'])
+                ->first();
+
+            if (!$pendaftar) {
+                return view('ppdb.cek-status', compact('pendaftar'))->with('error', 'NISN tidak ditemukan dalam sistem.');
+            }
+
+            return view('ppdb.cek-status', compact('pendaftar'));
+        }
+
+        return view('ppdb.cek-status');
+    }
+
+    /**
      * Generate nomor pendaftaran unik
      * Format: SMKM-2025-0001
      */

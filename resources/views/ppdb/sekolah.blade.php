@@ -663,6 +663,12 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('ppdb.cek-status') }}">
+                        <i class="fas fa-search me-1"></i>Cek Status
+                    </a>
+                </li>
+
             </ul>
         </div>
 
@@ -716,6 +722,11 @@
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="#kontak" onclick="closeMobileMenuSchool()">
                         <i class="fas fa-phone me-1"></i>Kontak
+                    </a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="{{ route('ppdb.cek-status') }}" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-search me-1"></i>Cek Status
                     </a>
                 </li>
             </ul>
