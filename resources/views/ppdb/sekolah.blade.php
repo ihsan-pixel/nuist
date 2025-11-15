@@ -799,19 +799,15 @@
                     <p class="lead mb-4">{{ $madrasah->deskripsi_singkat }}</p>
                 @endif
                 <div class="d-flex gap-3 flex-wrap">
-                    @if(isset($ppdb->id))
-                        <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb">
-                            <i class="fas fa-edit me-2"></i>Daftar Sekarang
-                        </a>
-                    @endif
+                    <a href="{{ route('ppdb.daftar', $ppdb->slug ?? '') }}" class="btn btn-ppdb">
+                        <i class="fas fa-edit me-2"></i>Daftar Sekarang
+                    </a>
                     <a href="#jurusan" class="btn btn-orange btn-lg px-4">
                         <i class="fas fa-graduation-cap me-2"></i>Lihat Jurusan
                     </a>
-                    @if(isset($ppdb->id))
-                        <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-outline-light btn-lg px-4">
-                            <i class="fas fa-user-plus me-2"></i>Daftar
-                        </a>
-                    @endif
+                    <a href="{{ route('ppdb.daftar', $ppdb->slug ?? '') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Daftar
+                    </a>
                 </div>
             </div>
 
