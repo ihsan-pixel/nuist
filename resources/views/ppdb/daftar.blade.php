@@ -608,8 +608,8 @@
                 <select class="form-control @error('jurusan_pilihan') is-invalid @enderror"
                         id="jurusan_pilihan" name="jurusan_pilihan" required>
                     <option value="">-- Pilih Jurusan --</option>
-                    @if(isset($ppdbSetting->madrasah) && $ppdbSetting->madrasah->jurusan)
-                        @foreach($ppdbSetting->madrasah->jurusan as $jurusan)
+                    @if(isset($ppdbSetting->sekolah) && $ppdbSetting->sekolah->jurusan)
+                        @foreach($ppdbSetting->sekolah->jurusan as $jurusan)
                             <option value="{{ $jurusan }}" {{ old('jurusan_pilihan') == $jurusan ? 'selected' : '' }}>
                                 {{ $jurusan }}
                             </option>
