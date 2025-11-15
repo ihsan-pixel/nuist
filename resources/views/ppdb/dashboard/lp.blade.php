@@ -782,6 +782,9 @@
                             </div>
                         </div>
                         <h5 class="text-muted">Belum ada data madrasah</h5>
+                    </div>
+                </div>
+            @endempty
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
