@@ -668,7 +668,7 @@
 
         <!-- Tombol Kanan -->
         <div class="d-none d-lg-block">
-            @if(isset($ppdb->id) && $ppdb->isPembukaan())
+            @if(isset($ppdb->id))
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-orange px-4">
                     <i class="fas fa-edit me-1"></i>Daftar Sekarang
                 </a>
@@ -799,7 +799,7 @@
                     <p class="lead mb-4">{{ $madrasah->deskripsi_singkat }}</p>
                 @endif
                 <div class="d-flex gap-3 flex-wrap">
-                    @if(isset($ppdb->id) && $ppdb->isPembukaan())
+                    @if(isset($ppdb->id))
                         <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb">
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang
                         </a>
