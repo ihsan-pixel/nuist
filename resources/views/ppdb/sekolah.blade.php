@@ -807,6 +807,11 @@
                     <a href="#jurusan" class="btn btn-orange btn-lg px-4">
                         <i class="fas fa-graduation-cap me-2"></i>Lihat Jurusan
                     </a>
+                    @if(isset($ppdb->id))
+                        <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-user-plus me-2"></i>Daftar
+                        </a>
+                    @endif
                 </div>
             </div>
 
