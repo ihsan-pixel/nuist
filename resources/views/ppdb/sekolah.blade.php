@@ -21,7 +21,7 @@
         position: relative;
     }
 
-    .hero-section::before {
+    /* .hero-section::before {
         content: '';
         position: absolute;
         top: 0;
@@ -30,7 +30,7 @@
         bottom: 0;
         background: linear-gradient(135deg, rgba(0, 75, 76, 0.9) 0%, rgba(0, 105, 92, 0.9) 100%);
         z-index: 1;
-    }
+    } */
 
     .hero-content {
         position: relative;
