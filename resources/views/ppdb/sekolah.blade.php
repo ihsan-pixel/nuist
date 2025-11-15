@@ -826,9 +826,9 @@
                         <p class="mb-2">
                             <strong><i class="fas fa-clock me-2"></i>Jadwal:</strong>
                         </p>
-                        <p class="mb-0">{{ $ppdb->jadwal_buka ? $ppdb->jadwal_buka->format('d M Y') : 'Belum ditentukan' }} - {{ $ppdb->jadwal_tutup ? $ppdb->jadwal_tutup->format('d M Y') : 'Belum ditentukan' }}</p>
+                        <p class="mb-0">{{ isset($ppdb->jadwal_buka) && $ppdb->jadwal_buka ? $ppdb->jadwal_buka->format('d M Y') : 'Belum ditentukan' }} - {{ isset($ppdb->jadwal_tutup) && $ppdb->jadwal_tutup ? $ppdb->jadwal_tutup->format('d M Y') : 'Belum ditentukan' }}</p>
                         <p class="text-muted small">
-                            <i class="fas fa-hourglass-half me-1"></i>Sisa waktu: {{ $ppdb->remainingDays() ?? 'N/A' }} hari
+                            <i class="fas fa-hourglass-half me-1"></i>Sisa waktu: {{ method_exists($ppdb, 'remainingDays') ? $ppdb->remainingDays() : 'N/A' }} hari
                         </p>
                     </div>
                 @endif
