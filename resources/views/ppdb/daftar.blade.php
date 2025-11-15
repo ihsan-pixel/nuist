@@ -722,6 +722,7 @@ const totalSteps = 3;
 
 // Initialize form
 document.addEventListener('DOMContentLoaded', function() {
+    showStep(1);
     updateProgress();
     setupFileUploads();
 });
@@ -742,13 +743,14 @@ function prevStep(step) {
 }
 
 function showStep(step) {
-    // Hide all steps
     document.querySelectorAll('.form-section').forEach(section => {
+        section.style.display = "none";
         section.classList.remove('active');
     });
 
-    // Show current step
-    document.getElementById('step' + step).classList.add('active');
+    const target = document.getElementById('step' + step);
+    target.style.display = "block";
+    target.classList.add('active');
 }
 
 function updateProgress() {
@@ -778,34 +780,32 @@ function validateCurrentStep() {
     let isValid = true;
 
     requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            field.classList.remove('is-invalid');
+        // Jika file input
+        if (field.type === "file") {
+            if (field.files.length === 0) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        }
+        // Jika text atau select
+        else {
+            if (!field.value || field.value.trim() === "") {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
         }
     });
 
-    // Special validation for NISN uniqueness in step 1
+    // Cek validasi NISN pada Step 1
     if (currentStep === 1) {
         const nisnInput = document.getElementById('nisn');
-        const nisnFeedback = nisnInput.parentNode.querySelector('.nisn-feedback');
-        if (nisnFeedback && nisnFeedback.innerHTML.includes('sudah terdaftar')) {
+        if (nisnInput.classList.contains('is-invalid')) {
             isValid = false;
         }
-    }
-
-    // Special validation for file inputs in step 3
-    if (currentStep === 3) {
-        const fileInputs = currentSection.querySelectorAll('input[type="file"][required]');
-        fileInputs.forEach(input => {
-            if (!input.files || input.files.length === 0) {
-                input.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        });
     }
 
     return isValid;
