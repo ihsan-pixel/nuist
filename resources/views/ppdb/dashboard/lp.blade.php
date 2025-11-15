@@ -42,7 +42,7 @@
     }
 
     .stat-card {
-        background: white;
+        background: rgb(255, 48, 48);
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
