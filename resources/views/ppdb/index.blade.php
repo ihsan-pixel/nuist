@@ -579,6 +579,9 @@
                                                 @else
                                                     <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
                                                 @endif
+                                            @else
+                                                <a href="{{ route('ppdb.sekolah', $madrasah->id) }}" class="btn btn-outline-primary btn-sm w-100 mb-1" style="font-size: 0.7rem; padding: 3px 6px;">Lihat Halaman Sekolah</a>
+                                                <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
                                             @endif
                                         </div>
                                     </div>
