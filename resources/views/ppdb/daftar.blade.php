@@ -695,59 +695,7 @@
     </form>
 </div>
 
-<!-- Help Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h3 class="text-primary">
-                    <i class="fas fa-question-circle me-2"></i>Butuh Bantuan?
-                </h3>
-                <p class="text-muted">Tim kami siap membantu Anda dalam proses pendaftaran</p>
-            </div>
-        </div>
 
-        <div class="row g-4 justify-content-center">
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
-                    <div class="card-body p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-phone fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="card-title text-primary">Telepon</h5>
-                        <p class="card-text">{{ $ppdbSetting->sekolah->telepon ?? 'Tidak tersedia' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
-                    <div class="card-body p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-envelope fa-3x text-success"></i>
-                        </div>
-                        <h5 class="card-title text-primary">Email</h5>
-                        <p class="card-text">{{ $ppdbSetting->sekolah->email ?? 'Tidak tersedia' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center animate-fade-in-up">
-                    <div class="card-body p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-comments fa-3x text-warning"></i>
-                        </div>
-                        <h5 class="card-title text-primary">WhatsApp</h5>
-                        <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $ppdbSetting->sekolah->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($ppdbSetting->nama_sekolah) }}" target="_blank" class="btn btn-success">
-                            <i class="fab fa-whatsapp me-2"></i>Hubungi Admin
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Back to School Button -->
 <div class="text-center py-4">
@@ -836,6 +784,19 @@ function validateCurrentStep() {
             field.classList.remove('is-invalid');
         }
     });
+
+    // Special validation for file inputs in step 3
+    if (currentStep === 3) {
+        const fileInputs = currentSection.querySelectorAll('input[type="file"][required]');
+        fileInputs.forEach(input => {
+            if (!input.files || input.files.length === 0) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+    }
 
     return isValid;
 }
