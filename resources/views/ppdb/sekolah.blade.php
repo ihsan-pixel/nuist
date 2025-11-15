@@ -818,20 +818,18 @@
                             <i class="fas fa-calendar-alt me-2"></i>PPDB {{ $ppdb->tahun }}
                         </h5>
                         <div class="mb-3">
-                            <span class="badge fs-6 px-3 py-2 {{ isset($ppdb->id) && $ppdb->isPembukaan() ? 'bg-success' : 'bg-danger' }}">
-                                <i class="fas fa-{{ isset($ppdb->id) && $ppdb->isPembukaan() ? 'check-circle' : 'times-circle' }} me-1"></i>
-                                {{ isset($ppdb->id) && $ppdb->isPembukaan() ? 'Pendaftaran Dibuka' : 'Pendaftaran Ditutup' }}
+                            <span class="badge fs-6 px-3 py-2 bg-success">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Pendaftaran Dibuka
                             </span>
                         </div>
-                        @if(isset($ppdb->id) && $ppdb->isPembukaan())
-                            <p class="mb-2">
-                                <strong><i class="fas fa-clock me-2"></i>Jadwal:</strong>
-                            </p>
-                            <p class="mb-0">{{ $ppdb->jadwal_buka->format('d M Y') }} - {{ $ppdb->jadwal_tutup->format('d M Y') }}</p>
-                            <p class="text-muted small">
-                                <i class="fas fa-hourglass-half me-1"></i>Sisa waktu: {{ $ppdb->remainingDays() }} hari
-                            </p>
-                        @endif
+                        <p class="mb-2">
+                            <strong><i class="fas fa-clock me-2"></i>Jadwal:</strong>
+                        </p>
+                        <p class="mb-0">{{ $ppdb->jadwal_buka->format('d M Y') }} - {{ $ppdb->jadwal_tutup->format('d M Y') }}</p>
+                        <p class="text-muted small">
+                            <i class="fas fa-hourglass-half me-1"></i>Sisa waktu: {{ $ppdb->remainingDays() }} hari
+                        </p>
                     </div>
                 @endif
             </div>
