@@ -872,7 +872,7 @@
                     <div class="form-group">
                         <label for="ppdb_kuota_total" class="form-label">Kuota Total</label>
                         <input type="number" class="form-control @error('ppdb_kuota_total') is-invalid @enderror"
-                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $madrasah->ppdb_kuota_total ?? '') }}" min="1">
+                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $madrasah->ppdb_kuota_total ?? '') }}">
                         <div class="help-text">Total kuota pendaftar untuk semua jurusan</div>
                         @error('ppdb_kuota_total')
                             <div class="invalid-feedback">{{ $message }}</div>

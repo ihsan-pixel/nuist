@@ -184,7 +184,7 @@ class AdminLPController extends Controller
             'ppdb_status' => 'nullable|string|in:tutup,buka',
             'ppdb_jadwal_buka' => 'nullable|date',
             'ppdb_jadwal_tutup' => 'nullable|date|after:ppdb_jadwal_buka',
-            'ppdb_kuota_total' => 'nullable|integer|min:1',
+            'ppdb_kuota_total' => 'nullable|integer|min:0',
             'ppdb_jadwal_pengumuman' => 'nullable|date',
             'ppdb_kuota_jurusan' => 'nullable|array',
             'ppdb_kuota_jurusan.*' => 'nullable|string',
