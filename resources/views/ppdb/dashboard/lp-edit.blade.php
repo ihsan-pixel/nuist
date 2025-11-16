@@ -1123,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show success message
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
-            button.innerHTML = '<i class="mdi mdi-check me-1"></i>Tersalin!';
+            button.innerHTML = '<i class="mdi mdi-check me-1"></i>Berhasil Disalin!';
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-success');
 
