@@ -199,25 +199,25 @@
                         <span>Data Pendaftaran</span>
                     </a>
                 </li>
-                @elseif(in_array($userRole, ['super_admin', 'pengurus', 'admin']))
+                @elseif(in_array($userRole, ['super_admin', 'pengurus']))
                 <!-- Super Admin / Pengurus PPDB Menu -->
-                <li>
+                {{-- <li>
                     <a href="{{ route('ppdb.settings.index') }}" class="waves-effect">
                         <i class="bx bx-cog"></i>
                         <span>Pengaturan PPDB</span>
                     </a>
-                </li>
+                </li> --}}
 
+                <li>
+                    <a href="{{ route('ppdb.index') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Halaman PPDB</span>
+                    </a>
+                </li>
                 <li>
                     <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
                         <i class="bx bx-bar-chart-alt-2"></i>
                         <span>Dashboard PPDB</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('ppdb.index') }}" class="waves-effect">
-                        <i class="bx bx-file"></i>
-                        <span>Data Pendaftaran</span>
                     </a>
                 </li>
                 @endif
