@@ -229,28 +229,33 @@ class AdminLPController extends Controller
 
         // Only add PPDB settings fields if they are provided
         if ($request->filled('ppdb_status')) {
-            $ppdbData['status'] = $request->input('ppdb_status');
+            $ppdbData['ppdb_status'] = $request->input('ppdb_status');
         }
         if ($request->filled('ppdb_jadwal_buka')) {
-            $ppdbData['jadwal_buka'] = $request->input('ppdb_jadwal_buka');
+            $ppdbData['ppdb_jadwal_buka'] = $request->input('ppdb_jadwal_buka');
         }
         if ($request->filled('ppdb_jadwal_tutup')) {
-            $ppdbData['jadwal_tutup'] = $request->input('ppdb_jadwal_tutup');
+            $ppdbData['ppdb_jadwal_tutup'] = $request->input('ppdb_jadwal_tutup');
         }
         if ($request->filled('ppdb_kuota_total')) {
-            $ppdbData['kuota_total'] = $request->input('ppdb_kuota_total');
+            $ppdbData['ppdb_kuota_total'] = $request->input('ppdb_kuota_total');
         }
         if ($request->filled('ppdb_jadwal_pengumuman')) {
-            $ppdbData['jadwal_pengumuman'] = $request->input('ppdb_jadwal_pengumuman');
+            $ppdbData['ppdb_jadwal_pengumuman'] = $request->input('ppdb_jadwal_pengumuman');
         }
         if ($request->filled('ppdb_kuota_jurusan')) {
-            $ppdbData['kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
+            $ppdbData['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
+        }
+        if ($request->filled('ppdb_jalur')) {
+            $ppdbData['ppdb_jalur'] = array_filter($request->input('ppdb_jalur', []), function($jalur) {
+                return !empty(trim($jalur));
+            });
         }
         if ($request->filled('ppdb_biaya_pendaftaran')) {
-            $ppdbData['biaya_pendidikan'] = $request->input('ppdb_biaya_pendaftaran');
+            $ppdbData['ppdb_biaya_pendaftaran'] = $request->input('ppdb_biaya_pendaftaran');
         }
         if ($request->filled('ppdb_catatan_pengumuman')) {
-            $ppdbData['catatan_pengumuman'] = $request->input('ppdb_catatan_pengumuman');
+            $ppdbData['ppdb_catatan_pengumuman'] = $request->input('ppdb_catatan_pengumuman');
         }
 
         $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
@@ -270,9 +275,10 @@ class AdminLPController extends Controller
         }
 
         // Handle PPDB Jalur (create/update/delete) only if jalur data is provided
-        if ($request->filled('ppdb_jalur')) {
-            $this->handlePPDBJalur($ppdbSetting, $request->input('ppdb_jalur', []));
-        }
+        // Note: Jalur is now stored as JSON in ppdb_jalur column, so we don't need separate table handling
+        // if ($request->filled('ppdb_jalur')) {
+        //     $this->handlePPDBJalur($ppdbSetting, $request->input('ppdb_jalur', []));
+        // }
 
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
@@ -321,36 +327,11 @@ class AdminLPController extends Controller
 
     /**
      * Handle PPDB Jalur creation, update, and deletion
+     * Note: This method is now deprecated as jalur is stored as JSON
      */
     private function handlePPDBJalur($ppdbSetting, $jalurArray)
     {
-        if (!$ppdbSetting) return;
-
-        // Get existing jalur
-        $existingJalur = $ppdbSetting->jalurs->pluck('nama')->toArray();
-
-        // Filter out empty values
-        $newJalur = array_filter($jalurArray, function($jalur) {
-            return !empty(trim($jalur));
-        });
-
-        // Delete jalur that are no longer in the list
-        $toDelete = array_diff($existingJalur, $newJalur);
-        if (!empty($toDelete)) {
-            \App\Models\PPDBJalur::where('ppdb_setting_id', $ppdbSetting->id)
-                ->whereIn('nama', $toDelete)
-                ->delete();
-        }
-
-        // Add new jalur
-        $toAdd = array_diff($newJalur, $existingJalur);
-        foreach ($toAdd as $jalurName) {
-            \App\Models\PPDBJalur::create([
-                'ppdb_setting_id' => $ppdbSetting->id,
-                'nama' => $jalurName,
-                'deskripsi' => null,
-                'status' => 'aktif',
-            ]);
-        }
+        // Method kept for backward compatibility but not used
+        // Jalur is now stored as JSON in ppdb_jalur column
     }
 }
