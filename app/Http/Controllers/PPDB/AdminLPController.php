@@ -120,7 +120,10 @@ class AdminLPController extends Controller
     {
         $madrasah = \App\Models\Madrasah::findOrFail($id);
 
-        return view('ppdb.dashboard.lp-edit', compact('madrasah'));
+        // Hitung jumlah guru dari tenaga pendidik
+        $jumlahGuru = $madrasah->tenagaPendidikUsers()->count();
+
+        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'jumlahGuru'));
     }
 
     /**

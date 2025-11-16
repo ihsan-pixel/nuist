@@ -459,6 +459,11 @@
                     </select>
                     <div class="status-indicator status-{{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
                     <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
+                    @if(old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka')
+                        <a href="{{ route('ppdb.public.show', $madrasah->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                            <i class="mdi mdi-eye me-1"></i>Lihat Halaman Sekolah
+                        </a>
+                    @endif
                 </div>
                 @error('ppdb_status')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -871,7 +876,8 @@
                     <div class="form-group">
                         <label for="jumlah_guru" class="form-label">Jumlah Guru</label>
                         <input type="number" class="form-control @error('jumlah_guru') is-invalid @enderror"
-                               id="jumlah_guru" name="jumlah_guru" value="{{ old('jumlah_guru', $madrasah->jumlah_guru) }}" min="0">
+                               id="jumlah_guru" name="jumlah_guru" value="{{ old('jumlah_guru', $jumlahGuru ?? $madrasah->jumlah_guru ?? '') }}" min="0" readonly>
+                        <small class="text-muted">Jumlah guru dihitung otomatis dari data tenaga pendidik</small>
                         @error('jumlah_guru')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
