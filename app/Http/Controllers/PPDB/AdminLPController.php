@@ -48,7 +48,7 @@ class AdminLPController extends Controller
                 'tidak_lulus' => 0,
                 'pending' => 0,
                 'verifikasi' => 0,
-                'status_ppdb' => 'tidak_aktif',
+                'status_ppdb' => $madrasah->ppdb_status ?? 'tidak_aktif', // Ambil dari kolom ppdb_status di madrasahs table
             ];
 
             if ($ppdbSetting) {
@@ -60,24 +60,17 @@ class AdminLPController extends Controller
                 $data['pending'] = $pendaftars->where('status', 'pending')->count();
                 $data['verifikasi'] = $pendaftars->where('status', 'verifikasi')->count();
 
-                // Cek status PPDB
-                $now = now();
-                if ($ppdbSetting->status === 'buka' &&
-                    $now->between($ppdbSetting->jadwal_buka, $ppdbSetting->jadwal_tutup)) {
-                    $data['status_ppdb'] = 'buka';
-                    $totalBuka++;
-                } elseif ($ppdbSetting->status === 'buka' && $now->gt($ppdbSetting->jadwal_tutup)) {
-                    $data['status_ppdb'] = 'tutup';
-                } else {
-                    $data['status_ppdb'] = 'belum_buka';
-                }
-
                 // Update statistik keseluruhan
                 $statistik['total_pendaftar'] += $data['total'];
                 $statistik['pending'] += $data['pending'];
                 $statistik['verifikasi'] += $data['verifikasi'];
                 $statistik['lulus'] += $data['lulus'];
                 $statistik['tidak_lulus'] += $data['tidak_lulus'];
+
+                // Hitung total_buka berdasarkan ppdb_status dari madrasahs table
+                if ($data['status_ppdb'] === 'buka') {
+                    $totalBuka++;
+                }
             }
 
             return $data;
