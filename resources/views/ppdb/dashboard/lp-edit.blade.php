@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateJumlahJurusan();
 
     // Copy to clipboard function
-    window.copyToClipboard = function(text) {
+    window.copyToClipboard = function(event, text) {
         navigator.clipboard.writeText(text).then(function() {
             // Show success message
             const button = event.target.closest('button');
