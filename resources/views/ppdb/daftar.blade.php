@@ -702,15 +702,16 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <div class="help-text mt-1">Hanya madrasah pada kabupaten yang sama ditampilkan.</div>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label for="ppdb_jurusan_pilihan_alt" class="form-label">Jurusan Sekolah Pilihan</label>
-                <select id="ppdb_jurusan_pilihan_alt" name="ppdb_jurusan_pilihan_alt[]" class="form-control" multiple size="4">
-                    {{-- Opsi akan terisi otomatis setelah memilih sekolah alternatif --}}
-                </select>
-                <div class="help-text mt-1">Pilih minimal 1 jurusan dari sekolah alternatif yang dipilih.</div>
+                    <!-- Jurusan Sekolah Pilihan (muncul hanya saat opsi ke-2 aktif) -->
+                    <div class="form-group mt-3">
+                        <label for="ppdb_jurusan_pilihan_alt" class="form-label">Jurusan Sekolah Pilihan</label>
+                        <select id="ppdb_jurusan_pilihan_alt" name="ppdb_jurusan_pilihan_alt[]" class="form-control" multiple size="4">
+                            {{-- Opsi akan terisi otomatis setelah memilih sekolah alternatif --}}
+                        </select>
+                        <div class="help-text mt-1">Pilih minimal 1 jurusan dari sekolah alternatif yang dipilih.</div>
+                    </div>
+                </div>
             </div>
 
             <script>
