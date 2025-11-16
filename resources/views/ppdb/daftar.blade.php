@@ -640,24 +640,32 @@
             @endphp
 
             <div class="form-group mt-3">
-                <label for="ppdb_opsi_pilihan_ke_2" class="form-label">
-                    <i class="fas fa-people-arrows me-2"></i>Opsi Pilihan Ke 2 (Nama Sekolah)
-                </label>
-                <select id="ppdb_opsi_pilihan_ke_2" name="ppdb_opsi_pilihan_ke_2" class="form-control @error('ppdb_opsi_pilihan_ke_2') is-invalid @enderror" required>
-                    <option value="">-- Pilih Sekolah Alternatif --</option>
-                    @foreach($sekolahLain as $s)
-                        <option value="{{ $s->id }}" {{ old('ppdb_opsi_pilihan_ke_2') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
-                    @endforeach
-                </select>
-                @error('ppdb_opsi_pilihan_ke_2')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-                <div class="help-text mt-1">Hanya madrasah pada kabupaten yang sama ditampilkan.</div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="enable_opsi_ke_2" {{ old('use_opsi_ke_2') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="enable_opsi_ke_2">Tambahkan Opsi Pilihan Ke 2</label>
+                </div>
+                <input type="hidden" name="use_opsi_ke_2" id="use_opsi_ke_2" value="{{ old('use_opsi_ke_2', 0) }}">
+
+                <div id="opsi-ke-2-section" style="display: {{ old('use_opsi_ke_2') ? 'block' : 'none' }};">
+                    <label for="ppdb_opsi_pilihan_ke_2" class="form-label">
+                        <i class="fas fa-people-arrows me-2"></i>Opsi Pilihan Ke 2 (Nama Sekolah)
+                    </label>
+                    <select id="ppdb_opsi_pilihan_ke_2" name="ppdb_opsi_pilihan_ke_2" class="form-control @error('ppdb_opsi_pilihan_ke_2') is-invalid @enderror">
+                        <option value="">-- Pilih Sekolah Alternatif --</option>
+                        @foreach($sekolahLain as $s)
+                            <option value="{{ $s->id }}" {{ old('ppdb_opsi_pilihan_ke_2') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('ppdb_opsi_pilihan_ke_2')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="help-text mt-1">Hanya madrasah pada kabupaten yang sama ditampilkan.</div>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="ppdb_jurusan_pilihan_alt" class="form-label">Jurusan Sekolah Pilihan</label>
-                <select id="ppdb_jurusan_pilihan_alt" name="ppdb_jurusan_pilihan_alt[]" class="form-control" multiple size="4" required>
+                <select id="ppdb_jurusan_pilihan_alt" name="ppdb_jurusan_pilihan_alt[]" class="form-control" multiple size="4">
                     {{-- Opsi akan terisi otomatis setelah memilih sekolah alternatif --}}
                 </select>
                 <div class="help-text mt-1">Pilih minimal 1 jurusan dari sekolah alternatif yang dipilih.</div>
@@ -711,6 +719,9 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     const sekolahSelect = document.getElementById('ppdb_opsi_pilihan_ke_2');
                     const jurusanSelect = document.getElementById('ppdb_jurusan_pilihan_alt');
+                    const enableCheckbox = document.getElementById('enable_opsi_ke_2');
+                    const useHidden = document.getElementById('use_opsi_ke_2');
+                    const opsiSection = document.getElementById('opsi-ke-2-section');
 
                     function populateJurusan(sekolahId) {
                         // Clear
@@ -738,11 +749,39 @@
                         });
                     }
 
-                    // Populate if old value exists
-                    if (sekolahSelect.value) populateJurusan(sekolahSelect.value);
+                    // Toggle show/hide opsi section and required attributes
+                    function setOpsiEnabled(enabled) {
+                        if (enabled) {
+                            opsiSection.style.display = 'block';
+                            useHidden.value = '1';
+                            document.getElementById('ppdb_opsi_pilihan_ke_2').setAttribute('required', 'required');
+                            jurusanSelect.setAttribute('required', 'required');
+                            document.getElementById('ppdb_nomor_whatsapp_siswa').setAttribute('required', 'required');
+                            document.getElementById('ppdb_nomor_whatsapp_wali').setAttribute('required', 'required');
+                            document.getElementById('ppdb_email_siswa').setAttribute('required', 'required');
+                        } else {
+                            opsiSection.style.display = 'none';
+                            useHidden.value = '0';
+                            document.getElementById('ppdb_opsi_pilihan_ke_2').removeAttribute('required');
+                            jurusanSelect.removeAttribute('required');
+                            document.getElementById('ppdb_nomor_whatsapp_siswa').removeAttribute('required');
+                            document.getElementById('ppdb_nomor_whatsapp_wali').removeAttribute('required');
+                            document.getElementById('ppdb_email_siswa').removeAttribute('required');
+                        }
+                    }
 
-                    sekolahSelect.addEventListener('change', function() {
+                    // Initialize
+                    setOpsiEnabled(enableCheckbox.checked || useHidden.value === '1');
+
+                    // Populate if old value exists
+                    if (sekolahSelect && sekolahSelect.value) populateJurusan(sekolahSelect.value);
+
+                    if (sekolahSelect) sekolahSelect.addEventListener('change', function() {
                         populateJurusan(this.value);
+                    });
+
+                    enableCheckbox.addEventListener('change', function() {
+                        setOpsiEnabled(this.checked);
                     });
                 });
             </script>
