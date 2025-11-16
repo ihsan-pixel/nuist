@@ -45,8 +45,8 @@ class AdminLPController extends Controller
             $ppdbStatus = $madrasah->ppdb_status ?? 'tidak_aktif';
 
             // Buat slug untuk halaman PPDB sekolah
-            // Prioritas: slug dari ppdb_setting > slug dari nama sekolah
-            $ppdbSlug = $ppdbSetting?->slug ?? \Illuminate\Support\Str::slug($madrasah->name);
+            // Prioritas: slug dari ppdb_setting > nama sekolah langsung (tidak di-convert)
+            $ppdbSlug = $ppdbSetting?->slug ?? $madrasah->name;
 
             $data = [
                 'sekolah' => $madrasah,

@@ -335,9 +335,10 @@ Route::prefix('ppdb')->group(function () {
     // Place explicit routes BEFORE the parameterized /{slug} route so they are matched correctly
     Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
     Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
-    Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
-    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
-    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
+    // Route untuk halaman sekolah - bisa menerima nama sekolah dengan spasi dan karakter khusus
+    Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah')->where('slug', '.*');
+    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar')->where('slug', '.*');
+    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store')->where('slug', '.*');
     Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN'])->name('ppdb.check-nisn');
 });
 

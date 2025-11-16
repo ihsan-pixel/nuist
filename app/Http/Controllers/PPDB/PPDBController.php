@@ -53,6 +53,9 @@ class PPDBController extends Controller
      */
     public function showSekolah($slug)
     {
+        // Decode URL encoding jika ada (misalnya %20 untuk spasi)
+        $slug = urldecode($slug);
+        
         // Cek apakah $slug adalah ID numerik atau slug string
         if (is_numeric($slug)) {
             // Jika numerik, cari berdasarkan madrasah ID
@@ -72,16 +75,15 @@ class PPDBController extends Controller
                 ];
             }
         } else {
-            // Jika string, cari berdasarkan slug PPDB setting
+            // Jika string, cari berdasarkan slug PPDB setting terlebih dahulu
             $ppdb = PPDBSetting::where('slug', $slug)
                 ->where('tahun', now()->year)
                 ->with('sekolah')
                 ->first();
 
-            // Jika tidak ditemukan berdasarkan slug PPDB, cari berdasarkan nama madrasah
+            // Jika tidak ditemukan berdasarkan slug PPDB, cari berdasarkan nama madrasah (exact match)
             if (!$ppdb) {
-                $madrasah = Madrasah::where('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
-                    ->orWhere('name', 'like', '%' . $slug . '%')
+                $madrasah = Madrasah::where('name', $slug)
                     ->first();
 
                 if ($madrasah) {
@@ -100,7 +102,29 @@ class PPDBController extends Controller
                         ];
                     }
                 } else {
-                    abort(404, 'Sekolah tidak ditemukan');
+                    // Jika tidak ditemukan dengan exact match, coba dengan like untuk backward compatibility
+                    $madrasah = Madrasah::where('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
+                        ->orWhere('name', 'like', '%' . $slug . '%')
+                        ->first();
+
+                    if ($madrasah) {
+                        $ppdb = PPDBSetting::where('sekolah_id', $madrasah->id)
+                            ->where('tahun', now()->year)
+                            ->first();
+
+                        if (!$ppdb) {
+                            // Jika tidak ada PPDB setting, buat objek temporary untuk tampilan
+                            $ppdb = (object) [
+                                'nama_sekolah' => $madrasah->name,
+                                'tahun' => now()->year,
+                                'status' => 'tutup',
+                                'slug' => null,
+                                'sekolah' => $madrasah
+                            ];
+                        }
+                    } else {
+                        abort(404, 'Sekolah tidak ditemukan');
+                    }
                 }
             } else {
                 $madrasah = $ppdb->sekolah;
