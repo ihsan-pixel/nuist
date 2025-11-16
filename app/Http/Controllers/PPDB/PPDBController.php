@@ -72,13 +72,39 @@ class PPDBController extends Controller
                 ];
             }
         } else {
-            // Jika string, cari berdasarkan slug
+            // Jika string, cari berdasarkan slug PPDB setting
             $ppdb = PPDBSetting::where('slug', $slug)
                 ->where('tahun', now()->year)
                 ->with('sekolah')
-                ->firstOrFail();
+                ->first();
 
-            $madrasah = $ppdb->sekolah;
+            // Jika tidak ditemukan berdasarkan slug PPDB, cari berdasarkan nama madrasah
+            if (!$ppdb) {
+                $madrasah = Madrasah::where('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
+                    ->orWhere('name', 'like', '%' . $slug . '%')
+                    ->first();
+
+                if ($madrasah) {
+                    $ppdb = PPDBSetting::where('sekolah_id', $madrasah->id)
+                        ->where('tahun', now()->year)
+                        ->first();
+
+                    if (!$ppdb) {
+                        // Jika tidak ada PPDB setting, buat objek temporary untuk tampilan
+                        $ppdb = (object) [
+                            'nama_sekolah' => $madrasah->name,
+                            'tahun' => now()->year,
+                            'status' => 'tutup',
+                            'slug' => null,
+                            'sekolah' => $madrasah
+                        ];
+                    }
+                } else {
+                    abort(404, 'Sekolah tidak ditemukan');
+                }
+            } else {
+                $madrasah = $ppdb->sekolah;
+            }
         }
 
         $pendaftarCount = isset($ppdb->id) ? $ppdb->pendaftars()->count() : 0;
