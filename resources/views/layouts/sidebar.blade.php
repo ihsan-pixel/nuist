@@ -222,6 +222,7 @@
                 </li>
                 @endif
 
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">ABOUT</li>
 
                 <li>
@@ -244,6 +245,7 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
+                @endif
 
                 @if($userRole === 'super_admin')
                 <li>
