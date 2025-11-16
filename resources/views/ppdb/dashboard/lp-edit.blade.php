@@ -461,8 +461,8 @@
                     <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
                     @if(old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka')
                         <div class="d-flex align-items-center gap-2 ms-2">
-                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->slug) }}</span>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ url('/ppdb/' . $madrasah->slug) }}')">
+                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ url('/ppdb/' . $madrasah->name) }}')">
                                 <i class="mdi mdi-content-copy me-1"></i>Salin Link
                             </button>
                         </div>
