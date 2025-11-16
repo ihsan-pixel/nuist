@@ -441,177 +441,6 @@
 
         </div>
 
-        <!-- Pengaturan PPDB -->
-        <div class="form-section">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="mdi mdi-cog-outline me-2"></i>Pengaturan PPDB
-                </h3>
-                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk madrasah</p>
-            </div>
-
-            <div class="form-group">
-                <label for="ppdb_status" class="form-label">Status PPDB</label>
-                <div class="d-flex align-items-center gap-3">
-                    <select class="form-select @error('ppdb_status') is-invalid @enderror" id="ppdb_status" name="ppdb_status" style="max-width: 200px;">
-                        <option value="tutup" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'tutup' ? 'selected' : '' }}>Tutup</option>
-                        <option value="buka" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka' ? 'selected' : '' }}>Buka</option>
-                    </select>
-                    <div class="status-indicator status-{{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
-                    <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
-                    @if(old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka')
-                        <div class="d-flex align-items-center gap-2 ms-2">
-                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
-                            <button type="button"
-                                class="btn btn-sm btn-outline-secondary"
-                                onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
-                                <i class="mdi mdi-content-copy me-1"></i>Salin Link
-                            </button>
-                        </div>
-                    @endif
-                </div>
-                @error('ppdb_status')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_jadwal_buka" class="form-label">Jadwal Buka PPDB</label>
-                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_buka') is-invalid @enderror"
-                               id="ppdb_jadwal_buka" name="ppdb_jadwal_buka"
-                               value="{{ old('ppdb_jadwal_buka', $madrasah->ppdb_jadwal_buka ? $madrasah->ppdb_jadwal_buka->format('Y-m-d\TH:i') : '') }}">
-                        @error('ppdb_jadwal_buka')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_jadwal_tutup" class="form-label">Jadwal Tutup PPDB</label>
-                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_tutup') is-invalid @enderror"
-                               id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
-                               value="{{ old('ppdb_jadwal_tutup', $madrasah->ppdb_jadwal_tutup ? $madrasah->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
-                        @error('ppdb_jadwal_tutup')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_kuota_total" class="form-label">Kuota Total</label>
-                        <input type="number" class="form-control @error('ppdb_kuota_total') is-invalid @enderror"
-                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $madrasah->ppdb_kuota_total ?? '') }}" min="1">
-                        <div class="help-text">Total kuota pendaftar untuk semua jurusan</div>
-                        @error('ppdb_kuota_total')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_jadwal_pengumuman" class="form-label">Jadwal Pengumuman</label>
-                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_pengumuman') is-invalid @enderror"
-                               id="ppdb_jadwal_pengumuman" name="ppdb_jadwal_pengumuman"
-                               value="{{ old('ppdb_jadwal_pengumuman', $madrasah->ppdb_jadwal_pengumuman ? $madrasah->ppdb_jadwal_pengumuman->format('Y-m-d\TH:i') : '') }}">
-                        @error('ppdb_jadwal_pengumuman')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Kuota per Jurusan</label>
-                <div class="help-text">Tentukan kuota khusus untuk setiap jurusan (opsional)</div>
-
-                <div id="ppdb-quota-jurusan-container" class="array-input-container">
-                    @php $kuotaJurusan = old('ppdb_kuota_jurusan', $madrasah->ppdb_kuota_jurusan ?? [] ?? []); @endphp
-                    @if(is_array($kuotaJurusan) && count($kuotaJurusan) > 0)
-                        @foreach($kuotaJurusan as $jurusan => $kuota)
-                            <div class="array-input-item d-flex gap-2">
-                                <input type="text" class="form-control" name="ppdb_kuota_jurusan[{{ $jurusan }}]" value="{{ $jurusan }}" placeholder="Nama Jurusan">
-                                <input type="number" class="form-control" name="ppdb_kuota_jurusan[{{ $jurusan }}]" value="{{ $kuota }}" placeholder="Kuota" min="0">
-                                <button type="button" class="btn btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    @endif
-                    <div class="array-input-item d-flex gap-2">
-                        <input type="text" class="form-control" name="ppdb_kuota_jurusan[]" placeholder="Nama Jurusan">
-                        <input type="number" class="form-control" name="ppdb_kuota_jurusan[]" placeholder="Kuota" min="0">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="button" class="btn btn-add-array add-array-item text-white mt-2" data-target="ppdb-quota-jurusan-container">
-                    <i class="mdi mdi-plus me-1"></i>Tambah Kuota Jurusan
-                </button>
-                @error('ppdb_kuota_jurusan.*')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Jalur Pendaftaran</label>
-                <div id="ppdb-jalur-container" class="array-input-container">
-                    @php $jalurArray = old('ppdb_jalur', $madrasah->ppdb_jalur ?? []); @endphp
-                    @if(is_array($jalurArray) && count($jalurArray) > 0)
-                        @foreach($jalurArray as $index => $jalur)
-                            <div class="array-input-item">
-                                <input type="text" class="form-control @error('ppdb_jalur.' . $index) is-invalid @enderror"
-                                       name="ppdb_jalur[]" value="{{ $jalur }}" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
-                                <button type="button" class="btn btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    @endif
-                    <div class="array-input-item">
-                        <input type="text" class="form-control" name="ppdb_jalur[]" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="ppdb-jalur-container">
-                    <i class="mdi mdi-plus me-1"></i>Tambah Jalur Pendaftaran
-                </button>
-                @error('ppdb_jalur.*')
-                    <div class="text-danger mt-1">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="ppdb_biaya_pendaftaran" class="form-label">Biaya Pendaftaran</label>
-                <textarea class="form-control @error('ppdb_biaya_pendaftaran') is-invalid @enderror"
-                          id="ppdb_biaya_pendaftaran" name="ppdb_biaya_pendaftaran" rows="3"
-                          placeholder="Informasi biaya pendaftaran PPDB">{{ old('ppdb_biaya_pendaftaran', $madrasah->ppdb_biaya_pendaftaran ?? '') }}</textarea>
-                @error('ppdb_biaya_pendaftaran')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="ppdb_catatan_pengumuman" class="form-label">Catatan Pengumuman</label>
-                <textarea class="form-control @error('ppdb_catatan_pengumuman') is-invalid @enderror"
-                          id="ppdb_catatan_pengumuman" name="ppdb_catatan_pengumuman" rows="3"
-                          placeholder="Catatan tambahan untuk pengumuman hasil PPDB">{{ old('ppdb_catatan_pengumuman', $madrasah->ppdb_catatan_pengumuman ?? '') }}</textarea>
-                @error('ppdb_catatan_pengumuman')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-
         {{-- Opsi Pilihan Ke 2 dipindahkan ke form pendaftaran publik (resources/views/ppdb/daftar.blade.php) --}}
 
         <!-- Fasilitas dan Keunggulan -->
@@ -975,6 +804,184 @@
 
                 <!-- Preview new images -->
                 <div class="image-gallery" id="new-gallery"></div>
+            </div>
+        </div>
+
+        <!-- Pengaturan PPDB -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="mdi mdi-cog-outline me-2"></i>Pengaturan PPDB
+                </h3>
+                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk madrasah</p>
+            </div>
+
+            <div class="form-group">
+                <label for="ppdb_status" class="form-label">Status PPDB</label>
+                <div class="d-flex align-items-center gap-3">
+                    <select class="form-select @error('ppdb_status') is-invalid @enderror" id="ppdb_status" name="ppdb_status" style="max-width: 200px;">
+                        <option value="tutup" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'tutup' ? 'selected' : '' }}>Tutup</option>
+                        <option value="buka" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka' ? 'selected' : '' }}>Buka</option>
+                    </select>
+                    <div class="status-indicator status-{{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
+                    <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
+                    @if(old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka')
+                        <div class="d-flex align-items-center gap-2 ms-2">
+                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
+                            <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
+                                <i class="mdi mdi-content-copy me-1"></i>Salin Link
+                            </button>
+                        </div>
+                    @endif
+                </div>
+                @error('ppdb_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_jadwal_buka" class="form-label">Jadwal Buka PPDB</label>
+                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_buka') is-invalid @enderror"
+                               id="ppdb_jadwal_buka" name="ppdb_jadwal_buka"
+                               value="{{ old('ppdb_jadwal_buka', $madrasah->ppdb_jadwal_buka ? $madrasah->ppdb_jadwal_buka->format('Y-m-d\TH:i') : '') }}">
+                        @error('ppdb_jadwal_buka')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_jadwal_tutup" class="form-label">Jadwal Tutup PPDB</label>
+                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_tutup') is-invalid @enderror"
+                               id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
+                               value="{{ old('ppdb_jadwal_tutup', $madrasah->ppdb_jadwal_tutup ? $madrasah->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
+                        @error('ppdb_jadwal_tutup')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_kuota_total" class="form-label">Kuota Total</label>
+                        <input type="number" class="form-control @error('ppdb_kuota_total') is-invalid @enderror"
+                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $madrasah->ppdb_kuota_total ?? '') }}" min="1">
+                        <div class="help-text">Total kuota pendaftar untuk semua jurusan</div>
+                        @error('ppdb_kuota_total')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_jadwal_pengumuman" class="form-label">Jadwal Pengumuman</label>
+                        <input type="datetime-local" class="form-control @error('ppdb_jadwal_pengumuman') is-invalid @enderror"
+                               id="ppdb_jadwal_pengumuman" name="ppdb_jadwal_pengumuman"
+                               value="{{ old('ppdb_jadwal_pengumuman', $madrasah->ppdb_jadwal_pengumuman ? $madrasah->ppdb_jadwal_pengumuman->format('Y-m-d\TH:i') : '') }}">
+                        @error('ppdb_jadwal_pengumuman')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Kuota per Jurusan</label>
+                <div class="help-text">Kuota per jurusan otomatis mengikuti jurusan yang sudah diisi di atas.</div>
+                <div id="ppdb-quota-jurusan-container" class="array-input-container">
+                    @php
+                        $jurusanArray = old('jurusan', $madrasah->jurusan ?? []);
+                        $kuotaJurusan = old('ppdb_kuota_jurusan', $madrasah->ppdb_kuota_jurusan ?? []);
+                    @endphp
+                    @if(is_array($jurusanArray) && count($jurusanArray) > 0)
+                        @foreach($jurusanArray as $index => $jurusan)
+                            <div class="array-input-item d-flex gap-2">
+                                <input type="text" class="form-control" value="{{ $jurusan }}" readonly>
+                                <input type="number" class="form-control kuota-jurusan-input" name="ppdb_kuota_jurusan[{{ $jurusan }}]" value="{{ $kuotaJurusan[$jurusan] ?? '' }}" placeholder="Kuota" min="0" onchange="updateKuotaTotal()">
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="help-text">Isi jurusan terlebih dahulu untuk mengatur kuota per jurusan.</div>
+                    @endif
+                </div>
+                <script>
+                function updateKuotaTotal() {
+                    let total = 0;
+                    document.querySelectorAll('.kuota-jurusan-input').forEach(function(input) {
+                        let val = parseInt(input.value);
+                        if (!isNaN(val)) total += val;
+                    });
+                    let totalInput = document.getElementById('ppdb_kuota_total');
+                    if (totalInput) totalInput.value = total;
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateKuotaTotal();
+                    document.querySelectorAll('.kuota-jurusan-input').forEach(function(input) {
+                        input.addEventListener('input', updateKuotaTotal);
+                    });
+                });
+                </script>
+                @error('ppdb_kuota_jurusan.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Jalur Pendaftaran</label>
+                <div id="ppdb-jalur-container" class="array-input-container">
+                    @php $jalurArray = old('ppdb_jalur', $madrasah->ppdb_jalur ?? []); @endphp
+                    @if(is_array($jalurArray) && count($jalurArray) > 0)
+                        @foreach($jalurArray as $index => $jalur)
+                            <div class="array-input-item">
+                                <input type="text" class="form-control @error('ppdb_jalur.' . $index) is-invalid @enderror"
+                                       name="ppdb_jalur[]" value="{{ $jalur }}" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
+                                <button type="button" class="btn btn-remove-array remove-array-item">
+                                    <i class="mdi mdi-minus"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item">
+                        <input type="text" class="form-control" name="ppdb_jalur[]" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
+                        <button type="button" class="btn btn-remove-array remove-array-item">
+                            <i class="mdi mdi-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="ppdb-jalur-container">
+                    <i class="mdi mdi-plus me-1"></i>Tambah Jalur Pendaftaran
+                </button>
+                @error('ppdb_jalur.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="ppdb_biaya_pendaftaran" class="form-label">Biaya Pendaftaran</label>
+                <textarea class="form-control @error('ppdb_biaya_pendaftaran') is-invalid @enderror"
+                          id="ppdb_biaya_pendaftaran" name="ppdb_biaya_pendaftaran" rows="3"
+                          placeholder="Informasi biaya pendaftaran PPDB">{{ old('ppdb_biaya_pendaftaran', $madrasah->ppdb_biaya_pendaftaran ?? '') }}</textarea>
+                @error('ppdb_biaya_pendaftaran')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="ppdb_catatan_pengumuman" class="form-label">Catatan Pengumuman</label>
+                <textarea class="form-control @error('ppdb_catatan_pengumuman') is-invalid @enderror"
+                          id="ppdb_catatan_pengumuman" name="ppdb_catatan_pengumuman" rows="3"
+                          placeholder="Catatan tambahan untuk pengumuman hasil PPDB">{{ old('ppdb_catatan_pengumuman', $madrasah->ppdb_catatan_pengumuman ?? '') }}</textarea>
+                @error('ppdb_catatan_pengumuman')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
