@@ -464,7 +464,7 @@
                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
                             <button type="button"
                                 class="btn btn-sm btn-outline-secondary"
-                                onclick="window.copyToClipboard({{ json_encode(url('/ppdb/' . \Str::slug($madrasah->name))) }})">
+                                onclick="window.copyToClipboard({{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
                                 <i class="mdi mdi-content-copy me-1"></i>Salin Link
                             </button>
                         </div>
