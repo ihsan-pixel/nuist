@@ -727,12 +727,12 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
-                                                @if($detail['ppdb_setting'])
-                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm">
+                                                @if($detail['status_ppdb'] === 'buka' && $detail['ppdb_setting'])
+                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm" target="_blank">
                                                         <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                                     </a>
                                                 @else
-                                                    <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                    <button class="btn btn-outline-secondary btn-sm" disabled title="PPDB tidak aktif atau belum dikonfigurasi">
                                                         <i class="mdi mdi-block-helper me-1"></i>Tidak Aktif
                                                     </button>
                                                 @endif
