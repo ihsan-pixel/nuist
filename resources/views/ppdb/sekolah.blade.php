@@ -876,17 +876,44 @@
             </div>
         </div>
         <div class="row">
-            @if($madrasah->jurusan && count($madrasah->jurusan) > 0)
-                @foreach($madrasah->jurusan as $jurusan)
+            @php
+                // Normalize jurusan data: prefer column `jurusn` (could be JSON or comma-separated),
+                // fall back to existing $madrasah->jurusan structure.
+                $jurusanData = [];
+
+                if(!empty($madrasah->jurusn)) {
+                    $decoded = json_decode($madrasah->jurusn, true);
+                    if(is_array($decoded) && count($decoded) > 0) {
+                        $jurusanData = $decoded;
+                    } else {
+                        // Assume comma-separated string of names
+                        $pieces = array_filter(array_map('trim', explode(',', $madrasah->jurusn)));
+                        foreach($pieces as $p) {
+                            $jurusanData[] = ['name' => $p];
+                        }
+                    }
+                } elseif(!empty($madrasah->jurusan) && count($madrasah->jurusan) > 0) {
+                    foreach($madrasah->jurusan as $j) {
+                        if(is_array($j)) {
+                            $jurusanData[] = $j;
+                        } else {
+                            $jurusanData[] = ['name' => $j];
+                        }
+                    }
+                }
+            @endphp
+
+            @if(count($jurusanData) > 0)
+                @foreach($jurusanData as $jurusan)
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         @if(isset($jurusan['image']) && $jurusan['image'])
-                            <img src="{{ asset('storage/app/public/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
+                            <img src="{{ asset('storage/app/public/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @endif
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? '' }}
+                            <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
                         </h5>
-                        <p class="text-muted mb-3">{{ $jurusan['description'] ?? '' }}</p>
+                        <p class="text-muted mb-3">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
                         @if(isset($jurusan['prospects']))
                             <div class="mb-3">
                                 <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
