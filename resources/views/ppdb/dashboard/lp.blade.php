@@ -692,7 +692,7 @@
                                     <tr>
                                         <td>
                                             <div class="sekolah-name">{{ $detail['sekolah']->name }}</div>
-                                            <div class="kabupaten-info">{{ $detail['sekolah']->kabupaten }}</div>
+                                            <div class="kabupaten-info">{{ $detail['sekolah']->kabupaten }} | Status: <strong>{{ $detail['status_ppdb'] ?? 'null' }}</strong></div>
                                         </td>
                                         <td>
                                             @if($detail['status_ppdb'] === 'buka')
@@ -727,14 +727,19 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
-                                                {{-- Tampilkan tombol Lihat Detail jika status PPDB = buka dan ppdb_setting ada --}}
-                                                @if($detail['status_ppdb'] === 'buka' && $detail['ppdb_setting'])
-                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
-                                                        <i class="mdi mdi-eye me-1"></i>Lihat Detail
-                                                    </a>
-                                                @endif
-                                                {{-- Tampilkan info jika PPDB tidak aktif --}}
-                                                @if($detail['status_ppdb'] !== 'buka')
+                                                {{-- Tampilkan tombol Lihat Detail jika status PPDB = buka --}}
+                                                @if($detail['status_ppdb'] === 'buka')
+                                                    @if($detail['ppdb_setting'])
+                                                        <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
+                                                            <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                                        </a>
+                                                    @else
+                                                        <button class="btn btn-outline-warning btn-sm" disabled title="PPDB buka tapi belum dikonfigurasi">
+                                                            <i class="mdi mdi-alert-circle me-1"></i>Belum Dikonfigurasi
+                                                        </button>
+                                                    @endif
+                                                @else
+                                                    {{-- Tampilkan info jika PPDB tidak aktif --}}
                                                     <span class="badge badge-{{ $detail['status_ppdb'] }}" title="Status PPDB: {{ ucfirst($detail['status_ppdb']) }}">
                                                         <i class="mdi mdi-block-helper me-1"></i>{{ ucfirst($detail['status_ppdb']) }}
                                                     </span>

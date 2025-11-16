@@ -40,13 +40,14 @@ class AdminLPController extends Controller
         // Detail per sekolah
         $detailSekolah = $madrasahs->map(function ($madrasah) use (&$statistik, &$totalPendaftar, &$totalBuka) {
             $ppdbSetting = $madrasah->ppdbSettings->first();
-            
+
             // Debug: Pastikan ppdb_status tersedia
             $ppdbStatus = $madrasah->ppdb_status ?? 'tidak_aktif';
 
             $data = [
                 'sekolah' => $madrasah,
                 'ppdb_setting' => $ppdbSetting,
+                'ppdb_status' => $ppdbStatus, // Ambil dari kolom ppdb_status di madrasahs table
                 'total' => 0,
                 'lulus' => 0,
                 'tidak_lulus' => 0,
@@ -72,7 +73,12 @@ class AdminLPController extends Controller
                 $statistik['tidak_lulus'] += $data['tidak_lulus'];
 
                 // Hitung total_buka berdasarkan ppdb_status dari madrasahs table
-                if ($data['status_ppdb'] === 'buka') {
+                if ($ppdbStatus === 'buka') {
+                    $totalBuka++;
+                }
+            } else {
+                // Jika tidak ada ppdb_setting tapi status buka, tetap hitung sebagai buka
+                if ($ppdbStatus === 'buka') {
                     $totalBuka++;
                 }
             }
