@@ -332,12 +332,13 @@ Route::middleware(['role:super_admin'])->group(function () {
 // HALAMAN UMUM
 Route::prefix('ppdb')->group(function () {
     Route::get('/', [PPDBController::class, 'index'])->name('ppdb.index');
+    // Place explicit routes BEFORE the parameterized /{slug} route so they are matched correctly
+    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
+    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
     Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
     Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
     Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
     Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN'])->name('ppdb.check-nisn');
-    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
-    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
 });
 
 // ADMIN SEKOLAH
