@@ -120,12 +120,7 @@ class AdminLPController extends Controller
     {
         $madrasah = \App\Models\Madrasah::findOrFail($id);
 
-        // Get PPDB Setting for current year
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'ppdbSetting'));
+        return view('ppdb.dashboard.lp-edit', compact('madrasah'));
     }
 
     /**
@@ -183,14 +178,6 @@ class AdminLPController extends Controller
             'alur_pendaftaran' => 'nullable|array',
             'alur_pendaftaran.*' => 'nullable|string',
             // PPDB Settings validation
-            'ppdb_visi' => 'nullable|string',
-            'ppdb_misi' => 'nullable|string',
-            'fasilitas_ppdb' => 'nullable|string',
-            'prestasi_ppdb' => 'nullable|string',
-            'ekstrakurikuler_ppdb' => 'nullable|string',
-            'biaya_pendidikan_ppdb' => 'nullable|string',
-            'informasi_tambahan_ppdb' => 'nullable|string',
-            // New PPDB Settings fields
             'ppdb_status' => 'nullable|string|in:tutup,buka',
             'ppdb_jadwal_buka' => 'nullable|date',
             'ppdb_jadwal_tutup' => 'nullable|date|after:ppdb_jadwal_buka',
@@ -202,6 +189,7 @@ class AdminLPController extends Controller
             'ppdb_jalur.*' => 'nullable|string',
             'ppdb_biaya_pendaftaran' => 'nullable|string',
             'ppdb_catatan_pengumuman' => 'nullable|string',
+
         ]);
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
@@ -216,69 +204,22 @@ class AdminLPController extends Controller
             }
         }
 
-        // Handle PPDB Settings update
-        $ppdbData = [
-            'visi' => $request->input('ppdb_visi'),
-            'misi' => $request->input('ppdb_misi'),
-            'fasilitas' => $request->input('fasilitas_ppdb'),
-            'prestasi' => $request->input('prestasi_ppdb'),
-            'ekstrakurikuler' => $request->input('ekstrakurikuler_ppdb'),
-            'biaya_pendidikan' => $request->input('biaya_pendidikan_ppdb'),
-            'informasi_tambahan' => $request->input('informasi_tambahan_ppdb'),
-        ];
+        // Handle PPDB array fields
+        $ppdbArrayFields = ['ppdb_jalur'];
+        foreach ($ppdbArrayFields as $field) {
+            if ($request->has($field)) {
+                $data[$field] = array_filter($request->input($field, []), function($value) {
+                    return !empty(trim($value));
+                });
+            }
+        }
 
-        // Only add PPDB settings fields if they are provided
-        if ($request->filled('ppdb_status')) {
-            $ppdbData['ppdb_status'] = $request->input('ppdb_status');
-        }
-        if ($request->filled('ppdb_jadwal_buka')) {
-            $ppdbData['ppdb_jadwal_buka'] = $request->input('ppdb_jadwal_buka');
-        }
-        if ($request->filled('ppdb_jadwal_tutup')) {
-            $ppdbData['ppdb_jadwal_tutup'] = $request->input('ppdb_jadwal_tutup');
-        }
-        if ($request->filled('ppdb_kuota_total')) {
-            $ppdbData['ppdb_kuota_total'] = $request->input('ppdb_kuota_total');
-        }
-        if ($request->filled('ppdb_jadwal_pengumuman')) {
-            $ppdbData['ppdb_jadwal_pengumuman'] = $request->input('ppdb_jadwal_pengumuman');
-        }
+        // Handle PPDB kuota jurusan
         if ($request->filled('ppdb_kuota_jurusan')) {
-            $ppdbData['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
-        }
-        if ($request->filled('ppdb_jalur')) {
-            $ppdbData['ppdb_jalur'] = array_filter($request->input('ppdb_jalur', []), function($jalur) {
-                return !empty(trim($jalur));
-            });
-        }
-        if ($request->filled('ppdb_biaya_pendaftaran')) {
-            $ppdbData['ppdb_biaya_pendaftaran'] = $request->input('ppdb_biaya_pendaftaran');
-        }
-        if ($request->filled('ppdb_catatan_pengumuman')) {
-            $ppdbData['ppdb_catatan_pengumuman'] = $request->input('ppdb_catatan_pengumuman');
+            $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
-            ->where('tahun', now()->year)
-            ->first();
 
-        if ($ppdbSetting) {
-            $ppdbSetting->update($ppdbData);
-        } else {
-            // Create new PPDB Setting if doesn't exist
-            PPDBSetting::create(array_merge($ppdbData, [
-                'sekolah_id' => $id,
-                'slug' => \Str::slug($madrasah->name),
-                'nama_sekolah' => $madrasah->name,
-                'tahun' => now()->year,
-            ]));
-        }
-
-        // Handle PPDB Jalur (create/update/delete) only if jalur data is provided
-        // Note: Jalur is now stored as JSON in ppdb_jalur column, so we don't need separate table handling
-        // if ($request->filled('ppdb_jalur')) {
-        //     $this->handlePPDBJalur($ppdbSetting, $request->input('ppdb_jalur', []));
-        // }
 
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {

@@ -438,78 +438,7 @@
                 @enderror
             </div>
 
-            <!-- PPDB Settings Integration -->
-            @if(isset($ppdbSetting))
-            <div class="form-group">
-                <label for="ppdb_visi" class="form-label">Visi PPDB</label>
-                <textarea class="form-control @error('ppdb_visi') is-invalid @enderror"
-                          id="ppdb_visi" name="ppdb_visi" rows="3"
-                          placeholder="Visi khusus untuk PPDB">{{ old('ppdb_visi', $ppdbSetting->visi) }}</textarea>
-                @error('ppdb_visi')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
 
-            <div class="form-group">
-                <label for="ppdb_misi" class="form-label">Misi PPDB</label>
-                <textarea class="form-control @error('ppdb_misi') is-invalid @enderror"
-                          id="ppdb_misi" name="ppdb_misi" rows="4"
-                          placeholder="Misi khusus untuk PPDB">{{ old('ppdb_misi', $ppdbSetting->misi) }}</textarea>
-                @error('ppdb_misi')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="fasilitas_ppdb" class="form-label">Fasilitas PPDB</label>
-                <textarea class="form-control @error('fasilitas_ppdb') is-invalid @enderror"
-                          id="fasilitas_ppdb" name="fasilitas_ppdb" rows="4"
-                          placeholder="Fasilitas yang akan ditampilkan di PPDB">{{ old('fasilitas_ppdb', $ppdbSetting->fasilitas) }}</textarea>
-                @error('fasilitas_ppdb')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="prestasi_ppdb" class="form-label">Prestasi PPDB</label>
-                <textarea class="form-control @error('prestasi_ppdb') is-invalid @enderror"
-                          id="prestasi_ppdb" name="prestasi_ppdb" rows="4"
-                          placeholder="Prestasi yang akan ditampilkan di PPDB">{{ old('prestasi_ppdb', $ppdbSetting->prestasi) }}</textarea>
-                @error('prestasi_ppdb')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="ekstrakurikuler_ppdb" class="form-label">Ekstrakurikuler PPDB</label>
-                <textarea class="form-control @error('ekstrakurikuler_ppdb') is-invalid @enderror"
-                          id="ekstrakurikuler_ppdb" name="ekstrakurikuler_ppdb" rows="4"
-                          placeholder="Ekstrakurikuler yang akan ditampilkan di PPDB">{{ old('ekstrakurikuler_ppdb', $ppdbSetting->ekstrakurikuler) }}</textarea>
-                @error('ekstrakurikuler_ppdb')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="biaya_pendidikan_ppdb" class="form-label">Biaya Pendidikan PPDB</label>
-                <textarea class="form-control @error('biaya_pendidikan_ppdb') is-invalid @enderror"
-                          id="biaya_pendidikan_ppdb" name="biaya_pendidikan_ppdb" rows="4"
-                          placeholder="Informasi biaya pendidikan untuk PPDB">{{ old('biaya_pendidikan_ppdb', $ppdbSetting->biaya_pendidikan) }}</textarea>
-                @error('biaya_pendidikan_ppdb')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="informasi_tambahan_ppdb" class="form-label">Informasi Tambahan PPDB</label>
-                <textarea class="form-control @error('informasi_tambahan_ppdb') is-invalid @enderror"
-                          id="informasi_tambahan_ppdb" name="informasi_tambahan_ppdb" rows="4"
-                          placeholder="Informasi tambahan untuk PPDB">{{ old('informasi_tambahan_ppdb', $ppdbSetting->informasi_tambahan) }}</textarea>
-                @error('informasi_tambahan_ppdb')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-            @endif
         </div>
 
         <!-- Pengaturan PPDB -->
@@ -518,17 +447,17 @@
                 <h3 class="section-title">
                     <i class="mdi mdi-cog-outline me-2"></i>Pengaturan PPDB
                 </h3>
-                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk tahun {{ $ppdbSetting->tahun ?? now()->year }}</p>
+                <p class="section-subtitle">Konfigurasi pengaturan PPDB untuk madrasah</p>
             </div>
 
             <div class="form-group">
                 <label for="ppdb_status" class="form-label">Status PPDB</label>
                 <div class="d-flex align-items-center gap-3">
                     <select class="form-select @error('ppdb_status') is-invalid @enderror" id="ppdb_status" name="ppdb_status" style="max-width: 200px;">
-                        <option value="tutup" {{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'tutup' ? 'selected' : '' }}>Tutup</option>
-                        <option value="buka" {{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'buka' ? 'selected' : '' }}>Buka</option>
+                        <option value="tutup" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'tutup' ? 'selected' : '' }}>Tutup</option>
+                        <option value="buka" {{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka' ? 'selected' : '' }}>Buka</option>
                     </select>
-                    <div class="status-indicator status-{{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
+                    <div class="status-indicator status-{{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
                     <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
                 </div>
                 @error('ppdb_status')
@@ -542,7 +471,7 @@
                         <label for="ppdb_jadwal_buka" class="form-label">Jadwal Buka PPDB</label>
                         <input type="datetime-local" class="form-control @error('ppdb_jadwal_buka') is-invalid @enderror"
                                id="ppdb_jadwal_buka" name="ppdb_jadwal_buka"
-                               value="{{ old('ppdb_jadwal_buka', $ppdbSetting->ppdb_jadwal_buka ?? null ? $ppdbSetting->ppdb_jadwal_buka->format('Y-m-d\TH:i') : '') }}">
+                               value="{{ old('ppdb_jadwal_buka', $madrasah->ppdb_jadwal_buka ? $madrasah->ppdb_jadwal_buka->format('Y-m-d\TH:i') : '') }}">
                         @error('ppdb_jadwal_buka')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -554,7 +483,7 @@
                         <label for="ppdb_jadwal_tutup" class="form-label">Jadwal Tutup PPDB</label>
                         <input type="datetime-local" class="form-control @error('ppdb_jadwal_tutup') is-invalid @enderror"
                                id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
-                               value="{{ old('ppdb_jadwal_tutup', $ppdbSetting->ppdb_jadwal_tutup ?? null ? $ppdbSetting->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
+                               value="{{ old('ppdb_jadwal_tutup', $madrasah->ppdb_jadwal_tutup ? $madrasah->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
                         @error('ppdb_jadwal_tutup')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -567,7 +496,7 @@
                     <div class="form-group">
                         <label for="ppdb_kuota_total" class="form-label">Kuota Total</label>
                         <input type="number" class="form-control @error('ppdb_kuota_total') is-invalid @enderror"
-                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $ppdbSetting->kuota_total ?? '') }}" min="1">
+                               id="ppdb_kuota_total" name="ppdb_kuota_total" value="{{ old('ppdb_kuota_total', $madrasah->ppdb_kuota_total ?? '') }}" min="1">
                         <div class="help-text">Total kuota pendaftar untuk semua jurusan</div>
                         @error('ppdb_kuota_total')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -580,7 +509,7 @@
                         <label for="ppdb_jadwal_pengumuman" class="form-label">Jadwal Pengumuman</label>
                         <input type="datetime-local" class="form-control @error('ppdb_jadwal_pengumuman') is-invalid @enderror"
                                id="ppdb_jadwal_pengumuman" name="ppdb_jadwal_pengumuman"
-                               value="{{ old('ppdb_jadwal_pengumuman', $ppdbSetting->ppdb_jadwal_pengumuman ?? null ? $ppdbSetting->ppdb_jadwal_pengumuman->format('Y-m-d\TH:i') : '') }}">
+                               value="{{ old('ppdb_jadwal_pengumuman', $madrasah->ppdb_jadwal_pengumuman ? $madrasah->ppdb_jadwal_pengumuman->format('Y-m-d\TH:i') : '') }}">
                         @error('ppdb_jadwal_pengumuman')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -593,7 +522,7 @@
                 <div class="help-text">Tentukan kuota khusus untuk setiap jurusan (opsional)</div>
 
                 <div id="ppdb-quota-jurusan-container" class="array-input-container">
-                    @php $kuotaJurusan = old('ppdb_kuota_jurusan', $ppdbSetting->ppdb_kuota_jurusan ?? [] ?? []); @endphp
+                    @php $kuotaJurusan = old('ppdb_kuota_jurusan', $madrasah->ppdb_kuota_jurusan ?? [] ?? []); @endphp
                     @if(is_array($kuotaJurusan) && count($kuotaJurusan) > 0)
                         @foreach($kuotaJurusan as $jurusan => $kuota)
                             <div class="array-input-item d-flex gap-2">
@@ -625,7 +554,7 @@
             <div class="form-group">
                 <label class="form-label">Jalur Pendaftaran</label>
                 <div id="ppdb-jalur-container" class="array-input-container">
-                    @php $jalurArray = old('ppdb_jalur', $ppdbSetting->ppdb_jalur ?? []); @endphp
+                    @php $jalurArray = old('ppdb_jalur', $madrasah->ppdb_jalur ?? []); @endphp
                     @if(is_array($jalurArray) && count($jalurArray) > 0)
                         @foreach($jalurArray as $index => $jalur)
                             <div class="array-input-item">
@@ -656,7 +585,7 @@
                 <label for="ppdb_biaya_pendaftaran" class="form-label">Biaya Pendaftaran</label>
                 <textarea class="form-control @error('ppdb_biaya_pendaftaran') is-invalid @enderror"
                           id="ppdb_biaya_pendaftaran" name="ppdb_biaya_pendaftaran" rows="3"
-                          placeholder="Informasi biaya pendaftaran PPDB">{{ old('ppdb_biaya_pendaftaran', $ppdbSetting->ppdb_biaya_pendaftaran ?? '') }}</textarea>
+                          placeholder="Informasi biaya pendaftaran PPDB">{{ old('ppdb_biaya_pendaftaran', $madrasah->ppdb_biaya_pendaftaran ?? '') }}</textarea>
                 @error('ppdb_biaya_pendaftaran')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -666,7 +595,7 @@
                 <label for="ppdb_catatan_pengumuman" class="form-label">Catatan Pengumuman</label>
                 <textarea class="form-control @error('ppdb_catatan_pengumuman') is-invalid @enderror"
                           id="ppdb_catatan_pengumuman" name="ppdb_catatan_pengumuman" rows="3"
-                          placeholder="Catatan tambahan untuk pengumuman hasil PPDB">{{ old('ppdb_catatan_pengumuman', $ppdbSetting->ppdb_catatan_pengumuman ?? '') }}</textarea>
+                          placeholder="Catatan tambahan untuk pengumuman hasil PPDB">{{ old('ppdb_catatan_pengumuman', $madrasah->ppdb_catatan_pengumuman ?? '') }}</textarea>
                 @error('ppdb_catatan_pengumuman')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -1101,21 +1030,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return placeholders[containerId] || 'Masukkan teks';
     }
 
-    // Status indicator update for PPDB status
-    const ppdbStatusSelect = document.getElementById('ppdb_status');
-    const ppdbStatusIndicator = document.querySelector('.status-indicator');
 
-    function updatePPDBStatusIndicator() {
-        if (ppdbStatusSelect && ppdbStatusIndicator) {
-            const status = ppdbStatusSelect.value;
-            ppdbStatusIndicator.className = 'status-indicator status-' + status;
-        }
-    }
-
-    if (ppdbStatusSelect) {
-        ppdbStatusSelect.addEventListener('change', updatePPDBStatusIndicator);
-        updatePPDBStatusIndicator();
-    }
 
     // File upload handling
     const uploadArea = document.getElementById('galeri-upload-area');
