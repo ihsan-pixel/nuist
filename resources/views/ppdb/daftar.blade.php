@@ -713,47 +713,6 @@
                 <div class="help-text mt-1">Pilih minimal 1 jurusan dari sekolah alternatif yang dipilih.</div>
             </div>
 
-            <div class="row mt-3">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa</label>
-                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
-                               id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
-                               value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
-                               placeholder="081234567890" required>
-                        @error('ppdb_nomor_whatsapp_siswa')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali</label>
-                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
-                               id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
-                               value="{{ old('ppdb_nomor_whatsapp_wali') }}"
-                               placeholder="081234567890" required>
-                        @error('ppdb_nomor_whatsapp_wali')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="ppdb_email_siswa" class="form-label">Email Siswa</label>
-                        <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
-                               id="ppdb_email_siswa" name="ppdb_email_siswa"
-                               value="{{ old('ppdb_email_siswa') }}"
-                               placeholder="siswa@example.com" required>
-                        @error('ppdb_email_siswa')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-
             <script>
                 // Data jurusan untuk setiap sekolah alternatif
                 window._sekolahAlternatifData = {!! json_encode($sekolahLainData) !!};
