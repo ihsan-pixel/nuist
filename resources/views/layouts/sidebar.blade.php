@@ -155,11 +155,11 @@
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
 
-                @if(in_array($userRole, ['super_admin', 'pengurus', 'admin', 'admin_sekolah', 'admin_lp']))
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
 
                 <li class="menu-title">PPDB</li>
 
-                @if($userRole === 'admin_sekolah')
+                @if($userRole === 'super_admin')
                 <!-- Admin Sekolah PPDB Menu -->
                 <li>
                     <a href="{{ route('ppdb.sekolah.dashboard') }}" class="waves-effect">
