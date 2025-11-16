@@ -635,31 +635,31 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}"
                         href="{{ route('ppdb.sekolah', request()->route('slug')) }}">
-                        <i class="fas fa-home me-1"></i>Profil Sekolah
+                        Profil Sekolah
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#jurusan">
-                        <i class="fas fa-graduation-cap me-1"></i>Jurusan
+                        Jurusan
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#fasilitas">
-                        <i class="fas fa-building me-1"></i>Fasilitas
+                        Fasilitas
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#about">
-                        <i class="fas fa-info-circle me-1"></i>About
+                        About
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#kontak">
-                        <i class="fas fa-phone me-1"></i>Kontak
+                        Kontak
                     </a>
                 </li>
 
