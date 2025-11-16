@@ -464,7 +464,7 @@
                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
                             <button type="button"
                                 class="btn btn-sm btn-outline-secondary"
-                                onclick="window.copyToClipboard({{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
+                                onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . \Str::slug($madrasah->name))) }})">
                                 <i class="mdi mdi-content-copy me-1"></i>Salin Link
                             </button>
                         </div>
@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateJumlahJurusan();
 
     // Copy to clipboard function
-    window.copyToClipboard = function(text) {
+    window.copyToClipboard = function(event, text) {
         navigator.clipboard.writeText(text).then(function() {
             // Show success message
             const button = event.target.closest('button');
