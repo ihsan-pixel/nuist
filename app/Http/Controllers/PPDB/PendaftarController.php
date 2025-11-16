@@ -125,9 +125,10 @@ class PendaftarController extends Controller
             'ppdb_opsi_pilihan_ke_2' => 'required_if:use_opsi_ke_2,1|nullable|integer|exists:madrasahs,id',
             'ppdb_jurusan_pilihan_alt' => 'required_if:use_opsi_ke_2,1|array',
             'ppdb_jurusan_pilihan_alt.*' => 'required_if:use_opsi_ke_2,1|string',
-            'ppdb_nomor_whatsapp_siswa' => 'required_if:use_opsi_ke_2,1|string|max:25',
-            'ppdb_nomor_whatsapp_wali' => 'required_if:use_opsi_ke_2,1|string|max:25',
-            'ppdb_email_siswa' => 'required_if:use_opsi_ke_2,1|email|max:100',
+            // Contact fields now required unconditionally
+            'ppdb_nomor_whatsapp_siswa' => 'required|string|max:25',
+            'ppdb_nomor_whatsapp_wali' => 'required|string|max:25',
+            'ppdb_email_siswa' => 'required|email|max:100',
         ], [
             'nama_lengkap.required' => 'Nama lengkap harus diisi',
             'nisn.required' => 'NISN harus diisi',
@@ -136,9 +137,9 @@ class PendaftarController extends Controller
             'jurusan_pilihan.required' => 'Pilihan jurusan harus diisi',
             'berkas_kk.required' => 'Berkas Kartu Keluarga harus diunggah',
             'berkas_ijazah.required' => 'Berkas Ijazah harus diunggah',
-            'ppdb_nomor_whatsapp_siswa.required_if' => 'Nomor WhatsApp siswa harus diisi jika menambahkan opsi ke 2',
-            'ppdb_nomor_whatsapp_wali.required_if' => 'Nomor WhatsApp wali harus diisi jika menambahkan opsi ke 2',
-            'ppdb_email_siswa.required_if' => 'Email siswa harus diisi jika menambahkan opsi ke 2',
+            'ppdb_nomor_whatsapp_siswa.required' => 'Nomor WhatsApp siswa harus diisi',
+            'ppdb_nomor_whatsapp_wali.required' => 'Nomor WhatsApp wali harus diisi',
+            'ppdb_email_siswa.required' => 'Email siswa harus diisi',
         ]);
 
         try {

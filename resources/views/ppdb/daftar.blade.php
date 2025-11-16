@@ -639,7 +639,49 @@
                 }
             @endphp
 
-            <div class="form-group mt-3">
+            <!-- Contact fields: wajib dan ditempatkan di atas opsi ke-2 -->
+            <div class="row mt-3 mb-2">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa</label>
+                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
+                               id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
+                               value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
+                               placeholder="081234567890" required>
+                        @error('ppdb_nomor_whatsapp_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali</label>
+                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
+                               id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
+                               value="{{ old('ppdb_nomor_whatsapp_wali') }}"
+                               placeholder="081234567890" required>
+                        @error('ppdb_nomor_whatsapp_wali')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_email_siswa" class="form-label">Email Siswa</label>
+                        <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
+                               id="ppdb_email_siswa" name="ppdb_email_siswa"
+                               value="{{ old('ppdb_email_siswa') }}"
+                               placeholder="siswa@example.com" required>
+                        @error('ppdb_email_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
                 <div class="form-check form-switch mb-2">
                     <input class="form-check-input" type="checkbox" id="enable_opsi_ke_2" {{ old('use_opsi_ke_2') ? 'checked' : '' }}>
                     <label class="form-check-label" for="enable_opsi_ke_2">Tambahkan Opsi Pilihan Ke 2</label>
@@ -738,15 +780,33 @@
                             return;
                         }
 
-                        jurusanList.forEach(j => {
-                            const opt = document.createElement('option');
-                            opt.value = j;
-                            opt.text = j;
-                            // mark selected if old value exists
-                            const old = @json(old('ppdb_jurusan_pilihan_alt', []));
-                            if (old && Array.isArray(old) && old.includes(j)) opt.selected = true;
-                            jurusanSelect.appendChild(opt);
-                        });
+                            jurusanList.forEach(j => {
+                                const opt = document.createElement('option');
+                                opt.value = j;
+                                opt.text = j;
+                                jurusanSelect.appendChild(opt);
+                            });
+
+                            // Also include the primary jurusan_pilihan if present (so user can keep same jurusan in opsi ke-2)
+                            try {
+                                const primaryJurusan = (document.getElementById('jurusan_pilihan') && document.getElementById('jurusan_pilihan').value) ? document.getElementById('jurusan_pilihan').value : null;
+                                if (primaryJurusan) {
+                                    // If not already included, prepend it and mark selected
+                                    let exists = Array.from(jurusanSelect.options).some(o => o.value === primaryJurusan);
+                                    if (!exists) {
+                                        const optPrimary = document.createElement('option');
+                                        optPrimary.value = primaryJurusan;
+                                        optPrimary.text = primaryJurusan + ' (Jurusan pilihan utama)';
+                                        optPrimary.selected = true;
+                                        jurusanSelect.insertBefore(optPrimary, jurusanSelect.firstChild);
+                                    } else {
+                                        // mark it selected if present
+                                        Array.from(jurusanSelect.options).forEach(o => { if (o.value === primaryJurusan) o.selected = true; });
+                                    }
+                                }
+                            } catch (err) {
+                                console.warn('Could not include primary jurusan into opsi ke-2 list', err);
+                            }
                     }
 
                     // Toggle show/hide opsi section and required attributes
