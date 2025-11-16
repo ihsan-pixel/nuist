@@ -728,8 +728,8 @@
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
                                                 {{-- Tampilkan tombol Lihat Detail HANYA jika status PPDB = buka --}}
-                                                @if($detail['status_ppdb'] === 'buka' && !empty($detail['ppdb_slug']))
-                                                    <a href="{{ route('ppdb.sekolah', $detail['ppdb_slug']) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB sekolah">
+                                                @if($detail['status_ppdb'] === 'buka' && !empty($detail['slug']))
+                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['slug']) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
                                                         <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                                     </a>
                                                 @elseif($detail['status_ppdb'] === 'buka')
