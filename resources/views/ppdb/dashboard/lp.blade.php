@@ -727,7 +727,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
-                                                @if($detail['status_ppdb'] === 'buka' && $detail['ppdb_setting'])
+                                                @if($detail['sekolah']->ppdb_status === 'buka' && $detail['ppdb_setting'])
                                                     <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm" target="_blank">
                                                         <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                                     </a>
