@@ -774,6 +774,99 @@
                     <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
+
+            <!-- Prestasi -->
+            <div class="form-group">
+                <label class="form-label">Prestasi</label>
+                <div id="prestasi-container" class="array-input-container">
+                    @php $prestasiArray = old('prestasi', $madrasah->prestasi ?? []); @endphp
+                    @if(is_array($prestasiArray) && count($prestasiArray) > 0)
+                        @foreach($prestasiArray as $index => $prestasi)
+                            <div class="array-input-item">
+                                <input type="text" class="form-control @error('prestasi.' . $index) is-invalid @enderror"
+                                       name="prestasi[]" value="{{ $prestasi }}" placeholder="Contoh: Juara 1 Lomba Matematika Tingkat Nasional">
+                                <button type="button" class="btn btn-remove-array remove-array-item">
+                                    <i class="mdi mdi-minus"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item">
+                        <input type="text" class="form-control" name="prestasi[]" placeholder="Contoh: Juara 1 Lomba Matematika Tingkat Nasional">
+                        <button type="button" class="btn btn-remove-array remove-array-item">
+                            <i class="mdi mdi-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="prestasi-container">
+                    <i class="mdi mdi-plus me-1"></i>Tambah Prestasi
+                </button>
+                @error('prestasi.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Program Unggulan -->
+            <div class="form-group">
+                <label class="form-label">Program Unggulan</label>
+                <div id="program_unggulan-container" class="array-input-container">
+                    @php $programUnggulanArray = old('program_unggulan', $madrasah->program_unggulan ?? []); @endphp
+                    @if(is_array($programUnggulanArray) && count($programUnggulanArray) > 0)
+                        @foreach($programUnggulanArray as $index => $program)
+                            <div class="array-input-item">
+                                <input type="text" class="form-control @error('program_unggulan.' . $index) is-invalid @enderror"
+                                       name="program_unggulan[]" value="{{ $program }}" placeholder="Contoh: Program Tahfidz Al-Quran">
+                                <button type="button" class="btn btn-remove-array remove-array-item">
+                                    <i class="mdi mdi-minus"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item">
+                        <input type="text" class="form-control" name="program_unggulan[]" placeholder="Contoh: Program Tahfidz Al-Quran">
+                        <button type="button" class="btn btn-remove-array remove-array-item">
+                            <i class="mdi mdi-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="program_unggulan-container">
+                    <i class="mdi mdi-plus me-1"></i>Tambah Program Unggulan
+                </button>
+                @error('program_unggulan.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Ekstrakurikuler -->
+            <div class="form-group">
+                <label class="form-label">Ekstrakurikuler</label>
+                <div id="ekstrakurikuler-container" class="array-input-container">
+                    @php $ekstrakurikulerArray = old('ekstrakurikuler', $madrasah->ekstrakurikuler ?? []); @endphp
+                    @if(is_array($ekstrakurikulerArray) && count($ekstrakurikulerArray) > 0)
+                        @foreach($ekstrakurikulerArray as $index => $ekstra)
+                            <div class="array-input-item">
+                                <input type="text" class="form-control @error('ekstrakurikuler.' . $index) is-invalid @enderror"
+                                       name="ekstrakurikuler[]" value="{{ $ekstra }}" placeholder="Contoh: Pramuka, Futsal, Basket">
+                                <button type="button" class="btn btn-remove-array remove-array-item">
+                                    <i class="mdi mdi-minus"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item">
+                        <input type="text" class="form-control" name="ekstrakurikuler[]" placeholder="Contoh: Pramuka, Futsal, Basket">
+                        <button type="button" class="btn btn-remove-array remove-array-item">
+                            <i class="mdi mdi-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-add-array add-array-item text-white" data-target="ekstrakurikuler-container">
+                    <i class="mdi mdi-plus me-1"></i>Tambah Ekstrakurikuler
+                </button>
+                @error('ekstrakurikuler.*')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <!-- Kepala Sekolah -->
@@ -999,6 +1092,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'fasilitas-container': 'Contoh: Laboratorium Komputer',
             'keunggulan-container': 'Keunggulan madrasah',
             'jurusan-container': 'Contoh: Teknik Informatika',
+            'prestasi-container': 'Contoh: Juara 1 Lomba Matematika Tingkat Nasional',
+            'program_unggulan-container': 'Contoh: Program Tahfidz Al-Quran',
+            'ekstrakurikuler-container': 'Contoh: Pramuka, Futsal, Basket',
             'ppdb-quota-jurusan-container': 'Nama Jurusan',
             'ppdb-jalur-container': 'Contoh: Jalur Prestasi, Jalur Reguler'
         };
