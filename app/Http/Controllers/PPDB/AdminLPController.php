@@ -18,7 +18,8 @@ class AdminLPController extends Controller
         $tahun = now()->year;
 
         // Ambil semua madrasah dan PPDB setting untuk tahun ini
-        $madrasahs = \App\Models\Madrasah::with(['ppdbSettings' => function($query) use ($tahun) {
+        // Pastikan kolom ppdb_status di-select
+        $madrasahs = \App\Models\Madrasah::select('*')->with(['ppdbSettings' => function($query) use ($tahun) {
             $query->where('tahun', $tahun);
         }])->get();
 
@@ -39,6 +40,9 @@ class AdminLPController extends Controller
         // Detail per sekolah
         $detailSekolah = $madrasahs->map(function ($madrasah) use (&$statistik, &$totalPendaftar, &$totalBuka) {
             $ppdbSetting = $madrasah->ppdbSettings->first();
+            
+            // Debug: Pastikan ppdb_status tersedia
+            $ppdbStatus = $madrasah->ppdb_status ?? 'tidak_aktif';
 
             $data = [
                 'sekolah' => $madrasah,
@@ -48,7 +52,7 @@ class AdminLPController extends Controller
                 'tidak_lulus' => 0,
                 'pending' => 0,
                 'verifikasi' => 0,
-                'status_ppdb' => $madrasah->ppdb_status ?? 'tidak_aktif', // Ambil dari kolom ppdb_status di madrasahs table
+                'status_ppdb' => $ppdbStatus, // Ambil dari kolom ppdb_status di madrasahs table
             ];
 
             if ($ppdbSetting) {
