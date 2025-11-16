@@ -460,9 +460,12 @@
                     <div class="status-indicator status-{{ old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
                     <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
                     @if(old('ppdb_status', $madrasah->ppdb_status ?? 'tutup') == 'buka')
-                        <a href="{{ route('ppdb.public.show', $madrasah->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
-                            <i class="mdi mdi-eye me-1"></i>Lihat Halaman Sekolah
-                        </a>
+                        <div class="d-flex align-items-center gap-2 ms-2">
+                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->slug) }}</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ url('/ppdb/' . $madrasah->slug) }}')">
+                                <i class="mdi mdi-content-copy me-1"></i>Salin Link
+                            </button>
+                        </div>
                     @endif
                 </div>
                 @error('ppdb_status')
@@ -1111,6 +1114,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize on page load
     updateJumlahJurusan();
+
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Show success message
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="mdi mdi-check me-1"></i>Tersalin!';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
+
+            setTimeout(function() {
+                button.innerHTML = originalText;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Failed to copy: ', err);
+        });
+    }
 
     // Form validation
     const form = document.querySelector('form');
