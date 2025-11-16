@@ -727,17 +727,11 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
-                                                {{-- Tampilkan tombol Lihat Detail jika status PPDB = buka --}}
+                                                {{-- Tampilkan tombol Lihat Detail HANYA jika status PPDB = buka --}}
                                                 @if($detail['status_ppdb'] === 'buka')
-                                                    @if($detail['ppdb_setting'])
-                                                        <a href="{{ route('ppdb.sekolah.dashboard', $detail['ppdb_setting']->slug) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
-                                                            <i class="mdi mdi-eye me-1"></i>Lihat Detail
-                                                        </a>
-                                                    @else
-                                                        <button class="btn btn-outline-warning btn-sm" disabled title="PPDB buka tapi belum dikonfigurasi">
-                                                            <i class="mdi mdi-alert-circle me-1"></i>Belum Dikonfigurasi
-                                                        </button>
-                                                    @endif
+                                                    <a href="{{ route('ppdb.sekolah.dashboard', $detail['slug']) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
+                                                        <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                                    </a>
                                                 @else
                                                     {{-- Tampilkan info jika PPDB tidak aktif --}}
                                                     <span class="badge badge-{{ $detail['status_ppdb'] }}" title="Status PPDB: {{ ucfirst($detail['status_ppdb']) }}">
