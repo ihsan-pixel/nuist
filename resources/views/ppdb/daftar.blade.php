@@ -621,6 +621,75 @@
                 @enderror
             </div>
 
+            <!-- Opsi Pilihan Ke 2 (opsional) -->
+            <div class="form-group mt-3">
+                <label class="form-label">
+                    <i class="fas fa-people-arrows me-2"></i>Opsi Pilihan Ke 2 (Opsional)
+                </label>
+                <p class="section-description">Jika Anda ingin memilih sekolah alternatif, isi nama sekolah dan jurusan pilihan di bawah ini.</p>
+
+                <div class="mb-3">
+                    <label for="ppdb_opsi_pilihan_ke_2" class="form-label">Nama Sekolah (opsional)</label>
+                    <input type="text" class="form-control" id="ppdb_opsi_pilihan_ke_2" name="ppdb_opsi_pilihan_ke_2" value="{{ old('ppdb_opsi_pilihan_ke_2') }}" placeholder="Contoh: Madrasah Negeri 2 ...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Jurusan Sekolah Pilihan (opsional)</label>
+                    <div id="ppdb-jurusan-pilihan-container-alt" class="array-input-container">
+                        <div class="array-input-item d-flex gap-2">
+                            <input type="text" class="form-control" name="ppdb_jurusan_pilihan_alt[]" placeholder="Jurusan dari sekolah pilihan (opsional)">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-add-array add-array-item text-white mt-2" data-target="ppdb-jurusan-pilihan-container-alt">
+                        <i class="mdi mdi-plus me-1"></i>Tambah Jurusan (opsional)
+                    </button>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa (opsional)</label>
+                            <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
+                                   id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
+                                   value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
+                                   placeholder="081234567890">
+                            @error('ppdb_nomor_whatsapp_siswa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali (opsional)</label>
+                            <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
+                                   id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
+                                   value="{{ old('ppdb_nomor_whatsapp_wali') }}"
+                                   placeholder="081234567890">
+                            @error('ppdb_nomor_whatsapp_wali')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="ppdb_email_siswa" class="form-label">Email Siswa (opsional)</label>
+                            <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
+                                   id="ppdb_email_siswa" name="ppdb_email_siswa"
+                                   value="{{ old('ppdb_email_siswa') }}"
+                                   placeholder="siswa@example.com">
+                            @error('ppdb_email_siswa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-between">
                 <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(1)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
@@ -982,6 +1051,41 @@ window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.checkNISNAvailability = checkNISNAvailability;
 window.removeFile = removeFile;
+
+// Lightweight array add/remove support for jurusan alternatif (Opsi Pilihan Ke 2)
+document.addEventListener('click', function(e) {
+    // Add new array item
+    if (e.target.classList.contains('add-array-item') || e.target.closest('.add-array-item')) {
+        const button = e.target.classList.contains('add-array-item') ? e.target : e.target.closest('.add-array-item');
+        const targetId = button.getAttribute('data-target');
+        const container = document.getElementById(targetId);
+        if (!container) return;
+
+        // Only support our alternative jurusan container in this script
+        if (targetId === 'ppdb-jurusan-pilihan-container-alt') {
+            const newItem = document.createElement('div');
+            newItem.className = 'array-input-item d-flex gap-2';
+            newItem.innerHTML = `\
+                <input type="text" class="form-control" name="ppdb_jurusan_pilihan_alt[]" placeholder="Jurusan dari sekolah pilihan (opsional)">\
+                <button type="button" class="btn btn-remove-array remove-array-item">\
+                    <i class="mdi mdi-minus"></i>\
+                </button>`;
+            // insert before the last item if there is an empty template
+            const items = container.querySelectorAll('.array-input-item');
+            if (items.length > 0) {
+                container.insertBefore(newItem, items[items.length - 1]);
+            } else {
+                container.appendChild(newItem);
+            }
+        }
+    }
+
+    // Remove array item
+    if (e.target.classList.contains('remove-array-item') || e.target.closest('.remove-array-item')) {
+        const item = e.target.closest('.array-input-item');
+        if (item) item.remove();
+    }
+});
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
