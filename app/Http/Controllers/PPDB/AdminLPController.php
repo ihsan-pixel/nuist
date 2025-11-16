@@ -192,6 +192,9 @@ class AdminLPController extends Controller
             'ppdb_jalur.*' => 'nullable|string',
             'ppdb_biaya_pendaftaran' => 'nullable|string',
             'ppdb_catatan_pengumuman' => 'nullable|string',
+            'ppdb_nomor_whatsapp_siswa' => 'nullable|string|max:20',
+            'ppdb_nomor_whatsapp_wali' => 'nullable|string|max:20',
+            'ppdb_email_siswa' => 'nullable|email|max:255',
 
         ]);
 

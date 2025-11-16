@@ -67,6 +67,9 @@ class Madrasah extends Model
         'ppdb_jalur',
         'ppdb_biaya_pendaftaran',
         'ppdb_catatan_pengumuman',
+        'ppdb_nomor_whatsapp_siswa',
+        'ppdb_nomor_whatsapp_wali',
+        'ppdb_email_siswa',
     ];
 
     protected $casts = [
