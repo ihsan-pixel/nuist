@@ -180,23 +180,10 @@ class AdminLPController extends Controller
             'faq.*' => 'nullable|string',
             'alur_pendaftaran' => 'nullable|array',
             'alur_pendaftaran.*' => 'nullable|string',
-            // PPDB Settings validation
-            'ppdb_status' => 'nullable|string|in:tutup,buka',
-            'ppdb_jadwal_buka' => 'nullable|date',
-            'ppdb_jadwal_tutup' => 'nullable|date|after:ppdb_jadwal_buka',
-            'ppdb_kuota_total' => 'nullable|integer|min:0',
-            'ppdb_jadwal_pengumuman' => 'nullable|date',
-            'ppdb_kuota_jurusan' => 'nullable|array',
-            'ppdb_kuota_jurusan.*' => 'nullable|string',
-            'ppdb_jalur' => 'nullable|array',
-            'ppdb_jalur.*' => 'nullable|string',
-            'ppdb_biaya_pendaftaran' => 'nullable|string',
-            'ppdb_catatan_pengumuman' => 'nullable|string',
-            // Note: ppdb contact fields moved to ppdb_pendaftar table; remove from madrasah edit validation
-
+            // Note: PPDB settings validation moved to updatePPDBSettings method
         ]);
 
-        $data = $request->except(['galeri_foto', 'brosur_pdf']);
+        $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
 
         // Handle array fields
         $arrayFields = ['misi', 'keunggulan', 'fasilitas', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];
@@ -206,21 +193,6 @@ class AdminLPController extends Controller
                     return !empty(trim($value));
                 });
             }
-        }
-
-        // Handle PPDB array fields
-        $ppdbArrayFields = ['ppdb_jalur'];
-        foreach ($ppdbArrayFields as $field) {
-            if ($request->has($field)) {
-                $data[$field] = array_filter($request->input($field, []), function($value) {
-                    return !empty(trim($value));
-                });
-            }
-        }
-
-        // Handle PPDB kuota jurusan
-        if ($request->filled('ppdb_kuota_jurusan')) {
-            $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
         }
 
 
@@ -278,5 +250,58 @@ class AdminLPController extends Controller
     {
         // Method kept for backward compatibility but not used
         // Jalur is now stored as JSON in ppdb_jalur column
+    }
+
+    /**
+     * Show PPDB settings page
+     */
+    public function ppdbSettings($id)
+    {
+        $madrasah = \App\Models\Madrasah::findOrFail($id);
+        return view('ppdb.dashboard.ppdb-settings', compact('madrasah'));
+    }
+
+    /**
+     * Update PPDB settings
+     */
+    public function updatePPDBSettings(Request $request, $id)
+    {
+        $madrasah = \App\Models\Madrasah::findOrFail($id);
+
+        $validated = $request->validate([
+            'ppdb_status' => 'nullable|string|in:tutup,buka',
+            'ppdb_jadwal_buka' => 'nullable|date',
+            'ppdb_jadwal_tutup' => 'nullable|date|after:ppdb_jadwal_buka',
+            'ppdb_kuota_total' => 'nullable|integer|min:0',
+            'ppdb_jadwal_pengumuman' => 'nullable|date',
+            'ppdb_kuota_jurusan' => 'nullable|array',
+            'ppdb_kuota_jurusan.*' => 'nullable|string',
+            'ppdb_jalur' => 'nullable|array',
+            'ppdb_jalur.*' => 'nullable|string',
+            'ppdb_biaya_pendaftaran' => 'nullable|string',
+            'ppdb_catatan_pengumuman' => 'nullable|string',
+        ]);
+
+        $data = $request->only(['ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
+
+        // Handle PPDB jalur
+        $ppdbArrayFields = ['ppdb_jalur'];
+        foreach ($ppdbArrayFields as $field) {
+            if ($request->has($field)) {
+                $data[$field] = array_filter($request->input($field, []), function($value) {
+                    return !empty(trim($value));
+                });
+            }
+        }
+
+        // Handle PPDB kuota jurusan
+        if ($request->filled('ppdb_kuota_jurusan')) {
+            $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
+        }
+
+        $madrasah->update($data);
+
+        return redirect()->route('ppdb.lp.ppdb-settings', $madrasah->id)
+            ->with('success', 'Pengaturan PPDB berhasil diperbarui');
     }
 }

@@ -349,11 +349,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('ppdb/sekolah')->group(functio
     Route::get('/export', [AdminSekolahController::class, 'export'])->name('ppdb.sekolah.export');
 });
 
-// ADMIN LP. MA’ARIF
+// ADMIN LP. MA'ARIF
 Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(function () {
     Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
     Route::get('/edit/{id}', [AdminLPController::class, 'edit'])->name('ppdb.lp.edit');
     Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');
+    Route::get('/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings'])->name('ppdb.lp.ppdb-settings');
+    Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings'])->name('ppdb.lp.update-ppdb-settings');
 });
 
 // PPDB SETTINGS
