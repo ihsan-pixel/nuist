@@ -621,74 +621,131 @@
                 @enderror
             </div>
 
-            <!-- Opsi Pilihan Ke 2 (opsional) -->
+            <!-- Opsi Pilihan Ke 2 (wajib diisi jika memilih opsi) -->
+            @php
+                // Ambil daftar madrasah pada kabupaten yang sama dengan sekolah utama (kecuali sekolah utama itu sendiri)
+                $sekolahLain = [];
+                if (isset($ppdbSetting->sekolah) && $ppdbSetting->sekolah && $ppdbSetting->sekolah->kabupaten) {
+                    $sekolahLain = \App\Models\Madrasah::where('kabupaten', $ppdbSetting->sekolah->kabupaten)
+                        ->where('id', '!=', $ppdbSetting->sekolah->id)
+                        ->orderBy('name')
+                        ->get();
+                }
+
+                $sekolahLainData = [];
+                foreach($sekolahLain as $s) {
+                    // pastikan jurusan disimpan sebagai array di model (atau JSON)
+                    $sekolahLainData[$s->id] = is_array($s->jurusan) ? $s->jurusan : (is_string($s->jurusan) ? json_decode($s->jurusan, true) ?? [] : []);
+                }
+            @endphp
+
             <div class="form-group mt-3">
-                <label class="form-label">
-                    <i class="fas fa-people-arrows me-2"></i>Opsi Pilihan Ke 2 (Opsional)
+                <label for="ppdb_opsi_pilihan_ke_2" class="form-label">
+                    <i class="fas fa-people-arrows me-2"></i>Opsi Pilihan Ke 2 (Nama Sekolah)
                 </label>
-                <p class="section-description">Jika Anda ingin memilih sekolah alternatif, isi nama sekolah dan jurusan pilihan di bawah ini.</p>
+                <select id="ppdb_opsi_pilihan_ke_2" name="ppdb_opsi_pilihan_ke_2" class="form-control @error('ppdb_opsi_pilihan_ke_2') is-invalid @enderror" required>
+                    <option value="">-- Pilih Sekolah Alternatif --</option>
+                    @foreach($sekolahLain as $s)
+                        <option value="{{ $s->id }}" {{ old('ppdb_opsi_pilihan_ke_2') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                    @endforeach
+                </select>
+                @error('ppdb_opsi_pilihan_ke_2')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+                <div class="help-text mt-1">Hanya madrasah pada kabupaten yang sama ditampilkan.</div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="ppdb_opsi_pilihan_ke_2" class="form-label">Nama Sekolah (opsional)</label>
-                    <input type="text" class="form-control" id="ppdb_opsi_pilihan_ke_2" name="ppdb_opsi_pilihan_ke_2" value="{{ old('ppdb_opsi_pilihan_ke_2') }}" placeholder="Contoh: Madrasah Negeri 2 ...">
+            <div class="form-group">
+                <label for="ppdb_jurusan_pilihan_alt" class="form-label">Jurusan Sekolah Pilihan</label>
+                <select id="ppdb_jurusan_pilihan_alt" name="ppdb_jurusan_pilihan_alt[]" class="form-control" multiple size="4" required>
+                    {{-- Opsi akan terisi otomatis setelah memilih sekolah alternatif --}}
+                </select>
+                <div class="help-text mt-1">Pilih minimal 1 jurusan dari sekolah alternatif yang dipilih.</div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa</label>
+                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
+                               id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
+                               value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
+                               placeholder="081234567890" required>
+                        @error('ppdb_nomor_whatsapp_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Jurusan Sekolah Pilihan (opsional)</label>
-                    <div id="ppdb-jurusan-pilihan-container-alt" class="array-input-container">
-                        <div class="array-input-item d-flex gap-2">
-                            <input type="text" class="form-control" name="ppdb_jurusan_pilihan_alt[]" placeholder="Jurusan dari sekolah pilihan (opsional)">
-                            <button type="button" class="btn btn-remove-array remove-array-item">
-                                <i class="mdi mdi-minus"></i>
-                            </button>
-                        </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali</label>
+                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
+                               id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
+                               value="{{ old('ppdb_nomor_whatsapp_wali') }}"
+                               placeholder="081234567890" required>
+                        @error('ppdb_nomor_whatsapp_wali')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <button type="button" class="btn btn-add-array add-array-item text-white mt-2" data-target="ppdb-jurusan-pilihan-container-alt">
-                        <i class="mdi mdi-plus me-1"></i>Tambah Jurusan (opsional)
-                    </button>
                 </div>
 
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa (opsional)</label>
-                            <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
-                                   id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
-                                   value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
-                                   placeholder="081234567890">
-                            @error('ppdb_nomor_whatsapp_siswa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali (opsional)</label>
-                            <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
-                                   id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
-                                   value="{{ old('ppdb_nomor_whatsapp_wali') }}"
-                                   placeholder="081234567890">
-                            @error('ppdb_nomor_whatsapp_wali')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="ppdb_email_siswa" class="form-label">Email Siswa (opsional)</label>
-                            <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
-                                   id="ppdb_email_siswa" name="ppdb_email_siswa"
-                                   value="{{ old('ppdb_email_siswa') }}"
-                                   placeholder="siswa@example.com">
-                            @error('ppdb_email_siswa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="ppdb_email_siswa" class="form-label">Email Siswa</label>
+                        <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
+                               id="ppdb_email_siswa" name="ppdb_email_siswa"
+                               value="{{ old('ppdb_email_siswa') }}"
+                               placeholder="siswa@example.com" required>
+                        @error('ppdb_email_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
+
+            <script>
+                // Data jurusan untuk setiap sekolah alternatif
+                window._sekolahAlternatifData = {!! json_encode($sekolahLainData) !!};
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    const sekolahSelect = document.getElementById('ppdb_opsi_pilihan_ke_2');
+                    const jurusanSelect = document.getElementById('ppdb_jurusan_pilihan_alt');
+
+                    function populateJurusan(sekolahId) {
+                        // Clear
+                        jurusanSelect.innerHTML = '';
+
+                        if (!sekolahId) return;
+
+                        const jurusanList = window._sekolahAlternatifData[sekolahId] || [];
+                        if (jurusanList.length === 0) {
+                            const opt = document.createElement('option');
+                            opt.value = '';
+                            opt.text = 'Tidak ada jurusan terdaftar pada sekolah ini';
+                            jurusanSelect.appendChild(opt);
+                            return;
+                        }
+
+                        jurusanList.forEach(j => {
+                            const opt = document.createElement('option');
+                            opt.value = j;
+                            opt.text = j;
+                            // mark selected if old value exists
+                            const old = @json(old('ppdb_jurusan_pilihan_alt', []));
+                            if (old && Array.isArray(old) && old.includes(j)) opt.selected = true;
+                            jurusanSelect.appendChild(opt);
+                        });
+                    }
+
+                    // Populate if old value exists
+                    if (sekolahSelect.value) populateJurusan(sekolahSelect.value);
+
+                    sekolahSelect.addEventListener('change', function() {
+                        populateJurusan(this.value);
+                    });
+                });
+            </script>
 
             <div class="d-flex justify-content-between">
                 <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(1)">

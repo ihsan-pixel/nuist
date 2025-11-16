@@ -120,6 +120,10 @@ class PendaftarController extends Controller
             'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'ppdb_jalur_id' => 'required|integer|min:1|max:3',
+            // New contact fields now required per request
+            'ppdb_nomor_whatsapp_siswa' => 'required|string|max:25',
+            'ppdb_nomor_whatsapp_wali' => 'required|string|max:25',
+            'ppdb_email_siswa' => 'required|email|max:100',
         ], [
             'nama_lengkap.required' => 'Nama lengkap harus diisi',
             'nisn.required' => 'NISN harus diisi',
@@ -128,6 +132,9 @@ class PendaftarController extends Controller
             'jurusan_pilihan.required' => 'Pilihan jurusan harus diisi',
             'berkas_kk.required' => 'Berkas Kartu Keluarga harus diunggah',
             'berkas_ijazah.required' => 'Berkas Ijazah harus diunggah',
+            'ppdb_nomor_whatsapp_siswa.required' => 'Nomor WhatsApp siswa harus diisi',
+            'ppdb_nomor_whatsapp_wali.required' => 'Nomor WhatsApp wali harus diisi',
+            'ppdb_email_siswa.required' => 'Email siswa harus diisi',
         ]);
 
         try {
@@ -138,7 +145,7 @@ class PendaftarController extends Controller
             // Buat nomor pendaftaran unik
             $nomorPendaftaran = $this->generateNomorPendaftaran($ppdbSetting);
 
-            // Simpan data pendaftar
+            // Simpan data pendaftar (sertakan kontak yang baru dipindah ke tabel ppdb_pendaftar)
             $pendaftar = PPDBPendaftar::create([
                 'ppdb_setting_id' => $ppdbSetting->id,
                 'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
@@ -148,6 +155,9 @@ class PendaftarController extends Controller
                 'jurusan_pilihan' => $validated['jurusan_pilihan'],
                 'berkas_kk' => $berkasKK,
                 'berkas_ijazah' => $berkasIjazah,
+                'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'],
+                'ppdb_nomor_whatsapp_wali' => $validated['ppdb_nomor_whatsapp_wali'],
+                'ppdb_email_siswa' => $validated['ppdb_email_siswa'],
                 'status' => 'pending',
                 'nomor_pendaftaran' => $nomorPendaftaran,
             ]);
