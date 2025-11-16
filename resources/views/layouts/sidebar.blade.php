@@ -159,7 +159,7 @@
 
                 <li class="menu-title">PPDB</li>
 
-                @if($userRole === 'super_admin')
+                {{-- @if($userRole === 'super_admin')
                 <!-- Admin Sekolah PPDB Menu -->
                 <li>
                     <a href="{{ route('ppdb.sekolah.dashboard') }}" class="waves-effect">
@@ -198,8 +198,8 @@
                         <i class="bx bx-file"></i>
                         <span>Data Pendaftaran</span>
                     </a>
-                </li>
-                @elseif(in_array($userRole, ['super_admin', 'pengurus']))
+                </li> --}}
+                {{-- @elseif(in_array($userRole, ['super_admin', 'pengurus'])) --}}
                 <!-- Super Admin / Pengurus PPDB Menu -->
                 {{-- <li>
                     <a href="{{ route('ppdb.settings.index') }}" class="waves-effect">
