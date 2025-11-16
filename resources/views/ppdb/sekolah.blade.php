@@ -815,12 +815,15 @@
                         <a href="{{ route('ppdb.daftar', $currentSlug) }}" class="btn btn-ppdb">
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang
                         </a>
-                        <a href="#jurusan" class="btn btn-orange btn-lg px-4">
+                        <a href="{{ route('ppdb.cek-status', $currentSlug) }}" class="btn btn-orange btn-lg px-4">
+                            <i class="fas fa-edit me-2"></i>Lihat Status Pendaftaran
+                        </a>
+                        {{-- <a href="" class="btn btn-orange btn-lg px-4">
                             <i class="fas fa-graduation-cap me-2"></i>Lihat Jurusan
-                        </a>
-                        <a href="{{ route('ppdb.daftar', $currentSlug) }}" class="btn btn-outline-light btn-lg px-4">
+                        </a> --}}
+                        {{-- <a href="{{ route('ppdb.daftar', $currentSlug) }}" class="btn btn-outline-light btn-lg px-4">
                             <i class="fas fa-user-plus me-2"></i>Daftar
-                        </a>
+                        </a> --}}
                     @else
                         <a href="{{ route('ppdb.index') }}" class="btn btn-ppdb">
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang

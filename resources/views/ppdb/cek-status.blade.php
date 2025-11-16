@@ -525,10 +525,10 @@
     @endif
 </div>
 
-<!-- Back to PPDB Button -->
+{{-- <!-- Back to PPDB Button -->
 <div class="text-center py-4">
     <a href="{{ route('ppdb.index') }}" class="btn btn-outline-primary btn-lg">
         <i class="fas fa-arrow-left me-2"></i>Kembali ke Halaman PPDB
     </a>
-</div>
+</div> --}}
 @endsection
