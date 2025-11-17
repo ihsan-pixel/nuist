@@ -668,6 +668,20 @@
         });
     </script>
 
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js');
+
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'NEW_VERSION_ACTIVATED') {
+                console.log('New SW active. Reloading...');
+                window.location.reload();
+            }
+        });
+    }
+    </script>
+
+
 
     @yield('script')
 </body>
