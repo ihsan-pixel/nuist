@@ -212,9 +212,9 @@
                             <div class="flex-grow-1">
                                 <h6 class="card-title mb-1">
                                     <i class="bx bx-building text-primary me-2"></i>
-                                    <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                    <button type="button" class="btn btn-link p-0 text-decoration-underline madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}" style="font-size: inherit; line-height: inherit; color: #0d6efd;">
                                         {{ $data['madrasah']->name }}
-                                    </span>
+                                    </button>
                                 </h6>
                                 <div class="d-flex align-items-center text-muted small">
                                     <i class="bx bx-group me-1"></i>
@@ -245,9 +245,9 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex-grow-1">
-                                                            <span class="user-detail-link fw-medium small" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}">
+                                                            <button type="button" class="btn btn-link p-0 text-decoration-underline user-detail-link fw-medium small" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}" style="font-size: inherit; line-height: inherit; color: #0d6efd;">
                                                                 {{ $presensi['nama'] }}
-                                                            </span>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </td>
