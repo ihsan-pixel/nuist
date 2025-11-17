@@ -192,27 +192,39 @@
             <p>Tidak ada pengajuan izin {{ request('status') === 'all' ? '' : 'pending' }}</p>
         </div>
     @else
-        @foreach($izinRequests as $presensi)
+        @foreach($izinRequests as $izin)
         <div class="izin-card">
             <div class="izin-header">
                 <div>
-                    <div class="izin-user">{{ $presensi->user->name }}</div>
-                    <div class="izin-date">{{ $presensi->tanggal->format('d M Y') }}</div>
+                    <div class="izin-user">{{ $izin->user->name }}</div>
+                    <div class="izin-date">{{ $izin->tanggal->format('d M Y') }}</div>
                 </div>
                 <div>
-                    <span class="status-badge status-{{ $presensi->status_izin }}">
-                        {{ ucfirst($presensi->status_izin) }}
-                    </span>
+                    @if(isset($izin->status_izin))
+                        <span class="status-badge status-{{ $izin->status_izin }}">
+                            {{ ucfirst($izin->status_izin) }}
+                        </span>
+                    @else
+                        <span class="status-badge status-{{ $izin->status }}">
+                            {{ ucfirst($izin->status) }}
+                        </span>
+                    @endif
                 </div>
             </div>
 
             <div class="izin-description">
-                {{ $presensi->keterangan }}
+                @if(isset($izin->type) && $izin->type === 'tugas_luar')
+                    <strong>Tugas Luar:</strong> {{ $izin->deskripsi_tugas }}<br>
+                    <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
+                    <strong>Waktu:</strong> {{ $izin->waktu_masuk }} - {{ $izin->waktu_keluar }}
+                @else
+                    {{ $izin->keterangan }}
+                @endif
             </div>
 
-            @if($presensi->surat_izin_path)
+            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
             <div class="mb-3">
-                <a href="{{ asset('storage/app/public/' . $presensi->surat_izin_path) }}"
+                <a href="{{ asset('storage/app/public/' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
                    target="_blank"
                    class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
@@ -221,20 +233,37 @@
             </div>
             @endif
 
-            @if($presensi->status_izin === 'pending')
+            @if((isset($izin->status_izin) && $izin->status_izin === 'pending') || (isset($izin->status) && $izin->status === 'pending'))
             <div class="izin-actions">
-                <form action="{{ route('izin.approve', $presensi) }}" method="POST" style="flex: 1;">
-                    @csrf
-                    <button type="submit" class="btn-approve">
-                        <i class="bx bx-check"></i> Setujui
-                    </button>
-                </form>
-                <form action="{{ route('izin.reject', $presensi) }}" method="POST" style="flex: 1;">
-                    @csrf
-                    <button type="submit" class="btn-reject">
-                        <i class="bx bx-x"></i> Tolak
-                    </button>
-                </form>
+                @if(isset($izin->status_izin))
+                    <!-- Presensi-based izin -->
+                    <form action="{{ route('izin.approve', $izin) }}" method="POST" style="flex: 1;">
+                        @csrf
+                        <button type="submit" class="btn-approve">
+                            <i class="bx bx-check"></i> Setujui
+                        </button>
+                    </form>
+                    <form action="{{ route('izin.reject', $izin) }}" method="POST" style="flex: 1;">
+                        @csrf
+                        <button type="submit" class="btn-reject">
+                            <i class="bx bx-x"></i> Tolak
+                        </button>
+                    </form>
+                @else
+                    <!-- Izin table-based (tugas_luar) -->
+                    <form action="{{ route('izin.approve', $izin->id) }}" method="POST" style="flex: 1;">
+                        @csrf
+                        <button type="submit" class="btn-approve">
+                            <i class="bx bx-check"></i> Setujui
+                        </button>
+                    </form>
+                    <form action="{{ route('izin.reject', $izin->id) }}" method="POST" style="flex: 1;">
+                        @csrf
+                        <button type="submit" class="btn-reject">
+                            <i class="bx bx-x"></i> Tolak
+                        </button>
+                    </form>
+                @endif
             </div>
             @endif
         </div>
