@@ -105,20 +105,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            @if($madrasahData->map_link)
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.098123456789!2d110.3695!3d-7.7956!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNDcnNDMuNCJTIDExMMKwMjInMTQuMiJF!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
+                        <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
+                            @if($madrasahData->latitude && $madrasahData->longitude)
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $madrasahData->longitude }}!3d{{ $madrasahData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($madrasahData->name) }}!2z{{ $madrasahData->latitude }},{{ $madrasahData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
                                         loading="lazy"
                                         referrerpolicy="no-referrer-when-downgrade">
                                 </iframe>
+                                @if($madrasahData->map_link)
                                 <div class="position-absolute top-0 end-0 p-2">
                                     <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-success btn-sm shadow-sm">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Buka Peta Lengkap
                                     </a>
                                 </div>
+                                @endif
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
@@ -126,10 +128,16 @@
                                             <i class="mdi mdi-map-marker-off fs-1"></i>
                                         </div>
                                     </div>
-                                    <h6 class="text-muted mb-2">Link Map belum tersedia</h6>
+                                    <h6 class="text-muted mb-2">Koordinat belum tersedia</h6>
                                     <p class="text-muted text-center small px-3">
-                                        Link Google Maps belum diisi untuk menampilkan peta
+                                        Latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
+                                    @if($madrasahData->map_link)
+                                    <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-primary btn-sm mt-2">
+                                        <i class="mdi mdi-google-maps me-1"></i>
+                                        Lihat di Google Maps
+                                    </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -198,20 +206,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            @if($foundationData->map_link)
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.098123456789!2d110.3695!3d-7.7956!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwNDcnNDMuNCJTIDExMMKwMjInMTQuMiJF!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
+                        <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
+                            @if($foundationData->latitude && $foundationData->longitude)
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $foundationData->longitude }}!3d{{ $foundationData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($foundationData->name) }}!2z{{ $foundationData->latitude }},{{ $foundationData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
                                         loading="lazy"
                                         referrerpolicy="no-referrer-when-downgrade">
                                 </iframe>
+                                @if($foundationData->map_link)
                                 <div class="position-absolute top-0 end-0 p-2">
                                     <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-success btn-sm shadow-sm">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Buka Peta Lengkap
                                     </a>
                                 </div>
+                                @endif
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
@@ -219,10 +229,16 @@
                                             <i class="mdi mdi-map-marker-off fs-1"></i>
                                         </div>
                                     </div>
-                                    <h6 class="text-muted mb-2">Link Map belum tersedia</h6>
+                                    <h6 class="text-muted mb-2">Koordinat belum tersedia</h6>
                                     <p class="text-muted text-center small px-3">
-                                        Link Google Maps belum diisi untuk menampilkan peta
+                                        Latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
+                                    @if($foundationData->map_link)
+                                    <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-primary btn-sm mt-2">
+                                        <i class="mdi mdi-google-maps me-1"></i>
+                                        Lihat di Google Maps
+                                    </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>
