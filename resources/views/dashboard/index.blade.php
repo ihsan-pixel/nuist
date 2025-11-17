@@ -119,8 +119,8 @@
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Buka Peta Lengkap
                                     </a>
-                                </div> --}}
-                                @endif
+                                </div>
+                                @endif --}}
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
