@@ -220,6 +220,7 @@
                                                 <select name="ketugasan" class="form-control">
                                                     <option value="">-- Pilih Ketugasan --</option>
                                                     <option value="tenaga pendidik" {{ old('ketugasan', $tp->ketugasan) == 'tenaga pendidik' ? 'selected' : '' }}>Tenaga Pendidik</option>
+                                                    <option value="penjaga sekolah" {{ old('ketugasan', $tp->ketugasan) == 'penjaga sekolah' ? 'selected' : '' }}>Penjaga Sekolah</option>
                                                     <option value="kepala madrasah/sekolah" {{ old('ketugasan', $tp->ketugasan) == 'kepala madrasah/sekolah' ? 'selected' : '' }}>Kepala Madrasah/Sekolah</option>
                                                 </select>
                                             </div>
@@ -557,6 +558,7 @@
                         <select name="ketugasan" class="form-control">
                             <option value="">-- Pilih Ketugasan --</option>
                             <option value="tenaga pendidik">Tenaga Pendidik</option>
+                            <option value="penjaga sekolah">Penjaga Sekolah</option>
                             <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
                         </select>
                     </div>

@@ -371,7 +371,21 @@
     </div>
 
     <!-- Status Card -->
-    @if($isHoliday)
+    @php
+        $user = Auth::user();
+        $isPenjagaSekolah = $user->ketugasan === 'penjaga sekolah';
+
+        // For penjaga sekolah, check for any open presensi regardless of date
+        if ($isPenjagaSekolah) {
+            $openPresensi = \App\Models\Presensi::where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->orderBy('tanggal', 'desc')
+                ->first();
+        }
+    @endphp
+
+    @if($isHoliday && !$isPenjagaSekolah)
     <div class="alert-custom warning">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -384,7 +398,7 @@
         </div>
     </div>
 
-    @elseif($presensiHariIni && $presensiHariIni->count() > 0)
+    @elseif(($presensiHariIni && $presensiHariIni->count() > 0) || ($isPenjagaSekolah && isset($openPresensi)))
     <div class="status-card success">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -392,28 +406,37 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                @foreach($presensiHariIni as $presensi)
-                <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                    <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }}</small>
-                    @if($presensi->waktu_masuk)
-                    <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
-                    @if($presensi->waktu_keluar)
-                    <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
-                    @else
-                    <p class="mb-0 text-muted">Belum presensi keluar</p>
-                    @endif
-                    @else
-                    <p class="mb-1">Masuk: <strong>-</strong></p>
-                    <p class="mb-0 text-muted">Belum presensi masuk</p>
-                    @endif
-                </div>
-                @endforeach
-                @if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count())
-                <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
-                    <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
-                </div>
+                @if($isPenjagaSekolah && isset($openPresensi))
+                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                        <small class="text-white-50">{{ $openPresensi->madrasah?->name ?? 'Madrasah' }}</small>
+                        <p class="mb-1">Masuk: <strong>{{ $openPresensi->waktu_masuk->format('H:i') }}</strong> ({{ \Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y') }})</p>
+                        <p class="mb-0 text-muted">Belum presensi keluar</p>
+                    </div>
+                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
                 @else
-                <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    @foreach($presensiHariIni as $presensi)
+                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                        <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }}</small>
+                        @if($presensi->waktu_masuk)
+                        <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
+                        @if($presensi->waktu_keluar)
+                        <p class="mb-0">Keluar: <strong>{{ $presensi->waktu_keluar->format('H:i') }}</strong></p>
+                        @else
+                        <p class="mb-0 text-muted">Belum presensi keluar</p>
+                        @endif
+                        @else
+                        <p class="mb-1">Masuk: <strong>-</strong></p>
+                        <p class="mb-0 text-muted">Belum presensi masuk</p>
+                        @endif
+                    </div>
+                    @endforeach
+                    @if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count())
+                    <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
+                        <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
+                    </div>
+                    @else
+                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                    @endif
                 @endif
             </div>
         </div>
@@ -426,7 +449,15 @@
             <div class="status-icon">
                 <i class="bx bx-{{ $presensiHariIni ? 'log-out-circle' : 'log-in-circle' }}"></i>
             </div>
-        <h6 class="section-title mb-0">{{ ($presensiHariIni && $presensiHariIni->count() > 0) ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
+        @php
+            $showKeluar = false;
+            if ($isPenjagaSekolah && isset($openPresensi)) {
+                $showKeluar = true;
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $showKeluar = $presensiHariIni->where('waktu_keluar', null)->count() > 0;
+            }
+        @endphp
+        <h6 class="section-title mb-0">{{ $showKeluar ? 'Presensi Keluar' : 'Presensi Masuk' }}</h6>
         </div>
 
     <!-- Location Status -->
@@ -500,12 +531,32 @@
         </div>
 
         <!-- Presensi Button -->
+        @php
+            $isDisabled = false;
+            $buttonText = 'Ambil Selfie';
+            $buttonIcon = 'check-circle';
+
+            if ($isPenjagaSekolah) {
+                // For penjaga sekolah, always allow presensi
+                $isDisabled = false;
+                $buttonText = isset($openPresensi) ? 'Presensi Keluar' : 'Presensi Masuk';
+            } elseif ($isHoliday) {
+                $isDisabled = true;
+                $buttonText = 'Hari Libur - Presensi Ditutup';
+                $buttonIcon = 'calendar-x';
+            } elseif ($presensiHariIni && $presensiHariIni->count() > 0) {
+                $allComplete = $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count();
+                $isDisabled = $allComplete;
+                $buttonText = $allComplete ? 'Presensi Lengkap' : 'Presensi Keluar';
+            }
+        @endphp
+
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
                 disabled
-                {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
-            <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Ambil Selfie' }}
+                {{ $isDisabled ? 'disabled' : '' }}>
+            <i class="bx bx-{{ $buttonIcon }} me-1"></i>
+            {{ $buttonText }}
         </button>
 
         <!-- Submit Button (hidden initially) -->
@@ -518,7 +569,22 @@
     </div>
 
     <!-- Time Information -->
-    @if(isset($timeRanges) && $timeRanges)
+    @if($isPenjagaSekolah)
+    <div class="schedule-section">
+        <div class="d-flex align-items-center mb-2">
+            <div class="status-icon">
+                <i class="bx bx-calendar-check"></i>
+            </div>
+            <h6 class="section-title mb-0">Jadwal Presensi Penjaga Sekolah</h6>
+        </div>
+        <div class="alert-custom info">
+            <small>
+                <i class="bx bx-info-circle me-1"></i>
+                <strong>Penjaga Sekolah:</strong> Dapat melakukan presensi masuk dan keluar kapan saja dalam 24 jam. Presensi keluar dapat dilakukan pada tanggal berbeda dengan presensi masuk.
+            </small>
+        </div>
+    </div>
+    @elseif(isset($timeRanges) && $timeRanges)
     <div class="schedule-section">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">

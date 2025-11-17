@@ -42,7 +42,7 @@ class TenagaPendidikController extends Controller
             'password' => 'required|string|min:6',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
-            'ketugasan' => 'nullable|in:tenaga pendidik,kepala madrasah/sekolah',
+            'ketugasan' => 'nullable|in:tenaga pendidik,penjaga sekolah,kepala madrasah/sekolah',
             'mengajar' => 'nullable|string|max:255',
         ]);
 
@@ -102,7 +102,7 @@ class TenagaPendidikController extends Controller
             'password' => 'nullable|string|min:6',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'madrasah_id' => 'nullable|exists:madrasahs,id',
-            'ketugasan' => 'nullable|in:tenaga pendidik,kepala madrasah/sekolah',
+            'ketugasan' => 'nullable|in:tenaga pendidik,penjaga sekolah,kepala madrasah/sekolah',
             'mengajar' => 'nullable|string|max:255',
         ]);
 

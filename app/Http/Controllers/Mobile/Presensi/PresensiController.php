@@ -192,51 +192,64 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
-        // Check if time is after 22:00 - mark as alpha
-        if ($now->format('H:i:s') > '22:00:00') {
-            // Check if user already has presensi for today
-            $existingPresensi = Presensi::where('user_id', $user->id)
-                ->whereDate('tanggal', $tanggal)
-                ->first();
+        // Special handling for penjaga sekolah - no time restrictions
+        if ($user->ketugasan !== 'penjaga sekolah') {
+            // Check if time is after 22:00 - mark as alpha (only for non-penjaga sekolah)
+            if ($now->format('H:i:s') > '22:00:00') {
+                // Check if user already has presensi for today
+                $existingPresensi = Presensi::where('user_id', $user->id)
+                    ->whereDate('tanggal', $tanggal)
+                    ->first();
 
-            if (!$existingPresensi) {
-                // Create alpha record without saving selfie
-                Presensi::create([
-                    'user_id' => $user->id,
-                    'tanggal' => $tanggal,
-                    'status' => 'alpha',
-                    'keterangan' => 'Tidak masuk',
-                    'latitude' => $request->latitude,
-                    'longitude' => $request->longitude,
-                    'lokasi' => $request->lokasi,
-                    'accuracy' => $request->accuracy,
-                    'altitude' => $request->altitude,
-                    'speed' => $request->speed,
-                    'device_info' => $request->device_info,
-                    'location_readings' => $request->location_readings,
-                    'selfie_masuk_path' => null, // Don't save selfie for failed presensi
-                    'status_kepegawaian_id' => $user->status_kepegawaian_id,
-                ]);
+                if (!$existingPresensi) {
+                    // Create alpha record without saving selfie
+                    Presensi::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tanggal,
+                        'status' => 'alpha',
+                        'keterangan' => 'Tidak masuk',
+                        'latitude' => $request->latitude,
+                        'longitude' => $request->longitude,
+                        'lokasi' => $request->lokasi,
+                        'accuracy' => $request->accuracy,
+                        'altitude' => $request->altitude,
+                        'speed' => $request->speed,
+                        'device_info' => $request->device_info,
+                        'location_readings' => $request->location_readings,
+                        'selfie_masuk_path' => null, // Don't save selfie for failed presensi
+                        'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                    ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk.'
-                ], 400);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Presensi hari ini sudah dicatat.'
-                ], 400);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi setelah pukul 22:00 otomatis dicatat sebagai tidak masuk.'
+                    ], 400);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi hari ini sudah dicatat.'
+                    ], 400);
+                }
             }
         }
 
         // For all users, use main madrasah only (simplified logic)
         $determinedMadrasahId = $user->madrasah_id;
 
-        // Check existing presensi for today - only one per day for all users
-        $existingPresensi = Presensi::where('user_id', $user->id)
-            ->whereDate('tanggal', $tanggal)
-            ->first();
+        // Check existing presensi - different logic for penjaga sekolah
+        if ($user->ketugasan === 'penjaga sekolah') {
+            // For penjaga sekolah: check for any open presensi (masuk without keluar) regardless of date
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->orderBy('tanggal', 'desc')
+                ->first();
+        } else {
+            // For other users: check presensi for today only
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+        }
 
         // Check if user has pending izin terlambat for today - block presensi if pending
         $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
@@ -256,12 +269,22 @@ class PresensiController extends \App\Http\Controllers\Controller
 
 
         // Determine presensi type with additional checks
-        $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
-        $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+        if ($user->ketugasan === 'penjaga sekolah') {
+            // For penjaga sekolah: if there's an open presensi, this is keluar; otherwise masuk
+            $isPresensiMasuk = !$existingPresensi;
+            $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+        } else {
+            // For other users: standard logic
+            $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
+            $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+        }
 
         // Check if entry presensi is attempted before allowed time
         if ($isPresensiMasuk) {
-            if ($user->pemenuhan_beban_kerja_lain) {
+            if ($user->ketugasan === 'penjaga sekolah') {
+                // Penjaga sekolah: no time restrictions for presensi masuk
+                // Can presensi anytime 24 hours
+            } elseif ($user->pemenuhan_beban_kerja_lain) {
                 // User with beban kerja lain: presensi masuk 05:00 - 22:00
                 if ($now->format('H:i:s') < '05:00:00') {
                     return response()->json([
@@ -351,6 +374,11 @@ class PresensiController extends \App\Http\Controllers\Controller
             $waktuMasuk = $now;
             $waktuKeluar = null;
 
+            // For penjaga sekolah, use current date for tanggal
+            if ($user->ketugasan === 'penjaga sekolah') {
+                $tanggal = Carbon::today()->toDateString();
+            }
+
             // Check if user has approved izin terlambat for today
             $approvedIzinTerlambat = Presensi::where('user_id', $user->id)
                 ->whereDate('tanggal', $tanggal)
@@ -416,7 +444,10 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         } elseif ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)
-            if (!$user->pemenuhan_beban_kerja_lain) {
+            if ($user->ketugasan === 'penjaga sekolah') {
+                // Penjaga sekolah: no time restrictions for presensi keluar
+                // Can presensi anytime 24 hours
+            } elseif (!$user->pemenuhan_beban_kerja_lain) {
                 // User biasa: presensi keluar sesuai hari KBM
                 $pulangStart = '15:00:00'; // Default fallback
 
@@ -449,6 +480,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             // User with beban kerja lain: no time restriction for presensi keluar
 
             // Presensi Keluar - update existing record
+            // For penjaga sekolah, update the existing open presensi record
             $existingPresensi->update([
                 'waktu_keluar' => $now,
                 'latitude_keluar' => $request->latitude,
