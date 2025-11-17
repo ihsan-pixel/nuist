@@ -106,7 +106,21 @@
                             </div>
                         </div>
                         <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div id="map" style="height: 100%; width: 100%; border-radius: 12px;"></div>
+                            @if($madrasahData->map_link)
+                                <iframe src="{{ $madrasahData->map_link }}" style="height: 100%; width: 100%; border-radius: 12px; border: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            @else
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-light text-muted rounded-circle">
+                                            <i class="mdi mdi-map-marker-off fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted mb-2">Link Map belum tersedia</h6>
+                                    <p class="text-muted text-center small px-3">
+                                        Link Google Maps belum diisi untuk menampilkan peta
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -174,7 +188,21 @@
                             </div>
                         </div>
                         <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div id="foundation-map" style="height: 100%; width: 100%; border-radius: 12px;"></div>
+                            @if($foundationData->map_link)
+                                <iframe src="{{ $foundationData->map_link }}" style="height: 100%; width: 100%; border-radius: 12px; border: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            @else
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-light text-muted rounded-circle">
+                                            <i class="mdi mdi-map-marker-off fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted mb-2">Link Map belum tersedia</h6>
+                                    <p class="text-muted text-center small px-3">
+                                        Link Google Maps belum diisi untuk menampilkan peta
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -990,9 +1018,7 @@
 <!-- apexcharts -->
 <script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
-<!-- Leaflet CSS and JS for map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
 <style>
 .hover-lift {
@@ -1089,59 +1115,7 @@
             chart.render();
         }
 
-        // Initialize map with default center if no coordinates available
-        @if(isset($madrasahData))
-            @if($madrasahData->latitude && $madrasahData->longitude)
-                var map = L.map('map').setView([{{ $madrasahData->latitude }}, {{ $madrasahData->longitude }}], 15);
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-
-                var marker = L.marker([{{ $madrasahData->latitude }}, {{ $madrasahData->longitude }}])
-                    .addTo(map)
-                    .bindPopup('<b>{{ $madrasahData->name }}</b><br>{{ $madrasahData->alamat ?? "Alamat tidak tersedia" }}')
-                    .openPopup();
-            @else
-                var map = L.map('map').setView([-7.7956, 110.3695], 13);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-
-                var marker = L.marker([-7.7956, 110.3695])
-                    .addTo(map)
-                    .bindPopup('<b>{{ $madrasahData->name }}</b><br>{{ $madrasahData->alamat ?? "Alamat tidak tersedia" }}<br><small>Koordinat belum diisi</small>')
-                    .openPopup();
-            @endif
-        @endif
-
-        // Initialize foundation map with default center if no coordinates available
-        @if(isset($foundationData))
-            @if($foundationData->latitude && $foundationData->longitude)
-                var foundationMap = L.map('foundation-map').setView([{{ $foundationData->latitude }}, {{ $foundationData->longitude }}], 15);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(foundationMap);
-
-                var foundationMarker = L.marker([{{ $foundationData->latitude }}, {{ $foundationData->longitude }}])
-                    .addTo(foundationMap)
-                    .bindPopup('<b>{{ $foundationData->name }}</b><br>{{ $foundationData->alamat ?? "Alamat tidak tersedia" }}')
-                    .openPopup();
-            @else
-                var foundationMap = L.map('foundation-map').setView([-7.7956, 110.3695], 13);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(foundationMap);
-
-                var foundationMarker = L.marker([-7.7956, 110.3695])
-                    .addTo(foundationMap)
-                    .bindPopup('<b>{{ $foundationData->name }}</b><br>{{ $foundationData->alamat ?? "Alamat tidak tersedia" }}<br><small>Koordinat belum diisi</small>')
-                    .openPopup();
-            @endif
-        @endif
     });
 </script>
 @endsection
