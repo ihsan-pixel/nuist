@@ -222,24 +222,14 @@
                 @endif
             </div>
 
-            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path) || (isset($izin->selfie_masuk_path) && $izin->selfie_masuk_path) || (isset($izin->selfie_keluar_path) && $izin->selfie_keluar_path))
+            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
             <div class="mb-3">
-                @if(isset($izin->surat_izin_path) && $izin->surat_izin_path)
-                <a href="{{ asset($izin->surat_izin_path) }}"
+                <a href="{{ asset('/storage' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
                    target="_blank"
-                   class="text-decoration-none d-block"
+                   class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
                     <i class="bx bx-file"></i> Lihat Surat Izin
                 </a>
-                @endif
-                @if(isset($izin->file_path) && $izin->file_path)
-                <a href="{{ asset($izin->file_path) }}"
-                   target="_blank"
-                   class="text-decoration-none d-block"
-                   style="color: #0e8549; font-size: 12px;">
-                    <i class="bx bx-file"></i> Lihat File Izin
-                </a>
-                @endif
             </div>
             @endif
 
