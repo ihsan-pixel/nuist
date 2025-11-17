@@ -106,6 +106,23 @@ Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
 });
 
+// Clear cache endpoint (accessible without authentication)
+Route::post('/clear-cache', function () {
+    try {
+        \Artisan::call('cache:clear');
+        \Artisan::call('config:clear');
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache berhasil dibersihkan'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal membersihkan cache: ' . $e->getMessage()
+        ], 500);
+    }
+})->name('clear-cache');
+
 // Email Verification Routes
 Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])->name('verification.verify');

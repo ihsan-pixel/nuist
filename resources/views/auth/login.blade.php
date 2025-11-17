@@ -83,6 +83,13 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
                 </form>
 
+                <!-- Update App Button (Clear Cache) -->
+                <div class="text-center mb-3">
+                    <button type="button" class="btn btn-link btn-sm text-muted update-app-btn" id="updateAppBtn" title="Update Aplikasi">
+                        <i class="mdi mdi-update"></i> Update Aplikasi
+                    </button>
+                </div>
+
                 <div class="footer-text">
                     <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Nuist. Crafted by LP. Ma'arif NU PWNU DIY</p>
                 </div>
@@ -302,6 +309,25 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
         font-size: 14px;
     }
 
+    .update-app-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+
+    .update-app-btn:hover {
+        color: #004b4c !important;
+        text-decoration: underline;
+    }
+
+    .update-app-btn i {
+        font-size: 14px;
+        margin-right: 4px;
+    }
+
     .illustration-content {
         text-align: center;
         max-width: 400px;
@@ -498,6 +524,67 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
+// Update App Button Handler
+document.getElementById('updateAppBtn').addEventListener('click', function() {
+    const button = this;
+    const originalText = button.innerHTML;
+
+    // Change button to loading state
+    button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Updating...';
+    button.disabled = true;
+
+    // Make AJAX call to clear cache
+    fetch('{{ route("clear-cache") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showToast('success', data.message);
+            // Reload page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showToast('error', data.message || 'Gagal update aplikasi');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Terjadi kesalahan saat update aplikasi');
+    })
+    .finally(() => {
+        // Reset button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+});
+
+// Toast notification function
+function showToast(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+    toast.innerHTML = `
+        <i class="bx bx-${type === 'success' ? 'check-circle' : 'error-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
 // ==== Force reload login page if cached by Service Worker ====
 if ('serviceWorker' in navigator) {
     // Pastikan login page tidak diambil dari cache
@@ -518,7 +605,7 @@ if ('serviceWorker' in navigator) {
 // ==== Disable browser back cache (bypass 419 issue) ====
 if (window.history && window.history.pushState) {
     window.history.pushState('forward', null, '');
-    window.onpopstate = function() {
+    window.onpopstate = function () {
         window.location.href = '/login';
     };
 }
