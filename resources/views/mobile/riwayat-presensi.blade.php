@@ -147,7 +147,6 @@
                             @if($presensi->keterangan)
                                 <div class="text-muted small">{{ $presensi->keterangan }}</div>
                             @endif
-
                         </div>
                         <div class="status-badge status-{{ $presensi->status }}">
                             {{ ucfirst($presensi->status) }}

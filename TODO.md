@@ -1,41 +1,8 @@
-# Izin Terlambat Implementation Plan
+# TODO: Implement Dual Presensi for Users with Beban Kerja Lain
 
-## Tasks
-- [x] Add popup alert after izin terlambat submission
-- [x] Block presensi when izin terlambat is pending
-- [x] Allow presensi with "terlambat sudah izin" status when approved
-- [x] Update izin terlambat view with reminder popup
-
-## Files to Edit
-- [x] app/Http/Controllers/Mobile/Izin/IzinController.php
-- [x] app/Http/Controllers/Mobile/Presensi/PresensiController.php
-- [x] resources/views/mobile/izin-terlambat.blade.php
-
-## Testing
-- [ ] Test izin submission flow
-- [ ] Test presensi blocking for pending izin
-- [ ] Test presensi with approved izin
-- [ ] Verify notifications work properly
-
-# Izin Tugas Luar Implementation Plan
-
-## Tasks
-- [x] Allow tugas_luar submission even with existing presensi masuk
-- [x] Auto-fill waktu_keluar on existing presensi when tugas_luar approved
-- [x] Add alert for pending izin submissions
-- [x] Update TODO.md with new tasks
-- [x] Allow tugas_luar submission even with existing presensi masuk
-- [x] Auto-fill waktu_keluar on existing presensi when tugas_luar approved
-- [x] Update TODO.md with new tasks
-
-## Files to Edit
-- [x] app/Http/Controllers/Mobile/Izin/IzinController.php
-- [x] app/Http/Controllers/IzinController.php
-- [x] TODO.md
-
-## Testing
-- [ ] Test tugas_luar submission with existing presensi masuk (now uses separate izins table)
-- [ ] Test approval flow and auto-fill waktu_keluar
-- [ ] Verify presensi status remains 'hadir' but waktu_keluar is filled
-- [ ] Test pending izin alert when trying to submit new izin (checks both tables)
-- [ ] Test izin management views show requests from both tables
+## Tasks:
+- [ ] Modify PresensiController::storePresensi() to determine madrasah based on polygon check and save madrasah_id
+- [ ] Allow multiple presensi per day for users with pemenuhan_beban_kerja_lain (up to 2 per day: one per madrasah)
+- [ ] Update riwayat presensi view to show madrasah name based on presensi.madrasah_id
+- [ ] Update PresensiAdminController monitoring to handle multiple presensi per user per day
+- [ ] Test the changes to ensure presensi works for both madrasahs

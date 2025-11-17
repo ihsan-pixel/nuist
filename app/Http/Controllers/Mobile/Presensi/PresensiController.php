@@ -47,11 +47,9 @@ class PresensiController extends \App\Http\Controllers\Controller
         $belumPresensi = collect();
         $mapData = [];
         if ($user->ketugasan === 'kepala madrasah/sekolah') {
-            // Get presensi data for the madrasah
-            $presensis = Presensi::with(['user', 'statusKepegawaian'])
-                ->whereHas('user', function ($q) use ($user) {
-                    $q->where('madrasah_id', $user->madrasah_id);
-                })
+            // Get presensi data for the madrasah (including users with dual presensi)
+            $presensis = Presensi::with(['user', 'statusKepegawaian', 'madrasah'])
+                ->where('madrasah_id', $user->madrasah_id)
                 ->whereDate('tanggal', $selectedDate)
                 ->orderBy('waktu_masuk', 'desc')
                 ->get();
@@ -110,7 +108,8 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         // Presensi of the current user for the selected date (all madrasahs for dual presensi)
         // Only get actual presensi records (status = 'hadir'), not izin records
-        $presensiHariIni = Presensi::where('user_id', $user->id)
+        $presensiHariIni = Presensi::with('madrasah')
+            ->where('user_id', $user->id)
             ->whereDate('tanggal', $selectedDate)
             ->where('status', 'hadir')
             ->get();
@@ -231,10 +230,84 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-        // Check if user already has presensi for today with stricter validation
-        $existingPresensi = Presensi::where('user_id', $user->id)
+        // Determine madrasah based on location for users with pemenuhan_beban_kerja_lain
+        $determinedMadrasahId = null;
+        if ($user->pemenuhan_beban_kerja_lain) {
+            // Check if location is within main madrasah polygon
+            $mainMadrasah = $user->madrasah;
+            $isInMainMadrasah = false;
+            if ($mainMadrasah && $mainMadrasah->polygon_koordinat) {
+                try {
+                    $polygonGeometry = json_decode($mainMadrasah->polygon_koordinat, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isInMainMadrasah = true;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Skip if invalid polygon
+                }
+            }
+
+            // Check if location is within additional madrasah polygon
+            $additionalMadrasah = $user->madrasahTambahan;
+            $isInAdditionalMadrasah = false;
+            if ($additionalMadrasah && $additionalMadrasah->polygon_koordinat) {
+                try {
+                    $polygonGeometry = json_decode($additionalMadrasah->polygon_koordinat, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isInAdditionalMadrasah = true;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Skip if invalid polygon
+                }
+            }
+
+            // Determine madrasah based on location
+            if ($isInMainMadrasah) {
+                $determinedMadrasahId = $user->madrasah_id;
+            } elseif ($isInAdditionalMadrasah) {
+                $determinedMadrasahId = $user->madrasah_id_tambahan;
+            } else {
+                // If not in any polygon, default to main madrasah
+                $determinedMadrasahId = $user->madrasah_id;
+            }
+        } else {
+            // For regular users, use main madrasah
+            $determinedMadrasahId = $user->madrasah_id;
+        }
+
+        // Check existing presensi for today - allow multiple for users with beban kerja lain
+        $existingPresensis = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
-            ->first();
+            ->get();
+
+        // For users with beban kerja lain, allow up to 2 presensi per day (one per madrasah)
+        if ($user->pemenuhan_beban_kerja_lain) {
+            // Check if already have presensi for this madrasah
+            $existingForThisMadrasah = $existingPresensis->where('madrasah_id', $determinedMadrasahId)->first();
+
+            if ($existingForThisMadrasah) {
+                // If already have presensi for this madrasah, use that record
+                $existingPresensi = $existingForThisMadrasah;
+            } else {
+                // If not, check if we already have 2 presensi (limit)
+                if ($existingPresensis->count() >= 2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda sudah melakukan presensi di 2 madrasah hari ini. Presensi hari ini sudah lengkap.'
+                    ], 400);
+                }
+                $existingPresensi = null; // New presensi for this madrasah
+            }
+        } else {
+            // For regular users, only one presensi per day
+            $existingPresensi = $existingPresensis->first();
+        }
 
         // Check if user has pending izin terlambat for today - block presensi if pending
         $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
@@ -380,6 +453,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             // Create new presensi record
             $presensi = Presensi::create([
                 'user_id' => $user->id,
+                'madrasah_id' => $determinedMadrasahId,
                 'tanggal' => $tanggal,
                 'waktu_masuk' => $waktuMasuk,
                 'waktu_keluar' => $waktuKeluar,
@@ -480,6 +554,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
             ->orderBy('tanggal', 'desc')
+            ->orderBy('waktu_masuk', 'desc')
             ->get();
 
         return view('mobile.riwayat-presensi', compact('presensiHistory'));
