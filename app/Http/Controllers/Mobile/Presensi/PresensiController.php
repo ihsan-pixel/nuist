@@ -97,8 +97,10 @@ class PresensiController extends \App\Http\Controllers\Controller
         $holiday = $isHoliday ? Holiday::getHoliday($dateString) : null;
 
         // Presensi of the current user for the selected date (all madrasahs for dual presensi)
+        // Only get actual presensi records (status = 'hadir'), not izin records
         $presensiHariIni = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $selectedDate)
+            ->where('status', 'hadir')
             ->get();
 
 
