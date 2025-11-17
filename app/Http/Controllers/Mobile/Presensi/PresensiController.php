@@ -589,7 +589,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * Process and save selfie image with compression
+     * Process and save selfie image
      * @param string $selfieData Base64 image data
      * @param int $userId User ID
      * @param string $tanggal Date string
@@ -599,27 +599,44 @@ class PresensiController extends \App\Http\Controllers\Controller
     private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
     {
         try {
-            // For now, just save the base64 data directly without processing
-            // This will allow presensi to work while we debug the image processing
+            // Path to public_html/storage/presensi-selfie using DOCUMENT_ROOT for production compatibility
+            $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/presensi-selfie';
 
-            // Create directory structure: presensi-selfies/YYYY-MM-DD
-            $datePath = Carbon::parse($tanggal)->format('Y-m-d');
-            $directory = "presensi-selfies/{$datePath}";
-
-            // Ensure directory exists
-            Storage::disk('public')->makeDirectory($directory);
+            // Pastikan folder sudah ada
+            if (!file_exists($path)) {
+                mkdir($path, 0755, true);
+            }
 
             // Generate filename
             $type = $isMasuk ? 'masuk' : 'keluar';
             $timestamp = time();
-            $filename = "selfie_{$userId}_{$type}_{$timestamp}.jpg";
-            $fullPath = "{$directory}/{$filename}";
+            $namaFile = "selfie_{$userId}_{$type}_{$timestamp}.jpg";
 
-            // Save the base64 image directly (remove data URL prefix)
+            // Decode base64 image data
             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
-            Storage::disk('public')->put($fullPath, $imageData);
 
-            return $fullPath;
+            // Save to temporary file first
+            $tempFile = tempnam(sys_get_temp_dir(), 'selfie');
+            file_put_contents($tempFile, $imageData);
+
+            // Create file instance and move to destination
+            $file = new \Illuminate\Http\UploadedFile(
+                $tempFile,
+                $namaFile,
+                'image/jpeg',
+                null,
+                true
+            );
+
+            $file->move($path, $namaFile);
+
+            // Clean up temp file
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+
+            // Return path yang disimpan ke database
+            return 'storage/presensi-selfie/' . $namaFile;
 
         } catch (\Exception $e) {
             // Log error and return empty string - presensi should still work even if image processing fails

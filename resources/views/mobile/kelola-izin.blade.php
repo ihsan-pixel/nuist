@@ -222,14 +222,40 @@
                 @endif
             </div>
 
-            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
+            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path) || (isset($izin->selfie_masuk_path) && $izin->selfie_masuk_path) || (isset($izin->selfie_keluar_path) && $izin->selfie_keluar_path))
             <div class="mb-3">
-                <a href="{{ asset('/' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
+                @if(isset($izin->surat_izin_path) && $izin->surat_izin_path)
+                <a href="{{ asset($izin->surat_izin_path) }}"
                    target="_blank"
-                   class="text-decoration-none"
+                   class="text-decoration-none d-block"
                    style="color: #0e8549; font-size: 12px;">
                     <i class="bx bx-file"></i> Lihat Surat Izin
                 </a>
+                @endif
+                @if(isset($izin->file_path) && $izin->file_path)
+                <a href="{{ asset($izin->file_path) }}"
+                   target="_blank"
+                   class="text-decoration-none d-block"
+                   style="color: #0e8549; font-size: 12px;">
+                    <i class="bx bx-file"></i> Lihat File Izin
+                </a>
+                @endif
+                @if(isset($izin->selfie_masuk_path) && $izin->selfie_masuk_path)
+                <a href="{{ asset($izin->selfie_masuk_path) }}"
+                   target="_blank"
+                   class="text-decoration-none d-block"
+                   style="color: #0e8549; font-size: 12px;">
+                    <i class="bx bx-camera"></i> Lihat Selfie Masuk
+                </a>
+                @endif
+                @if(isset($izin->selfie_keluar_path) && $izin->selfie_keluar_path)
+                <a href="{{ asset($izin->selfie_keluar_path) }}"
+                   target="_blank"
+                   class="text-decoration-none d-block"
+                   style="color: #0e8549; font-size: 12px;">
+                    <i class="bx bx-camera"></i> Lihat Selfie Keluar
+                </a>
+                @endif
             </div>
             @endif
 
