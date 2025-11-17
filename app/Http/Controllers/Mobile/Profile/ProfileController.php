@@ -82,7 +82,7 @@ class ProfileController extends \App\Http\Controllers\Controller
             $filename = time() . '_' . $user->id . '.' . $request->file('avatar')->getClientOriginalExtension();
             $request->file('avatar')->move($uploadDir, $filename);
 
-            $user->avatar = 'uploads/' . $filename;
+            $user->avatar = 'avatars/' . $filename;
             $user->save();
         }
 
