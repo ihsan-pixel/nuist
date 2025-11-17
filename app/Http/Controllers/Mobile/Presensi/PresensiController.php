@@ -37,7 +37,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->first();
 
         if ($pendingIzinTerlambat) {
-            abort(403, 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.');
+            return redirect()->back()->with('error', 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.');
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
