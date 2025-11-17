@@ -114,6 +114,18 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->where('status', 'hadir')
             ->get();
 
+        // For penjaga sekolah, if no presensi for today, show the last presensi to display status
+        if ($user->ketugasan === 'penjaga sekolah' && $presensiHariIni->isEmpty()) {
+            $lastPresensi = Presensi::with('madrasah')
+                ->where('user_id', $user->id)
+                ->where('status', 'hadir')
+                ->orderBy('tanggal', 'desc')
+                ->first();
+            if ($lastPresensi) {
+                $presensiHariIni = collect([$lastPresensi]);
+            }
+        }
+
 
 
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)

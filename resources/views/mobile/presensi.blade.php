@@ -416,7 +416,7 @@
                 @else
                     @foreach($presensiHariIni as $presensi)
                     <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                        <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }}</small>
+                        <small class="text-white-50">{{ $presensi->madrasah?->name ?? 'Madrasah' }} ({{ \Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y') }})</small>
                         @if($presensi->waktu_masuk)
                         <p class="mb-1">Masuk: <strong>{{ $presensi->waktu_masuk->format('H:i') }}</strong></p>
                         @if($presensi->waktu_keluar)
