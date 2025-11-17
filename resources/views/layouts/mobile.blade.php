@@ -355,7 +355,7 @@
                 <div class="d-flex align-items-center">
                     <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
-                        <small class="text-muted">Selamat Datang,</small>
+                        <small class="text-muted">Selamat Datang</small>
                         <h6 class="mb-0 fw-bold">{{ Auth::user()->name }}</h6>
                     </div>
                 </div>
