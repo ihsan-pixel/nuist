@@ -65,13 +65,24 @@ class ProfileController extends \App\Http\Controllers\Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            // delete old avatar if exists
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+            $path = $_SERVER['DOCUMENT_ROOT'];
+            $uploadDir = $path . '/storage/avatars/';
+
+            // Ensure the directory exists
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
             }
 
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
+            // delete old avatar if exists
+            if ($user->avatar && file_exists($path . '/' . $user->avatar)) {
+                unlink($path . '/' . $user->avatar);
+            }
+
+            // Generate unique filename
+            $filename = time() . '_' . $user->id . '.' . $request->file('avatar')->getClientOriginalExtension();
+            $request->file('avatar')->move($uploadDir, $filename);
+
+            $user->avatar = 'uploads/' . $filename;
             $user->save();
         }
 
