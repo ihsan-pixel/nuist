@@ -286,7 +286,19 @@ class IzinController extends \App\Http\Controllers\Controller
             $izinTableRequests = $izinTableQuery->get();
 
             // Combine and sort by tanggal desc
-            $izinRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal')->paginate(10);
+            $combinedRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');
+
+            // Manual pagination for combined collection
+            $perPage = 10;
+            $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+            $items = $combinedRequests->forPage($currentPage, $perPage);
+            $izinRequests = new \Illuminate\Pagination\LengthAwarePaginator(
+                $items,
+                $combinedRequests->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'pageName' => 'page']
+            );
 
             return view('mobile.kelola-izin', compact('izinRequests'));
         }
@@ -310,7 +322,19 @@ class IzinController extends \App\Http\Controllers\Controller
             $izinTableRequests = $izinTableQuery->get();
 
             // Combine and sort by tanggal desc
-            $izinRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal')->paginate(10);
+            $combinedRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');
+
+            // Manual pagination for combined collection
+            $perPage = 10;
+            $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+            $items = $combinedRequests->forPage($currentPage, $perPage);
+            $izinRequests = new \Illuminate\Pagination\LengthAwarePaginator(
+                $items,
+                $combinedRequests->count(),
+                $perPage,
+                $currentPage,
+                ['path' => request()->url(), 'pageName' => 'page']
+            );
 
             return view('mobile.kelola-izin', compact('izinRequests'));
         }
