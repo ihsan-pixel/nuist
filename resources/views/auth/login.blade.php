@@ -83,7 +83,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
                 </form>
 
-                <button id="clearNuistCache" class="btn btn-warning">Perbaiki Aplikasi (Clear Cache NUIST)</button>
+                {{-- <button id="clearNuistCache" class="btn btn-warning">Perbaiki Aplikasi (Clear Cache NUIST)</button> --}}
 
                 <!-- Clear Cache Button -->
                 {{-- <button id="clearNuistCache" class="btn btn-warning btn-block">
