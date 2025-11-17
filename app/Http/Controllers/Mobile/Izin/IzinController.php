@@ -13,7 +13,7 @@ class IzinController extends \App\Http\Controllers\Controller
     private function uploadSuratIzin($file)
     {
         // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
-        $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/surat_izin';
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/surat_izin';
 
         // Pastikan folder sudah ada
         if (!file_exists($path)) {

@@ -600,7 +600,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     {
         try {
             // Path to public_html/storage/presensi-selfie using DOCUMENT_ROOT for production compatibility
-            $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/presensi-selfie';
+            $path = $_SERVER['DOCUMENT_ROOT'] . '/presensi-selfie';
 
             // Pastikan folder sudah ada
             if (!file_exists($path)) {
