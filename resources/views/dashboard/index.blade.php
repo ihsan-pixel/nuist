@@ -107,19 +107,19 @@
                         </div>
                         <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
                             @if($madrasahData->latitude && $madrasahData->longitude)
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $madrasahData->longitude }}!3d{{ $madrasahData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($madrasahData->name) }}!2z{{ $madrasahData->latitude }},{{ $madrasahData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $madrasahData->longitude }}!3d{{ $madrasahData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($madrasahData->name) }}!2z{{ $madrasahData->latitude }},{{ $madrasahData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid&q={{ $madrasahData->latitude }},{{ $madrasahData->longitude }}"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
                                         loading="lazy"
                                         referrerpolicy="no-referrer-when-downgrade">
                                 </iframe>
-                                @if($madrasahData->map_link)
+                                {{-- @if($madrasahData->map_link)
                                 <div class="position-absolute top-0 end-0 p-2">
                                     <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-success btn-sm shadow-sm">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Buka Peta Lengkap
                                     </a>
-                                </div>
+                                </div> --}}
                                 @endif
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
@@ -208,7 +208,7 @@
                         </div>
                         <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
                             @if($foundationData->latitude && $foundationData->longitude)
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $foundationData->longitude }}!3d{{ $foundationData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($foundationData->name) }}!2z{{ $foundationData->latitude }},{{ $foundationData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid"
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d{{ $foundationData->longitude }}!3d{{ $foundationData->latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s{{ urlencode($foundationData->name) }}!2z{{ $foundationData->latitude }},{{ $foundationData->longitude }}!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid&q={{ $foundationData->latitude }},{{ $foundationData->longitude }}"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
                                         loading="lazy"
