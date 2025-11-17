@@ -152,7 +152,12 @@ class IzinController extends \App\Http\Controllers\Controller
         ]);
 
         if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Izin berhasil diajukan dan menunggu persetujuan.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Izin berhasil diajukan dan menunggu persetujuan.',
+                'type' => $type,
+                'tanggal' => $tanggal
+            ]);
         }
 
         return redirect()->route('mobile.riwayat-presensi')->with('success', 'Izin berhasil diajukan dan menunggu persetujuan.');

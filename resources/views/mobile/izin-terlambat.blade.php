@@ -106,8 +106,23 @@
             contentType: false,
             success: function(res){
                 if(res.success){
-                    Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message || 'Izin terlambat berhasil diajukan.' }).then(function(){
-                        window.location.href = '{{ route("mobile.riwayat-presensi") }}';
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: res.message || 'Izin terlambat berhasil diajukan.',
+                        confirmButtonText: 'OK'
+                    }).then(function(){
+                        // Show additional reminder popup for izin terlambat
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Penting!',
+                            html: '<strong>Pengingat:</strong><br>Jika izin terlambat Anda disetujui oleh kepala sekolah, segera lakukan presensi setelah sampai di sekolah untuk menghindari status alpha.',
+                            confirmButtonText: 'Mengerti',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(function(){
+                            window.location.href = '{{ route("mobile.riwayat-presensi") }}';
+                        });
                     });
                 } else {
                     Swal.fire({ icon: 'error', title: 'Gagal', text: res.message || 'Surat gagal terkirim.' });

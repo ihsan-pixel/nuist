@@ -222,6 +222,21 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $tanggal)
             ->first();
 
+        // Check if user has pending izin terlambat for today - block presensi if pending
+        $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', $tanggal)
+            ->where('status', 'izin')
+            ->where('status_izin', 'pending')
+            ->where('keterangan', 'like', '%terlambat%')
+            ->first();
+
+        if ($pendingIzinTerlambat) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.'
+            ], 400);
+        }
+
 
 
         // Determine presensi type with additional checks
@@ -306,9 +321,20 @@ class PresensiController extends \App\Http\Controllers\Controller
             $waktuMasuk = $now;
             $waktuKeluar = null;
 
+            // Check if user has approved izin terlambat for today
+            $approvedIzinTerlambat = Presensi::where('user_id', $user->id)
+                ->whereDate('tanggal', $tanggal)
+                ->where('status', 'izin')
+                ->where('status_izin', 'approved')
+                ->where('keterangan', 'like', '%terlambat%')
+                ->first();
+
             // Calculate lateness - only set keterangan if late (after 07:00)
             $keterangan = "";
-            if ($user->pemenuhan_beban_kerja_lain) {
+            if ($approvedIzinTerlambat) {
+                // If has approved izin terlambat, mark as "terlambat sudah izin"
+                $keterangan = "terlambat sudah izin";
+            } elseif ($user->pemenuhan_beban_kerja_lain) {
                 $keterangan = "tidak terlambat";
             } else {
                 // Jika waktu presensi setelah 07:00, hitung keterlambatan
