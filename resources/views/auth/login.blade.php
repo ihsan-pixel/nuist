@@ -83,6 +83,8 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
                 </form>
 
+                <button id="clearNuistCache" class="btn btn-warning">Perbaiki Aplikasi (Clear Cache NUIST)</button>
+
                 <!-- Clear Cache Button -->
                 {{-- <button id="clearNuistCache" class="btn btn-warning btn-block">
                     Perbaiki Aplikasi (Clear Cache)
@@ -640,52 +642,39 @@ if (window.history && window.history.pushState) {
     };
 }
 
-// Clear Cache Script
+</script>
+
+
+<script>
 document.getElementById('clearNuistCache').addEventListener('click', async () => {
-
-    // CLEAR CACHE STORAGE (khusus domain ini)
-    if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(cache => caches.delete(cache)));
-        console.log("Cache Storage NUIST cleared");
-    }
-
-    // UNREGISTER SERVICE WORKER (khusus domain ini)
-    if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (let reg of registrations) {
-            await reg.unregister();
+    try {
+        if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+            console.log('Deleted caches:', keys);
         }
-        console.log("Service worker NUIST unregistered");
-    }
-
-    // DELETE INDEXEDDB (jika ada dalam PWA NUIST)
-    if (window.indexedDB) {
-        const databases = await window.indexedDB.databases();
-        for (let db of databases) {
-            window.indexedDB.deleteDatabase(db.name);
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (let r of regs) {
+                await r.unregister();
+            }
+            console.log('Unregistered SWs:', regs.length);
         }
-        console.log("IndexedDB NUIST deleted");
+        if (window.indexedDB && indexedDB.databases) {
+            const dbs = await indexedDB.databases();
+            for (let d of dbs) {
+                if (d.name) indexedDB.deleteDatabase(d.name);
+            }
+            console.log('Deleted IndexedDB:', dbs);
+        }
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('Cache NUIST dibersihkan — akan dimuat ulang.');
+        window.location.reload();
+    } catch (e) {
+        console.error(e);
+        alert('Gagal membersihkan: ' + e.message);
     }
-
-    // HAPUS LOCALSTORAGE DAN SESSIONSTORAGE (khusus domain ini)
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // KONFIRMASI
-    alert("Cache aplikasi berhasil dibersihkan!\nAplikasi akan dimuat ulang.");
-
-    // RELOAD HARD
-    window.location.href = "/login";
-});
-
-// ==== Force reload on focus (jaga session token) ====
-window.addEventListener('focus', () => {
-    fetch('/csrf-token')
-        .then(response => response.json())
-        .then(data => {
-            document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.token);
-        });
 });
 </script>
 
