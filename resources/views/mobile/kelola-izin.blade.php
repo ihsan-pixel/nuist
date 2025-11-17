@@ -224,7 +224,7 @@
 
             @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
             <div class="mb-3">
-                <a href="{{ asset('storage/' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
+                <a href="{{ asset('/' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
                    target="_blank"
                    class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
