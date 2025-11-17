@@ -107,7 +107,21 @@
                         </div>
                         <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             @if($madrasahData->map_link)
-                                <iframe src="{{ $madrasahData->map_link }}" style="height: 100%; width: 100%; border-radius: 12px; border: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                            <i class="mdi mdi-map-marker fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-success mb-2">Link Map Tersedia</h6>
+                                    <p class="text-muted text-center small px-3 mb-3">
+                                        Link Google Maps telah diisi dan dapat diakses
+                                    </p>
+                                    <a href="{{ $madrasahData->map_link }}" target="_blank" class="btn btn-success btn-sm">
+                                        <i class="mdi mdi-google-maps me-1"></i>
+                                        Buka di Google Maps
+                                    </a>
+                                </div>
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
@@ -189,7 +203,21 @@
                         </div>
                         <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             @if($foundationData->map_link)
-                                <iframe src="{{ $foundationData->map_link }}" style="height: 100%; width: 100%; border-radius: 12px; border: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
+                                    <div class="avatar-lg mb-3">
+                                        <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
+                                            <i class="mdi mdi-map-marker fs-1"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-success mb-2">Link Map Tersedia</h6>
+                                    <p class="text-muted text-center small px-3 mb-3">
+                                        Link Google Maps telah diisi dan dapat diakses
+                                    </p>
+                                    <a href="{{ $foundationData->map_link }}" target="_blank" class="btn btn-success btn-sm">
+                                        <i class="mdi mdi-google-maps me-1"></i>
+                                        Buka di Google Maps
+                                    </a>
+                                </div>
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
