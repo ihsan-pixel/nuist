@@ -50,7 +50,8 @@
 }
 .user-detail-link, .madrasah-detail-link {
     color: #0d6efd;
-    text-decoration: none;
+    text-decoration: underline;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 .user-detail-link:hover, .madrasah-detail-link:hover {
