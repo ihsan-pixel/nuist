@@ -349,13 +349,6 @@
 
 @section('script')
 <script>
-    let deferredPrompt;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
-
     document.getElementById('install-pwa-btn').addEventListener('click', (e) => {
         e.preventDefault();
         if (deferredPrompt) {
