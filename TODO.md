@@ -16,3 +16,20 @@
 - [ ] Test presensi blocking for pending izin
 - [ ] Test presensi with approved izin
 - [ ] Verify notifications work properly
+
+# Izin Tugas Luar Implementation Plan
+
+## Tasks
+- [x] Allow tugas_luar submission even with existing presensi masuk
+- [x] Auto-fill waktu_keluar on existing presensi when tugas_luar approved
+- [x] Update TODO.md with new tasks
+
+## Files to Edit
+- [x] app/Http/Controllers/Mobile/Izin/IzinController.php
+- [x] app/Http/Controllers/IzinController.php
+- [x] TODO.md
+
+## Testing
+- [ ] Test tugas_luar submission with existing presensi masuk
+- [ ] Test approval flow and auto-fill waktu_keluar
+- [ ] Verify presensi status remains 'hadir' but waktu_keluar is filled

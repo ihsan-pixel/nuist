@@ -36,8 +36,8 @@ class IzinController extends \App\Http\Controllers\Controller
         $keterangan = '';
         $tanggal = $request->input('tanggal');
 
-        // Prevent duplicate presensi records on same date
-        if ($tanggal) {
+        // Prevent duplicate presensi records on same date, except for tugas_luar which can be submitted even with existing presensi masuk
+        if ($tanggal && $type !== 'tugas_luar') {
             $existing = Presensi::where('user_id', $user->id)->where('tanggal', $tanggal)->first();
             if ($existing) {
                 $msg = 'Anda sudah memiliki catatan kehadiran pada tanggal ini.';

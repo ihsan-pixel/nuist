@@ -88,6 +88,34 @@ class IzinController extends Controller
             'approved_by' => Auth::id(),
         ]);
 
+        // If this is a tugas_luar approval, auto-fill waktu_keluar on existing presensi record
+        if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
+            // Find existing presensi record for the same date and user with status 'hadir'
+            $existingPresensi = Presensi::where('user_id', $presensi->user_id)
+                ->where('tanggal', $presensi->tanggal)
+                ->where('status', 'hadir')
+                ->first();
+
+            if ($existingPresensi && !$existingPresensi->waktu_keluar) {
+                // Extract waktu_keluar from izin keterangan (format: "deskripsi\nLokasi: lokasi\nWaktu: masuk - keluar")
+                $lines = explode('\n', $presensi->keterangan);
+                $waktuLine = collect($lines)->first(function ($line) {
+                    return str_starts_with($line, 'Waktu:');
+                });
+
+                if ($waktuLine) {
+                    $waktuParts = explode(' - ', str_replace('Waktu: ', '', $waktuLine));
+                    if (count($waktuParts) === 2) {
+                        $waktuKeluar = trim($waktuParts[1]);
+                        // Update existing presensi with waktu_keluar
+                        $existingPresensi->update([
+                            'waktu_keluar' => $presensi->tanggal . ' ' . $waktuKeluar . ':00',
+                        ]);
+                    }
+                }
+            }
+        }
+
         // If this is a cuti approval, create presensi records for each day in the range
         if (str_contains($presensi->keterangan, 'Tanggal:')) {
             // Extract date range from keterangan (format: "alasan\nTanggal: start sampai end")
