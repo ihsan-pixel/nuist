@@ -28,6 +28,18 @@ class PresensiController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
+        // Check if user has pending izin terlambat for today - block access to presensi menu
+        $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
+            ->whereDate('tanggal', Carbon::today())
+            ->where('status', 'izin')
+            ->where('status_izin', 'pending')
+            ->where('keterangan', 'like', '%terlambat%')
+            ->first();
+
+        if ($pendingIzinTerlambat) {
+            abort(403, 'Izin terlambat Anda sedang menunggu persetujuan kepala sekolah. Presensi akan dapat dilakukan setelah izin disetujui.');
+        }
+
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
 
         // If kepala madrasah, fetch madrasah-level presensi lists; otherwise, leave empty (non-kepala see personal presensi only)
