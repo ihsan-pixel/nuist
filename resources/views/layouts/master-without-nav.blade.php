@@ -19,10 +19,10 @@
     <meta property="og:description" content="Sistem Informasi Madrasah & Pendidikan berbasis web untuk LP. Ma'arif NU PWNU DIY." />
     <meta property="og:url" content="https://nuist.id" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="{{ asset('build/images/logo favicon 1.png') }}" />
+    <meta property="og:image" content="{{ asset('build/images/logo%20favicon%201.png') }}" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/logo favicon 1.png') }}">
+    <link rel="shortcut icon" href="{{ asset('build/images/logo%20favicon%201.png') }}">
 
     <!-- Prevent caching -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
