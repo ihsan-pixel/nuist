@@ -599,8 +599,8 @@ class PresensiController extends \App\Http\Controllers\Controller
     private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
     {
         try {
-            // Path to public_html/storage/presensi-selfie using DOCUMENT_ROOT for production compatibility
-            $path = $_SERVER['DOCUMENT_ROOT'] . '/presensi-selfie';
+            // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
+            $path = $_SERVER['DOCUMENT_ROOT'] . '/surat_izin';
 
             // Pastikan folder sudah ada
             if (!file_exists($path)) {
@@ -636,7 +636,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
 
             // Return path yang disimpan ke database
-            return 'storage/presensi-selfie/' . $namaFile;
+            return 'storage/surat_izin/' . $namaFile;
 
         } catch (\Exception $e) {
             // Log error and return empty string - presensi should still work even if image processing fails
