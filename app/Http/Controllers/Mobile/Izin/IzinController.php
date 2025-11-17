@@ -12,16 +12,19 @@ class IzinController extends \App\Http\Controllers\Controller
 {
     private function uploadSuratIzin($file)
     {
-        // Pastikan folder storage/surat_izin sudah ada
-        if (!file_exists(public_path('storage/surat_izin'))) {
-            mkdir(public_path('storage/surat_izin'), 0755, true);
+        // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
+        $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/surat_izin';
+
+        // Pastikan folder sudah ada
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
         }
 
         // Nama file unik
         $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-        // Pindahkan file ke public_html/storage/surat_izin
-        $file->move(public_path('storage/surat_izin'), $namaFile);
+        // Pindahkan file ke path
+        $file->move($path, $namaFile);
 
         // Return path yang disimpan ke database
         return 'storage/surat_izin/' . $namaFile;
