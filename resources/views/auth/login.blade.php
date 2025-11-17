@@ -525,44 +525,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // Update App Button Handler
-document.getElementById('updateAppBtn').addEventListener('click', function() {
-    const button = this;
-    const originalText = button.innerHTML;
+document.addEventListener('DOMContentLoaded', function() {
+    const updateBtn = document.getElementById('updateAppBtn');
+    if (updateBtn) {
+        console.log('Update button found and event listener attached');
+        updateBtn.addEventListener('click', function() {
+            console.log('Update button clicked');
+            const button = this;
+            const originalText = button.innerHTML;
 
-    // Change button to loading state
-    button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Updating...';
-    button.disabled = true;
+            // Change button to loading state
+            button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Updating...';
+            button.disabled = true;
 
-    // Make AJAX call to clear cache
-    fetch('{{ route("clear-cache") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Show success message
-            showToast('success', data.message);
-            // Reload page after 2 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        } else {
-            showToast('error', data.message || 'Gagal update aplikasi');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Terjadi kesalahan saat update aplikasi');
-    })
-    .finally(() => {
-        // Reset button state
-        button.innerHTML = originalText;
-        button.disabled = false;
-    });
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            const token = csrfToken ? csrfToken.getAttribute('content') : '';
+
+            console.log('CSRF Token:', token);
+            console.log('Route URL:', '{{ route("clear-cache") }}');
+
+            // Make AJAX call to clear cache
+            fetch('{{ route("clear-cache") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Show success message
+                    showToast('success', data.message);
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showToast('error', data.message || 'Gagal update aplikasi');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Terjadi kesalahan saat update aplikasi: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        });
+    } else {
+        console.error('Update button not found');
+    }
 });
 
 // Toast notification function
