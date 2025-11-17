@@ -528,7 +528,7 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="search" class="form-label">Cari Nama Sekolah</label>
+                        <label for="search" class="form-label">Cari Nama Madrasah/Sekolah</label>
                         <input type="text" name="search" id="search" class="form-control" placeholder="Masukkan nama sekolah..." value="{{ request('search') }}">
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
