@@ -10,6 +10,23 @@ use App\Models\User;
 
 class IzinController extends \App\Http\Controllers\Controller
 {
+    private function uploadSuratIzin($file)
+    {
+        // Pastikan folder storage/surat_izin sudah ada
+        if (!file_exists(public_path('storage/surat_izin'))) {
+            mkdir(public_path('storage/surat_izin'), 0755, true);
+        }
+
+        // Nama file unik
+        $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+        // Pindahkan file ke public_html/storage/surat_izin
+        $file->move(public_path('storage/surat_izin'), $namaFile);
+
+        // Return path yang disimpan ke database
+        return 'storage/surat_izin/' . $namaFile;
+    }
+
     public function storeIzin(Request $request)
     {
         $user = Auth::user();
@@ -76,7 +93,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
                 $keterangan = $request->input('keterangan');
                 if ($request->hasFile('surat_izin')) {
-                    $filePath = $request->file('surat_izin')->store('surat_izin', 'public');
+                    $filePath = $this->uploadSuratIzin($request->file('surat_izin'));
                 }
                 break;
 
@@ -89,7 +106,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
                 $keterangan = $request->input('alasan');
                 if ($request->hasFile('file_izin')) {
-                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                    $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
                 break;
 
@@ -103,7 +120,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
                 $keterangan = $request->input('alasan') . ' (Waktu masuk: ' . $request->input('waktu_masuk') . ')';
                 if ($request->hasFile('file_izin')) {
-                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                    $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
                 break;
 
@@ -119,7 +136,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
                 $keterangan = $request->input('deskripsi_tugas') . '\nLokasi: ' . $request->input('lokasi_tugas') . '\n' . 'Waktu: ' . $request->input('waktu_masuk') . ' - ' . $request->input('waktu_keluar');
                 if ($request->hasFile('file_tugas')) {
-                    $filePath = $request->file('file_tugas')->store('surat_izin', 'public');
+                    $filePath = $this->uploadSuratIzin($request->file('file_tugas'));
                 }
 
                 // For tugas_luar, use the separate izins table instead of presensis to avoid unique constraint violation
@@ -171,7 +188,7 @@ class IzinController extends \App\Http\Controllers\Controller
                 $tanggal = $request->input('tanggal_mulai');
                 $keterangan = $request->input('alasan') . '\nTanggal: ' . $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai');
                 if ($request->hasFile('file_izin')) {
-                    $filePath = $request->file('file_izin')->store('surat_izin', 'public');
+                    $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
                 break;
 
