@@ -131,7 +131,7 @@
                 <h6 class="mb-1">Jadwal Mengajar</h6>
                 <h5 class="fw-bold mb-0">{{ Auth::user()->name }}</h5>
             </div>
-            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+            <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
