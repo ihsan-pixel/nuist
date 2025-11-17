@@ -230,7 +230,7 @@ class IzinController extends Controller
             ]);
         }
 
-        return redirect()->route('izin.index')->with('success', 'Izin disetujui.');
+        return redirect()->route('mobile.kelola-izin')->with('success', 'Izin disetujui.');
     }
 
     public function reject($id)
@@ -285,6 +285,6 @@ class IzinController extends Controller
             abort(404, 'Izin request not found.');
         }
 
-        return redirect()->route('izin.index')->with('success', 'Izin ditolak.');
+        return redirect()->route('mobile.kelola-izin')->with('success', 'Izin ditolak.');
     }
 }
