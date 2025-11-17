@@ -184,7 +184,7 @@
         </div>
         <div class="section-content">
             <div class="avatar-section">
-                <img src="{{ isset($user->avatar) ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/avatar-1.jpg') }}"
                      alt="Current Avatar" id="current-avatar">
                 <form action="{{ route('mobile.profile.update-avatar') }}" method="POST" enctype="multipart/form-data" id="avatar-form">
                     @csrf
