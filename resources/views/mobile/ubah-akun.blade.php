@@ -149,7 +149,7 @@
                 <h6 class="mb-1">Pengaturan</h6>
                 <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
             </div>
-            <img src="{{ isset($user->avatar) ? asset('storage' . $user->avatar) : asset('build/avatar-11.jpg') }}"
+            <img src="{{ isset($user->avatar) ? asset('storage' . $user->avatar) : asset('build/images/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
     </div>
