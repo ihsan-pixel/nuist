@@ -27,7 +27,7 @@ class IzinController extends \App\Http\Controllers\Controller
         $file->move($path, $namaFile);
 
         // Return path yang disimpan ke database
-        return 'storage/surat_izin/' . $namaFile;
+        return 'surat_izin/' . $namaFile;
     }
 
     public function storeIzin(Request $request)
