@@ -363,6 +363,7 @@
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('User accepted the install prompt');
+                    localStorage.setItem('pwa-install-dismissed', 'true');
                 }
                 deferredPrompt = null;
             });

@@ -503,13 +503,6 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-
-            // Show install prompt if not dismissed before
-            if (!localStorage.getItem('pwa-install-dismissed')) {
-                setTimeout(() => {
-                    installPrompt.style.display = 'block';
-                }, 3000);
-            }
         });
 
         document.getElementById('install-pwa').addEventListener('click', () => {
@@ -519,6 +512,7 @@
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
+                        localStorage.setItem('pwa-install-dismissed', 'true');
                     }
                     deferredPrompt = null;
                 });
@@ -529,6 +523,13 @@
             installPrompt.style.display = 'none';
             localStorage.setItem('pwa-install-dismissed', 'true');
         });
+
+        // Show install prompt if not dismissed before
+        if (!localStorage.getItem('pwa-install-dismissed')) {
+            setTimeout(() => {
+                installPrompt.style.display = 'block';
+            }, 3000);
+        }
 
         // Offline detection
         const offlineIndicator = document.getElementById('offline-indicator');
