@@ -34,7 +34,8 @@
 - [x] TODO.md
 
 ## Testing
-- [ ] Test tugas_luar submission with existing presensi masuk
+- [ ] Test tugas_luar submission with existing presensi masuk (now uses separate izins table)
 - [ ] Test approval flow and auto-fill waktu_keluar
 - [ ] Verify presensi status remains 'hadir' but waktu_keluar is filled
-- [ ] Test pending izin alert when trying to submit new izin
+- [ ] Test pending izin alert when trying to submit new izin (checks both tables)
+- [ ] Test izin management views show requests from both tables

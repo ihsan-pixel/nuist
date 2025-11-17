@@ -66,58 +66,98 @@ class IzinController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $query = Presensi::where('status', 'izin')->with('user');
+
+        // Get izin requests from both presensis and izins tables
+        $presensiQuery = Presensi::where('status', 'izin')->with('user');
+        $izinQuery = \App\Models\Izin::with('user');
 
         if (!in_array($user->role, ['super_admin', 'pengurus'])) {
-            $query->whereHas('user', function ($q) use ($user) {
+            $presensiQuery->whereHas('user', function ($q) use ($user) {
+                $q->where('madrasah_id', $user->madrasah_id);
+            });
+            $izinQuery->whereHas('user', function ($q) use ($user) {
                 $q->where('madrasah_id', $user->madrasah_id);
             });
         }
 
-        $izinRequests = $query->get();
+        $presensiIzinRequests = $presensiQuery->get();
+        $izinTableRequests = $izinQuery->get();
+
+        // Combine and sort by tanggal desc
+        $izinRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');
 
         return view('izin.index', compact('izinRequests'));
     }
 
-    public function approve(Presensi $presensi)
+    public function approve($id)
     {
-        $this->authorize('approve', $presensi);
+        // Check if this is a presensi record or izin record
+        $presensi = Presensi::find($id);
+        $izin = \App\Models\Izin::find($id);
 
-        $presensi->update([
-            'status_izin' => 'approved',
-            'approved_by' => Auth::id(),
-        ]);
+        if ($presensi) {
+            // Handle presensi-based izin approval
+            $this->authorize('approve', $presensi);
 
-        // If this is a tugas_luar approval, auto-fill waktu_keluar on existing presensi record
-        if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
-            // Find existing presensi record for the same date and user with status 'hadir'
-            $existingPresensi = Presensi::where('user_id', $presensi->user_id)
-                ->where('tanggal', $presensi->tanggal)
-                ->where('status', 'hadir')
-                ->first();
+            $presensi->update([
+                'status_izin' => 'approved',
+                'approved_by' => Auth::id(),
+            ]);
 
-            if ($existingPresensi && !$existingPresensi->waktu_keluar) {
-                // Extract waktu_keluar from izin keterangan (format: "deskripsi\nLokasi: lokasi\nWaktu: masuk - keluar")
-                $lines = explode('\n', $presensi->keterangan);
-                $waktuLine = collect($lines)->first(function ($line) {
-                    return str_starts_with($line, 'Waktu:');
-                });
+            // If this is a tugas_luar approval from presensis table, auto-fill waktu_keluar
+            if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
+                // Find existing presensi record for the same date and user with status 'hadir'
+                $existingPresensi = Presensi::where('user_id', $presensi->user_id)
+                    ->where('tanggal', $presensi->tanggal)
+                    ->where('status', 'hadir')
+                    ->first();
 
-                if ($waktuLine) {
-                    $waktuParts = explode(' - ', str_replace('Waktu: ', '', $waktuLine));
-                    if (count($waktuParts) === 2) {
-                        $waktuKeluar = trim($waktuParts[1]);
-                        // Update existing presensi with waktu_keluar
-                        $existingPresensi->update([
-                            'waktu_keluar' => $presensi->tanggal . ' ' . $waktuKeluar . ':00',
-                        ]);
+                if ($existingPresensi && !$existingPresensi->waktu_keluar) {
+                    // Extract waktu_keluar from izin keterangan (format: "deskripsi\nLokasi: lokasi\nWaktu: masuk - keluar")
+                    $lines = explode('\n', $presensi->keterangan);
+                    $waktuLine = collect($lines)->first(function ($line) {
+                        return str_starts_with($line, 'Waktu:');
+                    });
+
+                    if ($waktuLine) {
+                        $waktuParts = explode(' - ', str_replace('Waktu: ', '', $waktuLine));
+                        if (count($waktuParts) === 2) {
+                            $waktuKeluar = trim($waktuParts[1]);
+                            // Update existing presensi with waktu_keluar
+                            $existingPresensi->update([
+                                'waktu_keluar' => $presensi->tanggal . ' ' . $waktuKeluar . ':00',
+                            ]);
+                        }
                     }
                 }
             }
+        } elseif ($izin) {
+            // Handle izin table approval
+            $izin->update([
+                'status' => 'approved',
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+            // For tugas_luar, auto-fill waktu_keluar on existing presensi record
+            if ($izin->type === 'tugas_luar') {
+                $existingPresensi = Presensi::where('user_id', $izin->user_id)
+                    ->where('tanggal', $izin->tanggal)
+                    ->where('status', 'hadir')
+                    ->first();
+
+                if ($existingPresensi && !$existingPresensi->waktu_keluar) {
+                    $existingPresensi->update([
+                        'waktu_keluar' => $izin->tanggal . ' ' . $izin->waktu_keluar,
+                    ]);
+                }
+            }
+        } else {
+            abort(404, 'Izin request not found.');
         }
 
         // If this is a cuti approval, create presensi records for each day in the range
-        if (str_contains($presensi->keterangan, 'Tanggal:')) {
+        if ($presensi && str_contains($presensi->keterangan, 'Tanggal:')) {
             // Extract date range from keterangan (format: "alasan\nTanggal: start sampai end")
             $lines = explode('\n', $presensi->keterangan);
             $tanggalLine = collect($lines)->first(function ($line) {
@@ -164,43 +204,86 @@ class IzinController extends Controller
         }
 
         // Create notification for user about approval
-        Notification::create([
-            'user_id' => $presensi->user_id,
-            'type' => 'izin_approved',
-            'title' => 'Izin Disetujui',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah disetujui.',
-            'data' => [
-                'presensi_id' => $presensi->id,
-                'tanggal' => $presensi->tanggal,
-                'approved_by' => Auth::user()->name
-            ]
-        ]);
+        if ($presensi) {
+            Notification::create([
+                'user_id' => $presensi->user_id,
+                'type' => 'izin_approved',
+                'title' => 'Izin Disetujui',
+                'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah disetujui.',
+                'data' => [
+                    'presensi_id' => $presensi->id,
+                    'tanggal' => $presensi->tanggal,
+                    'approved_by' => Auth::user()->name
+                ]
+            ]);
+        } elseif ($izin) {
+            Notification::create([
+                'user_id' => $izin->user_id,
+                'type' => 'izin_approved',
+                'title' => 'Izin Disetujui',
+                'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
+                'data' => [
+                    'izin_id' => $izin->id,
+                    'tanggal' => $izin->tanggal,
+                    'approved_by' => Auth::user()->name
+                ]
+            ]);
+        }
 
         return redirect()->route('izin.index')->with('success', 'Izin disetujui.');
     }
 
-    public function reject(Presensi $presensi)
+    public function reject($id)
     {
-        $this->authorize('reject', $presensi);
+        // Check if this is a presensi record or izin record
+        $presensi = Presensi::find($id);
+        $izin = \App\Models\Izin::find($id);
 
-        $presensi->update([
-            'status_izin' => 'rejected',
-            'status' => 'alpha',
-            'approved_by' => Auth::id(),
-        ]);
+        if ($presensi) {
+            // Handle presensi-based izin rejection
+            $this->authorize('reject', $presensi);
 
-        // Create notification for user about rejection
-        Notification::create([
-            'user_id' => $presensi->user_id,
-            'type' => 'izin_rejected',
-            'title' => 'Izin Ditolak',
-            'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak.',
-            'data' => [
-                'presensi_id' => $presensi->id,
-                'tanggal' => $presensi->tanggal,
-                'rejected_by' => Auth::user()->name
-            ]
-        ]);
+            $presensi->update([
+                'status_izin' => 'rejected',
+                'status' => 'alpha',
+                'approved_by' => Auth::id(),
+            ]);
+
+            // Create notification for user about rejection
+            Notification::create([
+                'user_id' => $presensi->user_id,
+                'type' => 'izin_rejected',
+                'title' => 'Izin Ditolak',
+                'message' => 'Pengajuan izin Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak.',
+                'data' => [
+                    'presensi_id' => $presensi->id,
+                    'tanggal' => $presensi->tanggal,
+                    'rejected_by' => Auth::user()->name
+                ]
+            ]);
+        } elseif ($izin) {
+            // Handle izin table rejection
+            $izin->update([
+                'status' => 'rejected',
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
+            ]);
+
+            // Create notification for user about rejection
+            Notification::create([
+                'user_id' => $izin->user_id,
+                'type' => 'izin_rejected',
+                'title' => 'Izin Ditolak',
+                'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
+                'data' => [
+                    'izin_id' => $izin->id,
+                    'tanggal' => $izin->tanggal,
+                    'rejected_by' => Auth::user()->name
+                ]
+            ]);
+        } else {
+            abort(404, 'Izin request not found.');
+        }
 
         return redirect()->route('izin.index')->with('success', 'Izin ditolak.');
     }
