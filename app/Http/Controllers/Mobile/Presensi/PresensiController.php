@@ -600,7 +600,7 @@ class PresensiController extends \App\Http\Controllers\Controller
     {
         try {
             // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
-            $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/surat_izin';
+            $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/presensi-selfies';
 
             // Pastikan folder sudah ada
             if (!file_exists($path)) {
@@ -636,7 +636,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
 
             // Return path yang disimpan ke database
-            return 'storage/surat_izin/' . $namaFile;
+            return 'presensi-selfies/' . $namaFile;
 
         } catch (\Exception $e) {
             // Log error and return empty string - presensi should still work even if image processing fails
