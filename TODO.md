@@ -22,6 +22,10 @@
 ## Tasks
 - [x] Allow tugas_luar submission even with existing presensi masuk
 - [x] Auto-fill waktu_keluar on existing presensi when tugas_luar approved
+- [x] Add alert for pending izin submissions
+- [x] Update TODO.md with new tasks
+- [x] Allow tugas_luar submission even with existing presensi masuk
+- [x] Auto-fill waktu_keluar on existing presensi when tugas_luar approved
 - [x] Update TODO.md with new tasks
 
 ## Files to Edit
@@ -33,3 +37,4 @@
 - [ ] Test tugas_luar submission with existing presensi masuk
 - [ ] Test approval flow and auto-fill waktu_keluar
 - [ ] Verify presensi status remains 'hadir' but waktu_keluar is filled
+- [ ] Test pending izin alert when trying to submit new izin

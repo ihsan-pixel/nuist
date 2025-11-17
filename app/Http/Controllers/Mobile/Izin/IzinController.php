@@ -31,6 +31,20 @@ class IzinController extends \App\Http\Controllers\Controller
         // Normalize type
         $type = strtolower($type);
 
+        // Check if user has pending izin that hasn't been approved yet
+        $pendingIzin = Presensi::where('user_id', $user->id)
+            ->where('status', 'izin')
+            ->where('status_izin', 'pending')
+            ->first();
+
+        if ($pendingIzin) {
+            $msg = 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         // Validate and map input per type
         $filePath = null;
         $keterangan = '';
