@@ -83,12 +83,12 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
                 </form>
 
-                {{-- <!-- Clear Cache Button -->
+                <!-- Clear Cache Button -->
                 <button id="clearNuistCache" class="btn btn-warning btn-block">
                     Perbaiki Aplikasi (Clear Cache)
                 </button>
 
-                <!-- Update App Button (Clear Cache) -->
+                {{-- <!-- Update App Button (Clear Cache) -->
                 <div class="text-center mb-3">
                     <button type="button" class="btn btn-link btn-sm text-muted update-app-btn" id="updateAppBtn" title="Update Aplikasi">
                         <i class="mdi mdi-update"></i> Update Aplikasi
