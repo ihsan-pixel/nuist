@@ -236,6 +236,28 @@ class MobileController extends Controller
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
 
+        // Check if entry presensi is attempted before allowed time
+        if ($isPresensiMasuk) {
+            if ($user->pemenuhan_beban_kerja_lain) {
+                // User with beban kerja lain: presensi masuk 05:00 - 22:00
+                if ($now->format('H:i:s') < '05:00:00') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                    ], 400);
+                }
+            } else {
+                // User biasa: presensi masuk sesuai hari KBM
+                $minTimeMasuk = '05:00:00'; // Default for all days
+                if ($now->format('H:i:s') < $minTimeMasuk) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                    ], 400);
+                }
+            }
+        }
+
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
             return response()->json([
@@ -298,26 +320,23 @@ class MobileController extends Controller
 
             // Calculate lateness - only set keterangan if late (after 07:00)
             $keterangan = "";
-            if ($user->pemenuhan_beban_kerja_lain) {
-                $keterangan = "tidak terlambat";
-            } else {
-                // Jika waktu presensi setelah 07:00, hitung keterlambatan
-                if ($now->format('H:i:s') > '07:00:00') {
-                    $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
-                    $sekarang = Carbon::now('Asia/Jakarta');
-                    $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
 
-                    // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
-                    if ($sekarang->lessThan($batas)) {
-                        $terlambatMenit = 0;
-                    } else {
-                        $terlambatMenit = abs(round($terlambatMenit));
-                    }
+            // Jika waktu presensi setelah 07:00, hitung keterlambatan
+            if ($now->format('H:i:s') > '07:00:00') {
+                $batas = Carbon::createFromFormat('H:i:s', '07:00:00', 'Asia/Jakarta');
+                $sekarang = Carbon::now('Asia/Jakarta');
+                $terlambatMenit = $sekarang->floatDiffInMinutes($batas);
 
-                    $keterangan = "Terlambat {$terlambatMenit} menit";
+                // Pastikan keterlambatan tidak negatif dan bulatkan angkanya
+                if ($sekarang->lessThan($batas)) {
+                    $terlambatMenit = 0;
                 } else {
-                    $keterangan = "tidak terlambat";
+                    $terlambatMenit = abs(round($terlambatMenit));
                 }
+
+                $keterangan = "Terlambat {$terlambatMenit} menit";
+            } else {
+                $keterangan = "tidak terlambat";
             }
 
             // Create new presensi record
@@ -343,28 +362,37 @@ class MobileController extends Controller
 
         } elseif ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)
-            $pulangStart = '15:00:00'; // Default pulang start time
-            if ($user->madrasah && $user->madrasah->hari_kbm) {
-                $hariKbm = $user->madrasah->hari_kbm;
-                $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+            if (!$user->pemenuhan_beban_kerja_lain) {
+                // User biasa: presensi keluar sesuai hari KBM
+                $pulangStart = '15:00:00'; // Default fallback
 
-                if ($hariKbm == '6') {
-                    // KBM 6 hari: Sabtu 12:00, hari lain 15:00
-                    $pulangStart = ($dayOfWeek == 6) ? '12:00:00' : '15:00:00';
-                } elseif ($hariKbm == '5') {
-                    // KBM 5 hari: tetap 15:00
-                    $pulangStart = '15:00:00';
-                } else {
-                    $pulangStart = '15:00:00';
+                if ($user->madrasah && $user->madrasah->hari_kbm) {
+                    $hariKbm = $user->madrasah->hari_kbm;
+                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+
+                    if ($hariKbm == '5') {
+                        // KBM 5 hari: Senin-Jumat presensi keluar mulai 15:00
+                        $pulangStart = '15:00:00';
+                    } elseif ($hariKbm == '6') {
+                        // KBM 6 hari: Senin-Kamis 14:00, Jumat 13:00, Sabtu 12:00
+                        if ($dayOfWeek == 5) { // Friday
+                            $pulangStart = '13:00:00';
+                        } elseif ($dayOfWeek == 6) { // Saturday
+                            $pulangStart = '12:00:00';
+                        } else { // Monday-Thursday
+                            $pulangStart = '14:00:00';
+                        }
+                    }
+                }
+
+                if ($now->format('H:i:s') < $pulangStart) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
+                    ], 400);
                 }
             }
-
-            if ($now->format('H:i:s') < $pulangStart) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
-                ], 400);
-            }
+            // User with beban kerja lain: no time restriction for presensi keluar
 
             // Presensi Keluar - update existing record
             $existingPresensi->update([

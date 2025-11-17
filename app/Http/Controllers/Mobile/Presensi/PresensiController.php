@@ -230,84 +230,13 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-        // Determine madrasah based on location for users with pemenuhan_beban_kerja_lain
-        $determinedMadrasahId = null;
-        if ($user->pemenuhan_beban_kerja_lain) {
-            // Check if location is within main madrasah polygon
-            $mainMadrasah = $user->madrasah;
-            $isInMainMadrasah = false;
-            if ($mainMadrasah && $mainMadrasah->polygon_koordinat) {
-                try {
-                    $polygonGeometry = json_decode($mainMadrasah->polygon_koordinat, true);
-                    if (isset($polygonGeometry['coordinates'][0])) {
-                        $polygon = $polygonGeometry['coordinates'][0];
-                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                            $isInMainMadrasah = true;
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Skip if invalid polygon
-                }
-            }
+        // For all users, use main madrasah only (simplified logic)
+        $determinedMadrasahId = $user->madrasah_id;
 
-            // Check if location is within additional madrasah polygon
-            $additionalMadrasah = $user->madrasahTambahan;
-            $isInAdditionalMadrasah = false;
-            if ($additionalMadrasah && $additionalMadrasah->polygon_koordinat) {
-                try {
-                    $polygonGeometry = json_decode($additionalMadrasah->polygon_koordinat, true);
-                    if (isset($polygonGeometry['coordinates'][0])) {
-                        $polygon = $polygonGeometry['coordinates'][0];
-                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                            $isInAdditionalMadrasah = true;
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Skip if invalid polygon
-                }
-            }
-
-            // Determine madrasah based on location
-            if ($isInMainMadrasah) {
-                $determinedMadrasahId = $user->madrasah_id;
-            } elseif ($isInAdditionalMadrasah) {
-                $determinedMadrasahId = $user->madrasah_id_tambahan;
-            } else {
-                // If not in any polygon, default to main madrasah
-                $determinedMadrasahId = $user->madrasah_id;
-            }
-        } else {
-            // For regular users, use main madrasah
-            $determinedMadrasahId = $user->madrasah_id;
-        }
-
-        // Check existing presensi for today - allow multiple for users with beban kerja lain
-        $existingPresensis = Presensi::where('user_id', $user->id)
+        // Check existing presensi for today - only one per day for all users
+        $existingPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('tanggal', $tanggal)
-            ->get();
-
-        // For users with beban kerja lain, allow up to 2 presensi per day (one per madrasah)
-        if ($user->pemenuhan_beban_kerja_lain) {
-            // Check if already have presensi for this madrasah
-            $existingForThisMadrasah = $existingPresensis->where('madrasah_id', $determinedMadrasahId)->first();
-
-            if ($existingForThisMadrasah) {
-                // If already have presensi for this madrasah, use that record
-                $existingPresensi = $existingForThisMadrasah;
-            } else {
-                // If not, check if we already have 2 presensi (limit)
-                if ($existingPresensis->count() >= 2) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Anda sudah melakukan presensi di 2 madrasah hari ini. Presensi hari ini sudah lengkap.'
-                    ], 400);
-                }
-                $existingPresensi = null; // New presensi for this madrasah
-            }
-        } else {
-            // For regular users, only one presensi per day
-            $existingPresensi = $existingPresensis->first();
-        }
+            ->first();
 
         // Check if user has pending izin terlambat for today - block presensi if pending
         $pendingIzinTerlambat = Presensi::where('user_id', $user->id)
@@ -330,12 +259,26 @@ class PresensiController extends \App\Http\Controllers\Controller
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
 
-        // Check if entry presensi is attempted before 01:00
-        if ($isPresensiMasuk && $now->format('H:i:s') < '01:00:00') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 01:00.'
-            ], 400);
+        // Check if entry presensi is attempted before allowed time
+        if ($isPresensiMasuk) {
+            if ($user->pemenuhan_beban_kerja_lain) {
+                // User with beban kerja lain: presensi masuk 05:00 - 22:00
+                if ($now->format('H:i:s') < '05:00:00') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                    ], 400);
+                }
+            } else {
+                // User biasa: presensi masuk sesuai hari KBM
+                $minTimeMasuk = '05:00:00'; // Default for all days
+                if ($now->format('H:i:s') < $minTimeMasuk) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 05:00.'
+                    ], 400);
+                }
+            }
         }
 
         // Process and save selfie image
@@ -421,8 +364,6 @@ class PresensiController extends \App\Http\Controllers\Controller
             if ($approvedIzinTerlambat) {
                 // If has approved izin terlambat, mark as "terlambat sudah izin"
                 $keterangan = "terlambat sudah izin";
-            } elseif ($user->pemenuhan_beban_kerja_lain) {
-                $keterangan = "tidak terlambat";
             } else {
                 // Jika waktu presensi setelah 07:00, hitung keterlambatan
                 if ($now->format('H:i:s') > '07:00:00') {
@@ -475,27 +416,37 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         } elseif ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)
-            $pulangStart = '15:00:00'; // Default fallback
+            if (!$user->pemenuhan_beban_kerja_lain) {
+                // User biasa: presensi keluar sesuai hari KBM
+                $pulangStart = '15:00:00'; // Default fallback
 
-            if ($user->madrasah && $user->madrasah->hari_kbm) {
-                $hariKbm = $user->madrasah->hari_kbm;
-                $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+                if ($user->madrasah && $user->madrasah->hari_kbm) {
+                    $hariKbm = $user->madrasah->hari_kbm;
+                    $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
 
-                if ($hariKbm == '6') {
-                    // KBM 6 hari: Jumat 13:00, Sabtu 12:00, hari lain 14:00
-                    $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
-                } elseif ($hariKbm == '5') {
-                    // KBM 5 hari: tetap 15:00
-                    $pulangStart = '15:00:00';
+                    if ($hariKbm == '5') {
+                        // KBM 5 hari: Senin-Jumat presensi keluar mulai 15:00
+                        $pulangStart = '15:00:00';
+                    } elseif ($hariKbm == '6') {
+                        // KBM 6 hari: Senin-Kamis 14:00, Jumat 13:00, Sabtu 12:00
+                        if ($dayOfWeek == 5) { // Friday
+                            $pulangStart = '13:00:00';
+                        } elseif ($dayOfWeek == 6) { // Saturday
+                            $pulangStart = '12:00:00';
+                        } else { // Monday-Thursday
+                            $pulangStart = '14:00:00';
+                        }
+                    }
+                }
+
+                if ($now->format('H:i:s') < $pulangStart) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
+                    ], 400);
                 }
             }
-
-            if ($now->format('H:i:s') < $pulangStart) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Presensi keluar belum dapat dilakukan. Waktu presensi keluar dimulai pukul ' . substr($pulangStart, 0, 5) . '.'
-                ], 400);
-            }
+            // User with beban kerja lain: no time restriction for presensi keluar
 
             // Presensi Keluar - update existing record
             $existingPresensi->update([
