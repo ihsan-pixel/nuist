@@ -84,9 +84,9 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 </form>
 
                 <!-- Clear Cache Button -->
-                <button id="clearNuistCache" class="btn btn-warning btn-block">
+                {{-- <button id="clearNuistCache" class="btn btn-warning btn-block">
                     Perbaiki Aplikasi (Clear Cache)
-                </button>
+                </button> --}}
 
                 {{-- <!-- Update App Button (Clear Cache) -->
                 <div class="text-center mb-3">
