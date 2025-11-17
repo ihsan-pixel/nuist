@@ -83,6 +83,11 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <button class="btn btn-primary login-btn" type="submit">Log In</button>
                 </form>
 
+                <!-- Clear Cache Button -->
+                <button id="clearNuistCache" class="btn btn-warning btn-block">
+                    Perbaiki Aplikasi (Clear Cache)
+                </button>
+
                 <!-- Update App Button (Clear Cache) -->
                 <div class="text-center mb-3">
                     <button type="button" class="btn btn-link btn-sm text-muted update-app-btn" id="updateAppBtn" title="Update Aplikasi">
@@ -634,6 +639,45 @@ if (window.history && window.history.pushState) {
         window.location.href = '/login';
     };
 }
+
+// Clear Cache Script
+document.getElementById('clearNuistCache').addEventListener('click', async () => {
+
+    // CLEAR CACHE STORAGE (khusus domain ini)
+    if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(cache => caches.delete(cache)));
+        console.log("Cache Storage NUIST cleared");
+    }
+
+    // UNREGISTER SERVICE WORKER (khusus domain ini)
+    if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let reg of registrations) {
+            await reg.unregister();
+        }
+        console.log("Service worker NUIST unregistered");
+    }
+
+    // DELETE INDEXEDDB (jika ada dalam PWA NUIST)
+    if (window.indexedDB) {
+        const databases = await window.indexedDB.databases();
+        for (let db of databases) {
+            window.indexedDB.deleteDatabase(db.name);
+        }
+        console.log("IndexedDB NUIST deleted");
+    }
+
+    // HAPUS LOCALSTORAGE DAN SESSIONSTORAGE (khusus domain ini)
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // KONFIRMASI
+    alert("Cache aplikasi berhasil dibersihkan!\nAplikasi akan dimuat ulang.");
+
+    // RELOAD HARD
+    window.location.href = "/login";
+});
 
 // ==== Force reload on focus (jaga session token) ====
 window.addEventListener('focus', () => {
