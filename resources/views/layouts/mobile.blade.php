@@ -22,25 +22,25 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
 
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/images/logo favicon 1.png') }}">
-    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo favicon 1.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/logo favicon 1.png') }}">
+    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
 
     <!-- Open Graph for better social sharing -->
     <meta property="og:title" content="@yield('title') | NUIST Mobile" />
     <meta property="og:description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="{{ asset('build/images/logo favicon 1.png') }}" />
+    <meta property="og:image" content="{{ asset('build/images/logo-light.png') }}" />
 
     @include('layouts.head-css')
 
@@ -233,6 +233,95 @@
             z-index: 1035;
             display: none;
         }
+
+        /* Sticky header untuk mobile */
+        .mobile-header {
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        /* Efek saat scroll */
+        .mobile-header.scrolled {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Custom Bottom Navigation (Floating Center Button) */
+        .custom-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #eaeaea;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .custom-bottom-nav .nav-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+        }
+
+        .custom-bottom-nav .nav-link {
+            color: #0e8549;
+            text-align: center;
+            flex: 1;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .custom-bottom-nav .nav-link i {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        .custom-bottom-nav .nav-link.active {
+            color: #ffffff;
+        }
+
+        /* Tombol tengah melingkar */
+        .nav-center-btn {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        .center-action {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #0e8549, #004b4c);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: #fff;
+            font-size: 26px;
+            transition: all 0.3s ease;
+        }
+
+        .center-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+        }
     </style>
 </head>
 
@@ -246,7 +335,7 @@
     <!-- PWA Install Prompt -->
     <div id="pwa-install-prompt" class="pwa-install-prompt">
         <div class="d-flex align-items-center">
-            <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
+            <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
             <div class="flex-grow-1">
                 <h6 class="mb-1">Install NUIST Mobile</h6>
                 <small class="text-muted">Akses lebih cepat dan offline</small>
@@ -258,15 +347,16 @@
         </div>
     </div>
 
-    <!-- Mobile Header -->
-    <header class="bg-white border-bottom d-md-none">
+    <!-- Mobile Header (Sticky) hanya muncul di halaman dashboard -->
+    @if (request()->routeIs('mobile.dashboard'))
+    <header class="mobile-header bg-white border-bottom d-md-none shadow-sm">
         <div class="container-fluid px-3 py-2">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <img src="{{ asset('build/images/logo favicon 1.png') }}" alt="NUIST" height="32" class="me-2">
+                    <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
                     <div>
-                        <h6 class="mb-0 fw-bold">NUIST Mobile</h6>
-                        <small class="text-muted">@yield('subtitle', 'Sistem Informasi Digital')</small>
+                        <small class="text-muted">Selamat Datang,</small>
+                        <h6 class="mb-0 fw-bold">{{ Auth::user()->name }}</h6>
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
@@ -281,7 +371,7 @@
                         <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                             <div class="avatar-sm">
                                 <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 class="rounded-circle border border-white" width="44" height="44" alt="User">
+                                    class="rounded-circle border border-white" width="44" height="44" alt="User">
                             </div>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -289,9 +379,11 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bx bx-log-out me-2"></i>Logout
-                            </a></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bx bx-log-out me-2"></i>Logout
+                                </a>
+                            </li>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
@@ -301,6 +393,7 @@
             </div>
         </div>
     </header>
+    @endif
 
     <!-- Main Content -->
     <main class="mobile-content">
@@ -321,7 +414,7 @@
         }
     @endphp
     @if($showNav)
-    <nav class="mobile-nav d-md-none">
+    {{-- <nav class="mobile-nav d-md-none">
         <div class="container-fluid">
             <div class="row g-0">
                 <div class="col">
@@ -356,11 +449,50 @@
                 </div>
             </div>
         </div>
+    </nav> --}}
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
+                <i class="bx bx-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
+                <i class="bx bx-history"></i>
+                <span>Jadwal</span>
+            </a>
+            <a href="">
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
+            </a>
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="{{ route('mobile.presensi') }}" class="center-action">
+                    <i class="bx bx-scan"></i>
+                </a>
+            </div>
+
+            <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
+                <i class="bx bx-bar-chart"></i>
+                <span>Mengajar</span>
+            </a>
+            <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
+                <i class="bx bx-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
     </nav>
+
     @endif
 
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
+
+    <!-- Face Recognition Scripts -->
+    <script>
+        window.MODEL_PATH = "{{ asset('models') }}";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="{{ asset('js/face-recognition.js') }}"></script>
 
     <!-- Mobile-specific scripts -->
     <script>
@@ -409,16 +541,46 @@
             offlineIndicator.style.display = 'block';
         });
 
-        // Service worker registration
+        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
+            window.addEventListener('load', async () => {
+                try {
+                    // Unregister old service workers first
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of regs) await reg.update();
+
+                    // Register new SW
+                    const reg = await navigator.serviceWorker.register('/sw.js');
+                    console.log('SW registered:', reg.scope);
+
+                    // Auto refresh when new SW is ready
+                    if (reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('New SW installed, reloading...');
+                                window.location.reload();
+                            }
+                        });
                     });
+
+                    // Listen for controller change (new SW taking over)
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('Controller changed → reload');
+                        window.location.reload();
+                    });
+
+                    // Clear old caches automatically
+                    caches.keys().then(names => {
+                        for (let name of names) caches.delete(name);
+                    });
+                } catch (e) {
+                    console.warn('SW registration failed:', e);
+                }
             });
         }
 
@@ -464,6 +626,8 @@
                 .catch(error => console.error('Error updating notification badge:', error));
         }
 
+
+
         // Mobile optimizations
         document.addEventListener('DOMContentLoaded', () => {
             // Prevent zoom on input focus
@@ -492,6 +656,18 @@
             setInterval(updateNotificationBadge, 30000);
         });
     </script>
+    <script>
+        // Tambahkan efek shadow saat user scroll
+        document.addEventListener('scroll', () => {
+            const header = document.querySelector('.mobile-header');
+            if (window.scrollY > 10) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+
 
     @yield('script')
 </body>

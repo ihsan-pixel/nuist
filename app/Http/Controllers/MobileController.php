@@ -76,7 +76,7 @@ class MobileController extends Controller
         // Today's schedules for the teacher
         $todayName = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
         $todaySchedules = TeachingSchedule::where('teacher_id', $user->id)
-            ->where('day', $todayName)
+            ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
 
@@ -180,8 +180,8 @@ class MobileController extends Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
-                $pulangStart = ($dayOfWeek == 5) ? '14:30' : '15:00';
+                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30, Sabtu pukul 12:00
+                $pulangStart = ($dayOfWeek == 5) ? '14:30' : (($dayOfWeek == 6) ? '12:00' : '15:00');
                 $pulangEnd = '22:00';
             } else {
                 $masukStart = '05:00';
@@ -346,7 +346,13 @@ class MobileController extends Controller
             $pulangStart = '15:00:00'; // Default pulang start time
             if ($user->madrasah && $user->madrasah->hari_kbm) {
                 $hariKbm = $user->madrasah->hari_kbm;
-                if ($hariKbm == '5' || $hariKbm == '6') {
+                $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+
+                if ($hariKbm == '6') {
+                    // KBM 6 hari: Sabtu 12:00, hari lain 15:00
+                    $pulangStart = ($dayOfWeek == 6) ? '12:00:00' : '15:00:00';
+                } elseif ($hariKbm == '5') {
+                    // KBM 5 hari: tetap 15:00
                     $pulangStart = '15:00:00';
                 } else {
                     $pulangStart = '15:00:00';
@@ -859,16 +865,13 @@ class MobileController extends Controller
         // Always show only the user's own teaching schedules
         $query->where('teacher_id', $user->id);
 
-        // Filter by current day's name
-        $query->where('day', $todayName);
+        // Filter by current day's name (case insensitive)
+        $query->whereRaw('LOWER(day) = ?', [strtolower($todayName)]);
 
         $schedules = $query->orderBy('start_time')->get();
 
-        // Filter to show only schedules that are not past (end_time >= current time)
-        $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
-        $schedules = $schedules->filter(function ($schedule) use ($currentTime) {
-            return $schedule->end_time >= $currentTime;
-        });
+        // Show all schedules for the day, including past ones (UI will handle disabling buttons)
+        // Removed time filter to allow viewing all schedules for the day
 
         // Normalize: attach shortcut `attendance` to each schedule (first attendance of the day or null)
         $schedules->each(function ($schedule) {

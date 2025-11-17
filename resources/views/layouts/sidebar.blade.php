@@ -157,6 +157,72 @@
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
 
+                <li class="menu-title">PPDB</li>
+
+                {{-- @if($userRole === 'super_admin')
+                <!-- Admin Sekolah PPDB Menu -->
+                <li>
+                    <a href="{{ route('ppdb.sekolah.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-chart"></i>
+                        <span>Dashboard PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.verifikasi') }}" class="waves-effect">
+                        <i class="bx bx-check-square"></i>
+                        <span>Verifikasi Pendaftar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.seleksi') }}" class="waves-effect">
+                        <i class="bx bx-list-check"></i>
+                        <span>Seleksi & Hasil Akhir</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.sekolah.export') }}" class="waves-effect">
+                        <i class="bx bx-download"></i>
+                        <span>Export Data</span>
+                    </a>
+                </li>
+                @elseif($userRole === 'admin_lp')
+                <!-- Admin LP PPDB Menu -->
+                <li>
+                    <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-sitemap"></i>
+                        <span>Dashboard LP</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('ppdb') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Data Pendaftaran</span>
+                    </a>
+                </li> --}}
+                {{-- @elseif(in_array($userRole, ['super_admin', 'pengurus'])) --}}
+                <!-- Super Admin / Pengurus PPDB Menu -->
+                {{-- <li>
+                    <a href="{{ route('ppdb.settings.index') }}" class="waves-effect">
+                        <i class="bx bx-cog"></i>
+                        <span>Pengaturan PPDB</span>
+                    </a>
+                </li> --}}
+
+                <li>
+                    <a href="{{ route('ppdb.index') }}" class="waves-effect">
+                        <i class="bx bx-file"></i>
+                        <span>Halaman PPDB</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('ppdb.lp.dashboard') }}" class="waves-effect">
+                        <i class="bx bx-bar-chart-alt-2"></i>
+                        <span>Dashboard PPDB</span>
+                    </a>
+                </li>
+                @endif
+
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">ABOUT</li>
 
                 <li>
@@ -179,6 +245,7 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
+                @endif
 
                 @if($userRole === 'super_admin')
                 <li>
@@ -208,7 +275,7 @@
                     </a>
                 </li>
                 @endif
-                @endif
+                {{-- @endif --}}
 
             </ul>
         </div>

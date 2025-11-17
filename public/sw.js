@@ -1,5 +1,6 @@
 // Service Worker for NUIST Mobile PWA
-const CACHE_NAME = 'nuist-mobile-v1.0.0';
+const APP_VERSION = 'v1.0.3'; // ubah versi setiap update aplikasi
+const CACHE_NAME = `presensi-cache-${APP_VERSION}`;
 const STATIC_CACHE = 'nuist-static-v1.0.0';
 const DYNAMIC_CACHE = 'nuist-dynamic-v1.0.0';
 
@@ -24,17 +25,28 @@ const STATIC_ASSETS = [
 // Install event - cache static assets
 self.addEventListener('install', event => {
     console.log('Service Worker installing.');
+    self.skipWaiting(); // aktifkan versi baru langsung
     event.waitUntil(
-        caches.open(STATIC_CACHE)
-            .then(cache => {
-                console.log('Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
-            })
-            .catch(error => {
-                console.error('Error caching static assets:', error);
-            })
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll([
+                '/', // halaman utama
+                '/mobile/teaching-attendances',
+                '/mobile/dashboard',
+                '/mobile/presensi',
+                '/mobile/jadwal',
+                '/mobile/profile',
+                '/manifest.json',
+                '/build/libs/leaflet/leaflet.css',
+                '/build/libs/leaflet/leaflet.js',
+                '/build/libs/sweetalert2/sweetalert2.min.css',
+                '/build/libs/sweetalert2/sweetalert2.min.js',
+                '/build/css/bootstrap.min.css',
+                '/build/css/icons.min.css',
+                '/build/css/app.min.css',
+                '/build/images/logo favicon 1.png'
+            ]);
+        })
     );
-    self.skipWaiting();
 });
 
 // Activate event - clean up old caches
@@ -43,16 +55,13 @@ self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-                        console.log('Deleting old cache:', cacheName);
-                        return caches.delete(cacheName);
-                    }
-                })
+                cacheNames
+                    .filter(name => name.startsWith('presensi-cache-') && name !== CACHE_NAME)
+                    .map(name => caches.delete(name))
             );
         })
     );
-    self.clients.claim();
+    self.clients.claim(); // langsung aktif di semua tab
 });
 
 // Fetch event - serve cached content when offline
@@ -65,6 +74,12 @@ self.addEventListener('fetch', event => {
 
     // Skip external requests
     if (!url.origin.includes(self.location.origin)) return;
+
+    // Jangan cache endpoint penting
+    if (url.pathname.includes('/teaching-attendances') || url.pathname.includes('/login') || url.pathname.includes('/logout')) {
+        event.respondWith(fetch(request));
+        return;
+    }
 
     // Handle API requests
     if (url.pathname.startsWith('/api/') || url.pathname.includes('/presensi/store')) {

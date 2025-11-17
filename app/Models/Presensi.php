@@ -35,6 +35,8 @@ class Presensi extends Model
         'face_verified',
         'face_verification_notes',
         'location_readings',
+        'selfie_masuk_path',
+        'selfie_keluar_path',
         'status',
         'keterangan',
         'surat_izin_path',

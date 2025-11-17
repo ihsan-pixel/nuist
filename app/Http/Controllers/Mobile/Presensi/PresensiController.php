@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Mobile\Presensi;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
@@ -11,6 +13,11 @@ use App\Models\Holiday;
 
 class PresensiController extends \App\Http\Controllers\Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['web', 'auth']);
+    }
+
     // Presensi view (mobile)
     public function presensi(Request $request)
     {
@@ -94,6 +101,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $selectedDate)
             ->get();
 
+
+
         // Determine presensi time ranges based on madrasah hari_kbm (fallbacks included)
         $timeRanges = null;
         if ($user->madrasah && $user->madrasah->hari_kbm) {
@@ -108,8 +117,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             } elseif ($hariKbm == '6') {
                 $masukStart = '05:00';
                 $masukEnd = '07:00';
-                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 14:30
-                $pulangStart = ($dayOfWeek == 5) ? '14:30' : '15:00';
+                // Khusus hari Jumat untuk 6 hari KBM, presensi pulang mulai pukul 13:00, Sabtu pukul 12:00
+                $pulangStart = ($dayOfWeek == 5) ? '13:00' : (($dayOfWeek == 6) ? '12:00' : '14:00');
                 $pulangEnd = '22:00';
             } else {
                 $masukStart = '05:00';
@@ -150,13 +159,8 @@ class PresensiController extends \App\Http\Controllers\Controller
             'speed' => 'nullable|numeric',
             'device_info' => 'nullable|string',
             'location_readings' => 'nullable|string',
-            // Face verification fields (optional)
-            'face_id_used' => 'nullable|string',
-            'face_similarity_score' => 'nullable|numeric',
-            'liveness_score' => 'nullable|numeric',
-            'liveness_challenges' => 'nullable',
-            'face_verified' => 'nullable|boolean',
-            'face_verification_notes' => 'nullable|string',
+            'selfie_data' => 'required|string|min:100', // Ensure it's not empty and has minimum length
+
         ]);
 
         $tanggal = Carbon::today()->toDateString();
@@ -183,7 +187,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 ->first();
 
             if (!$existingPresensi) {
-                // Create alpha record
+                // Create alpha record without saving selfie
                 Presensi::create([
                     'user_id' => $user->id,
                     'tanggal' => $tanggal,
@@ -197,6 +201,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                     'speed' => $request->speed,
                     'device_info' => $request->device_info,
                     'location_readings' => $request->location_readings,
+                    'selfie_masuk_path' => null, // Don't save selfie for failed presensi
                     'status_kepegawaian_id' => $user->status_kepegawaian_id,
                 ]);
 
@@ -217,9 +222,22 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->whereDate('tanggal', $tanggal)
             ->first();
 
+
+
         // Determine presensi type with additional checks
         $isPresensiMasuk = !$existingPresensi || (!$existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar);
         $isPresensiKeluar = $existingPresensi && $existingPresensi->waktu_masuk && !$existingPresensi->waktu_keluar;
+
+        // Check if entry presensi is attempted before 01:00
+        if ($isPresensiMasuk && $now->format('H:i:s') < '01:00:00') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Presensi masuk belum dapat dilakukan. Waktu presensi masuk dimulai pukul 01:00.'
+            ], 400);
+        }
+
+        // Process and save selfie image
+        $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
 
         // Prevent double submission for masuk if already exists
         if ($isPresensiMasuk && $existingPresensi && $existingPresensi->waktu_masuk) {
@@ -237,46 +255,9 @@ class PresensiController extends \App\Http\Controllers\Controller
             ], 400);
         }
 
-        // Face verification validation if required - temporarily disabled
-        // if ($user->face_verification_required) {
-        //     $faceVerified = $request->input('face_verified', false);
-        //     $faceSimilarityScore = $request->input('face_similarity_score', 0);
-        //     $livenessScore = $request->input('liveness_score', 0);
 
-        //     // Check if face verification was performed
-        //     if (!$faceVerified) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Verifikasi wajah diperlukan untuk melakukan presensi. Silakan lakukan verifikasi wajah terlebih dahulu.',
-        //             'needs_face_enrollment' => !$user->face_registered_at
-        //         ], 400);
-        //     }
 
-        //     // Validate face similarity score (threshold: 0.8)
-        //     if ($faceSimilarityScore < 0.8) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Verifikasi wajah gagal. Wajah tidak cocok dengan data yang terdaftar. Silakan coba lagi.'
-        //         ], 400);
-        //     }
-
-        //     // Validate liveness score (threshold: 0.7)
-        //     if ($livenessScore < 0.7) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Verifikasi liveness gagal. Pastikan Anda melakukan semua instruksi verifikasi wajah dengan benar.'
-        //         ], 400);
-        //     }
-
-        //     // Validate liveness challenges were completed
-        //     $livenessChallenges = $request->input('liveness_challenges');
-        //     if (!$livenessChallenges || !is_array($livenessChallenges) || count($livenessChallenges) < 3) {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Verifikasi liveness tidak lengkap. Pastikan semua tantangan verifikasi wajah diselesaikan.'
-        //         ], 400);
-        //     }
-        // }
+        // Location consistency validation removed - presensi will proceed regardless
 
         // Location validation using polygon from madrasah
         $madrasah = $user->madrasah;
@@ -307,13 +288,16 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-        // Strict polygon validation: must be within madrasah polygon
+        // Location validation using polygon from madrasah
         if (!$isWithinPolygon) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
             ], 400);
         }
+
+        // Add location validation note if outside polygon
+        $locationNote = '';
 
         // Determine if this is presensi masuk or keluar
         if ($isPresensiMasuk) {
@@ -346,6 +330,13 @@ class PresensiController extends \App\Http\Controllers\Controller
                 }
             }
 
+            // Special handling for early presensi (between 01:00 and 05:00)
+            if ($now->format('H:i:s') >= '01:00:00' && $now->format('H:i:s') < '05:00:00') {
+                $keterangan = "Presensi dini (sebelum pukul 05:00)";
+            }
+
+
+
             // Create new presensi record
             $presensi = Presensi::create([
                 'user_id' => $user->id,
@@ -362,13 +353,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed' => $request->speed,
                 'device_info' => $request->device_info,
                 'location_readings' => $request->location_readings,
-                // optionally store face verification results
-                'face_id_used' => $request->input('face_id_used'),
-                'face_similarity_score' => $request->input('face_similarity_score'),
-                'liveness_score' => $request->input('liveness_score'),
-                'liveness_challenges' => $request->input('liveness_challenges'),
-                'face_verified' => $request->input('face_verified'),
-                'face_verification_notes' => $request->input('face_verification_notes'),
+                'selfie_masuk_path' => $selfiePath,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
             ]);
 
@@ -376,12 +361,17 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         } elseif ($isPresensiKeluar) {
             // Check if it's time to go home (after pulang_start time)
-            $pulangStart = '15:00:00'; // Default pulang start time
+            $pulangStart = '15:00:00'; // Default fallback
+
             if ($user->madrasah && $user->madrasah->hari_kbm) {
                 $hariKbm = $user->madrasah->hari_kbm;
-                if ($hariKbm == '5' || $hariKbm == '6') {
-                    $pulangStart = '15:00:00';
-                } else {
+                $dayOfWeek = Carbon::now('Asia/Jakarta')->dayOfWeek; // 0=Sunday, 5=Friday
+
+                if ($hariKbm == '6') {
+                    // KBM 6 hari: Jumat 13:00, Sabtu 12:00, hari lain 14:00
+                    $pulangStart = ($dayOfWeek == 5) ? '13:00:00' : (($dayOfWeek == 6) ? '12:00:00' : '14:00:00');
+                } elseif ($hariKbm == '5') {
+                    // KBM 5 hari: tetap 15:00
                     $pulangStart = '15:00:00';
                 }
             }
@@ -404,6 +394,7 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'speed_keluar' => $request->speed,
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
+                'selfie_keluar_path' => $selfiePath,
             ]);
 
             $presensi = $existingPresensi;
@@ -421,7 +412,9 @@ class PresensiController extends \App\Http\Controllers\Controller
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'presensi' => $presensi
+                'presensi' => $presensi,
+                'madrasah_name' => $user->madrasah?->name ?? 'Madrasah',
+                'waktu_masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : now()->format('H:i')
             ]);
         }
 
@@ -475,6 +468,98 @@ class PresensiController extends \App\Http\Controllers\Controller
             ->get();
 
         return view('mobile.riwayat-presensi-alpha', compact('presensiHistory'));
+    }
+
+    /**
+     * Validates location consistency in readings to detect potential fake locations.
+     * @param string $locationReadingsJson JSON string containing location readings array
+     * @return array ['valid' => bool, 'message' => string]
+     */
+    private function validateLocationConsistency(string $locationReadingsJson): array
+    {
+        try {
+            $readings = json_decode($locationReadingsJson, true);
+
+            if (!is_array($readings) || count($readings) < 4) {
+                // If less than 4 readings, allow presensi (backward compatibility)
+                return ['valid' => true, 'message' => ''];
+            }
+
+            // Take first 4 readings for validation (exclude the final reading on button click)
+            $firstFourReadings = array_slice($readings, 0, 4);
+
+            // Tolerance for location consistency (approximately 10 meters)
+            $tolerance = 0.0001; // degrees
+
+            // Check if all 4 readings are within tolerance of each other
+            $referenceLat = $firstFourReadings[0]['latitude'];
+            $referenceLng = $firstFourReadings[0]['longitude'];
+
+            $consistentCount = 0;
+            foreach ($firstFourReadings as $reading) {
+                $latDiff = abs($reading['latitude'] - $referenceLat);
+                $lngDiff = abs($reading['longitude'] - $referenceLng);
+
+                if ($latDiff <= $tolerance && $lngDiff <= $tolerance) {
+                    $consistentCount++;
+                }
+            }
+
+            // If all 4 readings are consistent (same location), reject presensi
+            if ($consistentCount >= 4) {
+                return [
+                    'valid' => false,
+                    'message' => 'Peringatan, presensi anda terindikasi sebagai lokasi tidak sesuai. Silahkan geser atau pindah dari posisi sebelumnya.'
+                ];
+            }
+
+            // If only 3 or fewer are consistent, allow presensi
+            return ['valid' => true, 'message' => ''];
+
+        } catch (\Exception $e) {
+            // If there's any error parsing readings, allow presensi for safety
+            return ['valid' => true, 'message' => ''];
+        }
+    }
+
+    /**
+     * Process and save selfie image with compression
+     * @param string $selfieData Base64 image data
+     * @param int $userId User ID
+     * @param string $tanggal Date string
+     * @param bool $isMasuk Whether this is presensi masuk
+     * @return string Path to saved image
+     */
+    private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
+    {
+        try {
+            // For now, just save the base64 data directly without processing
+            // This will allow presensi to work while we debug the image processing
+
+            // Create directory structure: presensi-selfies/YYYY-MM-DD
+            $datePath = Carbon::parse($tanggal)->format('Y-m-d');
+            $directory = "presensi-selfies/{$datePath}";
+
+            // Ensure directory exists
+            Storage::disk('public')->makeDirectory($directory);
+
+            // Generate filename
+            $type = $isMasuk ? 'masuk' : 'keluar';
+            $timestamp = time();
+            $filename = "selfie_{$userId}_{$type}_{$timestamp}.jpg";
+            $fullPath = "{$directory}/{$filename}";
+
+            // Save the base64 image directly (remove data URL prefix)
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $selfieData));
+            Storage::disk('public')->put($fullPath, $imageData);
+
+            return $fullPath;
+
+        } catch (\Exception $e) {
+            // Log error and return empty string - presensi should still work even if image processing fails
+            Log::error('Selfie processing failed: ' . $e->getMessage());
+            return '';
+        }
     }
 
     /**

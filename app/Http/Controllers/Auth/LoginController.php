@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -37,4 +39,58 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    /**
+     * Log the current user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    }
+
+        /**
+     * Handle a login request to the application.
+     */
+    public function login(Request $request)
+    {
+        // Validasi input login (email/username dan password)
+        $this->validateLogin($request);
+
+        // Jika user terlalu sering gagal login
+        if (method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+            return $this->sendLockoutResponse($request);
+        }
+
+        // Coba login
+        if ($this->attemptLogin($request)) {
+            // Regenerasi session untuk mencegah session fixation
+            $request->session()->regenerate();
+
+            // Tambahkan CSRF token baru agar tidak mismatch setelah logout-login cepat
+            $request->session()->regenerateToken();
+
+            // Hapus cache lama jika masih ada (pencegahan untuk PWA)
+            if (app()->environment('production')) {
+                header('Cache-Control: no-cache, no-store, must-revalidate');
+                header('Pragma: no-cache');
+                header('Expires: 0');
+            }
+
+            // Redirect normal
+            return $this->sendLoginResponse($request);
+        }
+
+        // Jika gagal login
+        $this->incrementLoginAttempts($request);
+        return $this->sendFailedLoginResponse($request);
+    }
+
 }

@@ -44,7 +44,7 @@
     });
 </script>
 
-@yield('script')
+@stack('scripts')
 
 <!-- App js -->
 <script src="{{ asset('build/js/app.js')}}"></script>

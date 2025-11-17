@@ -1,0 +1,270 @@
+/* PPDB Custom Styles */
+
+/* --- NAVBAR UTAMA --- */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: #ffffff !important;
+    padding: 14px 0 !important;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Saat Scroll */
+.navbar-scrolled {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+/* Brand Logo */
+.navbar-brand img {
+    height: 55px;
+}
+
+/* --- MENU NAV --- */
+.navbar-nav .nav-link {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #667085 !important;
+    padding: 8px 14px;
+    margin: 0 6px;
+    transition: color .2s ease;
+}
+
+/* Hover */
+.navbar-nav .nav-link:hover {
+    color: #0f854a !important;
+}
+
+/* Active State */
+.navbar-nav .nav-link.active {
+    color: #0f854a !important;
+    font-weight: 800;
+}
+
+/* Hilangkan efek animasi lama */
+.navbar-nav .nav-link::before,
+.navbar-nav .nav-link::after {
+    display: none !important;
+}
+
+/* Tombol Green */
+.btn-orange {
+    background: #0f854a;
+    color: #fff !important;
+    padding: 10px 24px;
+    font-size: 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: background .2s ease;
+}
+
+.btn-orange:hover {
+    background: #0a5f35;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    background: url('{{ asset("images/bg_ppdb2.png") }}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #0f854a;
+    padding: 100px 0;
+}
+
+.hero-section .text-left {
+    text-align: left !important;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+/* Card Styles */
+.school-card {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.school-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.school-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Section Spacing */
+section {
+    padding: 5rem 0;
+}
+
+/* Container Width */
+.container {
+    max-width: 1400px;
+}
+
+#sekolah,
+#kontak {
+    background-color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 0;
+        text-align: center;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+        color: #1f1f1f;
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+
+    section {
+        padding: 3rem 0;
+    }
+
+    .school-card {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Animation */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Loading */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+/* Focus Styles */
+.btn:focus,
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Print */
+@media print {
+    .navbar,
+    .btn,
+    section:not(#sekolah):not(#about):not(#kontak) {
+        display: none !important;
+    }
+
+    .school-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+
+
+/* ==========================================================
+   FIX NAVBAR TEXT & COLOR — DITAMBAHKAN LANGSUNG DI BAWAH
+   ========================================================== */
+
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #667085 !important;
+    padding: 12px 20px !important;
+    line-height: 1 !important;
+    transition: color 0.2s ease;
+}
+
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link:hover {
+    color: #0f854a !important;
+}
+
+nav.custom-navbar .navbar-nav > .nav-item > .nav-link.active {
+    color: #0f854a !important;
+    font-weight: 800 !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #667085 !important;
+    font-size: 26px !important;
+}

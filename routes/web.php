@@ -15,6 +15,13 @@ use App\Http\Controllers\PanduanController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\TeachingScheduleController;
 
+use App\Http\Controllers\PPDB\{
+    PPDBController,
+    PendaftarController,
+    AdminSekolahController,
+    AdminLPController
+};
+
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +101,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin'])->group(fu
 
 Auth::routes(['verify' => true]);
 
+// CSRF token endpoint for JavaScript updates
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
 // Email Verification Routes
 Route::get('/email/verify', [App\Http\Controllers\Auth\VerificationController::class, 'show'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\VerificationController::class, 'verify'])->name('verification.verify');
@@ -103,6 +115,11 @@ Route::post('/email/resend', [App\Http\Controllers\Auth\VerificationController::
 Route::get('/', function () {
     return redirect()->route('dashboard');
 })->middleware('auth')->name('root');
+
+// Jika akses link nuist.id/index maka akan tertuju halaman login
+Route::get('/index', function () {
+    return redirect()->route('login');
+})->name('index-redirect');
 
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
@@ -117,6 +134,10 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     // Backwards-compatible route names used by some mobile views
     Route::get('/data-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('data-presensi');
     Route::post('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storePresensi'])->name('presensi.store');
+
+    // Selfie Presensi (separate page)
+    Route::get('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'selfiePresensi'])->name('selfie-presensi');
+    Route::post('/selfie-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'storeSelfiePresensi'])->name('selfie-presensi.store');
     Route::get('/riwayat-presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensi'])->name('riwayat-presensi');
     Route::get('/riwayat-presensi-alpha', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'riwayatPresensiAlpha'])->name('riwayat-presensi-alpha');
 
@@ -291,6 +312,10 @@ Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang'
 // Sitemap route
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
+use App\Http\Controllers\Auth\LoginController;
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 
 
 // fallback, jangan ganggu dashboard & lainnya
@@ -303,3 +328,65 @@ Route::middleware(['role:super_admin'])->group(function () {
     Route::post('/app-settings/check-updates', [App\Http\Controllers\AppSettingsController::class, 'checkForUpdates'])->name('app-settings.check-updates');
     Route::post('/app-settings/turn-off-debug', [App\Http\Controllers\AppSettingsController::class, 'turnOffDebug'])->name('app-settings.turn-off-debug');
 });
+
+// HALAMAN UMUM
+Route::prefix('ppdb')->group(function () {
+    Route::get('/', [PPDBController::class, 'index'])->name('ppdb.index');
+    // Place explicit routes BEFORE the parameterized /{slug} route so they are matched correctly
+    Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
+    Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
+    Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
+    Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
+    Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
+    Route::get('/check-nisn/{nisn}', [PendaftarController::class, 'checkNISN'])->name('ppdb.check-nisn');
+});
+
+// ADMIN SEKOLAH
+Route::middleware(['auth', 'role:admin'])->prefix('ppdb/sekolah')->group(function () {
+    Route::get('/dashboard', [AdminSekolahController::class, 'index'])->name('ppdb.sekolah.dashboard');
+    Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi'])->name('ppdb.sekolah.verifikasi');
+    Route::get('/seleksi', [AdminSekolahController::class, 'seleksi'])->name('ppdb.sekolah.seleksi');
+    Route::get('/export', [AdminSekolahController::class, 'export'])->name('ppdb.sekolah.export');
+});
+
+// ADMIN LP. MA'ARIF
+Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(function () {
+    Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
+    Route::get('/edit/{id}', [AdminLPController::class, 'edit'])->name('ppdb.lp.edit');
+    Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');
+    Route::get('/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings'])->name('ppdb.lp.ppdb-settings');
+    Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings'])->name('ppdb.lp.update-ppdb-settings');
+});
+
+// PPDB SETTINGS
+Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/settings')->group(function () {
+    Route::get('/', [PPDBSettingsController::class, 'index'])->name('ppdb.settings.index');
+    Route::get('/edit/{id}', [PPDBSettingsController::class, 'edit'])->name('ppdb.settings.edit');
+    Route::put('/update/{id}', [PPDBSettingsController::class, 'update'])->name('ppdb.settings.update');
+});
+
+// DEBUG ROUTES - REMOVE IN PRODUCTION
+if (env('APP_DEBUG') === true) {
+    Route::get('/debug/ppdb-status', function() {
+        $madrasahs = \App\Models\Madrasah::select('id', 'name', 'ppdb_status')
+            ->with(['ppdbSettings' => function($q) {
+                $q->where('tahun', now()->year)->select('id', 'sekolah_id', 'slug', 'tahun', 'status');
+            }])
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'total' => count($madrasahs),
+            'data' => $madrasahs->map(function($m) {
+                return [
+                    'id' => $m->id,
+                    'name' => $m->name,
+                    'ppdb_status_db' => $m->ppdb_status,
+                    'ppdb_setting_exists' => $m->ppdbSettings->count() > 0,
+                    'ppdb_setting_slug' => $m->ppdbSettings->first()?->slug,
+                    'is_buka' => $m->ppdb_status === 'buka',
+                ];
+            })->toArray(),
+        ], 200);
+    })->name('debug.ppdb-status');
+}

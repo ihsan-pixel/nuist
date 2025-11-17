@@ -32,20 +32,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
-        .back-btn:hover {
-            background: #f0f8f0;
-        }
+        .back-btn:hover { background: #f0f8f0; }
 
-        .monitor-header h6 {
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .monitor-header h5 {
-            font-size: 14px;
-        }
+        .monitor-header h6 { font-weight: 600; font-size: 12px; }
+        .monitor-header h5 { font-size: 14px; }
 
         .date-nav {
             background: #fff;
@@ -59,18 +52,37 @@
         }
 
         .date-nav button {
-            background: none;
-            border: none;
-            color: #0e8549;
-            font-size: 16px;
-            padding: 5px;
-        }
+        background: #f4f8f5;
+        border: 1px solid #d8e5da;
+        color: #0e8549;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
 
-        .date-nav .current-date {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-        }
+    .date-nav button:hover {
+        background: #0e8549;
+        color: #fff;
+        transform: scale(1.05);
+    }
+
+    .date-nav i {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .date-nav .current-date {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        flex: 1;
+        text-align: center;
+    }
 
         .presensi-section {
             background: #fff;
@@ -89,15 +101,9 @@
             align-items: center;
         }
 
-        .section-title i {
-            margin-right: 5px;
-        }
+        .section-title i { margin-right: 5px; }
 
-        .presensi-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        .presensi-list { list-style: none; padding: 0; margin: 0; }
 
         .presensi-item {
             padding: 8px 0;
@@ -107,13 +113,9 @@
             align-items: center;
         }
 
-        .presensi-item:last-child {
-            border-bottom: none;
-        }
+        .presensi-item:last-child { border-bottom: none; }
 
-        .presensi-info {
-            flex: 1;
-        }
+        .presensi-info { flex: 1; }
 
         .presensi-info .name {
             font-weight: 600;
@@ -126,9 +128,7 @@
             color: #6c757d;
         }
 
-        .presensi-time {
-            text-align: right;
-        }
+        .presensi-time { text-align: right; }
 
         .presensi-time .time {
             font-weight: 600;
@@ -150,6 +150,17 @@
             font-size: 9px;
             font-weight: 600;
             margin-left: 4px;
+        }
+
+        .foto-btn {
+            background: none;
+            border: none;
+            color: #0e8549;
+            font-size: 10px;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            margin-top: 2px;
         }
 
         .empty-state {
@@ -186,10 +197,15 @@
             background-color: #0e8549;
             border-color: #0e8549;
         }
+
+        /* Modal Foto */
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.6); }
+        .modal-content img { width: 100%; border-radius: 8px; }
+        .modal-title { font-size: 13px; font-weight: 600; }
     </style>
 
     <!-- Back Button -->
-    <a href="{{ route('mobile.dashboard') }}" class="back-btn" style="text-decoration: none;">
+    <a href="{{ route('mobile.dashboard') }}" class="back-btn">
         <i class="bx bx-arrow-back"></i>
         <span>Kembali</span>
     </a>
@@ -240,6 +256,12 @@
                                 @endif
                             </div>
                             <div class="status">{{ $p->user->statusKepegawaian?->name ?? '-' }}</div>
+                            @if($p->selfie_masuk_path || $p->selfie_keluar_path)
+                                <button class="foto-btn"
+                                    onclick="showFoto('{{ asset('storage/app/public/' . $p->selfie_masuk_path) }}', '{{ asset('storage/app/public/' . $p->selfie_keluar_path) }}')">
+                                    📷 Lihat Foto
+                                </button>
+                            @endif
                         </div>
                         <div class="presensi-time">
                             @if($p->status === 'izin')
@@ -299,12 +321,44 @@
         @endif
     </div>
 </div>
+
+<!-- Modal Foto -->
+<div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-2">
+      <div class="modal-header border-0 pb-1">
+        <h6 class="modal-title" id="fotoModalLabel">Foto Presensi</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div id="fotoMasukContainer" class="mb-2"></div>
+        <div id="fotoKeluarContainer"></div>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('script')
 <script>
 function changeDate(date) {
     window.location.href = '{{ route("mobile.monitor-presensi") }}?date=' + date;
+}
+
+function showFoto(masuk, keluar) {
+    const masukContainer = document.getElementById('fotoMasukContainer');
+    const keluarContainer = document.getElementById('fotoKeluarContainer');
+
+    masukContainer.innerHTML = masuk && !masuk.includes('null')
+        ? `<p class="fw-bold mb-1">Masuk:</p><img src="${masuk}" alt="Selfie Masuk">`
+        : `<p class="text-muted">Tidak ada foto masuk.</p>`;
+
+    keluarContainer.innerHTML = keluar && !keluar.includes('null')
+        ? `<p class="fw-bold mt-2 mb-1">Keluar:</p><img src="${keluar}" alt="Selfie Keluar">`
+        : `<p class="text-muted">Tidak ada foto keluar.</p>`;
+
+    const modal = new bootstrap.Modal(document.getElementById('fotoModal'));
+    modal.show();
 }
 </script>
 @endsection

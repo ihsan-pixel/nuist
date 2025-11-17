@@ -1,324 +1,336 @@
+// Face Recognition and Liveness Detection Module
 class FaceRecognition {
     constructor() {
-        this.MODEL_URL = '/public/models';
-        this.videoStream = null;
-        this.videoEl = null;
-        this.challenges = ['blink', 'smile', 'head_turn'];
+        this.modelsLoaded = false;
+        this.currentUserFaceData = null;
+        this.challenges = [
+            { type: 'blink', instruction: 'Silakan berkedip mata Anda', detector: this.detectBlink.bind(this) },
+            { type: 'smile', instruction: 'Silakan tersenyum', detector: this.detectSmile.bind(this) },
+            { type: 'head_turn', instruction: 'Silakan putar kepala ke kiri lalu ke kanan', detector: this.detectHeadTurn.bind(this) }
+        ];
+        this.challengeSequence = [];
+        this.completedChallenges = [];
     }
 
     async loadModels() {
         try {
-            console.log('Loading face-api models from:', this.MODEL_URL);
-            await faceapi.nets.tinyFaceDetector.loadFromUri(this.MODEL_URL);
-            await faceapi.nets.faceLandmark68Net.loadFromUri(this.MODEL_URL);
-            await faceapi.nets.faceRecognitionNet.loadFromUri(this.MODEL_URL);
-            console.log('All models loaded successfully');
+            // Load face-api.js models
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+                faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+                faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+                faceapi.nets.faceExpressionNet.loadFromUri('/models')
+            ]);
+
+            this.modelsLoaded = true;
+            console.log('Face recognition models loaded successfully');
             return true;
-        } catch (e) {
-            console.error('loadModels error:', e);
+        } catch (error) {
+            console.error('Error loading face recognition models:', error);
             return false;
         }
     }
 
     async initializeCamera(videoElement) {
-        this.videoEl = videoElement;
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Browser does not support camera API');
-        }
-        this.videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-        videoElement.srcObject = this.videoStream;
-        return new Promise((resolve) => {
-            videoElement.onloadedmetadata = () => {
-                videoElement.play();
-                resolve();
-            };
-        });
-    }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: 640,
+                    height: 480,
+                    facingMode: 'user'
+                }
+            });
 
-    stopCamera() {
-        if (this.videoStream) {
-            this.videoStream.getTracks().forEach(t => t.stop());
-            this.videoStream = null;
-        }
-        if (this.videoEl) {
-            this.videoEl.pause();
-            this.videoEl.srcObject = null;
-            this.videoEl = null;
+            videoElement.srcObject = stream;
+            return new Promise((resolve) => {
+                videoElement.onloadedmetadata = () => {
+                    videoElement.play();
+                    resolve(true);
+                };
+            });
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            throw new Error('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
         }
     }
 
-    // compute eye aspect ratio (EAR) for blink detection
-    _computeEAR(eye) {
-        // eye: array of 6 points
-        const dist = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
-        const A = dist(eye[1], eye[5]);
-        const B = dist(eye[2], eye[4]);
-        const C = dist(eye[0], eye[3]);
-        if (C === 0) return 0;
+    generateChallengeSequence(length = 5) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    async detectFaces(videoElement) {
+        if (!this.modelsLoaded) {
+            throw new Error('Models belum dimuat');
+        }
+
+        const detections = await faceapi
+            .detectAllFaces(videoElement, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceExpressions()
+            .withFaceDescriptors();
+
+        return detections;
+    }
+
+    async detectBlink(landmarks) {
+        // Simple blink detection based on eye aspect ratio
+        const leftEye = landmarks.getLeftEye();
+        const rightEye = landmarks.getRightEye();
+
+        const leftEAR = this.calculateEyeAspectRatio(leftEye);
+        const rightEAR = this.calculateEyeAspectRatio(rightEye);
+        const avgEAR = (leftEAR + rightEAR) / 2;
+
+        // EAR below 0.25 indicates blink
+        return avgEAR < 0.25;
+    }
+
+    calculateEyeAspectRatio(eye) {
+        // Calculate eye aspect ratio
+        const A = this.distance(eye[1], eye[5]);
+        const B = this.distance(eye[2], eye[4]);
+        const C = this.distance(eye[0], eye[3]);
         return (A + B) / (2.0 * C);
     }
 
-    async _waitForBlink(timeoutMs = 8000) {
-        // simple blink detector: watch EAR and detect a drop below threshold
-        const EAR_THRESHOLD = 0.22; // tuned for face-api landmark coords; may need adjustment
-        const SAMPLE_INTERVAL = 150;
-        const start = Date.now();
-        let blinkDetected = false;
-        let lastEAR = null;
-
-        while (Date.now() - start < timeoutMs) {
-            const detection = await faceapi.detectSingleFace(this.videoEl, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-            if (detection && detection.landmarks) {
-                const lm = detection.landmarks;
-                const leftEye = lm.getLeftEye();
-                const rightEye = lm.getRightEye();
-                const leftEAR = this._computeEAR(leftEye);
-                const rightEAR = this._computeEAR(rightEye);
-                const ear = (leftEAR + rightEAR) / 2.0;
-                // detect blink as quick drop
-                if (lastEAR !== null && ear < EAR_THRESHOLD && lastEAR > EAR_THRESHOLD + 0.02) {
-                    blinkDetected = true;
-                    break;
-                }
-                lastEAR = ear;
-            }
-            await new Promise(r => setTimeout(r, SAMPLE_INTERVAL));
-        }
-        return blinkDetected;
+    distance(point1, point2) {
+        return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
     }
 
-    generateChallengeSequence() {
-        // Generate a random sequence of 3 challenges
-        const sequence = [];
-        const availableChallenges = [...this.challenges];
-
-        for (let i = 0; i < 3; i++) {
-            const randomIndex = Math.floor(Math.random() * availableChallenges.length);
-            sequence.push(availableChallenges.splice(randomIndex, 1)[0]);
-        }
-
-        return sequence;
+    async detectSmile(expressions) {
+        return expressions.happy > 0.7;
     }
 
-    async performFullEnrollment(videoElement) {
-        const sequence = this.generateChallengeSequence();
-        console.log('Enrollment sequence:', sequence);
+    async detectHeadTurn(landmarks) {
+        // Detect head turn by analyzing nose position relative to eyes
+        const nose = landmarks.getNose()[3]; // Nose tip
+        const leftEye = landmarks.getLeftEye()[0];
+        const rightEye = landmarks.getRightEye()[3];
 
-        const results = {
-            faceDescriptor: null,
-            livenessScore: 0,
-            challenges: [],
+        const faceCenterX = (leftEye.x + rightEye.x) / 2;
+        const offsetX = nose.x - faceCenterX;
+
+        // Significant horizontal offset indicates head turn
+        return Math.abs(offsetX) > 15;
+    }
+
+    async performLivenessCheck(videoElement, challenge) {
+        const detections = await this.detectFaces(videoElement);
+
+        if (detections.length === 0) {
+            throw new Error('Tidak ada wajah terdeteksi');
+        }
+
+        if (detections.length > 1) {
+            throw new Error('Hanya satu wajah yang boleh terdeteksi');
+        }
+
+        const detection = detections[0];
+        const challengeCompleted = await challenge.detector(detection.landmarks, detection.expressions);
+
+        return {
+            completed: challengeCompleted,
+            confidence: challengeCompleted ? 0.9 : 0.1,
             timestamp: Date.now()
         };
+    }
 
-        // Perform each challenge in sequence
-        for (let i = 0; i < sequence.length; i++) {
-            const challenge = sequence[i];
-            console.log(`Performing challenge ${i + 1}: ${challenge}`);
+    async captureFaceDescriptor(videoElement) {
+        const detections = await this.detectFaces(videoElement);
 
-            const challengeResult = await this.performChallenge(videoElement, challenge);
-            results.challenges.push({
-                type: challenge,
-                success: challengeResult.success,
-                score: challengeResult.score,
-                timestamp: Date.now()
-            });
-
-            if (!challengeResult.success) {
-                throw new Error(`Challenge ${challenge} gagal. Silakan coba lagi.`);
-            }
-
-            // Update progress dots
-            this.updateProgressDots(i + 1);
+        if (detections.length === 0) {
+            throw new Error('Tidak ada wajah terdeteksi');
         }
 
-        // After all challenges, capture final face descriptor
-        const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-        if (!detection) {
-            throw new Error('Gagal mendeteksi wajah untuk pendaftaran akhir.');
+        if (detections.length > 1) {
+            throw new Error('Hanya satu wajah yang boleh terdeteksi');
         }
 
-        results.faceDescriptor = Array.from(detection.descriptor);
-        results.livenessScore = results.challenges.reduce((sum, c) => sum + c.score, 0) / results.challenges.length;
+        return detections[0].descriptor;
+    }
 
-        return results;
+    async compareFaces(descriptor1, descriptor2) {
+        const distance = faceapi.euclideanDistance(descriptor1, descriptor2);
+        // Convert distance to similarity score (0-1, where 1 is perfect match)
+        const similarity = Math.max(0, 1 - distance);
+        return similarity;
+    }
+
+    async enrollFace(videoElement) {
+        try {
+            const descriptor = await this.captureFaceDescriptor(videoElement);
+            const faceId = this.generateFaceId();
+
+            return {
+                faceId: faceId,
+                faceData: Array.from(descriptor),
+                enrolledAt: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error('Error enrolling face:', error);
+            throw error;
+        }
+    }
+
+    generateFaceId() {
+        return 'face_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    async verifyFace(videoElement, registeredFaceData) {
+        try {
+            const currentDescriptor = await this.captureFaceDescriptor(videoElement);
+            const registeredDescriptor = new Float32Array(registeredFaceData);
+
+            const similarity = await this.compareFaces(currentDescriptor, registeredDescriptor);
+
+            return {
+                verified: similarity >= 0.8, // Threshold for face verification
+                similarity: similarity,
+                faceId: this.generateFaceId()
+            };
+        } catch (error) {
+            console.error('Error verifying face:', error);
+            throw error;
+        }
     }
 
     async performFullVerification(videoElement, registeredFaceData) {
-        const sequence = this.generateChallengeSequence();
-        console.log('Verification sequence:', sequence);
+        try {
+            // Generate challenge sequence
+            const challenges = this.generateChallengeSequence();
 
-        const results = {
-            faceVerified: false,
-            faceId: null,
-            faceSimilarity: 0,
-            livenessScore: 0,
-            challenges: [],
-            timestamp: Date.now()
-        };
+            let totalLivenessScore = 0;
+            const challengeResults = [];
 
-        // Perform each challenge in sequence
-        for (let i = 0; i < sequence.length; i++) {
-            const challenge = sequence[i];
-            console.log(`Performing challenge ${i + 1}: ${challenge}`);
+            // Perform each challenge in sequence
+            for (const challenge of challenges) {
+                // Show instruction to user
+                this.showChallengeInstruction(challenge);
 
-            const challengeResult = await this.performChallenge(videoElement, challenge);
-            results.challenges.push({
-                type: challenge,
-                success: challengeResult.success,
-                score: challengeResult.score,
+                // Wait for user to complete challenge
+                const result = await this.waitForChallengeCompletion(videoElement, challenge);
+                challengeResults.push(result);
+                totalLivenessScore += result.confidence;
+            }
+
+            const avgLivenessScore = totalLivenessScore / challenges.length;
+
+            // Perform face verification
+            const faceVerification = await this.verifyFace(videoElement, registeredFaceData);
+
+            return {
+                faceVerified: faceVerification.verified,
+                faceSimilarity: faceVerification.similarity,
+                livenessScore: avgLivenessScore,
+                livenessVerified: avgLivenessScore >= 0.7, // Threshold for liveness
+                challenges: challengeResults,
+                faceId: faceVerification.faceId,
                 timestamp: Date.now()
-            });
+            };
 
-            if (!challengeResult.success) {
-                throw new Error(`Challenge ${challenge} gagal. Silakan coba lagi.`);
+        } catch (error) {
+            console.error('Error in full verification:', error);
+            throw error;
+        }
+    }
+
+    async performFullEnrollment(videoElement) {
+        try {
+            // Generate challenge sequence for enrollment
+            const challenges = this.generateChallengeSequence();
+
+            let totalLivenessScore = 0;
+            const challengeResults = [];
+
+            // Perform each challenge in sequence
+            for (const challenge of challenges) {
+                // Show instruction to user
+                this.showChallengeInstruction(challenge);
+
+                // Wait for user to complete challenge
+                const result = await this.waitForChallengeCompletion(videoElement, challenge);
+                challengeResults.push(result);
+                totalLivenessScore += result.confidence;
             }
 
-            // Update progress dots
-            this.updateProgressDots(i + 1);
-        }
+            const avgLivenessScore = totalLivenessScore / challenges.length;
 
-        // After all challenges, verify face
-        const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-        if (!detection) {
-            throw new Error('Gagal mendeteksi wajah untuk verifikasi.');
-        }
+            // Capture face descriptor for enrollment
+            const faceDescriptor = await this.captureFaceDescriptor(videoElement);
 
-        const currentDescriptor = detection.descriptor;
-        const registeredDescriptor = new Float32Array(registeredFaceData);
+            return {
+                faceDescriptor: Array.from(faceDescriptor),
+                livenessScore: avgLivenessScore,
+                livenessVerified: avgLivenessScore >= 0.7, // Threshold for liveness
+                challenges: challengeResults,
+                faceId: this.generateFaceId(),
+                timestamp: Date.now()
+            };
 
-        // Calculate similarity
-        const distance = faceapi.euclideanDistance(currentDescriptor, registeredDescriptor);
-        results.faceSimilarity = Math.max(0, 1 - distance);
-
-        // Face verification threshold
-        results.faceVerified = results.faceSimilarity >= 0.7;
-        results.livenessScore = results.challenges.reduce((sum, c) => sum + c.score, 0) / results.challenges.length;
-
-        return results;
-    }
-
-    async performChallenge(videoElement, challengeType) {
-        switch (challengeType) {
-            case 'blink':
-                return await this.performBlinkChallenge(videoElement);
-            case 'smile':
-                return await this.performSmileChallenge(videoElement);
-            case 'head_turn':
-                return await this.performHeadTurnChallenge(videoElement);
-            default:
-                throw new Error(`Unknown challenge type: ${challengeType}`);
+        } catch (error) {
+            console.error('Error in full enrollment:', error);
+            throw error;
         }
     }
 
-    async performBlinkChallenge(videoElement) {
-        // Wait for blink detection
-        const blinkDetected = await this._waitForBlink(8000);
-        return {
-            success: blinkDetected,
-            score: blinkDetected ? 1.0 : 0.0
-        };
-    }
+    showChallengeInstruction(challenge) {
+        // Update UI with challenge instruction
+        const instructionElement = document.getElementById('face-instruction-text');
+        if (instructionElement) {
+            instructionElement.innerText = challenge.instruction;
+        }
 
-    async performSmileChallenge(videoElement) {
-        // Simple smile detection based on mouth landmarks
-        const smileDetected = await this._waitForSmile(8000);
-        return {
-            success: smileDetected,
-            score: smileDetected ? 1.0 : 0.0
-        };
-    }
-
-    async performHeadTurnChallenge(videoElement) {
-        // Simple head turn detection based on landmark movement
-        const headTurnDetected = await this._waitForHeadTurn(8000);
-        return {
-            success: headTurnDetected,
-            score: headTurnDetected ? 1.0 : 0.0
-        };
-    }
-
-    updateProgressDots(completedCount) {
-        // Update UI progress dots if they exist
-        for (let i = 1; i <= 3; i++) {
-            const dot = document.getElementById(`challenge-${i}`);
-            if (dot) {
+        // Update progress dots
+        const dots = document.querySelectorAll('.challenge-dot');
+        dots.forEach((dot, index) => {
+            if (index < this.completedChallenges.length) {
+                dot.classList.add('completed');
+                dot.classList.remove('active');
+            } else if (index === this.completedChallenges.length) {
+                dot.classList.add('active');
+                dot.classList.remove('completed');
+            } else {
                 dot.classList.remove('active', 'completed');
-                if (i <= completedCount) {
-                    dot.classList.add('completed');
-                } else if (i === completedCount + 1) {
-                    dot.classList.add('active');
-                }
             }
-        }
+        });
     }
 
-    async _waitForSmile(timeoutMs = 8000) {
-        // Simple smile detector based on mouth corner positions
-        const start = Date.now();
-        let smileDetected = false;
+    async waitForChallengeCompletion(videoElement, challenge, timeout = 10000) {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
 
-        while (Date.now() - start < timeoutMs) {
-            const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-            if (detection && detection.landmarks) {
-                const mouth = detection.landmarks.getMouth();
-                if (mouth && mouth.length >= 4) {
-                    // Simple smile detection: check if mouth corners are raised
-                    const leftCorner = mouth[0];
-                    const rightCorner = mouth[6];
-                    const mouthCenter = mouth[3];
+            const checkChallenge = async () => {
+                try {
+                    const result = await this.performLivenessCheck(videoElement, challenge);
 
-                    // Calculate mouth width and height
-                    const mouthWidth = Math.abs(rightCorner.x - leftCorner.x);
-                    const mouthHeight = Math.abs(mouthCenter.y - Math.min(leftCorner.y, rightCorner.y));
-
-                    // Simple smile threshold
-                    if (mouthHeight > mouthWidth * 0.3) {
-                        smileDetected = true;
-                        break;
+                    if (result.completed) {
+                        // Add to completed challenges
+                        this.completedChallenges.push(challenge);
+                        resolve(result);
+                        return;
                     }
-                }
-            }
-            await new Promise(r => setTimeout(r, 200));
-        }
-        return smileDetected;
-    }
 
-    async _waitForHeadTurn(timeoutMs = 8000) {
-        // Simple head turn detection based on nose position changes
-        const start = Date.now();
-        let initialNosePos = null;
-        let headTurnDetected = false;
-
-        while (Date.now() - start < timeoutMs) {
-            const detection = await faceapi.detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
-            if (detection && detection.landmarks) {
-                const nose = detection.landmarks.getNose();
-                if (nose && nose.length > 0) {
-                    const currentNosePos = nose[3]; // nose tip
-
-                    if (!initialNosePos) {
-                        initialNosePos = { x: currentNosePos.x, y: currentNosePos.y };
-                    } else {
-                        // Check for significant horizontal movement
-                        const movementX = Math.abs(currentNosePos.x - initialNosePos.x);
-                        if (movementX > 30) { // pixels threshold
-                            headTurnDetected = true;
-                            break;
-                        }
+                    if (Date.now() - startTime > timeout) {
+                        reject(new Error(`Waktu habis. Silakan coba lagi: ${challenge.instruction}`));
+                        return;
                     }
-                }
-            }
-            await new Promise(r => setTimeout(r, 200));
-        }
-        return headTurnDetected;
-    }
 
-    async enrollFace(videoElement, options = { samples: 3 }) {
-        // Legacy method - kept for compatibility
-        return await this.performFullEnrollment(videoElement);
+                    // Continue checking
+                    setTimeout(checkChallenge, 100);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            checkChallenge();
+        });
     }
 }
 
-// Export for usage in pages that include this script
+// Export for use in other modules
 window.FaceRecognition = FaceRecognition;

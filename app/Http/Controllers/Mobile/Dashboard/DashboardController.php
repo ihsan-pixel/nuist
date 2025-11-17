@@ -75,7 +75,7 @@ class DashboardController extends \App\Http\Controllers\Controller
         // Today's schedules for the teacher
         $todayName = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
         $todaySchedules = TeachingSchedule::where('teacher_id', $user->id)
-            ->where('day', $todayName)
+            ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
 

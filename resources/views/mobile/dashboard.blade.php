@@ -7,7 +7,8 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background: #f8f9fb;
+            background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center fixed;
+            background-size: cover;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
         }
@@ -17,7 +18,7 @@
             color: #fff;
             border-radius: 12px;
             padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            /* box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3); */
             margin-bottom: 10px;
         }
 
@@ -32,6 +33,10 @@
 
         .dashboard-header h5 {
             font-size: 14px;
+        }
+
+        .dashboard-header .welcome-text {
+            color: #fff !important;
         }
 
         .stats-form {
@@ -74,6 +79,60 @@
             color: #6c757d;
         }
 
+        .services-form {
+            /* background: #fff; */
+            border-radius: 12px;
+            padding: 12px;
+            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
+            margin-bottom: 12px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .service-item {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-radius: 10px;
+            padding: 14px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .service-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .service-item i {
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .service-label {
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+            color: #333;
+        }
+
+        .service-item i {
+            font-size: 24px;
+            color: #ffffff;
+        }
+
+        .service-item h6 {
+            font-size: 10px;
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
         .info-section {
             background: #fff;
             border-radius: 12px;
@@ -108,7 +167,7 @@
             background: #fff;
             border-radius: 12px;
             padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
             margin-bottom: 12px;
         }
 
@@ -222,6 +281,7 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8);
         }
+
     </style>
 
     <!-- Show banner modal on page load -->
@@ -243,7 +303,7 @@
     @endif
 
     <!-- Header -->
-    <div class="dashboard-header">
+    {{-- <div class="dashboard-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h6 class="mb-1">Halo, {{ Auth::user()->name }} 👋</h6>
@@ -252,7 +312,7 @@
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/app/public/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                  class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
-    </div>
+    </div> --}}
 
     <!-- Banner Modal -->
     @if($bannerImage)
@@ -276,6 +336,14 @@
 
     <!-- Stats Form -->
     <div class="stats-form">
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="welcome-text mb-1">Asal Madrasah/Sekolah</small>
+                    <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
+                </div>
+            </div>
+        </div>
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="icon-container">
@@ -310,33 +378,92 @@
         </div>
     </div>
 
-    @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-    <div class="info-section" style="margin-bottom: 12px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <a href="{{ route('mobile.kelola-izin') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-edit" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Kelola Izin</span>
-            </a>
-            <a href="{{ route('mobile.monitor-presensi') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-calendar-check" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Data Presensi</span>
-            </a>
+    <small>Layanan</small>
+
+    <!-- Services Form -->
+    <div class="services-form">
+        <div class="services-grid">
+            <div>
+                <a href="{{ route('mobile.presensi') }}" class="service-item">
+                    <i class="bx bx-fingerprint"></i>
+                </a>
+                <div class="service-label">Presensi</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
+                    <i class="bx bx-chalkboard"></i>
+                </a>
+                <div class="service-label">Presensi Mengajar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
+                    <i class="bx bx-calendar-star"></i>
+                </a>
+                <div class="service-label">Izin Cuti</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
+                    <i class="bx bx-time-five"></i>
+                </a>
+                <div class="service-label">Izin Terlambat</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
+                    <i class="bx bx-plus-medical"></i>
+                </a>
+                <div class="service-label">Izin Sakit</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
+                    <i class="bx bx-briefcase"></i>
+                </a>
+                <div class="service-label">Izin Dinas Luar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.jadwal') }}" class="service-item">
+                    <i class="bx bx-calendar"></i>
+                </a>
+                <div class="service-label">Jadwal Mengajar</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.laporan') }}" class="service-item">
+                    <i class="bx bx-file"></i>
+                </a>
+                <div class="service-label">Laporan</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.profile') }}" class="service-item">
+                    <i class="bx bx-user"></i>
+                </a>
+                <div class="service-label">Profile</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
+                    <i class="bx bx-cog"></i>
+                </a>
+                <div class="service-label">Pengaturan</div>
+            </div>
+
+            @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+            <div>
+                <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
+                    <i class="bx bx-edit"></i>
+                </a>
+                <div class="service-label">Kelola Izin</div>
+            </div>
+            <div>
+                <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
+                    <i class="bx bx-calendar-check"></i>
+                </a>
+                <div class="service-label">Data Presensi</div>
+            </div>
+            @endif
         </div>
-        {{-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-            <a href="{{ route('mobile.monitor-jadwal-mengajar') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-calendar-event" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Jadwal Mengajar</span>
-            </a>
-            <a href="{{ route('mobile.data-jadwal') }}" class="action-button" style="display: block; text-align: center; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500;">
-                <i class="bx bx-chalkboard" style="font-size: 20px; margin-bottom: 4px;"></i>
-                <span>Data Kelas & Jadwal</span>
-            </a>
-        </div> --}}
     </div>
-    @endif
+
 
     <!-- Teacher Info -->
-    <div class="info-section">
+    {{-- <div class="info-section">
         <h6 class="section-title">Informasi Tenaga Pendidik</h6>
         <div class="info-grid">
             <div class="info-item">
@@ -388,11 +515,13 @@
                 <strong>{{ $userInfo['program_studi'] }}</strong>
             </div>
         </div>
-    </div>
+    </div> --}}
+
+    <small>Jadwal Hari Ini</small>
 
     <!-- Schedule Section -->
     <div class="schedule-section">
-        <h6 class="section-title">Jadwal Hari Ini</h6>
+        {{-- <h6 class="section-title">Jadwal Hari Ini</h6> --}}
         @if($todaySchedules->count() > 0)
             <div class="schedule-grid">
                 @foreach($todaySchedules as $schedule)
@@ -409,32 +538,6 @@
                 <p>Tidak ada jadwal mengajar hari ini</p>
             </div>
         @endif
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <div class="quick-actions-header">
-            <h6><i class="bx bx-flash me-2"></i>Aksi Cepat</h6>
-        </div>
-        <div class="quick-actions-content">
-            <div class="action-grid">
-            <a href="{{ route('mobile.presensi') }}" class="action-button">
-                <i class="bx bx-check-square"></i>
-                <span>Presensi</span>
-            </a>
-            <a href="{{ route('mobile.laporan') }}" class="action-button">
-                <i class="bx bx-file"></i>
-                <span>Laporan</span>
-            </a>
-            <a href="{{ route('mobile.teaching-attendances') }}" class="action-button">
-                <i class="bx bx-chalkboard"></i>
-                <span>Mengajar</span>
-            </a>
-            <a href="{{ route('mobile.ubah-akun') }}" class="action-button">
-                <i class="bx bx-cog"></i>
-                <span>Pengaturan</span>
-            </a>
-        </div>
     </div>
 </div>
 @endsection

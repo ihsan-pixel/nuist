@@ -70,57 +70,7 @@
             margin-bottom: 10px;
         }
 
-        .face-verification-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
-        }
 
-        .face-camera-container {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #000;
-            margin: 8px 0;
-        }
-
-        .face-camera-preview {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .face-instruction {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-size: 12px;
-        }
-
-        .challenge-progress {
-            display: flex;
-            justify-content: center;
-            margin: 8px 0;
-        }
-
-        .challenge-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #dee2e6;
-            margin: 0 2px;
-        }
-
-        .challenge-dot.active {
-            background: #0e8549;
-        }
-
-        .challenge-dot.completed {
-            background: #0e8549;
-        }
 
         .user-location-map-container {
             position: relative;
@@ -379,6 +329,10 @@
             color: #fff;
             background: linear-gradient(135deg, #003d3e 0%, #0c6a42 100%);
         }
+
+        #selfie-video {
+            transform: scaleX(-1); /* tampilan jadi seperti cermin */
+        }
     </style>
 
     <!-- Header -->
@@ -429,6 +383,7 @@
             </div>
         </div>
     </div>
+
     @elseif($presensiHariIni && $presensiHariIni->count() > 0)
     <div class="status-card success">
         <div class="d-flex align-items-center">
@@ -476,7 +431,7 @@
                     <i class="bx bx-loader-alt bx-spin me-1"></i>
                     <div>
                         <strong>Mengumpulkan data lokasi...</strong>
-                        <br><small class="text-muted">Reading 1/3 - Pastikan GPS aktif</small>
+                        <br><small class="text-muted">Reading 1/1 - Pastikan GPS aktif</small>
                     </div>
                 </div>
             </div>
@@ -503,13 +458,57 @@
             <input type="text" id="lokasi" class="address-input" placeholder="Alamat akan muncul otomatis" readonly>
         </div>
 
+        <!-- Selfie Section -->
+        <div class="form-section">
+            <div class="d-flex align-items-center mb-1">
+                <i class="bx bx-camera text-primary me-1"></i>
+                <label class="section-title mb-0">Foto Selfie</label>
+            </div>
+            <div class="alert-custom info" style="margin-bottom: 8px;">
+                <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
+            </div>
+            <div id="selfie-container" style="position: relative;">
+                <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
+                    <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
+                    <span style="color: #6c757d; font-size: 14px;">Kamera akan muncul di sini</span>
+                </div>
+                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
+                <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none;"></canvas>
+                <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
+                <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
+                    <i class="bx bx-camera me-1"></i>Ambil Foto
+                </button>
+                <button type="button" id="btn-retake-selfie" class="btn btn-secondary" style="position: absolute; bottom: 8px; right: 8px; display: none;">
+                    <i class="bx bx-refresh me-1"></i>Ulang
+                </button>
+            </div>
+            <input type="hidden" id="selfie-data" name="selfie_data">
+            <div id="selfie-status" class="location-info info" style="margin-top: 8px;">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Presensi Button -->
         <button type="button" id="btn-presensi"
                 class="presensi-btn"
                 disabled
                 {{ (($presensiHariIni && $presensiHariIni->count() > 0) && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) || $isHoliday ? 'disabled' : '' }}>
             <i class="bx bx-{{ $isHoliday ? 'calendar-x' : 'check-circle' }} me-1"></i>
-            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Mengumpulkan data lokasi...' }}
+            {{ $isHoliday ? 'Hari Libur - Presensi Ditutup' : 'Ambil Selfie' }}
+        </button>
+
+        <!-- Submit Button (hidden initially) -->
+        <button type="button" id="btn-submit-presensi"
+                class="presensi-btn"
+                style="display: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <i class="bx bx-send me-1"></i>
+            Kirim Presensi
         </button>
     </div>
 
@@ -559,31 +558,15 @@
     </div>
     @endif
 
-    <!-- Face Verification Section - Temporarily Disabled -->
-    @if(Auth::user()->face_verification_required ?? true)
-    <div class="face-verification-section">
-        <div class="d-flex align-items-center mb-2">
-            <div class="status-icon">
-                <i class="bx bx-face"></i>
-            </div>
-            <h6 class="section-title mb-0">Verifikasi Wajah (Dalam Perbaikan)</h6>
-        </div>
 
-        <div class="alert-custom warning">
-            <i class="bx bx-info-circle me-1"></i>
-            <strong>Verifikasi Wajah Sedang Dalam Perbaikan</strong>
-            <p class="mb-0 text-muted small">Saat ini presensi dapat dilakukan tanpa verifikasi wajah. Sistem akan kembali normal setelah perbaikan selesai.</p>
-        </div>
-    </div>
-    @endif
 
     <!-- Important Notice -->
-    <div class="alert-custom danger">
+    <div class="alert-custom info">
         <div class="d-flex">
-            <i class="bx bx-error-circle text-danger me-1"></i>
+            <i class="bx bx-info-circle text-info me-1"></i>
             <div>
-                <strong class="text-danger">Penting!</strong>
-                <p class="mb-0 text-muted">Pastikan berada di lingkungan madrasah untuk presensi.</p>
+                <strong class="text-info">Informasi Sistem</strong>
+                <p class="mb-0 text-muted">Pastikan Anda berada di lingkungan madrasah saat melakukan presensi. Sistem menggunakan validasi lokasi koordinat madrasah.</p>
             </div>
         </div>
     </div>
@@ -661,44 +644,15 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- face-api.js (required by face-recognition.js). Loaded from CDN to ensure `faceapi` is available. -->
-<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-<!-- Dynamically load face-recognition.js only if it's reachable to avoid 404 and make error handling clearer -->
-<script>
-    (async function() {
-        const scriptUrl = "{{ asset('js/face-recognition.js') }}";
-        try {
-            // Try a HEAD request first to detect 404 early (safer than relying on browser script load error alone)
-            const resp = await fetch(scriptUrl, { method: 'HEAD' });
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
-            const s = document.createElement('script');
-            s.src = scriptUrl;
-            s.onload = () => console.log('face-recognition.js loaded');
-            s.onerror = (e) => {
-                console.error('Failed to load face-recognition.js', e);
-                try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition gagal dimuat.'; } catch(e){}
-            };
-            document.head.appendChild(s);
-        } catch (err) {
-            console.error('face-recognition.js not reachable:', err);
-            try { document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: script face-recognition tidak ditemukan di server.'; } catch(e){}
-        }
-    })();
-</script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
     let locationReadings = [];
     let readingCount = 0;
-    const totalReadings = 3;
+    const totalReadings = 1; // Single location reading only
     const readingInterval = 5000; // 5 seconds
 
-    // Face recognition variables
-    let faceRecognition = null;
-    let currentChallengeIndex = 0;
-    let challengeSequence = [];
-    let isVerificationRunning = false;
+
 
     // Map variables
     let userLocationMap = null;
@@ -707,8 +661,15 @@ window.addEventListener('load', function() {
     // Function to collect location readings
     function collectLocationReading(readingNumber) {
         return new Promise((resolve, reject) => {
+            // Add timeout wrapper for additional safety
+            const timeoutId = setTimeout(() => {
+                reject(new Error(`Reading ${readingNumber} timed out`));
+            }, 15000); // 15 second total timeout
+
             navigator.geolocation.getCurrentPosition(
                 function(position) {
+                    clearTimeout(timeoutId); // Clear timeout on success
+
                     const reading = {
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
@@ -729,14 +690,19 @@ window.addEventListener('load', function() {
                     locationReadings.push(reading);
                     readingCount++;
 
-                    // Update UI
+                    // Update UI with smooth progress
+                    const isComplete = readingCount >= totalReadings;
+                    const progressText = isComplete ? 'Data lengkap!' : 'Mengumpulkan...';
+                    const iconClass = isComplete ? 'bx bx-check-circle text-success me-2' : 'bx bx-loader-alt bx-spin me-2';
+                    const infoClass = isComplete ? 'location-info success' : 'location-info info';
+
                     $('#location-info').html(`
-                        <div class="location-info info">
+                        <div class="${infoClass}">
                             <div class="d-flex align-items-center">
-                                <i class="bx bx-loader-alt bx-spin me-2"></i>
+                                <i class="${iconClass}"></i>
                                 <div>
-                                    <strong class="small">Mengumpulkan data lokasi...</strong>
-                                    <br><small class="text-muted">Reading ${readingCount}/${totalReadings} - ${readingCount < totalReadings ? 'Tunggu sebentar...' : 'Selesai!'}</small>
+                                    <strong class="small">Reading ${readingCount}/${totalReadings} - ${progressText}</strong>
+                                    <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
                                 </div>
                             </div>
                         </div>
@@ -752,83 +718,221 @@ window.addEventListener('load', function() {
                     // Get address from latest reading
                     getAddressFromCoordinates(reading.latitude, reading.longitude);
 
+                    // Enable selfie camera after first successful location reading
+                    if (readingNumber === 1 && !selfieCaptured) {
+                        setTimeout(() => {
+                            initializeSelfieCamera();
+                        }, 1000); // Small delay to ensure UI is updated
+                    }
+
                     resolve(reading);
                 },
                 function(error) {
+                    clearTimeout(timeoutId); // Clear timeout on error
+                    console.warn(`Reading ${readingNumber} failed:`, error);
+
+                    // Provide user-friendly error message
+                    const errorMessage = error.code === 1 ? 'Izin lokasi ditolak' :
+                                       error.code === 2 ? 'Sinyal GPS lemah' :
+                                       error.code === 3 ? 'Waktu habis' : 'Error tidak diketahui';
+
+                    $('#location-info').html(`
+                        <div class="location-info warning">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-error-circle me-2"></i>
+                                <div>
+                                <strong class="small">Reading ${readingNumber} gagal</strong>
+                                <br><small class="text-muted">${errorMessage} - Melanjutkan...</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
                     reject(error);
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 10000,
+                    timeout: 10000, // 10 second timeout for each reading
                     maximumAge: 30000
                 }
             );
         });
     }
 
-    // Start collecting multiple readings - modified to allow presensi with at least one reading
+    // Start collecting multiple readings - enhanced for reliability with GPS fallback
     async function startLocationCollection() {
+        let successfulReadings = 0;
+        let lastSuccessfulReading = null;
+        let consecutiveFailures = 0;
+        const maxConsecutiveFailures = 3;
+
         try {
             for (let i = 1; i <= totalReadings; i++) {
                 try {
-                    await collectLocationReading(i);
+                    const reading = await collectLocationReading(i);
+                    successfulReadings++;
+                    lastSuccessfulReading = reading;
+                    consecutiveFailures = 0; // Reset failure counter
 
                     // Enable presensi button after first successful reading
-                    if (i === 1 && locationReadings.length > 0) {
-                        latitude = locationReadings[locationReadings.length - 1].latitude;
-                        longitude = locationReadings[locationReadings.length - 1].longitude;
+                    if (successfulReadings === 1) {
+                        latitude = reading.latitude;
+                        longitude = reading.longitude;
 
                         // Enable presensi button early
                         var hasPresensi = {{ $presensiHariIni && $presensiHariIni->count() > 0 ? 'true' : 'false' }};
                         var allPresensiComplete = {{ ($presensiHariIni && $presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()) ? 'true' : 'false' }};
-                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Presensi Masuk";
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>' + buttonText);
+                        var buttonText = hasPresensi && !allPresensiComplete ? "Presensi Keluar" : "Ambil Selfie";
+                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>' + buttonText);
                     }
 
-                    // Wait 5 seconds between readings (except for the last one)
+                    // Wait between readings (except for the last one)
                     if (i < totalReadings) {
                         await new Promise(resolve => setTimeout(resolve, readingInterval));
                     }
                 } catch (readingError) {
                     console.warn(`Reading ${i} failed:`, readingError);
+                    consecutiveFailures++;
+
+                    // If too many consecutive failures, try alternative approach
+                    if (consecutiveFailures >= maxConsecutiveFailures) {
+                        console.log('Too many consecutive failures, trying alternative GPS settings...');
+                        await tryAlternativeGPSApproach(i);
+                        consecutiveFailures = 0; // Reset after alternative attempt
+                        i--; // Retry the same reading number
+                        continue;
+                    }
+
                     // Continue to next reading instead of failing completely
+                    // Add a small delay before next attempt
+                    if (i < totalReadings) {
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
                     continue;
                 }
             }
 
-            // Update final status
-            if (locationReadings.length > 0) {
-                latitude = locationReadings[locationReadings.length - 1].latitude;
-                longitude = locationReadings[locationReadings.length - 1].longitude;
+            // Final status update based on successful readings
+            if (successfulReadings > 0) {
+                latitude = lastSuccessfulReading.latitude;
+                longitude = lastSuccessfulReading.longitude;
+
+                const successMessage = successfulReadings === totalReadings ?
+                    'Semua reading berhasil!' : `${successfulReadings}/${totalReadings} reading berhasil`;
 
                 $('#location-info').html(`
-        <div class="location-info success">
-            <div class="d-flex align-items-center">
-                <i class="bx bx-check-circle me-2"></i>
-                <div>
-                    <strong class="small">Data lokasi lengkap!</strong>
-                    <br><small class="text-muted">Siap untuk presensi</small>
-                </div>
-            </div>
-        </div>
+                    <div class="location-info success">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-check-circle text-success me-2"></i>
+                            <div>
+                                <strong class="small">Data lokasi lengkap!</strong>
+                                <br><small class="text-muted">${successMessage}</small>
+                            </div>
+                        </div>
+                    </div>
                 `);
             } else {
-                throw new Error('Tidak dapat mendapatkan lokasi setelah beberapa percobaan');
+                // No successful readings at all - provide detailed troubleshooting
+                await showGPSTroubleshootingGuide();
+                return;
             }
 
         } catch (error) {
-            $('#location-info').html(`
-                <div class="location-info error">
-                    <div class="d-flex align-items-center">
-                        <i class="bx bx-error-circle me-2"></i>
-                        <div>
-                            <strong class="small">Gagal mendapatkan lokasi</strong>
-                            <br><small class="text-muted">${error.message}</small>
+            console.error('Critical error in location collection:', error);
+            await showGPSTroubleshootingGuide();
+        }
+    }
+
+    // Alternative GPS approach for when standard geolocation fails
+    async function tryAlternativeGPSApproach(readingNumber) {
+        return new Promise((resolve, reject) => {
+            // Try with different settings
+            const alternativeTimeout = setTimeout(() => {
+                reject(new Error('Alternative GPS approach timed out'));
+            }, 20000);
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    clearTimeout(alternativeTimeout);
+                    console.log('Alternative GPS approach succeeded');
+
+                    const reading = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now(),
+                        accuracy: position.coords.accuracy,
+                        altitude: position.coords.altitude,
+                        speed: position.coords.speed
+                    };
+
+                    // Update UI with success message
+                    $('#location-info').html(`
+                        <div class="location-info success">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-check-circle text-success me-2"></i>
+                                <div>
+                                <strong class="small">Reading ${readingNumber} berhasil (alt)</strong>
+                                <br><small class="text-muted">Akurasi: ${Math.round(position.coords.accuracy)}m</small>
+                                </div>
+                            </div>
                         </div>
+                    `);
+
+                    resolve(reading);
+                },
+                function(error) {
+                    clearTimeout(alternativeTimeout);
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: false, // Try without high accuracy first
+                    timeout: 15000,
+                    maximumAge: 60000 // Allow older cached positions
+                }
+            );
+        });
+    }
+
+    // Comprehensive GPS troubleshooting guide
+    async function showGPSTroubleshootingGuide() {
+        $('#location-info').html(`
+            <div class="location-info error">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <div>
+                        <strong class="small">GPS Tidak Tersedia</strong>
+                        <br><small class="text-muted">Coba langkah berikut:</small>
                     </div>
                 </div>
-            `);
-        }
+                <div style="margin-top: 8px; font-size: 11px;">
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Pastikan GPS aktif</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Berikan izin lokasi ke browser</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-check-circle text-success me-1"></i> Coba di luar ruangan</div>
+                    <div style="margin-bottom: 4px;"><i class="bx bx-refresh text-primary me-1"></i> Refresh halaman</div>
+                </div>
+            </div>
+        `);
+
+        $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Error');
+
+        // Auto-retry after 10 seconds
+        setTimeout(() => {
+            if (locationReadings.length === 0) {
+                console.log('Auto-retrying GPS collection...');
+                $('#location-info').html(`
+                    <div class="location-info info">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-loader-alt bx-spin me-2"></i>
+                            <div>
+                                <strong class="small">Mencoba lagi...</strong>
+                                <br><small class="text-muted">Reading 1/1 - Auto retry</small>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                startLocationCollection();
+            }
+        }, 10000);
     }
 
     // Initialize user location map
@@ -837,7 +941,13 @@ window.addEventListener('load', function() {
         const container = document.getElementById('user-location-map');
         if (!container) return;
         // If Leaflet already attached an id to the element, skip initialization
-        if (container._leaflet_id) return;
+        if (container._leaflet_id) {
+            // Remove existing map instance if it exists
+            if (userLocationMap) {
+                userLocationMap.remove();
+                userLocationMap = null;
+            }
+        }
         if (userLocationMap) return; // Already initialized
 
         userLocationMap = L.map('user-location-map').setView([-6.2, 106.816666], 13); // Default to Jakarta
@@ -856,6 +966,8 @@ window.addEventListener('load', function() {
             initializeUserLocationMap();
         }
 
+        if (!userLocationMap) return; // Still not initialized
+
         // Remove existing marker
         if (userLocationMarker) {
             userLocationMap.removeLayer(userLocationMarker);
@@ -870,22 +982,23 @@ window.addEventListener('load', function() {
         userLocationMap.setView([lat, lng], 16);
     }
 
-    // Check if geolocation is supported
-    if (navigator.geolocation) {
-        startLocationCollection();
-    } else {
-        $('#location-info').html(`
-            <div class="location-info error">
-                <div class="d-flex align-items-center">
-                    <i class="bx bx-error-circle me-2"></i>
-                    <div>
-                        <strong class="small">Browser tidak mendukung GPS</strong>
-                        <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+        // Check if geolocation is supported
+        if (navigator.geolocation) {
+            startLocationCollection();
+        } else {
+            $('#location-info').html(`
+                <div class="location-info error">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <div>
+                            <strong class="small">Browser tidak mendukung GPS</strong>
+                            <br><small class="text-muted">Silakan gunakan browser modern dengan dukungan GPS</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `);
-    }
+            `);
+            $('#btn-presensi').prop('disabled', true).html('<i class="bx bx-error me-1"></i>GPS Tidak Didukung');
+        }
 
     // Get address from coordinates
     function getAddressFromCoordinates(lat, lng) {
@@ -903,275 +1016,247 @@ window.addEventListener('load', function() {
             });
     }
 
-    // Initialize face recognition if required
-    const faceRequired = {{ Auth::user()->face_verification_required ? 'true' : 'false' }};
-    const hasFaceData = {{ !empty(Auth::user()->face_data) ? 'true' : 'false' }};
 
-    // Wait for the FaceRecognition class to be available (guard against load/order/race issues)
-    function waitForFaceRecognition(timeout = 7000) {
-        return new Promise((resolve, reject) => {
-            const start = Date.now();
-            (function check() {
-                if (window.FaceRecognition) return resolve();
-                if (Date.now() - start > timeout) return reject(new Error('FaceRecognition tidak tersedia'));
-                setTimeout(check, 100);
-            })();
-        });
-    }
 
-    if (faceRequired) {
-        waitForFaceRecognition().then(() => {
-            if (hasFaceData) {
-                initializeFaceRecognition();
-            } else {
-                initializeFaceEnrollment();
-            }
-        }).catch(err => {
-            console.error('FaceRecognition not available:', err);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + err.message;
-        });
-    }
 
-    async function initializeFaceRecognition() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Selfie variables
+    let selfieStream = null;
+    let selfieCaptured = false;
+
+    // Initialize selfie camera
+    async function initializeSelfieCamera() {
         try {
-            faceRecognition = new FaceRecognition();
+            // Check if required DOM elements exist
+            const video = document.getElementById('selfie-video');
+            const container = document.getElementById('selfie-container');
+            const captureBtn = document.getElementById('btn-capture-selfie');
+            const statusElement = document.getElementById('selfie-status');
 
-            // Load models
-            const modelsLoaded = await faceRecognition.loadModels();
-            if (!modelsLoaded) {
-                throw new Error('Gagal memuat model pengenalan wajah');
+            if (!video || !container || !captureBtn || !statusElement) {
+                console.error('Required DOM elements for selfie camera not found');
+                throw new Error('DOM elements not ready');
             }
 
-            // Initialize camera
-            const videoElement = document.getElementById('face-camera');
-            await faceRecognition.initializeCamera(videoElement);
-
-            // Update UI
-            document.getElementById('face-instruction-text').innerText = 'Siap untuk verifikasi wajah';
-            $('#start-face-verification').prop('disabled', false);
-
-        } catch (error) {
-            console.error('Face recognition initialization error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi verifikasi wajah: ' + error.message;
-        }
-    }
-
-    // Handle start face verification
-    $('#start-face-verification').click(async function() {
-        if (isVerificationRunning) return;
-
-        isVerificationRunning = true;
-        const btn = $(this);
-        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Memulai...');
-
-        try {
-            if (!faceRecognition) {
-                // Try to wait for and initialize FaceRecognition if it's available but not yet created
-                try {
-                    await waitForFaceRecognition();
-                    await initializeFaceRecognition();
-                } catch (err) {
-                    throw new Error('Face recognition belum diinisialisasi: ' + err.message);
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 480 },
+                    height: { ideal: 640 },
+                    aspectRatio: 3/4
                 }
-            }
-
-            // Generate challenge sequence
-            challengeSequence = faceRecognition.generateChallengeSequence();
-            currentChallengeIndex = 0;
-
-            // Reset progress dots
-            $('.challenge-dot').removeClass('active completed');
-
-            // Start verification process
-            await runVerificationSequence();
-
-        } catch (error) {
-            console.error('Verification start error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        } finally {
-            isVerificationRunning = false;
-            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Verifikasi');
-        }
-    });
-
-    // Handle start face enrollment
-    $('#start-face-enrollment').click(function() {
-        $('#face-enrollment-prompt').hide();
-        $('#face-enrollment-interface').show();
-        // Ensure FaceRecognition class is available before initializing enrollment
-        waitForFaceRecognition().then(() => {
-            initializeFaceEnrollment();
-        }).catch(err => {
-            console.error('FaceRecognition not available on enrollment click:', err);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + err.message;
-        });
-    });
-
-    async function initializeFaceEnrollment() {
-        try {
-            faceRecognition = new FaceRecognition();
-
-            // Load models
-            const modelsLoaded = await faceRecognition.loadModels();
-            if (!modelsLoaded) {
-                throw new Error('Gagal memuat model pengenalan wajah');
-            }
-
-            // Initialize camera
-            const videoElement = document.getElementById('face-camera');
-            await faceRecognition.initializeCamera(videoElement);
-
-            // Update UI
-            document.getElementById('face-instruction-text').innerText = 'Siap untuk pendaftaran wajah';
-            $('#start-enrollment-process').prop('disabled', false);
-
-        } catch (error) {
-            console.error('Face enrollment initialization error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Gagal menginisialisasi pendaftaran wajah: ' + error.message;
-        }
-    }
-
-    // Handle start enrollment process
-    $('#start-enrollment-process').click(async function() {
-        if (isVerificationRunning) return;
-
-        isVerificationRunning = true;
-        const btn = $(this);
-        btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Mendaftarkan...');
-
-        try {
-            if (!faceRecognition) {
-                throw new Error('Face recognition belum diinisialisasi');
-            }
-
-            // Generate challenge sequence for enrollment
-            challengeSequence = faceRecognition.generateChallengeSequence();
-            currentChallengeIndex = 0;
-
-            // Reset progress dots
-            $('.challenge-dot').removeClass('active completed');
-
-            // Start enrollment process
-            await runEnrollmentSequence();
-
-        } catch (error) {
-            console.error('Enrollment start error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
-        } finally {
-            isVerificationRunning = false;
-            btn.prop('disabled', false).html('<i class="bx bx-play me-1"></i>Mulai Pendaftaran');
-        }
-    });
-
-    async function runEnrollmentSequence() {
-        try {
-            // Run full enrollment with liveness challenges
-            const result = await faceRecognition.performFullEnrollment(
-                document.getElementById('face-camera')
-            );
-
-            // Build payload for enrollment
-            const payload = {
-                user_id: {{ Auth::user()->id }},
-                face_data: result.faceDescriptor,
-                liveness_score: result.livenessScore,
-                liveness_challenges: result.challenges,
-                device_info: navigator.userAgent
-            };
-
-            // Send enrollment data to server
-            const response = await fetch('{{ route("mobile.face.enroll") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(payload)
             });
+            selfieStream = stream;
 
-            const serverResult = await response.json();
+            video.srcObject = stream;
+            video.style.display = 'block';
 
-            if (serverResult.success) {
-                document.getElementById('face-instruction-text').innerText = 'Pendaftaran berhasil ✓';
-                $('#face-enrollment-status').show().html(`
-                    <small class="text-success">
-                        Wajah berhasil didaftarkan! Liveness: ${result.livenessScore.toFixed(2)}
-                    </small>
-                `);
-
-                // Mark all challenge dots as completed
-                $('.challenge-dot').addClass('completed');
-
-                // Reload page after success
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-
-            } else {
-                throw new Error(serverResult.message || 'Pendaftaran gagal');
+            // Hide the placeholder and show video
+            const placeholder = container.querySelector('.text-center');
+            if (placeholder) {
+                placeholder.style.display = 'none';
             }
 
+            // Show capture button
+            captureBtn.style.display = 'block';
+
+            // Update status to show camera is ready
+            statusElement.innerHTML = `
+                <div class="location-info success">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-camera me-1"></i>
+                        <div>
+                            <strong>Kamera aktif</strong>
+                            <br><small class="text-muted">Klik tombol "Ambil Foto" untuk mengambil selfie</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+
         } catch (error) {
-            console.error('Enrollment sequence error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Pendaftaran gagal ✗';
-            $('#face-enrollment-status').show().html(`<small class="text-danger">${error.message}</small>`);
+            console.error('Error accessing camera:', error);
+            const statusElement = document.getElementById('selfie-status');
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div class="location-info error">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-error-circle me-1"></i>
+                            <div>
+                                <strong>Kamera tidak dapat diakses</strong>
+                                <br><small class="text-muted">Pastikan memberikan izin kamera</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            throw error; // Re-throw to handle in calling function
         }
     }
 
-    async function runVerificationSequence() {
-        const registeredFaceData = {{ json_encode(Auth::user()->face_data) }};
+    // Capture selfie
+    function captureSelfie() {
+        const video = document.getElementById('selfie-video');
+        const canvas = document.getElementById('selfie-canvas');
+        const ctx = canvas.getContext('2d');
 
-        try {
-            // Run full verification with liveness challenges
-            const result = await faceRecognition.performFullVerification(
-                document.getElementById('face-camera'),
-                registeredFaceData
-            );
+        // Set canvas to portrait dimensions (3:4 aspect ratio)
+        const aspectRatio = 3/4;
+        const canvasWidth = Math.min(video.videoWidth, video.videoHeight * aspectRatio);
+        const canvasHeight = canvasWidth / aspectRatio;
 
-            // Store result globally for presensi submission
-            window.lastFaceVerificationResult = {
-                face_verified: result.faceVerified,
-                face_id: result.faceId,
-                similarity_score: result.faceSimilarity,
-                liveness_score: result.livenessScore,
-                liveness_challenges: result.challenges,
-                timestamp: result.timestamp
-            };
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
 
-            // Update UI based on result
-            if (result.faceVerified && result.livenessScore >= 0.7) {
-                document.getElementById('face-instruction-text').innerText = 'Verifikasi berhasil ✓';
-                $('#face-verification-status').show().html(`
-                    <small class="text-success">
-                        Wajah cocok (${(result.faceSimilarity * 100).toFixed(1)}%) •
-                        Liveness: ${result.livenessScore.toFixed(2)}
-                    </small>
-                `);
+    // Center the image on canvas for portrait crop
+    const sourceX = (video.videoWidth - canvasWidth) / 2;
+    const sourceY = (video.videoHeight - canvasHeight) / 2;
 
-                // Mark all challenge dots as completed
-                $('.challenge-dot').addClass('completed');
+    // Balik horizontal sebelum menggambar agar hasil tidak terbalik
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sourceX, sourceY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform setelah menggambar
 
-            } else {
-                let reason = '';
-                if (!result.faceVerified) reason += 'Wajah tidak cocok. ';
-                if (result.livenessScore < 0.7) reason += 'Liveness check gagal.';
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        const selfieDataInput = document.getElementById('selfie-data');
+        const selfiePreview = document.getElementById('selfie-preview');
 
-                document.getElementById('face-instruction-text').innerText = 'Verifikasi gagal ✗';
-                $('#face-verification-status').show().html(`<small class="text-danger">${reason}</small>`);
-            }
-
-        } catch (error) {
-            console.error('Verification sequence error:', error);
-            document.getElementById('face-instruction-text').innerText = 'Error: ' + error.message;
-            $('#face-verification-status').show().html(`<small class="text-danger">${error.message}</small>`);
+        if (selfieDataInput) {
+            selfieDataInput.value = imageData;
         }
+
+        if (selfiePreview) {
+            selfiePreview.src = imageData;
+            selfiePreview.style.display = 'block';
+        }
+
+        // Hide video and show preview
+        if (video) {
+            video.style.display = 'none';
+        }
+
+        // Hide capture button and show retake button
+        const captureBtn = document.getElementById('btn-capture-selfie');
+        const retakeBtn = document.getElementById('btn-retake-selfie');
+
+        if (captureBtn) {
+            captureBtn.style.display = 'none';
+        }
+
+        if (retakeBtn) {
+            retakeBtn.style.display = 'block';
+        }
+
+        // Stop camera stream
+        if (selfieStream) {
+            selfieStream.getTracks().forEach(track => track.stop());
+            selfieStream = null;
+        }
+
+        selfieCaptured = true;
+        document.getElementById('selfie-status').innerHTML = `
+            <div class="location-info success">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-check-circle me-1"></i>
+                    <div>
+                        <strong>Selfie berhasil diambil</strong>
+                        <br><small class="text-muted">Klik tombol "Kirim Presensi" untuk menyelesaikan</small>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show submit button after selfie is captured
+        setTimeout(() => {
+            // Verify selfie data is set before proceeding
+            const selfieData = document.getElementById('selfie-data').value;
+            console.log('Selfie captured with data length:', selfieData.length);
+
+            if (selfieData && selfieData.length > 100) {
+                // Show submit button and hide presensi button
+                $('#btn-presensi').hide();
+                $('#btn-submit-presensi').show();
+                $('#btn-submit-presensi').prop('disabled', false);
+            } else {
+                console.error('Selfie data not properly set, length:', selfieData.length);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Foto selfie tidak berhasil diambil. Silakan coba lagi.',
+                    confirmButtonText: 'Oke'
+                });
+                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-camera me-1"></i>Ambil Selfie');
+            }
+        }, 1000);
     }
 
-    // Handle presensi button
-    $('#btn-presensi').click(function() {
+    // Retake selfie
+    function retakeSelfie() {
+        const selfiePreview = document.getElementById('selfie-preview');
+        const selfieDataInput = document.getElementById('selfie-data');
+
+        if (selfiePreview) {
+            selfiePreview.style.display = 'none';
+        }
+
+        if (selfieDataInput) {
+            selfieDataInput.value = '';
+        }
+
+        selfieCaptured = false;
+        // Hide submit button and show presensi button again
+        $('#btn-submit-presensi').hide();
+        $('#btn-presensi').show();
+        initializeSelfieCamera();
+    }
+
+    // Event listeners for selfie buttons
+    const captureBtn = document.getElementById('btn-capture-selfie');
+    const retakeBtn = document.getElementById('btn-retake-selfie');
+
+    if (captureBtn) {
+        captureBtn.addEventListener('click', captureSelfie);
+    }
+
+    if (retakeBtn) {
+        retakeBtn.addEventListener('click', retakeSelfie);
+    }
+
+    // Handle presensi button (Ambil Selfie)
+    $('#btn-presensi').click(async function() {
+        // First, request camera access and show camera interface
+        if (!selfieCaptured) {
+            try {
+                await initializeSelfieCamera();
+                // Camera initialized, user can now click the capture button manually
+                return;
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kamera Tidak Dapat Diakses',
+                    text: 'Tidak dapat mengakses kamera. Pastikan memberikan izin kamera dan coba lagi.',
+                    confirmButtonText: 'Oke'
+                });
+                return;
+            }
+        }
+    });
+
+    // Handle submit presensi button
+    $('#btn-submit-presensi').click(async function() {
+        // If selfie is already captured, proceed with location validation
         if (!latitude || !longitude) {
             Swal.fire({
                 icon: 'error',
@@ -1182,7 +1267,7 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Allow presensi even if not all readings were collected (at least one reading is enough)
+        // Allow presensi even if location reading failed (single reading is enough)
         if (locationReadings.length === 0) {
             Swal.fire({
                 icon: 'error',
@@ -1193,19 +1278,6 @@ window.addEventListener('load', function() {
             return;
         }
 
-        // Check face verification if required - temporarily disabled
-        // if (faceRequired) {
-        //     if (!window.lastFaceVerificationResult || !window.lastFaceVerificationResult.face_verified) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             title: 'Verifikasi Wajah Diperlukan',
-        //             text: 'Silakan jalankan verifikasi wajah sebelum melakukan presensi.',
-        //             confirmButtonText: 'Oke'
-        //         });
-        //         return;
-        //     }
-        // }
-
         $(this).prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Memproses...');
 
         // Get final location reading (button click) as reading4
@@ -1215,43 +1287,10 @@ window.addEventListener('load', function() {
                 let reading4Lng = position.coords.longitude;
                 let reading4Timestamp = Date.now();
 
-                // Build location readings array from all stored readings (use available readings)
+                // Build location readings array - single reading only
                 let allReadings = [];
 
-                // Add readings 1-3 from sessionStorage if available
-                for (let i = 1; i <= 3; i++) {
-                    let lat = sessionStorage.getItem(`reading${i}_latitude`);
-                    let lng = sessionStorage.getItem(`reading${i}_longitude`);
-                    let timestamp = sessionStorage.getItem(`reading${i}_timestamp`);
-                    let accuracy = sessionStorage.getItem(`reading${i}_accuracy`);
-                    let altitude = sessionStorage.getItem(`reading${i}_altitude`);
-                    let speed = sessionStorage.getItem(`reading${i}_speed`);
-
-                    if (lat && lng && timestamp) {
-                        allReadings.push({
-                            latitude: parseFloat(lat),
-                            longitude: parseFloat(lng),
-                            timestamp: parseInt(timestamp),
-                            accuracy: parseFloat(accuracy) || null,
-                            altitude: altitude ? parseFloat(altitude) : null,
-                            speed: speed ? parseFloat(speed) : null
-                        });
-                    }
-                }
-
-                // If no stored readings, use current location as reading 1
-                if (allReadings.length === 0 && latitude && longitude) {
-                    allReadings.push({
-                        latitude: latitude,
-                        longitude: longitude,
-                        timestamp: Date.now(),
-                        accuracy: position.coords.accuracy,
-                        altitude: position.coords.altitude,
-                        speed: position.coords.speed
-                    });
-                }
-
-                // Add reading 4 (button click)
+                // Use current location as the single reading
                 allReadings.push({
                     latitude: reading4Lat,
                     longitude: reading4Lng,
@@ -1260,6 +1299,24 @@ window.addEventListener('load', function() {
                     altitude: position.coords.altitude,
                     speed: position.coords.speed
                 });
+
+                const selfieDataInput = document.getElementById('selfie-data');
+                let selfieDataValue = selfieDataInput ? selfieDataInput.value : '';
+                console.log('Final selfie data length:', selfieDataValue.length);
+                console.log('Final selfie data starts with:', selfieDataValue.substring(0, 50));
+
+                // Ensure selfie data is valid before sending
+                if (!selfieDataValue || selfieDataValue.length < 100) {
+                    console.error('Selfie data validation failed, length:', selfieDataValue.length);
+                    $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan',
+                        text: 'Data foto selfie tidak valid. Silakan ambil foto lagi.',
+                        confirmButtonText: 'Oke'
+                    });
+                    return;
+                }
 
                 let postData = {
                     _token: '{{ csrf_token() }}',
@@ -1270,25 +1327,18 @@ window.addEventListener('load', function() {
                     altitude: position.coords.altitude,
                     speed: position.coords.speed,
                     device_info: navigator.userAgent,
-                    location_readings: JSON.stringify(allReadings)
+                    location_readings: JSON.stringify(allReadings),
+                    selfie_data: selfieDataValue
                 };
-
-                // Include face verification result if available - temporarily disabled
-                // if (window.lastFaceVerificationResult) {
-                //     const fv = window.lastFaceVerificationResult;
-                //     postData.face_id_used = fv.face_id;
-                //     postData.face_similarity_score = fv.similarity_score;
-                //     postData.liveness_score = fv.liveness_score;
-                //     postData.liveness_challenges = JSON.stringify(fv.liveness_challenges);
-                //     postData.face_verified = fv.face_verified ? 1 : 0;
-                // }
 
                 // Update UI with final location data
                 $('#latitude').val(reading4Lat.toFixed(6));
                 $('#longitude').val(reading4Lng.toFixed(6));
 
                 // Update user location map with final position
-                updateUserLocationMap(reading4Lat, reading4Lng);
+                if (userLocationMap) {
+                    updateUserLocationMap(reading4Lat, reading4Lng);
+                }
 
                 // Get address
                 getAddressFromCoordinates(reading4Lat, reading4Lng);
@@ -1296,7 +1346,7 @@ window.addEventListener('load', function() {
                 $('#location-info').html(`
                     <div class="location-info success">
                         <div class="d-flex align-items-center">
-                            <i class="bx bx-check-circle me-2"></i>
+                            <i class="bx bx-check-circle text-success me-2"></i>
                             <div>
                                 <strong class="small">Lokasi berhasil didapatkan!</strong>
                             </div>
@@ -1318,7 +1368,8 @@ window.addEventListener('load', function() {
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                location.reload();
+                                // Instead of full reload, update the UI dynamically
+                                updatePresensiUI(resp);
                             });
                         } else {
                             Swal.fire({
@@ -1326,7 +1377,7 @@ window.addEventListener('load', function() {
                                 title: 'Gagal',
                                 text: resp.message || 'Gagal melakukan presensi. Coba lagi.',
                             });
-                            $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                            $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                         }
                     },
                     error: function(xhr, status, err) {
@@ -1337,7 +1388,7 @@ window.addEventListener('load', function() {
                             title: 'Kesalahan',
                             text: message
                         });
-                        $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                        $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
                     }
                 });
 
@@ -1348,14 +1399,130 @@ window.addEventListener('load', function() {
                     title: 'Kesalahan GPS',
                     text: err.message || 'Tidak dapat mengambil lokasi terakhir.'
                 });
-                $('#btn-presensi').prop('disabled', false).html('<i class="bx bx-check-circle me-1"></i>Presensi');
+                $('#btn-submit-presensi').prop('disabled', false).html('<i class="bx bx-send me-1"></i>Kirim Presensi');
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
     });
 });
 
+// Function to update presensi UI after successful submission
+function updatePresensiUI(resp) {
+    // Update the status card to show presensi has been recorded
+    const statusCardHtml = `
+        <div class="status-card success">
+            <div class="d-flex align-items-center">
+                <div class="status-icon">
+                    <i class="bx bx-check-circle"></i>
+                </div>
+                <div>
+                    <h6 class="mb-1">Presensi Sudah Dicatat</h6>
+                    <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                        <small class="text-white-50">${resp.madrasah_name || 'Madrasah'}</small>
+                        <p class="mb-1">Masuk: <strong>${resp.waktu_masuk || new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</strong></p>
+                        <p class="mb-0 text-muted">Belum presensi keluar</p>
+                    </div>
+                    <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Find and replace the status card
+    const statusCardContainer = document.querySelector('.alert-custom.warning, .alert-custom.success, .status-card');
+    if (statusCardContainer) {
+        statusCardContainer.outerHTML = statusCardHtml;
+    }
+
+    // Update the presensi button to show "Presensi Keluar"
+    const presensiBtn = document.getElementById('btn-presensi');
+    if (presensiBtn) {
+        presensiBtn.innerHTML = '<i class="bx bx-log-out-circle me-1"></i>Presensi Keluar';
+        presensiBtn.disabled = false;
+    }
+
+    // Hide submit button
+    const submitBtn = document.getElementById('btn-submit-presensi');
+    if (submitBtn) {
+        submitBtn.style.display = 'none';
+    }
+
+    // Reset selfie section for next use
+    resetSelfieSection();
+
+    // Update the header subtitle if needed
+    const subtitle = document.querySelector('.presensi-header h5');
+    if (subtitle && resp.madrasah_name) {
+        subtitle.textContent = resp.madrasah_name;
+    }
+}
+
+// Function to reset selfie section
+function resetSelfieSection() {
+    // Hide video and preview
+    const video = document.getElementById('selfie-video');
+    const preview = document.getElementById('selfie-preview');
+    const canvas = document.getElementById('selfie-canvas');
+
+    if (video) video.style.display = 'none';
+    if (preview) preview.style.display = 'none';
+    if (canvas) canvas.style.display = 'none';
+
+    // Hide buttons
+    const captureBtn = document.getElementById('btn-capture-selfie');
+    const retakeBtn = document.getElementById('btn-retake-selfie');
+
+    if (captureBtn) captureBtn.style.display = 'none';
+    if (retakeBtn) retakeBtn.style.display = 'none';
+
+    // Show placeholder
+    const container = document.getElementById('selfie-container');
+    if (container) {
+        const placeholder = container.querySelector('.text-center');
+        if (placeholder) {
+            placeholder.style.display = 'block';
+        }
+    }
+
+    // Reset status
+    const statusElement = document.getElementById('selfie-status');
+    if (statusElement) {
+        statusElement.innerHTML = `
+            <div class="location-info info">
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-camera-off me-1"></i>
+                    <div>
+                        <strong>Selfie belum diambil</strong>
+                        <br><small class="text-muted">Klik tombol presensi untuk mengaktifkan kamera</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Clear selfie data
+    const selfieDataInput = document.getElementById('selfie-data');
+    if (selfieDataInput) {
+        selfieDataInput.value = '';
+    }
+
+    // Reset flag
+    selfieCaptured = false;
+
+    // Stop any active camera stream
+    if (selfieStream) {
+        selfieStream.getTracks().forEach(track => track.stop());
+        selfieStream = null;
+    }
+}
+
 // Initialize map for kepala madrasah monitoring
 @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah' && !empty($mapData))
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if map is already initialized
+    const container = document.getElementById('presensi-map');
+    if (container && container._leaflet_id) {
+        return; // Map already initialized
+    }
+
     // Initialize map
     const map = L.map('presensi-map').setView([-6.2088, 106.8456], 13); // Default Jakarta
 
