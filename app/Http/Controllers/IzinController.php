@@ -148,7 +148,7 @@ class IzinController extends Controller
 
                 if ($existingPresensi && !$existingPresensi->waktu_keluar) {
                     $existingPresensi->update([
-                        'waktu_keluar' => $izin->tanggal . ' ' . $izin->waktu_keluar,
+                        'waktu_keluar' => $izin->waktu_keluar,
                     ]);
                 }
             }
