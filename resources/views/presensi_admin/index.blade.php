@@ -683,6 +683,7 @@
             'Kabupaten Sleman',
             'Kota Yogyakarta'
         ];
+        $kabupatenIndex = 0;
     @endphp
 
     @foreach($kabupatenOrder as $kabupaten)
@@ -690,6 +691,7 @@
             $kabupatenMadrasahData = collect($madrasahData)->filter(function($data) use ($kabupaten) {
                 return $data['madrasah']->kabupaten === $kabupaten;
             });
+            $madrasahIndex = 0;
         @endphp
 
         @if($kabupatenMadrasahData->count() > 0)
@@ -708,7 +710,7 @@
                 <!-- Madrasah Table - Modern PPDB Style -->
                 <div class="kabupaten-table" style="background: white !important;">
                     <div class="table-responsive">
-                        <table id="madrasah-table-{{ $loop->parent->index }}-{{ $loop->index }}" class="table table-hover mb-0" style="margin-bottom: 0 !important; border-radius: 0 !important;">
+                        <table id="madrasah-table-{{ $kabupatenIndex }}-{{ $madrasahIndex }}" class="table table-hover mb-0" style="margin-bottom: 0 !important; border-radius: 0 !important;">
                             <thead style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border: none !important; font-weight: 600 !important; padding: 1rem !important; border-bottom: 2px solid #dee2e6 !important;">
                                 <tr>
                                     <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
@@ -756,6 +758,9 @@
                                         </div>
                                     </td>
                                 </tr>
+                                @php
+                                    $madrasahIndex++;
+                                @endphp
                                 @endforeach
                             </tbody>
                         </table>
@@ -763,6 +768,9 @@
                 </div>
             </div>
         @endif
+        @php
+            $kabupatenIndex++;
+        @endphp
     @endforeach
 
     <!-- User Detail Modal - Modern PPDB Style -->
