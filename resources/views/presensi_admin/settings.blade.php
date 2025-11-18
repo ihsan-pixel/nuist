@@ -19,7 +19,7 @@
         <div class="card shadow border-0">
             <div class="card-header">
                 <h4 class="card-title mb-0">
-                    <i class="bx bx-cog me-2"></i>Pengaturan Presensi
+                    <i class="bx bx-cog me-2"></i>Pengaturan Presensi a
                 </h4>
             </div>
             <div class="card-body">
