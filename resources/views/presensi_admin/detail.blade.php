@@ -293,30 +293,42 @@
     border: 1px solid #dee2e6 !important;
 }
 
-.school-info-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-    gap: 1rem !important;
+.school-info-table {
+    background: white !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
-.info-item {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.25rem !important;
-}
-
-.info-label {
+.school-info-table .info-label {
     font-weight: 600 !important;
     color: #004b4c !important;
     font-size: 0.9rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
+    background: rgba(0, 75, 76, 0.05) !important;
+    border: none !important;
+    padding: 1rem !important;
 }
 
-.info-value {
+.school-info-table .info-value {
     font-size: 1rem !important;
     color: #495057 !important;
     word-break: break-word !important;
+    border: none !important;
+    padding: 1rem !important;
+}
+
+.school-info-table tbody tr {
+    border-bottom: 1px solid #f1f3f4 !important;
+}
+
+.school-info-table tbody tr:last-child {
+    border-bottom: none !important;
+}
+
+.school-info-table tbody tr:hover {
+    background: rgba(0, 75, 76, 0.02) !important;
 }
 
 .map-section {
@@ -726,62 +738,66 @@
         <h4 class="mb-3">
             <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
         </h4>
-        <div class="school-info-grid">
-            <div class="info-item">
-                <span class="info-label">Nama Madrasah</span>
-                <span class="info-value">{{ $madrasah->name }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">SCOD</span>
-                <span class="info-value">{{ $madrasah->scod ?? '-' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Kabupaten</span>
-                <span class="info-value">{{ $madrasah->kabupaten ?? '-' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Alamat Lengkap</span>
-                <span class="info-value">{{ $madrasah->alamat ?? '-' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Hari KBM</span>
-                <span class="info-value">{{ $madrasah->hari_kbm ?? '-' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Koordinat GPS</span>
-                <span class="info-value">
-                    @if($madrasah->latitude && $madrasah->longitude)
-                        {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
-                    @else
-                        -
-                    @endif
-                </span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Link Peta</span>
-                <span class="info-value">
-                    @if($madrasah->map_link)
-                        <a href="{{ $madrasah->map_link }}" target="_blank" class="text-primary">
-                            <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
-                        </a>
-                    @else
-                        -
-                    @endif
-                </span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Area Polygon</span>
-                <span class="info-value">
-                    @if($madrasah->polygon_koordinat)
-                        Ada (Tersimpan)
-                        @if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2)
-                            + Dual Polygon
-                        @endif
-                    @else
-                        Tidak Ada
-                    @endif
-                </span>
-            </div>
+        <div class="table-responsive">
+            <table class="table table-borderless school-info-table">
+                <tbody>
+                    <tr>
+                        <td class="info-label" width="30%">Nama Madrasah</td>
+                        <td class="info-value">{{ $madrasah->name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">SCOD</td>
+                        <td class="info-value">{{ $madrasah->scod ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Kabupaten</td>
+                        <td class="info-value">{{ $madrasah->kabupaten ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Alamat Lengkap</td>
+                        <td class="info-value">{{ $madrasah->alamat ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Hari KBM</td>
+                        <td class="info-value">{{ $madrasah->hari_kbm ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Koordinat GPS</td>
+                        <td class="info-value">
+                            @if($madrasah->latitude && $madrasah->longitude)
+                                {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Link Peta</td>
+                        <td class="info-value">
+                            @if($madrasah->map_link)
+                                <a href="{{ $madrasah->map_link }}" target="_blank" class="text-primary">
+                                    <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="info-label">Area Polygon</td>
+                        <td class="info-value">
+                            @if($madrasah->polygon_koordinat)
+                                Ada (Tersimpan)
+                                @if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2)
+                                    + Dual Polygon
+                                @endif
+                            @else
+                                Tidak Ada
+                            @endif
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 @else
