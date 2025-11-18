@@ -544,45 +544,9 @@
 
         //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    // Unregister old service workers first
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for (let reg of regs) await reg.update();
-
-                    // Register new SW
-                    const reg = await navigator.serviceWorker.register('/sw.js');
-                    console.log('SW registered:', reg.scope);
-
-                    // Auto refresh when new SW is ready
-                    if (reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    }
-
-                    reg.addEventListener('updatefound', () => {
-                        const newWorker = reg.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('New SW installed, reloading...');
-                                window.location.reload();
-                            }
-                        });
-                    });
-
-                    // Listen for controller change (new SW taking over)
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        console.log('Controller changed → reload');
-                        window.location.reload();
-                    });
-
-                    // Clear old caches automatically
-                    caches.keys().then(names => {
-                        for (let name of names) caches.delete(name);
-                    });
-                } catch (e) {
-                    console.warn('SW registration failed:', e);
-                }
-            });
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log("SW loaded:", reg.scope);
+            }).catch(err => console.error("SW failed:", err));
         }
 
         // Pull to refresh functionality
