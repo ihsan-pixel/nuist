@@ -399,7 +399,7 @@
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
                     <i class="bx bx-calendar-star"></i>
                 </a>
-                <div class="service-label">Izin-Cuti</div>
+                <div class="service-label">Izin Cuti</div>
             </div>
             <div>
                 <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
