@@ -801,7 +801,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1 flex-wrap">
-                                            <button type="button" class="btn btn-outline-info btn-sm comprehensive-detail-btn" data-bs-toggle="modal" data-bs-target="#comprehensiveDetailModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                            <button type="button" class="btn btn-outline-info btn-sm comprehensive-detail-btn" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
                                                 <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                             </button>
                                             @if($user->role === 'super_admin')
@@ -1517,119 +1517,9 @@ $(document).ready(function () {
 
 
 
-    // Function to populate school information
-    function populateSchoolInfo(madrasah) {
-        const infoItems = [
-            { label: 'Nama Madrasah', value: madrasah.name || '-', icon: 'mdi-school' },
-            { label: 'SCOD', value: madrasah.scod || '-', icon: 'mdi-identifier' },
-            { label: 'Kabupaten', value: madrasah.kabupaten || '-', icon: 'mdi-city' },
-            { label: 'Alamat Lengkap', value: madrasah.alamat || '-', icon: 'mdi-map-marker' },
-            { label: 'Hari KBM', value: madrasah.hari_kbm || '-', icon: 'mdi-calendar-week' },
-            { label: 'Koordinat GPS', value: (madrasah.latitude && madrasah.longitude) ? `${madrasah.latitude}, ${madrasah.longitude}` : '-', icon: 'mdi-crosshairs-gps' },
-            { label: 'Link Peta', value: madrasah.map_link ? `<a href="${madrasah.map_link}" target="_blank" class="text-primary"><i class="mdi mdi-open-in-new"></i> Lihat di Google Maps</a>` : '-', icon: 'mdi-google-maps' },
-            { label: 'Area Polygon', value: madrasah.polygon_koordinat ? 'Ada (Tersimpan)' + (madrasah.enable_dual_polygon && madrasah.polygon_koordinat_2 ? ' + Dual Polygon' : '') : 'Tidak Ada', icon: 'mdi-vector-polygon' }
-        ];
 
-        let infoGrid = '<div class="row g-3">';
-        infoItems.forEach(item => {
-            infoGrid += `
-                <div class="col-md-6">
-                    <div class="info-item p-3 bg-light rounded border">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="mdi ${item.icon} me-2 text-primary"></i>
-                            <span class="info-label fw-semibold text-primary">${item.label}</span>
-                        </div>
-                        <div class="info-value">${item.value}</div>
-                    </div>
-                </div>
-            `;
-        });
-        infoGrid += '</div>';
 
-        $('#school-info-grid').html(infoGrid);
-    }
 
-    // Function to initialize comprehensive map
-    function initializeComprehensiveMap(madrasah, tenagaPendidik) {
-        // Clear existing map if it exists
-        if (window.comprehensiveMap) {
-            window.comprehensiveMap.remove();
-        }
-
-        // Initialize map
-        window.comprehensiveMap = L.map('comprehensive-map').setView([-7.7956, 110.3695], 10);
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(window.comprehensiveMap);
-
-        // Add school marker if coordinates exist
-        if (madrasah.latitude && madrasah.longitude) {
-            L.marker([madrasah.latitude, madrasah.longitude])
-                .addTo(window.comprehensiveMap)
-                .bindPopup(`<b>${madrasah.name}</b><br>Lokasi Madrasah`)
-                .openPopup();
-
-            // Center map on school
-            window.comprehensiveMap.setView([madrasah.latitude, madrasah.longitude], 15);
-        }
-
-        // Add polygon if geojson exists
-        if (madrasah.geojson) {
-            try {
-                let geojsonData = JSON.parse(madrasah.geojson);
-                L.geoJSON(geojsonData, {
-                    style: {
-                        color: '#004b4c',
-                        weight: 2,
-                        opacity: 0.8,
-                        fillColor: '#0e8549',
-                        fillOpacity: 0.2
-                    }
-                }).addTo(window.comprehensiveMap);
-            } catch (e) {
-                console.error('Invalid GeoJSON data:', e);
-            }
-        }
-
-        // Add staff attendance markers
-        if (tenagaPendidik && Array.isArray(tenagaPendidik)) {
-            tenagaPendidik.forEach(staff => {
-                if (staff.latitude && staff.longitude) {
-                    let statusColor = getStatusColor(staff.status);
-                    L.circleMarker([staff.latitude, staff.longitude], {
-                        color: statusColor,
-                        fillColor: statusColor,
-                        fillOpacity: 0.8,
-                        radius: 8
-                    })
-                    .addTo(window.comprehensiveMap)
-                    .bindPopup(`
-                        <b>${staff.name}</b><br>
-                        Status: ${staff.status}<br>
-                        Waktu: ${staff.created_at || '-'}
-                    `);
-                }
-            });
-        }
-
-        // Fit map to show all elements
-        setTimeout(() => {
-            window.comprehensiveMap.invalidateSize();
-        }, 100);
-    }
-
-    // Function to get status color for map markers
-    function getStatusColor(status) {
-        switch(status) {
-            case 'hadir': return '#28a745';
-            case 'terlambat': return '#ffc107';
-            case 'tidak_hadir': return '#dc3545';
-            case 'izin': return '#17a2b8';
-            default: return '#6c757d';
-        }
-    }
 
     // Function to populate staff attendance data
     function populateStaffAttendance(tenagaPendidik) {
@@ -1669,44 +1559,114 @@ $(document).ready(function () {
 
             if (staffList.length === 0) {
                 staffHtml = `
-                    <div class="text-center py-4 text-muted">
-                        <i class="mdi mdi-account-off-outline fs-1"></i>
-                        <p class="mt-2">Tidak ada data ${status.replace('_', ' ')}</p>
+                    <div class="text-center py-5 text-muted">
+                        <i class="mdi mdi-account-off-outline fs-2 mb-3"></i>
+                        <h6>Tidak ada data ${status.replace('_', ' ')}</h6>
+                        <p class="mb-0 small">Belum ada tenaga pendidik dengan status ini</p>
                     </div>
                 `;
             } else {
                 staffHtml = '<div class="row g-3">';
                 staffList.forEach(staff => {
                     let statusBadge = getStatusBadge(staff.status);
-                    let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID') : '-';
+                    let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '-';
 
-                    staffHtml += `
+                staffHtml += `
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
+                            <div class="card h-100 border-0 shadow-sm staff-card ${status}">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center mb-3">
                                         <div class="avatar-sm me-3">
-                                            <div class="avatar-title rounded-circle bg-primary text-white">
-                                                ${staff.name ? staff.name.charAt(0).toUpperCase() : '?'}
+                                            <div class="avatar-title rounded-circle bg-primary text-white fw-bold">
+                                                ${staff.nama ? staff.nama.charAt(0).toUpperCase() : '?'}
                                             </div>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h6 class="card-title mb-1">${staff.name || '-'}</h6>
+                                            <h6 class="card-title mb-1 fw-bold text-dark">${staff.nama || '-'}</h6>
                                             <small class="text-muted">${staff.nip || '-'}</small>
                                         </div>
                                     </div>
-                                    <div class="mb-2">
+                                    <div class="mb-3">
                                         ${statusBadge}
+                                        ${staff.is_fake_location ? '<span class="fake-location-badge">Fake GPS</span>' : ''}
+                                        ${staff.face_verified ? '<span class="face-verification-badge">Face ✓</span>' : ''}
                                     </div>
-                                    <small class="text-muted">
-                                        <i class="mdi mdi-clock-outline me-1"></i>${timeInfo}
-                                    </small>
-                                    ${staff.latitude && staff.longitude ? `
-                                        <br><small class="text-muted">
-                                            <i class="mdi mdi-map-marker me-1"></i>
+                                    <div class="staff-times">
+                                        <div class="time-item">
+                                            <span class="time-label">Waktu Presensi</span>
+                                            <span class="time-value">${timeInfo}</span>
+                                        </div>
+                                        ${staff.latitude && staff.longitude ? `
+                                        <div class="location-info">
+                                            <i class="mdi mdi-map-marker text-success"></i>
                                             Lokasi tercatat
-                                        </small>
-                                    ` : ''}
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                    <div class="staff-details-expanded">
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">NUPTK</span>
+                                            <span class="staff-detail-value">${staff.nuptk || '-'}</span>
+                                        </div>
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Status Kepegawaian</span>
+                                            <span class="staff-detail-value">${staff.status_kepegawaian || '-'}</span>
+                                        </div>
+                                        ${staff.waktu_masuk ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Masuk</span>
+                                            <span class="staff-detail-value">${staff.waktu_masuk}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.waktu_keluar ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Keluar</span>
+                                            <span class="staff-detail-value">${staff.waktu_keluar}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.latitude && staff.longitude ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Koordinat</span>
+                                            <div class="staff-detail-value staff-coordinates">${staff.latitude}, ${staff.longitude}</div>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.accuracy ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Akurasi</span>
+                                            <span class="staff-detail-value">${staff.accuracy}m</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.lokasi ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Lokasi</span>
+                                            <span class="staff-detail-value">${staff.lokasi}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.keterangan ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Keterangan</span>
+                                            <span class="staff-detail-value">${staff.keterangan}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.face_similarity_score ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Face Similarity</span>
+                                            <span class="staff-detail-value">${staff.face_similarity_score}%</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.liveness_score ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Liveness Score</span>
+                                            <span class="staff-detail-value">${staff.liveness_score}%</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1723,27 +1683,32 @@ $(document).ready(function () {
     function getStatusBadge(status) {
         let badgeClass = 'bg-secondary';
         let statusText = status || 'Tidak Hadir';
+        let iconClass = 'mdi-account';
 
         switch(status) {
             case 'hadir':
                 badgeClass = 'bg-success';
                 statusText = 'Hadir';
+                iconClass = 'mdi-account-check';
                 break;
             case 'terlambat':
                 badgeClass = 'bg-warning text-dark';
                 statusText = 'Terlambat';
+                iconClass = 'mdi-account-clock';
                 break;
             case 'tidak_hadir':
                 badgeClass = 'bg-danger';
                 statusText = 'Tidak Hadir';
+                iconClass = 'mdi-account-remove';
                 break;
             case 'izin':
                 badgeClass = 'bg-info';
                 statusText = 'Izin';
+                iconClass = 'mdi-account-edit';
                 break;
         }
 
-        return `<span class="badge ${badgeClass}">${statusText}</span>`;
+        return `<span class="badge ${badgeClass} px-3 py-2 fs-6"><i class="mdi ${iconClass} me-1"></i>${statusText}</span>`;
     }
 
     // Update data every 30 seconds
