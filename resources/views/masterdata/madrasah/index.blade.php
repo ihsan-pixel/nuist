@@ -72,7 +72,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     @if($madrasah->logo)
-                                        <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}"
+                                        <img src="{{ asset('storage/' . $madrasah->logo) }}"
                                             alt="Logo {{ $madrasah->name }}"
                                             width="50" class="img-thumbnail" style="object-fit: contain;">
                                     @else
