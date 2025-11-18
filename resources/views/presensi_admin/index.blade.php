@@ -420,8 +420,8 @@
 
         @if($kabupatenMadrasahData->count() > 0)
             <!-- Kabupaten Header - Modern PPDB Style -->
-            <div class="kabupaten-group">
-                <div class="kabupaten-header">
+            <div class="kabupaten-group" style="background: white !important; border: 1px solid #dee2e6 !important; border-radius: 15px !important; margin-bottom: 1.5rem !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;">
+                <div class="kabupaten-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; padding: 1rem 1.5rem !important; font-weight: 600 !important; font-size: 1.1rem !important; display: flex !important; align-items: center !important; justify-content: space-between !important;">
                     <i class="mdi mdi-city"></i>
                     <span>{{ $kabupaten }}</span>
                     <div class="ms-auto">
@@ -432,10 +432,10 @@
                 </div>
 
                 <!-- Madrasah Table - Modern PPDB Style -->
-                <div class="kabupaten-table">
+                <div class="kabupaten-table" style="background: white !important;">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
+                        <table class="table table-hover mb-0" style="margin-bottom: 0 !important; border-radius: 0 !important;">
+                            <thead style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border: none !important; font-weight: 600 !important; padding: 1rem !important; border-bottom: 2px solid #dee2e6 !important;">
                                 <tr>
                                     <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
                                     <th><i class="mdi mdi-account-group me-1"></i>Tenaga Pendidik</th>
@@ -494,9 +494,9 @@
     <!-- User Detail Modal - Modern PPDB Style -->
     <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
-                    <h5 class="modal-title" id="userDetailModalLabel" style="font-weight: 600;">
+            <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
+                    <h5 class="modal-title" id="userDetailModalLabel" style="font-weight: 600 !important;">
                         <i class="mdi mdi-account-details me-2"></i>Detail Presensi
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -546,8 +546,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                <div class="modal-footer" style="border-top: none !important; border-radius: 0 0 15px 15px !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px !important; padding: 0.5rem 1.5rem !important;">
                         <i class="mdi mdi-close me-1"></i>Tutup
                     </button>
                 </div>
@@ -558,9 +558,9 @@
     <!-- Export Modal - Modern PPDB Style -->
     <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
-                    <h5 class="modal-title" id="exportModalLabel" style="font-weight: 600;">
+            <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
+                    <h5 class="modal-title" id="exportModalLabel" style="font-weight: 600 !important;">
                         <i class="mdi mdi-file-export me-2"></i>Export Data Presensi
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -580,8 +580,8 @@
                         <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                <div class="modal-footer" style="border-top: none !important; border-radius: 0 0 15px 15px !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px !important; padding: 0.5rem 1.5rem !important;">
                         <i class="mdi mdi-close me-1"></i>Batal
                     </button>
                 </div>
@@ -592,9 +592,9 @@
     <!-- Madrasah Detail Modal - Modern PPDB Style -->
     <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
-                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
-                    <h5 class="modal-title" id="madrasahDetailModalLabel" style="font-weight: 600;">
+            <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
+                    <h5 class="modal-title" id="madrasahDetailModalLabel" style="font-weight: 600 !important;">
                         <i class="mdi mdi-school me-2"></i>Detail Madrasah
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -639,8 +639,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                <div class="modal-footer" style="border-top: none !important; border-radius: 0 0 15px 15px !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px !important; padding: 0.5rem 1.5rem !important;">
                         <i class="mdi mdi-close me-1"></i>Tutup
                     </button>
                 </div>
