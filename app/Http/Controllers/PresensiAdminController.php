@@ -488,6 +488,52 @@ class PresensiAdminController extends Controller
         ]);
     }
 
+    // Show madrasah detail page
+    public function showMadrasahDetail($madrasahId, Request $request)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+
+        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+            ->where('madrasah_id', $madrasahId)
+            ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate);
+            }])
+            ->get();
+
+        $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
+            $presensi = $tp->presensis->first();
+            return [
+                'id' => $tp->id,
+                'nama' => $tp->name,
+                'nip' => $tp->nip,
+                'nuptk' => $tp->nuptk,
+                'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
+                'status' => $presensi ? $presensi->status : 'tidak_hadir',
+                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                'latitude' => $presensi ? $presensi->latitude : null,
+                'longitude' => $presensi ? $presensi->longitude : null,
+                'lokasi' => $presensi ? $presensi->lokasi : null,
+                'keterangan' => $presensi ? $presensi->keterangan : null,
+                'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                'accuracy' => $presensi ? $presensi->accuracy : null,
+                'created_at' => $presensi ? $presensi->created_at->format('Y-m-d H:i:s') : null,
+                'face_verified' => $presensi ? $presensi->face_verified : false,
+                'face_similarity_score' => $presensi ? $presensi->face_similarity_score : null,
+                'liveness_score' => $presensi ? $presensi->liveness_score : null,
+            ];
+        });
+
+        return view('presensi_admin.detail', compact('madrasah', 'tenagaPendidikData', 'selectedDate', 'user'));
+    }
+
     // Export presensi data to Excel
     public function export(Request $request)
     {
