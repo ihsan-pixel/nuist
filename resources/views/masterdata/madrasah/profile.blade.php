@@ -72,7 +72,7 @@
                     <div class="col-xxl-3 col-md-6">
                         <div class="card project-card" style="border: none; box-shadow: 0 0.75rem 1.5rem rgba(18,38,63,.03); border-radius: 0.75rem; overflow: hidden;">
                             @if($madrasah->logo)
-                            <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" class="card-img-top" alt="{{ $madrasah->name }}" style="height: 200px; object-fit: cover;">
+                            <img src="{{ asset('storage/' . $madrasah->logo) }}" class="card-img-top" alt="{{ $madrasah->name }}" style="height: 200px; object-fit: cover;">
                             @else
                             <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                 <i class="bx bx-school bx-lg text-muted"></i>

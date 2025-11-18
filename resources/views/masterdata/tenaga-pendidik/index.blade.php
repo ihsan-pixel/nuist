@@ -74,7 +74,7 @@
                             <td>{{ $index + 1 }}</td>
                             <td>
                             @if($tp->avatar)
-                                <img src="{{ asset('storage/app/public/' . $tp->avatar) }}"
+                                <img src="{{ asset('storage/' . $tp->avatar) }}"
                                     alt="Avatar {{ $tp->name }}"
                                     class="rounded-circle"
                                     width="50" height="50">
