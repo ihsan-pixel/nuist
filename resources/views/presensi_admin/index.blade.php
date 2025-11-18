@@ -284,6 +284,138 @@
     border-top: none !important;
     border-radius: 0 0 15px 15px !important;
 }
+
+/* Dropdown functionality for school details */
+.school-dropdown-toggle {
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+.school-dropdown-toggle:hover {
+    color: #0e8549 !important;
+}
+
+.school-dropdown-toggle::after {
+    content: '▼' !important;
+    font-size: 0.8em !important;
+    margin-left: 8px !important;
+    transition: transform 0.3s ease !important;
+    display: inline-block !important;
+}
+
+.school-dropdown-toggle.expanded::after {
+    transform: rotate(180deg) !important;
+}
+
+.school-details-row {
+    display: none !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-left: 4px solid #004b4c !important;
+    margin: 0 !important;
+    padding: 1.5rem !important;
+    animation: slideDown 0.3s ease-out !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
+.staff-section {
+    margin-bottom: 1.5rem !important;
+}
+
+.staff-section h6 {
+    color: #004b4c !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.staff-section h6 i {
+    margin-right: 0.5rem !important;
+}
+
+.staff-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    gap: 0.75rem !important;
+}
+
+.staff-item {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    transition: all 0.3s ease !important;
+}
+
+.staff-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.staff-name {
+    font-weight: 500 !important;
+    color: #004b4c !important;
+    flex-grow: 1 !important;
+}
+
+.staff-status {
+    font-size: 0.8em !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+}
+
+.staff-status.hadir {
+    background: #d4edda !important;
+    color: #155724 !important;
+}
+
+.staff-status.tidak-hadir {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.staff-status.izin {
+    background: #cce5ff !important;
+    color: #004085 !important;
+}
+
+.staff-status.terlambat {
+    background: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.staff-time {
+    font-size: 0.75em !important;
+    color: #6c757d !important;
+    margin-top: 0.25rem !important;
+}
+
+.no-staff {
+    text-align: center !important;
+    color: #6c757d !important;
+    font-style: italic !important;
+    padding: 1rem !important;
+}
 </style>
 @endsection
 
@@ -448,7 +580,7 @@
                                 <tr>
                                     <td>
                                         <div class="sekolah-name">
-                                            <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                            <span class="school-dropdown-toggle fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
                                                 {{ $data['madrasah']->name }}
                                             </span>
                                         </div>
@@ -479,6 +611,93 @@
                                                 <i class="bx bx-download me-1"></i>Export
                                             </button>
                                             @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- School Details Row (Initially Hidden) -->
+                                <tr class="school-details-row" data-madrasah-id="{{ $data['madrasah']->id }}">
+                                    <td colspan="4">
+                                        <div class="staff-section">
+                                            <h6><i class="mdi mdi-account-check"></i>Telah Melakukan Presensi ({{ collect($data['presensi'])->whereIn('status', ['hadir', 'terlambat'])->count() }})</h6>
+                                            <div class="staff-list">
+                                                @php
+                                                    $presensiDone = collect($data['presensi'])->whereIn('status', ['hadir', 'terlambat']);
+                                                @endphp
+                                                @if($presensiDone->count() > 0)
+                                                    @foreach($presensiDone as $presensi)
+                                                    <div class="staff-item">
+                                                        <div>
+                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
+                                                            <div class="staff-time">
+                                                                @if($presensi['waktu_masuk'])
+                                                                    Masuk: {{ $presensi['waktu_masuk'] }}
+                                                                    @if($presensi['waktu_keluar'])
+                                                                        | Keluar: {{ $presensi['waktu_keluar'] }}
+                                                                    @endif
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <span class="staff-status {{ $presensi['status'] == 'hadir' ? 'hadir' : 'terlambat' }}">
+                                                            {{ $presensi['status'] == 'hadir' ? 'Hadir' : 'Terlambat' }}
+                                                        </span>
+                                                    </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="no-staff">Belum ada tenaga pendidik yang melakukan presensi</div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="staff-section">
+                                            <h6><i class="mdi mdi-account-clock"></i>Belum Melakukan Presensi ({{ collect($data['presensi'])->where('status', 'tidak_hadir')->count() }})</h6>
+                                            <div class="staff-list">
+                                                @php
+                                                    $presensiNotDone = collect($data['presensi'])->where('status', 'tidak_hadir');
+                                                @endphp
+                                                @if($presensiNotDone->count() > 0)
+                                                    @foreach($presensiNotDone as $presensi)
+                                                    <div class="staff-item">
+                                                        <div>
+                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
+                                                            <div class="staff-time">-</div>
+                                                        </div>
+                                                        <span class="staff-status tidak-hadir">Tidak Hadir</span>
+                                                    </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="no-staff">Semua tenaga pendidik telah melakukan presensi</div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="staff-section">
+                                            <h6><i class="mdi mdi-account-edit"></i>Mengajukan Izin ({{ collect($data['presensi'])->where('status', 'izin')->count() }})</h6>
+                                            <div class="staff-list">
+                                                @php
+                                                    $presensiIzin = collect($data['presensi'])->where('status', 'izin');
+                                                @endphp
+                                                @if($presensiIzin->count() > 0)
+                                                    @foreach($presensiIzin as $presensi)
+                                                    <div class="staff-item">
+                                                        <div>
+                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
+                                                            <div class="staff-time">
+                                                                @if($presensi['keterangan'])
+                                                                    {{ $presensi['keterangan'] }}
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <span class="staff-status izin">Izin</span>
+                                                    </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="no-staff">Tidak ada tenaga pendidik yang mengajukan izin</div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -1049,6 +1268,30 @@ $(document).ready(function () {
                 });
             }
         });
+        return false;
+    });
+
+    // Handle school dropdown toggle
+    $(document).on('click', '.school-dropdown-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let $toggle = $(this);
+        let madrasahId = $toggle.data('madrasah-id');
+        let $detailsRow = $('.school-details-row[data-madrasah-id="' + madrasahId + '"]');
+
+        // Toggle expanded class for arrow rotation
+        $toggle.toggleClass('expanded');
+
+        // Toggle visibility of details row
+        if ($detailsRow.is(':visible')) {
+            $detailsRow.slideUp(300, function() {
+                $detailsRow.hide();
+            });
+        } else {
+            $detailsRow.slideDown(300);
+        }
+
         return false;
     });
 
