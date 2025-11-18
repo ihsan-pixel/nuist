@@ -669,42 +669,6 @@
         });
     </script>
 
-    <script>
-    @if(auth()->check() && auth()->user()->role === 'tenaga_pendidik')
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js', { scope: '/mobile/' }).then(reg => {
-            console.log('SW registered:', reg);
-
-            // if there's an update waiting, tell it to skipWaiting immediately
-            if (reg.waiting) {
-                reg.waiting.postMessage({ action: 'skipWaiting' });
-            }
-
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    console.log('SW state:', newWorker.state);
-                });
-            });
-        }).catch(err => console.error('SW register failed:', err));
-
-        // listen for message from SW to reload
-        navigator.serviceWorker.addEventListener('message', event => {
-            if (event.data && event.data.type === 'NEW_VERSION_ACTIVATED') {
-                console.log('New SW version activated:', event.data.version);
-                // soft notify user and reload
-                if (confirm('Versi aplikasi baru tersedia. Muat ulang sekarang?')) {
-                    window.location.reload();
-                }
-            }
-        });
-    }
-    @endif
-    </script>
-
-
-
-
     @yield('script')
 </body>
 
