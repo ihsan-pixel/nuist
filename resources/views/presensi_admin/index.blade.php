@@ -17,57 +17,245 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* Modern PPDB Style CSS */
+.welcome-section {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
 }
-.summary-card {
-    transition: all 0.3s ease;
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(50px, -50px);
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.summary-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-.madrasah-card {
     transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.madrasah-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-.status-badge {
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-.table-responsive {
-    border-radius: 8px;
+    position: relative;
     overflow: hidden;
 }
-.user-detail-link, .madrasah-detail-link {
-    color: #0d6efd;
-    text-decoration: underline;
-    cursor: pointer;
-    transition: all 0.2s ease;
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
-.user-detail-link:hover, .madrasah-detail-link:hover {
-    color: #0b5ed7;
-    text-decoration: underline;
+
+.stat-card.total-sekolah {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
-.empty-state {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: none;
+
+.stat-card.sekolah-buka {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
 }
+
+.stat-card.pending {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-icon {
+    position: relative;
+    z-index: 1;
+}
+
+.kabupaten-group {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 .kabupaten-header {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-left: 4px solid #2196f3;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.kabupaten-header i {
+    margin-right: 0.5rem;
+    opacity: 0.9;
+}
+
+.kabupaten-table {
+    background: white;
+}
+
+.kabupaten-table .table {
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.kabupaten-table .table thead th {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.kabupaten-table .table tbody tr {
+    transition: background-color 0.3s ease;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.kabupaten-table .table tbody tr:hover {
+    background-color: rgba(0, 75, 76, 0.05);
+}
+
+.sekolah-name {
+    font-weight: 600;
+    color: #004b4c;
+    margin-bottom: 0.25rem;
+}
+
+.kabupaten-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    border: 1px solid #004b4c;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    font-size: 0.9rem;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
+    color: white;
+    background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .welcome-section {
+        padding: 1.5rem;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .kabupaten-header {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+.text-dark {
+    color: #004b4c !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.fw-semibold {
+    font-weight: 600;
+}
+
+.fw-medium {
+    font-weight: 500;
 }
 </style>
 @endsection
@@ -79,89 +267,105 @@
 @endcomponent
 
 @if(in_array($user->role, ['super_admin', 'pengurus']))
-    <!-- Header Section - Mobile Optimized -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <div class="avatar-lg">
-                                <div class="avatar-title bg-gradient-primary rounded-circle">
-                                    <i class="bx bx-calendar fs-1"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <h4 class="card-title mb-1">Data Presensi</h4>
-                            <p class="text-muted mb-0">{{ $selectedDate->format('d F Y') }}</p>
-                        </div>
-                        <div class="col-auto">
-                            <div class="d-flex gap-2">
-                                <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center">
-                                    <input type="date" id="date-picker" name="date" class="form-control form-control-sm rounded-pill"
-                                           value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
-                                </form>
-                                <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
-                                   class="btn btn-success btn-sm rounded-pill px-3">
-                                    <i class="bx bx-download me-1"></i>Export
-                                </a>
-                            </div>
-                        </div>
+    <!-- Header Section - Modern PPDB Style -->
+    <div class="welcome-section mb-4">
+        <div class="welcome-content">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="mb-2">
+                        <i class="mdi mdi-view-dashboard me-2"></i>
+                        Data Presensi Tenaga Pendidik
+                    </h2>
+                    <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di seluruh madrasah Ma'arif</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex align-items-center justify-content-lg-end">
+                        <i class="mdi mdi-calendar-clock me-2"></i>
+                        <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
+                               value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                        <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
+                           class="btn btn-success btn-sm rounded-pill px-3">
+                            <i class="bx bx-download me-1"></i>Export
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Summary Cards - Mobile Optimized -->
-    <div class="row mb-4 g-3">
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card summary-card h-100">
-                <div class="card-body text-center p-4">
-                    <div class="d-flex align-items-center justify-content-center mb-3">
-                        <div class="avatar-sm me-3">
-                            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle">
-                                <i class="bx bx-user-check fs-4"></i>
+    <!-- Primary Statistics Row -->
+    <div class="section-wrapper mb-4">
+        <div class="row g-3">
+            {{-- Users Presensi Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift total-sekolah">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($summary['users_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Users Presensi</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-check fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div class="fs-2 fw-bold text-primary mb-0">{{ $summary['users_presensi'] }}</div>
-                            <small class="text-muted">Users Presensi</small>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card summary-card h-100">
-                <div class="card-body text-center p-4">
-                    <div class="d-flex align-items-center justify-content-center mb-3">
-                        <div class="avatar-sm me-3">
-                            <div class="avatar-title bg-success bg-opacity-10 text-success rounded-circle">
-                                <i class="bx bx-building fs-4"></i>
+
+            {{-- Sekolah Presensi Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift sekolah-buka">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($summary['sekolah_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Sekolah Presensi</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-school fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div class="fs-2 fw-bold text-success mb-0">{{ $summary['sekolah_presensi'] }}</div>
-                            <small class="text-muted">Sekolah Presensi</small>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 col-sm-6 col-lg-4">
-            <div class="card summary-card h-100">
-                <div class="card-body text-center p-4">
-                    <div class="d-flex align-items-center justify-content-center mb-3">
-                        <div class="avatar-sm me-3">
-                            <div class="avatar-title bg-danger bg-opacity-10 text-danger rounded-circle">
-                                <i class="bx bx-user-x fs-4"></i>
+
+            {{-- Belum Presensi Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift pending">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6">Belum Presensi</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                    <i class="mdi mdi-account-clock fs-3"></i>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <div class="fs-2 fw-bold text-danger mb-0">{{ $summary['guru_tidak_presensi'] }}</div>
-                            <small class="text-muted">Belum Presensi</small>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
+                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -187,114 +391,87 @@
         @endphp
 
         @if($kabupatenMadrasahData->count() > 0)
-            <!-- Kabupaten Header - Mobile Optimized -->
-            <div class="kabupaten-header">
-                <div class="d-flex align-items-center">
-                    <div class="avatar-sm me-3">
-                        <div class="avatar-title bg-primary rounded-circle">
-                            <i class="bx bx-map-pin text-white"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h5 class="mb-1 text-primary">{{ $kabupaten }}</h5>
-                        <small class="text-muted">{{ $kabupatenMadrasahData->count() }} Madrasah</small>
+            <!-- Kabupaten Header - Modern PPDB Style -->
+            <div class="kabupaten-group">
+                <div class="kabupaten-header">
+                    <i class="mdi mdi-city"></i>
+                    <span>{{ $kabupaten }}</span>
+                    <div class="ms-auto">
+                        <small class="badge bg-primary bg-opacity-10 text-primary me-2">
+                            {{ $kabupatenMadrasahData->count() }} Madrasah
+                        </small>
                     </div>
                 </div>
-            </div>
 
-            <!-- Madrasah Cards - Mobile Optimized -->
-            <div class="row g-3 mb-4">
-                @foreach($kabupatenMadrasahData as $data)
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card madrasah-card h-100">
-                        <div class="card-header bg-light border-0">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="card-title mb-1">
-                                    <i class="bx bx-building text-primary me-2"></i>
-                                    <button type="button" class="btn btn-link p-0 text-decoration-underline madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}" style="font-size: inherit; line-height: inherit; color: #0d6efd;">
-                                        {{ $data['madrasah']->name }}
-                                    </button>
-                                </h6>
-                                <div class="d-flex align-items-center text-muted small">
-                                    <i class="bx bx-group me-1"></i>
-                                    {{ count($data['presensi']) }} Tenaga Pendidik
-                                </div>
-                            </div>
-                            @if($user->role === 'super_admin')
-                            <div class="flex-shrink-0">
-                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
-                                    <i class="bx bx-download me-1"></i>Export
-                                </button>
-                            </div>
-                            @endif
-                        </div>
-                        </div>
-                        <div class="card-body p-3">
-                            @if(count($data['presensi']) > 0)
-                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
-                                    <table class="table table-sm table-borderless">
-                                        <tbody>
-                                            @foreach($data['presensi'] as $presensi)
-                                            <tr class="border-bottom border-light">
-                                                <td class="ps-0 py-2">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-xs me-2">
-                                                            <div class="avatar-title bg-light text-primary rounded-circle">
-                                                                <i class="bx bx-user"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <button type="button" class="btn btn-link p-0 text-decoration-underline user-detail-link fw-medium small" data-user-id="{{ $presensi['user_id'] ?? '' }}" data-user-name="{{ $presensi['nama'] }}" style="font-size: inherit; line-height: inherit; color: #0d6efd;">
-                                                                {{ $presensi['nama'] }}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="pe-0 py-2 text-end">
-                                                    @if($presensi['status'] == 'hadir')
-                                                        <span class="status-badge bg-success text-white">Hadir</span>
-                                                    @elseif($presensi['status'] == 'terlambat')
-                                                        <span class="status-badge bg-warning text-white">Terlambat</span>
-                                                    @elseif($presensi['status'] == 'izin')
-                                                        <span class="status-badge bg-info text-white">Izin</span>
-                                                    @else
-                                                        <span class="status-badge bg-secondary text-white">Tidak Hadir</span>
-                                                    @endif
-                                                    @if(isset($presensi['is_fake_location']) && $presensi['is_fake_location'])
-                                                        {{-- <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Fake Location</small> --}}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <div class="avatar-sm mx-auto mb-2">
-                                        <div class="avatar-title bg-light text-muted rounded-circle">
-                                            <i class="bx bx-user-x"></i>
+                <!-- Madrasah Table - Modern PPDB Style -->
+                <div class="kabupaten-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
+                                    <th><i class="mdi mdi-account-group me-1"></i>Tenaga Pendidik</th>
+                                    <th><i class="mdi mdi-information me-1"></i>Status Presensi</th>
+                                    <th><i class="mdi mdi-cog me-1"></i>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($kabupatenMadrasahData as $data)
+                                <tr>
+                                    <td>
+                                        <div class="sekolah-name">
+                                            <span class="madrasah-detail-link fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                                {{ $data['madrasah']->name }}
+                                            </span>
                                         </div>
-                                    </div>
-                                    <small class="text-muted">Tidak ada tenaga pendidik</small>
-                                </div>
-                            @endif
-                        </div>
+                                        <div class="kabupaten-info">{{ $kabupaten }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ count($data['presensi']) }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $hadir = collect($data['presensi'])->where('status', 'hadir')->count();
+                                            $total = count($data['presensi']);
+                                            $persentase = $total > 0 ? round(($hadir / $total) * 100) : 0;
+                                        @endphp
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge {{ $persentase >= 80 ? 'bg-success' : ($persentase >= 50 ? 'bg-warning' : 'bg-danger') }}">
+                                                {{ $hadir }}/{{ $total }} ({{ $persentase }}%)
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <a href="#" class="btn btn-outline-info btn-sm madrasah-detail-link" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                                <i class="mdi mdi-eye me-1"></i>Lihat
+                                            </a>
+                                            @if($user->role === 'super_admin')
+                                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                                <i class="bx bx-download me-1"></i>Export
+                                            </button>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                @endforeach
             </div>
         @endif
     @endforeach
 
-    <!-- User Detail Modal -->
+    <!-- User Detail Modal - Modern PPDB Style -->
     <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="userDetailModalLabel">Detail Presensi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
+                    <h5 class="modal-title" id="userDetailModalLabel" style="font-weight: 600;">
+                        <i class="mdi mdi-account-details me-2"></i>Detail Presensi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs" id="userDetailTab" role="tablist">
@@ -341,20 +518,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                        <i class="mdi mdi-close me-1"></i>Tutup
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Export Modal -->
+    <!-- Export Modal - Modern PPDB Style -->
     <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">Export Data Presensi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
+                    <h5 class="modal-title" id="exportModalLabel" style="font-weight: 600;">
+                        <i class="mdi mdi-file-export me-2"></i>Export Data Presensi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">Pilih jenis export untuk <strong id="exportMadrasahName"></strong>:</p>
@@ -371,20 +552,24 @@
                         <input type="month" class="form-control" id="exportMonth" value="{{ date('Y-m') }}">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                        <i class="mdi mdi-close me-1"></i>Batal
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Madrasah Detail Modal -->
+    <!-- Madrasah Detail Modal - Modern PPDB Style -->
     <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="madrasahDetailModalLabel">Detail Madrasah</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content" style="border-radius: 15px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 15px 15px 0 0; border-bottom: none;">
+                    <h5 class="modal-title" id="madrasahDetailModalLabel" style="font-weight: 600;">
+                        <i class="mdi mdi-school me-2"></i>Detail Madrasah
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
@@ -426,8 +611,10 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <div class="modal-footer" style="border-top: none; border-radius: 0 0 15px 15px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1.5rem;">
+                        <i class="mdi mdi-close me-1"></i>Tutup
+                    </button>
                 </div>
             </div>
         </div>
@@ -926,7 +1113,7 @@ $(document).ready(function () {
     updateInterval = setInterval(updatePresensiData, 30000);
 
     // Handle date change
-    $('#date-picker').on('change', function(e) {
+    $('input[type="date"]').on('change', function(e) {
         e.preventDefault();
         currentDate = $(this).val();
         // Update export link
