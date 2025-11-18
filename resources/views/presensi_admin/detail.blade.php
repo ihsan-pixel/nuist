@@ -856,16 +856,18 @@
                         <i class="mdi mdi-map me-2"></i>Peta & Lokasi Presensi
                     </h6>
                     <div class="map-container mb-3">
-                        @if($madrasah->latitude && $madrasah->longitude)
-                            <div id="school-map" style="height: 200px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6;"></div>
-                        @else
-                            <div class="text-center py-4" style="height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6; border-radius: 8px; color: #6c757d;">
-                                <div>
-                                    <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
-                                    <p class="mb-0 mt-2">Koordinat tidak tersedia</p>
-                                </div>
+                        <div id="school-map" style="height: 200px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; background: #f8f9fa; position: relative;">
+                            <!-- Loading indicator -->
+                            <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                                <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2 small">Memuat peta...</p>
                             </div>
-                        @endif
+                            <!-- Fallback content -->
+                            <div id="map-fallback" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #6c757d;">
+                                <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
+                                <p class="mb-0 mt-2">Peta tidak dapat dimuat</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="attendance-locations">
                         <h6 class="mb-2">
@@ -1086,52 +1088,126 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+$(document).ready(function() {
     @if($madrasah->latitude && $madrasah->longitude)
-    // Initialize map
-    var map = L.map('school-map').setView([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}], 15);
+    // Show loading indicator
+    $('#map-loading').show();
+    $('#map-fallback').hide();
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    try {
+        // Initialize map with error handling
+        var mapContainer = document.getElementById('school-map');
+        if (mapContainer && typeof L !== 'undefined') {
+            var map = L.map('school-map', {
+                center: [{{ $madrasah->latitude }}, {{ $madrasah->longitude }}],
+                zoom: 15,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
 
-    // Add school marker
-    var schoolMarker = L.marker([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}])
-        .addTo(map)
-        .bindPopup('<b>{{ $madrasah->name }}</b><br>Lokasi Madrasah');
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19,
+                errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+            }).addTo(map).on('load', function() {
+                $('#map-loading').hide();
+            }).on('error', function() {
+                $('#map-loading').hide();
+                $('#map-fallback').show();
+            });
 
-    // Add attendance location markers
-    @if(count($tenagaPendidikData) > 0)
-        @foreach($tenagaPendidikData->where('lokasi', '!=', null) as $tp)
-            @if($tp['latitude'] && $tp['longitude'])
-                var attendanceMarker = L.circleMarker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}], {
-                    color: '{{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}',
-                    fillColor: '{{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}',
-                    fillOpacity: 0.6,
-                    radius: 6
-                }).addTo(map).bindPopup(
-                    '<b>{{ $tp['nama'] }}</b><br>' +
-                    'Status: {{ $tp['status'] == 'hadir' ? 'Hadir' : 'Tidak Hadir' }}<br>' +
-                    'Lokasi: {{ Str::limit($tp['lokasi'], 30) }}<br>' +
-                    'Waktu: {{ $tp['waktu_masuk'] ?? '-' }}'
-                );
+            // Add school marker with custom icon
+            var schoolIcon = L.divIcon({
+                html: '<div style="background: #004b4c; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><i class="mdi mdi-school" style="color: white; font-size: 14px;"></i></div>',
+                className: 'custom-school-marker',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            var schoolMarker = L.marker([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}], {icon: schoolIcon})
+                .addTo(map)
+                .bindPopup('<div style="text-align: center; padding: 5px;"><b>{{ addslashes($madrasah->name) }}</b><br><small>Lokasi Madrasah</small></div>');
+
+            var markers = [schoolMarker];
+
+            // Add attendance location markers
+            @if(count($tenagaPendidikData) > 0)
+                @foreach($tenagaPendidikData->where('lokasi', '!=', null) as $tp)
+                    @if($tp['latitude'] && $tp['longitude'])
+                        var attendanceIcon = L.divIcon({
+                            html: '<div style="width: 12px; height: 12px; border-radius: 50%; background: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+                            className: 'custom-attendance-marker',
+                            iconSize: [12, 12],
+                            iconAnchor: [6, 6]
+                        });
+
+                        var attendanceMarker = L.marker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}], {icon: attendanceIcon})
+                            .addTo(map)
+                            .bindPopup(
+                                '<div style="max-width: 200px; padding: 5px;">' +
+                                '<b>{{ addslashes($tp['nama']) }}</b><br>' +
+                                '<small>Status: <span style="color: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }};">{{ $tp['status'] == 'hadir' ? 'Hadir' : 'Tidak Hadir' }}</span></small><br>' +
+                                '<small>Lokasi: {{ addslashes(Str::limit($tp['lokasi'], 30)) }}</small><br>' +
+                                '<small>Waktu: {{ $tp['waktu_masuk'] ?? '-' }}</small>' +
+                                '</div>'
+                            );
+                        markers.push(attendanceMarker);
+                    @endif
+                @endforeach
             @endif
-        @endforeach
-    @endif
 
-    // Fit map to show all markers
-    var group = new L.featureGroup([
-        schoolMarker
-        @if(count($tenagaPendidikData->where('lokasi', '!=', null)->where('latitude', '!=', null)) > 0)
-            @foreach($tenagaPendidikData->where('lokasi', '!=', null)->where('latitude', '!=', null) as $tp)
-                , L.marker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}])
-            @endforeach
-        @endif
-    ]);
-    map.fitBounds(group.getBounds().pad(0.1));
+            // Fit map to show all markers if there are multiple markers
+            if (markers.length > 1) {
+                try {
+                    var group = new L.featureGroup(markers);
+                    map.fitBounds(group.getBounds().pad(0.1));
+                } catch (e) {
+                    console.log('Could not fit bounds, using default view');
+                }
+            }
+
+            // Force map to resize after container is visible
+            setTimeout(function() {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 200);
+
+            // Hide loading after successful initialization
+            setTimeout(function() {
+                $('#map-loading').hide();
+            }, 1000);
+
+            console.log('Map initialized successfully');
+        } else {
+            console.error('Map container not found or Leaflet not loaded');
+            $('#map-loading').hide();
+            $('#map-fallback').show();
+        }
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        $('#map-loading').hide();
+        $('#map-fallback').show();
+    }
+    @else
+        console.log('School coordinates not available');
+        $('#map-loading').hide();
+        $('#map-fallback').show().html('<i class="mdi mdi-map-off" style="font-size: 2rem;"></i><p class="mb-0 mt-2">Koordinat tidak tersedia</p>');
     @endif
 });
 </script>
+
+<style>
+.custom-school-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.custom-attendance-marker {
+    background: none !important;
+    border: none !important;
+}
+</style>
 @endif
 @endsection
