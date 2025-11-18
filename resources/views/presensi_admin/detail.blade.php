@@ -9,6 +9,604 @@
 
 <!-- Responsive Table css -->
 <link href="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.css') }}" rel="stylesheet" type="text/css" />
+
+<style>
+/* Modern PPDB Style CSS - Enhanced with !important for better specificity */
+.welcome-section {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    border-radius: 15px !important;
+    padding: 2rem !important;
+    margin-bottom: 2rem !important;
+    color: white !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;
+}
+
+.welcome-section::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 200px !important;
+    height: 200px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50% !important;
+    transform: translate(50px, -50px) !important;
+}
+
+.welcome-content {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.stat-card {
+    background: white !important;
+    border-radius: 15px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stat-card.total-sekolah {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.stat-card.sekolah-buka {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+}
+
+.stat-card.pending {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white !important;
+}
+
+.stat-number {
+    font-size: 2.5rem !important;
+    font-weight: bold !important;
+    margin-bottom: 0.5rem !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.stat-label {
+    font-size: 0.9rem !important;
+    opacity: 0.9 !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.stat-icon {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.kabupaten-group {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 15px !important;
+    margin-bottom: 1.5rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.kabupaten-header {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.kabupaten-header i {
+    margin-right: 0.5rem !important;
+    opacity: 0.9 !important;
+}
+
+.kabupaten-table {
+    background: white !important;
+}
+
+.kabupaten-table .table {
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
+}
+
+.kabupaten-table .table thead th {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    padding: 1rem !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.kabupaten-table .table tbody tr {
+    transition: background-color 0.3s ease !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+}
+
+.kabupaten-table .table tbody tr:hover {
+    background-color: rgba(0, 75, 76, 0.05) !important;
+}
+
+.sekolah-name {
+    font-weight: 600 !important;
+    color: #004b4c !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.kabupaten-info {
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    border: 1px solid #004b4c !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    color: white !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+    font-size: 0.9rem !important;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3) !important;
+    color: white !important;
+    background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%) !important;
+}
+
+.hover-lift {
+    transition: all 0.3s ease !important;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out !important;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+}
+
+@media (max-width: 768px) {
+    .welcome-section {
+        padding: 1.5rem !important;
+    }
+
+    .stat-card {
+        margin-bottom: 1rem !important;
+        padding: 1rem !important;
+    }
+
+    .stat-number {
+        font-size: 2rem !important;
+    }
+
+    .kabupaten-header {
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
+    }
+}
+
+.text-dark {
+    color: #004b4c !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.fw-medium {
+    font-weight: 500 !important;
+}
+
+/* Additional specificity for modal styles */
+.modal-content {
+    border-radius: 15px !important;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    border-radius: 15px 15px 0 0 !important;
+    border-bottom: none !important;
+}
+
+.modal-header .modal-title {
+    font-weight: 600 !important;
+}
+
+.btn-close-white {
+    filter: invert(1) !important;
+}
+
+.modal-footer {
+    border-top: none !important;
+    border-radius: 0 0 15px 15px !important;
+}
+
+/* Enhanced Modal Styles for Comprehensive School Details */
+.comprehensive-modal .modal-dialog {
+    max-width: 95% !important;
+    margin: 1rem auto !important;
+}
+
+.school-info-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.school-info-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: 1rem !important;
+}
+
+.info-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+}
+
+.info-label {
+    font-weight: 600 !important;
+    color: #004b4c !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.info-value {
+    font-size: 1rem !important;
+    color: #495057 !important;
+    word-break: break-word !important;
+}
+
+.map-section {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.map-container {
+    height: 400px !important;
+    width: 100% !important;
+    border-radius: 8px !important;
+    border: 2px solid #dee2e6 !important;
+    overflow: hidden !important;
+}
+
+.staff-attendance-section {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.staff-tabs .nav-tabs {
+    border-bottom: 2px solid #dee2e6 !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.staff-tabs .nav-link {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    color: #6c757d !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.staff-tabs .nav-link.active {
+    background: none !important;
+    border-bottom-color: #004b4c !important;
+    color: #004b4c !important;
+}
+
+.staff-tabs .nav-link:hover {
+    border-bottom-color: #0e8549 !important;
+    color: #0e8549 !important;
+}
+
+.staff-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1rem !important;
+}
+
+.staff-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    padding: 1rem !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.staff-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.staff-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 4px !important;
+    height: 100% !important;
+    background: #004b4c !important;
+}
+
+.staff-card.hadir::before {
+    background: #28a745 !important;
+}
+
+.staff-card.tidak-hadir::before {
+    background: #dc3545 !important;
+}
+
+.staff-card.izin::before {
+    background: #17a2b8 !important;
+}
+
+.staff-card.terlambat::before {
+    background: #ffc107 !important;
+}
+
+.staff-details-expanded {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.staff-detail-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.8rem !important;
+}
+
+.staff-detail-label {
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+
+.staff-detail-value {
+    color: #495057 !important;
+    font-weight: 600 !important;
+    word-break: break-word !important;
+}
+
+.staff-coordinates {
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.75rem !important;
+    background: rgba(0, 75, 76, 0.05) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    margin-top: 0.25rem !important;
+}
+
+.fake-location-badge {
+    background: #fff3cd !important;
+    color: #856404 !important;
+    padding: 0.125rem 0.375rem !important;
+    border-radius: 3px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    margin-left: 0.5rem !important;
+}
+
+.face-verification-badge {
+    background: #d1ecf1 !important;
+    color: #0c5460 !important;
+    padding: 0.125rem 0.375rem !important;
+    border-radius: 3px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    margin-left: 0.5rem !important;
+}
+
+.staff-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.staff-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-weight: 600 !important;
+    margin-right: 0.75rem !important;
+}
+
+.staff-details {
+    flex-grow: 1 !important;
+}
+
+.staff-name {
+    font-weight: 600 !important;
+    color: #004b4c !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 1rem !important;
+}
+
+.staff-position {
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.staff-status-badge {
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 20px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.staff-status-badge.hadir {
+    background: #d4edda !important;
+    color: #155724 !important;
+}
+
+.staff-status-badge.tidak-hadir {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+.staff-status-badge.izin {
+    background: #cce5ff !important;
+    color: #004085 !important;
+}
+
+.staff-status-badge.terlambat {
+    background: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.staff-times {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.time-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.time-label {
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+
+.time-value {
+    font-size: 0.85rem !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+}
+
+.location-info {
+    margin-top: 0.5rem !important;
+    font-size: 0.75rem !important;
+    color: #6c757d !important;
+}
+
+.location-info i {
+    margin-right: 0.25rem !important;
+}
+
+.empty-state {
+    text-align: center !important;
+    padding: 3rem 1rem !important;
+    color: #6c757d !important;
+}
+
+.empty-state i {
+    font-size: 3rem !important;
+    margin-bottom: 1rem !important;
+    opacity: 0.5 !important;
+}
+
+.empty-state h5 {
+    margin-bottom: 0.5rem !important;
+    color: #495057 !important;
+}
+
+.date-display {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    border-radius: 10px !important;
+    margin-bottom: 1.5rem !important;
+    text-align: center !important;
+}
+
+.date-display h4 {
+    margin: 0 !important;
+    font-weight: 600 !important;
+}
+
+.date-display p {
+    margin: 0.25rem 0 0 0 !important;
+    opacity: 0.9 !important;
+}
+</style>
 @endsection
 
 @section('content')
@@ -17,99 +615,251 @@
     @slot('title') Detail Madrasah @endslot
 @endcomponent
 
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow border-0">
-            <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">
-                        <i class="mdi mdi-school me-2"></i>{{ $madrasah->name }}
-                    </h4>
-                    <div>
-                        <a href="{{ route('presensi_admin.index', ['date' => $selectedDate->format('Y-m-d')]) }}" class="btn btn-light btn-sm">
-                            <i class="mdi mdi-arrow-left me-1"></i>Kembali
-                        </a>
-                        <a href="{{ route('presensi_admin.export_madrasah', $madrasah->id) }}" class="btn btn-success btn-sm">
-                            <i class="mdi mdi-download me-1"></i>Export Data
+@if(in_array($user->role, ['super_admin', 'pengurus']))
+    <!-- Header Section - Modern PPDB Style -->
+    <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
+        <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="mb-2">
+                        <i class="mdi mdi-school me-2"></i>Detail Madrasah: {{ $madrasah->name }}
+                    </h2>
+                    <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di {{ $madrasah->name }}</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex align-items-center justify-content-lg-end">
+                        <i class="mdi mdi-calendar-clock me-2"></i>
+                        <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
+                               value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                        <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
+                            <i class="bx bx-arrow-back me-1"></i>Kembali
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <!-- Date Selector -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center">
-                            <label for="date" class="form-label me-2 mb-0">Tanggal:</label>
-                            <input type="date" name="date" id="date" class="form-control form-control-sm" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()" style="max-width: 200px;">
-                        </form>
-                    </div>
-                </div>
+        </div>
+        <div style="content: '' !important; position: absolute !important; top: 0 !important; right: 0 !important; width: 200px !important; height: 200px !important; background: rgba(255, 255, 255, 0.1) !important; border-radius: 50% !important; transform: translate(50px, -50px) !important;"></div>
+    </div>
 
-                <!-- Madrasah Information -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card border-primary">
-                            <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">
-                                    <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
-                                </h5>
+    <!-- Primary Statistics Row -->
+    <div class="section-wrapper mb-4">
+        <div class="row g-3">
+            {{-- Total Staff Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidik->total() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Total Tenaga Pendidik</p>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <td width="40%"><strong>Nama Madrasah:</strong></td>
-                                                <td>{{ $madrasah->name }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>SCOD:</strong></td>
-                                                <td>{{ $madrasah->scod ?? '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Kabupaten:</strong></td>
-                                                <td>{{ $madrasah->kabupaten ?? '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Hari KBM:</strong></td>
-                                                <td>{{ $madrasah->hari_kbm ?? '-' }} Hari</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <td width="40%"><strong>Alamat:</strong></td>
-                                                <td>{{ $madrasah->alamat ?? '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Latitude:</strong></td>
-                                                <td>{{ $madrasah->latitude ?? '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Longitude:</strong></td>
-                                                <td>{{ $madrasah->longitude ?? '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Map Link:</strong></td>
-                                                <td>
-                                                    @if($madrasah->map_link)
-                                                        <a href="{{ $madrasah->map_link }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                            <i class="mdi mdi-map-marker"></i> Lihat Map
-                                                        </a>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-account-group fs-3"></i>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {{-- Hadir Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Hadir</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-account-check fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}% !important; background: white !important;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tidak Hadir Card --}}
+            <div class="col-lg-4">
+                <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Tidak Hadir</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-account-remove fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'tidak_hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}% !important; background: white !important;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- School Information Section -->
+    <div class="school-info-section mb-4">
+        <h4 class="mb-3">
+            <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
+        </h4>
+        <div class="school-info-grid">
+            <div class="info-item">
+                <span class="info-label">Nama Madrasah</span>
+                <span class="info-value">{{ $madrasah->name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">SCOD</span>
+                <span class="info-value">{{ $madrasah->scod ?? '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Kabupaten</span>
+                <span class="info-value">{{ $madrasah->kabupaten ?? '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Alamat Lengkap</span>
+                <span class="info-value">{{ $madrasah->alamat ?? '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Hari KBM</span>
+                <span class="info-value">{{ $madrasah->hari_kbm ?? '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Koordinat GPS</span>
+                <span class="info-value">
+                    @if($madrasah->latitude && $madrasah->longitude)
+                        {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
+                    @else
+                        -
+                    @endif
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Link Peta</span>
+                <span class="info-value">
+                    @if($madrasah->map_link)
+                        <a href="{{ $madrasah->map_link }}" target="_blank" class="text-primary">
+                            <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
+                        </a>
+                    @else
+                        -
+                    @endif
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Area Polygon</span>
+                <span class="info-value">
+                    @if($madrasah->polygon_koordinat)
+                        Ada (Tersimpan)
+                        @if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2)
+                            + Dual Polygon
+                        @endif
+                    @else
+                        Tidak Ada
+                    @endif
+                </span>
+            </div>
+        </div>
+    </div>
+@else
+    <!-- Admin and other roles: Original view -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="mdi mdi-school me-2"></i>Detail Madrasah: {{ $madrasah->name }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Madrasah Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Nama Madrasah:</strong> {{ $madrasah->name }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>SCOD:</strong> {{ $madrasah->scod ?? '-' }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Kabupaten:</strong> {{ $madrasah->kabupaten ?? '-' }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Alamat Lengkap:</strong> {{ $madrasah->alamat ?? '-' }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Hari KBM:</strong> {{ $madrasah->hari_kbm ?? '-' }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Koordinat GPS:</strong>
+                                @if($madrasah->latitude && $madrasah->longitude)
+                                    {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
+                                @else
+                                    -
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <strong>Link Peta:</strong>
+                                @if($madrasah->map_link)
+                                    <a href="{{ $madrasah->map_link }}" target="_blank" class="text-primary">
+                                        <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
+                                    </a>
+                                @else
+                                    -
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <strong>Area Polygon:</strong>
+                                @if($madrasah->polygon_koordinat)
+                                    Ada (Tersimpan)
+                                    @if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2)
+                                        + Dual Polygon
+                                    @endif
+                                @else
+                                    Tidak Ada
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center gap-3">
+                                <label for="date" class="form-label mb-0 fw-semibold">Pilih Tanggal:</label>
+                                <input type="date" name="date" id="date" class="form-control" style="max-width: 200px;" value="{{ $selectedDate->format('Y-m-d') }}" onchange="this.form.submit()">
+                                <a href="{{ route('presensi_admin.index') }}" class="btn btn-outline-secondary">
+                                    <i class="mdi mdi-arrow-left"></i> Kembali
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+@endif
 
                 <!-- Staff Attendance Data -->
                 <div class="row">
@@ -209,7 +959,7 @@
             </div>
         </div>
     </div>
-</div>
+@endif
 @endsection
 
 @section('script')
