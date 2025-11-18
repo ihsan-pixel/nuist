@@ -877,7 +877,7 @@
                     <!-- Date Display -->
                     <div class="date-display">
                         <h4 id="modal-date-display"></h4>
-                        <p id="modal-day-display"></p>
+                        <p id="modal-date-subtitle"></p>
                     </div>
 
                     <!-- School Information Section -->
@@ -912,50 +912,57 @@
                         <div class="staff-tabs">
                             <ul class="nav nav-tabs" id="staffAttendanceTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="hadir-tab" data-bs-toggle="tab" data-bs-target="#hadir" type="button" role="tab">
+                                    <button class="nav-link active" id="hadir-tab" data-bs-toggle="tab" data-bs-target="#hadir-content" type="button" role="tab">
                                         <i class="mdi mdi-account-check me-1"></i>Hadir
                                         <span class="badge bg-success ms-1" id="hadir-count">0</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="terlambat-tab" data-bs-toggle="tab" data-bs-target="#terlambat" type="button" role="tab">
-                                        <i class="mdi mdi-clock-alert me-1"></i>Terlambat
+                                    <button class="nav-link" id="terlambat-tab" data-bs-toggle="tab" data-bs-target="#terlambat-content" type="button" role="tab">
+                                        <i class="mdi mdi-account-clock me-1"></i>Terlambat
                                         <span class="badge bg-warning ms-1" id="terlambat-count">0</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tidak-hadir-tab" data-bs-toggle="tab" data-bs-target="#tidak-hadir" type="button" role="tab">
+                                    <button class="nav-link" id="tidak-hadir-tab" data-bs-toggle="tab" data-bs-target="#tidak-hadir-content" type="button" role="tab">
                                         <i class="mdi mdi-account-remove me-1"></i>Tidak Hadir
                                         <span class="badge bg-danger ms-1" id="tidak-hadir-count">0</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="izin-tab" data-bs-toggle="tab" data-bs-target="#izin" type="button" role="tab">
+                                    <button class="nav-link" id="izin-tab" data-bs-toggle="tab" data-bs-target="#izin-content" type="button" role="tab">
                                         <i class="mdi mdi-account-edit me-1"></i>Izin
                                         <span class="badge bg-info ms-1" id="izin-count">0</span>
                                     </button>
                                 </li>
                             </ul>
 
-                            <div class="tab-content mt-3" id="staffAttendanceTabsContent">
-                                <div class="tab-pane fade show active" id="hadir" role="tabpanel">
-                                    <div class="staff-grid" id="hadir-grid">
-                                        <!-- Hadir staff cards will be populated here -->
+                            <div class="tab-content" id="staffAttendanceTabContent">
+                                <!-- Hadir Tab -->
+                                <div class="tab-pane fade show active" id="hadir-content" role="tabpanel">
+                                    <div class="staff-grid" id="hadir-staff-grid">
+                                        <!-- Staff cards will be populated here -->
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="terlambat" role="tabpanel">
-                                    <div class="staff-grid" id="terlambat-grid">
-                                        <!-- Terlambat staff cards will be populated here -->
+
+                                <!-- Terlambat Tab -->
+                                <div class="tab-pane fade" id="terlambat-content" role="tabpanel">
+                                    <div class="staff-grid" id="terlambat-staff-grid">
+                                        <!-- Staff cards will be populated here -->
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="tidak-hadir" role="tabpanel">
-                                    <div class="staff-grid" id="tidak-hadir-grid">
-                                        <!-- Tidak hadir staff cards will be populated here -->
+
+                                <!-- Tidak Hadir Tab -->
+                                <div class="tab-pane fade" id="tidak-hadir-content" role="tabpanel">
+                                    <div class="staff-grid" id="tidak-hadir-staff-grid">
+                                        <!-- Staff cards will be populated here -->
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="izin" role="tabpanel">
-                                    <div class="staff-grid" id="izin-grid">
-                                        <!-- Izin staff cards will be populated here -->
+
+                                <!-- Izin Tab -->
+                                <div class="tab-pane fade" id="izin-content" role="tabpanel">
+                                    <div class="staff-grid" id="izin-staff-grid">
+                                        <!-- Staff cards will be populated here -->
                                     </div>
                                 </div>
                             </div>
@@ -1412,7 +1419,7 @@ $(document).ready(function () {
                 let dateObj = new Date(currentDate);
                 let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
-                $('#modal-day-display').text('Data Presensi Hari Ini');
+                $('#modal-date-subtitle').text('Data Presensi Tenaga Pendidik');
 
                 // Populate school information
                 populateSchoolInfo(data.madrasah);
@@ -1671,47 +1678,11 @@ $(document).ready(function () {
         $('#tidak-hadir-count').text(staffByStatus.tidak_hadir.length);
         $('#izin-count').text(staffByStatus.izin.length);
 
-        // Populate each tab
-        Object.keys(staffByStatus).forEach(status => {
-            let gridId = `#${status.replace('_', '-')}-grid`;
-            let staffList = staffByStatus[status];
-
-            if (staffList.length > 0) {
-                let cards = '';
-                staffList.forEach(function(staff) {
-                    let statusClass = status.replace('_', '-');
-                    let statusText = status === 'hadir' ? 'Hadir' : (status === 'terlambat' ? 'Terlambat' : (status === 'tidak_hadir' ? 'Tidak Hadir' : 'Izin'));
-
-                    cards += `
-                        <div class="staff-card ${statusClass}">
-                            <div class="staff-header">
-                                <div class="staff-avatar">${staff.nama.charAt(0).toUpperCase()}</div>
-                                <div class="staff-details">
-                                    <div class="staff-name">${staff.nama}</div>
-                                    <div class="staff-position">${staff.status_kepegawaian || '-'}</div>
-                                    <span class="staff-status-badge ${statusClass}">${statusText}</span>
-                                </div>
-                            </div>
-                            <div class="staff-times">
-                                ${staff.waktu_masuk ? `<div class="time-item"><span class="time-label">Masuk</span><span class="time-value">${staff.waktu_masuk}</span></div>` : ''}
-                                ${staff.waktu_keluar ? `<div class="time-item"><span class="time-label">Keluar</span><span class="time-value">${staff.waktu_keluar}</span></div>` : ''}
-                                ${staff.keterangan ? `<div class="time-item"><span class="time-label">Keterangan</span><span class="time-value">${staff.keterangan}</span></div>` : ''}
-                                ${(staff.latitude && staff.longitude) ? `<div class="location-info"><i class="mdi mdi-map-marker"></i> Lokasi tersimpan</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-                $(gridId).html(cards);
-            } else {
-                $(gridId).html(`
-                    <div class="empty-state">
-                        <i class="mdi mdi-account-off"></i>
-                        <h5>Tidak Ada Data</h5>
-                        <p>Belum ada tenaga pendidik dengan status ini</p>
-                    </div>
-                `);
-            }
-        });
+        // Populate staff grids
+        populateStaffGrid('hadir-staff-grid', staffByStatus.hadir, 'hadir');
+        populateStaffGrid('terlambat-staff-grid', staffByStatus.terlambat, 'terlambat');
+        populateStaffGrid('tidak-hadir-staff-grid', staffByStatus.tidak_hadir, 'tidak-hadir');
+        populateStaffGrid('izin-staff-grid', staffByStatus.izin, 'izin');
     }
     @endif
 });
