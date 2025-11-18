@@ -343,29 +343,8 @@
     line-height: 1.4 !important;
 }
 
-.attendance-locations {
-    background: rgba(0, 75, 76, 0.02) !important;
-    border-radius: 8px !important;
-    padding: 1rem !important;
-    border: 1px solid rgba(0, 75, 76, 0.1) !important;
-}
-
-.location-list::-webkit-scrollbar {
-    width: 4px !important;
-}
-
-.location-list::-webkit-scrollbar-track {
-    background: rgba(0, 75, 76, 0.05) !important;
-    border-radius: 2px !important;
-}
-
-.location-list::-webkit-scrollbar-thumb {
-    background: rgba(0, 75, 76, 0.3) !important;
-    border-radius: 2px !important;
-}
-
-.location-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 75, 76, 0.5) !important;
+.attendance-summary {
+    margin-top: 0.5rem !important;
 }
 
 .map-section {
@@ -853,43 +832,44 @@
             <div class="col-lg-4">
                 <div class="info-card">
                     <h6 class="info-card-title">
-                        <i class="mdi mdi-map me-2"></i>Peta & Lokasi Presensi
+                        <i class="mdi mdi-map me-2"></i>Monitoring Lokasi Presensi
                     </h6>
-                    <div class="map-container mb-3">
-                        <div id="school-map" style="height: 200px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; background: #f8f9fa; position: relative;">
-                            <!-- Loading indicator -->
-                            <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
-                                <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
-                                <p class="mb-0 mt-2 small">Memuat peta...</p>
-                            </div>
-                            <!-- Fallback content -->
-                            <div id="map-fallback" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #6c757d;">
-                                <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
-                                <p class="mb-0 mt-2">Peta tidak dapat dimuat</p>
-                            </div>
+
+                    <!-- Map Container -->
+                    <div id="school-map" style="height: 250px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
+                        <!-- Loading indicator -->
+                        <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                            <p class="mb-0 mt-2 small">Memuat peta...</p>
+                        </div>
+                        <!-- Fallback content -->
+                        <div id="map-fallback" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #6c757d;">
+                            <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
+                            <p class="mb-0 mt-2">Peta tidak dapat dimuat</p>
                         </div>
                     </div>
-                    <div class="attendance-locations">
-                        <h6 class="mb-2">
-                            <i class="mdi mdi-crosshairs-gps me-1"></i>Lokasi Presensi Hari Ini
-                        </h6>
-                        <div class="location-list" style="max-height: 150px; overflow-y: auto;">
-                            @if(count($tenagaPendidikData) > 0)
-                                @foreach($tenagaPendidikData->where('lokasi', '!=', null)->take(5) as $tp)
-                                    <div class="location-item d-flex align-items-center mb-2">
-                                        <div class="location-dot me-2" style="width: 8px; height: 8px; border-radius: 50%; background: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }};"></div>
-                                        <div class="flex-grow-1">
-                                            <small class="fw-semibold">{{ $tp['nama'] }}</small><br>
-                                            <small class="text-muted">{{ Str::limit($tp['lokasi'], 25) }}</small>
-                                        </div>
-                                    </div>
-                                @endforeach
-                                @if($tenagaPendidikData->where('lokasi', '!=', null)->count() > 5)
-                                    <small class="text-muted">+{{ $tenagaPendidikData->where('lokasi', '!=', null)->count() - 5 }} lokasi lainnya</small>
-                                @endif
-                            @else
-                                <small class="text-muted">Belum ada data presensi hari ini</small>
-                            @endif
+
+                    <!-- Legend -->
+                    <div class="d-flex justify-content-center mt-2 mb-3" style="gap: 12px;">
+                        <div class="d-flex align-items-center">
+                            <div style="width: 12px; height: 12px; background: #0e8549; border-radius: 50%; margin-right: 4px;"></div>
+                            <small style="font-size: 10px;">Sudah Presensi</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; margin-right: 4px;"></div>
+                            <small style="font-size: 10px;">Belum Presensi</small>
+                        </div>
+                    </div>
+
+                    <!-- Summary Stats -->
+                    <div class="attendance-summary" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <div style="background: rgba(14, 133, 73, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 600; font-size: 14px; color: #0e8549;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</div>
+                            <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
+                        </div>
+                        <div style="background: rgba(220, 53, 69, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 600; font-size: 14px; color: #dc3545;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</div>
+                            <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
                         </div>
                     </div>
                 </div>
