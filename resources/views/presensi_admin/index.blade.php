@@ -1467,6 +1467,248 @@ $(document).ready(function () {
 
 
 
+    // Function to populate school information
+    function populateSchoolInfo(madrasah) {
+        let schoolInfoHtml = `
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Nama Madrasah:</strong><br>
+                        ${madrasah.name || '-'}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Kabupaten:</strong><br>
+                        ${madrasah.kabupaten || '-'}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Alamat:</strong><br>
+                        ${madrasah.alamat || '-'}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Kepala Madrasah:</strong><br>
+                        ${madrasah.kepala_madrasah || '-'}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Telepon:</strong><br>
+                        ${madrasah.telepon || '-'}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                        <strong>Email:</strong><br>
+                        ${madrasah.email || '-'}
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#school-info-grid').html(schoolInfoHtml);
+    }
+
+    // Function to initialize comprehensive map
+    function initializeComprehensiveMap(madrasah, tenagaPendidik) {
+        // Clear existing map if it exists
+        if (window.comprehensiveMap) {
+            window.comprehensiveMap.remove();
+        }
+
+        // Initialize map
+        window.comprehensiveMap = L.map('comprehensive-map').setView([-7.7956, 110.3695], 10);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(window.comprehensiveMap);
+
+        // Add school marker if coordinates exist
+        if (madrasah.latitude && madrasah.longitude) {
+            L.marker([madrasah.latitude, madrasah.longitude])
+                .addTo(window.comprehensiveMap)
+                .bindPopup(`<b>${madrasah.name}</b><br>Lokasi Madrasah`)
+                .openPopup();
+
+            // Center map on school
+            window.comprehensiveMap.setView([madrasah.latitude, madrasah.longitude], 15);
+        }
+
+        // Add polygon if geojson exists
+        if (madrasah.geojson) {
+            try {
+                let geojsonData = JSON.parse(madrasah.geojson);
+                L.geoJSON(geojsonData, {
+                    style: {
+                        color: '#004b4c',
+                        weight: 2,
+                        opacity: 0.8,
+                        fillColor: '#0e8549',
+                        fillOpacity: 0.2
+                    }
+                }).addTo(window.comprehensiveMap);
+            } catch (e) {
+                console.error('Invalid GeoJSON data:', e);
+            }
+        }
+
+        // Add staff attendance markers
+        if (tenagaPendidik && Array.isArray(tenagaPendidik)) {
+            tenagaPendidik.forEach(staff => {
+                if (staff.latitude && staff.longitude) {
+                    let statusColor = getStatusColor(staff.status);
+                    L.circleMarker([staff.latitude, staff.longitude], {
+                        color: statusColor,
+                        fillColor: statusColor,
+                        fillOpacity: 0.8,
+                        radius: 8
+                    })
+                    .addTo(window.comprehensiveMap)
+                    .bindPopup(`
+                        <b>${staff.name}</b><br>
+                        Status: ${staff.status}<br>
+                        Waktu: ${staff.created_at || '-'}
+                    `);
+                }
+            });
+        }
+
+        // Fit map to show all elements
+        setTimeout(() => {
+            window.comprehensiveMap.invalidateSize();
+        }, 100);
+    }
+
+    // Function to get status color for map markers
+    function getStatusColor(status) {
+        switch(status) {
+            case 'hadir': return '#28a745';
+            case 'terlambat': return '#ffc107';
+            case 'tidak_hadir': return '#dc3545';
+            case 'izin': return '#17a2b8';
+            default: return '#6c757d';
+        }
+    }
+
+    // Function to populate staff attendance data
+    function populateStaffAttendance(tenagaPendidik) {
+        if (!tenagaPendidik || !Array.isArray(tenagaPendidik)) {
+            console.warn('Invalid tenaga pendidik data');
+            return;
+        }
+
+        // Group staff by status
+        let groupedStaff = {
+            hadir: [],
+            terlambat: [],
+            tidak_hadir: [],
+            izin: []
+        };
+
+        tenagaPendidik.forEach(staff => {
+            let status = staff.status || 'tidak_hadir';
+            if (groupedStaff[status]) {
+                groupedStaff[status].push(staff);
+            } else {
+                groupedStaff.tidak_hadir.push(staff);
+            }
+        });
+
+        // Update tab counts
+        $('#hadir-count').text(groupedStaff.hadir.length);
+        $('#terlambat-count').text(groupedStaff.terlambat.length);
+        $('#tidak-hadir-count').text(groupedStaff.tidak_hadir.length);
+        $('#izin-count').text(groupedStaff.izin.length);
+
+        // Populate each tab content
+        Object.keys(groupedStaff).forEach(status => {
+            let staffList = groupedStaff[status];
+            let containerId = `${status.replace('_', '-')}-staff-grid`;
+            let staffHtml = '';
+
+            if (staffList.length === 0) {
+                staffHtml = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="mdi mdi-account-off-outline fs-1"></i>
+                        <p class="mt-2">Tidak ada data ${status.replace('_', ' ')}</p>
+                    </div>
+                `;
+            } else {
+                staffHtml = '<div class="row g-3">';
+                staffList.forEach(staff => {
+                    let statusBadge = getStatusBadge(staff.status);
+                    let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID') : '-';
+
+                    staffHtml += `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar-sm me-3">
+                                            <div class="avatar-title rounded-circle bg-primary text-white">
+                                                ${staff.name ? staff.name.charAt(0).toUpperCase() : '?'}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1">${staff.name || '-'}</h6>
+                                            <small class="text-muted">${staff.nip || '-'}</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        ${statusBadge}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="mdi mdi-clock-outline me-1"></i>${timeInfo}
+                                    </small>
+                                    ${staff.latitude && staff.longitude ? `
+                                        <br><small class="text-muted">
+                                            <i class="mdi mdi-map-marker me-1"></i>
+                                            Lokasi tercatat
+                                        </small>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                staffHtml += '</div>';
+            }
+
+            $(`#${containerId}`).html(staffHtml);
+        });
+    }
+
+    // Function to get status badge HTML
+    function getStatusBadge(status) {
+        let badgeClass = 'bg-secondary';
+        let statusText = status || 'Tidak Hadir';
+
+        switch(status) {
+            case 'hadir':
+                badgeClass = 'bg-success';
+                statusText = 'Hadir';
+                break;
+            case 'terlambat':
+                badgeClass = 'bg-warning text-dark';
+                statusText = 'Terlambat';
+                break;
+            case 'tidak_hadir':
+                badgeClass = 'bg-danger';
+                statusText = 'Tidak Hadir';
+                break;
+            case 'izin':
+                badgeClass = 'bg-info';
+                statusText = 'Izin';
+                break;
+        }
+
+        return `<span class="badge ${badgeClass}">${statusText}</span>`;
+    }
+
     // Update data every 30 seconds
     updateInterval = setInterval(updatePresensiData, 30000);
 
