@@ -6,6 +6,11 @@
 <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+
+<!-- DataTables -->
+<link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -121,7 +126,7 @@
                             <div class="card-body">
                                 @if(count($tenagaPendidikData) > 0)
                                     <div class="table-responsive">
-                                        <table class="table table-striped table-hover">
+                                        <table id="staff-attendance-table" class="table table-striped table-hover">
                                             <thead class="table-dark">
                                                 <tr>
                                                     <th>No</th>
@@ -151,6 +156,8 @@
                                                             <span class="badge bg-warning">Izin</span>
                                                         @elseif($tp['status'] == 'sakit')
                                                             <span class="badge bg-info">Sakit</span>
+                                                        @elseif($tp['status'] == 'terlambat')
+                                                            <span class="badge bg-warning text-dark">Terlambat</span>
                                                         @else
                                                             <span class="badge bg-danger">Tidak Hadir</span>
                                                         @endif
@@ -188,4 +195,41 @@
 
 @section('script')
 <script src="{{ asset('build/js/app.js') }}"></script>
+
+<!-- DataTables -->
+<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+
+<script>
+$(document).ready(function() {
+    $('#staff-attendance-table').DataTable({
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "responsive": true,
+        "language": {
+            "lengthMenu": "Tampilkan _MENU_ data per halaman",
+            "zeroRecords": "Tidak ada data yang ditemukan",
+            "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+            "infoEmpty": "Tidak ada data tersedia",
+            "infoFiltered": "(difilter dari _MAX_ total data)",
+            "search": "Cari:",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Selanjutnya",
+                "previous": "Sebelumnya"
+            }
+        },
+        "columnDefs": [
+            {
+                "targets": 0,
+                "orderable": false,
+                "searchable": false
+            }
+        ]
+    });
+});
+</script>
 @endsection
