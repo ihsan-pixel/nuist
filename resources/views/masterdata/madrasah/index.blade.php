@@ -121,107 +121,107 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Nama Madrasah/Sekolah</label>
-                            <input type="text" name="name" class="form-control" value="{{ $madrasah->name }}" required>
-                            @error('name')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Kabupaten</label>
-                            <select name="kabupaten" class="form-select">
-                                <option value="">Pilih Kabupaten</option>
-                                <option value="Kabupaten Bantul" {{ $madrasah->kabupaten == 'Kabupaten Bantul' ? 'selected' : '' }}>Kabupaten Bantul</option>
-                                <option value="Kabupaten Gunungkidul" {{ $madrasah->kabupaten == 'Kabupaten Gunungkidul' ? 'selected' : '' }}>Kabupaten Gunungkidul</option>
-                                <option value="Kabupaten Kulon Progo" {{ $madrasah->kabupaten == 'Kabupaten Kulon Progo' ? 'selected' : '' }}>Kabupaten Kulon Progo</option>
-                                <option value="Kabupaten Sleman" {{ $madrasah->kabupaten == 'Kabupaten Sleman' ? 'selected' : '' }}>Kabupaten Sleman</option>
-                                <option value="Kota Yogyakarta" {{ $madrasah->kabupaten == 'Kota Yogyakarta' ? 'selected' : '' }}>Kota Yogyakarta</option>
-                            </select>
-                            @error('kabupaten')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Alamat</label>
-                            <textarea name="alamat" class="form-control" rows="2">{{ $madrasah->alamat }}</textarea>
-                            @error('alamat')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Latitude</label>
-                            <input type="text" name="latitude" class="form-control" value="{{ $madrasah->latitude }}">
-                            @error('latitude')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Longitude</label>
-                            <input type="text" name="longitude" class="form-control" value="{{ $madrasah->longitude }}">
-                            @error('longitude')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Link Map</label>
-                            <input type="text" name="map_link" class="form-control" value="{{ $madrasah->map_link }}">
-                            @error('map_link')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Hari KBM</label>
-                            <select name="hari_kbm" class="form-select">
-                                <option value="">Pilih Hari KBM</option>
-                                <option value="5" {{ $madrasah->hari_kbm == '5' ? 'selected' : '' }}>5 Hari</option>
-                                <option value="6" {{ $madrasah->hari_kbm == '6' ? 'selected' : '' }}>6 Hari</option>
-                            </select>
-                            @error('hari_kbm')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label>Area Poligon Presensi Utama</label>
-                            <div id="map-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
-                            <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
-                            <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
-                        </div>
-                        @if(in_array($madrasah->id, [24, 26, 33, 25]))
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
-                                <label class="form-check-label" for="enable_dual_polygon-{{ $madrasah->id }}">
-                                    Aktifkan Poligon Kedua
-                                </label>
-                            </div>
-                            <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
-                        </div>
-                        <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
-                            <label>Area Poligon Presensi Kedua</label>
-                            <div id="map2-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
-                            <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
-                            <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
-                        </div>
-                        @endif
-                        <div class="mb-3">
-                            <label>Logo</label>
-                            <input type="file" name="logo" id="editLogoInput{{ $madrasah->id }}" class="form-control" accept="image/*">
-                            <small class="text-muted">Kosongkan jika tidak ingin diubah. Maksimal 2MB, format: JPG, PNG, JPEG</small>
-                            @if($madrasah->logo)
-                                <div class="mt-2">
-                                    <label class="form-label">Logo Saat Ini:</label><br>
-                                    <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                </div>
-                            @endif
-                            <div id="editLogoPreview{{ $madrasah->id }}" class="mt-2" style="display: none;">
-                                <label class="form-label">Preview Logo Baru:</label><br>
-                                <img id="editPreviewImage{{ $madrasah->id }}" src="" alt="Preview Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearEditLogoPreview({{ $madrasah->id }})">
-                                    <i class="bx bx-trash"></i> Hapus
-                                </button>
-                            </div>
-                        </div>
+                                                <div class="mb-3">
+                                                    <label>Nama Madrasah/Sekolah</label>
+                                                    <input type="text" name="name" class="form-control" value="{{ $madrasah->name }}" required>
+                                                    @error('name')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Kabupaten</label>
+                                                    <select name="kabupaten" class="form-select">
+                                                        <option value="">Pilih Kabupaten</option>
+                                                        <option value="Kabupaten Bantul" {{ $madrasah->kabupaten == 'Kabupaten Bantul' ? 'selected' : '' }}>Kabupaten Bantul</option>
+                                                        <option value="Kabupaten Gunungkidul" {{ $madrasah->kabupaten == 'Kabupaten Gunungkidul' ? 'selected' : '' }}>Kabupaten Gunungkidul</option>
+                                                        <option value="Kabupaten Kulon Progo" {{ $madrasah->kabupaten == 'Kabupaten Kulon Progo' ? 'selected' : '' }}>Kabupaten Kulon Progo</option>
+                                                        <option value="Kabupaten Sleman" {{ $madrasah->kabupaten == 'Kabupaten Sleman' ? 'selected' : '' }}>Kabupaten Sleman</option>
+                                                        <option value="Kota Yogyakarta" {{ $madrasah->kabupaten == 'Kota Yogyakarta' ? 'selected' : '' }}>Kota Yogyakarta</option>
+                                                    </select>
+                                                    @error('kabupaten')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Alamat</label>
+                                                    <textarea name="alamat" class="form-control" rows="2">{{ $madrasah->alamat }}</textarea>
+                                                    @error('alamat')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Latitude</label>
+                                                    <input type="text" name="latitude" class="form-control" value="{{ $madrasah->latitude }}">
+                                                    @error('latitude')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Longitude</label>
+                                                    <input type="text" name="longitude" class="form-control" value="{{ $madrasah->longitude }}">
+                                                    @error('longitude')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Link Map</label>
+                                                    <input type="text" name="map_link" class="form-control" value="{{ $madrasah->map_link }}">
+                                                    @error('map_link')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Hari KBM</label>
+                                                    <select name="hari_kbm" class="form-select">
+                                                        <option value="">Pilih Hari KBM</option>
+                                                        <option value="5" {{ $madrasah->hari_kbm == '5' ? 'selected' : '' }}>5 Hari</option>
+                                                        <option value="6" {{ $madrasah->hari_kbm == '6' ? 'selected' : '' }}>6 Hari</option>
+                                                    </select>
+                                                    @error('hari_kbm')
+                                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label>Area Poligon Presensi Utama</label>
+                                                    <div id="map-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
+                                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
+                                                    <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
+                                                </div>
+                                                @if(in_array($madrasah->id, [24, 26, 33, 25]))
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="enable_dual_polygon-{{ $madrasah->id }}">
+                                                            Aktifkan Poligon Kedua
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
+                                                </div>
+                                                <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
+                                                    <label>Area Poligon Presensi Kedua</label>
+                                                    <div id="map2-{{ $madrasah->id }}" style="height: 300px; width: 100%;"></div>
+                                                    <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
+                                                    <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
+                                                </div>
+                                                @endif
+                                                <div class="mb-3">
+                                                    <label>Logo</label>
+                                                    <input type="file" name="logo" id="editLogoInput{{ $madrasah->id }}" class="form-control" accept="image/*">
+                                                    <small class="text-muted">Kosongkan jika tidak ingin diubah. Maksimal 2MB, format: JPG, PNG, JPEG</small>
+                                                    @if($madrasah->logo)
+                                                        <div class="mt-2">
+                                                            <label class="form-label">Logo Saat Ini:</label><br>
+                                                            <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                                        </div>
+                                                    @endif
+                                                    <div id="editLogoPreview{{ $madrasah->id }}" class="mt-2" style="display: none;">
+                                                        <label class="form-label">Preview Logo Baru:</label><br>
+                                                        <img id="editPreviewImage{{ $madrasah->id }}" src="" alt="Preview Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearEditLogoPreview({{ $madrasah->id }})">
+                                                            <i class="bx bx-trash"></i> Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -544,6 +544,7 @@
                     map.on(L.Draw.Event.EDITED, updatePolygonInput);
                     map.on(L.Draw.Event.DELETED, updatePolygonInput);
 
+                    window[mapId] = map;
                     return map;
                 }
                 return null;
@@ -555,7 +556,7 @@
                 let lon = 110.3695;
                 initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
                 setTimeout(() => {
-                    if (window.mapAdd) window.mapAdd.invalidateSize();
+                    if (window['map-add']) window['map-add'].invalidateSize();
                 }, 400);
             });
 
@@ -574,15 +575,27 @@
                 let existingPolygon1 = $('#polygon_koordinat-' + madrasahId).val();
                 initializeMap('map-' + madrasahId, 'polygon_koordinat-' + madrasahId, lat, lon, existingPolygon1);
 
-                // Initialize second map if dual polygon is enabled
+                window['map-' + madrasahId] = initializeMap(
+                    'map-' + madrasahId,
+                    'polygon_koordinat-' + madrasahId,
+                    lat, lon,
+                    existingPolygon1
+                );
+
                 if ($('#enable_dual_polygon-' + madrasahId).is(':checked')) {
                     let existingPolygon2 = $('#polygon_koordinat_2-' + madrasahId).val();
-                    initializeMap('map2-' + madrasahId, 'polygon_koordinat_2-' + madrasahId, lat, lon, existingPolygon2);
+
+                    window['map2-' + madrasahId] = initializeMap(
+                        'map2-' + madrasahId,
+                        'polygon_koordinat_2-' + madrasahId,
+                        lat, lon,
+                        existingPolygon2
+                    );
                 }
 
                 setTimeout(() => {
-                    if (window['map' + madrasahId]) window['map' + madrasahId].invalidateSize();
-                    if (window['map2' + madrasahId]) window['map2' + madrasahId].invalidateSize();
+                    if (window['map-' + madrasahId]) window['map-' + madrasahId].invalidateSize();
+                    if (window['map2-' + madrasahId]) window['map2-' + madrasahId].invalidateSize();
                 }, 400);
             });
 
@@ -609,9 +622,14 @@
                     if (!document.getElementById(mapId)._leaflet_id) {
                         let lat = -7.7956;
                         let lon = 110.3695;
-                        initializeMap(mapId, polygonInputId, lat, lon);
+                        window['map2-' + id] = initializeMap(
+                            mapId,
+                            polygonInputId,
+                            lat, lon
+                        );
+
                         setTimeout(() => {
-                            if (window['map2' + (id ? id : 'Add')]) window['map2' + (id ? id : 'Add')].invalidateSize();
+                            if (window['map2-' + id]) window['map2-' + id].invalidateSize();
                         }, 400);
                     }
                 } else {
