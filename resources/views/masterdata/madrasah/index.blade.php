@@ -379,265 +379,337 @@
 @endsection
 
 @section('script')
-    <script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<!-- Datatables -->
+<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
-    <script>
-        // Fungsi untuk preview logo di form tambah
-        document.getElementById('logoInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('logoPreview');
-            const previewImage = document.getElementById('previewImage');
-
-            if (file) {
-                // Validasi ukuran file (2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
-                    this.value = '';
-                    return;
-                }
-
-                // Validasi tipe file
-                if (!file.type.match('image.*')) {
-                    alert('File harus berupa gambar.');
-                    this.value = '';
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-
-        // Fungsi untuk clear preview logo di form tambah
-        function clearLogoPreview() {
-            document.getElementById('logoInput').value = '';
-            document.getElementById('logoPreview').style.display = 'none';
-        }
-
-        // Fungsi untuk preview logo di form edit
-        @foreach($madrasahs as $madrasah)
-        document.getElementById('editLogoInput{{ $madrasah->id }}').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('editLogoPreview{{ $madrasah->id }}');
-            const previewImage = document.getElementById('editPreviewImage{{ $madrasah->id }}');
-
-            if (file) {
-                // Validasi ukuran file (2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
-                    this.value = '';
-                    return;
-                }
-
-                // Validasi tipe file
-                if (!file.type.match('image.*')) {
-                    alert('File harus berupa gambar.');
-                    this.value = '';
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-
-        // Fungsi untuk clear preview logo di form edit
-        function clearEditLogoPreview(madrasahId) {
-            document.getElementById('editLogoInput' + madrasahId).value = '';
-            document.getElementById('editLogoPreview' + madrasahId).style.display = 'none';
-        }
-        @endforeach
-
-        $(document).ready(function () {
-            let table = $("#datatable-buttons").DataTable({
-                responsive: true,
-                lengthChange: true,
-                autoWidth: false,
-                buttons: ["copy", "excel", "pdf", "print", "colvis"]
-            });
-
-            table.buttons().container()
-                .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
-
-            // --- Leaflet Map for Polygon Drawing ---
-            const initializeMap = (mapId, polygonInputId, lat, lon, existingPolygon = null) => {
-                let mapElement = document.getElementById(mapId);
-                if (mapElement && !mapElement._leaflet_id) {
-                    let map = L.map(mapId).setView([lat, lon], 16);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(map);
-
-                    let drawnItems = new L.FeatureGroup();
-                    map.addLayer(drawnItems);
-
-                    // Load existing polygon
-                    if (existingPolygon) {
-                        try {
-                            let geometry = JSON.parse(existingPolygon);
-                            let layer = L.geoJSON(geometry);
-                            layer.eachLayer(l => drawnItems.addLayer(l));
-                            if (drawnItems.getLayers().length > 0) {
-                                map.fitBounds(drawnItems.getBounds());
-                            }
-                        } catch (e) {
-                            console.error("Invalid GeoJSON data for polygon:", e);
-                        }
-                    }
-
-                    let drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems,
-                            poly: { allowIntersection: false }
-                        },
-                        draw: {
-                            polygon: {
-                                allowIntersection: false,
-                                showArea: true
-                            },
-                            polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false
-                        }
-                    });
-                    map.addControl(drawControl);
-
-                    const updatePolygonInput = () => {
-                        let geojson = drawnItems.toGeoJSON();
-                        if (geojson.features.length > 0) {
-                            $('#' + polygonInputId).val(JSON.stringify(geojson.features[0].geometry));
-                        } else {
-                            $('#' + polygonInputId).val('');
-                        }
-                    };
-
-                    map.on(L.Draw.Event.CREATED, function (e) {
-                        drawnItems.clearLayers();
-                        drawnItems.addLayer(e.layer);
-                        updatePolygonInput();
-                    });
-
-                    map.on(L.Draw.Event.EDITED, updatePolygonInput);
-                    map.on(L.Draw.Event.DELETED, updatePolygonInput);
-
-                    window[mapId] = map;
-                    return map;
-                }
-                return null;
+<script>
+    /* =====================================================
+       UTILITY: FIX FORMAT KOORDINAT DATABASE (LNG,LAT -> LAT,LNG)
+    ====================================================== */
+    function fixGeoJSONOrder(geometry) {
+        try {
+            if (!geometry || !geometry.coordinates) return geometry;
+            // handle Polygon coordinates structure: [ [ [lng,lat], ... ] ]
+            let coords = geometry.coordinates[0];
+            let fixed = coords.map(c => [c[1], c[0]]); // swap lng,lat -> lat,lng
+            return {
+                type: "Polygon",
+                coordinates: [fixed]
             };
+        } catch (e) {
+            console.error("Fix order error:", e);
+            return geometry;
+        }
+    }
 
-            // Initialize map for add modal
-            $('#modalTambahMadrasah').on('shown.bs.modal', function () {
-                let lat = -7.7956;
-                let lon = 110.3695;
-                initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
-                setTimeout(() => {
-                    if (window['map-add']) window['map-add'].invalidateSize();
-                }, 400);
-            });
+    /* =====================================================
+       INITIALIZE LEAFLET MAP (GLOBAL STORE)
+    ====================================================== */
+    function initializeMap(mapId, polygonInputId, lat, lon, existingPolygon = null) {
+        let mapElement = document.getElementById(mapId);
+        if (!mapElement) return null;
 
-            // Initialize maps for edit modals
-            $('div.modal.fade').on('shown.bs.modal', function (event) {
-                let modal = $(this);
-                if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) {
-                    return;
+        // Create map (always create fresh instance for modal)
+        let map = L.map(mapId).setView([lat, lon], 17);
+        // store globally so invalidateSize can find it by id string
+        window[mapId] = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
+
+        let drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Load existing polygon (if ada)
+        if (existingPolygon) {
+            try {
+                let geometry = (typeof existingPolygon === 'string') ? JSON.parse(existingPolygon) : existingPolygon;
+                // Fix order jika DB memakai [lng,lat]
+                geometry = fixGeoJSONOrder(geometry);
+
+                let layer = L.geoJSON(geometry);
+                layer.eachLayer(l => drawnItems.addLayer(l));
+
+                if (drawnItems.getLayers().length > 0) {
+                    map.fitBounds(drawnItems.getBounds());
                 }
+            } catch (e) {
+                console.error("Invalid polygon:", e);
+            }
+        }
 
-                let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
-                let lat = modal.find('input[name="latitude"]').val() || -7.7956;
-                let lon = modal.find('input[name="longitude"]').val() || 110.3695;
-
-                // Initialize first map
-                let existingPolygon1 = $('#polygon_koordinat-' + madrasahId).val();
-                initializeMap('map-' + madrasahId, 'polygon_koordinat-' + madrasahId, lat, lon, existingPolygon1);
-
-                window['map-' + madrasahId] = initializeMap(
-                    'map-' + madrasahId,
-                    'polygon_koordinat-' + madrasahId,
-                    lat, lon,
-                    existingPolygon1
-                );
-
-                if ($('#enable_dual_polygon-' + madrasahId).is(':checked')) {
-                    let existingPolygon2 = $('#polygon_koordinat_2-' + madrasahId).val();
-
-                    window['map2-' + madrasahId] = initializeMap(
-                        'map2-' + madrasahId,
-                        'polygon_koordinat_2-' + madrasahId,
-                        lat, lon,
-                        existingPolygon2
-                    );
-                }
-
-                setTimeout(() => {
-                    if (window['map-' + madrasahId]) window['map-' + madrasahId].invalidateSize();
-                    if (window['map2-' + madrasahId]) window['map2-' + madrasahId].invalidateSize();
-                }, 400);
-            });
-
-            // Toggle dual polygon functionality
-            $(document).on('change', '[id^="enable_dual_polygon"]', function() {
-                let id = $(this).attr('id').replace('enable_dual_polygon-', '');
-                let container = $('#polygon2-container' + (id ? '-' + id : '-add'));
-                let mapId = 'map2' + (id ? '-' + id : '-add');
-                let polygonInputId = 'polygon_koordinat_2' + (id ? '-' + id : '-add');
-
-                // Check if this madrasah is allowed to use dual polygon (only for IDs 24, 26, 33)
-                let allowedMadrasahIds = [24, 26, 33, 25];
-                let isAllowed = id === 'add' || allowedMadrasahIds.includes(parseInt(id));
-
-                if (!isAllowed) {
-                    $(this).prop('checked', false);
-                    alert('Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33, 25).');
-                    return;
-                }
-
-                if ($(this).is(':checked')) {
-                    container.show();
-                    // Initialize map if not already done
-                    if (!document.getElementById(mapId)._leaflet_id) {
-                        let lat = -7.7956;
-                        let lon = 110.3695;
-                        window['map2-' + id] = initializeMap(
-                            mapId,
-                            polygonInputId,
-                            lat, lon
-                        );
-
-                        setTimeout(() => {
-                            if (window['map2-' + id]) window['map2-' + id].invalidateSize();
-                        }, 400);
-                    }
-                } else {
-                    container.hide();
-                    $('#' + polygonInputId).val('');
-                }
-            });
+        // Draw control (only polygon)
+        let drawControl = new L.Control.Draw({
+            edit: { featureGroup: drawnItems },
+            draw: {
+                polygon: { allowIntersection: false, showArea: true },
+                polyline: false, marker: false, circle: false,
+                circlemarker: false, rectangle: false
+            }
         });
-    </script>
-@endsection
+        map.addControl(drawControl);
 
+        const updatePolygonInput = () => {
+            let geojson = drawnItems.toGeoJSON();
+            if (geojson.features.length > 0) {
+                document.getElementById(polygonInputId).value = JSON.stringify(geojson.features[0].geometry);
+            } else {
+                document.getElementById(polygonInputId).value = '';
+            }
+        };
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+            drawnItems.clearLayers();
+            drawnItems.addLayer(e.layer);
+            updatePolygonInput();
+        });
+
+        map.on(L.Draw.Event.EDITED, updatePolygonInput);
+        map.on(L.Draw.Event.DELETED, updatePolygonInput);
+
+        return map;
+    }
+
+    /* =====================================================
+       LOGO PREVIEW: TAMBAH
+    ====================================================== */
+    (function () {
+        const logoInput = document.getElementById('logoInput');
+        if (logoInput) {
+            logoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const preview = document.getElementById('logoPreview');
+                const previewImage = document.getElementById('previewImage');
+
+                if (file) {
+                    // Validasi ukuran file (2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Validasi tipe file
+                    if (!file.type.match('image.*')) {
+                        alert('File harus berupa gambar.');
+                        this.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    if (preview) preview.style.display = 'none';
+                }
+            });
+        }
+    })();
+
+    /* =====================================================
+       LOGO PREVIEW: EDIT (per madrasah)
+       - pastikan tidak error jika elemen tidak ada
+    ====================================================== */
+    @foreach($madrasahs as $madrasah)
+    (function(){
+        const inputId = 'editLogoInput{{ $madrasah->id }}';
+        const previewContainerId = 'editLogoPreview{{ $madrasah->id }}';
+        const previewImageId = 'editPreviewImage{{ $madrasah->id }}';
+
+        const inputEl = document.getElementById(inputId);
+        const previewEl = document.getElementById(previewContainerId);
+        const previewImg = document.getElementById(previewImageId);
+
+        if (inputEl) {
+            inputEl.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                        this.value = '';
+                        return;
+                    }
+                    if (!file.type.match('image.*')) {
+                        alert('File harus berupa gambar.');
+                        this.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        if (previewImg) previewImg.src = ev.target.result;
+                        if (previewEl) previewEl.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    if (previewEl) previewEl.style.display = 'none';
+                }
+            });
+        }
+
+        window.clearEditLogoPreview = window.clearEditLogoPreview || function(madrasahId){
+            const inp = document.getElementById('editLogoInput' + madrasahId);
+            const prev = document.getElementById('editLogoPreview' + madrasahId);
+            if (inp) inp.value = '';
+            if (prev) prev.style.display = 'none';
+        };
+    })();
+    @endforeach
+
+    // Fungsi clear preview add
+    function clearLogoPreview() {
+        const inp = document.getElementById('logoInput');
+        const prev = document.getElementById('logoPreview');
+        if (inp) inp.value = '';
+        if (prev) prev.style.display = 'none';
+    }
+
+    /* =====================================================
+       DATATABLES + INITIALIZATION
+    ====================================================== */
+    $(document).ready(function () {
+        let table = $("#datatable-buttons").DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            buttons: ["copy", "excel", "pdf", "print", "colvis"]
+        });
+
+        table.buttons().container()
+            .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+    });
+
+    /* =====================================================
+       MAP TAMBAH MADRASAH (modal shown)
+    ====================================================== */
+    $('#modalTambahMadrasah').on('shown.bs.modal', function () {
+        // initialize and store map-add
+        window['map-add'] = initializeMap(
+            'map-add',
+            'polygon_koordinat-add',
+            -7.7956, 110.3695,
+            null
+        );
+
+        setTimeout(() => {
+            if (window['map-add']) window['map-add'].invalidateSize();
+        }, 400);
+    });
+
+    /* =====================================================
+       MAP EDIT MADRASAH (modal shown for each edit modal)
+    ====================================================== */
+    $('div.modal.fade').on('shown.bs.modal', function () {
+        let modal = $(this);
+        if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) return;
+
+        let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
+        let lat = modal.find('input[name="latitude"]').val() || -7.7956;
+        let lon = modal.find('input[name="longitude"]').val() || 110.3695;
+
+        // POLIGON UTAMA
+        let existingPolygon1 = $('#polygon_koordinat-' + madrasahId).val();
+        // initialize and store map instance
+        window['map-' + madrasahId] = initializeMap(
+            'map-' + madrasahId,
+            'polygon_koordinat-' + madrasahId,
+            lat, lon,
+            existingPolygon1
+        );
+
+        // POLIGON KEDUA (jika enabled untuk madrasah ini)
+        if ($('#enable_dual_polygon-' + madrasahId).is(':checked')) {
+            let existingPolygon2 = $('#polygon_koordinat_2-' + madrasahId).val();
+            let polygonFixed = null;
+
+            if (existingPolygon2) {
+                try {
+                    let geom2 = JSON.parse(existingPolygon2);
+                    geom2 = fixGeoJSONOrder(geom2);
+                    polygonFixed = JSON.stringify(geom2);
+                } catch (e) {
+                    console.error("Polygon 2 error:", e);
+                }
+            }
+
+            window['map2-' + madrasahId] = initializeMap(
+                'map2-' + madrasahId,
+                'polygon_koordinat_2-' + madrasahId,
+                lat, lon,
+                polygonFixed
+            );
+        }
+
+        // ensure leaflet tiles render correctly when modal shown
+        setTimeout(() => {
+            if (window['map-' + madrasahId]) window['map-' + madrasahId].invalidateSize();
+            if (window['map2-' + madrasahId]) window['map2-' + madrasahId].invalidateSize();
+        }, 400);
+    });
+
+    /* =====================================================
+       TOGGLE POLIGON KEDUA (checkbox)
+       - works for both edit modals and add (if enabled)
+    ====================================================== */
+    $(document).on('change', '[id^="enable_dual_polygon"]', function() {
+        let rawId = $(this).attr('id');
+        // id will be like enable_dual_polygon-<madrasahId> or enable_dual_polygon-add
+        let id = rawId.replace('enable_dual_polygon-', '');
+
+        // for add modal the container id is 'polygon2-container-add', for edit it's 'polygon2-container-<id>'
+        let containerSelector = '#polygon2-container-' + id;
+        let mapId = (id === 'add') ? 'map2-add' : ('map2-' + id);
+        let polygonInputId = (id === 'add') ? 'polygon_koordinat_2-add' : ('polygon_koordinat_2-' + id);
+
+        let container = $(containerSelector);
+
+        // Check allowed IDs (only specific madrasah may be allowed)
+        let allowedMadrasahIds = [24, 26, 33, 25];
+        let isAllowed = (id === 'add') || allowedMadrasahIds.includes(parseInt(id));
+
+        if (!isAllowed) {
+            $(this).prop('checked', false);
+            alert('Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33, 25).');
+            return;
+        }
+
+        if ($(this).is(':checked')) {
+            container.show();
+
+            // init map2 if not already initialized
+            // always try initialize: initializeMap will return null if element missing
+            window[mapId] = initializeMap(
+                mapId,
+                polygonInputId,
+                (id === 'add') ? -7.7956 : ($('#modalEditMadrasah' + id).find('input[name="latitude"]').val() || -7.7956),
+                (id === 'add') ? 110.3695 : ($('#modalEditMadrasah' + id).find('input[name="longitude"]').val() || 110.3695),
+                null
+            );
+
+            setTimeout(() => {
+                if (window[mapId]) window[mapId].invalidateSize();
+            }, 400);
+        } else {
+            container.hide();
+            $('#' + polygonInputId).val('');
+        }
+    });
+
+</script>
+@endsection
