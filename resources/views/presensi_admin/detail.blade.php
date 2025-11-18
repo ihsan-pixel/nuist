@@ -116,10 +116,22 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
-                                    <span class="badge bg-primary ms-2">{{ count($tenagaPendidikData) }} Orang</span>
-                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
+                                        <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
+                                    </h5>
+                                    <!-- Search Form -->
+                                    <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center">
+                                        <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
+                                        <div class="input-group input-group-sm" style="width: 250px;">
+                                            <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, atau NUPTK..." value="{{ $search }}">
+                                            <button class="btn btn-outline-secondary" type="submit">
+                                                <i class="mdi mdi-magnify"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if(count($tenagaPendidikData) > 0)
@@ -143,7 +155,7 @@
                                                 <tbody>
                                                     @foreach($tenagaPendidikData as $index => $tp)
                                                     <tr>
-                                                        <td>{{ $index + 1 }}</td>
+                                                        <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
                                                         <td>{{ $tp['nama'] }}</td>
                                                         <td>{{ $tp['nip'] ?? '-' }}</td>
                                                         <td>{{ $tp['nuptk'] ?? '-' }}</td>
@@ -181,6 +193,13 @@
                                     <div class="text-center py-4">
                                         <i class="mdi mdi-account-off-outline" style="font-size: 3rem; color: #ccc;"></i>
                                         <p class="mt-2 text-muted">Tidak ada data tenaga pendidik untuk madrasah ini.</p>
+                                    </div>
+                                @endif
+
+                                <!-- Pagination -->
+                                @if($tenagaPendidik->hasPages())
+                                    <div class="d-flex justify-content-center mt-3">
+                                        {{ $tenagaPendidik->appends(['date' => $selectedDate->format('Y-m-d'), 'search' => $search])->links() }}
                                     </div>
                                 @endif
                             </div>

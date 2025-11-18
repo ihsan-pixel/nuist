@@ -497,15 +497,30 @@ class PresensiAdminController extends Controller
         }
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = 10; // Fixed to 10 rows as requested
 
         $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
 
-        $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+        // Build query with search functionality
+        $query = User::where('role', 'tenaga_pendidik')
             ->where('madrasah_id', $madrasahId)
             ->with(['statusKepegawaian', 'presensis' => function ($q) use ($selectedDate) {
                 $q->whereDate('tanggal', $selectedDate);
-            }])
-            ->get();
+            }]);
+
+        // Apply search filter
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('nip', 'like', '%' . $search . '%')
+                  ->orWhere('nuptk', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Get paginated results
+        $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
 
         $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
             $presensi = $tp->presensis->first();
@@ -531,7 +546,7 @@ class PresensiAdminController extends Controller
             ];
         });
 
-        return view('presensi_admin.detail', compact('madrasah', 'tenagaPendidikData', 'selectedDate', 'user'));
+        return view('presensi_admin.detail', compact('madrasah', 'tenagaPendidikData', 'selectedDate', 'user', 'tenagaPendidik', 'search'));
     }
 
     // Export presensi data to Excel
