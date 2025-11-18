@@ -15,9 +15,9 @@
     <meta property="og:description" content="Sistem Informasi Digital LP. Ma'arif NU PWNU DIY - Platform terintegrasi untuk manajemen madrasah, presensi, dan data pendidikan." />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="{{ asset('build/images/logo%20favicon%201.png') }}" />
+    <meta property="og:image" content="{{ asset('images/logo%20favicon%201.png') }}" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('build/images/logo%20favicon%201.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo%20favicon%201.png') }}">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.head-css')
