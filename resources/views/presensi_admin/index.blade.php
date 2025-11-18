@@ -877,15 +877,15 @@
             <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
                 <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
                     <h5 class="modal-title" id="comprehensiveDetailModalLabel" style="font-weight: 600 !important;">
-                        <i class="mdi mdi-school me-2"></i>Detail Lengkap Madrasah
+                        <i class="mdi mdi-school me-2"></i>Loading...
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Date Display -->
                     <div class="date-display mb-4">
-                        <h4 id="modal-date-display" class="text-primary fw-bold"></h4>
-                        <p id="modal-date-subtitle" class="text-muted mb-0">Data Presensi Tenaga Pendidik</p>
+                        <h4 id="modal-date-display" class="text-primary fw-bold">{{ $selectedDate->format('l, d F Y') }}</h4>
+                        <p id="modal-date-subtitle" class="text-muted mb-0">Data Lengkap Presensi Tenaga Pendidik</p>
                     </div>
 
                     <!-- School Information Section -->
@@ -1361,11 +1361,7 @@ $(document).ready(function () {
                     console.log('AJAX success, data received:', data);
                     Swal.close();
 
-                    // Set date display
-                    let dateObj = new Date(currentDate);
-                    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                    $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
-                    $('#modal-date-subtitle').text('Data Presensi Tenaga Pendidik');
+                    // Date display is already set in the HTML template
 
                     // Populate school information
                     populateSchoolInfo(data.madrasah);
@@ -1469,47 +1465,34 @@ $(document).ready(function () {
 
     // Function to populate school information
     function populateSchoolInfo(madrasah) {
-        let schoolInfoHtml = `
-            <div class="row g-3">
+        const infoItems = [
+            { label: 'Nama Madrasah', value: madrasah.name || '-', icon: 'mdi-school' },
+            { label: 'SCOD', value: madrasah.scod || '-', icon: 'mdi-identifier' },
+            { label: 'Kabupaten', value: madrasah.kabupaten || '-', icon: 'mdi-city' },
+            { label: 'Alamat Lengkap', value: madrasah.alamat || '-', icon: 'mdi-map-marker' },
+            { label: 'Hari KBM', value: madrasah.hari_kbm || '-', icon: 'mdi-calendar-week' },
+            { label: 'Koordinat GPS', value: (madrasah.latitude && madrasah.longitude) ? `${madrasah.latitude}, ${madrasah.longitude}` : '-', icon: 'mdi-crosshairs-gps' },
+            { label: 'Link Peta', value: madrasah.map_link ? `<a href="${madrasah.map_link}" target="_blank" class="text-primary"><i class="mdi mdi-open-in-new"></i> Lihat di Google Maps</a>` : '-', icon: 'mdi-google-maps' },
+            { label: 'Area Polygon', value: madrasah.polygon_koordinat ? 'Ada (Tersimpan)' + (madrasah.enable_dual_polygon && madrasah.polygon_koordinat_2 ? ' + Dual Polygon' : '') : 'Tidak Ada', icon: 'mdi-vector-polygon' }
+        ];
+
+        let infoGrid = '<div class="row g-3">';
+        infoItems.forEach(item => {
+            infoGrid += `
                 <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Nama Madrasah:</strong><br>
-                        ${madrasah.name || '-'}
+                    <div class="info-item p-3 bg-light rounded border">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="mdi ${item.icon} me-2 text-primary"></i>
+                            <span class="info-label fw-semibold text-primary">${item.label}</span>
+                        </div>
+                        <div class="info-value">${item.value}</div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Kabupaten:</strong><br>
-                        ${madrasah.kabupaten || '-'}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Alamat:</strong><br>
-                        ${madrasah.alamat || '-'}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Kepala Madrasah:</strong><br>
-                        ${madrasah.kepala_madrasah || '-'}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Telepon:</strong><br>
-                        ${madrasah.telepon || '-'}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-light rounded">
-                        <strong>Email:</strong><br>
-                        ${madrasah.email || '-'}
-                    </div>
-                </div>
-            </div>
-        `;
-        $('#school-info-grid').html(schoolInfoHtml);
+            `;
+        });
+        infoGrid += '</div>';
+
+        $('#school-info-grid').html(infoGrid);
     }
 
     // Function to initialize comprehensive map
@@ -1781,23 +1764,21 @@ $(document).ready(function () {
         $('#school-info-grid').html(infoGrid);
     }
 
-    // Function to initialize comprehensive map with staff locations
+    // Function to initialize comprehensive map
     function initializeComprehensiveMap(madrasah, tenagaPendidik) {
-        // Clear any existing map
+        // Clear existing map if it exists
         if (window.comprehensiveMap) {
             window.comprehensiveMap.remove();
         }
 
-        // Initialize Leaflet map with default center
+        // Initialize map
         let defaultLat = -7.7956;
         let defaultLon = 110.3695;
-        let lat = madrasah.latitude || defaultLat;
-        let lon = madrasah.longitude || defaultLon;
-        window.comprehensiveMap = L.map('comprehensive-map').setView([lat, lon], 16);
+        window.comprehensiveMap = L.map('comprehensive-map').setView([defaultLat, defaultLon], 10);
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '© OpenStreetMap contributors'
         }).addTo(window.comprehensiveMap);
 
         let drawnItems = new L.FeatureGroup();
@@ -1805,49 +1786,69 @@ $(document).ready(function () {
 
         // Add school marker if coordinates exist
         if (madrasah.latitude && madrasah.longitude) {
-            L.marker([lat, lon], {
+            L.marker([madrasah.latitude, madrasah.longitude], {
                 icon: L.divIcon({
                     className: 'school-marker',
-                    html: '<div style="background: #004b4c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="mdi mdi-school" style="font-size: 16px;"></i></div>',
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 15]
+                    html: '<div style="background: #004b4c; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="mdi mdi-school" style="font-size: 18px;"></i></div>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
                 })
             })
             .addTo(window.comprehensiveMap)
-            .bindPopup(`<div style="text-align: center;"><b>${madrasah.name}</b><br/><small>Lokasi Madrasah</small></div>`);
+            .bindPopup(`<div style="text-align: center;"><b>${madrasah.name}</b><br/><small>Lokasi Madrasah</small></div>`)
+            .openPopup();
+
+            // Center map on school
+            window.comprehensiveMap.setView([madrasah.latitude, madrasah.longitude], 16);
+        }
+
+        // Add polygon if geojson exists
+        if (madrasah.polygon_koordinat) {
+            try {
+                let geometry = JSON.parse(madrasah.polygon_koordinat);
+                L.geoJSON(geometry, {
+                    style: {
+                        color: '#004b4c',
+                        weight: 3,
+                        opacity: 0.9,
+                        fillColor: '#0e8549',
+                        fillOpacity: 0.2
+                    }
+                }).addTo(window.comprehensiveMap);
+            } catch (e) {
+                console.error('Invalid GeoJSON data for polygon:', e);
+            }
         }
 
         // Add staff attendance markers
         let staffMarkers = [];
         tenagaPendidik.forEach(function(staff) {
             if (staff.latitude && staff.longitude) {
-                let markerColor = '#28a745'; // default green for hadir
-                if (staff.status === 'terlambat') markerColor = '#ffc107';
-                else if (staff.status === 'tidak_hadir') markerColor = '#dc3545';
-                else if (staff.status === 'izin') markerColor = '#17a2b8';
+                let markerColor = getStatusColor(staff.status);
+                let statusText = getStatusText(staff.status);
 
                 let marker = L.marker([staff.latitude, staff.longitude], {
                     icon: L.divIcon({
                         className: 'staff-marker',
-                        html: `<div style="background: ${markerColor}; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 12px; font-weight: bold;">${staff.nama.charAt(0).toUpperCase()}</div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
+                        html: `<div style="background: ${markerColor}; color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 14px; font-weight: bold;">${staff.name ? staff.name.charAt(0).toUpperCase() : '?'}</div>`,
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
                     })
                 });
 
-                let statusText = staff.status === 'hadir' ? 'Hadir' : (staff.status === 'terlambat' ? 'Terlambat' : (staff.status === 'izin' ? 'Izin' : 'Tidak Hadir'));
                 let popupContent = `
-                    <div style="min-width: 200px;">
-                        <div style="text-align: center; margin-bottom: 8px;">
-                            <b>${staff.nama}</b><br/>
-                            <small>${staff.status_kepegawaian || '-'}</small>
+                    <div style="min-width: 220px;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <b style="font-size: 16px;">${staff.name || '-'}</b><br/>
+                            <small style="color: #666;">${staff.nip || '-'}</small>
                         </div>
-                        <div style="background: ${markerColor}; color: white; padding: 4px 8px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
-                            <small><b>${statusText}</b></small>
+                        <div style="background: ${markerColor}; color: white; padding: 6px 12px; border-radius: 6px; text-align: center; margin-bottom: 10px; font-weight: bold;">
+                            ${statusText}
                         </div>
-                        ${staff.waktu_masuk ? `<div><small><i class="mdi mdi-clock-in"></i> Masuk: ${staff.waktu_masuk}</small></div>` : ''}
-                        ${staff.waktu_keluar ? `<div><small><i class="mdi mdi-clock-out"></i> Keluar: ${staff.waktu_keluar}</small></div>` : ''}
-                        ${staff.keterangan ? `<div><small><i class="mdi mdi-note-text"></i> ${staff.keterangan}</small></div>` : ''}
+                        <div style="font-size: 13px; line-height: 1.4;">
+                            ${staff.created_at ? `<div><i class="mdi mdi-clock-outline me-1"></i><b>Waktu:</b> ${new Date(staff.created_at).toLocaleString('id-ID')}</div>` : ''}
+                            ${staff.latitude && staff.longitude ? `<div><i class="mdi mdi-map-marker me-1"></i><b>Koordinat:</b> ${staff.latitude.toFixed(6)}, ${staff.longitude.toFixed(6)}</div>` : ''}
+                        </div>
                     </div>
                 `;
 
@@ -1856,27 +1857,6 @@ $(document).ready(function () {
                 staffMarkers.push(marker);
             }
         });
-
-        // Load existing polygon
-        if (madrasah.polygon_koordinat) {
-            try {
-                let geometry = JSON.parse(madrasah.polygon_koordinat);
-                let layer = L.geoJSON(geometry, {
-                    style: {
-                        color: '#004b4c',
-                        weight: 2,
-                        opacity: 0.8,
-                        fillColor: '#004b4c',
-                        fillOpacity: 0.1
-                    }
-                });
-                layer.eachLayer(function(l) {
-                    drawnItems.addLayer(l);
-                });
-            } catch (e) {
-                console.error("Invalid GeoJSON data for polygon:", e);
-            }
-        }
 
         // Fit map to show all elements
         setTimeout(() => {
@@ -1900,7 +1880,7 @@ $(document).ready(function () {
                 for (let i = 1; i < allBounds.length; i++) {
                     combinedBounds.extend(allBounds[i]);
                 }
-                window.comprehensiveMap.fitBounds(combinedBounds, { padding: [20, 20] });
+                window.comprehensiveMap.fitBounds(combinedBounds, { padding: [30, 30] });
             } else {
                 window.comprehensiveMap.setView([defaultLat, defaultLon], 13);
             }
@@ -1911,34 +1891,156 @@ $(document).ready(function () {
         }, 100);
     }
 
+    // Helper function to get status color
+    function getStatusColor(status) {
+        switch(status) {
+            case 'hadir': return '#28a745';
+            case 'terlambat': return '#ffc107';
+            case 'tidak_hadir': return '#dc3545';
+            case 'izin': return '#17a2b8';
+            default: return '#6c757d';
+        }
+    }
+
+    // Helper function to get status text
+    function getStatusText(status) {
+        switch(status) {
+            case 'hadir': return 'Hadir';
+            case 'terlambat': return 'Terlambat';
+            case 'tidak_hadir': return 'Tidak Hadir';
+            case 'izin': return 'Izin';
+            default: return 'Tidak Diketahui';
+        }
+    }
+
     // Function to populate staff attendance data
     function populateStaffAttendance(tenagaPendidik) {
+        if (!tenagaPendidik || !Array.isArray(tenagaPendidik)) {
+            console.warn('Invalid tenaga pendidik data');
+            return;
+        }
+
         // Group staff by status
-        let staffByStatus = {
+        let groupedStaff = {
             hadir: [],
             terlambat: [],
             tidak_hadir: [],
             izin: []
         };
 
-        tenagaPendidik.forEach(function(staff) {
-            if (staff.status === 'hadir') staffByStatus.hadir.push(staff);
-            else if (staff.status === 'terlambat') staffByStatus.terlambat.push(staff);
-            else if (staff.status === 'tidak_hadir') staffByStatus.tidak_hadir.push(staff);
-            else if (staff.status === 'izin') staffByStatus.izin.push(staff);
+        tenagaPendidik.forEach(staff => {
+            let status = staff.status || 'tidak_hadir';
+            if (groupedStaff[status]) {
+                groupedStaff[status].push(staff);
+            } else {
+                groupedStaff.tidak_hadir.push(staff);
+            }
         });
 
         // Update tab counts
-        $('#hadir-count').text(staffByStatus.hadir.length);
-        $('#terlambat-count').text(staffByStatus.terlambat.length);
-        $('#tidak-hadir-count').text(staffByStatus.tidak_hadir.length);
-        $('#izin-count').text(staffByStatus.izin.length);
+        $('#hadir-count').text(groupedStaff.hadir.length);
+        $('#terlambat-count').text(groupedStaff.terlambat.length);
+        $('#tidak-hadir-count').text(groupedStaff.tidak_hadir.length);
+        $('#izin-count').text(groupedStaff.izin.length);
 
-        // Populate staff grids
-        populateStaffGrid('hadir-staff-grid', staffByStatus.hadir, 'hadir');
-        populateStaffGrid('terlambat-staff-grid', staffByStatus.terlambat, 'terlambat');
-        populateStaffGrid('tidak-hadir-staff-grid', staffByStatus.tidak_hadir, 'tidak-hadir');
-        populateStaffGrid('izin-staff-grid', staffByStatus.izin, 'izin');
+        // Populate each tab content
+        Object.keys(groupedStaff).forEach(status => {
+            let staffList = groupedStaff[status];
+            let containerId = `${status.replace('_', '-')}-staff-grid`;
+            let staffHtml = '';
+
+            if (staffList.length === 0) {
+                staffHtml = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="mdi mdi-account-off-outline fs-2 mb-3"></i>
+                        <h6>Tidak ada data ${status.replace('_', ' ')}</h6>
+                        <p class="mb-0 small">Belum ada tenaga pendidik dengan status ini</p>
+                    </div>
+                `;
+            } else {
+                staffHtml = '<div class="row g-3">';
+                staffList.forEach(staff => {
+                    let statusBadge = getStatusBadge(staff.status);
+                    let timeInfo = staff.created_at ? new Date(staff.created_at).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '-';
+
+                    staffHtml += `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 border-0 shadow-sm staff-card">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar-sm me-3">
+                                            <div class="avatar-title rounded-circle bg-primary text-white fw-bold">
+                                                ${staff.name ? staff.name.charAt(0).toUpperCase() : '?'}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1 fw-bold text-dark">${staff.name || '-'}</h6>
+                                            <small class="text-muted">${staff.nip || '-'}</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        ${statusBadge}
+                                    </div>
+                                    <div class="staff-times">
+                                        <div class="time-item">
+                                            <span class="time-label">Waktu Presensi</span>
+                                            <span class="time-value">${timeInfo}</span>
+                                        </div>
+                                        ${staff.latitude && staff.longitude ? `
+                                        <div class="location-info">
+                                            <i class="mdi mdi-map-marker text-success"></i>
+                                            Lokasi tercatat
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                staffHtml += '</div>';
+            }
+
+            $(`#${containerId}`).html(staffHtml);
+        });
+    }
+
+    // Function to get status badge HTML
+    function getStatusBadge(status) {
+        let badgeClass = 'bg-secondary';
+        let statusText = status || 'Tidak Hadir';
+        let iconClass = 'mdi-account';
+
+        switch(status) {
+            case 'hadir':
+                badgeClass = 'bg-success';
+                statusText = 'Hadir';
+                iconClass = 'mdi-account-check';
+                break;
+            case 'terlambat':
+                badgeClass = 'bg-warning text-dark';
+                statusText = 'Terlambat';
+                iconClass = 'mdi-account-clock';
+                break;
+            case 'tidak_hadir':
+                badgeClass = 'bg-danger';
+                statusText = 'Tidak Hadir';
+                iconClass = 'mdi-account-remove';
+                break;
+            case 'izin':
+                badgeClass = 'bg-info';
+                statusText = 'Izin';
+                iconClass = 'mdi-account-edit';
+                break;
+        }
+
+        return `<span class="badge ${badgeClass} px-3 py-2 fs-6"><i class="mdi ${iconClass} me-1"></i>${statusText}</span>`;
     }
     @endif
 });
