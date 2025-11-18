@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi-admin/summary', [PresensiAdminController::class, 'getSummary'])->name('presensi_admin.summary');
     Route::get('/presensi-admin/detail/{userId}', [PresensiAdminController::class, 'getDetail'])->name('presensi_admin.detail');
     Route::get('/presensi-admin/madrasah-detail/{madrasahId}', [PresensiAdminController::class, 'getMadrasahDetail'])->name('presensi_admin.madrasah_detail');
-    Route::get('/presensi-admin/detail/{madrasahId}', [PresensiAdminController::class, 'showMadrasahDetail'])->name('presensi_admin.show_detail');
+    Route::get('/presensi-admin/madrasah/{madrasahId}', [PresensiAdminController::class, 'showMadrasahDetail'])->name('presensi_admin.show_detail');
     Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export'])->name('presensi_admin.export');
     Route::get('/presensi-admin/export-madrasah/{madrasahId}', [PresensiAdminController::class, 'exportMadrasah'])->name('presensi_admin.export_madrasah');
 
@@ -378,9 +378,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(functi
 
 // PPDB SETTINGS
 Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/settings')->group(function () {
-    Route::get('/', [PPDBSettingsController::class, 'index'])->name('ppdb.settings.index');
-    Route::get('/edit/{id}', [PPDBSettingsController::class, 'edit'])->name('ppdb.settings.edit');
-    Route::put('/update/{id}', [PPDBSettingsController::class, 'update'])->name('ppdb.settings.update');
+    Route::get('/', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsIndex'])->name('ppdb.settings.index');
+    Route::get('/edit/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsEdit'])->name('ppdb.settings.edit');
+    Route::put('/update/{id}', [App\Http\Controllers\PPDB\PPDBController::class, 'settingsUpdate'])->name('ppdb.settings.update');
 });
 
 // DEBUG ROUTES - REMOVE IN PRODUCTION
