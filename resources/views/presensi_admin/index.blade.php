@@ -747,7 +747,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1 flex-wrap">
-                                            <button type="button" class="btn btn-outline-info btn-sm comprehensive-detail-btn" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                            <button type="button" class="btn btn-outline-info btn-sm comprehensive-detail-btn" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
                                                 <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                             </button>
                                             @if($user->role === 'super_admin')
