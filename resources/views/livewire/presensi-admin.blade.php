@@ -154,7 +154,7 @@
                     </div>
                 </div>
 
-                <!-- Madrasah Cards - Modern PPDB Style -->
+                <!-- Madrasah Table - Modern PPDB Style -->
                 <div class="kabupaten-table">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
@@ -214,63 +214,6 @@
         @endif
     @endforeach
 =======
-            </div>
-        @endif
-    @endforeach
-                        <div class="card-body p-3">
-                            @if(count($data['presensi']) > 0)
-                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
-                                    <table class="table table-sm table-borderless">
-                                        <tbody>
-                                            @foreach($data['presensi'] as $presensi)
-                                            <tr class="border-bottom border-light">
-                                                <td class="ps-0 py-2">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-xs me-2">
-                                                            <div class="avatar-title bg-light text-primary rounded-circle">
-                                                                <i class="bx bx-user"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex-grow-1">
-                                                            <span class="user-detail-link fw-medium small" data-user-id="{{ $presensi['user_id'] }}" data-user-name="{{ $presensi['nama'] }}">
-                                                                {{ $presensi['nama'] }}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="pe-0 py-2 text-end">
-                                                    @if($presensi['status'] == 'hadir')
-                                                        <span class="status-badge bg-success text-white">Hadir</span>
-                                                    @elseif($presensi['status'] == 'terlambat')
-                                                        <span class="status-badge bg-warning text-white">Terlambat</span>
-                                                    @elseif($presensi['status'] == 'izin')
-                                                        <span class="status-badge bg-info text-white">Izin</span>
-                                                    @else
-                                                        <span class="status-badge bg-secondary text-white">Tidak Hadir</span>
-                                                    @endif
-                                                    @if(isset($presensi['is_fake_location']) && $presensi['is_fake_location'])
-                                                        {{-- <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Fake Location</small> --}}
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <div class="avatar-sm mx-auto mb-2">
-                                        <div class="avatar-title bg-light text-muted rounded-circle">
-                                            <i class="bx bx-user-x"></i>
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Tidak ada tenaga pendidik</small>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                @endforeach
             </div>
         @endif
     @endforeach
@@ -531,7 +474,7 @@
             font-size: 1.1rem;
             display: flex;
             align-items: center;
-            justify-content: between;
+            justify-content: space-between;
         }
 
         .kabupaten-header i {
@@ -604,7 +547,7 @@
 
         .hover-lift:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
         }
 
         .animate-fade-in {
@@ -629,6 +572,13 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
