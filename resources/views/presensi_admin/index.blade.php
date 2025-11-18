@@ -1247,55 +1247,14 @@ $(document).ready(function () {
 
             console.log('Madrasah ID:', madrasahId, 'Name:', madrasahName);
 
-            $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
+            // Simple modal without AJAX
+            $('#comprehensiveDetailModalLabel').text('Detail: ' + madrasahName);
+            $('#test-madrasah-id').text(madrasahId);
+            $('#test-madrasah-name').text(madrasahName);
+            $('#test-date').text(currentDate);
 
-            // Show loading state
-            Swal.fire({
-                title: 'Memuat Data...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            $.ajax({
-                url: '{{ url('/presensi-admin/madrasah-detail') }}/' + madrasahId,
-                type: 'GET',
-                data: { date: currentDate },
-                success: function(data) {
-                    console.log('AJAX success, data received:', data);
-                    Swal.close();
-
-                    // Populate simple modal data
-                    $('#test-madrasah-id').text(madrasahId);
-                    $('#test-madrasah-name').text(madrasahName);
-                    $('#test-date').text(currentDate);
-
-                    // Show modal
-                    console.log('Showing modal...');
-                    setTimeout(() => {
-                        $('#comprehensiveDetailModal').modal('show');
-                    }, 200);
-                },
-                error: function(xhr, status, error) {
-                    console.log('AJAX error:', error);
-                    console.log('Status:', status);
-                    console.log('XHR:', xhr);
-                    console.log('Response text:', xhr.responseText);
-                    Swal.close();
-                    let errorMessage = 'Gagal memuat detail lengkap madrasah';
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: errorMessage + ' (Periksa console untuk detail error)'
-                    });
-                }
-            });
+            // Show modal directly
+            $('#comprehensiveDetailModal').modal('show');
 
             return false;
         });
