@@ -211,7 +211,7 @@
                                                     @if($madrasah->logo)
                                                         <div class="mt-2">
                                                             <label class="form-label">Logo Saat Ini:</label><br>
-                                                            <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                                            <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                                                         </div>
                                                     @endif
                                                     <div id="editLogoPreview{{ $madrasah->id }}" class="mt-2" style="display: none;">
