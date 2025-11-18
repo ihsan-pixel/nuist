@@ -293,42 +293,79 @@
     border: 1px solid #dee2e6 !important;
 }
 
-.school-info-table {
+.info-card {
     background: white !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #dee2e6 !important;
+    height: 100% !important;
+    transition: all 0.3s ease !important;
 }
 
-.school-info-table .info-label {
+.info-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.info-card-title {
+    color: #004b4c !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    margin-bottom: 1rem !important;
+    border-bottom: 2px solid rgba(0, 75, 76, 0.1) !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.info-item {
+    margin-bottom: 1rem !important;
+}
+
+.info-item:last-child {
+    margin-bottom: 0 !important;
+}
+
+.info-label {
+    display: block !important;
     font-weight: 600 !important;
     color: #004b4c !important;
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    background: rgba(0, 75, 76, 0.05) !important;
-    border: none !important;
-    padding: 1rem !important;
+    margin-bottom: 0.25rem !important;
 }
 
-.school-info-table .info-value {
-    font-size: 1rem !important;
+.info-value {
+    display: block !important;
+    font-size: 0.95rem !important;
     color: #495057 !important;
     word-break: break-word !important;
-    border: none !important;
-    padding: 1rem !important;
+    line-height: 1.4 !important;
 }
 
-.school-info-table tbody tr {
-    border-bottom: 1px solid #f1f3f4 !important;
-}
-
-.school-info-table tbody tr:last-child {
-    border-bottom: none !important;
-}
-
-.school-info-table tbody tr:hover {
+.attendance-locations {
     background: rgba(0, 75, 76, 0.02) !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    border: 1px solid rgba(0, 75, 76, 0.1) !important;
+}
+
+.location-list::-webkit-scrollbar {
+    width: 4px !important;
+}
+
+.location-list::-webkit-scrollbar-track {
+    background: rgba(0, 75, 76, 0.05) !important;
+    border-radius: 2px !important;
+}
+
+.location-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 75, 76, 0.3) !important;
+    border-radius: 2px !important;
+}
+
+.location-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 75, 76, 0.5) !important;
 }
 
 .map-section {
@@ -738,42 +775,55 @@
         <h4 class="mb-3">
             <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
         </h4>
-        <div class="table-responsive">
-            <table class="table table-borderless school-info-table">
-                <tbody>
-                    <tr>
-                        <td class="info-label" width="30%">Nama Madrasah</td>
-                        <td class="info-value">{{ $madrasah->name }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">SCOD</td>
-                        <td class="info-value">{{ $madrasah->scod ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Kabupaten</td>
-                        <td class="info-value">{{ $madrasah->kabupaten ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Alamat Lengkap</td>
-                        <td class="info-value">{{ $madrasah->alamat ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Hari KBM</td>
-                        <td class="info-value">{{ $madrasah->hari_kbm ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Koordinat GPS</td>
-                        <td class="info-value">
+        <div class="row">
+            <!-- Left Column: Basic Information -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h6 class="info-card-title">
+                        <i class="mdi mdi-school me-2"></i>Informasi Dasar
+                    </h6>
+                    <div class="info-item">
+                        <span class="info-label">Nama Madrasah</span>
+                        <span class="info-value">{{ $madrasah->name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">SCOD</span>
+                        <span class="info-value">{{ $madrasah->scod ?? '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Kabupaten</span>
+                        <span class="info-value">{{ $madrasah->kabupaten ?? '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hari KBM</span>
+                        <span class="info-value">{{ $madrasah->hari_kbm ?? '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Location Information -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h6 class="info-card-title">
+                        <i class="mdi mdi-map-marker me-2"></i>Lokasi & Area
+                    </h6>
+                    <div class="info-item">
+                        <span class="info-label">Alamat Lengkap</span>
+                        <span class="info-value">{{ $madrasah->alamat ?? '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Koordinat GPS</span>
+                        <span class="info-value">
                             @if($madrasah->latitude && $madrasah->longitude)
                                 {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
                             @else
                                 -
                             @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Link Peta</td>
-                        <td class="info-value">
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Link Peta</span>
+                        <span class="info-value">
                             @if($madrasah->map_link)
                                 <a href="{{ $madrasah->map_link }}" target="_blank" class="text-primary">
                                     <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
@@ -781,11 +831,11 @@
                             @else
                                 -
                             @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Area Polygon</td>
-                        <td class="info-value">
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Area Polygon</span>
+                        <span class="info-value">
                             @if($madrasah->polygon_koordinat)
                                 Ada (Tersimpan)
                                 @if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2)
@@ -794,10 +844,54 @@
                             @else
                                 Tidak Ada
                             @endif
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Map and Attendance Locations -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h6 class="info-card-title">
+                        <i class="mdi mdi-map me-2"></i>Peta & Lokasi Presensi
+                    </h6>
+                    <div class="map-container mb-3">
+                        @if($madrasah->latitude && $madrasah->longitude)
+                            <div id="school-map" style="height: 200px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6;"></div>
+                        @else
+                            <div class="text-center py-4" style="height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6; border-radius: 8px; color: #6c757d;">
+                                <div>
+                                    <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
+                                    <p class="mb-0 mt-2">Koordinat tidak tersedia</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="attendance-locations">
+                        <h6 class="mb-2">
+                            <i class="mdi mdi-crosshairs-gps me-1"></i>Lokasi Presensi Hari Ini
+                        </h6>
+                        <div class="location-list" style="max-height: 150px; overflow-y: auto;">
+                            @if(count($tenagaPendidikData) > 0)
+                                @foreach($tenagaPendidikData->where('lokasi', '!=', null)->take(5) as $tp)
+                                    <div class="location-item d-flex align-items-center mb-2">
+                                        <div class="location-dot me-2" style="width: 8px; height: 8px; border-radius: 50%; background: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }};"></div>
+                                        <div class="flex-grow-1">
+                                            <small class="fw-semibold">{{ $tp['nama'] }}</small><br>
+                                            <small class="text-muted">{{ Str::limit($tp['lokasi'], 25) }}</small>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @if($tenagaPendidikData->where('lokasi', '!=', null)->count() > 5)
+                                    <small class="text-muted">+{{ $tenagaPendidikData->where('lokasi', '!=', null)->count() - 5 }} lokasi lainnya</small>
+                                @endif
+                            @else
+                                <small class="text-muted">Belum ada data presensi hari ini</small>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @else
@@ -985,4 +1079,59 @@
 
 <!-- Init js -->
 <script src="{{ asset('build/js/pages/table-responsive.init.js') }}"></script>
+
+@if(in_array($user->role, ['super_admin', 'pengurus']))
+<!-- Leaflet CSS and JS for Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if($madrasah->latitude && $madrasah->longitude)
+    // Initialize map
+    var map = L.map('school-map').setView([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}], 15);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add school marker
+    var schoolMarker = L.marker([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}])
+        .addTo(map)
+        .bindPopup('<b>{{ $madrasah->name }}</b><br>Lokasi Madrasah');
+
+    // Add attendance location markers
+    @if(count($tenagaPendidikData) > 0)
+        @foreach($tenagaPendidikData->where('lokasi', '!=', null) as $tp)
+            @if($tp['latitude'] && $tp['longitude'])
+                var attendanceMarker = L.circleMarker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}], {
+                    color: '{{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}',
+                    fillColor: '{{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}',
+                    fillOpacity: 0.6,
+                    radius: 6
+                }).addTo(map).bindPopup(
+                    '<b>{{ $tp['nama'] }}</b><br>' +
+                    'Status: {{ $tp['status'] == 'hadir' ? 'Hadir' : 'Tidak Hadir' }}<br>' +
+                    'Lokasi: {{ Str::limit($tp['lokasi'], 30) }}<br>' +
+                    'Waktu: {{ $tp['waktu_masuk'] ?? '-' }}'
+                );
+            @endif
+        @endforeach
+    @endif
+
+    // Fit map to show all markers
+    var group = new L.featureGroup([
+        schoolMarker
+        @if(count($tenagaPendidikData->where('lokasi', '!=', null)->where('latitude', '!=', null)) > 0)
+            @foreach($tenagaPendidikData->where('lokasi', '!=', null)->where('latitude', '!=', null) as $tp)
+                , L.marker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}])
+            @endforeach
+        @endif
+    ]);
+    map.fitBounds(group.getBounds().pad(0.1));
+    @endif
+});
+</script>
+@endif
 @endsection
