@@ -89,27 +89,40 @@
                                 </div>
                             </div>
                         @else
-                            @php
-                                $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
-                                $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
-                                $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
-                                $isWithinTime = $currentTime->between($startTime, $endTime);
-                            @endphp
+                            <div class="time-status-container" data-schedule-id="{{ $schedule->id }}" data-start-time="{{ $schedule->start_time }}" data-end-time="{{ $schedule->end_time }}">
+                                @php
+                                    $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
+                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
+                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+                                    $isWithinTime = $currentTime->between($startTime, $endTime);
+                                    $isBeforeStart = $currentTime->lt($startTime);
+                                    $isAfterEnd = $currentTime->gt($endTime);
+                                @endphp
 
-                            @if($isWithinTime)
-                                <button class="presensi-btn" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
-                                    <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
-                                </button>
-                            @else
-                                <button class="presensi-btn outline" disabled>
-                                    <i class="bx bx-time me-1"></i> Diluar Waktu Mengajar
-                                </button>
-                                <div class="text-center mt-2">
-                                    <small class="small-muted bg-light px-2 py-1 rounded-pill">
-                                        <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                    </small>
-                                </div>
-                            @endif
+                                @if($isWithinTime)
+                                    <button class="presensi-btn attendance-btn" data-schedule-id="{{ $schedule->id }}" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
+                                        <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
+                                    </button>
+                                @elseif($isBeforeStart)
+                                    <button class="presensi-btn outline countdown-btn" disabled data-schedule-id="{{ $schedule->id }}">
+                                        <i class="bx bx-time me-1"></i> <span class="countdown-text">Menunggu Waktu Mengajar</span>
+                                    </button>
+                                    <div class="text-center mt-2">
+                                        <small class="small-muted bg-light px-2 py-1 rounded-pill countdown-info" data-schedule-id="{{ $schedule->id }}">
+                                            <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </small>
+                                    </div>
+                                @else
+                                    <button class="presensi-btn outline" disabled>
+                                        <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
+                                    </button>
+                                    <div class="text-center mt-2">
+                                        <small class="small-muted bg-light px-2 py-1 rounded-pill">
+                                            <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                        </small>
+                                    </div>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -156,6 +169,114 @@
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Real-time time-based attendance functionality
+let timeCheckInterval;
+let scheduleData = {};
+
+// Initialize schedule data from DOM
+function initializeScheduleData() {
+    document.querySelectorAll('.time-status-container').forEach(container => {
+        const scheduleId = container.dataset.scheduleId;
+        const startTime = container.dataset.startTime;
+        const endTime = container.dataset.endTime;
+
+        scheduleData[scheduleId] = {
+            startTime: startTime,
+            endTime: endTime,
+            container: container
+        };
+    });
+}
+
+// Format time difference to readable format
+function formatTimeDifference(minutes) {
+    if (minutes < 1) {
+        return 'Kurang dari 1 menit';
+    } else if (minutes < 60) {
+        return `${Math.floor(minutes)} menit lagi`;
+    } else {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = Math.floor(minutes % 60);
+        if (remainingMinutes === 0) {
+            return `${hours} jam lagi`;
+        } else {
+            return `${hours} jam ${remainingMinutes} menit lagi`;
+        }
+    }
+}
+
+// Check current time and update UI accordingly
+function checkTimeAndUpdateUI() {
+    const now = new Date();
+    const jakartaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+    const currentTime = jakartaTime.getHours() * 60 + jakartaTime.getMinutes(); // minutes since midnight
+
+    Object.keys(scheduleData).forEach(scheduleId => {
+        const data = scheduleData[scheduleId];
+        const [startHour, startMinute] = data.startTime.split(':').map(Number);
+        const [endHour, endMinute] = data.endTime.split(':').map(Number);
+
+        const startMinutes = startHour * 60 + startMinute;
+        const endMinutes = endHour * 60 + endMinute;
+
+        const container = data.container;
+        const countdownBtn = container.querySelector('.countdown-btn');
+        const countdownText = container.querySelector('.countdown-text');
+        const countdownInfo = container.querySelector('.countdown-info');
+        const attendanceBtn = container.querySelector('.attendance-btn');
+
+        if (currentTime >= startMinutes && currentTime <= endMinutes) {
+            // Within teaching time - show attendance button
+            if (countdownBtn) countdownBtn.style.display = 'none';
+            if (countdownInfo) countdownInfo.style.display = 'none';
+            if (attendanceBtn) attendanceBtn.style.display = 'block';
+        } else if (currentTime < startMinutes) {
+            // Before teaching time - show countdown
+            const minutesUntilStart = startMinutes - currentTime;
+            if (countdownBtn) {
+                countdownBtn.style.display = 'block';
+                if (countdownText) {
+                    countdownText.textContent = `Mulai dalam ${formatTimeDifference(minutesUntilStart)}`;
+                }
+            }
+            if (countdownInfo) countdownInfo.style.display = 'block';
+            if (attendanceBtn) attendanceBtn.style.display = 'none';
+        } else {
+            // After teaching time - show ended state
+            if (countdownBtn) countdownBtn.style.display = 'none';
+            if (countdownInfo) countdownInfo.style.display = 'none';
+            if (attendanceBtn) attendanceBtn.style.display = 'none';
+        }
+    });
+}
+
+// Start real-time time checking
+function startTimeChecking() {
+    // Check immediately
+    checkTimeAndUpdateUI();
+
+    // Then check every 30 seconds
+    timeCheckInterval = setInterval(checkTimeAndUpdateUI, 30000);
+}
+
+// Stop time checking
+function stopTimeChecking() {
+    if (timeCheckInterval) {
+        clearInterval(timeCheckInterval);
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeScheduleData();
+    startTimeChecking();
+});
+
+// Clean up when page unloads
+window.addEventListener('beforeunload', function() {
+    stopTimeChecking();
+});
+
 let currentScheduleId = null;
 let userLocation = null;
 
