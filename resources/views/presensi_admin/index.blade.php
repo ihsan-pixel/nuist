@@ -1340,7 +1340,7 @@ $(document).ready(function () {
 
             console.log('Madrasah ID:', madrasahId, 'Name:', madrasahName);
 
-            $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
+            $('#comprehensiveDetailModalLabel').html('<i class="mdi mdi-school me-2"></i>Detail Lengkap: ' + madrasahName);
 
             // Show loading state
             Swal.fire({
