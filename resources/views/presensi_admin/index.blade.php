@@ -1380,8 +1380,12 @@ $(document).ready(function () {
         e.preventDefault();
         e.stopPropagation();
 
+        console.log('Comprehensive detail button clicked');
+
         let madrasahId = $(this).data('madrasah-id');
         let madrasahName = $(this).data('madrasah-name');
+
+        console.log('Madrasah ID:', madrasahId, 'Name:', madrasahName);
 
         $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
 
@@ -1401,6 +1405,7 @@ $(document).ready(function () {
             type: 'GET',
             data: { date: currentDate },
             success: function(data) {
+                console.log('AJAX success, data received:', data);
                 Swal.close();
 
                 // Set date display
@@ -1419,12 +1424,15 @@ $(document).ready(function () {
                 populateStaffAttendance(data.tenaga_pendidik);
 
                 // Show modal
+                console.log('Showing modal...');
                 $('#comprehensiveDetailModal').modal('show');
             },
             error: function(xhr, status, error) {
+                console.log('AJAX error:', error);
+                console.log('Status:', status);
+                console.log('XHR:', xhr);
+                console.log('Response text:', xhr.responseText);
                 Swal.close();
-                console.log('Error loading comprehensive detail:', error);
-                console.log('Response:', xhr.responseText);
                 let errorMessage = 'Gagal memuat detail lengkap madrasah';
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;
@@ -1432,7 +1440,7 @@ $(document).ready(function () {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: errorMessage
+                    text: errorMessage + ' (Periksa console untuk detail error)'
                 });
             }
         });
