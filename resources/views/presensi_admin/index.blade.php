@@ -871,116 +871,23 @@
         </div>
     </div>
 
-    <!-- Comprehensive School Detail Modal -->
-    <div class="modal fade comprehensive-modal" id="comprehensiveDetailModal" tabindex="-1" aria-labelledby="comprehensiveDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
-                    <h5 class="modal-title" id="comprehensiveDetailModalLabel" style="font-weight: 600 !important;">
-                        <i class="mdi mdi-school me-2"></i>Detail Lengkap Madrasah
+    <!-- Comprehensive School Detail Modal - Simplified -->
+    <div class="modal fade" id="comprehensiveDetailModal" tabindex="-1" aria-labelledby="comprehensiveDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important;">
+                    <h5 class="modal-title" id="comprehensiveDetailModalLabel">
+                        <i class="mdi mdi-school me-2"></i>Detail Madrasah
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Date Display -->
-                    <div class="date-display">
-                        <h4 id="modal-date-display"></h4>
-                        <p id="modal-date-subtitle"></p>
-                    </div>
-
-                    <!-- School Information Section -->
-                    <div class="school-info-section">
-                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
-                            <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
-                        </h5>
-                        <div class="school-info-grid" id="school-info-grid">
-                            <!-- School info will be populated here -->
-                        </div>
-                    </div>
-
-                    <!-- Map Section -->
-                    <div class="map-section">
-                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
-                            <i class="mdi mdi-map-marker-radius me-2"></i>Lokasi & Area Presensi
-                        </h5>
-                        <div class="map-container" id="comprehensive-map"></div>
-                        <small class="text-muted mt-2 d-block">
-                            <i class="mdi mdi-information-outline me-1"></i>
-                            Peta menampilkan lokasi madrasah dan area polygon presensi. Titik merah menunjukkan lokasi presensi pengguna.
-                        </small>
-                    </div>
-
-                    <!-- Staff Attendance Section -->
-                    <div class="staff-attendance-section">
-                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
-                            <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
-                        </h5>
-
-                        <!-- Staff Tabs -->
-                        <div class="staff-tabs">
-                            <ul class="nav nav-tabs" id="staffAttendanceTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="hadir-tab" data-bs-toggle="tab" data-bs-target="#hadir-content" type="button" role="tab">
-                                        <i class="mdi mdi-account-check me-1"></i>Hadir
-                                        <span class="badge bg-success ms-1" id="hadir-count">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="terlambat-tab" data-bs-toggle="tab" data-bs-target="#terlambat-content" type="button" role="tab">
-                                        <i class="mdi mdi-account-clock me-1"></i>Terlambat
-                                        <span class="badge bg-warning ms-1" id="terlambat-count">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tidak-hadir-tab" data-bs-toggle="tab" data-bs-target="#tidak-hadir-content" type="button" role="tab">
-                                        <i class="mdi mdi-account-remove me-1"></i>Tidak Hadir
-                                        <span class="badge bg-danger ms-1" id="tidak-hadir-count">0</span>
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="izin-tab" data-bs-toggle="tab" data-bs-target="#izin-content" type="button" role="tab">
-                                        <i class="mdi mdi-account-edit me-1"></i>Izin
-                                        <span class="badge bg-info ms-1" id="izin-count">0</span>
-                                    </button>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content" id="staffAttendanceTabContent">
-                                <!-- Hadir Tab -->
-                                <div class="tab-pane fade show active" id="hadir-content" role="tabpanel">
-                                    <div class="staff-grid" id="hadir-staff-grid">
-                                        <!-- Staff cards will be populated here -->
-                                    </div>
-                                </div>
-
-                                <!-- Terlambat Tab -->
-                                <div class="tab-pane fade" id="terlambat-content" role="tabpanel">
-                                    <div class="staff-grid" id="terlambat-staff-grid">
-                                        <!-- Staff cards will be populated here -->
-                                    </div>
-                                </div>
-
-                                <!-- Tidak Hadir Tab -->
-                                <div class="tab-pane fade" id="tidak-hadir-content" role="tabpanel">
-                                    <div class="staff-grid" id="tidak-hadir-staff-grid">
-                                        <!-- Staff cards will be populated here -->
-                                    </div>
-                                </div>
-
-                                <!-- Izin Tab -->
-                                <div class="tab-pane fade" id="izin-content" role="tabpanel">
-                                    <div class="staff-grid" id="izin-staff-grid">
-                                        <!-- Staff cards will be populated here -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <p>Modal berhasil dibuka! Madrasah ID: <span id="test-madrasah-id"></span></p>
+                    <p>Nama Madrasah: <span id="test-madrasah-name"></span></p>
+                    <p>Tanggal: <span id="test-date"></span></p>
                 </div>
-                <div class="modal-footer" style="border-top: none !important; border-radius: 0 0 15px 15px !important;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px !important; padding: 0.5rem 1.5rem !important;">
-                        <i class="mdi mdi-close me-1"></i>Tutup
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -1361,24 +1268,13 @@ $(document).ready(function () {
                     console.log('AJAX success, data received:', data);
                     Swal.close();
 
-                    // Set date display
-                    let dateObj = new Date(currentDate);
-                    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                    $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
-                    $('#modal-date-subtitle').text('Data Presensi Tenaga Pendidik');
-
-                    // Populate school information
-                    populateSchoolInfo(data.madrasah);
-
-                    // Initialize comprehensive map
-                    initializeComprehensiveMap(data.madrasah, data.tenaga_pendidik);
-
-                    // Populate staff attendance data
-                    populateStaffAttendance(data.tenaga_pendidik);
+                    // Populate simple modal data
+                    $('#test-madrasah-id').text(madrasahId);
+                    $('#test-madrasah-name').text(madrasahName);
+                    $('#test-date').text(currentDate);
 
                     // Show modal
                     console.log('Showing modal...');
-                    Swal.close();
                     setTimeout(() => {
                         $('#comprehensiveDetailModal').modal('show');
                     }, 200);
