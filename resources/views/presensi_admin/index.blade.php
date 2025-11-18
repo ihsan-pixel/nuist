@@ -422,6 +422,60 @@
     background: #ffc107 !important;
 }
 
+.staff-details-expanded {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.staff-detail-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.8rem !important;
+}
+
+.staff-detail-label {
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+
+.staff-detail-value {
+    color: #495057 !important;
+    font-weight: 600 !important;
+    word-break: break-word !important;
+}
+
+.staff-coordinates {
+    font-family: 'Courier New', monospace !important;
+    font-size: 0.75rem !important;
+    background: rgba(0, 75, 76, 0.05) !important;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    margin-top: 0.25rem !important;
+}
+
+.fake-location-badge {
+    background: #fff3cd !important;
+    color: #856404 !important;
+    padding: 0.125rem 0.375rem !important;
+    border-radius: 3px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    margin-left: 0.5rem !important;
+}
+
+.face-verification-badge {
+    background: #d1ecf1 !important;
+    color: #0c5460 !important;
+    padding: 0.125rem 0.375rem !important;
+    border-radius: 3px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    margin-left: 0.5rem !important;
+}
+
 .staff-header {
     display: flex !important;
     align-items: center !important;
@@ -1969,23 +2023,25 @@ $(document).ready(function () {
                         minute: '2-digit'
                     }) : '-';
 
-                    staffHtml += `
+                staffHtml += `
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-0 shadow-sm staff-card">
+                            <div class="card h-100 border-0 shadow-sm staff-card ${status}">
                                 <div class="card-body p-3">
                                     <div class="d-flex align-items-center mb-3">
                                         <div class="avatar-sm me-3">
                                             <div class="avatar-title rounded-circle bg-primary text-white fw-bold">
-                                                ${staff.name ? staff.name.charAt(0).toUpperCase() : '?'}
+                                                ${staff.nama ? staff.nama.charAt(0).toUpperCase() : '?'}
                                             </div>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h6 class="card-title mb-1 fw-bold text-dark">${staff.name || '-'}</h6>
+                                            <h6 class="card-title mb-1 fw-bold text-dark">${staff.nama || '-'}</h6>
                                             <small class="text-muted">${staff.nip || '-'}</small>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         ${statusBadge}
+                                        ${staff.is_fake_location ? '<span class="fake-location-badge">Fake GPS</span>' : ''}
+                                        ${staff.face_verified ? '<span class="face-verification-badge">Face ✓</span>' : ''}
                                     </div>
                                     <div class="staff-times">
                                         <div class="time-item">
@@ -1996,6 +2052,64 @@ $(document).ready(function () {
                                         <div class="location-info">
                                             <i class="mdi mdi-map-marker text-success"></i>
                                             Lokasi tercatat
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                    <div class="staff-details-expanded">
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">NUPTK</span>
+                                            <span class="staff-detail-value">${staff.nuptk || '-'}</span>
+                                        </div>
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Status Kepegawaian</span>
+                                            <span class="staff-detail-value">${staff.status_kepegawaian || '-'}</span>
+                                        </div>
+                                        ${staff.waktu_masuk ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Masuk</span>
+                                            <span class="staff-detail-value">${staff.waktu_masuk}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.waktu_keluar ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Keluar</span>
+                                            <span class="staff-detail-value">${staff.waktu_keluar}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.latitude && staff.longitude ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Koordinat</span>
+                                            <div class="staff-detail-value staff-coordinates">${staff.latitude}, ${staff.longitude}</div>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.accuracy ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Akurasi</span>
+                                            <span class="staff-detail-value">${staff.accuracy}m</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.lokasi ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Lokasi</span>
+                                            <span class="staff-detail-value">${staff.lokasi}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.keterangan ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Keterangan</span>
+                                            <span class="staff-detail-value">${staff.keterangan}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.face_similarity_score ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Face Similarity</span>
+                                            <span class="staff-detail-value">${staff.face_similarity_score}%</span>
+                                        </div>
+                                        ` : ''}
+                                        ${staff.liveness_score ? `
+                                        <div class="staff-detail-row">
+                                            <span class="staff-detail-label">Liveness Score</span>
+                                            <span class="staff-detail-value">${staff.liveness_score}%</span>
                                         </div>
                                         ` : ''}
                                     </div>

@@ -449,11 +449,24 @@ class PresensiAdminController extends Controller
         $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
             $presensi = $tp->presensis->first();
             return [
+                'id' => $tp->id,
                 'nama' => $tp->name,
+                'nip' => $tp->nip,
+                'nuptk' => $tp->nuptk,
                 'status_kepegawaian' => $tp->statusKepegawaian ? $tp->statusKepegawaian->name : '-',
                 'status' => $presensi ? $presensi->status : 'tidak_hadir',
-                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i') : null,
-                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i') : null,
+                'waktu_masuk' => $presensi && $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                'waktu_keluar' => $presensi && $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                'latitude' => $presensi ? $presensi->latitude : null,
+                'longitude' => $presensi ? $presensi->longitude : null,
+                'lokasi' => $presensi ? $presensi->lokasi : null,
+                'keterangan' => $presensi ? $presensi->keterangan : null,
+                'is_fake_location' => $presensi ? $presensi->is_fake_location : false,
+                'accuracy' => $presensi ? $presensi->accuracy : null,
+                'created_at' => $presensi ? $presensi->created_at->format('Y-m-d H:i:s') : null,
+                'face_verified' => $presensi ? $presensi->face_verified : false,
+                'face_similarity_score' => $presensi ? $presensi->face_similarity_score : null,
+                'liveness_score' => $presensi ? $presensi->liveness_score : null,
             ];
         });
 
