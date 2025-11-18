@@ -836,7 +836,7 @@
                     </h6>
 
                     <!-- Map Container -->
-                    <div id="school-map" style="height: 250px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
+                    <div id="school-map" style="height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
                         <!-- Loading indicator -->
                         <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
                             <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
@@ -1113,23 +1113,32 @@ $(document).ready(function() {
 
             // Add attendance location markers
             @if(count($tenagaPendidikData) > 0)
-                @foreach($tenagaPendidikData->where('lokasi', '!=', null) as $tp)
-                    @if($tp['latitude'] && $tp['longitude'])
+                @foreach($tenagaPendidikData as $tp)
+                    @php
+                        $lat = $tp['latitude'] ?? $madrasah->latitude;
+                        $lng = $tp['longitude'] ?? $madrasah->longitude;
+                        $isPresent = $tp['status'] === 'hadir';
+                    @endphp
+                    @if($lat && $lng)
                         var attendanceIcon = L.divIcon({
-                            html: '<div style="width: 12px; height: 12px; border-radius: 50%; background: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }}; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+                            html: '<div style="width: 14px; height: 14px; border-radius: 50%; background: {{ $isPresent ? '#0e8549' : '#dc3545' }}; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.3);"></div>',
                             className: 'custom-attendance-marker',
-                            iconSize: [12, 12],
-                            iconAnchor: [6, 6]
+                            iconSize: [14, 14],
+                            iconAnchor: [7, 7]
                         });
 
-                        var attendanceMarker = L.marker([{{ $tp['latitude'] }}, {{ $tp['longitude'] }}], {icon: attendanceIcon})
+                        var attendanceMarker = L.marker([{{ $lat }}, {{ $lng }}], {icon: attendanceIcon})
                             .addTo(map)
                             .bindPopup(
-                                '<div style="max-width: 200px; padding: 5px;">' +
-                                '<b>{{ addslashes($tp['nama']) }}</b><br>' +
-                                '<small>Status: <span style="color: {{ $tp['status'] == 'hadir' ? '#28a745' : '#dc3545' }};">{{ $tp['status'] == 'hadir' ? 'Hadir' : 'Tidak Hadir' }}</span></small><br>' +
-                                '<small>Lokasi: {{ addslashes(Str::limit($tp['lokasi'], 30)) }}</small><br>' +
-                                '<small>Waktu: {{ $tp['waktu_masuk'] ?? '-' }}</small>' +
+                                '<div style="font-family: \'Poppins\', sans-serif; font-size: 12px; max-width: 220px; padding: 5px;">' +
+                                '<strong style="color: #004b4c;">{{ addslashes($tp['nama']) }}</strong><br>' +
+                                '<small style="color: #666;">{{ $tp['status_kepegawaian'] ?? '-' }}</small><br>' +
+                                '<small><strong>Status:</strong> <span style="color: {{ $isPresent ? '#0e8549' : '#dc3545' }};">{{ $isPresent ? 'Sudah Presensi' : 'Belum Presensi' }}</span></small><br>' +
+                                @if($isPresent)
+                                '<small><strong>Masuk:</strong> {{ $tp['waktu_masuk'] ?? '-' }}</small><br>' +
+                                '<small><strong>Keluar:</strong> {{ $tp['waktu_keluar'] ?? '-' }}</small><br>' +
+                                @endif
+                                '<small><strong>Lokasi:</strong> {{ addslashes($tp['lokasi'] ?? 'Lokasi tidak tersedia') }}</small>' +
                                 '</div>'
                             );
                         markers.push(attendanceMarker);
@@ -1141,7 +1150,7 @@ $(document).ready(function() {
             if (markers.length > 1) {
                 try {
                     var group = new L.featureGroup(markers);
-                    map.fitBounds(group.getBounds().pad(0.1));
+                    map.fitBounds(group.getBounds(), { padding: [30, 30] });
                 } catch (e) {
                     console.log('Could not fit bounds, using default view');
                 }
