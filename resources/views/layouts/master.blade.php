@@ -17,12 +17,12 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="{{ asset('images/logo%20favicon%201.png') }}" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('images/logo%20favicon%201.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo favicon 1.png') }}">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.head-css')
 </head>
-
+ 
 <body data-topbar="light" data-layout-mode="light">
     <!-- Begin page -->
     <div id="layout-wrapper">
