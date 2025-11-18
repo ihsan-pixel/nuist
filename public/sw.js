@@ -17,7 +17,7 @@ const STATIC_ASSETS = [
 ];
 
 /* -----------------------------------------------------------
-   🔥 FIX PENYEBAB 1: FORCE UPDATE & HAPUS SEMUA SW LAMA
+   🔥 FIX PENYEBAB 1: FORCE UPDATE & HAPUS SEMUA SW LAMAAA
 ----------------------------------------------------------- */
 
 // Pastikan SW baru langsung mengambil alih
