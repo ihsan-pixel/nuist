@@ -47,7 +47,7 @@
                 <div class="row mb-4">
                     <div class="col-md-4">
                         @if($madrasah->logo)
-                        <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" class="rounded mx-auto d-block mb-3" alt="{{ $madrasah->name }}" style="width: 150px; height: 150px; object-fit: cover;">
+                        <img src="{{ asset('storage/' . $madrasah->logo) }}" class="rounded mx-auto d-block mb-3" alt="{{ $madrasah->name }}" style="width: 150px; height: 150px; object-fit: cover;">
                         @else
                         <div class="rounded mx-auto d-block mb-3 bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
                             <i class="bx bx-school bx-lg text-muted"></i>
