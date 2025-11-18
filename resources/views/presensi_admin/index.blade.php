@@ -329,22 +329,22 @@
         <div class="row g-3">
             {{-- Users Presensi Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift total-sekolah">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ number_format($summary['users_presensi']) }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Users Presensi</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Presensi</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-account-check fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
@@ -353,22 +353,22 @@
 
             {{-- Sekolah Presensi Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift sekolah-buka">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ number_format($summary['sekolah_presensi']) }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Sekolah Presensi</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['sekolah_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Sekolah Presensi</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-school fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
@@ -377,22 +377,22 @@
 
             {{-- Belum Presensi Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift pending">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Belum Presensi</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Belum Presensi</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-account-clock fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                                <div class="progress-bar bg-white" style="width: 100%"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
