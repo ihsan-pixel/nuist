@@ -7,10 +7,8 @@
 <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/css/app.min.css') }}" rel="stylesheet" type="text/css" />
 
-<!-- DataTables -->
-<link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-<link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<!-- Responsive Table css -->
+<link href="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.css') }}" rel="stylesheet" type="text/css" />
 @endsection
 
 @section('content')
@@ -125,57 +123,59 @@
                             </div>
                             <div class="card-body">
                                 @if(count($tenagaPendidikData) > 0)
-                                    <div class="table-responsive">
-                                        <table id="staff-attendance-table" class="table table-striped table-hover">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama</th>
-                                                    <th>NIP</th>
-                                                    <th>NUPTK</th>
-                                                    <th>Status Kepegawaian</th>
-                                                    <th>Status Presensi</th>
-                                                    <th>Waktu Masuk</th>
-                                                    <th>Waktu Keluar</th>
-                                                    <th>Lokasi</th>
-                                                    <th>Keterangan</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($tenagaPendidikData as $index => $tp)
-                                                <tr>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $tp['nama'] }}</td>
-                                                    <td>{{ $tp['nip'] ?? '-' }}</td>
-                                                    <td>{{ $tp['nuptk'] ?? '-' }}</td>
-                                                    <td>{{ $tp['status_kepegawaian'] }}</td>
-                                                    <td>
-                                                        @if($tp['status'] == 'hadir')
-                                                            <span class="badge bg-success">Hadir</span>
-                                                        @elseif($tp['status'] == 'izin')
-                                                            <span class="badge bg-warning">Izin</span>
-                                                        @elseif($tp['status'] == 'sakit')
-                                                            <span class="badge bg-info">Sakit</span>
-                                                        @elseif($tp['status'] == 'terlambat')
-                                                            <span class="badge bg-warning text-dark">Terlambat</span>
-                                                        @else
-                                                            <span class="badge bg-danger">Tidak Hadir</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $tp['waktu_masuk'] ?? '-' }}</td>
-                                                    <td>{{ $tp['waktu_keluar'] ?? '-' }}</td>
-                                                    <td>
-                                                        @if($tp['lokasi'])
-                                                            <small class="text-muted">{{ Str::limit($tp['lokasi'], 30) }}</small>
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $tp['keterangan'] ?? '-' }}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                    <div class="table-rep-plugin">
+                                        <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                            <table id="staff-attendance-table" class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th data-priority="1">Nama</th>
+                                                        <th data-priority="2">NIP</th>
+                                                        <th data-priority="3">NUPTK</th>
+                                                        <th data-priority="4">Status Kepegawaian</th>
+                                                        <th data-priority="1">Status Presensi</th>
+                                                        <th data-priority="5">Waktu Masuk</th>
+                                                        <th data-priority="6">Waktu Keluar</th>
+                                                        <th data-priority="7">Lokasi</th>
+                                                        <th data-priority="8">Keterangan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($tenagaPendidikData as $index => $tp)
+                                                    <tr>
+                                                        <td>{{ $index + 1 }}</td>
+                                                        <td>{{ $tp['nama'] }}</td>
+                                                        <td>{{ $tp['nip'] ?? '-' }}</td>
+                                                        <td>{{ $tp['nuptk'] ?? '-' }}</td>
+                                                        <td>{{ $tp['status_kepegawaian'] }}</td>
+                                                        <td>
+                                                            @if($tp['status'] == 'hadir')
+                                                                <span class="badge bg-success">Hadir</span>
+                                                            @elseif($tp['status'] == 'izin')
+                                                                <span class="badge bg-warning">Izin</span>
+                                                            @elseif($tp['status'] == 'sakit')
+                                                                <span class="badge bg-info">Sakit</span>
+                                                            @elseif($tp['status'] == 'terlambat')
+                                                                <span class="badge bg-warning text-dark">Terlambat</span>
+                                                            @else
+                                                                <span class="badge bg-danger">Tidak Hadir</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $tp['waktu_masuk'] ?? '-' }}</td>
+                                                        <td>{{ $tp['waktu_keluar'] ?? '-' }}</td>
+                                                        <td>
+                                                            @if($tp['lokasi'])
+                                                                <small class="text-muted">{{ Str::limit($tp['lokasi'], 30) }}</small>
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $tp['keterangan'] ?? '-' }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 @else
                                     <div class="text-center py-4">
@@ -196,40 +196,9 @@
 @section('script')
 <script src="{{ asset('build/js/app.js') }}"></script>
 
-<!-- DataTables -->
-<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<!-- Responsive Table js -->
+<script src="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.js') }}"></script>
 
-<script>
-$(document).ready(function() {
-    $('#staff-attendance-table').DataTable({
-        "pageLength": 10,
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        "responsive": true,
-        "language": {
-            "lengthMenu": "Tampilkan _MENU_ data per halaman",
-            "zeroRecords": "Tidak ada data yang ditemukan",
-            "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
-            "infoEmpty": "Tidak ada data tersedia",
-            "infoFiltered": "(difilter dari _MAX_ total data)",
-            "search": "Cari:",
-            "paginate": {
-                "first": "Pertama",
-                "last": "Terakhir",
-                "next": "Selanjutnya",
-                "previous": "Sebelumnya"
-            }
-        },
-        "columnDefs": [
-            {
-                "targets": 0,
-                "orderable": false,
-                "searchable": false
-            }
-        ]
-    });
-});
-</script>
+<!-- Init js -->
+<script src="{{ asset('build/js/pages/table-responsive.init.js') }}"></script>
 @endsection
