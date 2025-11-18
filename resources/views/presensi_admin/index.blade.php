@@ -285,136 +285,278 @@
     border-radius: 0 0 15px 15px !important;
 }
 
-/* Dropdown functionality for school details */
-.school-dropdown-toggle {
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    position: relative !important;
+/* Enhanced Modal Styles for Comprehensive School Details */
+.comprehensive-modal .modal-dialog {
+    max-width: 95% !important;
+    margin: 1rem auto !important;
 }
 
-.school-dropdown-toggle:hover {
-    color: #0e8549 !important;
-}
-
-.school-dropdown-toggle::after {
-    content: '▼' !important;
-    font-size: 0.8em !important;
-    margin-left: 8px !important;
-    transition: transform 0.3s ease !important;
-    display: inline-block !important;
-}
-
-.school-dropdown-toggle.expanded::after {
-    transform: rotate(180deg) !important;
-}
-
-.school-details-row {
-    display: none !important;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-    border-left: 4px solid #004b4c !important;
-    margin: 0 !important;
+.school-info-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-radius: 12px !important;
     padding: 1.5rem !important;
-    animation: slideDown 0.3s ease-out !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 1000px;
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-    }
+.school-info-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: 1rem !important;
 }
 
-.staff-section {
+.info-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+}
+
+.info-label {
+    font-weight: 600 !important;
+    color: #004b4c !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.info-value {
+    font-size: 1rem !important;
+    color: #495057 !important;
+    word-break: break-word !important;
+}
+
+.map-section {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.map-container {
+    height: 400px !important;
+    width: 100% !important;
+    border-radius: 8px !important;
+    border: 2px solid #dee2e6 !important;
+    overflow: hidden !important;
+}
+
+.staff-attendance-section {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.staff-tabs .nav-tabs {
+    border-bottom: 2px solid #dee2e6 !important;
     margin-bottom: 1.5rem !important;
 }
 
-.staff-section h6 {
-    color: #004b4c !important;
+.staff-tabs .nav-link {
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    color: #6c757d !important;
     font-weight: 600 !important;
-    margin-bottom: 0.75rem !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.staff-section h6 i {
-    margin-right: 0.5rem !important;
-}
-
-.staff-list {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-    gap: 0.75rem !important;
-}
-
-.staff-item {
-    background: white !important;
-    border: 1px solid #dee2e6 !important;
-    border-radius: 8px !important;
-    padding: 0.75rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
+    padding: 0.75rem 1.5rem !important;
     transition: all 0.3s ease !important;
 }
 
-.staff-item:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-    transform: translateY(-1px) !important;
+.staff-tabs .nav-link.active {
+    background: none !important;
+    border-bottom-color: #004b4c !important;
+    color: #004b4c !important;
 }
 
-.staff-name {
-    font-weight: 500 !important;
-    color: #004b4c !important;
+.staff-tabs .nav-link:hover {
+    border-bottom-color: #0e8549 !important;
+    color: #0e8549 !important;
+}
+
+.staff-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1rem !important;
+}
+
+.staff-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 10px !important;
+    padding: 1rem !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.staff-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.staff-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 4px !important;
+    height: 100% !important;
+    background: #004b4c !important;
+}
+
+.staff-card.hadir::before {
+    background: #28a745 !important;
+}
+
+.staff-card.tidak-hadir::before {
+    background: #dc3545 !important;
+}
+
+.staff-card.izin::before {
+    background: #17a2b8 !important;
+}
+
+.staff-card.terlambat::before {
+    background: #ffc107 !important;
+}
+
+.staff-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.staff-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-weight: 600 !important;
+    margin-right: 0.75rem !important;
+}
+
+.staff-details {
     flex-grow: 1 !important;
 }
 
-.staff-status {
-    font-size: 0.8em !important;
-    padding: 0.25rem 0.5rem !important;
-    border-radius: 4px !important;
+.staff-name {
     font-weight: 600 !important;
-    text-transform: uppercase !important;
+    color: #004b4c !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 1rem !important;
 }
 
-.staff-status.hadir {
+.staff-position {
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.staff-status-badge {
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 20px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.staff-status-badge.hadir {
     background: #d4edda !important;
     color: #155724 !important;
 }
 
-.staff-status.tidak-hadir {
+.staff-status-badge.tidak-hadir {
     background: #f8d7da !important;
     color: #721c24 !important;
 }
 
-.staff-status.izin {
+.staff-status-badge.izin {
     background: #cce5ff !important;
     color: #004085 !important;
 }
 
-.staff-status.terlambat {
+.staff-status-badge.terlambat {
     background: #fff3cd !important;
     color: #856404 !important;
 }
 
-.staff-time {
-    font-size: 0.75em !important;
-    color: #6c757d !important;
-    margin-top: 0.25rem !important;
+.staff-times {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #dee2e6 !important;
 }
 
-.no-staff {
-    text-align: center !important;
+.time-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.time-label {
+    font-size: 0.8rem !important;
     color: #6c757d !important;
-    font-style: italic !important;
-    padding: 1rem !important;
+    font-weight: 500 !important;
+}
+
+.time-value {
+    font-size: 0.85rem !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+}
+
+.location-info {
+    margin-top: 0.5rem !important;
+    font-size: 0.75rem !important;
+    color: #6c757d !important;
+}
+
+.location-info i {
+    margin-right: 0.25rem !important;
+}
+
+.empty-state {
+    text-align: center !important;
+    padding: 3rem 1rem !important;
+    color: #6c757d !important;
+}
+
+.empty-state i {
+    font-size: 3rem !important;
+    margin-bottom: 1rem !important;
+    opacity: 0.5 !important;
+}
+
+.empty-state h5 {
+    margin-bottom: 0.5rem !important;
+    color: #495057 !important;
+}
+
+.date-display {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    border-radius: 10px !important;
+    margin-bottom: 1.5rem !important;
+    text-align: center !important;
+}
+
+.date-display h4 {
+    margin: 0 !important;
+    font-weight: 600 !important;
+}
+
+.date-display p {
+    margin: 0.25rem 0 0 0 !important;
+    opacity: 0.9 !important;
 }
 </style>
 @endsection
@@ -580,7 +722,7 @@
                                 <tr>
                                     <td>
                                         <div class="sekolah-name">
-                                            <span class="school-dropdown-toggle fw-medium" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                            <span class="fw-medium" style="color: #004b4c;">
                                                 {{ $data['madrasah']->name }}
                                             </span>
                                         </div>
@@ -603,101 +745,14 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1 flex-wrap">
-                                            <a href="#" class="btn btn-outline-info btn-sm madrasah-detail-link" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
-                                                <i class="mdi mdi-eye me-1"></i>Lihat
-                                            </a>
+                                            <button type="button" class="btn btn-outline-info btn-sm comprehensive-detail-btn" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
+                                                <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                                            </button>
                                             @if($user->role === 'super_admin')
                                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="{{ $data['madrasah']->id }}" data-madrasah-name="{{ $data['madrasah']->name }}">
                                                 <i class="bx bx-download me-1"></i>Export
                                             </button>
                                             @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- School Details Row (Initially Hidden) -->
-                                <tr class="school-details-row" data-madrasah-id="{{ $data['madrasah']->id }}">
-                                    <td colspan="4">
-                                        <div class="staff-section">
-                                            <h6><i class="mdi mdi-account-check"></i>Telah Melakukan Presensi ({{ collect($data['presensi'])->whereIn('status', ['hadir', 'terlambat'])->count() }})</h6>
-                                            <div class="staff-list">
-                                                @php
-                                                    $presensiDone = collect($data['presensi'])->whereIn('status', ['hadir', 'terlambat']);
-                                                @endphp
-                                                @if($presensiDone->count() > 0)
-                                                    @foreach($presensiDone as $presensi)
-                                                    <div class="staff-item">
-                                                        <div>
-                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
-                                                            <div class="staff-time">
-                                                                @if($presensi['waktu_masuk'])
-                                                                    Masuk: {{ $presensi['waktu_masuk'] }}
-                                                                    @if($presensi['waktu_keluar'])
-                                                                        | Keluar: {{ $presensi['waktu_keluar'] }}
-                                                                    @endif
-                                                                @else
-                                                                    -
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <span class="staff-status {{ $presensi['status'] == 'hadir' ? 'hadir' : 'terlambat' }}">
-                                                            {{ $presensi['status'] == 'hadir' ? 'Hadir' : 'Terlambat' }}
-                                                        </span>
-                                                    </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="no-staff">Belum ada tenaga pendidik yang melakukan presensi</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="staff-section">
-                                            <h6><i class="mdi mdi-account-clock"></i>Belum Melakukan Presensi ({{ collect($data['presensi'])->where('status', 'tidak_hadir')->count() }})</h6>
-                                            <div class="staff-list">
-                                                @php
-                                                    $presensiNotDone = collect($data['presensi'])->where('status', 'tidak_hadir');
-                                                @endphp
-                                                @if($presensiNotDone->count() > 0)
-                                                    @foreach($presensiNotDone as $presensi)
-                                                    <div class="staff-item">
-                                                        <div>
-                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
-                                                            <div class="staff-time">-</div>
-                                                        </div>
-                                                        <span class="staff-status tidak-hadir">Tidak Hadir</span>
-                                                    </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="no-staff">Semua tenaga pendidik telah melakukan presensi</div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="staff-section">
-                                            <h6><i class="mdi mdi-account-edit"></i>Mengajukan Izin ({{ collect($data['presensi'])->where('status', 'izin')->count() }})</h6>
-                                            <div class="staff-list">
-                                                @php
-                                                    $presensiIzin = collect($data['presensi'])->where('status', 'izin');
-                                                @endphp
-                                                @if($presensiIzin->count() > 0)
-                                                    @foreach($presensiIzin as $presensi)
-                                                    <div class="staff-item">
-                                                        <div>
-                                                            <div class="staff-name">{{ $presensi['nama'] }}</div>
-                                                            <div class="staff-time">
-                                                                @if($presensi['keterangan'])
-                                                                    {{ $presensi['keterangan'] }}
-                                                                @else
-                                                                    -
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                        <span class="staff-status izin">Izin</span>
-                                                    </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="no-staff">Tidak ada tenaga pendidik yang mengajukan izin</div>
-                                                @endif
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -808,54 +863,103 @@
         </div>
     </div>
 
-    <!-- Madrasah Detail Modal - Modern PPDB Style -->
-    <div class="modal fade" id="madrasahDetailModal" tabindex="-1" aria-labelledby="madrasahDetailModalLabel" aria-hidden="true">
+    <!-- Comprehensive School Detail Modal -->
+    <div class="modal fade comprehensive-modal" id="comprehensiveDetailModal" tabindex="-1" aria-labelledby="comprehensiveDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content" style="border-radius: 15px !important; border: none !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;">
                 <div class="modal-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border-radius: 15px 15px 0 0 !important; border-bottom: none !important;">
-                    <h5 class="modal-title" id="madrasahDetailModalLabel" style="font-weight: 600 !important;">
-                        <i class="mdi mdi-school me-2"></i>Detail Madrasah
+                    <h5 class="modal-title" id="comprehensiveDetailModalLabel" style="font-weight: 600 !important;">
+                        <i class="mdi mdi-school me-2"></i>Detail Lengkap Madrasah
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="mb-2"><strong>Nama Madrasah:</strong> <span id="madrasah-detail-name"></span></div>
-                            <div class="mb-2"><strong>SCOD:</strong> <span id="madrasah-detail-scod"></span></div>
-                            <div class="mb-2"><strong>Kabupaten:</strong> <span id="madrasah-detail-kabupaten"></span></div>
-                            <div class="mb-2"><strong>Alamat:</strong> <span id="madrasah-detail-alamat"></span></div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-2"><strong>Hari KBM:</strong> <span id="madrasah-detail-hari-kbm"></span></div>
-                            <div class="mb-2"><strong>Latitude:</strong> <span id="madrasah-detail-latitude"></span></div>
-                            <div class="mb-2"><strong>Longitude:</strong> <span id="madrasah-detail-longitude"></span></div>
-                            <div class="mb-2"><strong>Map Link:</strong> <a id="madrasah-detail-map-link" href="#" target="_blank">Lihat Peta</a></div>
-                            <div class="mb-2"><strong>Polygon Koordinat:</strong> <span id="madrasah-detail-polygon">-</span></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label>Area Poligon Presensi</label>
-                        <div id="madrasah-detail-map" style="height: 250px; width: 100%; margin-top: 15px; border: 1px solid #ddd; border-radius: 4px;"></div>
-                        <small class="text-muted">Area poligon presensi madrasah ini.</small>
+                    <!-- Date Display -->
+                    <div class="date-display">
+                        <h4 id="modal-date-display"></h4>
+                        <p id="modal-day-display"></p>
                     </div>
 
-                    <h6>Daftar Tenaga Pendidik:</h6>
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nama</th>
-                                    <th>Status Kepegawaian</th>
-                                    <th>Status Presensi</th>
-                                    <th>Waktu Masuk</th>
-                                    <th>Waktu Keluar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="madrasah-detail-guru-body">
-                                <!-- Data will be populated here -->
-                            </tbody>
-                        </table>
+                    <!-- School Information Section -->
+                    <div class="school-info-section">
+                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
+                            <i class="mdi mdi-information-outline me-2"></i>Informasi Madrasah
+                        </h5>
+                        <div class="school-info-grid" id="school-info-grid">
+                            <!-- School info will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Map Section -->
+                    <div class="map-section">
+                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
+                            <i class="mdi mdi-map-marker-radius me-2"></i>Lokasi & Area Presensi
+                        </h5>
+                        <div class="map-container" id="comprehensive-map"></div>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="mdi mdi-information-outline me-1"></i>
+                            Peta menampilkan lokasi madrasah dan area polygon presensi. Titik merah menunjukkan lokasi presensi pengguna.
+                        </small>
+                    </div>
+
+                    <!-- Staff Attendance Section -->
+                    <div class="staff-attendance-section">
+                        <h5 class="mb-3" style="color: #004b4c; font-weight: 600;">
+                            <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
+                        </h5>
+
+                        <!-- Staff Tabs -->
+                        <div class="staff-tabs">
+                            <ul class="nav nav-tabs" id="staffAttendanceTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="hadir-tab" data-bs-toggle="tab" data-bs-target="#hadir" type="button" role="tab">
+                                        <i class="mdi mdi-account-check me-1"></i>Hadir
+                                        <span class="badge bg-success ms-1" id="hadir-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="terlambat-tab" data-bs-toggle="tab" data-bs-target="#terlambat" type="button" role="tab">
+                                        <i class="mdi mdi-clock-alert me-1"></i>Terlambat
+                                        <span class="badge bg-warning ms-1" id="terlambat-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tidak-hadir-tab" data-bs-toggle="tab" data-bs-target="#tidak-hadir" type="button" role="tab">
+                                        <i class="mdi mdi-account-remove me-1"></i>Tidak Hadir
+                                        <span class="badge bg-danger ms-1" id="tidak-hadir-count">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="izin-tab" data-bs-toggle="tab" data-bs-target="#izin" type="button" role="tab">
+                                        <i class="mdi mdi-account-edit me-1"></i>Izin
+                                        <span class="badge bg-info ms-1" id="izin-count">0</span>
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content mt-3" id="staffAttendanceTabsContent">
+                                <div class="tab-pane fade show active" id="hadir" role="tabpanel">
+                                    <div class="staff-grid" id="hadir-grid">
+                                        <!-- Hadir staff cards will be populated here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="terlambat" role="tabpanel">
+                                    <div class="staff-grid" id="terlambat-grid">
+                                        <!-- Terlambat staff cards will be populated here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tidak-hadir" role="tabpanel">
+                                    <div class="staff-grid" id="tidak-hadir-grid">
+                                        <!-- Tidak hadir staff cards will be populated here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="izin" role="tabpanel">
+                                    <div class="staff-grid" id="izin-grid">
+                                        <!-- Izin staff cards will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top: none !important; border-radius: 0 0 15px 15px !important;">
@@ -1271,102 +1375,57 @@ $(document).ready(function () {
         return false;
     });
 
-    // Handle school dropdown toggle
-    $(document).on('click', '.school-dropdown-toggle', function(e) {
+    // Handle comprehensive detail modal
+    $(document).on('click', '.comprehensive-detail-btn', function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        let $toggle = $(this);
-        let madrasahId = $toggle.data('madrasah-id');
-        let $detailsRow = $('.school-details-row[data-madrasah-id="' + madrasahId + '"]');
-
-        // Toggle expanded class for arrow rotation
-        $toggle.toggleClass('expanded');
-
-        // Toggle visibility of details row
-        if ($detailsRow.is(':visible')) {
-            $detailsRow.slideUp(300, function() {
-                $detailsRow.hide();
-            });
-        } else {
-            $detailsRow.slideDown(300);
-        }
-
-        return false;
-    });
-
-    // Handle madrasah detail modal
-    $(document).on('click', '.madrasah-detail-link', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
         let madrasahId = $(this).data('madrasah-id');
         let madrasahName = $(this).data('madrasah-name');
-        $('#madrasahDetailModalLabel').text('Detail Madrasah: ' + madrasahName);
+
+        $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
+
+        // Show loading state
+        Swal.fire({
+            title: 'Memuat Data...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         $.ajax({
             url: '{{ url('/presensi-admin/madrasah-detail') }}/' + madrasahId,
             type: 'GET',
             data: { date: currentDate },
             success: function(data) {
-                // Populate madrasah info
-                $('#madrasah-detail-name').text(data.madrasah.name);
-                $('#madrasah-detail-scod').text(data.madrasah.scod || '-');
-                $('#madrasah-detail-kabupaten').text(data.madrasah.kabupaten || '-');
-                $('#madrasah-detail-alamat').text(data.madrasah.alamat || '-');
-                $('#madrasah-detail-hari-kbm').text(data.madrasah.hari_kbm || '-');
-                $('#madrasah-detail-latitude').text(data.madrasah.latitude || '-');
-                $('#madrasah-detail-longitude').text(data.madrasah.longitude || '-');
-                if (data.madrasah.map_link) {
-                    $('#madrasah-detail-map-link').attr('href', data.madrasah.map_link).show();
-                } else {
-                    $('#madrasah-detail-map-link').hide();
-                }
-                if (data.madrasah.polygon_koordinat) {
-                    let polygonText = 'Ada (Tersimpan)';
-                    if (data.madrasah.enable_dual_polygon && data.madrasah.polygon_koordinat_2) {
-                        polygonText += ' + Dual Polygon';
-                    }
-                    $('#madrasah-detail-polygon').text(polygonText);
-                } else {
-                    $('#madrasah-detail-polygon').text('Tidak Ada');
-                }
+                Swal.close();
 
+                // Set date display
+                let dateObj = new Date(currentDate);
+                let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
+                $('#modal-day-display').text('Data Presensi Hari Ini');
 
+                // Populate school information
+                populateSchoolInfo(data.madrasah);
 
-                // Initialize map for polygon display
-                initializeMadrasahMap(data.madrasah);
+                // Initialize comprehensive map
+                initializeComprehensiveMap(data.madrasah, data.tenaga_pendidik);
 
-                // Populate guru list
-                let guruRows = '';
-                data.tenaga_pendidik.forEach(function(guru) {
-                    let statusBadge = '';
-                    if (guru.status === 'hadir') {
-                        statusBadge = '<span class="badge bg-success">Hadir</span>';
-                    } else if (guru.status === 'terlambat') {
-                        statusBadge = '<span class="badge bg-warning">Terlambat</span>';
-                    } else if (guru.status === 'izin') {
-                        statusBadge = '<span class="badge bg-info">Izin</span>';
-                    } else {
-                        statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
-                    }
-
-                    guruRows += '<tr>' +
-                        '<td>' + guru.nama + '</td>' +
-                        '<td>' + (guru.status_kepegawaian || '-') + '</td>' +
-                        '<td>' + statusBadge + '</td>' +
-                        '<td>' + (guru.waktu_masuk || '-') + '</td>' +
-                        '<td>' + (guru.waktu_keluar || '-') + '</td>' +
-                        '</tr>';
-                });
-                $('#madrasah-detail-guru-body').html(guruRows);
+                // Populate staff attendance data
+                populateStaffAttendance(data.tenaga_pendidik);
 
                 // Show modal
-                $('#madrasahDetailModal').modal('show');
+                $('#comprehensiveDetailModal').modal('show');
             },
             error: function(xhr, status, error) {
-                console.log('Error loading madrasah detail:', error);
+                Swal.close();
+                console.log('Error loading comprehensive detail:', error);
                 console.log('Response:', xhr.responseText);
-                let errorMessage = 'Gagal memuat detail madrasah';
+                let errorMessage = 'Gagal memuat detail lengkap madrasah';
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;
                 }
@@ -1377,6 +1436,7 @@ $(document).ready(function () {
                 });
             }
         });
+
         return false;
     });
 
@@ -1424,11 +1484,37 @@ $(document).ready(function () {
     updatePresensiData();
 
 
-    // Function to initialize map for madrasah detail
-    function initializeMadrasahMap(madrasah) {
+    // Function to populate school information
+    function populateSchoolInfo(madrasah) {
+        const infoItems = [
+            { label: 'Nama Madrasah', value: madrasah.name || '-' },
+            { label: 'SCOD', value: madrasah.scod || '-' },
+            { label: 'Kabupaten', value: madrasah.kabupaten || '-' },
+            { label: 'Alamat Lengkap', value: madrasah.alamat || '-' },
+            { label: 'Hari KBM', value: madrasah.hari_kbm || '-' },
+            { label: 'Koordinat GPS', value: (madrasah.latitude && madrasah.longitude) ? `${madrasah.latitude}, ${madrasah.longitude}` : '-' },
+            { label: 'Link Peta', value: madrasah.map_link ? `<a href="${madrasah.map_link}" target="_blank" class="text-primary">Lihat di Google Maps</a>` : '-' },
+            { label: 'Area Polygon', value: madrasah.polygon_koordinat ? 'Ada (Tersimpan)' + (madrasah.enable_dual_polygon && madrasah.polygon_koordinat_2 ? ' + Dual Polygon' : '') : 'Tidak Ada' }
+        ];
+
+        let infoGrid = '';
+        infoItems.forEach(item => {
+            infoGrid += `
+                <div class="info-item">
+                    <div class="info-label">${item.label}</div>
+                    <div class="info-value">${item.value}</div>
+                </div>
+            `;
+        });
+
+        $('#school-info-grid').html(infoGrid);
+    }
+
+    // Function to initialize comprehensive map with staff locations
+    function initializeComprehensiveMap(madrasah, tenagaPendidik) {
         // Clear any existing map
-        if (window.madrasahMap) {
-            window.madrasahMap.remove();
+        if (window.comprehensiveMap) {
+            window.comprehensiveMap.remove();
         }
 
         // Initialize Leaflet map with default center
@@ -1436,77 +1522,188 @@ $(document).ready(function () {
         let defaultLon = 110.3695;
         let lat = madrasah.latitude || defaultLat;
         let lon = madrasah.longitude || defaultLon;
-        window.madrasahMap = L.map('madrasah-detail-map').setView([lat, lon], 16);
+        window.comprehensiveMap = L.map('comprehensive-map').setView([lat, lon], 16);
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(window.madrasahMap);
+        }).addTo(window.comprehensiveMap);
 
         let drawnItems = new L.FeatureGroup();
-        window.madrasahMap.addLayer(drawnItems);
+        window.comprehensiveMap.addLayer(drawnItems);
 
-        // Add marker if coordinates exist
+        // Add school marker if coordinates exist
         if (madrasah.latitude && madrasah.longitude) {
-            L.marker([lat, lon])
-                .addTo(window.madrasahMap)
-                .bindPopup('<b>' + madrasah.name + '</b><br/>' + (madrasah.alamat || ''));
+            L.marker([lat, lon], {
+                icon: L.divIcon({
+                    className: 'school-marker',
+                    html: '<div style="background: #004b4c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="mdi mdi-school" style="font-size: 16px;"></i></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                })
+            })
+            .addTo(window.comprehensiveMap)
+            .bindPopup(`<div style="text-align: center;"><b>${madrasah.name}</b><br/><small>Lokasi Madrasah</small></div>`);
         }
 
-        // Load existing polygon like in edit modal (read-only)
+        // Add staff attendance markers
+        let staffMarkers = [];
+        tenagaPendidik.forEach(function(staff) {
+            if (staff.latitude && staff.longitude) {
+                let markerColor = '#28a745'; // default green for hadir
+                if (staff.status === 'terlambat') markerColor = '#ffc107';
+                else if (staff.status === 'tidak_hadir') markerColor = '#dc3545';
+                else if (staff.status === 'izin') markerColor = '#17a2b8';
+
+                let marker = L.marker([staff.latitude, staff.longitude], {
+                    icon: L.divIcon({
+                        className: 'staff-marker',
+                        html: `<div style="background: ${markerColor}; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 12px; font-weight: bold;">${staff.nama.charAt(0).toUpperCase()}</div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                });
+
+                let statusText = staff.status === 'hadir' ? 'Hadir' : (staff.status === 'terlambat' ? 'Terlambat' : (staff.status === 'izin' ? 'Izin' : 'Tidak Hadir'));
+                let popupContent = `
+                    <div style="min-width: 200px;">
+                        <div style="text-align: center; margin-bottom: 8px;">
+                            <b>${staff.nama}</b><br/>
+                            <small>${staff.status_kepegawaian || '-'}</small>
+                        </div>
+                        <div style="background: ${markerColor}; color: white; padding: 4px 8px; border-radius: 4px; text-align: center; margin-bottom: 8px;">
+                            <small><b>${statusText}</b></small>
+                        </div>
+                        ${staff.waktu_masuk ? `<div><small><i class="mdi mdi-clock-in"></i> Masuk: ${staff.waktu_masuk}</small></div>` : ''}
+                        ${staff.waktu_keluar ? `<div><small><i class="mdi mdi-clock-out"></i> Keluar: ${staff.waktu_keluar}</small></div>` : ''}
+                        ${staff.keterangan ? `<div><small><i class="mdi mdi-note-text"></i> ${staff.keterangan}</small></div>` : ''}
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent);
+                marker.addTo(window.comprehensiveMap);
+                staffMarkers.push(marker);
+            }
+        });
+
+        // Load existing polygon
         if (madrasah.polygon_koordinat) {
             try {
                 let geometry = JSON.parse(madrasah.polygon_koordinat);
-                let layer = L.geoJSON(geometry);
+                let layer = L.geoJSON(geometry, {
+                    style: {
+                        color: '#004b4c',
+                        weight: 2,
+                        opacity: 0.8,
+                        fillColor: '#004b4c',
+                        fillOpacity: 0.1
+                    }
+                });
                 layer.eachLayer(function(l) {
                     drawnItems.addLayer(l);
                 });
-                if (drawnItems.getLayers().length > 0) {
-                    window.madrasahMap.fitBounds(drawnItems.getBounds());
-                }
             } catch (e) {
                 console.error("Invalid GeoJSON data for polygon:", e);
             }
         }
 
-        // Fit map to show all elements and adjust zoom for better view
+        // Fit map to show all elements
         setTimeout(() => {
-            window.madrasahMap.invalidateSize();
+            window.comprehensiveMap.invalidateSize();
 
-            // Force a resize to ensure proper rendering
-            window.madrasahMap._onResize();
-
-            // If we have both marker and polygon, fit bounds to show everything
-            if (drawnItems.getLayers().length > 0 && madrasah.latitude && madrasah.longitude) {
-                // Create a group with both marker and polygon layers
-                let allLayers = new L.FeatureGroup();
-                drawnItems.eachLayer(layer => allLayers.addLayer(layer));
-
-                // Add a temporary marker to the group for bounds calculation
-                let tempMarker = L.marker([madrasah.latitude, madrasah.longitude]);
-                allLayers.addLayer(tempMarker);
-
-                // Fit bounds to show all elements
-                window.madrasahMap.fitBounds(allLayers.getBounds(), { padding: [20, 20] });
-
-                // Remove temporary marker
-                allLayers.removeLayer(tempMarker);
-            } else if (drawnItems.getLayers().length > 0) {
-                // Only polygon exists, fit to polygon bounds
-                window.madrasahMap.fitBounds(drawnItems.getBounds(), { padding: [20, 20] });
-            } else if (madrasah.latitude && madrasah.longitude) {
-                // Only marker exists, center on marker with appropriate zoom
-                window.madrasahMap.setView([madrasah.latitude, madrasah.longitude], 18);
-            } else {
-                // No specific location, use default view
-                window.madrasahMap.setView([defaultLat, defaultLon], 13);
+            let allBounds = [];
+            if (drawnItems.getLayers().length > 0) {
+                allBounds.push(drawnItems.getBounds());
+            }
+            if (staffMarkers.length > 0) {
+                staffMarkers.forEach(marker => {
+                    allBounds.push(L.latLngBounds([marker.getLatLng()]));
+                });
+            }
+            if (madrasah.latitude && madrasah.longitude) {
+                allBounds.push(L.latLngBounds([[madrasah.latitude, madrasah.longitude]]));
             }
 
-            // Additional invalidateSize after bounds fitting to ensure polygon renders
+            if (allBounds.length > 0) {
+                let combinedBounds = allBounds[0];
+                for (let i = 1; i < allBounds.length; i++) {
+                    combinedBounds.extend(allBounds[i]);
+                }
+                window.comprehensiveMap.fitBounds(combinedBounds, { padding: [20, 20] });
+            } else {
+                window.comprehensiveMap.setView([defaultLat, defaultLon], 13);
+            }
+
             setTimeout(() => {
-                window.madrasahMap.invalidateSize();
+                window.comprehensiveMap.invalidateSize();
             }, 200);
         }, 100);
+    }
+
+    // Function to populate staff attendance data
+    function populateStaffAttendance(tenagaPendidik) {
+        // Group staff by status
+        let staffByStatus = {
+            hadir: [],
+            terlambat: [],
+            tidak_hadir: [],
+            izin: []
+        };
+
+        tenagaPendidik.forEach(function(staff) {
+            if (staff.status === 'hadir') staffByStatus.hadir.push(staff);
+            else if (staff.status === 'terlambat') staffByStatus.terlambat.push(staff);
+            else if (staff.status === 'tidak_hadir') staffByStatus.tidak_hadir.push(staff);
+            else if (staff.status === 'izin') staffByStatus.izin.push(staff);
+        });
+
+        // Update tab counts
+        $('#hadir-count').text(staffByStatus.hadir.length);
+        $('#terlambat-count').text(staffByStatus.terlambat.length);
+        $('#tidak-hadir-count').text(staffByStatus.tidak_hadir.length);
+        $('#izin-count').text(staffByStatus.izin.length);
+
+        // Populate each tab
+        Object.keys(staffByStatus).forEach(status => {
+            let gridId = `#${status.replace('_', '-')}-grid`;
+            let staffList = staffByStatus[status];
+
+            if (staffList.length > 0) {
+                let cards = '';
+                staffList.forEach(function(staff) {
+                    let statusClass = status.replace('_', '-');
+                    let statusText = status === 'hadir' ? 'Hadir' : (status === 'terlambat' ? 'Terlambat' : (status === 'tidak_hadir' ? 'Tidak Hadir' : 'Izin'));
+
+                    cards += `
+                        <div class="staff-card ${statusClass}">
+                            <div class="staff-header">
+                                <div class="staff-avatar">${staff.nama.charAt(0).toUpperCase()}</div>
+                                <div class="staff-details">
+                                    <div class="staff-name">${staff.nama}</div>
+                                    <div class="staff-position">${staff.status_kepegawaian || '-'}</div>
+                                    <span class="staff-status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                            <div class="staff-times">
+                                ${staff.waktu_masuk ? `<div class="time-item"><span class="time-label">Masuk</span><span class="time-value">${staff.waktu_masuk}</span></div>` : ''}
+                                ${staff.waktu_keluar ? `<div class="time-item"><span class="time-label">Keluar</span><span class="time-value">${staff.waktu_keluar}</span></div>` : ''}
+                                ${staff.keterangan ? `<div class="time-item"><span class="time-label">Keterangan</span><span class="time-value">${staff.keterangan}</span></div>` : ''}
+                                ${(staff.latitude && staff.longitude) ? `<div class="location-info"><i class="mdi mdi-map-marker"></i> Lokasi tersimpan</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                $(gridId).html(cards);
+            } else {
+                $(gridId).html(`
+                    <div class="empty-state">
+                        <i class="mdi mdi-account-off"></i>
+                        <h5>Tidak Ada Data</h5>
+                        <p>Belum ada tenaga pendidik dengan status ini</p>
+                    </div>
+                `);
+            }
+        });
     }
     @endif
 });
