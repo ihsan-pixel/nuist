@@ -1480,6 +1480,7 @@ $(document).ready(function () {
 
     $('#exportAllBtn').on('click', function() {
         if (currentMadrasahId) {
+            $('#exportModal').modal('hide');
             window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=all';
         }
     });
@@ -1491,6 +1492,7 @@ $(document).ready(function () {
     $('#exportMonth').on('change', function() {
         if (currentMadrasahId) {
             let month = $(this).val();
+            $('#exportModal').modal('hide');
             window.location.href = '{{ url('/presensi-admin/export-madrasah') }}/' + currentMadrasahId + '?type=month&month=' + month;
         }
     });
