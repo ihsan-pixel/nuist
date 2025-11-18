@@ -708,7 +708,7 @@
                 <!-- Madrasah Table - Modern PPDB Style -->
                 <div class="kabupaten-table" style="background: white !important;">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0" style="margin-bottom: 0 !important; border-radius: 0 !important;">
+                        <table id="madrasah-table-{{ $loop->parent->index }}-{{ $loop->index }}" class="table table-hover mb-0" style="margin-bottom: 0 !important; border-radius: 0 !important;">
                             <thead style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; border: none !important; font-weight: 600 !important; padding: 1rem !important; border-bottom: 2px solid #dee2e6 !important;">
                                 <tr>
                                     <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
@@ -1319,6 +1319,82 @@ $(document).ready(function () {
                 }
             });
         });
+
+        // Re-bind events after table update
+        $('.comprehensive-detail-btn').off('click').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log('Comprehensive detail button clicked');
+
+            let madrasahId = $(this).data('madrasah-id');
+            let madrasahName = $(this).data('madrasah-name');
+
+            console.log('Madrasah ID:', madrasahId, 'Name:', madrasahName);
+
+            $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
+
+            // Show loading state
+            Swal.fire({
+                title: 'Memuat Data...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '{{ url('/presensi-admin/madrasah-detail') }}/' + madrasahId,
+                type: 'GET',
+                data: { date: currentDate },
+                success: function(data) {
+                    console.log('AJAX success, data received:', data);
+                    Swal.close();
+
+                    // Set date display
+                    let dateObj = new Date(currentDate);
+                    let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
+                    $('#modal-date-subtitle').text('Data Presensi Tenaga Pendidik');
+
+                    // Populate school information
+                    populateSchoolInfo(data.madrasah);
+
+                    // Initialize comprehensive map
+                    initializeComprehensiveMap(data.madrasah, data.tenaga_pendidik);
+
+                    // Populate staff attendance data
+                    populateStaffAttendance(data.tenaga_pendidik);
+
+                    // Show modal
+                    console.log('Showing modal...');
+                    Swal.close();
+                    setTimeout(() => {
+                        $('#comprehensiveDetailModal').modal('show');
+                    }, 200);
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX error:', error);
+                    console.log('Status:', status);
+                    console.log('XHR:', xhr);
+                    console.log('Response text:', xhr.responseText);
+                    Swal.close();
+                    let errorMessage = 'Gagal memuat detail lengkap madrasah';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage + ' (Periksa console untuk detail error)'
+                    });
+                }
+            });
+
+            return false;
+        });
     }
 
     @if(in_array($user->role, ['super_admin', 'pengurus']))
@@ -1382,78 +1458,7 @@ $(document).ready(function () {
         return false;
     });
 
-    // Handle comprehensive detail modal
-    $(document).on('click', '.comprehensive-detail-btn', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
 
-        console.log('Comprehensive detail button clicked');
-
-        let madrasahId = $(this).data('madrasah-id');
-        let madrasahName = $(this).data('madrasah-name');
-
-        console.log('Madrasah ID:', madrasahId, 'Name:', madrasahName);
-
-        $('#comprehensiveDetailModalLabel').text('Detail Lengkap: ' + madrasahName);
-
-        // Show loading state
-        Swal.fire({
-            title: 'Memuat Data...',
-            text: 'Mohon tunggu sebentar',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            url: '{{ url('/presensi-admin/madrasah-detail') }}/' + madrasahId,
-            type: 'GET',
-            data: { date: currentDate },
-            success: function(data) {
-                console.log('AJAX success, data received:', data);
-                Swal.close();
-
-                // Set date display
-                let dateObj = new Date(currentDate);
-                let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                $('#modal-date-display').text(dateObj.toLocaleDateString('id-ID', options));
-                $('#modal-date-subtitle').text('Data Presensi Tenaga Pendidik');
-
-                // Populate school information
-                populateSchoolInfo(data.madrasah);
-
-                // Initialize comprehensive map
-                initializeComprehensiveMap(data.madrasah, data.tenaga_pendidik);
-
-                // Populate staff attendance data
-                populateStaffAttendance(data.tenaga_pendidik);
-
-                // Show modal
-                console.log('Showing modal...');
-                $('#comprehensiveDetailModal').modal('show');
-            },
-            error: function(xhr, status, error) {
-                console.log('AJAX error:', error);
-                console.log('Status:', status);
-                console.log('XHR:', xhr);
-                console.log('Response text:', xhr.responseText);
-                Swal.close();
-                let errorMessage = 'Gagal memuat detail lengkap madrasah';
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage + ' (Periksa console untuk detail error)'
-                });
-            }
-        });
-
-        return false;
-    });
 
     // Update data every 30 seconds
     updateInterval = setInterval(updatePresensiData, 30000);
