@@ -17,186 +17,186 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
 <style>
-/* Modern PPDB Style CSS */
+/* Modern PPDB Style CSS - Enhanced with !important for better specificity */
 .welcome-section {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    border-radius: 15px !important;
+    padding: 2rem !important;
+    margin-bottom: 2rem !important;
+    color: white !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;
 }
 
 .welcome-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    transform: translate(50px, -50px);
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 200px !important;
+    height: 200px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50% !important;
+    transform: translate(50px, -50px) !important;
 }
 
 .welcome-content {
-    position: relative;
-    z-index: 1;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .stat-card {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    background: white !important;
+    border-radius: 15px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
 .stat-card.total-sekolah {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
 }
 
 .stat-card.sekolah-buka {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: white;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
 }
 
 .stat-card.pending {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    color: white;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white !important;
 }
 
 .stat-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 1;
+    font-size: 2.5rem !important;
+    font-weight: bold !important;
+    margin-bottom: 0.5rem !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .stat-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    margin-bottom: 0;
-    position: relative;
-    z-index: 1;
+    font-size: 0.9rem !important;
+    opacity: 0.9 !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .stat-icon {
-    position: relative;
-    z-index: 1;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .kabupaten-group {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 15px;
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 15px !important;
+    margin-bottom: 1.5rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
 }
 
 .kabupaten-header {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    padding: 1rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 }
 
 .kabupaten-header i {
-    margin-right: 0.5rem;
-    opacity: 0.9;
+    margin-right: 0.5rem !important;
+    opacity: 0.9 !important;
 }
 
 .kabupaten-table {
-    background: white;
+    background: white !important;
 }
 
 .kabupaten-table .table {
-    margin-bottom: 0;
-    border-radius: 0;
+    margin-bottom: 0 !important;
+    border-radius: 0 !important;
 }
 
 .kabupaten-table .table thead th {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: white;
-    border: none;
-    font-weight: 600;
-    padding: 1rem;
-    border-bottom: 2px solid #dee2e6;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    padding: 1rem !important;
+    border-bottom: 2px solid #dee2e6 !important;
 }
 
 .kabupaten-table .table tbody tr {
-    transition: background-color 0.3s ease;
-    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.3s ease !important;
+    border-bottom: 1px solid #f1f3f4 !important;
 }
 
 .kabupaten-table .table tbody tr:hover {
-    background-color: rgba(0, 75, 76, 0.05);
+    background-color: rgba(0, 75, 76, 0.05) !important;
 }
 
 .sekolah-name {
-    font-weight: 600;
-    color: #004b4c;
-    margin-bottom: 0.25rem;
+    font-weight: 600 !important;
+    color: #004b4c !important;
+    margin-bottom: 0.25rem !important;
 }
 
 .kabupaten-info {
-    font-size: 0.85rem;
-    color: #6c757d;
-    font-weight: 500;
+    font-size: 0.85rem !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
 }
 
 .action-btn {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    border: 1px solid #004b4c;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    color: white;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    font-size: 0.9rem;
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    border: 1px solid #004b4c !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    color: white !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+    font-size: 0.9rem !important;
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
-    color: white;
-    background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3) !important;
+    color: white !important;
+    background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%) !important;
 }
 
 .hover-lift {
-    transition: all 0.3s ease;
+    transition: all 0.3s ease !important;
 }
 
 .hover-lift:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
 }
 
 .animate-fade-in {
-    animation: fadeIn 0.8s ease-out;
+    animation: fadeIn 0.8s ease-out !important;
 }
 
 .animate-slide-up {
-    animation: slideUp 0.8s ease-out;
+    animation: slideUp 0.8s ease-out !important;
 }
 
 @keyframes fadeIn {
@@ -216,29 +216,29 @@
 }
 
 .status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 4px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
 }
 
 @media (max-width: 768px) {
     .welcome-section {
-        padding: 1.5rem;
+        padding: 1.5rem !important;
     }
 
     .stat-card {
-        margin-bottom: 1rem;
-        padding: 1rem;
+        margin-bottom: 1rem !important;
+        padding: 1rem !important;
     }
 
     .stat-number {
-        font-size: 2rem;
+        font-size: 2rem !important;
     }
 
     .kabupaten-header {
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
     }
 }
 
@@ -251,11 +251,38 @@
 }
 
 .fw-semibold {
-    font-weight: 600;
+    font-weight: 600 !important;
 }
 
 .fw-medium {
-    font-weight: 500;
+    font-weight: 500 !important;
+}
+
+/* Additional specificity for modal styles */
+.modal-content {
+    border-radius: 15px !important;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important;
+    color: white !important;
+    border-radius: 15px 15px 0 0 !important;
+    border-bottom: none !important;
+}
+
+.modal-header .modal-title {
+    font-weight: 600 !important;
+}
+
+.btn-close-white {
+    filter: invert(1) !important;
+}
+
+.modal-footer {
+    border-top: none !important;
+    border-radius: 0 0 15px 15px !important;
 }
 </style>
 @endsection
