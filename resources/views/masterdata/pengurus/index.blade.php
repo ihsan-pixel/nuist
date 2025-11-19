@@ -203,6 +203,11 @@
 
 <script>
 $(document).ready(function () {
+    // Cek jika DataTable sudah diinisialisasi, destroy dulu
+    if ($.fn.DataTable.isDataTable('#datatable-buttons')) {
+        $('#datatable-buttons').DataTable().destroy();
+    }
+
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
         lengthChange: true,
