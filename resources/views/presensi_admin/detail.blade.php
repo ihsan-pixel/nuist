@@ -234,45 +234,6 @@
         padding: 0.75rem 1rem !important;
         font-size: 1rem !important;
     }
-
-    .attendance-card-header {
-        padding: 1rem;
-    }
-
-    .search-form {
-        max-width: 100% !important;
-        margin-top: 1rem;
-    }
-
-    .attendance-table {
-        font-size: 0.85rem;
-    }
-
-    .attendance-table thead th {
-        padding: 0.75rem 0.5rem !important;
-        font-size: 0.75rem;
-    }
-
-    .attendance-table tbody td {
-        padding: 0.6rem 0.5rem;
-    }
-
-    .school-map-container {
-        height: 250px;
-    }
-
-    .map-legend {
-        flex-wrap: wrap;
-    }
-
-    .summary-stat {
-        padding: 6px;
-        font-size: 0.85rem;
-    }
-
-    .summary-value {
-        font-size: 12px;
-    }
 }
 
 .text-dark {
@@ -673,177 +634,6 @@
     margin: 0.25rem 0 0 0 !important;
     opacity: 0.9 !important;
 }
-
-.school-map-container {
-    height: 300px;
-    width: 100%;
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
-    overflow: hidden;
-    background: #f8f9fa;
-    position: relative;
-}
-
-.map-loading-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    color: #6c757d;
-    text-align: center;
-}
-
-.map-loading-indicator i {
-    font-size: 2rem;
-}
-
-.map-fallback-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: #6c757d;
-}
-
-.map-fallback-content i {
-    font-size: 2rem;
-}
-
-.map-legend {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 0.75rem;
-    margin-bottom: 1rem;
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.legend-marker {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.legend-present {
-    background: #0e8549;
-}
-
-.legend-absent {
-    background: #dc3545;
-}
-
-.legend-item small {
-    font-size: 0.75rem;
-}
-
-.attendance-summary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    margin-top: 0;
-}
-
-.summary-stat {
-    padding: 8px;
-    border-radius: 6px;
-    text-align: center;
-}
-
-.summary-present {
-    background: rgba(14, 133, 73, 0.1);
-    color: #0e8549;
-}
-
-.summary-absent {
-    background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-}
-
-.summary-value {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 2px;
-}
-
-.summary-stat small {
-    font-size: 0.75rem;
-}
-
-/* Attendance Card Styles */
-.attendance-card {
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.attendance-card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border-bottom: 2px solid #dee2e6;
-    padding: 1.25rem;
-}
-
-.attendance-card-body {
-    padding: 1.5rem;
-}
-
-.search-form {
-    max-width: 300px;
-}
-
-.attendance-table {
-    margin-bottom: 0;
-}
-
-.attendance-table thead th {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: white;
-    border: none;
-    font-weight: 600;
-    padding: 1rem 0.75rem;
-    font-size: 0.85rem;
-    text-transform: capitalize;
-}
-
-.attendance-table tbody tr {
-    border-bottom: 1px solid #f1f3f4;
-    transition: background-color 0.2s ease;
-}
-
-.attendance-table tbody tr:hover {
-    background-color: rgba(0, 75, 76, 0.02);
-}
-
-.attendance-table tbody td {
-    padding: 0.75rem;
-    vertical-align: middle;
-    font-size: 0.9rem;
-}
-
-.attendance-table .badge {
-    font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    font-size: 0.75rem;
-}
-
-.empty-state-container {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: #6c757d;
-}
-
-.empty-state-container i {
-    font-size: 3rem;
-    color: #ccc;
-    margin-bottom: 1rem;
-}
 </style>
 @endsection
 
@@ -855,30 +645,31 @@
 
 @if(in_array($user->role, ['super_admin', 'pengurus']))
     <!-- Header Section - Modern PPDB Style -->
-    <div class="welcome-section mb-4">
-        <div class="welcome-content">
+    <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
+        <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <h2 class="mb-2 text-white">
+                    <h2 class="mb-2">
                         <i class="mdi mdi-school me-2"></i>Detail Madrasah: {{ $madrasah->name }}
                     </h2>
-                    <p class="mb-0 opacity-75 text-white">Pantau dan kelola presensi tenaga pendidik di {{ $madrasah->name }}</p>
+                    <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di {{ $madrasah->name }}</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
-                    <div class="d-flex align-items-center justify-content-lg-end mb-3">
-                        <i class="mdi mdi-calendar-clock me-2 text-white"></i>
-                        <span class="fw-semibold text-white">{{ $selectedDate->format('d F Y') }}</span>
+                    <div class="d-flex align-items-center justify-content-lg-end">
+                        <i class="mdi mdi-calendar-clock me-2"></i>
+                        <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 mt-3">
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
-                               value="{{ $selectedDate->format('Y-m-d') }}">
-                        <a href="{{ route('presensi_admin.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
+                               value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                        <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bx bx-arrow-back me-1"></i>Kembali
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+        <div style="content: '' !important; position: absolute !important; top: 0 !important; right: 0 !important; width: 200px !important; height: 200px !important; background: rgba(255, 255, 255, 0.1) !important; border-radius: 50% !important; transform: translate(50px, -50px) !important;"></div>
     </div>
 
     <!-- Primary Statistics Row -->
@@ -886,22 +677,22 @@
         <div class="row g-3">
             {{-- Total Staff Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift total-sekolah">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ $tenagaPendidik->total() }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Total Tenaga Pendidik</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidik->total() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Total Tenaga Pendidik</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-account-group fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25">
-                                <div class="progress-bar bg-white" style="width: 100%;"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
@@ -910,22 +701,22 @@
 
             {{-- Hadir Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift sekolah-buka">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Hadir</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Hadir</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-account-check fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25">
-                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}%;"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
@@ -934,22 +725,22 @@
 
             {{-- Tidak Hadir Card --}}
             <div class="col-lg-4">
-                <div class="stat-card h-100 hover-lift pending">
-                    <div class="card-body p-4">
+                <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h3 class="text-white mb-1">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</h3>
-                                <p class="text-white-75 mb-0 fs-6">Tidak Hadir</p>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Tidak Hadir</p>
                             </div>
                             <div class="avatar-md">
-                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
                                     <i class="mdi mdi-account-remove fs-3"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
-                            <div class="progress bg-white bg-opacity-25">
-                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'tidak_hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}%;"></div>
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'tidak_hadir')->count() / $tenagaPendidik->total()) * 100) : 0 }}% !important; background: white !important;"></div>
                             </div>
                         </div>
                     </div>
@@ -1045,40 +836,40 @@
                     </h6>
 
                     <!-- Map Container -->
-                    <div id="school-map" class="school-map-container">
+                    <div id="school-map" style="height: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
                         <!-- Loading indicator -->
-                        <div id="map-loading" class="map-loading-indicator">
-                            <i class="mdi mdi-loading mdi-spin"></i>
+                        <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
                             <p class="mb-0 mt-2 small">Memuat peta...</p>
                         </div>
                         <!-- Fallback content -->
-                        <div id="map-fallback" class="map-fallback-content" style="display: none;">
-                            <i class="mdi mdi-map-off"></i>
+                        <div id="map-fallback" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #6c757d;">
+                            <i class="mdi mdi-map-off" style="font-size: 2rem;"></i>
                             <p class="mb-0 mt-2">Peta tidak dapat dimuat</p>
                         </div>
                     </div>
 
                     <!-- Legend -->
-                    <div class="map-legend">
-                        <div class="legend-item">
-                            <div class="legend-marker legend-present"></div>
-                            <small>Sudah Presensi</small>
+                    <div class="d-flex justify-content-center mt-2 mb-3" style="gap: 12px;">
+                        <div class="d-flex align-items-center">
+                            <div style="width: 12px; height: 12px; background: #0e8549; border-radius: 50%; margin-right: 4px;"></div>
+                            <small style="font-size: 10px;">Sudah Presensi</small>
                         </div>
-                        <div class="legend-item">
-                            <div class="legend-marker legend-absent"></div>
-                            <small>Belum Presensi</small>
+                        <div class="d-flex align-items-center">
+                            <div style="width: 12px; height: 12px; background: #dc3545; border-radius: 50%; margin-right: 4px;"></div>
+                            <small style="font-size: 10px;">Belum Presensi</small>
                         </div>
                     </div>
 
                     <!-- Summary Stats -->
-                    <div class="attendance-summary">
-                        <div class="summary-stat summary-present">
-                            <div class="summary-value">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</div>
-                            <small>Sudah Presensi</small>
+                    <div class="attendance-summary" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <div style="background: rgba(14, 133, 73, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 600; font-size: 14px; color: #0e8549;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</div>
+                            <small style="font-size: 10px; color: #0e8549;">Sudah Presensi</small>
                         </div>
-                        <div class="summary-stat summary-absent">
-                            <div class="summary-value">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</div>
-                            <small>Belum Presensi</small>
+                        <div style="background: rgba(220, 53, 69, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 600; font-size: 14px; color: #dc3545;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</div>
+                            <small style="font-size: 10px; color: #dc3545;">Belum Presensi</small>
                         </div>
                     </div>
                 </div>
@@ -1165,93 +956,91 @@
                 <!-- Staff Attendance Data -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="card attendance-card">
-                            <div class="card-header attendance-card-header">
-                                <div class="row align-items-center g-3">
-                                    <div class="col-md-6">
-                                        <h5 class="card-title mb-0">
-                                            <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
-                                            <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
-                                        </h5>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <!-- Search Form -->
-                                        <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center justify-content-md-end">
-                                            <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
-                                            <div class="input-group input-group-sm search-form">
-                                                <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, atau NUPTK..." value="{{ $search }}">
-                                                <button class="btn btn-outline-secondary" type="submit">
-                                                    <i class="mdi mdi-magnify"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">
+                                        <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
+                                        <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
+                                    </h5>
+                                    <!-- Search Form -->
+                                    <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center">
+                                        <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
+                                        <div class="input-group input-group-sm" style="width: 250px;">
+                                            <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, atau NUPTK..." value="{{ $search }}">
+                                            <button class="btn btn-outline-secondary" type="submit">
+                                                <i class="mdi mdi-magnify"></i>
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="card-body attendance-card-body">
+                            <div class="card-body">
                                 @if(count($tenagaPendidikData) > 0)
-                                    <div class="table-responsive">
-                                        <table class="table table-hover attendance-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama</th>
-                                                    <th>NIP</th>
-                                                    <th>NUPTK</th>
-                                                    <th>Status Kepegawaian</th>
-                                                    <th>Status Presensi</th>
-                                                    <th>Waktu Masuk</th>
-                                                    <th>Waktu Keluar</th>
-                                                    <th>Lokasi</th>
-                                                    <th>Keterangan</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($tenagaPendidikData as $index => $tp)
-                                                <tr>
-                                                    <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
-                                                    <td class="fw-semibold">{{ $tp['nama'] }}</td>
-                                                    <td>{{ $tp['nip'] ?? '-' }}</td>
-                                                    <td>{{ $tp['nuptk'] ?? '-' }}</td>
-                                                    <td>{{ $tp['status_kepegawaian'] }}</td>
-                                                    <td>
-                                                        @if($tp['status'] == 'hadir')
-                                                            <span class="badge bg-success">Hadir</span>
-                                                        @elseif($tp['status'] == 'izin')
-                                                            <span class="badge bg-warning text-dark">Izin</span>
-                                                        @elseif($tp['status'] == 'sakit')
-                                                            <span class="badge bg-info">Sakit</span>
-                                                        @elseif($tp['status'] == 'terlambat')
-                                                            <span class="badge bg-warning text-dark">Terlambat</span>
-                                                        @else
-                                                            <span class="badge bg-danger">Tidak Hadir</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $tp['waktu_masuk'] ?? '-' }}</td>
-                                                    <td>{{ $tp['waktu_keluar'] ?? '-' }}</td>
-                                                    <td>
-                                                        @if($tp['lokasi'])
-                                                            <small class="text-muted">{{ Str::limit($tp['lokasi'], 30) }}</small>
-                                                        @else
-                                                            <span class="text-muted">-</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $tp['keterangan'] ?? '-' }}</td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                    <div class="table-rep-plugin">
+                                        <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                            <table id="staff-attendance-table" class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th data-priority="1">Nama</th>
+                                                        <th data-priority="2">NIP</th>
+                                                        <th data-priority="3">NUPTK</th>
+                                                        <th data-priority="4">Status Kepegawaian</th>
+                                                        <th data-priority="1">Status Presensi</th>
+                                                        <th data-priority="5">Waktu Masuk</th>
+                                                        <th data-priority="6">Waktu Keluar</th>
+                                                        <th data-priority="7">Lokasi</th>
+                                                        <th data-priority="8">Keterangan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($tenagaPendidikData as $index => $tp)
+                                                    <tr>
+                                                        <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
+                                                        <td>{{ $tp['nama'] }}</td>
+                                                        <td>{{ $tp['nip'] ?? '-' }}</td>
+                                                        <td>{{ $tp['nuptk'] ?? '-' }}</td>
+                                                        <td>{{ $tp['status_kepegawaian'] }}</td>
+                                                        <td>
+                                                            @if($tp['status'] == 'hadir')
+                                                                <span class="badge bg-success">Hadir</span>
+                                                            @elseif($tp['status'] == 'izin')
+                                                                <span class="badge bg-warning">Izin</span>
+                                                            @elseif($tp['status'] == 'sakit')
+                                                                <span class="badge bg-info">Sakit</span>
+                                                            @elseif($tp['status'] == 'terlambat')
+                                                                <span class="badge bg-warning text-dark">Terlambat</span>
+                                                            @else
+                                                                <span class="badge bg-danger">Tidak Hadir</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $tp['waktu_masuk'] ?? '-' }}</td>
+                                                        <td>{{ $tp['waktu_keluar'] ?? '-' }}</td>
+                                                        <td>
+                                                            @if($tp['lokasi'])
+                                                                <small class="text-muted">{{ Str::limit($tp['lokasi'], 30) }}</small>
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ $tp['keterangan'] ?? '-' }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 @else
-                                    <div class="empty-state-container">
-                                        <i class="mdi mdi-account-off-outline"></i>
+                                    <div class="text-center py-4">
+                                        <i class="mdi mdi-account-off-outline" style="font-size: 3rem; color: #ccc;"></i>
                                         <p class="mt-2 text-muted">Tidak ada data tenaga pendidik untuk madrasah ini.</p>
                                     </div>
                                 @endif
 
                                 <!-- Pagination -->
                                 @if($tenagaPendidik->hasPages())
-                                    <div class="d-flex justify-content-center mt-4">
+                                    <div class="d-flex justify-content-center mt-3">
                                         {{ $tenagaPendidik->appends(['date' => $selectedDate->format('Y-m-d'), 'search' => $search])->links() }}
                                     </div>
                                 @endif
