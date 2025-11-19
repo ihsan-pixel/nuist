@@ -1235,37 +1235,37 @@ $(document).ready(function () {
                 let tableBody = $('#madrasah-table-' + kabupatenIndex + '-' + localIndex + ' tbody');
                 tableBody.empty();
 
-                // if (madrasahData.presensi && madrasahData.presensi.length > 0) {
-                //     madrasahData.presensi.forEach(function(presensi) {
-                //         let statusBadge = '';
-                //         if (presensi.status === 'hadir') {
-                //             statusBadge = '<span class="badge bg-success">Hadir</span>';
-                //         } else if (presensi.status === 'terlambat') {
-                //             statusBadge = '<span class="badge bg-warning">Terlambat</span>';
-                //         } else if (presensi.status === 'izin') {
-                //             statusBadge = '<span class="badge bg-info">Izin</span>';
-                //         } else {
-                //             statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
-                //         }
+                if (madrasahData.presensi && madrasahData.presensi.length > 0) {
+                    madrasahData.presensi.forEach(function(presensi) {
+                        let statusBadge = '';
+                        if (presensi.status === 'hadir') {
+                            statusBadge = '<span class="badge bg-success">Hadir</span>';
+                        } else if (presensi.status === 'terlambat') {
+                            statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+                        } else if (presensi.status === 'izin') {
+                            statusBadge = '<span class="badge bg-info">Izin</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
+                        }
 
-                //         let row = '<tr>' +
-                //             '<td class="small">' +
-                //             '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
-                //             presensi.nama +
-                //             '</span>' +
-                //             '</td>' +
-                //             '<td class="small">' + statusBadge + '</td>' +
-                //             '</tr>';
-                //         tableBody.append(row);
-                //     });
-                // } else {
-                //     let emptyRow = '<tr>' +
-                //         '<td colspan="2" class="text-center text-muted small">' +
-                //         '<small>Tidak ada tenaga pendidik</small>' +
-                //         '</td>' +
-                //         '</tr>';
-                //     tableBody.append(emptyRow);
-                // }
+                        // let row = '<tr>' +
+                        //     '<td class="small">' +
+                        //     '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
+                        //     presensi.nama +
+                        //     '</span>' +
+                        //     '</td>' +
+                        //     '<td class="small">' + statusBadge + '</td>' +
+                        //     '</tr>';
+                        // tableBody.append(row);
+                    });
+                } else {
+                    let emptyRow = '<tr>' +
+                        '<td colspan="4" class="text-center text-muted small">' +
+                        '<small>Tidak ada tenaga pendidik</small>' +
+                        '</td>' +
+                        '</tr>';
+                    tableBody.append(emptyRow);
+                }
             });
         });
 
