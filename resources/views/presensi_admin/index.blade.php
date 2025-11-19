@@ -1216,61 +1216,61 @@ $(document).ready(function () {
         });
     }
 
-    function updateTables(data) {
-        let globalIndex = 0;
-        let kabupatenOrder = [
-            'Kabupaten Gunungkidul',
-            'Kabupaten Bantul',
-            'Kabupaten Kulon Progo',
-            'Kabupaten Sleman',
-            'Kota Yogyakarta'
-        ];
+    // function updateTables(data) {
+    //     let globalIndex = 0;
+    //     let kabupatenOrder = [
+    //         'Kabupaten Gunungkidul',
+    //         'Kabupaten Bantul',
+    //         'Kabupaten Kulon Progo',
+    //         'Kabupaten Sleman',
+    //         'Kota Yogyakarta'
+    //     ];
 
-        kabupatenOrder.forEach(function(kabupaten, kabupatenIndex) {
-            let kabupatenData = data.filter(function(madrasahData) {
-                return madrasahData.madrasah && madrasahData.madrasah.kabupaten === kabupaten;
-            });
+    //     kabupatenOrder.forEach(function(kabupaten, kabupatenIndex) {
+    //         let kabupatenData = data.filter(function(madrasahData) {
+    //             return madrasahData.madrasah && madrasahData.madrasah.kabupaten === kabupaten;
+    //         });
 
-            kabupatenData.forEach(function(madrasahData, localIndex) {
-                let tableBody = $('#madrasah-table-' + kabupatenIndex + '-' + localIndex + ' tbody');
-                tableBody.empty();
+    //         kabupatenData.forEach(function(madrasahData, localIndex) {
+    //             let tableBody = $('#madrasah-table-' + kabupatenIndex + '-' + localIndex + ' tbody');
+    //             tableBody.empty();
 
-                if (madrasahData.presensi && madrasahData.presensi.length > 0) {
-                    madrasahData.presensi.forEach(function(presensi) {
-                        let statusBadge = '';
-                        if (presensi.status === 'hadir') {
-                            statusBadge = '<span class="badge bg-success">Hadir</span>';
-                        } else if (presensi.status === 'terlambat') {
-                            statusBadge = '<span class="badge bg-warning">Terlambat</span>';
-                        } else if (presensi.status === 'izin') {
-                            statusBadge = '<span class="badge bg-info">Izin</span>';
-                        } else {
-                            statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
-                        }
+    //             if (madrasahData.presensi && madrasahData.presensi.length > 0) {
+    //                 madrasahData.presensi.forEach(function(presensi) {
+    //                     let statusBadge = '';
+    //                     if (presensi.status === 'hadir') {
+    //                         statusBadge = '<span class="badge bg-success">Hadir</span>';
+    //                     } else if (presensi.status === 'terlambat') {
+    //                         statusBadge = '<span class="badge bg-warning">Terlambat</span>';
+    //                     } else if (presensi.status === 'izin') {
+    //                         statusBadge = '<span class="badge bg-info">Izin</span>';
+    //                     } else {
+    //                         statusBadge = '<span class="badge bg-secondary">Tidak Hadir</span>';
+    //                     }
 
-                        // let row = '<tr>' +
-                        //     '<td class="small">' +
-                        //     '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
-                        //     presensi.nama +
-                        //     '</span>' +
-                        //     '</td>' +
-                        //     '<td class="small">' + statusBadge + '</td>' +
-                        //     '</tr>';
-                        // tableBody.append(row);
-                    });
-                } else {
-                    let emptyRow = '<tr>' +
-                        '<td colspan="4" class="text-center text-muted small">' +
-                        '<small>Tidak ada tenaga pendidik</small>' +
-                        '</td>' +
-                        '</tr>';
-                    tableBody.append(emptyRow);
-                }
-            });
-        });
+    //                     // let row = '<tr>' +
+    //                     //     '<td class="small">' +
+    //                     //     '<span class="user-detail-link" style="cursor: pointer; text-decoration: underline;" data-user-id="' + presensi.user_id + '" data-user-name="' + presensi.nama + '">' +
+    //                     //     presensi.nama +
+    //                     //     '</span>' +
+    //                     //     '</td>' +
+    //                     //     '<td class="small">' + statusBadge + '</td>' +
+    //                     //     '</tr>';
+    //                     // tableBody.append(row);
+    //                 });
+    //             } else {
+    //                 let emptyRow = '<tr>' +
+    //                     '<td colspan="4" class="text-center text-muted small">' +
+    //                     '<small>Tidak ada tenaga pendidik</small>' +
+    //                     '</td>' +
+    //                     '</tr>';
+    //                 tableBody.append(emptyRow);
+    //             }
+    //         });
+    //     });
 
 
-    }
+    // }
 
     @if(in_array($user->role, ['super_admin', 'pengurus']))
     // Handle user detail modal
