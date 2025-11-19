@@ -423,9 +423,25 @@
         };
 
         // Map/polygon functionality removed per user request.
-        // Initialize DataTable on DOMContentLoaded only.
+        // Initialize DataTable and wire up edit buttons to open edit modals (no map init).
         document.addEventListener('DOMContentLoaded', function(){
             initDataTable();
+
+            // Open edit modal when Edit button clicked
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function(){
+                    const id = this.getAttribute('data-id');
+                    const modalId = 'modalEditMadrasah' + id;
+                    const modalEl = document.getElementById(modalId);
+                    if (!modalEl) return;
+                    try {
+                        const bsModal = new bootstrap.Modal(modalEl);
+                        bsModal.show();
+                    } catch (e) {
+                        console.warn('Bootstrap modal not available or failed to show', e);
+                    }
+                });
+            });
         });
 
         })();
