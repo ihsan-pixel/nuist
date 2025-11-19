@@ -6,41 +6,56 @@
 
 @section('css')
 <style>
-    /* Fix map inside bootstrap modal */
-    .modal .leaflet-container {
-        z-index: 9999 !important;
-    }
+/* Fix map position inside Bootstrap modal */
+.leaflet-container {
+    height: 320px !important;
+    width: 100% !important;
+    z-index: 1 !important;
+    background: #f0f0f0 !important;
+}
 
-    /* Hapus overlay putih yang menutupi map */
-    #map-add,
-    [id^="map-"],
-    [id^="map2-"] {
-        background: transparent !important;
-    }
+/* Ensure map tiles don't overflow */
+.leaflet-pane,
+.leaflet-map-pane,
+.leaflet-tile,
+.leaflet-container,
+[id^="map-"],
+[id^="map2-"],
+#map-add {
+    overflow: hidden !important;
+    clip-path: inset(0) !important;
+}
 
-    /* Force modal to show content without clipping map */
-    .modal-dialog {
-        overflow: visible !important;
-    }
+/* Remove previous conflicting CSS */
+.modal-dialog,
+.modal-content,
+.modal-body {
+    overflow: visible !important;
+}
 
-    .modal-content {
-        overflow: visible !important;
-    }
+/* Remove transparent background that caused tile duplicate */
+[id^="map-"],
+[id^="map2-"],
+#map-add {
+    background: #f0f0f0 !important;
+}
 
-    .modal-body {
-        overflow: visible !important;
-    }
+/* Ensure map always displays inside modal */
+.modal.show .modal-dialog {
+    transform: none !important;
+}
 
-    .leaflet-container {
-        height: 320px !important;
-        z-index: 9999 !important;
-    }
+/* Fix Leaflet inside modal animation */
+.modal.fade .modal-dialog {
+    transition: none !important;
+}
 
-    .modal-body {
-        overflow: visible !important;
-    }
-
+/* Remove custom buggy rules previously added */
+.modal .leaflet-container {
+    z-index: 1 !important;
+}
 </style>
+
     {{-- Template Base --}}
     <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
