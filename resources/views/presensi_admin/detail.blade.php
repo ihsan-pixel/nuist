@@ -1185,9 +1185,12 @@ $(document).ready(function() {
     var table = $('#attendance-datatable').DataTable({
         responsive: true,
         paging: false,
+        pageLength: -1,
+        lengthChange: false,
         searching: false,
         ordering: true,
         info: false,
+        scrollY: false,
         language: {
             zeroRecords: "Tidak ada data",
             processing: "Memproses..."
