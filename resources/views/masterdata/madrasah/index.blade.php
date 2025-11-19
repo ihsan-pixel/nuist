@@ -16,7 +16,38 @@
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 
-    {{-- Leaflet styles removed per user request --}}
+    {{-- Leaflet for polygon editing on edit modal --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/1.0.4/leaflet.draw.min.css" />
+    
+    <style>
+        .polygon-map-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .polygon-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .polygon-coordinates {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            border-radius: 0.25rem;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 5px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -306,7 +337,24 @@
                                     </select>
                                 </div>
 
-                                {{-- Area poligon presensi telah dihapus pada modal edit sesuai permintaan pengguna. --}}
+                                {{-- Area Poligon Koordinat untuk Edit Modal --}}
+                                <div class="mb-3">
+                                    <label>Area Poligon Presensi (Koordinat)</label>
+                                    <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}"></div>
+                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}" 
+                                           value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
+                                    <div class="polygon-info">
+                                        <strong>Instruksi:</strong>
+                                        <small class="d-block">
+                                            • Gunakan tool drawing di peta untuk menggambar poligon area presensi<br>
+                                            • Klik tombol edit untuk mengubah poligon yang sudah ada<br>
+                                            • Koordinat akan tersimpan otomatis dalam format JSON
+                                        </small>
+                                    </div>
+                                    <div class="polygon-coordinates" id="polygon-display-{{ $madrasah->id }}">
+                                        <small class="text-muted">Koordinat akan ditampilkan di sini...</small>
+                                    </div>
+                                </div>
 
                                 <div class="mb-3">
                                     <label>Logo</label>
@@ -362,7 +410,9 @@
     <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-    {{-- Leaflet scripts removed per user request --}}
+    {{-- Leaflet scripts for polygon editing --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/1.0.4/leaflet.draw.min.js"></script>
 
     <script>
     (function(){
@@ -422,12 +472,153 @@
             dataTableInstance.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
         };
 
-        // Map/polygon functionality removed per user request.
-        // Initialize DataTable and wire up edit buttons to open edit modals (no map init).
+        // ---------------------- Polygon Map Management ----------------------
+        // Store maps by madrasah ID to prevent conflicts
+        const polygonMaps = {};
+        const polygonEditableLayers = {};
+
+        /**
+         * Initialize polygon map for a specific madrasah
+         * @param {number} madrasahId - ID of the madrasah
+         */
+        function initPolygonMap(madrasahId) {
+            const mapContainer = el('#map-edit-' + madrasahId);
+            const polygonInput = el('#polygon_koordinat-edit-' + madrasahId);
+            const polygonDisplay = el('#polygon-display-' + madrasahId);
+            
+            if (!mapContainer || !polygonInput) return;
+
+            // Create map centered on Indonesia (default)
+            const map = L.map('map-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Initialize draw feature group
+            const drawnItems = new L.FeatureGroup();
+            map.addLayer(drawnItems);
+
+            // Initialize draw control
+            const drawControl = new L.Control.Draw({
+                position: 'topleft',
+                draw: {
+                    polygon: {
+                        allowIntersection: false,
+                        shapeOptions: {
+                            color: '#3388ff',
+                            fillOpacity: 0.2,
+                            weight: 2
+                        }
+                    },
+                    polyline: false,
+                    rectangle: false,
+                    circle: false,
+                    marker: false,
+                    circlemarker: false
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    edit: true,
+                    remove: true
+                }
+            });
+            map.addControl(drawControl);
+
+            // Load existing polygon from database if available
+            const existingCoordinates = polygonInput.value;
+            if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
+                try {
+                    const coordData = JSON.parse(existingCoordinates);
+                    if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
+                        // coordData is in GeoJSON format: { type: "Polygon", coordinates: [[lat,lng], ...] }
+                        const polygon = L.polygon(coordData.coordinates, {
+                            color: '#3388ff',
+                            fillOpacity: 0.2,
+                            weight: 2
+                        });
+                        drawnItems.addLayer(polygon);
+                        
+                        // Fit map to polygon bounds
+                        map.fitBounds(polygon.getBounds());
+                        updatePolygonDisplay(coordData, polygonDisplay);
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse existing polygon coordinates:', e);
+                }
+            }
+
+            // Handle draw and edit events
+            const updatePolygonData = () => {
+                const layers = drawnItems.getLayers();
+                if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                    const polygon = layers[0];
+                    const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]);
+                    const geoJSON = {
+                        type: 'Polygon',
+                        coordinates: [coordinates]
+                    };
+                    polygonInput.value = JSON.stringify(geoJSON);
+                    updatePolygonDisplay(geoJSON, polygonDisplay);
+                } else {
+                    polygonInput.value = '[]';
+                    if (polygonDisplay) {
+                        polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>';
+                    }
+                }
+            };
+
+            map.on('draw:created', updatePolygonData);
+            map.on('draw:edited', updatePolygonData);
+            map.on('draw:deleted', updatePolygonData);
+
+            // Store map and layer references
+            polygonMaps[madrasahId] = map;
+            polygonEditableLayers[madrasahId] = drawnItems;
+        }
+
+        /**
+         * Update the polygon coordinate display
+         */
+        function updatePolygonDisplay(geoJSON, displayElement) {
+            if (!displayElement) return;
+            if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
+                const coords = geoJSON.coordinates[0];
+                let html = `<strong>Jumlah titik:</strong> ${coords.length}<br><strong>Format GeoJSON:</strong><br>`;
+                html += `<code>${JSON.stringify(geoJSON, null, 2)}</code>`;
+                displayElement.innerHTML = html;
+            }
+        }
+
+        /**
+         * Reinitialize map when modal is shown (fixes Leaflet sizing issues)
+         */
+        function reinitializeMapOnModalShow(madrasahId) {
+            const modalId = 'modalEditMadrasah' + madrasahId;
+            const modalEl = el('#' + modalId);
+            if (!modalEl) return;
+
+            // Use Bootstrap modal events
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalEl.addEventListener('shown.bs.modal', function() {
+                // Small delay to allow modal to fully render
+                setTimeout(() => {
+                    if (polygonMaps[madrasahId]) {
+                        polygonMaps[madrasahId].invalidateSize();
+                    } else {
+                        initPolygonMap(madrasahId);
+                    }
+                }, 100);
+            });
+        }
+
+        // Initialize DataTable and wire up edit buttons
         document.addEventListener('DOMContentLoaded', function(){
             initDataTable();
 
-            // Open edit modal when Edit button clicked
+            // Open edit modal when Edit button clicked and initialize map
             document.querySelectorAll('.btn-edit').forEach(btn => {
                 btn.addEventListener('click', function(){
                     const id = this.getAttribute('data-id');
@@ -437,6 +628,13 @@
                     try {
                         const bsModal = new bootstrap.Modal(modalEl);
                         bsModal.show();
+                        
+                        // Initialize map after modal is shown
+                        modalEl.addEventListener('shown.bs.modal', function() {
+                            setTimeout(() => {
+                                initPolygonMap(id);
+                            }, 100);
+                        }, { once: true }); // Use once to avoid duplicate listeners
                     } catch (e) {
                         console.warn('Bootstrap modal not available or failed to show', e);
                     }
