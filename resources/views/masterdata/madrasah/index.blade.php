@@ -348,6 +348,7 @@
                                         <small class="d-block">
                                             • Gunakan tool drawing di peta untuk menggambar poligon area presensi<br>
                                             • Klik tombol edit untuk mengubah poligon yang sudah ada<br>
+                                            • Format: GeoJSON Standard (Longitude, Latitude)<br>
                                             • Koordinat akan tersimpan otomatis dalam format JSON
                                         </small>
                                     </div>
@@ -578,8 +579,12 @@
                         try {
                             const coordData = JSON.parse(existingCoordinates);
                             if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
-                                // coordData is in GeoJSON format: { type: "Polygon", coordinates: [[lat,lng], ...] }
-                                const polygon = L.polygon(coordData.coordinates[0], {
+                                // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
+                                // Convert [lon,lat] to [lat,lon] for Leaflet
+                                const geoJSONCoords = coordData.coordinates[0];
+                                const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
+                                
+                                const polygon = L.polygon(leafletCoords, {
                                     color: '#3388ff',
                                     fillOpacity: 0.2,
                                     weight: 2
@@ -602,7 +607,8 @@
                         const layers = drawnItems.getLayers();
                         if (layers.length > 0 && layers[0] instanceof L.Polygon) {
                             const polygon = layers[0];
-                            const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]);
+                            // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                            const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
                             const geoJSON = {
                                 type: 'Polygon',
                                 coordinates: [coordinates]
@@ -639,7 +645,9 @@
             if (!displayElement) return;
             if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
                 const coords = geoJSON.coordinates[0];
-                let html = `<strong>Jumlah titik:</strong> ${coords.length}<br><strong>Format GeoJSON:</strong><br>`;
+                let html = `<strong>Jumlah titik:</strong> ${coords.length}<br>`;
+                html += `<strong>Format:</strong> GeoJSON (Longitude, Latitude)<br>`;
+                html += `<strong>Data JSON:</strong><br>`;
                 html += `<code>${JSON.stringify(geoJSON, null, 2)}</code>`;
                 displayElement.innerHTML = html;
             }
