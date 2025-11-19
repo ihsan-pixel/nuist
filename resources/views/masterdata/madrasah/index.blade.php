@@ -5,6 +5,18 @@
 @endsection
 
 @section('css')
+<style>
+    /* Fix Leaflet map sizing inside Bootstrap modal */
+    .leaflet-container {
+        width: 100% !important;
+        height: 320px !important;
+    }
+    .map-wrapper {
+        width: 100%;
+        height: 320px;
+        overflow: hidden;
+    }
+</style>
     {{-- Template Base --}}
     <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/css/icons.min.css') }}" rel="stylesheet" />
