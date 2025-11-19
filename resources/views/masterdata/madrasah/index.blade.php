@@ -358,28 +358,7 @@
                                     </select>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label>Area Poligon Presensi Utama</label>
-                                    <div id="map-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
-                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
-                                    <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
-                                </div>
-
-                                @if(in_array($madrasah->id, [24,26,33,25]))
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input enable-dual" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="enable_dual_polygon-{{ $madrasah->id }}">Aktifkan Poligon Kedua</label>
-                                    </div>
-                                    <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
-                                </div>
-                                <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
-                                    <label>Area Poligon Presensi Kedua</label>
-                                    <div id="map2-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
-                                    <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
-                                    <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
-                                </div>
-                                @endif
+                                {{-- Area poligon presensi telah dihapus pada modal edit sesuai permintaan pengguna. --}}
 
                                 <div class="mb-3">
                                     <label>Logo</label>
