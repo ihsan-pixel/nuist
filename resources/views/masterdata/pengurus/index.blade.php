@@ -11,7 +11,7 @@
 
 <!-- DataTables -->
 <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-{{-- <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" /> --}}
+<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
 
 <!-- SweetAlert2 -->
@@ -201,7 +201,7 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
+{{-- <script>
 $(document).ready(function () {
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
@@ -235,5 +235,5 @@ $(document).ready(function () {
         });
     @endif
 });
-</script>
+</script> --}}
 @endsection
