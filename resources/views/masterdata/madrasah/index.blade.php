@@ -486,116 +486,126 @@
                 .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
 
             // --- Leaflet Map for Polygon Drawing ---
+            // Store maps and drawn layers globally for reuse
+            window.maps = window.maps || {};
+            window.drawnItems = window.drawnItems || {};
+
             const initializeMap = (mapId, polygonInputId, lat, lon, existingPolygon = null) => {
-                let mapElement = document.getElementById(mapId);
-                if (mapElement && !mapElement._leaflet_id) {
-                    let map = L.map(mapId).setView([lat, lon], 16);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(map);
+                const mapElement = document.getElementById(mapId);
+                if (!mapElement) return null;
 
-                    let drawnItems = new L.FeatureGroup();
-                    map.addLayer(drawnItems);
-
-                    // Load existing polygon
-                    if (existingPolygon) {
-                        try {
-                            let geometry = JSON.parse(existingPolygon);
-                            let layer = L.geoJSON(geometry);
-                            layer.eachLayer(l => drawnItems.addLayer(l));
-                            if (drawnItems.getLayers().length > 0) {
-                                map.fitBounds(drawnItems.getBounds());
-                            }
-                        } catch (e) {
-                            console.error("Invalid GeoJSON data for polygon:", e);
-                        }
-                    }
-
-                    let drawControl = new L.Control.Draw({
-                        edit: {
-                            featureGroup: drawnItems,
-                            poly: { allowIntersection: false }
-                        },
-                        draw: {
-                            polygon: {
-                                allowIntersection: false,
-                                showArea: true
-                            },
-                            polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false
-                        }
-                    });
-                    map.addControl(drawControl);
-
-                    const updatePolygonInput = () => {
-                        let geojson = drawnItems.toGeoJSON();
-                        if (geojson.features.length > 0) {
-                            $('#' + polygonInputId).val(JSON.stringify(geojson.features[0].geometry));
-                        } else {
-                            $('#' + polygonInputId).val('');
-                        }
-                    };
-
-                    map.on(L.Draw.Event.CREATED, function (e) {
-                        drawnItems.clearLayers();
-                        drawnItems.addLayer(e.layer);
-                        updatePolygonInput();
-                    });
-
-                    map.on(L.Draw.Event.EDITED, updatePolygonInput);
-                    map.on(L.Draw.Event.DELETED, updatePolygonInput);
-
-                    return map;
+                // If map already initialized, return it
+                if (window.maps[mapId]) {
+                    return window.maps[mapId];
                 }
-                return null;
+
+                // Ensure numeric coordinates
+                const _lat = parseFloat(lat) || -7.7956;
+                const _lon = parseFloat(lon) || 110.3695;
+
+                const map = L.map(mapId).setView([_lat, _lon], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                const featureGroup = new L.FeatureGroup();
+                map.addLayer(featureGroup);
+
+                // Load existing polygon (if GeoJSON geometry string stored)
+                if (existingPolygon) {
+                    try {
+                        const geometry = (typeof existingPolygon === 'string') ? JSON.parse(existingPolygon) : existingPolygon;
+                        const layer = L.geoJSON(geometry);
+                        layer.eachLayer(l => featureGroup.addLayer(l));
+                        if (featureGroup.getLayers().length > 0) {
+                            map.fitBounds(featureGroup.getBounds());
+                        }
+                    } catch (e) {
+                        console.error('Invalid GeoJSON data for polygon:', e);
+                    }
+                }
+
+                const drawControl = new L.Control.Draw({
+                    edit: { featureGroup: featureGroup, poly: { allowIntersection: false } },
+                    draw: { polygon: { allowIntersection: false, showArea: true }, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false }
+                });
+                map.addControl(drawControl);
+
+                const updatePolygonInput = () => {
+                    const geojson = featureGroup.toGeoJSON();
+                    if (geojson.features.length > 0) {
+                        document.getElementById(polygonInputId).value = JSON.stringify(geojson.features[0].geometry);
+                    } else {
+                        document.getElementById(polygonInputId).value = '';
+                    }
+                };
+
+                map.on(L.Draw.Event.CREATED, function (e) {
+                    featureGroup.clearLayers();
+                    featureGroup.addLayer(e.layer);
+                    updatePolygonInput();
+                });
+
+                map.on(L.Draw.Event.EDITED, updatePolygonInput);
+                map.on(L.Draw.Event.DELETED, updatePolygonInput);
+
+                // Save references globally
+                window.maps[mapId] = map;
+                window.drawnItems[mapId] = featureGroup;
+
+                return map;
             };
 
             // Initialize map for add modal
             $('#modalTambahMadrasah').on('shown.bs.modal', function () {
-                let lat = -7.7956;
-                let lon = 110.3695;
-                initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
+                const lat = -7.7956;
+                const lon = 110.3695;
+                const map = initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
                 setTimeout(() => {
-                    if (window.mapAdd) window.mapAdd.invalidateSize();
-                }, 400);
+                    if (map) map.invalidateSize();
+                }, 300);
             });
 
             // Initialize maps for edit modals
             $('div.modal.fade').on('shown.bs.modal', function (event) {
-                let modal = $(this);
-                if (!modal.attr('id') || !modal.attr('id').startsWith('modalEditMadrasah')) {
-                    return;
-                }
+                const modal = $(this);
+                const idAttr = modal.attr('id') || '';
+                if (!idAttr.startsWith('modalEditMadrasah')) return;
 
-                let madrasahId = modal.attr('id').replace('modalEditMadrasah', '');
-                let lat = modal.find('input[name="latitude"]').val() || -7.7956;
-                let lon = modal.find('input[name="longitude"]').val() || 110.3695;
+                const madrasahId = idAttr.replace('modalEditMadrasah', '');
+                const lat = modal.find('input[name="latitude"]').val() || -7.7956;
+                const lon = modal.find('input[name="longitude"]').val() || 110.3695;
 
-                // Initialize first map
-                let existingPolygon1 = $('#polygon_koordinat-' + madrasahId).val();
-                initializeMap('map-' + madrasahId, 'polygon_koordinat-' + madrasahId, lat, lon, existingPolygon1);
+                const mapId1 = 'map-' + madrasahId;
+                const polygonInput1 = 'polygon_koordinat-' + madrasahId;
+                const existingPolygon1 = document.getElementById(polygonInput1) ? document.getElementById(polygonInput1).value : null;
+                const map1 = initializeMap(mapId1, polygonInput1, lat, lon, existingPolygon1);
 
                 // Initialize second map if dual polygon is enabled
-                if ($('#enable_dual_polygon-' + madrasahId).is(':checked')) {
-                    let existingPolygon2 = $('#polygon_koordinat_2-' + madrasahId).val();
-                    initializeMap('map2-' + madrasahId, 'polygon_koordinat_2-' + madrasahId, lat, lon, existingPolygon2);
+                if (document.getElementById('enable_dual_polygon-' + madrasahId) && document.getElementById('enable_dual_polygon-' + madrasahId).checked) {
+                    const mapId2 = 'map2-' + madrasahId;
+                    const polygonInput2 = 'polygon_koordinat_2-' + madrasahId;
+                    const existingPolygon2 = document.getElementById(polygonInput2) ? document.getElementById(polygonInput2).value : null;
+                    initializeMap(mapId2, polygonInput2, lat, lon, existingPolygon2);
                 }
 
                 setTimeout(() => {
-                    if (window['map' + madrasahId]) window['map' + madrasahId].invalidateSize();
-                    if (window['map2' + madrasahId]) window['map2' + madrasahId].invalidateSize();
-                }, 400);
+                    if (window.maps[mapId1]) window.maps[mapId1].invalidateSize();
+                    const mapId2 = 'map2-' + madrasahId;
+                    if (window.maps[mapId2]) window.maps[mapId2].invalidateSize();
+                }, 300);
             });
 
             // Toggle dual polygon functionality
             $(document).on('change', '[id^="enable_dual_polygon"]', function() {
-                let id = $(this).attr('id').replace('enable_dual_polygon-', '');
-                let container = $('#polygon2-container' + (id ? '-' + id : '-add'));
-                let mapId = 'map2' + (id ? '-' + id : '-add');
-                let polygonInputId = 'polygon_koordinat_2' + (id ? '-' + id : '-add');
+                const id = $(this).attr('id').replace('enable_dual_polygon-', '');
+                const container = $('#polygon2-container' + (id ? '-' + id : '-add'));
+                const mapId = 'map2' + (id ? '-' + id : '-add');
+                const polygonInputId = 'polygon_koordinat_2' + (id ? '-' + id : '-add');
 
-                // Check if this madrasah is allowed to use dual polygon (only for IDs 24, 26, 33)
-                let allowedMadrasahIds = [24, 26, 33, 25];
-                let isAllowed = id === 'add' || allowedMadrasahIds.includes(parseInt(id));
+                // Check if this madrasah is allowed to use dual polygon
+                const allowedMadrasahIds = [24, 26, 33, 25];
+                const isAllowed = id === 'add' || allowedMadrasahIds.includes(parseInt(id));
 
                 if (!isAllowed) {
                     $(this).prop('checked', false);
@@ -606,17 +616,17 @@
                 if ($(this).is(':checked')) {
                     container.show();
                     // Initialize map if not already done
-                    if (!document.getElementById(mapId)._leaflet_id) {
-                        let lat = -7.7956;
-                        let lon = 110.3695;
+                    if (!window.maps[mapId]) {
+                        const lat = -7.7956;
+                        const lon = 110.3695;
                         initializeMap(mapId, polygonInputId, lat, lon);
                         setTimeout(() => {
-                            if (window['map2' + (id ? id : 'Add')]) window['map2' + (id ? id : 'Add')].invalidateSize();
-                        }, 400);
+                            if (window.maps[mapId]) window.maps[mapId].invalidateSize();
+                        }, 300);
                     }
                 } else {
                     container.hide();
-                    $('#' + polygonInputId).val('');
+                    if (document.getElementById(polygonInputId)) document.getElementById(polygonInputId).value = '';
                 }
             });
         });
