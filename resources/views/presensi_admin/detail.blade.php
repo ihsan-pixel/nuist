@@ -10,6 +10,11 @@
 <!-- Responsive Table css -->
 <link href="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.css') }}" rel="stylesheet" type="text/css" />
 
+<!-- DataTables -->
+<link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+
 <style>
 /* Modern PPDB Style CSS - Enhanced with !important for better specificity */
 .welcome-section {
@@ -231,55 +236,49 @@
 }
 
 .table-card-body {
-    padding: 0;
+    padding: 1.5rem;
 }
 
 .search-input-group {
     max-width: 300px;
 }
 
-.attendance-data-table {
+#attendance-datatable {
     margin-bottom: 0;
-    border-collapse: separate;
-    border-spacing: 0;
 }
 
-.attendance-data-table thead th {
-    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-    color: white;
-    border: none;
+#attendance-datatable thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
     font-weight: 600;
+    color: #495057;
     padding: 1rem 0.75rem;
     font-size: 0.85rem;
     text-transform: capitalize;
-    white-space: nowrap;
-    position: sticky;
-    top: 0;
-    z-index: 10;
 }
 
-.attendance-data-table tbody tr {
+#attendance-datatable tbody tr {
     border-bottom: 1px solid #f1f3f4;
     transition: background-color 0.2s ease;
 }
 
-.attendance-data-table tbody tr:hover {
+#attendance-datatable tbody tr:hover {
     background-color: rgba(0, 75, 76, 0.03);
 }
 
-.attendance-data-table tbody td {
+#attendance-datatable tbody td {
     padding: 0.85rem 0.75rem;
     vertical-align: middle;
     font-size: 0.9rem;
 }
 
-.attendance-data-table .badge {
+#attendance-datatable .badge {
     font-weight: 600;
     padding: 0.35rem 0.65rem;
     font-size: 0.75rem;
 }
 
-.attendance-data-table code {
+.nip-code, .nuptk-code {
     background: #f5f5f5;
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
@@ -333,20 +332,20 @@
         margin-top: 1rem;
     }
 
-    .attendance-data-table {
+    #attendance-datatable {
         font-size: 0.85rem;
     }
 
-    .attendance-data-table thead th {
+    #attendance-datatable thead th {
         padding: 0.75rem 0.5rem !important;
         font-size: 0.75rem;
     }
 
-    .attendance-data-table tbody td {
+    #attendance-datatable tbody td {
         padding: 0.65rem 0.5rem;
     }
 
-    .attendance-data-table code {
+    .nip-code, .nuptk-code {
         font-size: 0.75rem;
     }
 }
@@ -1097,8 +1096,8 @@
                             <div class="card-body table-card-body">
                                 @if(count($tenagaPendidikData) > 0)
                                     <div class="table-responsive">
-                                        <table class="table table-hover attendance-data-table">
-                                            <thead>
+                                        <table id="attendance-datatable" class="table table-bordered dt-responsive nowrap w-100">
+                                            <thead class="table-light">
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Nama</th>
@@ -1115,10 +1114,10 @@
                                             <tbody>
                                                 @foreach($tenagaPendidikData as $index => $tp)
                                                 <tr>
-                                                    <td class="fw-bold text-muted">{{ $tenagaPendidik->firstItem() + $index }}</td>
-                                                    <td class="fw-semibold">{{ $tp['nama'] }}</td>
-                                                    <td><code>{{ $tp['nip'] ?? '-' }}</code></td>
-                                                    <td><code>{{ $tp['nuptk'] ?? '-' }}</code></td>
+                                                    <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
+                                                    <td><strong>{{ $tp['nama'] }}</strong></td>
+                                                    <td><code class="nip-code">{{ $tp['nip'] ?? '-' }}</code></td>
+                                                    <td><code class="nuptk-code">{{ $tp['nuptk'] ?? '-' }}</code></td>
                                                     <td><small>{{ $tp['status_kepegawaian'] }}</small></td>
                                                     <td>
                                                         @if($tp['status'] == 'hadir')
@@ -1126,7 +1125,7 @@
                                                         @elseif($tp['status'] == 'izin')
                                                             <span class="badge bg-warning text-dark">Izin</span>
                                                         @elseif($tp['status'] == 'sakit')
-                                                            <span class="badge bg-info">Sakit</span>
+                                                            <span class="badge bg-info text-white">Sakit</span>
                                                         @elseif($tp['status'] == 'terlambat')
                                                             <span class="badge bg-warning text-dark">Terlambat</span>
                                                         @else
@@ -1154,13 +1153,6 @@
                                         <p>Tidak ada data tenaga pendidik</p>
                                     </div>
                                 @endif
-
-                                <!-- Pagination -->
-                                @if($tenagaPendidik->hasPages())
-                                    <div class="d-flex justify-content-center mt-4">
-                                        {{ $tenagaPendidik->appends(['date' => $selectedDate->format('Y-m-d'), 'search' => $search])->links() }}
-                                    </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -1173,11 +1165,36 @@
 @section('script')
 <script src="{{ asset('build/js/app.js') }}"></script>
 
-<!-- Responsive Table js -->
-<script src="{{ asset('build/libs/admin-resources/rwd-table/rwd-table.min.js') }}"></script>
+<!-- DataTables -->
+<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('build/libs/jszip/jszip.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/pdfmake.min.js') }}"></script>
+<script src="{{ asset('build/libs/pdfmake/build/vfs_fonts.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-<!-- Init js -->
-<script src="{{ asset('build/js/pages/table-responsive.init.js') }}"></script>
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#attendance-datatable').DataTable({
+        responsive: true,
+        paging: false,
+        searching: false,
+        ordering: true,
+        info: false,
+        language: {
+            zeroRecords: "Tidak ada data",
+            processing: "Memproses..."
+        }
+    });
+});
+</script>
 
 @if(in_array($user->role, ['super_admin', 'pengurus']))
 <!-- Leaflet CSS and JS for Map -->
