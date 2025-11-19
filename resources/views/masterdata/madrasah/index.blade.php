@@ -6,16 +6,40 @@
 
 @section('css')
 <style>
-    /* Fix Leaflet map sizing inside Bootstrap modal */
+    /* Fix map inside bootstrap modal */
+    .modal .leaflet-container {
+        z-index: 9999 !important;
+    }
+
+    /* Hapus overlay putih yang menutupi map */
+    #map-add,
+    [id^="map-"],
+    [id^="map2-"] {
+        background: transparent !important;
+    }
+
+    /* Force modal to show content without clipping map */
+    .modal-dialog {
+        overflow: visible !important;
+    }
+
+    .modal-content {
+        overflow: visible !important;
+    }
+
+    .modal-body {
+        overflow: visible !important;
+    }
+
     .leaflet-container {
-        width: 100% !important;
         height: 320px !important;
+        z-index: 9999 !important;
     }
-    .map-wrapper {
-        width: 100%;
-        height: 320px;
-        overflow: hidden;
+
+    .modal-body {
+        overflow: visible !important;
     }
+
 </style>
     {{-- Template Base --}}
     <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
