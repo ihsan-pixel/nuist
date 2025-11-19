@@ -575,7 +575,8 @@
             if (addModal) {
                 addModal.addEventListener('shown.bs.modal', function(){
                     const lat = -7.7956, lon = 110.3695;
-                    const map = initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
+                    window.maps['map-add'] = null; // reset map setiap modal dibuka
+                    const map = initializeMap('map-add', 'polygon_koordinat-add');
                     setTimeout(()=>{ if(map) map.invalidateSize(); }, 200);
                 });
             }
@@ -607,7 +608,28 @@
 
                     // Show Bootstrap modal programmatically
                     const bsModal = new bootstrap.Modal(modalEl);
+
+                    modalEl.addEventListener('shown.bs.modal', function () {
+                        const lat = modalEl.querySelector('input[name="latitude"]').value || -7.7956;
+                        const lon = modalEl.querySelector('input[name="longitude"]').value || 110.3695;
+
+                        initializeMap('map-' + id, polygonInputId, lat, lon, existingPolygon);
+
+                        setTimeout(() => {
+                            if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize();
+                        }, 200);
+
+                        // for dual polygon
+                        if (enableDual && enableDual.checked) {
+                            initializeMap('map2-' + id, polygonInputId2, lat, lon, existingPolygon2);
+                            setTimeout(() => {
+                                if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize();
+                            }, 200);
+                        }
+                    }, { once:true });
+
                     bsModal.show();
+
 
                     // after modal shown, invalidate sizes
                     setTimeout(()=>{
