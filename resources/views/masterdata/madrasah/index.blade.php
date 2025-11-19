@@ -5,56 +5,6 @@
 @endsection
 
 @section('css')
-<style>
-/* Fix map position inside Bootstrap modal */
-.leaflet-container {
-    height: 320px !important;
-    width: 100% !important;
-    z-index: 1 !important;
-    background: #f0f0f0 !important;
-}
-
-/* Ensure map tiles don't overflow */
-.leaflet-pane,
-.leaflet-map-pane,
-.leaflet-tile,
-.leaflet-container,
-[id^="map-"],
-[id^="map2-"],
-#map-add {
-    overflow: hidden !important;
-    clip-path: inset(0) !important;
-}
-
-/* Remove previous conflicting CSS */
-.modal-dialog,
-.modal-content,
-.modal-body {
-    overflow: visible !important;
-}
-
-/* Remove transparent background that caused tile duplicate */
-[id^="map-"],
-[id^="map2-"],
-#map-add {
-    background: #f0f0f0 !important;
-}
-
-/* Ensure map always displays inside modal */
-.modal.show .modal-dialog {
-    transform: none !important;
-}
-
-/* Fix Leaflet inside modal animation */
-.modal.fade .modal-dialog {
-    transition: none !important;
-}
-
-/* Remove custom buggy rules previously added */
-.modal .leaflet-container {
-    z-index: 1 !important;
-}
-</style>
 
     {{-- Template Base --}}
     <link href="{{ asset('build/css/bootstrap.min.css') }}" rel="stylesheet" />
@@ -66,9 +16,7 @@
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 
-    {{-- Leaflet --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    {{-- Leaflet styles removed per user request --}}
 @endsection
 
 @section('content')
@@ -414,9 +362,7 @@
     <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-    {{-- Leaflet --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    {{-- Leaflet scripts removed per user request --}}
 
     <script>
     (function(){
@@ -476,214 +422,13 @@
             dataTableInstance.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
         };
 
-        // ---------------------- Leaflet map manager ----------------------
-        window.maps = {};
-        window.featureGroups = {};
-
-        const inIndonesia = (lat, lng) => (lat >= -15 && lat <= 6 && lng >= 95 && lng <= 141);
-
-        const safeParse = (v) => {
-            if (!v) return null;
-            try{ return JSON.parse(v); } catch(e){ return null; }
-        };
-
-        // Swap coordinates helper (recursive)
-        const swapCoords = (coords) => {
-            if (!Array.isArray(coords)) return coords;
-            if (coords.length > 0 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-                return [coords[1], coords[0]];
-            }
-            return coords.map(c => swapCoords(c));
-        };
-
-        const createLayerFromGeometry = (geom) => {
-            try { return L.geoJSON(geom); } catch(e){ return null; }
-        };
-
-        const addExistingGeometryToFeatureGroup = (featureGroup, geom) => {
-            if (!geom) return;
-            try {
-                let geometry = (typeof geom === 'string') ? JSON.parse(geom) : geom;
-                let layer = createLayerFromGeometry(geometry);
-                if (layer && layer.getLayers().length > 0) {
-                    const bounds = layer.getBounds();
-                    const center = bounds.getCenter();
-                    if (!inIndonesia(center.lat, center.lng)) {
-                        // try swapped
-                        try {
-                            let swapped = JSON.parse(JSON.stringify(geometry));
-                            if (swapped.type === 'FeatureCollection') {
-                                swapped.features = swapped.features.map(f => ({ ...f, geometry: { ...f.geometry, coordinates: swapCoords(f.geometry.coordinates) } }));
-                            } else if (swapped.type === 'Feature') {
-                                swapped.geometry.coordinates = swapCoords(swapped.geometry.coordinates);
-                            } else if (swapped.coordinates) {
-                                swapped.coordinates = swapCoords(swapped.coordinates);
-                            }
-                            const swappedLayer = createLayerFromGeometry(swapped);
-                            if (swappedLayer && swappedLayer.getLayers().length > 0) {
-                                layer = swappedLayer;
-                            }
-                        } catch(e){ console.warn('swap failed', e); }
-                    }
-                    layer.eachLayer(l => featureGroup.addLayer(l));
-                }
-            } catch(e){ console.warn('addExistingGeometry error', e); }
-        };
-
-        const initializeMap = (mapId, polygonInputId, lat = -7.7956, lon = 110.3695, existingPolygon = null) => {
-            const mapEl = document.getElementById(mapId);
-            if (!mapEl) return null;
-            if (window.maps[mapId]) return window.maps[mapId];
-
-            const _lat = parseFloat(lat) || -7.7956;
-            const _lon = parseFloat(lon) || 110.3695;
-
-            const map = L.map(mapId).setView([_lat, _lon], 16);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
-
-            const featureGroup = new L.FeatureGroup();
-            map.addLayer(featureGroup);
-
-            // Load existing polygon geometry
-            addExistingGeometryToFeatureGroup(featureGroup, existingPolygon);
-            if (featureGroup.getLayers().length > 0) {
-                map.fitBounds(featureGroup.getBounds());
-            }
-
-            const drawControl = new L.Control.Draw({
-                edit: { featureGroup: featureGroup, poly: { allowIntersection: false } },
-                draw: { polygon: { allowIntersection: false, showArea: true }, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false }
-            });
-            map.addControl(drawControl);
-
-            const updatePolygonInput = () => {
-                const geojson = featureGroup.toGeoJSON();
-                if (geojson.features && geojson.features.length > 0) {
-                    const geom = geojson.features[0].geometry;
-                    const input = document.getElementById(polygonInputId);
-                    if (input) input.value = JSON.stringify(geom);
-                } else {
-                    const input = document.getElementById(polygonInputId);
-                    if (input) input.value = '';
-                }
-            };
-
-            map.on(L.Draw.Event.CREATED, function(e){
-                featureGroup.clearLayers();
-                featureGroup.addLayer(e.layer);
-                updatePolygonInput();
-            });
-            map.on(L.Draw.Event.EDITED, updatePolygonInput);
-            map.on(L.Draw.Event.DELETED, updatePolygonInput);
-
-            window.maps[mapId] = map;
-            window.featureGroups[mapId] = featureGroup;
-
-            return map;
-        };
-
-        // ---------------------- Modal handling ----------------------
+        // Map/polygon functionality removed per user request.
+        // Initialize DataTable on DOMContentLoaded only.
         document.addEventListener('DOMContentLoaded', function(){
             initDataTable();
+        });
 
-            // Initialize add-map when add modal shown
-            const addModal = document.getElementById('modalTambahMadrasah');
-            if (addModal) {
-                addModal.addEventListener('shown.bs.modal', function(){
-                    const lat = -7.7956, lon = 110.3695;
-                    window.maps['map-add'] = null; // reset map setiap modal dibuka
-                    const map = initializeMap('map-add', 'polygon_koordinat-add');
-                    setTimeout(()=>{ if(map) map.invalidateSize(); }, 200);
-                });
-            }
-
-            // When an edit button clicked - open the corresponding modal
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function(){
-                    const id = this.getAttribute('data-id');
-                    const modalId = 'modalEditMadrasah' + id;
-                    const modalEl = document.getElementById(modalId);
-                    if (!modalEl) return;
-
-                    // Before showing modal, ensure map init values are read from inputs inside modal
-                    const lat = (modalEl.querySelector('input[name="latitude"]') || {}).value || -7.7956;
-                    const lon = (modalEl.querySelector('input[name="longitude"]') || {}).value || 110.3695;
-                    const polygonInputId = 'polygon_koordinat-' + id;
-                    const existingPolygon = (document.getElementById(polygonInputId) || {}).value || null;
-
-                    // Initialize main polygon map
-                    initializeMap('map-' + id, polygonInputId, lat, lon, existingPolygon);
-
-                    // If dual polygon exists and is enabled for this madrasah
-                    const enableDual = modalEl.querySelector('.enable-dual');
-                    if (enableDual && enableDual.checked) {
-                        const polygon2Id = 'polygon_koordinat_2-' + id;
-                        const existingPolygon2 = (document.getElementById(polygon2Id) || {}).value || null;
-                        initializeMap('map2-' + id, polygon2Id, lat, lon, existingPolygon2);
-                    }
-
-                    // Show Bootstrap modal programmatically
-                    const bsModal = new bootstrap.Modal(modalEl);
-
-                    modalEl.addEventListener('shown.bs.modal', function () {
-                        const lat = modalEl.querySelector('input[name="latitude"]').value || -7.7956;
-                        const lon = modalEl.querySelector('input[name="longitude"]').value || 110.3695;
-
-                        initializeMap('map-' + id, polygonInputId, lat, lon, existingPolygon);
-
-                        setTimeout(() => {
-                            if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize();
-                        }, 200);
-
-                        // for dual polygon
-                        if (enableDual && enableDual.checked) {
-                            initializeMap('map2-' + id, polygonInputId2, lat, lon, existingPolygon2);
-                            setTimeout(() => {
-                                if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize();
-                            }, 200);
-                        }
-                    }, { once:true });
-
-                    bsModal.show();
-
-
-                    // after modal shown, invalidate sizes
-                    setTimeout(()=>{
-                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize();
-                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize();
-                    }, 300);
-                });
-            });
-
-            // Toggle dual polygon container when checkbox changed (delegated)
-            document.addEventListener('change', function(e){
-                const t = e.target;
-                if (t && t.classList.contains('enable-dual')){
-                    const id = t.id.replace('enable_dual_polygon-','');
-                    const container = document.getElementById('polygon2-container-' + id);
-                    const map2id = 'map2-' + id;
-                    const polygonInput2 = 'polygon_koordinat_2-' + id;
-                    if (t.checked) {
-                        if (container) container.style.display = 'block';
-                        if (!window.maps[map2id]) {
-                            const lat = (document.querySelector('#modalEditMadrasah'+id+' input[name="latitude"]') || {}).value || -7.7956;
-                            const lon = (document.querySelector('#modalEditMadrasah'+id+' input[name="longitude"]') || {}).value || 110.3695;
-                            initializeMap(map2id, polygonInput2, lat, lon, (document.getElementById(polygonInput2) || {}).value || null);
-                            setTimeout(()=>{ if(window.maps[map2id]) window.maps[map2id].invalidateSize(); }, 300);
-                        }
-                    } else {
-                        if (container) container.style.display = 'none';
-                        const input = document.getElementById(polygonInput2);
-                        if (input) input.value = '';
-                    }
-                }
-            });
-
-        }); // DOMContentLoaded end
-
-    })();
+        })();
     </script>
 @endsection
 
