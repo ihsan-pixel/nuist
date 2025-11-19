@@ -6,30 +6,37 @@
 
 @section('css')
 <style>
-    /* ========== Leaflet Map Container Styling ========== */
-    /* Ensure map divs stay within bounds and don't overflow */
-    #map-add,
-    [id^="map-"][id*="-"] {
-        height: 320px !important;
+    /* ========== Map Container Styling - Clean & Minimal ========== */
+    .map-container {
+        height: 300px !important;
         width: 100% !important;
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
+        border-radius: 10px !important;
         overflow: hidden !important;
-        position: relative;
-        display: block;
-        background-color: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        background: #f8f9fa !important;
+        position: relative !important;
     }
 
-    /* Main Leaflet container fixes */
+    #map-add,
+    [id^="map-"][id*="-"] {
+        height: 100% !important;
+        width: 100% !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        position: relative !important;
+        display: block !important;
+    }
+
+    /* Main Leaflet container */
     .leaflet-container {
         width: 100% !important;
         height: 100% !important;
         background: #ffffff !important;
-        border-radius: 6px;
+        border-radius: 10px !important;
         overflow: hidden !important;
     }
 
-    /* Control positioning and styling */
+    /* Control styling */
     .leaflet-control {
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
         border-radius: 4px !important;
@@ -46,19 +53,9 @@
         border-radius: 4px !important;
     }
 
-    .leaflet-top.leaflet-right {
-        right: 10px !important;
-        top: 10px !important;
-    }
-
-    /* Ensure zoom controls don't overlap draw controls */
+    /* Zoom controls positioning */
     .leaflet-control-zoom {
         z-index: 998 !important;
-    }
-
-    /* Map tile layer */
-    .leaflet-tile-pane {
-        z-index: 2 !important;
     }
 
     /* Popup styling */
@@ -67,7 +64,7 @@
         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
     }
 
-    /* Vector layer styling */
+    /* Vector layer - polygon styling */
     .leaflet-interactive {
         stroke: 2px solid #004b4c !important;
         fill-opacity: 0.4 !important;
@@ -77,6 +74,51 @@
     .leaflet-interactive:hover {
         stroke-width: 3px !important;
         fill-opacity: 0.6 !important;
+    }
+
+    /* Loading indicator */
+    .map-loading {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 1000 !important;
+        color: #6c757d !important;
+        text-align: center !important;
+    }
+
+    .map-loading i {
+        font-size: 2rem !important;
+    }
+
+    .map-loading p {
+        margin: 0.5rem 0 0 0 !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Map legend */
+    .map-legend {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        margin-top: 0.75rem !important;
+    }
+
+    .legend-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    .legend-color {
+        width: 12px !important;
+        height: 12px !important;
+        border-radius: 50% !important;
+    }
+
+    .legend-text {
+        font-size: 0.75rem !important;
+        color: #666 !important;
     }
 
     /* Wrapper for map container - ensures modal doesn't clip */
@@ -281,10 +323,24 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>Area Poligon Presensi Utama</label>
-                                    <div id="map-add" style="height: 320px; width: 100%;"></div>
+                                    <label class="fw-600 mb-2">
+                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Utama
+                                    </label>
+                                    <div class="map-container">
+                                        <div id="map-add"></div>
+                                        <div class="map-loading" style="display: none;">
+                                            <i class="mdi mdi-loading mdi-spin"></i>
+                                            <p>Memuat peta...</p>
+                                        </div>
+                                    </div>
+                                    <div class="map-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #0e8549;"></div>
+                                            <span class="legend-text">Area Poligon</span>
+                                        </div>
+                                    </div>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-add">
-                                    <small class="text-muted">Gambarkan area poligon utama pada peta.</small>
+                                    <small class="text-muted d-block mt-2">Gambar area poligon presensi pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
                                 </div>
 
                                 <div class="mb-3">
@@ -402,10 +458,24 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>Area Poligon Presensi Utama</label>
-                                    <div id="map-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
+                                    <label class="fw-600 mb-2">
+                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Utama
+                                    </label>
+                                    <div class="map-container">
+                                        <div id="map-{{ $madrasah->id }}"></div>
+                                        <div class="map-loading" style="display: none;">
+                                            <i class="mdi mdi-loading mdi-spin"></i>
+                                            <p>Memuat peta...</p>
+                                        </div>
+                                    </div>
+                                    <div class="map-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #0e8549;"></div>
+                                            <span class="legend-text">Area Poligon</span>
+                                        </div>
+                                    </div>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
-                                    <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
+                                    <small class="text-muted d-block mt-2">Gambar atau edit area poligon presensi pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
                                 </div>
 
                                 @if(in_array($madrasah->id, [24,26,33,25]))
@@ -417,10 +487,24 @@
                                     <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
                                 </div>
                                 <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
-                                    <label>Area Poligon Presensi Kedua</label>
-                                    <div id="map2-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
+                                    <label class="fw-600 mb-2">
+                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Kedua
+                                    </label>
+                                    <div class="map-container">
+                                        <div id="map2-{{ $madrasah->id }}"></div>
+                                        <div class="map-loading" style="display: none;">
+                                            <i class="mdi mdi-loading mdi-spin"></i>
+                                            <p>Memuat peta...</p>
+                                        </div>
+                                    </div>
+                                    <div class="map-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: #0e8549;"></div>
+                                            <span class="legend-text">Area Poligon</span>
+                                        </div>
+                                    </div>
                                     <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
-                                    <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
+                                    <small class="text-muted d-block mt-2">Gambar atau edit area poligon presensi kedua pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
                                 </div>
                                 @endif
 
