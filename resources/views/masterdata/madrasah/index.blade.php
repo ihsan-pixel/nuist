@@ -22,13 +22,14 @@
     <style>
         .polygon-map-container {
             position: relative;
-            height: 350px;
+            height: 450px;
             width: 100%;
             border: 2px solid #dee2e6;
             border-radius: 0.5rem;
             overflow: hidden;
             margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            background-color: #f5f5f5;
         }
         
         .polygon-map-container .leaflet-container {
@@ -44,6 +45,7 @@
             border-radius: 0.5rem;
             border-left: 4px solid #3388ff;
             font-size: 0.875rem;
+            line-height: 1.5;
         }
         
         .polygon-coordinates {
@@ -51,7 +53,7 @@
             border: 1px solid #dee2e6;
             padding: 10px;
             border-radius: 0.5rem;
-            max-height: 120px;
+            max-height: 150px;
             overflow-y: auto;
             margin-top: 8px;
             font-family: 'Courier New', monospace;
@@ -62,7 +64,7 @@
         
         #map-add,
         [id^="map-edit-"] {
-            height: 350px !important;
+            height: 450px !important;
             width: 100%;
             border-radius: 0.5rem;
         }
@@ -81,26 +83,35 @@
         .leaflet-toolbar {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
             z-index: 1000 !important;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
         }
         
         .leaflet-toolbar button {
-            padding: 8px 10px !important;
+            padding: 10px 12px !important;
             margin: 0 !important;
             border: none !important;
             border-radius: 0.375rem !important;
             cursor: pointer !important;
-            font-size: 11px !important;
-            font-weight: 500 !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
             white-space: nowrap !important;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
-            transition: all 0.2s !important;
+            transition: all 0.2s ease !important;
+            min-width: 90px !important;
         }
         
         .leaflet-toolbar button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        }
+        
+        .leaflet-toolbar button:active {
+            transform: translateY(0);
         }
     </style>
 @endsection
@@ -598,25 +609,26 @@
                 const toolbarDiv = L.control({position: 'topleft'});
                 toolbarDiv.onAdd = function(map) {
                     const div = L.DomUtil.create('div', 'leaflet-toolbar');
-                    div.style.backgroundColor = 'transparent';
-                    div.style.padding = '8px';
-                    div.style.borderRadius = '0.375rem';
+                    div.style.backgroundColor = 'white';
+                    div.style.padding = '5px';
+                    div.style.borderRadius = '4px';
+                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
 
                     const btnDraw = L.DomUtil.create('button', '', div);
-                    btnDraw.innerHTML = '✏️ Gambar';
-                    btnDraw.style.cssText = 'padding:8px 10px;margin:3px 0;background:#3388ff;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
+                    btnDraw.innerHTML = '✏️ Gambar Poligon';
+                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#3388ff;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
 
                     const btnEdit = L.DomUtil.create('button', '', div);
                     btnEdit.innerHTML = '✎️ Edit';
-                    btnEdit.style.cssText = 'padding:8px 10px;margin:3px 0;background:#ffc107;color:#333;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
+                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
 
                     const btnDelete = L.DomUtil.create('button', '', div);
                     btnDelete.innerHTML = '🗑️ Hapus';
-                    btnDelete.style.cssText = 'padding:8px 10px;margin:3px 0;background:#dc3545;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
+                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
 
                     const btnClear = L.DomUtil.create('button', '', div);
                     btnClear.innerHTML = '✕ Batal';
-                    btnClear.style.cssText = 'padding:8px 10px;margin:3px 0;background:#6c757d;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
+                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
 
                     L.DomEvent.disableClickPropagation(div);
 
@@ -625,14 +637,14 @@
                             isDrawing = true;
                             currentPoints = [];
                             btnDraw.style.background = '#28a745';
-                            btnDraw.innerHTML = '⏹️ Selesai';
+                            btnDraw.innerHTML = '⏹️ Selesai (Min 3 titik)';
                         } else {
                             if (currentPoints.length >= 3) {
                                 finishDrawing();
                                 btnDraw.style.background = '#3388ff';
-                                btnDraw.innerHTML = '✏️ Gambar';
+                                btnDraw.innerHTML = '✏️ Gambar Poligon';
                             } else {
-                                alert('Minimal 3 titik. Saat ini: ' + currentPoints.length);
+                                alert('Minimal 3 titik untuk membuat poligon. Titik saat ini: ' + currentPoints.length);
                             }
                         }
                     });
@@ -663,7 +675,7 @@
                             isDrawing = false;
                             currentPoints = [];
                             btnDraw.style.background = '#3388ff';
-                            btnDraw.innerHTML = '✏️ Gambar Poligon';
+                            btnDraw.innerHTML = '✏️ Gambar';
                             drawnItems.clearLayers();
                             map.eachLayer(layer => {
                                 if (layer instanceof L.CircleMarker && !layer.isVertex) {
