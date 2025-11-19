@@ -201,7 +201,7 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{{-- <script>
+<script>
 $(document).ready(function () {
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
@@ -235,5 +235,5 @@ $(document).ready(function () {
         });
     @endif
 });
-</script> --}}
+</script>
 @endsection
