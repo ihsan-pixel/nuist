@@ -154,10 +154,10 @@
                     </div>
                 </div>
 
-                <!-- Madrasah Table - Modern PPDB Style -->
+                <!-- Madrasah Table - Modern PPDB Style with DataTables -->
                 <div class="kabupaten-table">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table id="presensi-table-{{ str_replace(' ', '-', strtolower($kabupaten)) }}" class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th><i class="mdi mdi-school me-1"></i>Nama Madrasah</th>
@@ -498,6 +498,9 @@
             font-weight: 600;
             padding: 1rem;
             border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .kabupaten-table .table tbody tr {
@@ -599,6 +602,31 @@
                 padding: 0.75rem 1rem;
                 font-size: 1rem;
             }
+
+            /* DataTables responsive adjustments */
+            .dataTables_wrapper {
+                padding: 0.5rem;
+            }
+
+            .dataTables_length,
+            .dataTables_filter {
+                text-align: left;
+                margin-bottom: 0.5rem;
+            }
+
+            .dataTables_info {
+                text-align: center;
+                font-size: 0.875rem;
+            }
+
+            .dataTables_paginate {
+                text-align: center;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
         }
 
         .text-dark {
@@ -640,6 +668,68 @@
 
     <script>
     $(document).ready(function () {
+        // Initialize DataTables for all presensi tables
+        @php
+            $kabupatenOrder = [
+                'Kabupaten Gunungkidul',
+                'Kabupaten Bantul',
+                'Kabupaten Kulon Progo',
+                'Kabupaten Sleman',
+                'Kota Yogyakarta'
+            ];
+        @endphp
+
+        @foreach($kabupatenOrder as $kabupaten)
+            @php
+                $kabupatenMadrasahData = collect($madrasahData)->filter(function($data) use ($kabupaten) {
+                    return $data['madrasah']->kabupaten === $kabupaten;
+                });
+            @endphp
+
+            @if($kabupatenMadrasahData->count() > 0)
+                $('#presensi-table-{{ str_replace(' ', '-', strtolower($kabupaten)) }}').DataTable({
+                    "pageLength": 10,
+                    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    "responsive": true,
+                    "autoWidth": false,
+                    "language": {
+                        "lengthMenu": "Tampilkan _MENU_ data per halaman",
+                        "zeroRecords": "Tidak ada data yang ditemukan",
+                        "info": "Menampilkan halaman _PAGE_ dari _PAGES_",
+                        "infoEmpty": "Tidak ada data tersedia",
+                        "infoFiltered": "(difilter dari _MAX_ total data)",
+                        "search": "Cari:",
+                        "paginate": {
+                            "first": "Pertama",
+                            "last": "Terakhir",
+                            "next": "Selanjutnya",
+                            "previous": "Sebelumnya"
+                        }
+                    },
+                    "columnDefs": [
+                        {
+                            "targets": [1, 2, 3],
+                            "orderable": true,
+                            "searchable": true
+                        },
+                        {
+                            "targets": 0,
+                            "orderable": true,
+                            "searchable": true
+                        }
+                    ],
+                    "order": [[0, 'asc']],
+                    "initComplete": function() {
+                        // Add custom styling to DataTables elements
+                        $(this).closest('.dataTables_wrapper').find('.dataTables_length select').addClass('form-select form-select-sm');
+                        $(this).closest('.dataTables_wrapper').find('.dataTables_filter input').addClass('form-control form-control-sm');
+                        $(this).closest('.dataTables_wrapper').find('.dataTables_info').addClass('text-muted small');
+                        $(this).closest('.dataTables_wrapper').find('.dataTables_paginate .paginate_button').addClass('btn btn-sm btn-outline-primary mx-1');
+                        $(this).closest('.dataTables_wrapper').find('.dataTables_paginate .paginate_button.current').addClass('active');
+                    }
+                });
+            @endif
+        @endforeach
         // Handle user detail modal
         $(document).on('click', '.user-detail-link', function(e) {
             e.preventDefault();
