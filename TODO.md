@@ -1,18 +1,17 @@
-# TODO: Rapikan Menu Presensi Admin
+# Presensi Admin Detail Page CSS Cleanup
 
-## Tugas Utama
-- Rapikan tampilan menu presensi admin untuk role super_admin dan pengurus
-- Rapikan tabel dengan menambahkan sorting, filtering, dan pagination menggunakan DataTables
+## Tasks
+- [ ] Analyze current CSS structure and identify redundant rules
+- [ ] Remove unnecessary !important declarations (target: reduce from 200+ to minimal)
+- [ ] Consolidate repeated CSS patterns
+- [ ] Improve CSS organization and specificity
+- [ ] Enhance responsive design consistency
+- [ ] Standardize colors, spacing, and layout patterns
+- [ ] Test visual hierarchy and readability
+- [ ] Verify responsive behavior across devices
 
-## Langkah-langkah Implementasi
-- [ ] Analisis struktur tabel saat ini di presensi-admin.blade.php
-- [ ] Tambahkan DataTables initialization untuk tabel utama
-- [ ] Konfigurasi opsi DataTables: sorting, searching, pagination, responsive
-- [ ] Perbaiki styling tabel agar konsisten dengan tema PPDB
-- [ ] Pastikan tabel tetap berfungsi untuk role super_admin dan pengurus
-- [ ] Test fungsionalitas tabel setelah perubahan
-
-## Status
-- [x] Analisis file selesai
-- [x] Rencana dikonfirmasi user
-- [ ] Implementasi dimulai
+## Progress
+- [x] Initial analysis completed
+- [x] Plan approved by user
+- [ ] CSS cleanup in progress
+- [ ] Testing phase
