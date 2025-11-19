@@ -18,7 +18,7 @@
 
     {{-- Leaflet for polygon editing on edit modal --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    
+
     <style>
         .polygon-map-container {
             position: relative;
@@ -46,6 +46,19 @@
             font-size: 0.75rem;
             word-break: break-all;
         }
+        #map-add,
+            [id^="map-edit-"] {
+                height: 350px !important;
+                width: 100%;
+            }
+
+            .leaflet-container {
+                z-index: 1;
+            }
+
+            .modal .leaflet-container {
+                z-index: 999 !important;
+            }
     </style>
 @endsection
 
@@ -340,7 +353,7 @@
                                 <div class="mb-3">
                                     <label>Area Poligon Presensi (Koordinat)</label>
                                     <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}"></div>
-                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}" 
+                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}"
                                            value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
                                     <div class="polygon-info">
                                         <strong>Instruksi:</strong>
@@ -489,13 +502,13 @@
             const mapContainer = el('#map-edit-' + madrasahId);
             const polygonInput = el('#polygon_koordinat-edit-' + madrasahId);
             const polygonDisplay = el('#polygon-display-' + madrasahId);
-            
+
             if (!mapContainer || !polygonInput) return;
 
             try {
                 // Create map centered on Indonesia (default)
                 const map = L.map('map-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
-                
+
                 // Add tile layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors',
@@ -520,25 +533,25 @@
                     div.style.padding = '5px';
                     div.style.borderRadius = '4px';
                     div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
-                    
+
                     const btnDraw = L.DomUtil.create('button', '', div);
                     btnDraw.innerHTML = '✏️ Gambar Poligon';
                     btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#3388ff;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-                    
+
                     const btnEdit = L.DomUtil.create('button', '', div);
                     btnEdit.innerHTML = '✎️ Edit';
                     btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-                    
+
                     const btnDelete = L.DomUtil.create('button', '', div);
                     btnDelete.innerHTML = '🗑️ Hapus';
                     btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-                    
+
                     const btnClear = L.DomUtil.create('button', '', div);
                     btnClear.innerHTML = '✕ Batal';
                     btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-                    
+
                     L.DomEvent.disableClickPropagation(div);
-                    
+
                     btnDraw.addEventListener('click', function() {
                         if (!isDrawing) {
                             isDrawing = true;
@@ -553,7 +566,7 @@
                             }
                         }
                     });
-                    
+
                     btnEdit.addEventListener('click', function() {
                         const layers = drawnItems.getLayers();
                         if (layers.length === 0) {
@@ -563,7 +576,7 @@
                         editingPolygon = layers[0];
                         alert('Mode edit aktif. Seret titik poligon atau klik "Selesai" untuk mengakhiri edit.');
                     });
-                    
+
                     btnDelete.addEventListener('click', function() {
                         const layers = drawnItems.getLayers();
                         if (layers.length > 0) {
@@ -574,7 +587,7 @@
                             alert('Tidak ada poligon untuk dihapus');
                         }
                     });
-                    
+
                     btnClear.addEventListener('click', function() {
                         if (isDrawing) {
                             isDrawing = false;
@@ -589,7 +602,7 @@
                             });
                         }
                     });
-                    
+
                     return div;
                 };
                 toolbarDiv.addTo(map);
@@ -620,7 +633,7 @@
                     if (isDrawing) {
                         const latlng = e.latlng;
                         currentPoints.push([latlng.lat, latlng.lng]);
-                        
+
                         // Add visual marker
                         L.circleMarker([latlng.lat, latlng.lng], {
                             radius: 5,
@@ -643,14 +656,14 @@
                             // Convert [lon,lat] to [lat,lon] for Leaflet
                             const geoJSONCoords = coordData.coordinates[0];
                             const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
-                            
+
                             const polygon = L.polygon(leafletCoords, {
                                 color: '#3388ff',
                                 fillOpacity: 0.2,
                                 weight: 2
                             });
                             drawnItems.addLayer(polygon);
-                            
+
                             // Fit map to polygon bounds
                             setTimeout(() => {
                                 map.fitBounds(polygon.getBounds());
@@ -742,13 +755,16 @@
                     try {
                         const bsModal = new bootstrap.Modal(modalEl);
                         bsModal.show();
-                        
+
                         // Initialize map after modal is shown
                         modalEl.addEventListener('shown.bs.modal', function() {
                             setTimeout(() => {
-                                initPolygonMap(id);
-                            }, 150);
-                        }, { once: true }); // Use once to avoid duplicate listeners
+                                if (!polygonMaps[id]) {
+                                    initPolygonMap(id);
+                                }
+                                polygonMaps[id].invalidateSize();
+                            }, 200);
+                        });
                     } catch (e) {
                         console.warn('Bootstrap modal not available or failed to show', e);
                     }
@@ -757,6 +773,18 @@
         });
 
         })();
+        let mapAdd = null;
+
+        document.getElementById('modalTambahMadrasah').addEventListener('shown.bs.modal', function() {
+            setTimeout(() => {
+                if (!mapAdd) {
+                    mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
+                }
+                mapAdd.invalidateSize();
+            }, 200);
+        });
+
     </script>
 @endsection
 
