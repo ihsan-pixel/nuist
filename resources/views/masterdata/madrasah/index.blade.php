@@ -6,15 +6,97 @@
 
 @section('css')
 <style>
-    /* Fix Leaflet map sizing inside Bootstrap modal */
+    /* ========== Leaflet Map Container Styling ========== */
+    /* Ensure map divs stay within bounds and don't overflow */
+    #map-add,
+    [id^="map-"][id*="-"] {
+        height: 320px !important;
+        width: 100% !important;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden !important;
+        position: relative;
+        display: block;
+        background-color: #f8f9fa;
+    }
+
+    /* Main Leaflet container fixes */
     .leaflet-container {
         width: 100% !important;
-        height: 320px !important;
+        height: 100% !important;
+        background: #ffffff !important;
+        border-radius: 6px;
+        overflow: hidden !important;
     }
+
+    /* Control positioning and styling */
+    .leaflet-control {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+        border-radius: 4px !important;
+    }
+
+    .leaflet-control-draw {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 999 !important;
+    }
+
+    .leaflet-draw-toolbar {
+        border-radius: 4px !important;
+    }
+
+    .leaflet-top.leaflet-right {
+        right: 10px !important;
+        top: 10px !important;
+    }
+
+    /* Ensure zoom controls don't overlap draw controls */
+    .leaflet-control-zoom {
+        z-index: 998 !important;
+    }
+
+    /* Map tile layer */
+    .leaflet-tile-pane {
+        z-index: 2 !important;
+    }
+
+    /* Popup styling */
+    .leaflet-popup-content-wrapper {
+        border-radius: 6px !important;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Vector layer styling */
+    .leaflet-interactive {
+        stroke: 2px solid #004b4c !important;
+        fill-opacity: 0.4 !important;
+        fill: #0e8549 !important;
+    }
+
+    .leaflet-interactive:hover {
+        stroke-width: 3px !important;
+        fill-opacity: 0.6 !important;
+    }
+
+    /* Wrapper for map container - ensures modal doesn't clip */
     .map-wrapper {
         width: 100%;
         height: 320px;
-        overflow: hidden;
+        overflow: visible !important;
+        position: relative;
+        margin-bottom: 8px;
+    }
+
+    /* Modal body scrolling doesn't affect map */
+    .modal-body {
+        overflow-y: auto;
+        max-height: 70vh;
+    }
+
+    /* Ensure modals with large content scroll properly */
+    .modal-dialog.modal-lg {
+        max-width: 900px !important;
     }
 </style>
     {{-- Template Base --}}
@@ -520,9 +602,17 @@
             const _lat = parseFloat(lat) || -7.7956;
             const _lon = parseFloat(lon) || 110.3695;
 
-            const map = L.map(mapId).setView([_lat, _lon], 16);
+            // Initialize map with explicit container sizing
+            const map = L.map(mapId, {
+                zoomControl: true,
+                attributionControl: true,
+                preferCanvas: false
+            }).setView([_lat, _lon], 16);
+            
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19,
+                minZoom: 10
             }).addTo(map);
 
             const featureGroup = new L.FeatureGroup();
@@ -576,7 +666,9 @@
                 addModal.addEventListener('shown.bs.modal', function(){
                     const lat = -7.7956, lon = 110.3695;
                     const map = initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
-                    setTimeout(()=>{ if(map) map.invalidateSize(); }, 200);
+                    // Ensure map resizes properly after modal fully rendered
+                    setTimeout(()=>{ if(map) map.invalidateSize(true); }, 100);
+                    setTimeout(()=>{ if(map) map.invalidateSize(true); }, 400);
                 });
             }
 
@@ -609,11 +701,15 @@
                     const bsModal = new bootstrap.Modal(modalEl);
                     bsModal.show();
 
-                    // after modal shown, invalidate sizes
+                    // After modal shown, invalidate sizes multiple times to ensure proper rendering
                     setTimeout(()=>{
-                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize();
-                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize();
-                    }, 300);
+                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize(true);
+                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize(true);
+                    }, 100);
+                    setTimeout(()=>{
+                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize(true);
+                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize(true);
+                    }, 500);
                 });
             });
 
@@ -631,7 +727,12 @@
                             const lat = (document.querySelector('#modalEditMadrasah'+id+' input[name="latitude"]') || {}).value || -7.7956;
                             const lon = (document.querySelector('#modalEditMadrasah'+id+' input[name="longitude"]') || {}).value || 110.3695;
                             initializeMap(map2id, polygonInput2, lat, lon, (document.getElementById(polygonInput2) || {}).value || null);
-                            setTimeout(()=>{ if(window.maps[map2id]) window.maps[map2id].invalidateSize(); }, 300);
+                            setTimeout(()=>{ 
+                                if(window.maps[map2id]) window.maps[map2id].invalidateSize(true); 
+                            }, 100);
+                            setTimeout(()=>{ 
+                                if(window.maps[map2id]) window.maps[map2id].invalidateSize(true); 
+                            }, 400);
                         }
                     } else {
                         if (container) container.style.display = 'none';
