@@ -52,7 +52,7 @@
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
 
-    @yield('script')
+    {{-- @yield('script') --}}
 
 
     <!-- Page Scripts -->
