@@ -498,8 +498,9 @@ class PresensiAdminController extends Controller
 
         $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
         $search = $request->input('search', '');
-        $page = $request->input('page', 1);
-        $perPage = 10; // Fixed to 10 rows as requested
+    $page = $request->input('page', 1);
+    // Show all rows on a single page by setting perPage to the total matched records
+    // This preserves the Paginator API used in the view (firstItem(), total(), etc.)
 
         $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
 
@@ -519,8 +520,12 @@ class PresensiAdminController extends Controller
             });
         }
 
-        // Get paginated results
-        $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
+    // Calculate total matched records and paginate them all on one page so the view shows everything
+    $totalMatched = $query->count();
+    $perPage = $totalMatched > 0 ? $totalMatched : 1;
+
+    // Get paginated results (all rows in one page)
+    $tenagaPendidik = $query->paginate($perPage, ['*'], 'page', $page);
 
         $tenagaPendidikData = $tenagaPendidik->map(function($tp) {
             $presensi = $tp->presensis->first();

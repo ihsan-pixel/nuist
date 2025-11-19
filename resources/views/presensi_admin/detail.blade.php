@@ -1101,7 +1101,11 @@
                                         <tbody>
                                             @forelse($tenagaPendidikData as $index => $tp)
                                             <tr>
-                                                <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
+                                                @php
+                                                    // If $tenagaPendidik is a paginator use firstItem(), otherwise fall back to simple index+1
+                                                    $rowNumber = (isset($tenagaPendidik) && method_exists($tenagaPendidik, 'firstItem')) ? $tenagaPendidik->firstItem() + $index : $index + 1;
+                                                @endphp
+                                                <td>{{ $rowNumber }}</td>
                                                 <td><strong>{{ $tp['nama'] }}</strong></td>
                                                 <td><code class="nip-code">{{ $tp['nip'] ?? '-' }}</code></td>
                                                 <td><code class="nuptk-code">{{ $tp['nuptk'] ?? '-' }}</code></td>
