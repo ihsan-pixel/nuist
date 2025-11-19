@@ -22,7 +22,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.head-css')
 </head>
- 
+
 <body data-topbar="light" data-layout-mode="light">
     <!-- Begin page -->
     <div id="layout-wrapper">
@@ -51,6 +51,9 @@
 
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
+
+    @yield('script')
+
 
     <!-- Page Scripts -->
     @stack('scripts')
