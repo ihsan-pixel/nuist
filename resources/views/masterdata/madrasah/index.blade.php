@@ -514,9 +514,53 @@
                 // Load existing polygon (if GeoJSON geometry string stored)
                 if (existingPolygon) {
                     try {
-                        const geometry = (typeof existingPolygon === 'string') ? JSON.parse(existingPolygon) : existingPolygon;
-                        const layer = L.geoJSON(geometry);
-                        layer.eachLayer(l => featureGroup.addLayer(l));
+                        let geometry = (typeof existingPolygon === 'string') ? JSON.parse(existingPolygon) : existingPolygon;
+
+                        // Helper to swap lat/lng in coordinate pairs (recursively for polygons/multipolygons)
+                        const swapCoords = (coords) => {
+                            if (!Array.isArray(coords) || coords.length === 0) return coords;
+                            // If this is a single coordinate pair [x,y]
+                            if (typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                                return [coords[1], coords[0]];
+                            }
+                            return coords.map(c => swapCoords(c));
+                        };
+
+                        const createLayer = (geom) => L.geoJSON(geom);
+
+                        let layer = createLayer(geometry);
+
+                        // If the geometry appears outside Indonesia bounds, try swapping lat/lng
+                        const inIndonesia = (lat, lng) => (lat >= -15 && lat <= 6 && lng >= 95 && lng <= 141);
+
+                        let useLayer = layer;
+                        if (layer.getLayers().length > 0) {
+                            const bounds = layer.getBounds();
+                            const center = bounds.getCenter();
+                            if (!inIndonesia(center.lat, center.lng)) {
+                                // Attempt to swap coordinates and recreate
+                                try {
+                                    let swapped = JSON.parse(JSON.stringify(geometry));
+                                    if (swapped.type === 'GeometryCollection') {
+                                        swapped.geometries = swapped.geometries.map(g => ({ ...g, coordinates: swapCoords(g.coordinates) }));
+                                    } else if (swapped.type === 'FeatureCollection') {
+                                        swapped.features = swapped.features.map(f => ({ ...f, geometry: { ...f.geometry, coordinates: swapCoords(f.geometry.coordinates) } }));
+                                    } else if (swapped.type === 'Feature') {
+                                        swapped.geometry.coordinates = swapCoords(swapped.geometry.coordinates);
+                                    } else {
+                                        swapped.coordinates = swapCoords(swapped.coordinates);
+                                    }
+                                    const swappedLayer = createLayer(swapped);
+                                    if (swappedLayer.getLayers().length > 0) {
+                                        useLayer = swappedLayer;
+                                    }
+                                } catch (swapErr) {
+                                    console.warn('Could not swap polygon coordinates:', swapErr);
+                                }
+                            }
+                        }
+
+                        useLayer.eachLayer(l => featureGroup.addLayer(l));
                         if (featureGroup.getLayers().length > 0) {
                             map.fitBounds(featureGroup.getBounds());
                         }
