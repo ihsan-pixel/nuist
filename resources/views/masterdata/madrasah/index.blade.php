@@ -22,43 +22,86 @@
     <style>
         .polygon-map-container {
             position: relative;
-            height: 400px;
+            height: 350px;
             width: 100%;
-            border: 1px solid #dee2e6;
-            border-radius: 0.25rem;
+            border: 2px solid #dee2e6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+        
+        .polygon-map-container .leaflet-container {
+            height: 100% !important;
+            width: 100% !important;
+            border-radius: 0.5rem;
+        }
+        
         .polygon-info {
             margin-top: 10px;
-            padding: 10px;
+            padding: 12px;
             background-color: #f8f9fa;
-            border-radius: 0.25rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #3388ff;
             font-size: 0.875rem;
         }
+        
         .polygon-coordinates {
             background-color: #fff;
             border: 1px solid #dee2e6;
-            padding: 8px;
-            border-radius: 0.25rem;
-            max-height: 150px;
+            padding: 10px;
+            border-radius: 0.5rem;
+            max-height: 120px;
             overflow-y: auto;
-            margin-top: 5px;
-            font-family: monospace;
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
             font-size: 0.75rem;
             word-break: break-all;
+            line-height: 1.4;
         }
+        
         #map-add,
-            [id^="map-edit-"] {
-                height: 350px !important;
-                width: 100%;
-            }
+        [id^="map-edit-"] {
+            height: 350px !important;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
 
-            .leaflet-container {
-                z-index: 1;
-            }
+        .leaflet-container {
+            z-index: 1;
+            border-radius: 0.5rem;
+        }
 
-            .modal .leaflet-container {
-                z-index: 999 !important;
-            }
+        .modal .leaflet-container {
+            z-index: 999 !important;
+            border-radius: 0.5rem;
+        }
+        
+        /* Toolbar styling */
+        .leaflet-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1000 !important;
+        }
+        
+        .leaflet-toolbar button {
+            padding: 8px 10px !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0.375rem !important;
+            cursor: pointer !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            white-space: nowrap !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+            transition: all 0.2s !important;
+        }
+        
+        .leaflet-toolbar button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        }
     </style>
 @endsection
 
@@ -495,17 +538,43 @@
         const polygonDrawingMode = {};
 
         /**
+         * Wait for Leaflet to be available
+         */
+        function waitForLeaflet() {
+            return new Promise((resolve) => {
+                if (typeof L !== 'undefined') {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (typeof L !== 'undefined') {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                    // Timeout after 5 seconds
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 5000);
+                }
+            });
+        }
+
+        /**
          * Initialize polygon map for a specific madrasah
          * @param {number} madrasahId - ID of the madrasah
          */
-        function initPolygonMap(madrasahId) {
+        async function initPolygonMap(madrasahId) {
+            await waitForLeaflet();
+            
             const mapContainer = el('#map-edit-' + madrasahId);
             const polygonInput = el('#polygon_koordinat-edit-' + madrasahId);
             const polygonDisplay = el('#polygon-display-' + madrasahId);
-
-            if (!mapContainer || !polygonInput) return;
-
-            try {
+            
+            if (!mapContainer || !polygonInput || typeof L === 'undefined') {
+                console.error('Map container or Leaflet not found');
+                return;
+            }            try {
                 // Create map centered on Indonesia (default)
                 const map = L.map('map-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
 
@@ -529,26 +598,25 @@
                 const toolbarDiv = L.control({position: 'topleft'});
                 toolbarDiv.onAdd = function(map) {
                     const div = L.DomUtil.create('div', 'leaflet-toolbar');
-                    div.style.backgroundColor = 'white';
-                    div.style.padding = '5px';
-                    div.style.borderRadius = '4px';
-                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
+                    div.style.backgroundColor = 'transparent';
+                    div.style.padding = '8px';
+                    div.style.borderRadius = '0.375rem';
 
                     const btnDraw = L.DomUtil.create('button', '', div);
-                    btnDraw.innerHTML = '✏️ Gambar Poligon';
-                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#3388ff;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+                    btnDraw.innerHTML = '✏️ Gambar';
+                    btnDraw.style.cssText = 'padding:8px 10px;margin:3px 0;background:#3388ff;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
 
                     const btnEdit = L.DomUtil.create('button', '', div);
                     btnEdit.innerHTML = '✎️ Edit';
-                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+                    btnEdit.style.cssText = 'padding:8px 10px;margin:3px 0;background:#ffc107;color:#333;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
 
                     const btnDelete = L.DomUtil.create('button', '', div);
                     btnDelete.innerHTML = '🗑️ Hapus';
-                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+                    btnDelete.style.cssText = 'padding:8px 10px;margin:3px 0;background:#dc3545;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
 
                     const btnClear = L.DomUtil.create('button', '', div);
                     btnClear.innerHTML = '✕ Batal';
-                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+                    btnClear.style.cssText = 'padding:8px 10px;margin:3px 0;background:#6c757d;color:white;border:none;border-radius:0.375rem;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.15);';
 
                     L.DomEvent.disableClickPropagation(div);
 
@@ -561,8 +629,10 @@
                         } else {
                             if (currentPoints.length >= 3) {
                                 finishDrawing();
+                                btnDraw.style.background = '#3388ff';
+                                btnDraw.innerHTML = '✏️ Gambar';
                             } else {
-                                alert('Minimal 3 titik untuk membuat poligon');
+                                alert('Minimal 3 titik. Saat ini: ' + currentPoints.length);
                             }
                         }
                     });
@@ -747,7 +817,7 @@
 
             // Open edit modal when Edit button clicked and initialize map
             document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function(){
+                btn.addEventListener('click', async function(){
                     const id = this.getAttribute('data-id');
                     const modalId = 'modalEditMadrasah' + id;
                     const modalEl = document.getElementById(modalId);
@@ -756,14 +826,28 @@
                         const bsModal = new bootstrap.Modal(modalEl);
                         bsModal.show();
 
-                        // Initialize map after modal is shown
-                        modalEl.addEventListener('shown.bs.modal', function() {
-                            setTimeout(() => {
-                                if (!polygonMaps[id]) {
-                                    initPolygonMap(id);
-                                }
+                        // Initialize map after modal is fully shown
+                        modalEl.addEventListener('shown.bs.modal', async function() {
+                            // Remove listener after first trigger
+                            this.removeEventListener('shown.bs.modal', arguments.callee);
+                            
+                            // Wait for modal to fully render
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                            
+                            // Initialize or refresh map
+                            if (polygonMaps[id]) {
                                 polygonMaps[id].invalidateSize();
-                            }, 200);
+                            } else {
+                                await initPolygonMap(id);
+                            }
+                            
+                            // Ensure map is visible
+                            const mapContainer = document.getElementById('map-edit-' + id);
+                            if (mapContainer && polygonMaps[id]) {
+                                setTimeout(() => {
+                                    polygonMaps[id].invalidateSize();
+                                }, 100);
+                            }
                         });
                     } catch (e) {
                         console.warn('Bootstrap modal not available or failed to show', e);
