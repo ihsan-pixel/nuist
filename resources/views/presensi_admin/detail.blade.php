@@ -216,6 +216,95 @@
     font-weight: 600 !important;
 }
 
+/* Table Styling */
+.table-card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #dee2e6;
+    padding: 1.25rem;
+}
+
+.table-card-body {
+    padding: 0;
+}
+
+.search-input-group {
+    max-width: 300px;
+}
+
+.attendance-data-table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.attendance-data-table thead th {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1rem 0.75rem;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.attendance-data-table tbody tr {
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.attendance-data-table tbody tr:hover {
+    background-color: rgba(0, 75, 76, 0.03);
+}
+
+.attendance-data-table tbody td {
+    padding: 0.85rem 0.75rem;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.attendance-data-table .badge {
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+}
+
+.attendance-data-table code {
+    background: #f5f5f5;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    color: #666;
+    font-family: 'Courier New', monospace;
+}
+
+.empty-table-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-table-state i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+}
+
+.empty-table-state p {
+    margin: 0;
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .welcome-section {
         padding: 1.5rem !important;
@@ -233,6 +322,32 @@
     .kabupaten-header {
         padding: 0.75rem 1rem !important;
         font-size: 1rem !important;
+    }
+
+    .table-card-header {
+        padding: 1rem;
+    }
+
+    .search-input-group {
+        max-width: 100% !important;
+        margin-top: 1rem;
+    }
+
+    .attendance-data-table {
+        font-size: 0.85rem;
+    }
+
+    .attendance-data-table thead th {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.75rem;
+    }
+
+    .attendance-data-table tbody td {
+        padding: 0.65rem 0.5rem;
+    }
+
+    .attendance-data-table code {
+        font-size: 0.75rem;
     }
 }
 
@@ -956,91 +1071,93 @@
                 <!-- Staff Attendance Data -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">
-                                        <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
-                                        <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
-                                    </h5>
-                                    <!-- Search Form -->
-                                    <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center">
-                                        <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
-                                        <div class="input-group input-group-sm" style="width: 250px;">
-                                            <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, atau NUPTK..." value="{{ $search }}">
-                                            <button class="btn btn-outline-secondary" type="submit">
-                                                <i class="mdi mdi-magnify"></i>
-                                            </button>
-                                        </div>
-                                    </form>
+                        <div class="card table-card">
+                            <div class="card-header table-card-header">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-md-6">
+                                        <h5 class="card-title mb-0">
+                                            <i class="mdi mdi-account-group me-2"></i>Data Presensi Tenaga Pendidik
+                                            <span class="badge bg-primary ms-2">{{ $tenagaPendidik->total() }} Orang</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- Search Form -->
+                                        <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex align-items-center justify-content-md-end">
+                                            <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
+                                            <div class="input-group input-group-sm search-input-group">
+                                                <input type="text" name="search" class="form-control" placeholder="Cari nama, NIP, NUPTK..." value="{{ $search }}">
+                                                <button class="btn btn-outline-secondary" type="submit">
+                                                    <i class="mdi mdi-magnify"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body table-card-body">
                                 @if(count($tenagaPendidikData) > 0)
-                                    <div class="table-rep-plugin">
-                                        <div class="table-responsive mb-0" data-pattern="priority-columns">
-                                            <table id="staff-attendance-table" class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>No</th>
-                                                        <th data-priority="1">Nama</th>
-                                                        <th data-priority="2">NIP</th>
-                                                        <th data-priority="3">NUPTK</th>
-                                                        <th data-priority="4">Status Kepegawaian</th>
-                                                        <th data-priority="1">Status Presensi</th>
-                                                        <th data-priority="5">Waktu Masuk</th>
-                                                        <th data-priority="6">Waktu Keluar</th>
-                                                        <th data-priority="7">Lokasi</th>
-                                                        <th data-priority="8">Keterangan</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($tenagaPendidikData as $index => $tp)
-                                                    <tr>
-                                                        <td>{{ $tenagaPendidik->firstItem() + $index }}</td>
-                                                        <td>{{ $tp['nama'] }}</td>
-                                                        <td>{{ $tp['nip'] ?? '-' }}</td>
-                                                        <td>{{ $tp['nuptk'] ?? '-' }}</td>
-                                                        <td>{{ $tp['status_kepegawaian'] }}</td>
-                                                        <td>
-                                                            @if($tp['status'] == 'hadir')
-                                                                <span class="badge bg-success">Hadir</span>
-                                                            @elseif($tp['status'] == 'izin')
-                                                                <span class="badge bg-warning">Izin</span>
-                                                            @elseif($tp['status'] == 'sakit')
-                                                                <span class="badge bg-info">Sakit</span>
-                                                            @elseif($tp['status'] == 'terlambat')
-                                                                <span class="badge bg-warning text-dark">Terlambat</span>
-                                                            @else
-                                                                <span class="badge bg-danger">Tidak Hadir</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $tp['waktu_masuk'] ?? '-' }}</td>
-                                                        <td>{{ $tp['waktu_keluar'] ?? '-' }}</td>
-                                                        <td>
-                                                            @if($tp['lokasi'])
-                                                                <small class="text-muted">{{ Str::limit($tp['lokasi'], 30) }}</small>
-                                                            @else
-                                                                -
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $tp['keterangan'] ?? '-' }}</td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover attendance-data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Nama</th>
+                                                    <th>NIP</th>
+                                                    <th>NUPTK</th>
+                                                    <th>Status Kepegawaian</th>
+                                                    <th>Status Presensi</th>
+                                                    <th>Waktu Masuk</th>
+                                                    <th>Waktu Keluar</th>
+                                                    <th>Lokasi</th>
+                                                    <th>Keterangan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($tenagaPendidikData as $index => $tp)
+                                                <tr>
+                                                    <td class="fw-bold text-muted">{{ $tenagaPendidik->firstItem() + $index }}</td>
+                                                    <td class="fw-semibold">{{ $tp['nama'] }}</td>
+                                                    <td><code>{{ $tp['nip'] ?? '-' }}</code></td>
+                                                    <td><code>{{ $tp['nuptk'] ?? '-' }}</code></td>
+                                                    <td><small>{{ $tp['status_kepegawaian'] }}</small></td>
+                                                    <td>
+                                                        @if($tp['status'] == 'hadir')
+                                                            <span class="badge bg-success">Hadir</span>
+                                                        @elseif($tp['status'] == 'izin')
+                                                            <span class="badge bg-warning text-dark">Izin</span>
+                                                        @elseif($tp['status'] == 'sakit')
+                                                            <span class="badge bg-info">Sakit</span>
+                                                        @elseif($tp['status'] == 'terlambat')
+                                                            <span class="badge bg-warning text-dark">Terlambat</span>
+                                                        @else
+                                                            <span class="badge bg-danger">Tidak Hadir</span>
+                                                        @endif
+                                                    </td>
+                                                    <td><small>{{ $tp['waktu_masuk'] ?? '-' }}</small></td>
+                                                    <td><small>{{ $tp['waktu_keluar'] ?? '-' }}</small></td>
+                                                    <td>
+                                                        @if($tp['lokasi'])
+                                                            <small class="text-muted">{{ Str::limit($tp['lokasi'], 25) }}</small>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td><small>{{ $tp['keterangan'] ?? '-' }}</small></td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
                                 @else
-                                    <div class="text-center py-4">
-                                        <i class="mdi mdi-account-off-outline" style="font-size: 3rem; color: #ccc;"></i>
-                                        <p class="mt-2 text-muted">Tidak ada data tenaga pendidik untuk madrasah ini.</p>
+                                    <div class="empty-table-state">
+                                        <i class="mdi mdi-account-off-outline"></i>
+                                        <p>Tidak ada data tenaga pendidik</p>
                                     </div>
                                 @endif
 
                                 <!-- Pagination -->
                                 @if($tenagaPendidik->hasPages())
-                                    <div class="d-flex justify-content-center mt-3">
+                                    <div class="d-flex justify-content-center mt-4">
                                         {{ $tenagaPendidik->appends(['date' => $selectedDate->format('Y-m-d'), 'search' => $search])->links() }}
                                     </div>
                                 @endif
