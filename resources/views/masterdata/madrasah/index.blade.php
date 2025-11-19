@@ -6,139 +6,15 @@
 
 @section('css')
 <style>
-    /* ========== Map Container Styling - Clean & Minimal ========== */
-    .map-container {
-        height: 300px !important;
-        width: 100% !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-        background: #f8f9fa !important;
-        position: relative !important;
-    }
-
-    #map-add,
-    [id^="map-"][id*="-"] {
-        height: 100% !important;
-        width: 100% !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
-        position: relative !important;
-        display: block !important;
-    }
-
-    /* Main Leaflet container */
+    /* Fix Leaflet map sizing inside Bootstrap modal */
     .leaflet-container {
         width: 100% !important;
-        height: 100% !important;
-        background: #ffffff !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
+        height: 320px !important;
     }
-
-    /* Control styling */
-    .leaflet-control {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
-        border-radius: 4px !important;
-    }
-
-    .leaflet-control-draw {
-        position: absolute !important;
-        top: 10px !important;
-        right: 10px !important;
-        z-index: 999 !important;
-    }
-
-    .leaflet-draw-toolbar {
-        border-radius: 4px !important;
-    }
-
-    /* Zoom controls positioning */
-    .leaflet-control-zoom {
-        z-index: 998 !important;
-    }
-
-    /* Popup styling */
-    .leaflet-popup-content-wrapper {
-        border-radius: 6px !important;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    /* Vector layer - polygon styling */
-    .leaflet-interactive {
-        stroke: 2px solid #004b4c !important;
-        fill-opacity: 0.4 !important;
-        fill: #0e8549 !important;
-    }
-
-    .leaflet-interactive:hover {
-        stroke-width: 3px !important;
-        fill-opacity: 0.6 !important;
-    }
-
-    /* Loading indicator */
-    .map-loading {
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        z-index: 1000 !important;
-        color: #6c757d !important;
-        text-align: center !important;
-    }
-
-    .map-loading i {
-        font-size: 2rem !important;
-    }
-
-    .map-loading p {
-        margin: 0.5rem 0 0 0 !important;
-        font-size: 0.875rem !important;
-    }
-
-    /* Map legend */
-    .map-legend {
-        display: flex !important;
-        justify-content: center !important;
-        gap: 12px !important;
-        margin-top: 0.75rem !important;
-    }
-
-    .legend-item {
-        display: flex !important;
-        align-items: center !important;
-        gap: 4px !important;
-    }
-
-    .legend-color {
-        width: 12px !important;
-        height: 12px !important;
-        border-radius: 50% !important;
-    }
-
-    .legend-text {
-        font-size: 0.75rem !important;
-        color: #666 !important;
-    }
-
-    /* Wrapper for map container - ensures modal doesn't clip */
     .map-wrapper {
         width: 100%;
         height: 320px;
-        overflow: visible !important;
-        position: relative;
-        margin-bottom: 8px;
-    }
-
-    /* Modal body scrolling doesn't affect map */
-    .modal-body {
-        overflow-y: auto;
-        max-height: 70vh;
-    }
-
-    /* Ensure modals with large content scroll properly */
-    .modal-dialog.modal-lg {
-        max-width: 900px !important;
+        overflow: hidden;
     }
 </style>
     {{-- Template Base --}}
@@ -323,24 +199,10 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="fw-600 mb-2">
-                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Utama
-                                    </label>
-                                    <div class="map-container">
-                                        <div id="map-add"></div>
-                                        <div class="map-loading" style="display: none;">
-                                            <i class="mdi mdi-loading mdi-spin"></i>
-                                            <p>Memuat peta...</p>
-                                        </div>
-                                    </div>
-                                    <div class="map-legend">
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background: #0e8549;"></div>
-                                            <span class="legend-text">Area Poligon</span>
-                                        </div>
-                                    </div>
+                                    <label>Area Poligon Presensi Utama</label>
+                                    <div id="map-add" style="height: 320px; width: 100%;"></div>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-add">
-                                    <small class="text-muted d-block mt-2">Gambar area poligon presensi pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
+                                    <small class="text-muted">Gambarkan area poligon utama pada peta.</small>
                                 </div>
 
                                 <div class="mb-3">
@@ -458,24 +320,10 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="fw-600 mb-2">
-                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Utama
-                                    </label>
-                                    <div class="map-container">
-                                        <div id="map-{{ $madrasah->id }}"></div>
-                                        <div class="map-loading" style="display: none;">
-                                            <i class="mdi mdi-loading mdi-spin"></i>
-                                            <p>Memuat peta...</p>
-                                        </div>
-                                    </div>
-                                    <div class="map-legend">
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background: #0e8549;"></div>
-                                            <span class="legend-text">Area Poligon</span>
-                                        </div>
-                                    </div>
+                                    <label>Area Poligon Presensi Utama</label>
+                                    <div id="map-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat }}">
-                                    <small class="text-muted d-block mt-2">Gambar atau edit area poligon presensi pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
+                                    <small class="text-muted">Gambarkan area poligon utama pada peta. Jika sudah ada, bisa diedit.</small>
                                 </div>
 
                                 @if(in_array($madrasah->id, [24,26,33,25]))
@@ -487,24 +335,10 @@
                                     <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
                                 </div>
                                 <div class="mb-3" id="polygon2-container-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
-                                    <label class="fw-600 mb-2">
-                                        <i class="mdi mdi-map me-2"></i>Area Poligon Presensi Kedua
-                                    </label>
-                                    <div class="map-container">
-                                        <div id="map2-{{ $madrasah->id }}"></div>
-                                        <div class="map-loading" style="display: none;">
-                                            <i class="mdi mdi-loading mdi-spin"></i>
-                                            <p>Memuat peta...</p>
-                                        </div>
-                                    </div>
-                                    <div class="map-legend">
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background: #0e8549;"></div>
-                                            <span class="legend-text">Area Poligon</span>
-                                        </div>
-                                    </div>
+                                    <label>Area Poligon Presensi Kedua</label>
+                                    <div id="map2-{{ $madrasah->id }}" style="height: 320px; width: 100%;"></div>
                                     <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 }}">
-                                    <small class="text-muted d-block mt-2">Gambar atau edit area poligon presensi kedua pada peta dengan mengklik tombol polygon di pojok kanan atas.</small>
+                                    <small class="text-muted">Gambarkan area poligon kedua pada peta. Jika sudah ada, bisa diedit.</small>
                                 </div>
                                 @endif
 
@@ -686,17 +520,9 @@
             const _lat = parseFloat(lat) || -7.7956;
             const _lon = parseFloat(lon) || 110.3695;
 
-            // Initialize map with explicit container sizing
-            const map = L.map(mapId, {
-                zoomControl: true,
-                attributionControl: true,
-                preferCanvas: false
-            }).setView([_lat, _lon], 16);
-            
+            const map = L.map(mapId).setView([_lat, _lon], 16);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
-                maxZoom: 19,
-                minZoom: 10
+                attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
             const featureGroup = new L.FeatureGroup();
@@ -750,9 +576,7 @@
                 addModal.addEventListener('shown.bs.modal', function(){
                     const lat = -7.7956, lon = 110.3695;
                     const map = initializeMap('map-add', 'polygon_koordinat-add', lat, lon);
-                    // Ensure map resizes properly after modal fully rendered
-                    setTimeout(()=>{ if(map) map.invalidateSize(true); }, 100);
-                    setTimeout(()=>{ if(map) map.invalidateSize(true); }, 400);
+                    setTimeout(()=>{ if(map) map.invalidateSize(); }, 200);
                 });
             }
 
@@ -785,15 +609,11 @@
                     const bsModal = new bootstrap.Modal(modalEl);
                     bsModal.show();
 
-                    // After modal shown, invalidate sizes multiple times to ensure proper rendering
+                    // after modal shown, invalidate sizes
                     setTimeout(()=>{
-                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize(true);
-                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize(true);
-                    }, 100);
-                    setTimeout(()=>{
-                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize(true);
-                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize(true);
-                    }, 500);
+                        if (window.maps['map-' + id]) window.maps['map-' + id].invalidateSize();
+                        if (window.maps['map2-' + id]) window.maps['map2-' + id].invalidateSize();
+                    }, 300);
                 });
             });
 
@@ -811,12 +631,7 @@
                             const lat = (document.querySelector('#modalEditMadrasah'+id+' input[name="latitude"]') || {}).value || -7.7956;
                             const lon = (document.querySelector('#modalEditMadrasah'+id+' input[name="longitude"]') || {}).value || 110.3695;
                             initializeMap(map2id, polygonInput2, lat, lon, (document.getElementById(polygonInput2) || {}).value || null);
-                            setTimeout(()=>{ 
-                                if(window.maps[map2id]) window.maps[map2id].invalidateSize(true); 
-                            }, 100);
-                            setTimeout(()=>{ 
-                                if(window.maps[map2id]) window.maps[map2id].invalidateSize(true); 
-                            }, 400);
+                            setTimeout(()=>{ if(window.maps[map2id]) window.maps[map2id].invalidateSize(); }, 300);
                         }
                     } else {
                         if (container) container.style.display = 'none';
