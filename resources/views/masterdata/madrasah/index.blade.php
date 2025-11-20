@@ -26,7 +26,8 @@
             width: 100%;
             border-radius: 8px;
             border: 1px solid #ccc;
-            overflow: visible !important; /* WAJIB */
+            overflow: hidden !important; /* Menahan peta dalam div */
+            box-sizing: border-box;
         }
 
         .polygon-map-container .leaflet-container {
@@ -61,9 +62,10 @@
 
         #map-add,
         [id^="map-edit-"] {
-            height: 450px !important;
-            width: 100%;
+            height: 100% !important;
+            width: 100% !important;
             border-radius: 0.5rem;
+            position: relative !important;
         }
 
         .leaflet-container {
