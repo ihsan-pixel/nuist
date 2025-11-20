@@ -649,8 +649,10 @@
             });
         });
     });
-    </script>
-    <script>
+
+
+
+
         // Initialize DataTable and wire up edit buttons
         document.addEventListener('DOMContentLoaded', function(){
             initDataTable();
@@ -694,6 +696,34 @@
                     });
             });
         });
+
+
+        // Make mapAdd accessible within this scope and initialize the 'Tambah' modal map here
+        let mapAdd = null;
+
+        // Initialize modal maps and other UI wiring after DOM ready
+        document.addEventListener('DOMContentLoaded', function(){
+            // DataTable already initialized above in the DOMContentLoaded handler; ensure map-add is handled too
+            const modalTambah = document.getElementById('modalTambahMadrasah');
+            if (modalTambah) {
+                modalTambah.addEventListener('shown.bs.modal', function() {
+                    setTimeout(async () => {
+                        await waitForLeaflet();
+                        if (!mapAdd && typeof L !== 'undefined') {
+                            try {
+                                mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
+                            } catch (e) {
+                                console.error('Failed to init add-map', e);
+                            }
+                        }
+                        if (mapAdd) forceFixLeafletMap(mapAdd);
+                    }, 200);
+                }, { once: false });
+            }
+        });
+
+        })();
     </script>
 @endsection
 
