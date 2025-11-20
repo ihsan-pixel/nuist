@@ -22,12 +22,13 @@
     <style>
         .polygon-map-container {
             position: relative;
-            height: 450px;
+            height: 300px;
             width: 100%;
             border-radius: 8px;
             border: 1px solid #ccc;
             overflow: hidden !important; /* Menahan peta dalam div */
             box-sizing: border-box;
+            max-height: 300px;
         }
 
         .polygon-map-container .leaflet-container {
@@ -38,12 +39,12 @@
 
         .polygon-info {
             margin-top: 10px;
-            padding: 12px;
+            padding: 8px;
             background-color: #f8f9fa;
             border-radius: 0.5rem;
             border-left: 4px solid #3388ff;
-            font-size: 0.875rem;
-            line-height: 1.5;
+            font-size: 0.8rem;
+            line-height: 1.4;
         }
 
         .polygon-coordinates {
