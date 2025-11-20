@@ -543,6 +543,17 @@
         const polygonDrawingMode = {};
 
         /**
+         * Universal Leaflet Map Fix - Force multiple invalidates to stabilize layout
+         */
+        function forceFixLeafletMap(map) {
+            // Trigger invalidates multiple times to stabilize layout
+            setTimeout(() => map.invalidateSize(true), 200);   // early stage
+            setTimeout(() => map.invalidateSize(true), 600);   // layout stabilized
+            setTimeout(() => map.invalidateSize(true), 1000);  // tile load stabilize
+            setTimeout(() => map.invalidateSize(true), 1500);  // final correction
+        }
+
+        /**
          * Wait for Leaflet to be available
          */
         function waitForLeaflet() {
@@ -775,6 +786,11 @@
                 // Store map and layer references
                 polygonMaps[madrasahId] = map;
                 polygonEditableLayers[madrasahId] = drawnItems;
+
+                // Apply universal map fix after initialization
+                setTimeout(() => {
+                    if (map) forceFixLeafletMap(map);
+                }, 300);
             } catch (e) {
                 console.error('Error initializing polygon map:', e);
             }
@@ -879,10 +895,9 @@
                     mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
                 }
-                mapAdd.invalidateSize();
+                forceFixLeafletMap(mapAdd);
             }, 200);
         });
-
     </script>
 @endsection
 
