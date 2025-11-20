@@ -1082,6 +1082,15 @@
                     };
 
                     modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
+                    modalEl.addEventListener('shown.bs.modal', function() {
+                        // Fix accessibility issue: remove aria-hidden when modal is shown
+                        modalEl.removeAttribute('aria-hidden');
+                        // Focus trap for accessibility
+                        const focusableElements = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                        if (focusableElements.length > 0) {
+                            focusableElements[0].focus();
+                        }
+                    }, { once: true });
                     bsModal.show();
                 } catch (e) {
                     console.warn('Bootstrap modal not available or failed to show', e);
