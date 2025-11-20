@@ -856,6 +856,8 @@
                 // Event handlers for draw actions
                 map.on(L.Draw.Event.CREATED, function (event) {
                     const layer = event.layer;
+                    // Clear existing layers to ensure only one polygon at a time
+                    drawnItems.clearLayers();
                     drawnItems.addLayer(layer);
                     updatePolygonData(polygonInput, polygonDisplay, checklist);
                 });
@@ -984,6 +986,8 @@
                 // Event handlers for draw actions
                 map.on(L.Draw.Event.CREATED, function (event) {
                     const layer = event.layer;
+                    // Clear existing layers to ensure only one polygon at a time
+                    drawnItems.clearLayers();
                     drawnItems.addLayer(layer);
                     updatePolygonData(polygonInput, polygonDisplay);
                 });
