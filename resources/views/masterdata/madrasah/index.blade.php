@@ -907,6 +907,27 @@
                 return;
             }
 
+            // Helper function to update polygon data for primary polygon
+            function updatePolygonData(polygonInput, polygonDisplay) {
+                const layers = drawnItems.getLayers();
+                if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                    const polygon = layers[0];
+                    // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                    const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
+                    const geoJSON = {
+                        type: 'Polygon',
+                        coordinates: [coordinates]
+                    };
+                    polygonInput.value = JSON.stringify(geoJSON);
+                    updatePolygonDisplay(geoJSON, polygonDisplay);
+                } else {
+                    polygonInput.value = '[]';
+                    if (polygonDisplay) {
+                        polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>';
+                    }
+                }
+            }
+
             try {
                 // Create map centered on Indonesia (default)
                 const map = L.map('map-edit-' + madrasahId, {
@@ -953,6 +974,27 @@
                     }
                 });
                 map.addControl(drawControl);
+
+                // Helper function to update polygon data for primary polygon
+                function updatePolygonData(polygonInput, polygonDisplay) {
+                    const layers = drawnItems.getLayers();
+                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                        const polygon = layers[0];
+                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
+                        const geoJSON = {
+                            type: 'Polygon',
+                            coordinates: [coordinates]
+                        };
+                        polygonInput.value = JSON.stringify(geoJSON);
+                        updatePolygonDisplay(geoJSON, polygonDisplay);
+                    } else {
+                        polygonInput.value = '[]';
+                        if (polygonDisplay) {
+                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>';
+                        }
+                    }
+                }
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
