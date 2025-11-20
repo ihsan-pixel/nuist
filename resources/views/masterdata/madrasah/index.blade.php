@@ -16,7 +16,8 @@
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 
-
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
     <style>
         .polygon-map-container {
@@ -485,419 +486,169 @@
     <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
-    {{-- Leaflet scripts for polygon editing --}}
-    <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
-    <script>
-        // Flag to indicate Leaflet is loaded
-        window.leafletDraw = true;
-    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
     <script>
-    (function(){
-        // ---------------------- Helper utilities ----------------------
-        const el = (selector, ctx = document) => ctx.querySelector(selector);
-        const els = (selector, ctx = document) => Array.from(ctx.querySelectorAll(selector));
+    /* ============================
+        GLOBAL HELPERS
+    ============================ */
+    function fixMapSize(map) {
+        setTimeout(() => map.invalidateSize(), 200);
+        setTimeout(() => map.invalidateSize(), 600);
+        setTimeout(() => map.invalidateSize(), 1000);
+    }
 
-        // ---------------------- Logo preview (add) ----------------------
-        const logoInput = el('#logoInput');
-        if (logoInput) {
-            logoInput.addEventListener('change', function(e){
-                const file = this.files[0];
-                const preview = el('#logoPreview');
-                const previewImage = el('#previewImage');
-                if (!file) { if(preview) preview.style.display='none'; return; }
-                if (file.size > 2 * 1024 * 1024) { alert('Ukuran file terlalu besar. Maks 2MB.'); this.value=''; return; }
-                if (!file.type.match('image.*')) { alert('File harus berupa gambar.'); this.value=''; return; }
-                const reader = new FileReader();
-                reader.onload = function(evt){ previewImage.src = evt.target.result; preview.style.display = 'block'; }
-                reader.readAsDataURL(file);
-            });
-        }
-        window.clearLogoPreview = function(){ if(el('#logoInput')) el('#logoInput').value=''; if(el('#logoPreview')) el('#logoPreview').style.display='none'; }
+    /* ============================
+            ADD MADRASAH MAP
+    ============================ */
+    let mapAdd, drawControlAdd, drawnItemsAdd;
 
-        // ---------------------- Edit logo previews (delegated) ----------------------
-        document.addEventListener('change', function(e){
-            const t = e.target;
-            if (t && t.classList.contains('edit-logo-input')){
-                const id = t.id.replace('editLogoInput','');
-                const file = t.files[0];
-                const preview = el('#editLogoPreview'+id);
-                const previewImage = el('#editPreviewImage'+id);
-                if (!file) { if(preview) preview.style.display='none'; return; }
-                if (file.size > 2 * 1024 * 1024) { alert('Ukuran file terlalu besar. Maks 2MB.'); t.value=''; return; }
-                if (!file.type.match('image.*')) { alert('File harus berupa gambar.'); t.value=''; return; }
-                const reader = new FileReader();
-                reader.onload = function(evt){ if(previewImage) previewImage.src = evt.target.result; if(preview) preview.style.display='block'; }
-                reader.readAsDataURL(file);
+    function initAddMap() {
+        if (mapAdd) return;
+
+        mapAdd = L.map("map-add").setView([-7.7956, 110.3695], 13);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+        }).addTo(mapAdd);
+
+        drawnItemsAdd = new L.FeatureGroup();
+        mapAdd.addLayer(drawnItemsAdd);
+
+        drawControlAdd = new L.Control.Draw({
+            draw: {
+                polygon: true,
+                circle: false,
+                marker: false,
+                rectangle: false,
+                polyline: false,
+            },
+            edit: {
+                featureGroup: drawnItemsAdd,
+                remove: true,
+            },
+        });
+
+        mapAdd.addControl(drawControlAdd);
+
+        mapAdd.on(L.Draw.Event.CREATED, function (e) {
+            drawnItemsAdd.clearLayers();
+            drawnItemsAdd.addLayer(e.layer);
+            saveAddPolygon();
+        });
+
+        mapAdd.on(L.Draw.Event.EDITED, saveAddPolygon);
+        mapAdd.on(L.Draw.Event.DELETED, saveAddPolygon);
+    }
+
+    function saveAddPolygon() {
+        let coords = [];
+
+        drawnItemsAdd.eachLayer(layer => {
+            if (layer instanceof L.Polygon) {
+                coords = layer.getLatLngs()[0].map(ll => [ll.lng, ll.lat]);
             }
         });
 
-        window.clearEditLogoPreview = function(id){ const input = el('#editLogoInput'+id); const preview = el('#editLogoPreview'+id); if(input) input.value=''; if(preview) preview.style.display='none'; }
+        document.getElementById("polygon_koordinat_add").value =
+            coords.length ? JSON.stringify({ type: "Polygon", coordinates: [coords] }) : "[]";
+    }
 
-        // ---------------------- DataTable init (prevent double init) ----------------------
-        let dataTableInstance = null;
-        const initDataTable = () => {
-            if ($.fn.DataTable.isDataTable('#datatable-buttons')) {
-                dataTableInstance = $('#datatable-buttons').DataTable();
-                return;
-            }
-            dataTableInstance = $('#datatable-buttons').DataTable({
-                responsive: true,
-                lengthChange: true,
-                autoWidth: false,
-                buttons: ["copy", "excel", "pdf", "print", "colvis"]
-            });
-            dataTableInstance.buttons().container().appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
-        };
+    // Show modal add
+    document.getElementById("modalTambahMadrasah").addEventListener("shown.bs.modal", function () {
+        initAddMap();
+        fixMapSize(mapAdd);
+    });
 
-        // ---------------------- Polygon Map Management ----------------------
-        // Store maps by madrasah ID to prevent conflicts
-        const polygonMaps = {};
-        const polygonEditableLayers = {};
-        const polygonDrawingMode = {};
 
-        /**
-         * Universal Leaflet Map Fix - Force multiple invalidates to stabilize layout
-         */
-        function forceFixLeafletMap(map) {
-            // Trigger invalidates multiple times to stabilize layout
-            setTimeout(() => map.invalidateSize(true), 200);   // early stage
-            setTimeout(() => map.invalidateSize(true), 600);   // layout stabilized
-            setTimeout(() => map.invalidateSize(true), 1000);  // tile load stabilize
-            setTimeout(() => map.invalidateSize(true), 1500);  // final correction
+    /* ============================
+            EDIT MADRASAH MAP
+    ============================ */
+    const editMaps = {};
+
+    function initEditMap(id) {
+        if (editMaps[id]) {
+            fixMapSize(editMaps[id].map);
+            return;
         }
 
-        /**
-         * Wait for Leaflet to be available
-         */
-        function waitForLeaflet() {
-            return new Promise((resolve) => {
-                if (typeof L !== 'undefined') {
-                    resolve();
-                } else {
-                    const checkInterval = setInterval(() => {
-                        if (typeof L !== 'undefined') {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100);
-                    // Timeout after 5 seconds
-                    setTimeout(() => {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }, 5000);
+        let map = L.map("map-edit-" + id).setView([-7.7956, 110.3695], 13);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+        }).addTo(map);
+
+        let drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Add controls
+        let drawControl = new L.Control.Draw({
+            draw: {
+                polygon: true,
+                circle: false,
+                marker: false,
+                rectangle: false,
+                polyline: false,
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true,
+            },
+        });
+        map.addControl(drawControl);
+
+        // Load EXISTING polygon
+        let raw = document.getElementById("polygon_koordinat-edit-" + id).value;
+        if (raw && raw !== "[]") {
+            try {
+                let json = JSON.parse(raw);
+                let coords = json.coordinates[0].map(c => [c[1], c[0]]);
+                let poly = L.polygon(coords).addTo(drawnItems);
+                map.fitBounds(poly.getBounds());
+            } catch {}
+        }
+
+        // Events
+        function saveEdit() {
+            let coords = [];
+            drawnItems.eachLayer(layer => {
+                if (layer instanceof L.Polygon) {
+                    coords = layer.getLatLngs()[0].map(ll => [ll.lng, ll.lat]);
                 }
             });
+
+            document.getElementById("polygon_koordinat-edit-" + id).value =
+                coords.length ? JSON.stringify({ type: "Polygon", coordinates: [coords] }) : "[]";
         }
 
-        /**
-         * Initialize polygon map for a specific madrasah
-         * @param {number} madrasahId - ID of the madrasah
-         */
-        async function initPolygonMap(madrasahId) {
-            await waitForLeaflet();
+        map.on(L.Draw.Event.CREATED, function (e) {
+            drawnItems.clearLayers();
+            drawnItems.addLayer(e.layer);
+            saveEdit();
+        });
 
-            const mapContainer = el('#map-edit-' + madrasahId);
-            const polygonInput = el('#polygon_koordinat-edit-' + madrasahId);
-            const polygonDisplay = el('#polygon-display-' + madrasahId);
+        map.on(L.Draw.Event.EDITED, saveEdit);
+        map.on(L.Draw.Event.DELETED, saveEdit);
 
-            if (!mapContainer || !polygonInput || typeof L === 'undefined') {
-                console.error('Map container or Leaflet not found');
-                return;
-            }            try {
-                // Create map centered on Indonesia (default)
-                const map = L.map('map-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
+        // Save to global
+        editMaps[id] = { map, drawnItems };
 
-                // Add tile layer
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
-                }).addTo(map);
+        fixMapSize(map);
+    }
 
-                // Initialize draw feature group
-                const drawnItems = new L.FeatureGroup();
-                map.addLayer(drawnItems);
+    // OPEN EDIT MODAL → INIT MAP
+    document.querySelectorAll(".btn-edit").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let id = btn.dataset.id;
+            let modal = document.getElementById("modalEditMadrasah" + id);
 
-                // Initialize drawing state
-                polygonDrawingMode[madrasahId] = false;
-                let isDrawing = false;
-                let currentPoints = [];
-                let editingPolygon = null;
-
-                // Create custom toolbar
-                const toolbarDiv = L.control({position: 'topleft'});
-                toolbarDiv.onAdd = function(map) {
-                    const div = L.DomUtil.create('div', 'leaflet-toolbar');
-                    div.style.backgroundColor = 'white';
-                    div.style.padding = '5px';
-                    div.style.borderRadius = '4px';
-                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
-
-                    const btnDraw = L.DomUtil.create('button', '', div);
-                    btnDraw.innerHTML = '✏️ Gambar Poligon';
-                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#3388ff;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnEdit = L.DomUtil.create('button', '', div);
-                    btnEdit.innerHTML = '✎️ Edit';
-                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnDelete = L.DomUtil.create('button', '', div);
-                    btnDelete.innerHTML = '🗑️ Hapus';
-                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnClear = L.DomUtil.create('button', '', div);
-                    btnClear.innerHTML = '✕ Batal';
-                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    L.DomEvent.disableClickPropagation(div);
-
-                    btnDraw.addEventListener('click', function() {
-                        if (!isDrawing) {
-                            isDrawing = true;
-                            currentPoints = [];
-                            btnDraw.style.background = '#28a745';
-                            btnDraw.innerHTML = '⏹️ Selesai (Min 3 titik)';
-                        } else {
-                            if (currentPoints.length >= 3) {
-                                finishDrawing();
-                                btnDraw.style.background = '#3388ff';
-                                btnDraw.innerHTML = '✏️ Gambar Poligon';
-                            } else {
-                                alert('Minimal 3 titik untuk membuat poligon. Titik saat ini: ' + currentPoints.length);
-                            }
-                        }
-                    });
-
-                    btnEdit.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length === 0) {
-                            alert('Tidak ada poligon yang dapat diedit');
-                            return;
-                        }
-                        editingPolygon = layers[0];
-                        alert('Mode edit aktif. Seret titik poligon atau klik "Selesai" untuk mengakhiri edit.');
-                    });
-
-                    btnDelete.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length > 0) {
-                            drawnItems.removeLayer(layers[0]);
-                            updatePolygonData();
-                            alert('Poligon dihapus');
-                        } else {
-                            alert('Tidak ada poligon untuk dihapus');
-                        }
-                    });
-
-                    btnClear.addEventListener('click', function() {
-                        if (isDrawing) {
-                            isDrawing = false;
-                            currentPoints = [];
-                            btnDraw.style.background = '#3388ff';
-                            btnDraw.innerHTML = '✏️ Gambar';
-                            drawnItems.clearLayers();
-                            map.eachLayer(layer => {
-                                if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                    map.removeLayer(layer);
-                                }
-                            });
-                        }
-                    });
-
-                    return div;
-                };
-                toolbarDiv.addTo(map);
-
-                // Handle map clicks for drawing
-                const finishDrawing = function() {
-                    if (currentPoints.length >= 3) {
-                        // Close polygon by adding first point at end
-                        const closedPoints = [...currentPoints, currentPoints[0]];
-                        const polygon = L.polygon(closedPoints, {
-                            color: '#3388ff',
-                            fillOpacity: 0.2,
-                            weight: 2
-                        });
-                        drawnItems.addLayer(polygon);
-                        updatePolygonData();
-                        isDrawing = false;
-                        currentPoints = [];
-                        map.eachLayer(layer => {
-                            if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                map.removeLayer(layer);
-                            }
-                        });
-                    }
-                };
-
-                map.on('click', function(e) {
-                    if (isDrawing) {
-                        const latlng = e.latlng;
-                        currentPoints.push([latlng.lat, latlng.lng]);
-
-                        // Add visual marker
-                        L.circleMarker([latlng.lat, latlng.lng], {
-                            radius: 5,
-                            fillColor: '#3388ff',
-                            color: '#ffffff',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.8
-                        }).addTo(map).isVertex = true;
-                    }
-                });
-
-                // Load existing polygon from database if available
-                const existingCoordinates = polygonInput.value;
-                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
-                    try {
-                        const coordData = JSON.parse(existingCoordinates);
-                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
-                            // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
-                            // Convert [lon,lat] to [lat,lon] for Leaflet
-                            const geoJSONCoords = coordData.coordinates[0];
-                            const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
-
-                            const polygon = L.polygon(leafletCoords, {
-                                color: '#3388ff',
-                                fillOpacity: 0.2,
-                                weight: 2
-                            });
-                            drawnItems.addLayer(polygon);
-
-                            // Fit map to polygon bounds
-                            setTimeout(() => {
-                                map.fitBounds(polygon.getBounds());
-                            }, 100);
-                            updatePolygonDisplay(coordData, polygonDisplay);
-                        }
-                    } catch (e) {
-                        console.warn('Failed to parse existing polygon coordinates:', e);
-                    }
-                }
-
-                // Handle draw and edit events
-                const updatePolygonData = () => {
-                    const layers = drawnItems.getLayers();
-                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
-                        const polygon = layers[0];
-                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
-                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
-                        const geoJSON = {
-                            type: 'Polygon',
-                            coordinates: [coordinates]
-                        };
-                        polygonInput.value = JSON.stringify(geoJSON);
-                        updatePolygonDisplay(geoJSON, polygonDisplay);
-                    } else {
-                        polygonInput.value = '[]';
-                        if (polygonDisplay) {
-                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>';
-                        }
-                    }
-                };
-
-                // Store map and layer references
-                polygonMaps[madrasahId] = map;
-                polygonEditableLayers[madrasahId] = drawnItems;
-
-                // Apply universal map fix after initialization
-                setTimeout(() => {
-                    if (map) forceFixLeafletMap(map);
-                }, 300);
-            } catch (e) {
-                console.error('Error initializing polygon map:', e);
-            }
-        }
-
-        /**
-         * Update the polygon coordinate display
-         */
-        function updatePolygonDisplay(geoJSON, displayElement) {
-            if (!displayElement) return;
-            if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
-                const coords = geoJSON.coordinates[0];
-                let html = `<strong>Jumlah titik:</strong> ${coords.length}<br>`;
-                html += `<strong>Format:</strong> GeoJSON (Longitude, Latitude)<br>`;
-                html += `<strong>Data JSON:</strong><br>`;
-                html += `<code>${JSON.stringify(geoJSON, null, 2)}</code>`;
-                displayElement.innerHTML = html;
-            }
-        }
-
-
-
-        // Initialize DataTable and wire up edit buttons
-        document.addEventListener('DOMContentLoaded', function(){
-            initDataTable();
-
-            // Open edit modal when Edit button clicked and initialize map
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                    btn.addEventListener('click', function(){
-                        const id = this.getAttribute('data-id');
-                        const modalId = 'modalEditMadrasah' + id;
-                        const modalEl = document.getElementById(modalId);
-                        if (!modalEl) return;
-                        try {
-                            const bsModal = new bootstrap.Modal(modalEl);
-
-                            // Attach shown handler before showing modal. Use { once: true } so it auto-removes.
-                            const onShown = async function() {
-                                // small delay to ensure DOM inside modal is painted
-                                await new Promise(resolve => setTimeout(resolve, 300));
-
-                                // Initialize or refresh map
-                                if (!polygonMaps[id]) {
-                                    await initPolygonMap(id);
-                                } else {
-                                    polygonMaps[id].invalidateSize();
-                                }
-
-                                // Ensure map is visible
-                                const mapContainer = document.getElementById('map-edit-' + id);
-                                if (mapContainer && polygonMaps[id]) {
-                                    setTimeout(() => {
-                                        polygonMaps[id].invalidateSize();
-                                    }, 100);
-                                }
-                            };
-
-                            modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
-                            bsModal.show();
-                        } catch (e) {
-                            console.warn('Bootstrap modal not available or failed to show', e);
-                        }
-                    });
+            modal.addEventListener("shown.bs.modal", function onShow() {
+                initEditMap(id);
+                modal.removeEventListener("shown.bs.modal", onShow);
             });
         });
-
-        
-        // Make mapAdd accessible within this scope and initialize the 'Tambah' modal map here
-        let mapAdd = null;
-
-        // Initialize modal maps and other UI wiring after DOM ready
-        document.addEventListener('DOMContentLoaded', function(){
-            // DataTable already initialized above in the DOMContentLoaded handler; ensure map-add is handled too
-            const modalTambah = document.getElementById('modalTambahMadrasah');
-            if (modalTambah) {
-                modalTambah.addEventListener('shown.bs.modal', function() {
-                    setTimeout(async () => {
-                        await waitForLeaflet();
-                        if (!mapAdd && typeof L !== 'undefined') {
-                            try {
-                                mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
-                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
-                            } catch (e) {
-                                console.error('Failed to init add-map', e);
-                            }
-                        }
-                        if (mapAdd) forceFixLeafletMap(mapAdd);
-                    }, 200);
-                }, { once: false });
-            }
-        });
-
-        })();
+    });
     </script>
 @endsection
 
