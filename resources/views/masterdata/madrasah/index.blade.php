@@ -278,12 +278,7 @@
                                     </select>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label>Area Poligon Presensi Utama</label>
-                                    <div id="map-add" style="height: 320px; width: 100%;"></div>
-                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-add">
-                                    <small class="text-muted">Gambarkan area poligon utama pada peta.</small>
-                                </div>
+
 
                                 <div class="mb-3">
                                     <label>Logo Madrasah/Sekolah</label>
