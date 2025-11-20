@@ -727,6 +727,7 @@
             const mapContainer = el('#map2-edit-' + madrasahId);
             const polygonInput = el('#polygon_koordinat_2-edit-' + madrasahId);
             const polygonDisplay = el('#polygon2-display-' + madrasahId);
+            const checklist = el('#polygon2-checklist-' + madrasahId);
 
             if (!mapContainer || !polygonInput || typeof L === 'undefined') {
                 console.error('Dual polygon map container or Leaflet not found');
@@ -735,7 +736,11 @@
 
             try {
                 // Create map centered on Indonesia (default)
-                const map = L.map('map2-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
+                const map = L.map('map2-edit-' + madrasahId, {
+                    center: [-7.7956, 110.3695],
+                    zoom: 13,
+                    zoomControl: true
+                });
 
                 // Add tile layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -743,137 +748,38 @@
                     maxZoom: 19
                 }).addTo(map);
 
-                // Initialize draw feature group
+                // Initialize FeatureGroup to store editable layers
                 const drawnItems = new L.FeatureGroup();
                 map.addLayer(drawnItems);
 
-                // Initialize drawing state
-                let isDrawing = false;
-                let currentPoints = [];
-                let editingPolygon = null;
-
-                // Create custom toolbar
-                const toolbarDiv = L.control({position: 'topleft'});
-                toolbarDiv.onAdd = function(map) {
-                    const div = L.DomUtil.create('div', 'leaflet-toolbar');
-                    div.style.backgroundColor = 'white';
-                    div.style.padding = '5px';
-                    div.style.borderRadius = '4px';
-                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
-
-                    const btnDraw = L.DomUtil.create('button', '', div);
-                    btnDraw.innerHTML = '✏️ Gambar Poligon';
-                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#28a745;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnEdit = L.DomUtil.create('button', '', div);
-                    btnEdit.innerHTML = '✎️ Edit';
-                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnDelete = L.DomUtil.create('button', '', div);
-                    btnDelete.innerHTML = '🗑️ Hapus';
-                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnClear = L.DomUtil.create('button', '', div);
-                    btnClear.innerHTML = '✕ Batal';
-                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    L.DomEvent.disableClickPropagation(div);
-
-                    btnDraw.addEventListener('click', function() {
-                        if (!isDrawing) {
-                            isDrawing = true;
-                            currentPoints = [];
-                            btnDraw.style.background = '#28a745';
-                            btnDraw.innerHTML = '⏹️ Selesai (Min 3 titik)';
-                        } else {
-                            if (currentPoints.length >= 3) {
-                                finishDrawing();
-                                btnDraw.style.background = '#28a745';
-                                btnDraw.innerHTML = '✏️ Gambar Poligon';
-                            } else {
-                                alert('Minimal 3 titik untuk membuat poligon. Titik saat ini: ' + currentPoints.length);
+                // Initialize the draw control and pass it the FeatureGroup of editable layers
+                const drawControl = new L.Control.Draw({
+                    edit: {
+                        featureGroup: drawnItems,
+                        remove: true
+                    },
+                    draw: {
+                        polygon: {
+                            allowIntersection: false,
+                            showArea: true,
+                            drawError: {
+                                color: '#e1e100',
+                                message: '<strong>Error:</strong> Shape edges cannot cross!'
+                            },
+                            shapeOptions: {
+                                color: '#28a745',
+                                fillOpacity: 0.2,
+                                weight: 2
                             }
-                        }
-                    });
-
-                    btnEdit.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length === 0) {
-                            alert('Tidak ada poligon yang dapat diedit');
-                            return;
-                        }
-                        editingPolygon = layers[0];
-                        alert('Mode edit aktif. Seret titik poligon atau klik "Selesai" untuk mengakhiri edit.');
-                    });
-
-                    btnDelete.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length > 0) {
-                            drawnItems.removeLayer(layers[0]);
-                            updatePolygonData();
-                            alert('Poligon dihapus');
-                        } else {
-                            alert('Tidak ada poligon untuk dihapus');
-                        }
-                    });
-
-                    btnClear.addEventListener('click', function() {
-                        if (isDrawing) {
-                            isDrawing = false;
-                            currentPoints = [];
-                            btnDraw.style.background = '#28a745';
-                            btnDraw.innerHTML = '✏️ Gambar';
-                            drawnItems.clearLayers();
-                            map.eachLayer(layer => {
-                                if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                    map.removeLayer(layer);
-                                }
-                            });
-                        }
-                    });
-
-                    return div;
-                };
-                toolbarDiv.addTo(map);
-
-                // Handle map clicks for drawing
-                const finishDrawing = function() {
-                    if (currentPoints.length >= 3) {
-                        // Close polygon by adding first point at end
-                        const closedPoints = [...currentPoints, currentPoints[0]];
-                        const polygon = L.polygon(closedPoints, {
-                            color: '#28a745',
-                            fillOpacity: 0.2,
-                            weight: 2
-                        });
-                        drawnItems.addLayer(polygon);
-                        updatePolygonData();
-                        isDrawing = false;
-                        currentPoints = [];
-                        map.eachLayer(layer => {
-                            if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                map.removeLayer(layer);
-                            }
-                        });
-                    }
-                };
-
-                map.on('click', function(e) {
-                    if (isDrawing) {
-                        const latlng = e.latlng;
-                        currentPoints.push([latlng.lat, latlng.lng]);
-
-                        // Add visual marker
-                        L.circleMarker([latlng.lat, latlng.lng], {
-                            radius: 5,
-                            fillColor: '#28a745',
-                            color: '#ffffff',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.8
-                        }).addTo(map).isVertex = true;
+                        },
+                        polyline: false,
+                        rectangle: false,
+                        circle: false,
+                        marker: false,
+                        circlemarker: false
                     }
                 });
+                map.addControl(drawControl);
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
@@ -897,33 +803,35 @@
                             setTimeout(() => {
                                 map.fitBounds(polygon.getBounds());
                             }, 100);
-                            updatePolygonDisplay(coordData, polygonDisplay);
+                            updatePolygonDisplay(coordData, polygonDisplay, checklist);
                         }
                     } catch (e) {
                         console.warn('Failed to parse existing dual polygon coordinates:', e);
                     }
                 }
 
-                // Handle draw and edit events
-                const updatePolygonData = () => {
-                    const layers = drawnItems.getLayers();
-                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
-                        const polygon = layers[0];
-                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
-                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
-                        const geoJSON = {
-                            type: 'Polygon',
-                            coordinates: [coordinates]
-                        };
-                        polygonInput.value = JSON.stringify(geoJSON);
-                        updatePolygonDisplay(geoJSON, polygonDisplay);
-                    } else {
-                        polygonInput.value = '[]';
-                        if (polygonDisplay) {
-                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>';
-                        }
-                    }
-                };
+                // Event handlers for draw actions
+                map.on(L.Draw.Event.CREATED, function (event) {
+                    const layer = event.layer;
+                    drawnItems.addLayer(layer);
+                    updatePolygonData(polygonInput, polygonDisplay, checklist);
+                });
+
+                map.on(L.Draw.Event.EDITED, function (event) {
+                    const layers = event.layers;
+                    layers.eachLayer(function (layer) {
+                        // Layer has been edited
+                    });
+                    updatePolygonData(polygonInput, polygonDisplay, checklist);
+                });
+
+                map.on(L.Draw.Event.DELETED, function (event) {
+                    const layers = event.layers;
+                    layers.eachLayer(function (layer) {
+                        // Layer has been deleted
+                    });
+                    updatePolygonData(polygonInput, polygonDisplay, checklist);
+                });
 
                 // Store map and layer references
                 dualPolygonMaps[madrasahId] = map;
@@ -952,9 +860,15 @@
             if (!mapContainer || !polygonInput || typeof L === 'undefined') {
                 console.error('Map container or Leaflet not found');
                 return;
-            }            try {
+            }
+
+            try {
                 // Create map centered on Indonesia (default)
-                const map = L.map('map-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
+                const map = L.map('map-edit-' + madrasahId, {
+                    center: [-7.7956, 110.3695],
+                    zoom: 13,
+                    zoomControl: true
+                });
 
                 // Add tile layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -962,138 +876,38 @@
                     maxZoom: 19
                 }).addTo(map);
 
-                // Initialize draw feature group
+                // Initialize FeatureGroup to store editable layers
                 const drawnItems = new L.FeatureGroup();
                 map.addLayer(drawnItems);
 
-                // Initialize drawing state
-                polygonDrawingMode[madrasahId] = false;
-                let isDrawing = false;
-                let currentPoints = [];
-                let editingPolygon = null;
-
-                // Create custom toolbar
-                const toolbarDiv = L.control({position: 'topleft'});
-                toolbarDiv.onAdd = function(map) {
-                    const div = L.DomUtil.create('div', 'leaflet-toolbar');
-                    div.style.backgroundColor = 'white';
-                    div.style.padding = '5px';
-                    div.style.borderRadius = '4px';
-                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
-
-                    const btnDraw = L.DomUtil.create('button', '', div);
-                    btnDraw.innerHTML = '✏️ Gambar Poligon';
-                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#3388ff;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnEdit = L.DomUtil.create('button', '', div);
-                    btnEdit.innerHTML = '✎️ Edit';
-                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnDelete = L.DomUtil.create('button', '', div);
-                    btnDelete.innerHTML = '🗑️ Hapus';
-                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    const btnClear = L.DomUtil.create('button', '', div);
-                    btnClear.innerHTML = '✕ Batal';
-                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
-
-                    L.DomEvent.disableClickPropagation(div);
-
-                    btnDraw.addEventListener('click', function() {
-                        if (!isDrawing) {
-                            isDrawing = true;
-                            currentPoints = [];
-                            btnDraw.style.background = '#28a745';
-                            btnDraw.innerHTML = '⏹️ Selesai (Min 3 titik)';
-                        } else {
-                            if (currentPoints.length >= 3) {
-                                finishDrawing();
-                                btnDraw.style.background = '#3388ff';
-                                btnDraw.innerHTML = '✏️ Gambar Poligon';
-                            } else {
-                                alert('Minimal 3 titik untuk membuat poligon. Titik saat ini: ' + currentPoints.length);
+                // Initialize the draw control and pass it the FeatureGroup of editable layers
+                const drawControl = new L.Control.Draw({
+                    edit: {
+                        featureGroup: drawnItems,
+                        remove: true
+                    },
+                    draw: {
+                        polygon: {
+                            allowIntersection: false,
+                            showArea: true,
+                            drawError: {
+                                color: '#e1e100',
+                                message: '<strong>Error:</strong> Shape edges cannot cross!'
+                            },
+                            shapeOptions: {
+                                color: '#3388ff',
+                                fillOpacity: 0.2,
+                                weight: 2
                             }
-                        }
-                    });
-
-                    btnEdit.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length === 0) {
-                            alert('Tidak ada poligon yang dapat diedit');
-                            return;
-                        }
-                        editingPolygon = layers[0];
-                        alert('Mode edit aktif. Seret titik poligon atau klik "Selesai" untuk mengakhiri edit.');
-                    });
-
-                    btnDelete.addEventListener('click', function() {
-                        const layers = drawnItems.getLayers();
-                        if (layers.length > 0) {
-                            drawnItems.removeLayer(layers[0]);
-                            updatePolygonData();
-                            alert('Poligon dihapus');
-                        } else {
-                            alert('Tidak ada poligon untuk dihapus');
-                        }
-                    });
-
-                    btnClear.addEventListener('click', function() {
-                        if (isDrawing) {
-                            isDrawing = false;
-                            currentPoints = [];
-                            btnDraw.style.background = '#3388ff';
-                            btnDraw.innerHTML = '✏️ Gambar';
-                            drawnItems.clearLayers();
-                            map.eachLayer(layer => {
-                                if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                    map.removeLayer(layer);
-                                }
-                            });
-                        }
-                    });
-
-                    return div;
-                };
-                toolbarDiv.addTo(map);
-
-                // Handle map clicks for drawing
-                const finishDrawing = function() {
-                    if (currentPoints.length >= 3) {
-                        // Close polygon by adding first point at end
-                        const closedPoints = [...currentPoints, currentPoints[0]];
-                        const polygon = L.polygon(closedPoints, {
-                            color: '#3388ff',
-                            fillOpacity: 0.2,
-                            weight: 2
-                        });
-                        drawnItems.addLayer(polygon);
-                        updatePolygonData();
-                        isDrawing = false;
-                        currentPoints = [];
-                        map.eachLayer(layer => {
-                            if (layer instanceof L.CircleMarker && !layer.isVertex) {
-                                map.removeLayer(layer);
-                            }
-                        });
-                    }
-                };
-
-                map.on('click', function(e) {
-                    if (isDrawing) {
-                        const latlng = e.latlng;
-                        currentPoints.push([latlng.lat, latlng.lng]);
-
-                        // Add visual marker
-                        L.circleMarker([latlng.lat, latlng.lng], {
-                            radius: 5,
-                            fillColor: '#3388ff',
-                            color: '#ffffff',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.8
-                        }).addTo(map).isVertex = true;
+                        },
+                        polyline: false,
+                        rectangle: false,
+                        circle: false,
+                        marker: false,
+                        circlemarker: false
                     }
                 });
+                map.addControl(drawControl);
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
@@ -1124,26 +938,28 @@
                     }
                 }
 
-                // Handle draw and edit events
-                const updatePolygonData = () => {
-                    const layers = drawnItems.getLayers();
-                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
-                        const polygon = layers[0];
-                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
-                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
-                        const geoJSON = {
-                            type: 'Polygon',
-                            coordinates: [coordinates]
-                        };
-                        polygonInput.value = JSON.stringify(geoJSON);
-                        updatePolygonDisplay(geoJSON, polygonDisplay);
-                    } else {
-                        polygonInput.value = '[]';
-                        if (polygonDisplay) {
-                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>';
-                        }
-                    }
-                };
+                // Event handlers for draw actions
+                map.on(L.Draw.Event.CREATED, function (event) {
+                    const layer = event.layer;
+                    drawnItems.addLayer(layer);
+                    updatePolygonData(polygonInput, polygonDisplay);
+                });
+
+                map.on(L.Draw.Event.EDITED, function (event) {
+                    const layers = event.layers;
+                    layers.eachLayer(function (layer) {
+                        // Layer has been edited
+                    });
+                    updatePolygonData(polygonInput, polygonDisplay);
+                });
+
+                map.on(L.Draw.Event.DELETED, function (event) {
+                    const layers = event.layers;
+                    layers.eachLayer(function (layer) {
+                        // Layer has been deleted
+                    });
+                    updatePolygonData(polygonInput, polygonDisplay);
+                });
 
                 // Store map and layer references
                 polygonMaps[madrasahId] = map;
@@ -1250,7 +1066,7 @@
                 if (target && target.id && target.id.startsWith('enable_dual_polygon-edit-')) {
                     const id = target.id.replace('enable_dual_polygon-edit-', '');
                     const container = document.getElementById('polygon2-container-edit-' + id);
-                    const mapId = 'map2-edit-' + id;
+                    const checklist = document.getElementById('polygon2-checklist-' + id);
 
                     // Check if this madrasah is allowed to use dual polygon
                     const allowedMadrasahIds = [24, 26, 33];
@@ -1264,6 +1080,22 @@
 
                     if (target.checked) {
                         container.style.display = 'block';
+                        // Update checklist
+                        if (checklist) {
+                            const checklistItems = checklist.querySelectorAll('.polygon-checklist-item');
+                            checklistItems.forEach(item => {
+                                if (item.innerHTML.includes('Dual Polygon:')) {
+                                    const icon = item.querySelector('i');
+                                    const span = item.querySelector('span');
+                                    if (icon && span) {
+                                        icon.className = 'bx bx-check-circle';
+                                        item.classList.remove('warning');
+                                        item.classList.add('success');
+                                        span.textContent = 'Dual Polygon: Aktif';
+                                    }
+                                }
+                            });
+                        }
                         // Initialize map if not already done
                         if (!dualPolygonMaps[id]) {
                             initDualPolygonMap(id);
@@ -1277,6 +1109,32 @@
                         // Clear the polygon data
                         const polygonInput = document.getElementById('polygon_koordinat_2-edit-' + id);
                         if (polygonInput) polygonInput.value = '[]';
+                        // Update checklist
+                        if (checklist) {
+                            const checklistItems = checklist.querySelectorAll('.polygon-checklist-item');
+                            checklistItems.forEach(item => {
+                                if (item.innerHTML.includes('Dual Polygon:')) {
+                                    const icon = item.querySelector('i');
+                                    const span = item.querySelector('span');
+                                    if (icon && span) {
+                                        icon.className = 'bx bx-info-circle';
+                                        item.classList.remove('success');
+                                        item.classList.add('warning');
+                                        span.textContent = 'Dual Polygon: Tidak aktif';
+                                    }
+                                }
+                                if (item.innerHTML.includes('Poligon Kedua:')) {
+                                    const icon = item.querySelector('i');
+                                    const span = item.querySelector('span');
+                                    if (icon && span) {
+                                        icon.className = 'bx bx-x-circle';
+                                        item.classList.remove('success');
+                                        item.classList.add('danger');
+                                        span.textContent = 'Poligon Kedua: Belum ada';
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
             });
