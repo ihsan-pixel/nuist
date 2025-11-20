@@ -31,13 +31,13 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
             background-color: #f5f5f5;
         }
-        
+
         .polygon-map-container .leaflet-container {
             height: 100% !important;
             width: 100% !important;
             border-radius: 0.5rem;
         }
-        
+
         .polygon-info {
             margin-top: 10px;
             padding: 12px;
@@ -47,7 +47,7 @@
             font-size: 0.875rem;
             line-height: 1.5;
         }
-        
+
         .polygon-coordinates {
             background-color: #fff;
             border: 1px solid #dee2e6;
@@ -61,7 +61,7 @@
             word-break: break-all;
             line-height: 1.4;
         }
-        
+
         #map-add,
         [id^="map-edit-"] {
             height: 450px !important;
@@ -78,7 +78,7 @@
             z-index: 999 !important;
             border-radius: 0.5rem;
         }
-        
+
         /* Toolbar styling */
         .leaflet-toolbar {
             display: flex;
@@ -90,7 +90,7 @@
             border-radius: 0.5rem !important;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
         }
-        
+
         .leaflet-toolbar button {
             padding: 10px 12px !important;
             margin: 0 !important;
@@ -104,12 +104,12 @@
             transition: all 0.2s ease !important;
             min-width: 90px !important;
         }
-        
+
         .leaflet-toolbar button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
         }
-        
+
         .leaflet-toolbar button:active {
             transform: translateY(0);
         }
@@ -478,7 +478,7 @@
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
     {{-- Leaflet scripts for polygon editing --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
     <script>
         // Flag to indicate Leaflet is loaded
         window.leafletDraw = true;
@@ -577,11 +577,11 @@
          */
         async function initPolygonMap(madrasahId) {
             await waitForLeaflet();
-            
+
             const mapContainer = el('#map-edit-' + madrasahId);
             const polygonInput = el('#polygon_koordinat-edit-' + madrasahId);
             const polygonDisplay = el('#polygon-display-' + madrasahId);
-            
+
             if (!mapContainer || !polygonInput || typeof L === 'undefined') {
                 console.error('Map container or Leaflet not found');
                 return;
@@ -842,17 +842,17 @@
                         modalEl.addEventListener('shown.bs.modal', async function() {
                             // Remove listener after first trigger
                             this.removeEventListener('shown.bs.modal', arguments.callee);
-                            
+
                             // Wait for modal to fully render
                             await new Promise(resolve => setTimeout(resolve, 300));
-                            
+
                             // Initialize or refresh map
                             if (polygonMaps[id]) {
                                 polygonMaps[id].invalidateSize();
                             } else {
                                 await initPolygonMap(id);
                             }
-                            
+
                             // Ensure map is visible
                             const mapContainer = document.getElementById('map-edit-' + id);
                             if (mapContainer && polygonMaps[id]) {
