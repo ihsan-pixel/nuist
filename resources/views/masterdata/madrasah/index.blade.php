@@ -414,6 +414,36 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                {{-- Polygon Koordinat Section --}}
+                                <div class="mb-3">
+                                    <label>Area Polygon Presensi</label>
+                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
+                                    <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
+                                        <!-- Map will be initialized here -->
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 mt-2 small">Memuat peta...</p>
+                                        </div>
+                                    </div>
+                                    <div class="polygon-info mt-2">
+                                        <div id="polygon-display-{{ $madrasah->id }}">
+                                            @if($madrasah->polygon_koordinat)
+                                                @php
+                                                    $coords = json_decode($madrasah->polygon_koordinat, true);
+                                                    $pointCount = isset($coords['coordinates'][0]) ? count($coords['coordinates'][0]) : 0;
+                                                @endphp
+                                                <strong>Jumlah titik:</strong> {{ $pointCount }}<br>
+                                                <strong>Format:</strong> GeoJSON (Longitude, Latitude)<br>
+                                                <strong>Data JSON:</strong><br>
+                                                <code>{{ $madrasah->polygon_koordinat }}</code>
+                                            @else
+                                                <small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi.</small>
+                                </div>
                             </div>
                         </div>
                     </div>
