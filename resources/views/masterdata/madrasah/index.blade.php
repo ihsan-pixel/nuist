@@ -811,35 +811,7 @@
             }
         }
 
-        /**
-         * Reinitialize map when modal is shown (fixes Leaflet sizing issues)
-         */
-        function reinitializeMapOnModalShow(madrasahId) {
-            const modalId = 'modalEditMadrasah' + madrasahId;
-            const modalEl = el('#' + modalId);
-            if (!modalEl) return;
 
-            // Use Bootstrap modal events
-            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modalEl.addEventListener('shown.bs.modal', async () => {
-                // delay biar modal bener2 open
-                setTimeout(() => {
-                    if (!polygonMaps[id]) {
-                        initPolygonMap(id).then(() => {
-                            polygonMaps[id].invalidateSize();
-                        });
-                    } else {
-                        polygonMaps[id].invalidateSize();
-                    }
-                }, 300);
-
-                // delay kedua wajib untuk tile
-                setTimeout(() => {
-                    polygonMaps[id]?.invalidateSize();
-                }, 700);
-
-            }, { once: true });
-        }
 
         // Initialize DataTable and wire up edit buttons
         document.addEventListener('DOMContentLoaded', function(){
@@ -865,10 +837,10 @@
                             await new Promise(resolve => setTimeout(resolve, 300));
 
                             // Initialize or refresh map
-                            if (polygonMaps[id]) {
-                                polygonMaps[id].invalidateSize();
-                            } else {
+                            if (!polygonMaps[id]) {
                                 await initPolygonMap(id);
+                            } else {
+                                polygonMaps[id].invalidateSize();
                             }
 
                             // Ensure map is visible
