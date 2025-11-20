@@ -833,57 +833,71 @@
 
             // Open edit modal when Edit button clicked and initialize map
             document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', async function(){
-                    const id = this.getAttribute('data-id');
-                    const modalId = 'modalEditMadrasah' + id;
-                    const modalEl = document.getElementById(modalId);
-                    if (!modalEl) return;
-                    try {
-                        const bsModal = new bootstrap.Modal(modalEl);
-                        bsModal.show();
+                    btn.addEventListener('click', function(){
+                        const id = this.getAttribute('data-id');
+                        const modalId = 'modalEditMadrasah' + id;
+                        const modalEl = document.getElementById(modalId);
+                        if (!modalEl) return;
+                        try {
+                            const bsModal = new bootstrap.Modal(modalEl);
 
-                        // Initialize map after modal is fully shown
-                        modalEl.addEventListener('shown.bs.modal', async function() {
-                            // Remove listener after first trigger
-                            this.removeEventListener('shown.bs.modal', arguments.callee);
+                            // Attach shown handler before showing modal. Use { once: true } so it auto-removes.
+                            const onShown = async function() {
+                                // small delay to ensure DOM inside modal is painted
+                                await new Promise(resolve => setTimeout(resolve, 300));
 
-                            // Wait for modal to fully render
-                            await new Promise(resolve => setTimeout(resolve, 300));
-
-                            // Initialize or refresh map
-                            if (!polygonMaps[id]) {
-                                await initPolygonMap(id);
-                            } else {
-                                polygonMaps[id].invalidateSize();
-                            }
-
-                            // Ensure map is visible
-                            const mapContainer = document.getElementById('map-edit-' + id);
-                            if (mapContainer && polygonMaps[id]) {
-                                setTimeout(() => {
+                                // Initialize or refresh map
+                                if (!polygonMaps[id]) {
+                                    await initPolygonMap(id);
+                                } else {
                                     polygonMaps[id].invalidateSize();
-                                }, 100);
-                            }
-                        });
-                    } catch (e) {
-                        console.warn('Bootstrap modal not available or failed to show', e);
-                    }
-                });
+                                }
+
+                                // Ensure map is visible
+                                const mapContainer = document.getElementById('map-edit-' + id);
+                                if (mapContainer && polygonMaps[id]) {
+                                    setTimeout(() => {
+                                        polygonMaps[id].invalidateSize();
+                                    }, 100);
+                                }
+                            };
+
+                            modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
+                            bsModal.show();
+                        } catch (e) {
+                            console.warn('Bootstrap modal not available or failed to show', e);
+                        }
+                    });
             });
         });
 
-        })();
+        
+        // Make mapAdd accessible within this scope and initialize the 'Tambah' modal map here
         let mapAdd = null;
 
-        document.getElementById('modalTambahMadrasah').addEventListener('shown.bs.modal', function() {
-            setTimeout(() => {
-                if (!mapAdd) {
-                    mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
-                }
-                forceFixLeafletMap(mapAdd);
-            }, 200);
+        // Initialize modal maps and other UI wiring after DOM ready
+        document.addEventListener('DOMContentLoaded', function(){
+            // DataTable already initialized above in the DOMContentLoaded handler; ensure map-add is handled too
+            const modalTambah = document.getElementById('modalTambahMadrasah');
+            if (modalTambah) {
+                modalTambah.addEventListener('shown.bs.modal', function() {
+                    setTimeout(async () => {
+                        await waitForLeaflet();
+                        if (!mapAdd && typeof L !== 'undefined') {
+                            try {
+                                mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
+                            } catch (e) {
+                                console.error('Failed to init add-map', e);
+                            }
+                        }
+                        if (mapAdd) forceFixLeafletMap(mapAdd);
+                    }, 200);
+                }, { once: false });
+            }
         });
+
+        })();
     </script>
 @endsection
 
