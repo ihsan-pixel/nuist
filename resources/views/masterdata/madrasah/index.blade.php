@@ -98,13 +98,10 @@
             font-weight: 600 !important;
             white-space: nowrap !important;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
-            transition: all 0.2s ease !important;
             min-width: 90px !important;
         }
 
         .leaflet-toolbar button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
         }
 
         .leaflet-toolbar button:active {
