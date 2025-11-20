@@ -517,7 +517,7 @@
                                     <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi utama.</small>
                                 </div>
 
-                                @if(in_array($madrasah->id, [24, 26, 33]))
+                                @if($madrasah->polygon_koordinat_2 || in_array($madrasah->id, [24, 26, 33]))
                                 {{-- Dual Polygon Section --}}
                                 <div class="mb-3">
                                     <div class="form-check">
