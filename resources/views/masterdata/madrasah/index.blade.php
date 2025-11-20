@@ -16,8 +16,7 @@
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 
-    {{-- Leaflet for polygon editing on edit modal --}}
-    <link rel="stylesheet" href="{{ asset('build/libs/leaflet/leaflet.css') }}" />
+
 
     <style>
         .polygon-map-container {
@@ -400,25 +399,7 @@
                                     </select>
                                 </div>
 
-                                {{-- Area Poligon Koordinat untuk Edit Modal --}}
-                                <div class="mb-3">
-                                    <label>Area Poligon Presensi (Koordinat)</label>
-                                    <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}"></div>
-                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}"
-                                           value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
-                                    <div class="polygon-info">
-                                        <strong>Instruksi:</strong>
-                                        <small class="d-block">
-                                            • Gunakan tool drawing di peta untuk menggambar poligon area presensi<br>
-                                            • Klik tombol edit untuk mengubah poligon yang sudah ada<br>
-                                            • Format: GeoJSON Standard (Longitude, Latitude)<br>
-                                            • Koordinat akan tersimpan otomatis dalam format JSON
-                                        </small>
-                                    </div>
-                                    <div class="polygon-coordinates" id="polygon-display-{{ $madrasah->id }}">
-                                        <small class="text-muted">Koordinat akan ditampilkan di sini...</small>
-                                    </div>
-                                </div>
+
 
                                 <div class="mb-3">
                                     <label>Logo</label>
