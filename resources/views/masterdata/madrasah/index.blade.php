@@ -24,12 +24,9 @@
             position: relative;
             height: 450px;
             width: 100%;
-            border: 2px solid #dee2e6;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-            background-color: #f5f5f5;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            overflow: visible !important; /* WAJIB */
         }
 
         .polygon-map-container .leaflet-container {
@@ -811,16 +808,24 @@
 
             // Use Bootstrap modal events
             const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modalEl.addEventListener('shown.bs.modal', function() {
-                // Small delay to allow modal to fully render
+            modalEl.addEventListener('shown.bs.modal', async () => {
+                // delay biar modal bener2 open
                 setTimeout(() => {
-                    if (polygonMaps[madrasahId]) {
-                        polygonMaps[madrasahId].invalidateSize();
+                    if (!polygonMaps[id]) {
+                        initPolygonMap(id).then(() => {
+                            polygonMaps[id].invalidateSize();
+                        });
                     } else {
-                        initPolygonMap(madrasahId);
+                        polygonMaps[id].invalidateSize();
                     }
-                }, 100);
-            });
+                }, 300);
+
+                // delay kedua wajib untuk tile
+                setTimeout(() => {
+                    polygonMaps[id]?.invalidateSize();
+                }, 700);
+
+            }, { once: true });
         }
 
         // Initialize DataTable and wire up edit buttons
