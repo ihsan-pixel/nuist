@@ -39,26 +39,26 @@
 
         .polygon-info {
             margin-top: 10px;
-            padding: 8px;
+            padding: 6px;
             background-color: #f8f9fa;
             border-radius: 0.5rem;
             border-left: 4px solid #3388ff;
-            font-size: 0.8rem;
-            line-height: 1.4;
+            font-size: 0.75rem;
+            line-height: 1.3;
         }
 
         .polygon-coordinates {
             background-color: #fff;
             border: 1px solid #dee2e6;
-            padding: 10px;
+            padding: 6px;
             border-radius: 0.5rem;
-            max-height: 150px;
+            max-height: 100px;
             overflow-y: auto;
-            margin-top: 8px;
+            margin-top: 6px;
             font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             word-break: break-all;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         #map-add,
