@@ -423,7 +423,7 @@
 
                                 {{-- Polygon Koordinat Section --}}
                                 <div class="mb-3">
-                                    <label>Area Polygon Presensi</label>
+                                    <label>Area Polygon Presensi Utama</label>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
                                     <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
                                         <!-- Map will be initialized here -->
@@ -448,8 +448,50 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi.</small>
+                                    <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi utama.</small>
                                 </div>
+
+                                @if(in_array($madrasah->id, [24, 26, 33]))
+                                {{-- Dual Polygon Section --}}
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="enable_dual_polygon" id="enable_dual_polygon-edit-{{ $madrasah->id }}" value="1" {{ $madrasah->enable_dual_polygon ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="enable_dual_polygon-edit-{{ $madrasah->id }}">
+                                            Aktifkan Poligon Kedua
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">Centang untuk mengaktifkan area poligon presensi kedua.</small>
+                                </div>
+
+                                <div class="mb-3" id="polygon2-container-edit-{{ $madrasah->id }}" style="display: {{ $madrasah->enable_dual_polygon ? 'block' : 'none' }};">
+                                    <label>Area Polygon Presensi Kedua</label>
+                                    <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-edit-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 ?? '[]' }}">
+                                    <div class="polygon-map-container" id="map2-edit-{{ $madrasah->id }}" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
+                                        <!-- Map will be initialized here -->
+                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 mt-2 small">Memuat peta...</p>
+                                        </div>
+                                    </div>
+                                    <div class="polygon-info mt-2">
+                                        <div id="polygon2-display-{{ $madrasah->id }}">
+                                            @if($madrasah->polygon_koordinat_2)
+                                                @php
+                                                    $coords2 = json_decode($madrasah->polygon_koordinat_2, true);
+                                                    $pointCount2 = isset($coords2['coordinates'][0]) ? count($coords2['coordinates'][0]) : 0;
+                                                @endphp
+                                                <strong>Jumlah titik:</strong> {{ $pointCount2 }}<br>
+                                                <strong>Format:</strong> GeoJSON (Longitude, Latitude)<br>
+                                                <strong>Data JSON:</strong><br>
+                                                <code>{{ $madrasah->polygon_koordinat_2 }}</code>
+                                            @else
+                                                <small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi kedua.</small>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -592,7 +634,228 @@
         }
 
         /**
-         * Initialize polygon map for a specific madrasah
+         * Initialize dual polygon map for a specific madrasah (second polygon)
+         * @param {number} madrasahId - ID of the madrasah
+         */
+        async function initDualPolygonMap(madrasahId) {
+            await waitForLeaflet();
+
+            const mapContainer = el('#map2-edit-' + madrasahId);
+            const polygonInput = el('#polygon_koordinat_2-edit-' + madrasahId);
+            const polygonDisplay = el('#polygon2-display-' + madrasahId);
+
+            if (!mapContainer || !polygonInput || typeof L === 'undefined') {
+                console.error('Dual polygon map container or Leaflet not found');
+                return;
+            }
+
+            try {
+                // Create map centered on Indonesia (default)
+                const map = L.map('map2-edit-' + madrasahId).setView([-7.7956, 110.3695], 13);
+
+                // Add tile layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                // Initialize draw feature group
+                const drawnItems = new L.FeatureGroup();
+                map.addLayer(drawnItems);
+
+                // Initialize drawing state
+                let isDrawing = false;
+                let currentPoints = [];
+                let editingPolygon = null;
+
+                // Create custom toolbar
+                const toolbarDiv = L.control({position: 'topleft'});
+                toolbarDiv.onAdd = function(map) {
+                    const div = L.DomUtil.create('div', 'leaflet-toolbar');
+                    div.style.backgroundColor = 'white';
+                    div.style.padding = '5px';
+                    div.style.borderRadius = '4px';
+                    div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.3)';
+
+                    const btnDraw = L.DomUtil.create('button', '', div);
+                    btnDraw.innerHTML = '✏️ Gambar Poligon';
+                    btnDraw.style.cssText = 'padding:6px 12px;margin:2px;background:#28a745;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+
+                    const btnEdit = L.DomUtil.create('button', '', div);
+                    btnEdit.innerHTML = '✎️ Edit';
+                    btnEdit.style.cssText = 'padding:6px 12px;margin:2px;background:#ffc107;color:black;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+
+                    const btnDelete = L.DomUtil.create('button', '', div);
+                    btnDelete.innerHTML = '🗑️ Hapus';
+                    btnDelete.style.cssText = 'padding:6px 12px;margin:2px;background:#dc3545;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+
+                    const btnClear = L.DomUtil.create('button', '', div);
+                    btnClear.innerHTML = '✕ Batal';
+                    btnClear.style.cssText = 'padding:6px 12px;margin:2px;background:#6c757d;color:white;border:none;border-radius:3px;cursor:pointer;font-size:12px;';
+
+                    L.DomEvent.disableClickPropagation(div);
+
+                    btnDraw.addEventListener('click', function() {
+                        if (!isDrawing) {
+                            isDrawing = true;
+                            currentPoints = [];
+                            btnDraw.style.background = '#28a745';
+                            btnDraw.innerHTML = '⏹️ Selesai (Min 3 titik)';
+                        } else {
+                            if (currentPoints.length >= 3) {
+                                finishDrawing();
+                                btnDraw.style.background = '#28a745';
+                                btnDraw.innerHTML = '✏️ Gambar Poligon';
+                            } else {
+                                alert('Minimal 3 titik untuk membuat poligon. Titik saat ini: ' + currentPoints.length);
+                            }
+                        }
+                    });
+
+                    btnEdit.addEventListener('click', function() {
+                        const layers = drawnItems.getLayers();
+                        if (layers.length === 0) {
+                            alert('Tidak ada poligon yang dapat diedit');
+                            return;
+                        }
+                        editingPolygon = layers[0];
+                        alert('Mode edit aktif. Seret titik poligon atau klik "Selesai" untuk mengakhiri edit.');
+                    });
+
+                    btnDelete.addEventListener('click', function() {
+                        const layers = drawnItems.getLayers();
+                        if (layers.length > 0) {
+                            drawnItems.removeLayer(layers[0]);
+                            updatePolygonData();
+                            alert('Poligon dihapus');
+                        } else {
+                            alert('Tidak ada poligon untuk dihapus');
+                        }
+                    });
+
+                    btnClear.addEventListener('click', function() {
+                        if (isDrawing) {
+                            isDrawing = false;
+                            currentPoints = [];
+                            btnDraw.style.background = '#28a745';
+                            btnDraw.innerHTML = '✏️ Gambar';
+                            drawnItems.clearLayers();
+                            map.eachLayer(layer => {
+                                if (layer instanceof L.CircleMarker && !layer.isVertex) {
+                                    map.removeLayer(layer);
+                                }
+                            });
+                        }
+                    });
+
+                    return div;
+                };
+                toolbarDiv.addTo(map);
+
+                // Handle map clicks for drawing
+                const finishDrawing = function() {
+                    if (currentPoints.length >= 3) {
+                        // Close polygon by adding first point at end
+                        const closedPoints = [...currentPoints, currentPoints[0]];
+                        const polygon = L.polygon(closedPoints, {
+                            color: '#28a745',
+                            fillOpacity: 0.2,
+                            weight: 2
+                        });
+                        drawnItems.addLayer(polygon);
+                        updatePolygonData();
+                        isDrawing = false;
+                        currentPoints = [];
+                        map.eachLayer(layer => {
+                            if (layer instanceof L.CircleMarker && !layer.isVertex) {
+                                map.removeLayer(layer);
+                            }
+                        });
+                    }
+                };
+
+                map.on('click', function(e) {
+                    if (isDrawing) {
+                        const latlng = e.latlng;
+                        currentPoints.push([latlng.lat, latlng.lng]);
+
+                        // Add visual marker
+                        L.circleMarker([latlng.lat, latlng.lng], {
+                            radius: 5,
+                            fillColor: '#28a745',
+                            color: '#ffffff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map).isVertex = true;
+                    }
+                });
+
+                // Load existing polygon from database if available
+                const existingCoordinates = polygonInput.value;
+                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
+                    try {
+                        const coordData = JSON.parse(existingCoordinates);
+                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
+                            // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
+                            // Convert [lon,lat] to [lat,lon] for Leaflet
+                            const geoJSONCoords = coordData.coordinates[0];
+                            const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
+
+                            const polygon = L.polygon(leafletCoords, {
+                                color: '#28a745',
+                                fillOpacity: 0.2,
+                                weight: 2
+                            });
+                            drawnItems.addLayer(polygon);
+
+                            // Fit map to polygon bounds
+                            setTimeout(() => {
+                                map.fitBounds(polygon.getBounds());
+                            }, 100);
+                            updatePolygonDisplay(coordData, polygonDisplay);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to parse existing dual polygon coordinates:', e);
+                    }
+                }
+
+                // Handle draw and edit events
+                const updatePolygonData = () => {
+                    const layers = drawnItems.getLayers();
+                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                        const polygon = layers[0];
+                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
+                        const geoJSON = {
+                            type: 'Polygon',
+                            coordinates: [coordinates]
+                        };
+                        polygonInput.value = JSON.stringify(geoJSON);
+                        updatePolygonDisplay(geoJSON, polygonDisplay);
+                    } else {
+                        polygonInput.value = '[]';
+                        if (polygonDisplay) {
+                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>';
+                        }
+                    }
+                };
+
+                // Store map and layer references
+                dualPolygonMaps[madrasahId] = map;
+                dualPolygonEditableLayers[madrasahId] = drawnItems;
+
+                // Apply universal map fix after initialization
+                setTimeout(() => {
+                    if (map) forceFixLeafletMap(map);
+                }, 300);
+            } catch (e) {
+                console.error('Error initializing dual polygon map:', e);
+            }
+        }
+
+        /**
+         * Initialize polygon map for a specific madrasah (primary polygon)
          * @param {number} madrasahId - ID of the madrasah
          */
         async function initPolygonMap(madrasahId) {
@@ -896,6 +1159,43 @@
                     }, 200);
                 }, { once: false });
             }
+
+            // Handle dual polygon toggle for edit modals
+            document.addEventListener('change', function(e) {
+                const target = e.target;
+                if (target && target.id && target.id.startsWith('enable_dual_polygon-edit-')) {
+                    const id = target.id.replace('enable_dual_polygon-edit-', '');
+                    const container = document.getElementById('polygon2-container-edit-' + id);
+                    const mapId = 'map2-edit-' + id;
+
+                    // Check if this madrasah is allowed to use dual polygon
+                    const allowedMadrasahIds = [24, 26, 33];
+                    const isAllowed = allowedMadrasahIds.includes(parseInt(id));
+
+                    if (!isAllowed) {
+                        target.checked = false;
+                        alert('Fitur dual polygon hanya tersedia untuk madrasah tertentu (ID: 24, 26, 33).');
+                        return;
+                    }
+
+                    if (target.checked) {
+                        container.style.display = 'block';
+                        // Initialize map if not already done
+                        if (!dualPolygonMaps[id]) {
+                            initDualPolygonMap(id);
+                        } else {
+                            setTimeout(() => {
+                                if (dualPolygonMaps[id]) dualPolygonMaps[id].invalidateSize();
+                            }, 400);
+                        }
+                    } else {
+                        container.style.display = 'none';
+                        // Clear the polygon data
+                        const polygonInput = document.getElementById('polygon_koordinat_2-edit-' + id);
+                        if (polygonInput) polygonInput.value = '[]';
+                    }
+                }
+            });
         });
 
         })();
