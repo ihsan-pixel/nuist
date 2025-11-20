@@ -614,6 +614,7 @@
 
     {{-- Leaflet scripts for polygon editing --}}
     <script src="{{ asset('build/libs/leaflet/leaflet.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script>
         // Flag to indicate Leaflet is loaded
         window.leafletDraw = true;
@@ -810,6 +811,42 @@
                     }
                 }
 
+                // Helper function to update polygon data for dual polygon
+                function updatePolygonData(polygonInput, polygonDisplay, checklist) {
+                    const layers = drawnItems.getLayers();
+                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                        const polygon = layers[0];
+                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
+                        const geoJSON = {
+                            type: 'Polygon',
+                            coordinates: [coordinates]
+                        };
+                        polygonInput.value = JSON.stringify(geoJSON);
+                        updatePolygonDisplay(geoJSON, polygonDisplay, checklist);
+                    } else {
+                        polygonInput.value = '[]';
+                        if (polygonDisplay) {
+                            polygonDisplay.innerHTML = '<small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>';
+                        }
+                        if (checklist) {
+                            const checklistItems = checklist.querySelectorAll('.polygon-checklist-item');
+                            checklistItems.forEach(item => {
+                                if (item.innerHTML.includes('Poligon Kedua:')) {
+                                    const icon = item.querySelector('i');
+                                    const span = item.querySelector('span');
+                                    if (icon && span) {
+                                        icon.className = 'bx bx-x-circle';
+                                        item.classList.remove('success');
+                                        item.classList.add('danger');
+                                        span.textContent = 'Poligon Kedua: Belum ada';
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+
                 // Event handlers for draw actions
                 map.on(L.Draw.Event.CREATED, function (event) {
                     const layer = event.layer;
@@ -977,7 +1014,7 @@
         /**
          * Update the polygon coordinate display
          */
-        function updatePolygonDisplay(geoJSON, displayElement) {
+        function updatePolygonDisplay(geoJSON, displayElement, checklist = null) {
             if (!displayElement) return;
             if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
                 const coords = geoJSON.coordinates[0];
@@ -986,6 +1023,23 @@
                 html += `<strong>Data JSON:</strong><br>`;
                 html += `<code>${JSON.stringify(geoJSON, null, 2)}</code>`;
                 displayElement.innerHTML = html;
+
+                // Update checklist if provided
+                if (checklist) {
+                    const checklistItems = checklist.querySelectorAll('.polygon-checklist-item');
+                    checklistItems.forEach(item => {
+                        if (item.innerHTML.includes('Poligon Kedua:')) {
+                            const icon = item.querySelector('i');
+                            const span = item.querySelector('span');
+                            if (icon && span) {
+                                icon.className = 'bx bx-check-circle';
+                                item.classList.remove('danger');
+                                item.classList.add('success');
+                                span.textContent = 'Poligon Kedua: Tersedia';
+                            }
+                        }
+                    });
+                }
             }
         }
 
