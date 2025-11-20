@@ -17,7 +17,7 @@
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
 
     {{-- Leaflet for polygon editing on edit modal --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="{{ asset('build/libs/leaflet/leaflet.css') }}" />
 
     <style>
         .polygon-map-container {
