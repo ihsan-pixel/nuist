@@ -278,7 +278,12 @@
                                     </select>
                                 </div>
 
-
+                                <div class="mb-3">
+                                    <label>Area Polygon Presensi</label>
+                                    <div id="map-add" class="polygon-map-container" style="height:300px;"></div>
+                                    <input type="hidden" name="polygon_koordinat" id="polygon_koordinat_add" value="[]">
+                                    <small class="text-muted">Gunakan toolbar pada peta untuk menggambar area polygon presensi.</small>
+                                </div>
 
                                 <div class="mb-3">
                                     <label>Logo Madrasah/Sekolah</label>
