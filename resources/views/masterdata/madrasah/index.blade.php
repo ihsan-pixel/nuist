@@ -1048,45 +1048,45 @@
         // Initialize DataTable and wire up edit buttons
         document.addEventListener('DOMContentLoaded', function(){
             initDataTable();
+        });
 
-            // Open edit modal when Edit button clicked and initialize map
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                    btn.addEventListener('click', function(){
-                        const id = this.getAttribute('data-id');
-                        const modalId = 'modalEditMadrasah' + id;
-                        const modalEl = document.getElementById(modalId);
-                        if (!modalEl) return;
-                        try {
-                            const bsModal = new bootstrap.Modal(modalEl);
+        // Use event delegation for edit buttons (works with dynamically loaded content)
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('btn-edit')) {
+                const id = e.target.getAttribute('data-id');
+                const modalId = 'modalEditMadrasah' + id;
+                const modalEl = document.getElementById(modalId);
+                if (!modalEl) return;
+                try {
+                    const bsModal = new bootstrap.Modal(modalEl);
 
-                            // Attach shown handler before showing modal. Use { once: true } so it auto-removes.
-                            const onShown = async function() {
-                                // small delay to ensure DOM inside modal is painted
-                                await new Promise(resolve => setTimeout(resolve, 300));
+                    // Attach shown handler before showing modal. Use { once: true } so it auto-removes.
+                    const onShown = async function() {
+                        // small delay to ensure DOM inside modal is painted
+                        await new Promise(resolve => setTimeout(resolve, 300));
 
-                                // Initialize or refresh map
-                                if (!polygonMaps[id]) {
-                                    await initPolygonMap(id);
-                                } else {
-                                    polygonMaps[id].invalidateSize();
-                                }
-
-                                // Ensure map is visible
-                                const mapContainer = document.getElementById('map-edit-' + id);
-                                if (mapContainer && polygonMaps[id]) {
-                                    setTimeout(() => {
-                                        polygonMaps[id].invalidateSize();
-                                    }, 100);
-                                }
-                            };
-
-                            modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
-                            bsModal.show();
-                        } catch (e) {
-                            console.warn('Bootstrap modal not available or failed to show', e);
+                        // Initialize or refresh map
+                        if (!polygonMaps[id]) {
+                            await initPolygonMap(id);
+                        } else {
+                            polygonMaps[id].invalidateSize();
                         }
-                    });
-            });
+
+                        // Ensure map is visible
+                        const mapContainer = document.getElementById('map-edit-' + id);
+                        if (mapContainer && polygonMaps[id]) {
+                            setTimeout(() => {
+                                polygonMaps[id].invalidateSize();
+                            }, 100);
+                        }
+                    };
+
+                    modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
+                    bsModal.show();
+                } catch (e) {
+                    console.warn('Bootstrap modal not available or failed to show', e);
+                }
+            }
         });
 
 
