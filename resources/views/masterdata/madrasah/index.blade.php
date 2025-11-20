@@ -20,6 +20,80 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
     <style>
+        .polygon-checklist {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .polygon-checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.875rem;
+        }
+
+        .polygon-checklist-item i {
+            margin-right: 8px;
+            width: 16px;
+        }
+
+        .polygon-checklist-item.success i {
+            color: #28a745;
+        }
+
+        .polygon-checklist-item.warning i {
+            color: #ffc107;
+        }
+
+        .polygon-checklist-item.danger i {
+            color: #dc3545;
+        }
+
+        .leaflet-draw-toolbar {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 0.5rem !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+        }
+
+        .leaflet-draw-toolbar a {
+            background-color: #3388ff !important;
+            color: white !important;
+            border-radius: 0.375rem !important;
+            margin: 2px !important;
+            width: 30px !important;
+            height: 30px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .leaflet-draw-toolbar a:hover {
+            background-color: #0066cc !important;
+        }
+
+        .leaflet-draw-toolbar a.leaflet-draw-edit-edit,
+        .leaflet-draw-toolbar a.leaflet-draw-edit-remove {
+            background-color: #ffc107 !important;
+        }
+
+        .leaflet-draw-toolbar a.leaflet-draw-edit-edit:hover,
+        .leaflet-draw-toolbar a.leaflet-draw-edit-remove:hover {
+            background-color: #e0a800 !important;
+        }
+
+        .leaflet-draw-toolbar a.leaflet-draw-edit-remove {
+            background-color: #dc3545 !important;
+        }
+
+        .leaflet-draw-toolbar a.leaflet-draw-edit-remove:hover {
+            background-color: #c82333 !important;
+        }
+    </style>
+
+    <style>
         .polygon-map-container {
             height: 400px !important;
             width: 100% !important;
@@ -487,6 +561,16 @@
                                             @else
                                                 <small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>
                                             @endif
+                                        </div>
+                                        <div class="polygon-checklist" id="polygon2-checklist-{{ $madrasah->id }}">
+                                            <div class="polygon-checklist-item {{ $madrasah->enable_dual_polygon ? 'success' : 'warning' }}">
+                                                <i class="bx bx-{{ $madrasah->enable_dual_polygon ? 'check-circle' : 'info-circle' }}"></i>
+                                                <span>Dual Polygon: {{ $madrasah->enable_dual_polygon ? 'Aktif' : 'Tidak aktif' }}</span>
+                                            </div>
+                                            <div class="polygon-checklist-item {{ $madrasah->polygon_koordinat_2 ? 'success' : 'danger' }}">
+                                                <i class="bx bx-{{ $madrasah->polygon_koordinat_2 ? 'check-circle' : 'x-circle' }}"></i>
+                                                <span>Poligon Kedua: {{ $madrasah->polygon_koordinat_2 ? 'Tersedia' : 'Belum ada' }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi kedua.</small>
