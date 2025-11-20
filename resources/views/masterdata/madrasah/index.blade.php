@@ -462,9 +462,6 @@
                                     <label>Link Map</label>
                                     <input type="text" name="map_link" class="form-control" value="{{ $madrasah->map_link }}">
                                 </div>
-                            </div>
-
-                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label>Hari KBM</label>
                                     <select name="hari_kbm" class="form-select">
@@ -473,9 +470,6 @@
                                         <option value="6" {{ $madrasah->hari_kbm == '6' ? 'selected' : '' }}>6 Hari</option>
                                     </select>
                                 </div>
-
-
-
                                 <div class="mb-3">
                                     <label>Logo</label>
                                     <input type="file" name="logo" id="editLogoInput{{ $madrasah->id }}" class="form-control edit-logo-input" accept="image/*">
@@ -494,7 +488,9 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="col-md-6">
                                 {{-- Polygon Koordinat Section --}}
                                 <div class="mb-3">
                                     <label>Area Polygon Presensi Utama</label>
