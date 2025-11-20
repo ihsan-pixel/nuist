@@ -512,7 +512,7 @@
                                                 <strong>Jumlah titik:</strong> {{ $pointCount }}<br>
                                                 <strong>Format:</strong> GeoJSON (Longitude, Latitude)<br>
                                                 <strong>Data JSON:</strong><br>
-                                                <code>{{ $madrasah->polygon_koordinat }}</code>
+                                                {{-- <code>{{ $madrasah->polygon_koordinat }}</code> --}}
                                             @else
                                                 <small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>
                                             @endif
