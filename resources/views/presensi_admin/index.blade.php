@@ -644,7 +644,7 @@
                                 value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
 
                             <button type="submit" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
-                                <i class="bx bx-filter-alt me-1"></i> view
+                                view
                             </button>
                         </form>
 
