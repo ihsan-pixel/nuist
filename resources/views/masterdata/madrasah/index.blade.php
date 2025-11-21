@@ -477,12 +477,12 @@
                                     @if($madrasah->logo)
                                         <div class="mt-2">
                                             <label class="form-label">Logo Saat Ini:</label><br>
-                                            <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width:400px; max-height:400px;">
+                                            <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Current Logo" class="img-thumbnail" style="max-width:300px; max-height:300px;">
                                         </div>
                                     @endif
                                     <div id="editLogoPreview{{ $madrasah->id }}" class="mt-2" style="display:none;">
                                         <label class="form-label">Preview Logo Baru:</label><br>
-                                        <img id="editPreviewImage{{ $madrasah->id }}" src="" alt="Preview Logo" class="img-thumbnail" style="max-width:400px; max-height:400px;">
+                                        <img id="editPreviewImage{{ $madrasah->id }}" src="" alt="Preview Logo" class="img-thumbnail" style="max-width:300px; max-height:300px;">
                                         <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="clearEditLogoPreview({{ $madrasah->id }})">
                                             <i class="bx bx-trash"></i> Hapus
                                         </button>
