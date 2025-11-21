@@ -1222,7 +1222,7 @@ $(document).ready(function() {
 });
 </script>
 
-@if(in_array($user->role, ['super_admin', 'pengurus']))
+@if(in_array($user->role, ['super_admin', 'pengurus', 'admin']))
 <!-- Leaflet CSS and JS for Map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
