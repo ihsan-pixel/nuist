@@ -563,7 +563,7 @@ class PresensiAdminController extends Controller
         });
 
         $bulanTersedia = DB::table('presensis')
-            ->selectRaw("MONTH(tanggal_presensi) AS bulan, DATE_FORMAT(tanggal_presensi, '%M %Y') AS nama_bulan")
+            ->selectRaw("MONTH(tanggal) AS bulan, DATE_FORMAT(tanggal, '%M %Y') AS nama_bulan")
             ->where('madrasah_id', $madrasah->id)
             ->groupBy('bulan', 'nama_bulan')
             ->orderBy('bulan', 'asc')

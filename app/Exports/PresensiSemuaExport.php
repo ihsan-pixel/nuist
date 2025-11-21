@@ -49,7 +49,7 @@ class PresensiSemuaExport implements FromCollection, WithHeadings
             $data->push([
                 'Tanggal' => $presensi->tanggal->format('Y-m-d'),
                 'Nama Guru' => $presensi->user->name,
-                'Status Kepegawaian' => $presensi->statusKepegawaian->name ?? '-',
+                'Status Kepegawaian' => $presensi->user->statusKepegawaian->name ?? '-',
                 'NIP' => $presensi->user->nip,
                 'NUPTK' => $presensi->user->nuptk,
                 'Status Presensi' => $presensi->status,
