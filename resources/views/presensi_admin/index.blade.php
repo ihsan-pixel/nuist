@@ -797,7 +797,7 @@
     <div class="d-flex justify-content-center">
         <div class="input-group search-input-group">
             <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
-            <input type="text" class="form-control" id="searchInput" placeholder="Cari berdasarkan nama madrasah...">
+            {{-- <input type="text" class="form-control" id="searchInput" placeholder="Cari berdasarkan nama madrasah..."> --}}
         </div>
     </div>
 
