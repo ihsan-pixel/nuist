@@ -247,21 +247,24 @@ class PresensiAdminController extends Controller
             }
 
             return view('presensi_admin.index', compact('madrasahData', 'user', 'selectedDate', 'summary'));
+        } elseif ($user->role === 'admin' && $user->madrasah_id) {
+            // For admin, redirect to their madrasah detail page
+            return redirect()->route('presensi_admin.show_detail', $user->madrasah_id)->withInput(['date' => $selectedDate->format('Y-m-d')]);
         } else {
-            // For admin and tenaga_pendidik with ketugasan kepala, show original view
+            // For tenaga_pendidik kepala, show original view
             $query = Presensi::with('user.madrasah', 'statusKepegawaian');
 
-            // If user is admin or tenaga_pendidik kepala, filter by madrasah_id
-            if (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
+            // If user is tenaga_pendidik kepala, filter by madrasah_id
+            if (($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') && $user->madrasah_id) {
                 $query->where(function ($q) use ($user) {
-                    // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
+                    // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == user.madrasah_id
                     $q->where(function ($subQ) use ($user) {
                         $subQ->whereNull('madrasah_id')
                              ->whereHas('user', function ($userQ) use ($user) {
                                  $userQ->where('madrasah_id', $user->madrasah_id);
                              });
                     })
-                    // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
+                    // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == user.madrasah_id
                     ->orWhere('madrasah_id', $user->madrasah_id);
                 });
             }
@@ -271,7 +274,7 @@ class PresensiAdminController extends Controller
             // Query users with role 'tenaga_pendidik' who haven't done presensi on selected date
             $belumPresensiQuery = User::where('role', 'tenaga_pendidik');
 
-            if (($user->role === 'admin' || ($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah')) && $user->madrasah_id) {
+            if (($user->role === 'tenaga_pendidik' && $user->ketugasan === 'kepala madrasah/sekolah') && $user->madrasah_id) {
                 $belumPresensiQuery->where('madrasah_id', $user->madrasah_id);
             }
 
@@ -492,7 +495,12 @@ class PresensiAdminController extends Controller
     public function showMadrasahDetail($madrasahId, Request $request)
     {
         $user = Auth::user();
-        if (!in_array($user->role, ['super_admin', 'pengurus'])) {
+        if (!in_array($user->role, ['super_admin', 'pengurus', 'admin'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        // For admin users, ensure they can only access their own madrasah
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
             abort(403, 'Unauthorized');
         }
 

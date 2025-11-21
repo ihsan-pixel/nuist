@@ -138,7 +138,7 @@
                 </li>
                 @elseif($userRole === 'admin')
                 <li>
-                    <a href="{{ route('presensi_admin.index') }}" class="waves-effect">
+                    <a href="{{ route('presensi_admin.show_detail', auth()->user()->madrasah_id) }}" class="waves-effect">
                         <i class="bx bx-check-square"></i>
                         <span>Data Presensi</span>
                     </a>
