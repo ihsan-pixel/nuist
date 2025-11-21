@@ -962,7 +962,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="facility-card">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
-                            <img src="{{ asset('storage/app/public/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="facility-img w-100">
+                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="facility-img w-100">
                         @else
                             <div class="facility-img bg-light d-flex align-items-center justify-content-center">
                                 <i class="fas fa-building bx-lg text-muted"></i>
@@ -1232,7 +1232,7 @@
                 <div class="testimonial-card">
                     <div class="d-flex align-items-center mb-3">
                         @if(isset($testimoni['avatar']) && $testimoni['avatar'])
-                            <img src="{{ asset('storage/app/public/' . $testimoni['avatar']) }}" alt="{{ $testimoni['name'] }}" class="testimonial-avatar me-3">
+                            <img src="{{ asset('storage/' . $testimoni['avatar']) }}" alt="{{ $testimoni['name'] }}" class="testimonial-avatar me-3">
                         @else
                             <div class="testimonial-avatar bg-primary d-flex align-items-center justify-content-center me-3">
                                 <span class="text-white fw-bold">{{ substr($testimoni['name'] ?? 'A', 0, 1) }}</span>
@@ -1264,7 +1264,7 @@
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
                 @if($madrasah->kepala_sekolah_foto)
-                    <img src="{{ asset('storage/app/public/' . $madrasah->kepala_sekolah_foto) }}" alt="{{ $madrasah->kepala_sekolah_nama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
+                    <img src="{{ asset('storage/' . $madrasah->kepala_sekolah_foto) }}" alt="{{ $madrasah->kepala_sekolah_nama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
                 @else
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
                         <span class="text-white display-4">{{ substr($madrasah->kepala_sekolah_nama, 0, 1) }}</span>
@@ -1360,7 +1360,7 @@
                         @foreach($madrasah->galeri_foto ?? [] as $foto)
                         <div class="col-md-6 mb-3">
                             @if(isset($foto['url']) && $foto['url'])
-                                <img src="{{ asset('storage/app/public/' . $foto['url']) }}" alt="{{ $foto['caption'] ?? '' }}" class="gallery-img">
+                                <img src="{{ asset('storage/' . $foto['url']) }}" alt="{{ $foto['caption'] ?? '' }}" class="gallery-img">
                             @endif
                             @if(isset($foto['caption']) && $foto['caption'])
                                 <p class="text-center mt-2 small text-muted">{{ $foto['caption'] }}</p>
@@ -1439,7 +1439,7 @@
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb btn-lg">Daftar PPDB Sekarang</a>
             @endif
             @if($madrasah->brosur_pdf)
-                <a href="{{ asset('storage/app/public/' . $madrasah->brosur_pdf) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
+                <a href="{{ asset('storage/' . $madrasah->brosur_pdf) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
             @endif
             <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $madrasah->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($madrasah->name) }}" target="_blank" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-whatsapp me-2"></i>Hubungi Admin
@@ -1456,7 +1456,7 @@
             <div class="col-lg-4">
                 <div class="d-flex align-items-center mb-3">
                     @if($madrasah->logo)
-                        <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="me-2" style="height: 40px; width: auto; border-radius: 5px;">
+                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="me-2" style="height: 40px; width: auto; border-radius: 5px;">
                     @endif
                     <span class="fw-bold text-primary">{{ $madrasah->name }}</span>
                 </div>
@@ -1492,7 +1492,7 @@
                     <li class="mb-2"><a href="#faq" class="text-light text-decoration-none">FAQ PPDB</a></li>
                     <li class="mb-2"><a href="#alur" class="text-light text-decoration-none">Alur Pendaftaran</a></li>
                     @if($madrasah->brosur_pdf)
-                        <li class="mb-2"><a href="{{ asset('storage/app/public/' . $madrasah->brosur_pdf) }}" class="text-light text-decoration-none" target="_blank">Download Brosur</a></li>
+                        <li class="mb-2"><a href="{{ asset('storage/' . $madrasah->brosur_pdf) }}" class="text-light text-decoration-none" target="_blank">Download Brosur</a></li>
                     @endif
                     <li class="mb-2"><a href="#kontak" class="text-light text-decoration-none">Kontak</a></li>
                 </ul>
