@@ -34,19 +34,16 @@
             <td>{{ $p->waktu_masuk }}</td>
             <td>
                @php
-                dd(
-                    $p->selfie_masuk_path,
-                    base_path(),
-                    base_path('public_html/' . $p->selfie_masuk_path),
-                    file_exists(base_path('public_html/' . $p->selfie_masuk_path)),
-                    is_file(base_path('public_html/' . $p->selfie_masuk_path))
-                );
-                @endphp
+            $pathMasuk = base_path('../public_html/' . $p->selfie_masuk_path);
 
-                @if($fotoMasuk)
-                    <img src="{{ $fotoMasuk }}" width="120">
-                @endif
+            $fotoMasuk = is_file($pathMasuk)
+                ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathMasuk))
+                : null;
+            @endphp
 
+            @if($fotoMasuk)
+                <img src="{{ $fotoMasuk }}" width="120">
+            @endif
             </td>
             <td>{{ $p->waktu_keluar }}</td>
             <td>
