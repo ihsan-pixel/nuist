@@ -790,7 +790,7 @@
     <div class="section-wrapper mb-4">
         <div class="row g-3">
             {{-- Total Staff Card --}}
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
@@ -814,13 +814,13 @@
             </div>
 
             {{-- Hadir Card --}}
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'hadir')->count() }}</h3>
-                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Hadir</p>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Hadir</p>
                             </div>
                             <div class="avatar-md">
                                 <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
@@ -837,14 +837,38 @@
                 </div>
             </div>
 
+            {{-- Izin Card --}}
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'izin')->count() }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Izin</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-calendar-exclamation fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: {{ $tenagaPendidik->total() > 0 ? round(($tenagaPendidikData->where('status', 'izin')->count() / $tenagaPendidik->total()) * 100) : 0 }}% !important; background: white !important;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Tidak Hadir Card --}}
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <h3 class="text-white mb-1" style="color: white !important;">{{ $tenagaPendidikData->where('status', 'tidak_hadir')->count() }}</h3>
-                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Tidak Hadir</p>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Tidak Hadir</p>
                             </div>
                             <div class="avatar-md">
                                 <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
