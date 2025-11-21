@@ -122,7 +122,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             $row = $index + 2;
 
             // FOTO MASUK
-            $fotoMasukPath = public_path('storage/' . $presensi->selfie_masuk_path);
+            $fotoMasukPath = base_path('public_html/storage/' . $presensi->selfie_masuk_path);
             if ($presensi->selfie_masuk_path && file_exists($fotoMasukPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Masuk ' . ($index + 1));
@@ -134,7 +134,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             }
 
             // FOTO KELUAR
-            $fotoKeluarPath = public_path('storage/' . $presensi->selfie_keluar_path);
+            $fotoKeluarPath = base_path('public_html/storage/' . $presensi->selfie_keluar_path);
             if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Keluar ' . ($index + 1));
