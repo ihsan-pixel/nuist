@@ -47,10 +47,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
         $monthNum = date('m', strtotime($monthName . ' 1'));
 
         $presensis = Presensi::with(['user.statusKepegawaian'])
-            ->whereHas('user', function ($q) {
-                $q->where('madrasah_id', $this->madrasahId)
-                  ->where('role', 'tenaga_pendidik');
-            })
+            ->where('madrasah_id', $this->madrasahId)
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $monthNum)
             ->orderBy('tanggal', 'desc')
