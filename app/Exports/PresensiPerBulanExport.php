@@ -6,8 +6,10 @@ use App\Models\Presensi;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class PresensiPerBulanExport implements FromCollection, WithHeadings
+class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawings
 {
     protected $madrasahId;
     protected $bulan;
