@@ -777,6 +777,9 @@
                         <button class="btn btn-warning btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportModal">
                             <i class="mdi mdi-file-excel me-1"></i> Export Excel
                         </button>
+                        <a href="{{ route('presensi.pdf_rekap', [$madrasah->id, $selectedDate->format('Y-m')]) }}" class="btn btn-danger btn-sm rounded-pill px-3" target="_blank">
+                            <i class="mdi mdi-file-pdf me-1"></i> Export PDF
+                        </a>
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
                         <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
