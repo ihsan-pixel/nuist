@@ -638,8 +638,8 @@
                         <i class="mdi mdi-calendar-clock me-2"></i>
                         <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
                     </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex gap-2">
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center gap-2 mb-0">
                             <input type="date" name="date" id="filterDate" class="form-control form-control-sm rounded-pill"
                                 value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
 
