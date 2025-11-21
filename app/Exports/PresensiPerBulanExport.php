@@ -38,7 +38,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
     {
         $data = collect();
 
-        // Parse bulan format (e.g., "January 2025" -> month and year)
+        // Parse bulan format (e.g., "November 2025" -> month and year)
         $bulanParts = explode(' ', $this->bulan);
         $monthName = $bulanParts[0] ?? 'January';
         $year = $bulanParts[1] ?? date('Y');
@@ -47,10 +47,19 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
         $monthNum = date('m', strtotime($monthName . ' 1'));
 
         $presensis = Presensi::with(['user.statusKepegawaian'])
-            ->where('madrasah_id', $this->madrasahId)
-            ->whereYear('tanggal', $year)
-            ->whereMonth('tanggal', $monthNum)
-            ->orderBy('tanggal', 'desc')
+            ->join('users', 'presensis.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->where('presensis.madrasah_id', $this->madrasahId)
+                  ->orWhere(function ($subQ) {
+                      $subQ->whereNull('presensis.madrasah_id')
+                           ->where('users.madrasah_id', $this->madrasahId)
+                           ->where('users.role', 'tenaga_pendidik');
+                  });
+            })
+            ->whereYear('presensis.tanggal', $year)
+            ->whereMonth('presensis.tanggal', $monthNum)
+            ->select('presensis.*')
+            ->orderBy('presensis.tanggal', 'desc')
             ->get();
 
         foreach ($presensis as $presensi) {
