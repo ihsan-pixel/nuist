@@ -643,7 +643,7 @@
                             <input type="date" name="date" id="filterDate" class="form-control form-control-sm rounded-pill"
                                 value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
 
-                            <button type="submit" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <button type="submit" id="filterBtn" class="btn btn-warning btn-sm rounded-pill px-3">
                                 view
                             </button>
                         </form>
