@@ -1595,17 +1595,7 @@ $(document).ready(function () {
     @endif
 });
 
-$('#filterBtn').on('click', function () {
-    let selectedDate = $('#filterDate').val();
 
-    if(!selectedDate) {
-        Swal.fire('Tanggal belum dipilih');
-        return;
-    }
-
-    // Redirect dan reload halaman dengan parameter tanggal
-    window.location.href = `?date=${selectedDate}`;
-});
 
 </script>
 @endsection
