@@ -662,14 +662,14 @@
     <!-- Primary Statistics Row -->
     <div class="section-wrapper mb-4">
         <div class="row g-3">
-            {{-- Users Presensi Card --}}
-            <div class="col-lg-4">
+            {{-- Users Presensi (Hadir) Card --}}
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift total-sekolah" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_presensi']) }}</h3>
-                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Presensi</p>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Presensi (Hadir)</p>
                             </div>
                             <div class="avatar-md">
                                 <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
@@ -686,8 +686,32 @@
                 </div>
             </div>
 
+            {{-- Users Izin Card --}}
+            <div class="col-lg-3">
+                <div class="stat-card h-100 hover-lift" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
+                    <div class="card-body p-4" style="padding: 1.5rem !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['users_izin']) }}</h3>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Users Izin</p>
+                            </div>
+                            <div class="avatar-md">
+                                <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
+                                    <i class="mdi mdi-calendar-exclamation fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="progress bg-white bg-opacity-25" style="height: 4px !important; background: rgba(255, 255, 255, 0.25) !important;">
+                                <div class="progress-bar bg-white" style="width: 100% !important; background: white !important;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Sekolah Presensi Card --}}
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift sekolah-buka" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
@@ -710,14 +734,14 @@
                 </div>
             </div>
 
-            {{-- Belum Presensi Card --}}
-            <div class="col-lg-4">
+            {{-- Belum Presensi (Tidak Hadir) Card --}}
+            <div class="col-lg-3">
                 <div class="stat-card h-100 hover-lift pending" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important; border-radius: 15px !important; padding: 1.5rem !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; transition: all 0.3s ease !important; position: relative !important; overflow: hidden !important; color: white !important;">
                     <div class="card-body p-4" style="padding: 1.5rem !important;">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <h3 class="text-white mb-1" style="color: white !important;">{{ number_format($summary['guru_tidak_presensi']) }}</h3>
-                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Belum Presensi</p>
+                                <p class="text-white-75 mb-0 fs-6" style="color: rgba(255, 255, 255, 0.75) !important;">Belum Presensi (Tidak Hadir)</p>
                             </div>
                             <div class="avatar-md">
                                 <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle" style="background: rgba(255, 255, 255, 0.25) !important; color: white !important;">
