@@ -40,8 +40,8 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
 
         // Parse bulan format (e.g., "January 2025" -> month and year)
         $bulanParts = explode(' ', $this->bulan);
-        $monthName = $bulanParts[0];
-        $year = $bulanParts[1];
+        $monthName = $bulanParts[0] ?? 'January';
+        $year = $bulanParts[1] ?? date('Y');
 
         // Convert month name to number
         $monthNum = date('m', strtotime($monthName . ' 1'));
