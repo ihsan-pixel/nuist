@@ -10,6 +10,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PresensiPerBulanExport;
+use App\Exports\PresensiSemuaExport;
 
 class PresensiAdminController extends Controller
 {
@@ -559,7 +562,17 @@ class PresensiAdminController extends Controller
             ];
         });
 
-        return view('presensi_admin.detail', compact('madrasah', 'tenagaPendidikData', 'selectedDate', 'user', 'tenagaPendidik', 'search'));
+        $bulanTersedia = DB::table('presensis')
+            ->selectRaw("MONTH(tanggal_presensi) AS bulan, DATE_FORMAT(tanggal_presensi, '%M %Y') AS nama_bulan")
+            ->where('madrasah_id', $madrasah->id)
+            ->groupBy('bulan', 'nama_bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        return view('presensi_admin.detail', compact(
+            'madrasah', 'tenagaPendidik', 'tenagaPendidikData',
+            'selectedDate', 'user', 'search', 'bulanTersedia'
+        ));
     }
 
     // Export presensi data to Excel
@@ -810,6 +823,22 @@ class PresensiAdminController extends Controller
                 'Data_Presensi_Bulanan_' . $month . '.xlsx'
             );
         }
+    }
+
+    // Export presensi data to Excel
+    public function exportExcel(Request $request)
+    {
+        $madrasahId = $request->madrasah_id;
+        $jenis = $request->jenis;
+        $bulan = $request->bulan;
+
+        if ($jenis === 'bulan') {
+            return Excel::download(new PresensiPerBulanExport($madrasahId, $bulan),
+                "Presensi_Madrasah_Bulan_$bulan.xlsx");
+        }
+
+        return Excel::download(new PresensiSemuaExport($madrasahId),
+            "Presensi_Madrasah_Semua.xlsx");
     }
 
     /**

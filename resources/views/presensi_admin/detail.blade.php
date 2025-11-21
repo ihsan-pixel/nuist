@@ -774,6 +774,9 @@
                         <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
                     </div>
                     <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-warning btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportModal">
+                            <i class="mdi mdi-file-excel me-1"></i> Export Excel
+                        </button>
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
                         <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
@@ -1188,6 +1191,51 @@
             </div>
         </div>
     </div>
+    <!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('presensi_admin.export_excel') }}" method="GET">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="exportModalLabel">
+                        <i class="mdi mdi-file-excel"></i> Export Data Presensi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Jenis Export</label>
+                        <select class="form-select" name="jenis" id="jenis-export" required>
+                            <option value="">-- Pilih --</option>
+                            <option value="bulan">Per Bulan</option>
+                            <option value="semua">Semua Data</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="bulan-wrapper" style="display:none;">
+                        <label class="form-label">Pilih Bulan</label>
+                        <select class="form-select" name="bulan">
+                            @foreach($bulanTersedia as $b)
+                                <option value="{{ $b->bulan }}">{{ $b->nama_bulan }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">
+                        <i class="mdi mdi-download"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @section('script')
@@ -1344,6 +1392,16 @@ $(document).ready(function() {
         $('#map-loading').hide();
         $('#map-fallback').show().html('<i class="mdi mdi-map-off" style="font-size: 2rem;"></i><p class="mb-0 mt-2">Koordinat tidak tersedia</p>');
     @endif
+});
+</script>
+
+<script>
+$('#jenis-export').on('change', function() {
+    if ($(this).val() === 'bulan') {
+        $('#bulan-wrapper').show();
+    } else {
+        $('#bulan-wrapper').hide();
+    }
 });
 </script>
 
