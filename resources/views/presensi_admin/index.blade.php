@@ -639,12 +639,14 @@
                         <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
                     </div>
                     <div class="d-flex gap-2 mt-3">
-                        <input type="date" id="filterDate" class="form-control form-control-sm rounded-pill"
-                            value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex gap-2">
+                            <input type="date" name="date" id="filterDate" class="form-control form-control-sm rounded-pill"
+                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
 
-                        <button type="button" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
-                            <i class="bx bx-filter-alt me-1"></i> Tampilkan
-                        </button>
+                            <button type="submit" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
+                                <i class="bx bx-filter-alt me-1"></i> Tampilkan
+                            </button>
+                        </form>
 
                         <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
                         class="btn btn-success btn-sm rounded-pill px-3">
