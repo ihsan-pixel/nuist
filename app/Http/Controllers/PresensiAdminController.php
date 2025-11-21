@@ -748,14 +748,17 @@ class PresensiAdminController extends Controller
     private function calculatePresensiSummary($selectedDate, $user)
     {
         $summary = [
+            'total_users' => 0,
             'users_presensi' => 0,
             'users_izin' => 0,
-            'sekolah_presensi' => 0,
             'guru_tidak_presensi' => 0,
         ];
 
         if (in_array($user->role, ['super_admin', 'pengurus'])) {
             // For super_admin and pengurus: all data
+            $totalGuru = User::where('role', 'tenaga_pendidik')->count();
+            $summary['total_users'] = $totalGuru;
+
             $hadirUsers = Presensi::whereDate('tanggal', $selectedDate)
                 ->where('status', 'hadir')
                 ->distinct('user_id')
@@ -768,18 +771,15 @@ class PresensiAdminController extends Controller
                 ->count('user_id');
             $summary['users_izin'] = $izinUsers;
 
-            $sekolahPresensi = Presensi::whereDate('tanggal', $selectedDate)
-                ->join('users', 'presensis.user_id', '=', 'users.id')
-                ->join('madrasahs', 'users.madrasah_id', '=', 'madrasahs.id')
-                ->distinct('madrasahs.id')
-                ->count('madrasahs.id');
-            $summary['sekolah_presensi'] = $sekolahPresensi;
-
-            $totalGuru = User::where('role', 'tenaga_pendidik')->count();
             $summary['guru_tidak_presensi'] = $totalGuru - ($hadirUsers + $izinUsers);
         } else {
             // For admin and tenaga_pendidik kepala: filter by madrasah
             if ($user->madrasah_id) {
+                $totalGuru = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $user->madrasah_id)
+                    ->count();
+                $summary['total_users'] = $totalGuru;
+
                 $hadirUsers = Presensi::whereDate('tanggal', $selectedDate)
                     ->where('status', 'hadir')
                     ->where(function ($q) use ($user) {
@@ -814,24 +814,6 @@ class PresensiAdminController extends Controller
                     ->count('user_id');
                 $summary['users_izin'] = $izinUsers;
 
-                $hasPresensi = Presensi::whereDate('tanggal', $selectedDate)
-                    ->where(function ($q) use ($user) {
-                        // Jika presensi.madrasah_id bernilai null, tampilkan data presensi di mana user.madrasah_id == admin.madrasah_id
-                        $q->where(function ($subQ) use ($user) {
-                            $subQ->whereNull('madrasah_id')
-                                 ->whereHas('user', function ($userQ) use ($user) {
-                                     $userQ->where('madrasah_id', $user->madrasah_id);
-                                 });
-                        })
-                        // Jika presensi.madrasah_id tidak bernilai null, tampilkan data presensi di mana presensi.madrasah_id == admin.madrasah_id
-                        ->orWhere('madrasah_id', $user->madrasah_id);
-                    })
-                    ->exists();
-                $summary['sekolah_presensi'] = $hasPresensi ? 1 : 0;
-
-                $totalGuru = User::where('role', 'tenaga_pendidik')
-                    ->where('madrasah_id', $user->madrasah_id)
-                    ->count();
                 $summary['guru_tidak_presensi'] = $totalGuru - ($hadirUsers + $izinUsers);
             }
         }
