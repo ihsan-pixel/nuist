@@ -33,9 +33,13 @@
 
             <td>{{ $p->waktu_masuk }}</td>
             <td>
-                @if ($p->selfie_masuk_path)
-                    <img src="{{ public_path('storage/' . $p->selfie_masuk_path) }}">
-                    {{-- <img src="file://{{ public_path('storage/' . $p->selfie_masuk_path) }}"> --}}
+                @php
+                    $pathMasuk = base_path('public_html/storage/' . $p->selfie_masuk_path);
+                    $fotoMasuk = file_exists($pathMasuk) ? base64_encode(file_get_contents($pathMasuk)) : null;
+                @endphp
+
+                @if($fotoMasuk)
+                    <img src="data:image/jpeg;base64,{{ $fotoMasuk }}" width="120">
                 @endif
             </td>
             <td>{{ $p->waktu_keluar }}</td>
