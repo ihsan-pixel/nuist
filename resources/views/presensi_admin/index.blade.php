@@ -612,6 +612,39 @@
     margin: 0.25rem 0 0 0 !important;
     opacity: 0.9 !important;
 }
+
+/* Search Input Styles */
+.search-input-group {
+    max-width: 400px;
+    margin-bottom: 1rem;
+}
+
+.search-input-group .input-group-text {
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+    color: white;
+    border: 1px solid #004b4c;
+    border-radius: 8px 0 0 8px;
+}
+
+.search-input-group .form-control {
+    border: 1px solid #dee2e6;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.search-input-group .form-control:focus {
+    border-color: #004b4c;
+    box-shadow: 0 0 0 0.2rem rgba(0, 75, 76, 0.25);
+}
+
+@media (max-width: 768px) {
+    .search-input-group {
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+}
 </style>
 @endsection
 
@@ -757,6 +790,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="d-flex justify-content-center">
+        <div class="input-group search-input-group">
+            <span class="input-group-text"><i class="mdi mdi-magnify"></i></span>
+            <input type="text" class="form-control" id="searchInput" placeholder="Cari berdasarkan nama madrasah...">
         </div>
     </div>
 
