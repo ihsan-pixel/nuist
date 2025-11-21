@@ -81,6 +81,8 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
                 'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
                 'Keterangan' => $presensi->keterangan,
                 'Lokasi' => $presensi->lokasi,
+                'Foto Masuk' => $presensi->selfie_masuk_path ? 'Foto Masuk' : '-',
+                'Foto Keluar' => $presensi->selfie_keluar_path ? 'Foto Keluar' : '-',
             ]);
         }
 
@@ -120,8 +122,8 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             $row = $index + 2;
 
             // FOTO MASUK
-            $fotoMasukPath = public_path('uploads/presensi/' . $presensi->foto_masuk);
-            if ($presensi->foto_masuk && file_exists($fotoMasukPath)) {
+            $fotoMasukPath = public_path('storage/presensi-selfies/' . $presensi->selfie_masuk_path);
+            if ($presensi->selfie_masuk_path && file_exists($fotoMasukPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Masuk ' . ($index + 1));
                 $drawing->setDescription('Foto Presensi Masuk');
@@ -132,8 +134,8 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             }
 
             // FOTO KELUAR
-            $fotoKeluarPath = public_path('uploads/presensi/' . $presensi->foto_keluar);
-            if ($presensi->foto_keluar && file_exists($fotoKeluarPath)) {
+            $fotoKeluarPath = public_path('storage/presensi-selfies/' . $presensi->selfie_keluar_path);
+            if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Keluar ' . ($index + 1));
                 $drawing->setDescription('Foto Presensi Keluar');
