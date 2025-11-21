@@ -84,4 +84,57 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
 
         return $data;
     }
+
+    public function drawings()
+    {
+        $drawings = [];
+
+        // Parse bulan format (e.g., "November 2025" -> month and year)
+        $bulanParts = explode(' ', $this->bulan);
+        $monthName = $bulanParts[0] ?? 'January';
+        $year = $bulanParts[1] ?? date('Y');
+
+        // Convert month name to number
+        $monthNum = date('m', strtotime($monthName . ' 1'));
+
+        $presensis = Presensi::with(['user.statusKepegawaian'])
+            ->whereHas('user', function ($q) {
+                $q->where('madrasah_id', $this->madrasahId)
+                  ->where('role', 'tenaga_pendidik');
+            })
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $monthNum)
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        foreach ($presensis as $index => $presensi) {
+            $row = $index + 2; // +2 because Excel starts at 1 and we have headers
+
+            // Add foto masuk if exists
+            if ($presensi->foto_masuk && file_exists(public_path('uploads/presensi/' . $presensi->foto_masuk))) {
+                $drawing = new Drawing();
+                $drawing->setName('Foto Masuk ' . ($index + 1));
+                $drawing->setDescription('Foto Presensi Masuk');
+                $drawing->setPath(public_path('uploads/presensi/' . $presensi->foto_masuk));
+                $drawing->setHeight(50);
+                $drawing->setWidth(50);
+                $drawing->setCoordinates('K' . $row); // Column K for Foto Masuk
+                $drawings[] = $drawing;
+            }
+
+            // Add foto keluar if exists
+            if ($presensi->foto_keluar && file_exists(public_path('uploads/presensi/' . $presensi->foto_keluar))) {
+                $drawing = new Drawing();
+                $drawing->setName('Foto Keluar ' . ($index + 1));
+                $drawing->setDescription('Foto Presensi Keluar');
+                $drawing->setPath(public_path('uploads/presensi/' . $presensi->foto_keluar));
+                $drawing->setHeight(50);
+                $drawing->setWidth(50);
+                $drawing->setCoordinates('L' . $row); // Column L for Foto Keluar
+                $drawings[] = $drawing;
+            }
+        }
+
+        return $drawings;
+    }
 }
