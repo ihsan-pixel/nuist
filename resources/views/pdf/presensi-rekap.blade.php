@@ -40,7 +40,7 @@
             <td>{{ $p->waktu_keluar }}</td>
             <td>
                 @if ($p->selfie_keluar_path && file_exists(public_path('storage/' . $p->selfie_keluar_path)))
-                    <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('storage/' . $p->selfie_keluar_path))) }}">
+                    <img src="file://{{ public_path('storage/' . $p->selfie_keluar_path) }}">
                 @endif
             </td>
 
