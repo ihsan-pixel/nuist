@@ -33,6 +33,8 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             'Waktu Keluar',
             'Keterangan',
             'Lokasi',
+            'Foto Masuk',
+            'Foto Keluar',
         ];
     }
 
