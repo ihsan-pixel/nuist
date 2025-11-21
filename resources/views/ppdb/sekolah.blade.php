@@ -793,7 +793,7 @@
             <div class="col-lg-6 animate-slide-in-left">
                 <div class="d-flex align-items-center mb-4">
                     @if($madrasah->logo)
-                        <img src="{{ asset('storage/app/public/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="school-logo me-4">
+                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="school-logo me-4">
                     @else
                         <div class="school-logo bg-light d-flex align-items-center justify-content-center me-4">
                             <i class="fas fa-school fa-2x text-muted"></i>
@@ -908,7 +908,7 @@
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         @if(isset($jurusan['image']) && $jurusan['image'])
-                            <img src="{{ asset('storage/app/public/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
+                            <img src="{{ asset('storage/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @endif
                         <h5 class="text-primary mb-3">
                             <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
