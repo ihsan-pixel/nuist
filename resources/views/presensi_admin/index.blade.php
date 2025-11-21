@@ -1189,7 +1189,6 @@ $(document).ready(function () {
             type: 'GET',
             data: { date: currentDate },
             success: function(data) {
-                updateTables(data);
                 // Update summary cards
                 updateSummaryCards();
             },
