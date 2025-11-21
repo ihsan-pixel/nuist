@@ -776,9 +776,6 @@
                     <div class="d-flex gap-2 mt-3">
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
-                        <button type="button" onclick="refreshData()" class="btn btn-primary btn-sm rounded-pill px-3">
-                            <i class="bx bx-refresh me-1"></i>Refresh
-                        </button>
                         <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bx bx-arrow-back me-1"></i>Kembali
                         </a>
