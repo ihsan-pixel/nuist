@@ -91,18 +91,25 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
     {
         $drawings = [];
 
-        // Parse bulan format (e.g., "November 2025" -> month and year)
-        $bulanParts = explode(' ', $this->bulan);
-        $monthName = $bulanParts[0] ?? 'January';
-        $year = $bulanParts[1] ?? date('Y');
-
-        // Convert month name to number
-        $monthNum = date('m', strtotime($monthName . ' 1'));
+        // Gunakan parsing bulan yang sama dengan collection()
+        if (preg_match('/^\d{4}-\d{2}$/', $this->bulan)) {
+            list($year, $monthNum) = explode('-', $this->bulan);
+        }
+        elseif (preg_match('/^\d{1,2}$/', $this->bulan)) {
+            $year = date('Y');
+            $monthNum = $this->bulan;
+        }
+        else {
+            $bulanParts = explode(' ', $this->bulan);
+            $monthName = $bulanParts[0];
+            $year = $bulanParts[1] ?? date('Y');
+            $monthNum = date('m', strtotime("$monthName 1"));
+        }
 
         $presensis = Presensi::with(['user.statusKepegawaian'])
             ->whereHas('user', function ($q) {
                 $q->where('madrasah_id', $this->madrasahId)
-                  ->where('role', 'tenaga_pendidik');
+                ->where('role', 'tenaga_pendidik');
             })
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $monthNum)
@@ -110,29 +117,29 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             ->get();
 
         foreach ($presensis as $index => $presensi) {
-            $row = $index + 2; // +2 because Excel starts at 1 and we have headers
+            $row = $index + 2;
 
-            // Add foto masuk if exists
-            if ($presensi->foto_masuk && file_exists(public_path('uploads/presensi/' . $presensi->foto_masuk))) {
+            // FOTO MASUK
+            $fotoMasukPath = public_path('uploads/presensi/' . $presensi->foto_masuk);
+            if ($presensi->foto_masuk && file_exists($fotoMasukPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Masuk ' . ($index + 1));
                 $drawing->setDescription('Foto Presensi Masuk');
-                $drawing->setPath(public_path('uploads/presensi/' . $presensi->foto_masuk));
+                $drawing->setPath($fotoMasukPath);
                 $drawing->setHeight(50);
-                $drawing->setWidth(50);
-                $drawing->setCoordinates('K' . $row); // Column K for Foto Masuk
+                $drawing->setCoordinates('K' . $row);
                 $drawings[] = $drawing;
             }
 
-            // Add foto keluar if exists
-            if ($presensi->foto_keluar && file_exists(public_path('uploads/presensi/' . $presensi->foto_keluar))) {
+            // FOTO KELUAR
+            $fotoKeluarPath = public_path('uploads/presensi/' . $presensi->foto_keluar);
+            if ($presensi->foto_keluar && file_exists($fotoKeluarPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Keluar ' . ($index + 1));
                 $drawing->setDescription('Foto Presensi Keluar');
-                $drawing->setPath(public_path('uploads/presensi/' . $presensi->foto_keluar));
+                $drawing->setPath($fotoKeluarPath);
                 $drawing->setHeight(50);
-                $drawing->setWidth(50);
-                $drawing->setCoordinates('L' . $row); // Column L for Foto Keluar
+                $drawing->setCoordinates('L' . $row);
                 $drawings[] = $drawing;
             }
         }
