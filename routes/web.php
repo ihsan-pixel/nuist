@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi-admin/export', [PresensiAdminController::class, 'export'])->name('presensi_admin.export');
     Route::get('/presensi-admin/export-madrasah/{madrasahId}', [PresensiAdminController::class, 'exportMadrasah'])->name('presensi_admin.export_madrasah');
     Route::get('/presensi-admin/export-excel', [PresensiAdminController::class, 'exportExcel'])->name('presensi_admin.export_excel');
+    Route::get('/presensi/rekap/pdf/{madrasahId}/{bulan}', [PresensiController::class, 'pdfRekap']);
 
     // Teaching Progress Routes - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {

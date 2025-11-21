@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+        img { width: 120px; height: auto; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<h3>Rekap Presensi Bulan: {{ $bulan }}</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Nama Guru</th>
+            <th>Masuk</th>
+            <th>Foto Masuk</th>
+            <th>Keluar</th>
+            <th>Foto Keluar</th>
+            <th>Keterangan</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach ($presensis as $p)
+        <tr>
+            <td>{{ $p->tanggal }}</td>
+            <td>{{ $p->user->name }}</td>
+
+            <td>{{ $p->waktu_masuk }}</td>
+            <td>
+                @if ($p->foto_masuk)
+                    <img src="{{ public_path('uploads/presensi/' . $p->foto_masuk) }}">
+                @endif
+            </td>
+
+            <td>{{ $p->waktu_keluar }}</td>
+            <td>
+                @if ($p->foto_keluar)
+                    <img src="{{ public_path('uploads/presensi/' . $p->foto_keluar) }}">
+                @endif
+            </td>
+
+            <td>{{ $p->keterangan }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+
+</body>
+</html>

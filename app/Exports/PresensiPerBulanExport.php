@@ -81,8 +81,6 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
                 'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
                 'Keterangan' => $presensi->keterangan,
                 'Lokasi' => $presensi->lokasi,
-                'Foto Masuk' => null,
-                'Foto Keluar' => null,
             ]);
         }
 
