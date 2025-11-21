@@ -685,6 +685,8 @@
         const polygonMaps = {};
         const polygonEditableLayers = {};
         const polygonDrawingMode = {};
+        const dualPolygonMaps = {};
+        const dualPolygonEditableLayers = {};
 
         /**
          * Universal Leaflet Map Fix - Force multiple invalidates to stabilize layout
@@ -1120,6 +1122,16 @@
                             polygonMaps[id].invalidateSize();
                         }
 
+                        // Jika dual polygon aktif, initialize map kedua
+                        const enableDual = document.getElementById('enable_dual_polygon-edit-' + id);
+                        if (enableDual && enableDual.checked) {
+                            if (!dualPolygonMaps[id]) {
+                                await initDualPolygonMap(id);
+                            } else {
+                                dualPolygonMaps[id].invalidateSize();
+                            }
+                        }
+
                         // Ensure map is visible
                         const mapContainer = document.getElementById('map-edit-' + id);
                         if (mapContainer && polygonMaps[id]) {
@@ -1209,12 +1221,17 @@
                         }
                         // Initialize map if not already done
                         if (!dualPolygonMaps[id]) {
-                            initDualPolygonMap(id);
+                            initDualPolygonMap(id).then(() => {
+                                setTimeout(() => {
+                                    dualPolygonMaps[id].invalidateSize();
+                                }, 300);
+                            });
                         } else {
                             setTimeout(() => {
-                                if (dualPolygonMaps[id]) dualPolygonMaps[id].invalidateSize();
-                            }, 400);
+                                dualPolygonMaps[id].invalidateSize();
+                            }, 300);
                         }
+
                     } else {
                         container.style.display = 'none';
                         // Clear the polygon data
