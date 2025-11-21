@@ -741,13 +741,75 @@ class PresensiAdminController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $month = $request->input('month', Carbon::now()->format('Y-m'));
-        list($year, $monthNum) = explode('-', $month);
+        $type = $request->input('type', 'month');
 
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\PresensiMonthlyExport($monthNum, $year, $user),
-            'Data_Presensi_Bulanan_' . $month . '.xlsx'
-        );
+        if ($type === 'all') {
+            // Export semua data presensi untuk madrasah admin
+            $query = Presensi::with(['user.statusKepegawaian'])
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('madrasah_id', $user->madrasah_id)
+                      ->where('role', 'tenaga_pendidik');
+                });
+
+            $presensis = $query->orderBy('tanggal', 'desc')->get();
+
+            $data = [];
+            foreach ($presensis as $presensi) {
+                $data[] = [
+                    'Tanggal' => $presensi->tanggal->format('Y-m-d'),
+                    'Nama Guru' => $presensi->user->name,
+                    'Status Kepegawaian' => $presensi->statusKepegawaian->name ?? '-',
+                    'NIP' => $presensi->user->nip,
+                    'NUPTK' => $presensi->user->nuptk,
+                    'Status Presensi' => $presensi->status,
+                    'Waktu Masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                    'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                    'Keterangan' => $presensi->keterangan,
+                    'Lokasi' => $presensi->lokasi,
+                ];
+            }
+
+            $filename = 'Data_Presensi_Semua_' . str_replace(' ', '_', $user->madrasah->name) . '_' . Carbon::now()->format('Y-m-d') . '.xlsx';
+
+            return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+                private $data;
+
+                public function __construct($data)
+                {
+                    $this->data = $data;
+                }
+
+                public function array(): array
+                {
+                    return $this->data;
+                }
+
+                public function headings(): array
+                {
+                    return [
+                        'Tanggal',
+                        'Nama Guru',
+                        'Status Kepegawaian',
+                        'NIP',
+                        'NUPTK',
+                        'Status Presensi',
+                        'Waktu Masuk',
+                        'Waktu Keluar',
+                        'Keterangan',
+                        'Lokasi'
+                    ];
+                }
+            }, $filename);
+        } else {
+            // Export bulanan
+            $month = $request->input('month', Carbon::now()->format('Y-m'));
+            list($year, $monthNum) = explode('-', $month);
+
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\PresensiMonthlyExport($monthNum, $year, $user),
+                'Data_Presensi_Bulanan_' . $month . '.xlsx'
+            );
+        }
     }
 
     /**
