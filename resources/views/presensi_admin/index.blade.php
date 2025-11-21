@@ -1277,10 +1277,9 @@ $(document).ready(function () {
             data: { date: currentDate },
             success: function(data) {
     // Update summary cards with JSON data
-                $('.row.mb-4 .card .h5').eq(0).text(data.total_users);
-                $('.row.mb-4 .card .h5').eq(1).text(data.users_presensi);
-                $('.row.mb-4 .card .h5').eq(2).text(data.users_izin);
-                $('.row.mb-4 .card .h5').eq(3).text(data.guru_tidak_presensi);
+                $('.row.mb-4 .card .h5').eq(0).text(data.users_presensi);
+                $('.row.mb-4 .card .h5').eq(1).text(data.sekolah_presensi);
+                $('.row.mb-4 .card .h5').eq(2).text(data.guru_tidak_presensi);
             },
             error: function(xhr, status, error) {
                 console.log('Error updating summary:', error);
