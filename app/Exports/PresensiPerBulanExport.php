@@ -46,20 +46,15 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
         // Convert month name to number
         $monthNum = date('m', strtotime($monthName . ' 1'));
 
+        // Get presensi data for the selected month and year
         $presensis = Presensi::with(['user.statusKepegawaian'])
-            ->join('users', 'presensis.user_id', '=', 'users.id')
-            ->where(function ($q) {
-                $q->where('presensis.madrasah_id', $this->madrasahId)
-                  ->orWhere(function ($subQ) {
-                      $subQ->whereNull('presensis.madrasah_id')
-                           ->where('users.madrasah_id', $this->madrasahId)
-                           ->where('users.role', 'tenaga_pendidik');
-                  });
+            ->whereHas('user', function ($q) {
+                $q->where('madrasah_id', $this->madrasahId)
+                  ->where('role', 'tenaga_pendidik');
             })
-            ->whereYear('presensis.tanggal', $year)
-            ->whereMonth('presensis.tanggal', $monthNum)
-            ->select('presensis.*')
-            ->orderBy('presensis.tanggal', 'desc')
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $monthNum)
+            ->orderBy('tanggal', 'desc')
             ->get();
 
         foreach ($presensis as $presensi) {
