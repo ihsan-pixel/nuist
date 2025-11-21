@@ -34,16 +34,23 @@
             <td>{{ $p->waktu_masuk }}</td>
             <td>
                @php
-            $pathMasuk = base_path('../public_html/' . $p->selfie_masuk_path);
+                    $fotoMasuk = null;
 
-            $fotoMasuk = is_file($pathMasuk)
-                ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathMasuk))
-                : null;
-            @endphp
+                    if (!empty($p->selfie_masuk_path)) {
 
-            @if($fotoMasuk)
-                <img src="{{ $fotoMasuk }}" width="120">
-            @endif
+                        // Path sesuai screenshot Boss
+                        $pathMasuk = base_path('../public_html/storage/' . $p->selfie_masuk_path);
+
+                        if (is_file($pathMasuk)) {
+                            $fotoMasuk = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathMasuk));
+                        }
+                    }
+                @endphp
+
+                @if($fotoMasuk)
+                    <img src="{{ $fotoMasuk }}" width="120">
+                @endif
+
             </td>
             <td>{{ $p->waktu_keluar }}</td>
             <td>
