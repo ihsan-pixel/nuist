@@ -1159,7 +1159,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-                                    @if(in_array($user->role, ['super_admin', 'pengurus']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
                                     <th>Madrasah</th>
                                     @endif
                                 </tr>
@@ -1169,13 +1169,13 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $userBelum->name }}</td>
-                                    @if(in_array($user->role, ['super_admin', 'pengurus']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
                                     <td>{{ $userBelum->madrasah->name ?? '-' }}</td>
                                     @endif
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="{{ in_array($user->role, ['super_admin', 'pengurus']) ? 3 : 2 }}" class="text-center p-4">
+{{ in_array($user->role, ['super_admin', 'pengurus']) ? 3 : 2 }}
                                         <div class="alert alert-info d-inline-block text-center" role="alert">
                                             <i class="bx bx-info-circle bx-lg me-2"></i>
                                             <strong>Semua tenaga pendidik sudah melakukan presensi pada tanggal ini</strong><br>
@@ -1216,7 +1216,7 @@
 
 <script>
 $(document).ready(function () {
-    @if(!in_array($user->role, ['super_admin', 'pengurus']))
+@if(!in_array($user->role, ['super_admin', 'pengurus']))
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
         lengthChange: true,
@@ -1343,7 +1343,7 @@ $(document).ready(function () {
 
     // }
 
-    @if(in_array($user->role, ['super_admin', 'pengurus']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
     // Handle user detail modal
     $(document).on('click', '.user-detail-link', function(e) {
         e.preventDefault();
