@@ -54,8 +54,21 @@
             </td>
             <td>{{ $p->waktu_keluar }}</td>
             <td>
-                @if ($p->selfie_keluar_path)
-                    <img src="file://{{ public_path('storage/' . $p->selfie_keluar_path) }}">
+                @php
+                    $fotoKeluar = null;
+
+                    if (!empty($p->selfie_keluar_path)) {
+
+                        $pathKeluar = base_path('../public_html/storage/' . $p->selfie_keluar_path);
+
+                        if (is_file($pathKeluar)) {
+                            $fotoKeluar = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathKeluar));
+                        }
+                    }
+                @endphp
+
+                @if($fotoKeluar)
+                    <img src="{{ $fotoKeluar }}" width="120">
                 @endif
             </td>
 
