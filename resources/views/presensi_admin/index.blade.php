@@ -654,7 +654,7 @@
     @slot('title') Data Presensi @endslot
 @endcomponent
 
-@if(in_array($user->role, ['super_admin', 'pengurus', 'admin']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
     <!-- Header Section - Modern PPDB Style -->
     <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
         <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
@@ -1159,7 +1159,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-@if(in_array($user->role, ['super_admin', 'pengurus', 'admin']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
                                     <th>Madrasah</th>
                                     @endif
                                 </tr>
@@ -1169,7 +1169,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $userBelum->name }}</td>
-@if(in_array($user->role, ['super_admin', 'pengurus', 'admin']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
                                     <td>{{ $userBelum->madrasah->name ?? '-' }}</td>
                                     @endif
                                 </tr>
@@ -1216,7 +1216,7 @@
 
 <script>
 $(document).ready(function () {
-@if(!in_array($user->role, ['super_admin', 'pengurus', 'admin']))
+@if(!in_array($user->role, ['super_admin', 'pengurus']))
     let table = $("#datatable-buttons").DataTable({
         responsive: true,
         lengthChange: true,
@@ -1343,7 +1343,7 @@ $(document).ready(function () {
 
     // }
 
-@if(in_array($user->role, ['super_admin', 'pengurus', 'admin']))
+@if(in_array($user->role, ['super_admin', 'pengurus']))
     // Handle user detail modal
     $(document).on('click', '.user-detail-link', function(e) {
         e.preventDefault();
