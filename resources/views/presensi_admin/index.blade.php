@@ -634,27 +634,23 @@
                     <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di seluruh madrasah Ma'arif</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
-                    <div class="d-flex flex-column align-items-end">
+                    <div class="d-flex align-items-center justify-content-lg-end">
+                        <i class="mdi mdi-calendar-clock me-2"></i>
+                        <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-3 justify-content-end w-100">
+                        <form method="GET" action="{{ route('presensi_admin.index') }}" class="d-flex align-items-center gap-2 mb-0">
+                            <input type="date" name="date" id="filterDate" class="form-control form-control-sm rounded-pill"
+                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
 
-                        <!-- tanggal + tombol -->
-                        <form method="GET" action="{{ route('presensi_admin.index') }}"
-                            class="d-flex align-items-center gap-2 mb-2">
-
-                            <input type="date" name="date" id="filterDate"
-                                class="form-control form-control-sm rounded-pill"
-                                value="{{ $selectedDate->format('Y-m-d') }}"
-                                style="min-width:140px;">
-
-                            <button type="submit" id="filterBtn"
-                                class="btn btn-primary btn-sm rounded-pill px-3">
+                            <button type="submit" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
                                 <i class="bx bx-filter-alt me-1"></i> Tampilkan
                             </button>
                         </form>
 
-                        <!-- tombol export -->
                         <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
                         class="btn btn-success btn-sm rounded-pill px-3">
-                            <i class="bx bx-download me-1"></i> Export
+                            <i class="bx bx-download me-1"></i>Export
                         </a>
                     </div>
                 </div>
