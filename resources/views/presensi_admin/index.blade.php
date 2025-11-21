@@ -639,10 +639,15 @@
                         <span class="fw-semibold">{{ $selectedDate->format('d F Y') }}</span>
                     </div>
                     <div class="d-flex gap-2 mt-3">
-                        <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
-                               value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+                        <input type="date" id="filterDate" class="form-control form-control-sm rounded-pill"
+                            value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
+
+                        <button type="button" id="filterBtn" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="bx bx-filter-alt me-1"></i> Tampilkan
+                        </button>
+
                         <a href="{{ route('presensi_admin.export', ['date' => $selectedDate->format('Y-m-d')]) }}"
-                           class="btn btn-success btn-sm rounded-pill px-3">
+                        class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bx bx-download me-1"></i>Export
                         </a>
                     </div>
@@ -1589,6 +1594,19 @@ $(document).ready(function () {
 
     @endif
 });
+
+$('#filterBtn').on('click', function () {
+    let selectedDate = $('#filterDate').val();
+
+    if(!selectedDate) {
+        Swal.fire('Tanggal belum dipilih');
+        return;
+    }
+
+    // Redirect dan reload halaman dengan parameter tanggal
+    window.location.href = `?date=${selectedDate}`;
+});
+
 </script>
 @endsection
 
