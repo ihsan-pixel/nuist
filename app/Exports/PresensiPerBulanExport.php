@@ -38,19 +38,27 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
     {
         $data = collect();
 
-        // Parse bulan format (e.g., "November 2025" -> month and year)
-        $bulanParts = explode(' ', $this->bulan);
-        $monthName = $bulanParts[0] ?? 'January';
-        $year = $bulanParts[1] ?? date('Y');
+        // Jika format bulan adalah "YYYY-MM"
+        if (preg_match('/^\d{4}-\d{2}$/', $this->bulan)) {
+            list($year, $monthNum) = explode('-', $this->bulan);
+        }
+        // Jika format bulan hanya "MM"
+        elseif (preg_match('/^\d{1,2}$/', $this->bulan)) {
+            $year = date('Y');
+            $monthNum = $this->bulan;
+        }
+        // Jika format bulan seperti "November 2025"
+        else {
+            $bulanParts = explode(' ', $this->bulan);
+            $monthName = $bulanParts[0];
+            $year = $bulanParts[1] ?? date('Y');
+            $monthNum = date('m', strtotime("$monthName 1"));
+        }
 
-        // Convert month name to number
-        $monthNum = date('m', strtotime($monthName . ' 1'));
-
-        // Get presensi data for the selected month and year
         $presensis = Presensi::with(['user.statusKepegawaian'])
             ->whereHas('user', function ($q) {
                 $q->where('madrasah_id', $this->madrasahId)
-                  ->where('role', 'tenaga_pendidik');
+                ->where('role', 'tenaga_pendidik');
             })
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $monthNum)
