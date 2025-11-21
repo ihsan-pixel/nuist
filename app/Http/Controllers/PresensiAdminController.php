@@ -563,8 +563,16 @@ class PresensiAdminController extends Controller
         });
 
         $bulanTersedia = DB::table('presensis')
-            ->selectRaw("MONTH(tanggal) AS bulan, DATE_FORMAT(tanggal, '%M %Y') AS nama_bulan")
-            ->where('madrasah_id', $madrasah->id)
+            ->join('users', 'presensis.user_id', '=', 'users.id')
+            ->selectRaw("MONTH(presensis.tanggal) AS bulan, DATE_FORMAT(presensis.tanggal, '%M %Y') AS nama_bulan")
+            ->where(function ($q) use ($madrasah) {
+                $q->where('presensis.madrasah_id', $madrasah->id)
+                  ->orWhere(function ($subQ) use ($madrasah) {
+                      $subQ->whereNull('presensis.madrasah_id')
+                           ->where('users.madrasah_id', $madrasah->id)
+                           ->where('users.role', 'tenaga_pendidik');
+                  });
+            })
             ->groupBy('bulan', 'nama_bulan')
             ->orderBy('bulan', 'asc')
             ->get();
