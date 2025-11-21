@@ -1534,13 +1534,11 @@ $(document).ready(function () {
 
     // Handle date change
     $('input[type="date"]').on('change', function(e) {
-        e.preventDefault();
         currentDate = $(this).val();
         // Update export link
         let exportLink = '{{ route('presensi_admin.export', ['date' => 'PLACEHOLDER']) }}'.replace('PLACEHOLDER', currentDate);
         $('a[href*="presensi_admin.export"]').attr('href', exportLink);
         updatePresensiData();
-        return false;
     });
 
     // Handle export modal
