@@ -37,7 +37,7 @@
                     <img src="file://{{ public_path('storage/' . $p->selfie_masuk_path) }}">
                 @endif
             </td>
-
+            <td>{{ $p->waktu_keluar }}</td>
             <td>
                 @if ($p->selfie_keluar_path)
                     <img src="file://{{ public_path('storage/' . $p->selfie_keluar_path) }}">
