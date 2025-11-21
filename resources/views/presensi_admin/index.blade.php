@@ -1540,6 +1540,20 @@ $(document).ready(function () {
         updatePresensiData();
     });
 
+    // Handle refresh button
+    window.refreshData = function() {
+        currentDate = $('input[type="date"]').val();
+        updatePresensiData();
+        // Show success message
+        Swal.fire({
+            icon: 'success',
+            title: 'Data Diperbarui',
+            text: 'Data presensi telah diperbarui sesuai tanggal yang dipilih',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    };
+
     // Handle export modal
     let currentMadrasahId = null;
     $(document).on('click', '[data-bs-target="#exportModal"]', function() {
