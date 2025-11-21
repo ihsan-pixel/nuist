@@ -776,18 +776,6 @@
                     <div class="d-flex gap-2 mt-3">
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
-                        <form method="GET" action="{{ route('presensi_admin.show_detail', $madrasah->id) }}" class="d-flex gap-2">
-                            <input type="hidden" name="date" value="{{ $selectedDate->format('Y-m-d') }}">
-                            <input type="text" name="search" class="form-control form-control-sm rounded-pill" placeholder="Cari nama, NIP, NUPTK..." value="{{ $search }}" style="min-width: 200px;">
-                            <button type="submit" class="btn btn-primary btn-sm rounded-pill">
-                                <i class="mdi mdi-magnify"></i>
-                            </button>
-                            @if($search)
-                                <a href="{{ route('presensi_admin.show_detail', $madrasah->id) }}?date={{ $selectedDate->format('Y-m-d') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
-                                    <i class="mdi mdi-close"></i>
-                                </a>
-                            @endif
-                        </form>
                         <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
                             <i class="bx bx-arrow-back me-1"></i>Kembali
                         </a>
