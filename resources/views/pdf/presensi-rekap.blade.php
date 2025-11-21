@@ -34,7 +34,7 @@
             <td>{{ $p->waktu_masuk }}</td>
             <td>
                 @if ($p->selfie_masuk_path && file_exists(public_path('storage/' . $p->selfie_masuk_path)))
-                    <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('storage/' . $p->selfie_masuk_path))) }}">
+                    <img src="{{ config('app.url') . '/storage/' . $p->selfie_masuk_path }}">
                 @endif
             </td>
             <td>{{ $p->waktu_keluar }}</td>
