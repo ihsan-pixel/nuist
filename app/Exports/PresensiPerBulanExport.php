@@ -134,7 +134,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             }
 
             // FOTO KELUAR
-            $fotoKeluarPath = public_path('storage/presensi-selfies/' . $presensi->selfie_keluar_path);
+            $fotoKeluarPath = public_path('storage/' . $presensi->selfie_keluar_path);
             if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Foto Keluar ' . ($index + 1));
