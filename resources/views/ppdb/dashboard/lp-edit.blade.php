@@ -565,11 +565,11 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <input type="text" class="form-control @error('fasilitas.' . $index . '.name') is-invalid @enderror"
-                                               name="fasilitas[{{ $index }}][name]" value="{{ $fasilitas['name'] ?? $fasilitas }}" placeholder="Nama Fasilitas">
+                                               name="fasilitas[{{ $index }}][name]" value="{{ is_array($fasilitas) ? ($fasilitas['name'] ?? '') : $fasilitas }}" placeholder="Nama Fasilitas">
                                     </div>
                                     <div class="col-md-4">
                                         <input type="text" class="form-control @error('fasilitas.' . $index . '.description') is-invalid @enderror"
-                                               name="fasilitas[{{ $index }}][description]" value="{{ $fasilitas['description'] ?? '' }}" placeholder="Deskripsi Fasilitas">
+                                               name="fasilitas[{{ $index }}][description]" value="{{ is_array($fasilitas) ? ($fasilitas['description'] ?? '') : '' }}" placeholder="Deskripsi Fasilitas">
                                     </div>
                                     <div class="col-md-3">
                                         <input type="file" class="form-control @error('fasilitas_foto.' . $index) is-invalid @enderror"
