@@ -11,7 +11,7 @@
         background: url('{{ asset("images/bg_ppdb2.png") }}');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        background-attachment: absolute;
         min-height: 20vh;
         position: relative;
         display: flex;
