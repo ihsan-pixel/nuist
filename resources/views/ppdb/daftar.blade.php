@@ -44,7 +44,7 @@
 
     /* Background for space below hero section */
     body {
-        background: url('{{ asset("images/bg_ppdb3.jpg") }}');
+        background: url('{{ asset("images/bg_ppdb4.jpg") }}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -55,7 +55,7 @@
 
     /* Ensure content area has proper background overlay */
     .content-wrapper {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.9);
         min-height: 100vh;
         padding-bottom: 50px;
     }
