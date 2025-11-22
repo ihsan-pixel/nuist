@@ -473,7 +473,7 @@
     <div class="container hero-flayer animate-fade-in-up">
         <div class="row justify-content-center">
             <div class="col-lg-6 text-center">
-                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in mb-10" alt="Flayer PPDB">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
             </div>
         </div>
     </div>
