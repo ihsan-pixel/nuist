@@ -561,7 +561,7 @@
                     @php $fasilitasArray = old('fasilitas', $madrasah->fasilitas ?? []); @endphp
                     @if(is_array($fasilitasArray) && count($fasilitasArray) > 0)
                         @foreach($fasilitasArray as $index => $fasilitas)
-                            <div class="array-input-item mb-3 p-3 border rounded">
+                            <div class="array-input-item mb-3 p-3 border rounded existing-fasilitas" data-index="{{ $index }}">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <input type="text" class="form-control @error('fasilitas.' . $index . '.name') is-invalid @enderror"
@@ -576,8 +576,8 @@
                                                name="fasilitas_foto[{{ $index }}]" accept="image/*">
                                     </div>
                                     <div class="col-md-1">
-                                        <button type="button" class="btn btn-remove-array remove-array-item">
-                                            <i class="mdi mdi-minus"></i>
+                                        <button type="button" class="btn btn-danger delete-existing-fasilitas" data-index="{{ $index }}">
+                                            <i class="mdi mdi-delete"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -986,21 +986,57 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetId = button.getAttribute('data-target');
             const container = document.getElementById(targetId);
 
-            const newItem = document.createElement('div');
-            newItem.className = 'array-input-item';
-            newItem.innerHTML = `
-                <input type="text" class="form-control" name="${targetId.replace('-container', '[]')}" placeholder="${getPlaceholderText(targetId)}">
-                <button type="button" class="btn btn-remove-array remove-array-item">
-                    <i class="mdi mdi-minus"></i>
-                </button>
-            `;
+            // Special handling for fasilitas container
+            if (targetId === 'fasilitas-container') {
+                const newItem = document.createElement('div');
+                newItem.className = 'array-input-item mb-3 p-3 border rounded';
+                newItem.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
 
-            // Insert before the last item (which should be empty)
-            const items = container.querySelectorAll('.array-input-item');
-            if (items.length > 0) {
-                container.insertBefore(newItem, items[items.length - 1]);
+                // Insert before the last item (which should be empty)
+                const items = container.querySelectorAll('.array-input-item');
+                if (items.length > 0) {
+                    container.insertBefore(newItem, items[items.length - 1]);
+                } else {
+                    container.appendChild(newItem);
+                }
+
+                // Update indices for all fasilitas items
+                updateFasilitasIndices();
             } else {
-                container.appendChild(newItem);
+                // Default handling for other containers
+                const newItem = document.createElement('div');
+                newItem.className = 'array-input-item';
+                newItem.innerHTML = `
+                    <input type="text" class="form-control" name="${targetId.replace('-container', '[]')}" placeholder="${getPlaceholderText(targetId)}">
+                    <button type="button" class="btn btn-remove-array remove-array-item">
+                        <i class="mdi mdi-minus"></i>
+                    </button>
+                `;
+
+                // Insert before the last item (which should be empty)
+                const items = container.querySelectorAll('.array-input-item');
+                if (items.length > 0) {
+                    container.insertBefore(newItem, items[items.length - 1]);
+                } else {
+                    container.appendChild(newItem);
+                }
             }
         }
 
@@ -1008,6 +1044,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const item = e.target.closest('.array-input-item');
             if (item) {
                 item.remove();
+                // Update indices after removal
+                updateFasilitasIndices();
             }
         }
     });
@@ -1145,12 +1183,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('add-array-item') || e.target.classList.contains('remove-array-item') ||
             e.target.closest('.add-array-item') || e.target.closest('.remove-array-item')) {
-            setTimeout(updateJumlahJurusan, 100); // Small delay to ensure DOM updates
+            setTimeout(() => {
+                updateJumlahJurusan();
+                updateFasilitasIndices();
+            }, 100); // Small delay to ensure DOM updates
         }
     });
 
     // Initialize on page load
     updateJumlahJurusan();
+    updateFasilitasIndices();
 
     // Copy to clipboard function
     window.copyToClipboard = function(event, text) {
