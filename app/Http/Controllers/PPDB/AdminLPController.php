@@ -207,7 +207,7 @@ class AdminLPController extends Controller
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
             $galeriFiles = [];
-            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/public_html/images/madrasah/galeri';
+            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
 
             // Ensure directory exists
             if (!is_dir($galeriPath)) {
@@ -229,7 +229,7 @@ class AdminLPController extends Controller
         if ($request->hasFile('brosur_pdf')) {
             $brosurFile = $request->file('brosur_pdf');
             if ($brosurFile->isValid()) {
-                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/public_html/uploads/brosur';
+                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur';
 
                 // Ensure directory exists
                 if (!is_dir($brosurPath)) {
