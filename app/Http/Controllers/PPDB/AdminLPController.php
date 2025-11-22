@@ -218,8 +218,8 @@ $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadw
             $data['galeri_foto'] = array_values($currentGaleri);
         }
 
-        // Handle array fields
-        $arrayFields = ['misi', 'keunggulan', 'fasilitas', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];
+        // Handle array fields (excluding fasilitas which has special handling)
+        $arrayFields = ['misi', 'keunggulan', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];
         foreach ($arrayFields as $field) {
             if ($request->has($field)) {
                 $data[$field] = array_filter($request->input($field, []), function($value) {
