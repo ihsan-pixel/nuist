@@ -65,6 +65,8 @@
         color: white;
         padding: 30px;
         text-align: center;
+        margin: -20px -40px 0 -40px;
+        border-radius: 20px 20px 0 0;
     }
 
     .progress-steps {
@@ -391,7 +393,7 @@
         }
 
         .progress-header {
-            padding: 30px;
+            padding: 20px;
         }
 
         .progress-steps {
