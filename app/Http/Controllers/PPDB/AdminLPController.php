@@ -156,7 +156,7 @@ class AdminLPController extends Controller
             'keunggulan' => 'nullable|array',
             'keunggulan.*' => 'nullable|string',
             'fasilitas' => 'nullable|array',
-            'fasilitas.*' => 'nullable|string',
+            'fasilitas.*' => 'nullable',
             'jurusan' => 'nullable|array',
             'jurusan.*' => 'nullable|string',
             'prestasi' => 'nullable|array',
