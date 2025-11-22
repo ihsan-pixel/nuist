@@ -49,12 +49,13 @@
         background-position: center;
         background-attachment: fixed;
         background-repeat: no-repeat;
+
         min-height: 100vh;
     }
 
     /* Ensure content area has proper background overlay */
     .content-wrapper {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.8);
         min-height: 100vh;
         padding-bottom: 50px;
     }
