@@ -24,11 +24,6 @@
         left: 0;
         right: 0;
         bottom: 0;
-         background: url('{{ asset("images/bg_ppdb2.png") }}');
-        background-size: cover;
-        background-position: center;
-        background-attachment: absolute;
-        opacity: 0.3;
         z-index: 1;
     }
 
@@ -45,6 +40,23 @@
         margin-top: -50px;
         position: relative;
         z-index: 3;
+    }
+
+    /* Background for space below hero section */
+    body {
+        background: url('{{ asset("images/bg_ppdb2.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+    }
+
+    /* Ensure content area has proper background overlay */
+    .content-wrapper {
+        background: rgba(255, 255, 255, 0.95);
+        min-height: 100vh;
+        padding-bottom: 50px;
     }
 
     .progress-header {
@@ -950,24 +962,23 @@
                 </button>
             </div>
         </div>
-    </form>
-</div>
+        </form>
+    </div>
 
+    <!-- Back to School Button -->
+    <div class="text-center py-4">
+        <a href="{{ route('ppdb.sekolah', $ppdbSetting->slug) }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>Kembali ke Halaman Sekolah
+        </a>
+    </div>
 
-
-<!-- Back to School Button -->
-<div class="text-center py-4">
-    <a href="{{ route('ppdb.sekolah', $ppdbSetting->slug) }}" class="btn btn-outline-primary btn-lg">
-        <i class="fas fa-arrow-left me-2"></i>Kembali ke Halaman Sekolah
-    </a>
-</div>
-
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="text-center">
-        <div class="spinner mb-3"></div>
-        <h5 class="text-primary">Memproses Pendaftaran...</h5>
-        <p class="text-muted">Mohon tunggu sebentar</p>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="text-center">
+            <div class="spinner mb-3"></div>
+            <h5 class="text-primary">Memproses Pendaftaran...</h5>
+            <p class="text-muted">Mohon tunggu sebentar</p>
+        </div>
     </div>
 </div>
 @endsection
