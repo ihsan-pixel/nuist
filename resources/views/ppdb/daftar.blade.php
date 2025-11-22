@@ -535,6 +535,22 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="nik" class="form-label">
+                            <i class="fas fa-id-card me-2"></i>NIK <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('nik') is-invalid @enderror"
+                               id="nik" name="nik" value="{{ old('nik') }}"
+                               placeholder="Nomor Induk Kependudukan (16 digit)" maxlength="16" required>
+                        @error('nik')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label for="tempat_lahir" class="form-label">
                             <i class="fas fa-map-marker-alt me-2"></i>Tempat Lahir <span class="text-danger">*</span>
                         </label>
@@ -546,7 +562,6 @@
                         @enderror
                     </div>
                 </div>
-            </div>
 
             <div class="row">
                 <div class="col-md-6">

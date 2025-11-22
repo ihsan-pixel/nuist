@@ -114,6 +114,7 @@ class PendaftarController extends Controller
         // Validasi input
         $validated = $request->validate([
             'nama_lengkap' => 'required|string|max:100',
+            'nik' => 'required|string|max:16|min:16|regex:/^[0-9]+$/',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'jenis_kelamin' => 'required|in:L,P',
@@ -135,6 +136,10 @@ class PendaftarController extends Controller
             'ppdb_email_siswa' => 'required|email|max:100',
         ], [
             'nama_lengkap.required' => 'Nama lengkap harus diisi',
+            'nik.required' => 'NIK harus diisi',
+            'nik.max' => 'NIK maksimal 16 digit',
+            'nik.min' => 'NIK minimal 16 digit',
+            'nik.regex' => 'NIK hanya boleh berisi angka',
             'tempat_lahir.required' => 'Tempat lahir harus diisi',
             'tanggal_lahir.required' => 'Tanggal lahir harus diisi',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini',
