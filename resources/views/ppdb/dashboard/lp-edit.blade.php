@@ -910,27 +910,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('galeri_foto');
     const newGallery = document.getElementById('new-gallery');
 
-    uploadArea.addEventListener('click', function (e) {
-        if (e.target === this) {
-            fileInput.click();
-        }
-    });
+    if (!uploadArea.dataset.clickListenerAdded) {
+        uploadArea.addEventListener('click', function (e) {
+            if (e.target === this) {
+                fileInput.click();
+            }
+        });
+        uploadArea.dataset.clickListenerAdded = "true";
+    }
 
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
+    if (!uploadArea.dataset.dragoverListenerAdded) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.dataset.dragoverListenerAdded = "true";
+    }
 
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
+    if (!uploadArea.dataset.dragleaveListenerAdded) {
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.dataset.dragleaveListenerAdded = "true";
+    }
 
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        handleFiles(files);
-    });
+    if (!uploadArea.dataset.dropListenerAdded) {
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+        uploadArea.dataset.dropListenerAdded = "true";
+    }
 
     if (!fileInput.dataset.listenerAdded) {
         fileInput.addEventListener('change', (e) => {
