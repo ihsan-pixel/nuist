@@ -909,17 +909,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadArea = document.getElementById('galeri-upload-area');
     const fileInput = document.getElementById('galeri_foto');
     const newGallery = document.getElementById('new-gallery');
-    let isHandlingFiles = false;
-    let isClicking = false;
 
-    // uploadArea.addEventListener('click', () => {
-    //     fileInput.click();
-    // });
     uploadArea.addEventListener('click', function (e) {
-        if (e.target === this && !isClicking) {
-            isClicking = true;
+        if (e.target === this) {
             fileInput.click();
-            setTimeout(() => isClicking = false, 100);
         }
     });
 
@@ -936,25 +929,17 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
-        if (!isHandlingFiles) {
-            isHandlingFiles = true;
-            handleFiles(files);
-            setTimeout(() => isHandlingFiles = false, 100);
-        }
+        handleFiles(files);
     });
 
-    fileInput.addEventListener('change', (e) => {
-        if (!isHandlingFiles) {
-            isHandlingFiles = true;
+    if (!fileInput.dataset.listenerAdded) {
+        fileInput.addEventListener('change', (e) => {
             handleFiles(e.target.files);
-            setTimeout(() => isHandlingFiles = false, 100);
-        }
-    });
+        });
+        fileInput.dataset.listenerAdded = "true";
+    }
 
     function handleFiles(files) {
-        // Clear previous previews
-        newGallery.innerHTML = '';
-
         for (let file of files) {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
