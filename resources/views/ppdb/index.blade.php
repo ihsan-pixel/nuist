@@ -27,7 +27,7 @@
     /* Flayer selalu center dan berada di paling atas */
     .hero-flayer {
         text-align: center;
-        margin-bottom: 80px;
+        margin-bottom: 120px;
     }
 
     /* Tombol orange */
