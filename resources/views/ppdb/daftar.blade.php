@@ -563,7 +563,6 @@
                     </div>
                 </div>
 
-            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="tanggal_lahir" class="form-label">
@@ -577,7 +576,9 @@
                         @enderror
                     </div>
                 </div>
+            </div>
 
+            <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="jenis_kelamin" class="form-label">
@@ -594,19 +595,21 @@
                         @enderror
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="nisn" class="form-label">
-                    <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control @error('nisn') is-invalid @enderror"
-                       id="nisn" name="nisn" value="{{ old('nisn') }}"
-                       placeholder="Nomor Induk Siswa Nasional" required
-                       onblur="checkNISNAvailability()">
-                @error('nisn')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="nisn" class="form-label">
+                            <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('nisn') is-invalid @enderror"
+                               id="nisn" name="nisn" value="{{ old('nisn') }}"
+                               placeholder="Nomor Induk Siswa Nasional" required
+                               onblur="checkNISNAvailability()">
+                        @error('nisn')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
