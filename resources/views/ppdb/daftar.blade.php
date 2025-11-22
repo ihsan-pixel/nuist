@@ -44,7 +44,7 @@
 
     /* Background for space below hero section */
     body {
-        background: url('{{ asset("images/bg_ppdb4.jpg") }}');
+        background: url('{{ asset("images/bg_ppdb4.png") }}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
