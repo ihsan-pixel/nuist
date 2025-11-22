@@ -65,7 +65,7 @@
         color: white;
         padding: 30px;
         text-align: center;
-        margin: -10px -40px 0 -40px;
+        margin: 0 -40px 0 -40px;
         border-radius: 20px 20px 0 0;
     }
 
