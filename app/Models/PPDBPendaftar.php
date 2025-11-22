@@ -33,6 +33,7 @@ class PPDBPendaftar extends Model
     ];
 
     protected $casts = [
+        'tanggal_lahir' => 'date',
         'diverifikasi_tanggal' => 'datetime',
         'diseleksi_tanggal' => 'datetime',
     ];
