@@ -207,10 +207,17 @@ class AdminLPController extends Controller
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
             $galeriFiles = [];
+            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/public_html/images/madrasah/galeri';
+
+            // Ensure directory exists
+            if (!is_dir($galeriPath)) {
+                mkdir($galeriPath, 0755, true);
+            }
+
             foreach ($request->file('galeri_foto') as $file) {
                 if ($file->isValid()) {
                     $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $file->move(public_path('images/madrasah/galeri'), $filename);
+                    $file->move($galeriPath, $filename);
                     $galeriFiles[] = $filename;
                 }
             }
@@ -222,8 +229,15 @@ class AdminLPController extends Controller
         if ($request->hasFile('brosur_pdf')) {
             $brosurFile = $request->file('brosur_pdf');
             if ($brosurFile->isValid()) {
+                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/public_html/uploads/brosur';
+
+                // Ensure directory exists
+                if (!is_dir($brosurPath)) {
+                    mkdir($brosurPath, 0755, true);
+                }
+
                 $filename = time() . '_brosur.' . $brosurFile->getClientOriginalExtension();
-                $brosurFile->move(public_path('uploads/brosur'), $filename);
+                $brosurFile->move($brosurPath, $filename);
                 $data['brosur_pdf'] = $filename;
             }
         }
