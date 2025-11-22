@@ -13,7 +13,7 @@
         position: relative;
         display: flex;
         align-items: center;
-        padding: 60px 0;
+        padding: 40px 0;
         color: #0f854a;
     }
 
@@ -386,7 +386,7 @@
         }
 
         .registration-container {
-            margin-top: -20px;
+            margin-top: -30px;
             border-radius: 15px;
         }
 
