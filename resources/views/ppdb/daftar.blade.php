@@ -12,7 +12,7 @@
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        min-height: 40vh;
+        min-height: 20vh;
         position: relative;
         display: flex;
         align-items: center;
