@@ -561,20 +561,52 @@
                     @php $fasilitasArray = old('fasilitas', $madrasah->fasilitas ?? []); @endphp
                     @if(is_array($fasilitasArray) && count($fasilitasArray) > 0)
                         @foreach($fasilitasArray as $index => $fasilitas)
-                            <div class="array-input-item">
-                                <input type="text" class="form-control @error('fasilitas.' . $index) is-invalid @enderror"
-                                       name="fasilitas[]" value="{{ $fasilitas }}" placeholder="Contoh: Laboratorium Komputer">
+                            <div class="array-input-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('fasilitas.' . $index . '.name') is-invalid @enderror"
+                                               name="fasilitas[{{ $index }}][name]" value="{{ $fasilitas['name'] ?? $fasilitas }}" placeholder="Nama Fasilitas">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('fasilitas.' . $index . '.description') is-invalid @enderror"
+                                               name="fasilitas[{{ $index }}][description]" value="{{ $fasilitas['description'] ?? '' }}" placeholder="Deskripsi Fasilitas">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="file" class="form-control @error('fasilitas_foto.' . $index) is-invalid @enderror"
+                                               name="fasilitas_foto[{{ $index }}]" accept="image/*">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-remove-array remove-array-item">
+                                            <i class="mdi mdi-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                @if(isset($fasilitas['foto']) && $fasilitas['foto'])
+                                    <div class="mt-2">
+                                        <small class="text-muted">Foto saat ini:</small>
+                                        <img src="{{ asset('images/madrasah/galeri/' . $fasilitas['foto']) }}" alt="Foto Fasilitas" class="image-preview">
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item mb-3 p-3 border rounded">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
+                            </div>
+                            <div class="col-md-1">
                                 <button type="button" class="btn btn-remove-array remove-array-item">
                                     <i class="mdi mdi-minus"></i>
                                 </button>
                             </div>
-                        @endforeach
-                    @endif
-                    <div class="array-input-item">
-                        <input type="text" class="form-control" name="fasilitas[]" placeholder="Contoh: Laboratorium Komputer">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-add-array add-array-item text-white" data-target="fasilitas-container">

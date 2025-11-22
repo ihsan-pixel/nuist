@@ -1,17 +1,12 @@
-# Presensi Admin Detail Page CSS Cleanup
+# TODO: Add Facility Gallery Feature
 
 ## Tasks
-- [ ] Analyze current CSS structure and identify redundant rules
-- [ ] Remove unnecessary !important declarations (target: reduce from 200+ to minimal)
-- [ ] Consolidate repeated CSS patterns
-- [ ] Improve CSS organization and specificity
-- [ ] Enhance responsive design consistency
-- [ ] Standardize colors, spacing, and layout patterns
-- [ ] Test visual hierarchy and readability
-- [ ] Verify responsive behavior across devices
+- [x] Update AdminLPController to handle facility photo uploads
+- [x] Modify lp-edit.blade.php to include photo inputs for facilities
+- [x] Update sekolah.blade.php to display facility gallery section
+- [ ] Test the functionality
 
-## Progress
-- [x] Initial analysis completed
-- [x] Plan approved by user
-- [ ] CSS cleanup in progress
-- [ ] Testing phase
+## Details
+- Add 'foto' field to facility JSON structure
+- Store facility photos in images/madrasah/galeri/
+- Display facility photos with facility names as captions

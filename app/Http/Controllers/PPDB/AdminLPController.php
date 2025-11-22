@@ -228,6 +228,36 @@ $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadw
             }
         }
 
+        // Handle facility photos
+        if ($request->hasFile('fasilitas_foto')) {
+            $fasilitasFoto = [];
+            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
+
+            // Ensure directory exists
+            if (!is_dir($galeriPath)) {
+                mkdir($galeriPath, 0755, true);
+            }
+
+            foreach ($request->file('fasilitas_foto') as $index => $file) {
+                if ($file && $file->isValid()) {
+                    $filename = time() . '_fasilitas_' . $index . '.' . $file->getClientOriginalExtension();
+                    $file->move($galeriPath, $filename);
+                    $fasilitasFoto[$index] = $filename;
+                }
+            }
+
+            // Update fasilitas array with foto field
+            if (!empty($fasilitasFoto) && isset($data['fasilitas'])) {
+                $fasilitas = $data['fasilitas'];
+                foreach ($fasilitas as $key => $fasilitasItem) {
+                    if (isset($fasilitasFoto[$key])) {
+                        $fasilitas[$key]['foto'] = $fasilitasFoto[$key];
+                    }
+                }
+                $data['fasilitas'] = $fasilitas;
+            }
+        }
+
 
 
         // Handle file uploads
