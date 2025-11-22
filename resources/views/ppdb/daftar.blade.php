@@ -13,7 +13,7 @@
         position: relative;
         display: flex;
         align-items: center;
-        padding: 40px 0;
+        padding: 60px 0;
         color: #0f854a;
     }
 
@@ -391,7 +391,7 @@
         }
 
         .progress-header {
-            padding: 20px;
+            padding: 30px;
         }
 
         .progress-steps {
