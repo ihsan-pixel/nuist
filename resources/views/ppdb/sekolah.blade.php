@@ -1360,7 +1360,7 @@
                         @foreach($madrasah->galeri_foto ?? [] as $foto)
                         <div class="col-md-6 mb-3">
                             @if(isset($foto['url']) && $foto['url'])
-                                <img src="{{ asset('storage/images/madrasah/galeri' . $foto['url']) }}" alt="{{ $foto['caption'] ?? '' }}" class="gallery-img">
+                                <img src="{{ asset('images/madrasah/galeri' . $foto['url']) }}" alt="{{ $foto['caption'] ?? '' }}" class="gallery-img">
                             @endif
                             @if(isset($foto['caption']) && $foto['caption'])
                                 <p class="text-center mt-2 small text-muted">{{ $foto['caption'] }}</p>
