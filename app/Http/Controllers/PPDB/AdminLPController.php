@@ -228,29 +228,6 @@ $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadw
             }
         }
 
-        // Handle deleted fasilitas
-        if ($request->has('deleted_fasilitas') && !empty($request->input('deleted_fasilitas'))) {
-            $deletedIndices = explode(',', $request->input('deleted_fasilitas'));
-            $currentFasilitas = $data['fasilitas'] ?? [];
-
-            foreach ($deletedIndices as $index) {
-                if (isset($currentFasilitas[$index])) {
-                    // Delete associated photo file
-                    if (isset($currentFasilitas[$index]['foto']) && $currentFasilitas[$index]['foto']) {
-                        $photoPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri/' . $currentFasilitas[$index]['foto'];
-                        if (file_exists($photoPath)) {
-                            unlink($photoPath);
-                        }
-                    }
-                    // Remove from array
-                    unset($currentFasilitas[$index]);
-                }
-            }
-
-            // Reindex array
-            $data['fasilitas'] = array_values($currentFasilitas);
-        }
-
         // Handle facility photos
         if ($request->hasFile('fasilitas_foto')) {
             $fasilitasFoto = [];
