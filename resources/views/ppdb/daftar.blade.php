@@ -35,7 +35,7 @@
     .registration-container {
         background: white;
         border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.342);
         overflow: hidden;
         margin-top: -50px;
         position: relative;
