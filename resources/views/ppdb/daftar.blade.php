@@ -55,7 +55,7 @@
 
     /* Ensure content area has proper background overlay */
     .content-wrapper {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.3);
         min-height: 100vh;
         padding-bottom: 50px;
     }
