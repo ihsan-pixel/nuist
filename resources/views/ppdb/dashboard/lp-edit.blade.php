@@ -956,14 +956,46 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item position-relative d-inline-block me-2 mb-2';
+                    imageItem.dataset.fileName = file.name;
+
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.className = 'image-preview';
-                    newGallery.appendChild(img);
+                    img.alt = 'Preview';
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0';
+                    removeBtn.innerHTML = '<i class="mdi mdi-close"></i>';
+                    removeBtn.onclick = function() {
+                        removePreviewImage(imageItem, file);
+                    };
+
+                    imageItem.appendChild(img);
+                    imageItem.appendChild(removeBtn);
+                    newGallery.appendChild(imageItem);
                 };
                 reader.readAsDataURL(file);
             }
         }
+    }
+
+    function removePreviewImage(imageItem, file) {
+        // Remove from DOM
+        imageItem.remove();
+
+        // Remove from file input (recreate input with remaining files)
+        const dt = new DataTransfer();
+        const files = Array.from(fileInput.files);
+
+        // Remove the specific file
+        const remainingFiles = files.filter(f => f.name !== file.name && f.lastModified !== file.lastModified);
+
+        // Update file input with remaining files
+        remainingFiles.forEach(file => dt.items.add(file));
+        fileInput.files = dt.files;
     }
 
     // Auto-update jumlah jurusan
