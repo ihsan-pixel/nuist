@@ -3,7 +3,7 @@
 @section('title', 'PPDB NUIST - Penerimaan Peserta Didik Baru')
 
 @section('css')
-{{-- <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}"> --}}
+<link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
 <style>
     .hero-section {
         background: url('{{ asset("images/bg_ppdb2.png") }}');
