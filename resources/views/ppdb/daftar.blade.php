@@ -8,10 +8,7 @@
 <style>
     /* Enhanced Registration Form Styles */
     .hero-section {
-        background: url('{{ asset("images/bg_ppdb2.png") }}');
-        background-size: cover;
-        background-position: center;
-        background-attachment: absolute;
+        background: #ffffff;
         min-height: 20vh;
         position: relative;
         display: flex;
@@ -27,10 +24,10 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: url('{{ asset("images/bg_ppdb2.png") }}');
+         background: url('{{ asset("images/bg_ppdb2.png") }}');
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        background-attachment: absolute;
         opacity: 0.3;
         z-index: 1;
     }
