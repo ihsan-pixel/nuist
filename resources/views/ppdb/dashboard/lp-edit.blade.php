@@ -807,12 +807,12 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Galeri Foto</label>
+                <label class="form-label required-field">Galeri Foto</label>
                 <div class="file-upload-area" id="galeri-upload-area">
                     <i class="mdi mdi-cloud-upload fs-1 text-muted mb-2"></i>
                     <p class="mb-1">Klik untuk upload gambar galeri</p>
                     <small class="text-muted">atau drag & drop file gambar (JPG, PNG, GIF) - Maksimal 2MB per file</small>
-                    <input type="file" id="galeri_foto" name="galeri_foto[]" multiple accept="image/*" style="display: none;">
+                    <input type="file" id="galeri_foto" name="galeri_foto[]" multiple accept="image/*" style="display: none;" required>
                 </div>
                 @error('galeri_foto.*')
                     <div class="text-danger mt-1">{{ $message }}</div>

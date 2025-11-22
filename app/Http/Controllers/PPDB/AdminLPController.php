@@ -174,7 +174,7 @@ class AdminLPController extends Controller
             'jumlah_guru' => 'nullable|integer|min:0',
             'jumlah_jurusan' => 'nullable|integer|min:0',
             'jumlah_sarana' => 'nullable|integer|min:0',
-            'galeri_foto' => 'nullable|array',
+            'galeri_foto' => 'nullable|array|min:1',
             'galeri_foto.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'video_profile' => 'nullable|string|url',
             'telepon' => 'nullable|string|max:20',
