@@ -27,7 +27,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.9);
+        background: url('{{ asset("images/bg_ppdb2.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        opacity: 0.3;
         z-index: 1;
     }
 
