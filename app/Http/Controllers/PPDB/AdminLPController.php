@@ -190,7 +190,33 @@ class AdminLPController extends Controller
             // Note: PPDB settings validation moved to updatePPDBSettings method
         ]);
 
-        $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
+$data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
+
+        // Handle deletion of brosur
+        if ($request->input('delete_brosur') == '1') {
+            if ($madrasah->brosur_pdf) {
+                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur/' . $madrasah->brosur_pdf;
+                if (file_exists($brosurPath)) {
+                    unlink($brosurPath);
+                }
+            }
+            $data['brosur_pdf'] = null;
+        }
+
+        // Handle deletion of galeri images
+        if ($request->filled('deleted_galeri_foto')) {
+            $deletedImages = explode(',', $request->input('deleted_galeri_foto'));
+            $currentGaleri = $madrasah->galeri_foto ?? [];
+            $currentGaleri = array_diff($currentGaleri, $deletedImages);
+            // Delete physical files
+            foreach ($deletedImages as $delImage) {
+                $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri/' . $delImage;
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            $data['galeri_foto'] = array_values($currentGaleri);
+        }
 
         // Handle array fields
         $arrayFields = ['misi', 'keunggulan', 'fasilitas', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];

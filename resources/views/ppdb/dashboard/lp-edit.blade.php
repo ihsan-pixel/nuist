@@ -177,6 +177,16 @@
         margin-top: 0.5rem;
     }
 
+    .image-item {
+        position: relative;
+    }
+
+    .image-item .btn {
+        padding: 0.125rem 0.25rem;
+        font-size: 0.75rem;
+        line-height: 1;
+    }
+
     @media (max-width: 768px) {
         .form-section {
             padding: 1rem;
@@ -771,12 +781,27 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="brosur_pdf" class="form-label">Upload Brosur (PDF)</label>
-                        <input type="file" class="form-control @error('brosur_pdf') is-invalid @enderror"
-                               id="brosur_pdf" name="brosur_pdf" accept=".pdf">
-                        <div class="help-text">Maksimal 5MB, format PDF</div>
+                        @if($madrasah->brosur_pdf)
+                            <div class="mb-2" id="brosur-actions">
+                                <a href="{{ asset('uploads/brosur/' . $madrasah->brosur_pdf) }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Brosur
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteBrosur()">
+                                    <i class="mdi mdi-delete me-1"></i>Hapus Brosur
+                                </button>
+                            </div>
+                            <input type="file" class="form-control @error('brosur_pdf') is-invalid @enderror"
+                                   id="brosur_pdf" name="brosur_pdf" accept=".pdf" style="display: none;">
+                            <div class="help-text" id="brosur-help-text">Brosur sudah ada. Klik tombol di atas untuk melihat atau menghapus, atau upload file baru untuk mengganti.</div>
+                        @else
+                            <input type="file" class="form-control @error('brosur_pdf') is-invalid @enderror"
+                                   id="brosur_pdf" name="brosur_pdf" accept=".pdf">
+                            <div class="help-text">Maksimal 5MB, format PDF</div>
+                        @endif
                         @error('brosur_pdf')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <input type="hidden" id="delete_brosur" name="delete_brosur" value="0">
                     </div>
                 </div>
             </div>
@@ -796,14 +821,20 @@
                 <!-- Preview existing images -->
                 @if($madrasah->galeri_foto && is_array($madrasah->galeri_foto))
                     <div class="image-gallery" id="existing-gallery">
-                        @foreach($madrasah->galeri_foto as $image)
-                            <img src="{{ asset('images/madrasah/galeri/' . $image) }}" alt="Galeri" class="image-preview">
+                        @foreach($madrasah->galeri_foto as $index => $image)
+                            <div class="image-item position-relative d-inline-block me-2 mb-2" data-image="{{ $image }}">
+                                <img src="{{ asset('images/madrasah/galeri/' . $image) }}" alt="Galeri" class="image-preview">
+                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="deleteImage('{{ $image }}', {{ $index }})">
+                                    <i class="mdi mdi-close"></i>
+                                </button>
+                            </div>
                         @endforeach
                     </div>
                 @endif
 
                 <!-- Preview new images -->
                 <div class="image-gallery" id="new-gallery"></div>
+                <input type="hidden" id="deleted_galeri_foto" name="deleted_galeri_foto" value="">
             </div>
         </div>
 
@@ -904,6 +935,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function handleFiles(files) {
+        // Clear previous previews
+        newGallery.innerHTML = '';
+
         for (let file of files) {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -966,6 +1000,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }).catch(function(err) {
             console.error('Failed to copy: ', err);
         });
+    }
+
+    // Delete brosur function
+    window.deleteBrosur = function() {
+        if (confirm('Apakah Anda yakin ingin menghapus brosur ini?')) {
+            document.getElementById('delete_brosur').value = '1';
+            document.getElementById('brosur-actions').style.display = 'none';
+            document.getElementById('brosur_pdf').style.display = 'block';
+            document.getElementById('brosur_pdf').required = true;
+            document.getElementById('brosur-help-text').innerHTML = 'Maksimal 5MB, format PDF';
+        }
+    }
+
+    // Delete image function
+    window.deleteImage = function(imageName, index) {
+        if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+            // Remove from DOM
+            const imageItem = document.querySelector(`.image-item[data-image="${imageName}"]`);
+            if (imageItem) {
+                imageItem.remove();
+            }
+
+            // Add to deleted list
+            const deletedInput = document.getElementById('deleted_galeri_foto');
+            let deletedImages = deletedInput.value ? deletedInput.value.split(',') : [];
+            deletedImages.push(imageName);
+            deletedInput.value = deletedImages.join(',');
+        }
     }
 
     // Form validation
