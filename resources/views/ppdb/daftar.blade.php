@@ -381,12 +381,12 @@
     /* Responsive */
     @media (max-width: 768px) {
         .hero-section {
-            min-height: 40vh;
+            min-height: 30vh;
             padding: 40px 0;
         }
 
         .registration-container {
-            margin-top: -30px;
+            margin-top: -20px;
             border-radius: 15px;
         }
 
