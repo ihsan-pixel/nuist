@@ -460,8 +460,8 @@
                 <h1 class="display-4 fw-bold mb-3 animate-fade-in-up">
                     <i class="fas fa-edit text-warning me-3"></i>Formulir Pendaftaran
                 </h1>
-                <p class="lead mb-0 animate-fade-in-up">{{ $ppdbSetting->nama_sekolah }}</p>
-                <p class="text-muted animate-fade-in-up">Tahun Pelajaran {{ $ppdbSetting->tahun }}/{{ $ppdbSetting->tahun + 1 }}</p>
+                <h4 class="lead mb-0 animate-fade-in-up">{{ $ppdbSetting->nama_sekolah }}</h4>
+                <h4 class="text-muted animate-fade-in-up">Tahun Pelajaran {{ $ppdbSetting->tahun }}/{{ $ppdbSetting->tahun + 1 }}</h4>
             </div>
         </div>
     </div>
