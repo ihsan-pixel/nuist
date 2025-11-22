@@ -910,8 +910,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('galeri_foto');
     const newGallery = document.getElementById('new-gallery');
 
-    uploadArea.addEventListener('click', () => {
-        fileInput.click();
+    // uploadArea.addEventListener('click', () => {
+    //     fileInput.click();
+    // });
+    uploadArea.addEventListener('click', function (e) {
+        if (e.target === this) {
+            fileInput.click();
+        }
     });
 
     uploadArea.addEventListener('dragover', (e) => {
