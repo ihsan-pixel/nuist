@@ -4,13 +4,50 @@
 
 @push('css')
 <style>
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .welcome-section {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
+    }
+
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50px, -50px);
+    }
+
+    .welcome-content {
+        position: relative;
+        z-index: 1;
+    }
+
     .form-section {
         background: white;
         border-radius: 15px;
         padding: 2rem;
-        margin-bottom: 2rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         border: none;
+        margin-bottom: 2rem;
     }
 
     .section-header {
@@ -187,7 +224,54 @@
         line-height: 1;
     }
 
+    .btn-outline-primary {
+        border-color: #004b4c;
+        color: #004b4c;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #004b4c;
+        border-color: #004b4c;
+        color: white;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    .text-dark {
+        color: #004b4c !important;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .fw-semibold {
+        font-weight: 600;
+    }
+
+    .fw-medium {
+        font-weight: 500;
+    }
+
+    .section-wrapper {
+        margin-bottom: 2rem;
+    }
+
     @media (max-width: 768px) {
+        .welcome-section {
+            padding: 1.5rem;
+        }
+
         .form-section {
             padding: 1rem;
         }
@@ -206,30 +290,38 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">
-                <i class="mdi mdi-pencil me-2 text-primary"></i>
-                Edit Profil Madrasah
-            </h2>
-            <p class="text-muted mb-0">Lengkapi informasi profil {{ $madrasah->name }}</p>
+    <!-- Welcome Section -->
+    <div class="section-wrapper mb-4">
+        <div class="welcome-section animate-fade-in">
+            <div class="welcome-content">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h2 class="mb-2">
+                            <i class="mdi mdi-pencil me-2"></i>
+                            Edit Profil Madrasah
+                        </h2>
+                        <p class="mb-0 opacity-75">Lengkapi informasi profil {{ $madrasah->name }}</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-light">
+                            <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-secondary">
-            <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
-        </a>
     </div>
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show hover-lift" role="alert">
             <i class="mdi mdi-check-circle me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show hover-lift" role="alert">
             <i class="mdi mdi-alert-circle me-2"></i>
             <strong>Terjadi kesalahan:</strong>
             <ul class="mb-0 mt-2">
@@ -246,7 +338,7 @@
         @method('PUT')
 
         <!-- Informasi Dasar -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-information-outline me-2"></i>Informasi Dasar
@@ -369,7 +461,7 @@
         </div>
 
         <!-- Profil Madrasah -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-school me-2"></i>Profil Madrasah
@@ -454,7 +546,7 @@
         {{-- Opsi Pilihan Ke 2 dipindahkan ke form pendaftaran publik (resources/views/ppdb/daftar.blade.php) --}}
 
         <!-- Fasilitas dan Keunggulan -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-star me-2"></i>Fasilitas & Keunggulan
@@ -650,7 +742,7 @@
         </div>
 
         <!-- Kepala Sekolah -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-account-tie me-2"></i>Kepala Sekolah
@@ -698,7 +790,7 @@
         </div>
 
         <!-- Statistik -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="section-header">
                 <h3 class="section-title">
                     <i class="mdi mdi-chart-bar me-2"></i>Statistik Madrasah
@@ -839,7 +931,7 @@
         </div>
 
         <!-- Submit Buttons -->
-        <div class="form-section">
+        <div class="form-section hover-lift">
             <div class="d-flex justify-content-end">
                 <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-cancel">
                     <i class="mdi mdi-close me-1"></i>Batal
