@@ -381,7 +381,7 @@
     /* Responsive */
     @media (max-width: 768px) {
         .hero-section {
-            min-height: 30vh;
+            min-height: 40vh;
             padding: 40px 0;
         }
 
