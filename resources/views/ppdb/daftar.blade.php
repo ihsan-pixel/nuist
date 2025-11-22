@@ -535,18 +535,63 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="nisn" class="form-label">
-                            <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
+                        <label for="tempat_lahir" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Tempat Lahir <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control @error('nisn') is-invalid @enderror"
-                               id="nisn" name="nisn" value="{{ old('nisn') }}"
-                               placeholder="Nomor Induk Siswa Nasional" required
-                               onblur="checkNISNAvailability()">
-                        @error('nisn')
+                        <input type="text" class="form-control @error('tempat_lahir') is-invalid @enderror"
+                               id="tempat_lahir" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
+                               placeholder="Kota/Kabupaten tempat lahir" required>
+                        @error('tempat_lahir')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="tanggal_lahir" class="form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>Tanggal Lahir <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control @error('tanggal_lahir') is-invalid @enderror"
+                               id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                               max="{{ date('Y-m-d') }}" required>
+                        @error('tanggal_lahir')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="jenis_kelamin" class="form-label">
+                            <i class="fas fa-venus-mars me-2"></i>Jenis Kelamin <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control @error('jenis_kelamin') is-invalid @enderror"
+                                id="jenis_kelamin" name="jenis_kelamin" required>
+                            <option value="">-- Pilih Jenis Kelamin --</option>
+                            <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                            <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                        </select>
+                        @error('jenis_kelamin')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nisn" class="form-label">
+                    <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control @error('nisn') is-invalid @enderror"
+                       id="nisn" name="nisn" value="{{ old('nisn') }}"
+                       placeholder="Nomor Induk Siswa Nasional" required
+                       onblur="checkNISNAvailability()">
+                @error('nisn')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
