@@ -1225,6 +1225,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Function to update fasilitas indices
+    function updateFasilitasIndices() {
+        const fasilitasItems = document.querySelectorAll('#fasilitas-container .array-input-item');
+        fasilitasItems.forEach((item, index) => {
+            const inputs = item.querySelectorAll('input');
+            inputs.forEach(input => {
+                const name = input.name;
+                if (name.includes('fasilitas[')) {
+                    input.name = name.replace(/fasilitas\[\d+\]/, `fasilitas[${index}]`);
+                }
+                if (name.includes('fasilitas_foto[')) {
+                    input.name = name.replace(/fasilitas_foto\[\d+\]/, `fasilitas_foto[${index}]`);
+                }
+            });
+        });
+    }
+
     // Delete image function
     window.deleteImage = function(imageName, index) {
         if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
