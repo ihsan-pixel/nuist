@@ -3,124 +3,178 @@
 @section('title', 'Edit Profil Madrasah - ' . $madrasah->name)
 
 @push('css')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    .hover-lift {
-        transition: all 0.3s ease;
-    }
-
-    .hover-lift:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-    }
-
-    .welcome-section {
+    /* Hero Section */
+    .hero-section {
         background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        color: white;
+        min-height: 25vh;
         position: relative;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2);
+        display: flex;
+        align-items: center;
+        padding: 60px 0;
+        color: white;
+        margin-bottom: -50px;
     }
 
-    .welcome-section::before {
+    .hero-section::before {
         content: '';
         position: absolute;
         top: 0;
+        left: 0;
         right: 0;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        transform: translate(50px, -50px);
-    }
-
-    .welcome-content {
-        position: relative;
+        bottom: 0;
+        background: url('{{ asset("images/bg_ppdb4.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        opacity: 0.1;
         z-index: 1;
     }
 
-    .form-section {
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Main Container */
+    .edit-container {
         background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        position: relative;
+        z-index: 3;
         margin-bottom: 2rem;
     }
 
+    /* Header Section */
+    .edit-header {
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .edit-header h2 {
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .edit-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    /* Form Sections */
+    .form-section {
+        padding: 40px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+    }
+
     .section-header {
-        border-bottom: 2px solid #004b4c;
-        padding-bottom: 1rem;
-        margin-bottom: 1.5rem;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .section-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin: 0 auto 15px;
+        box-shadow: 0 5px 15px rgba(0, 75, 76, 0.3);
     }
 
     .section-title {
         color: #004b4c;
-        font-weight: 600;
-        font-size: 1.25rem;
-        margin-bottom: 0.5rem;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
     }
 
-    .section-subtitle {
-        color: #6c757d;
-        font-size: 0.9rem;
+    .section-description {
+        color: #666;
+        font-size: 1rem;
         margin: 0;
     }
 
+    /* Form Elements */
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 25px;
     }
 
     .form-label {
         font-weight: 600;
         color: #004b4c;
-        margin-bottom: 0.5rem;
+        margin-bottom: 8px;
+        display: block;
     }
 
     .form-control, .form-select {
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        padding: 0.75rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 16px;
         transition: all 0.3s ease;
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #004b4c;
-        box-shadow: 0 0 0 0.2rem rgba(0, 75, 76, 0.25);
+        border-color: #efaa0c;
+        box-shadow: 0 0 0 0.2rem rgba(239, 170, 12, 0.25);
     }
 
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    /* Array Inputs */
     .array-input-container {
-        border: 2px dashed #dee2e6;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        border: 2px dashed #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
         background: #f8f9fa;
     }
 
     .array-input-item {
         display: flex;
         align-items: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 10px;
+        gap: 10px;
     }
 
     .array-input-item input {
         flex: 1;
-        margin-right: 0.5rem;
     }
 
     .btn-add-array {
         background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
         border: none;
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
     .btn-add-array:hover {
-        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 75, 76, 0.3);
         color: white;
     }
 
@@ -128,90 +182,147 @@
         background: #dc3545;
         border: none;
         color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
     }
 
+    /* File Upload */
     .file-upload-area {
-        border: 2px dashed #dee2e6;
-        border-radius: 8px;
-        padding: 2rem;
+        border: 2px dashed #e9ecef;
+        border-radius: 15px;
+        padding: 30px;
         text-align: center;
-        background: #f8f9fa;
         transition: all 0.3s ease;
         cursor: pointer;
+        background: #f8f9fa;
     }
 
     .file-upload-area:hover {
-        border-color: #004b4c;
-        background: rgba(0, 75, 76, 0.05);
+        border-color: #efaa0c;
+        background: rgba(239, 170, 12, 0.05);
     }
 
     .file-upload-area.dragover {
-        border-color: #004b4c;
-        background: rgba(0, 75, 76, 0.1);
+        border-color: #efaa0c;
+        background: rgba(239, 170, 12, 0.1);
+        transform: scale(1.02);
     }
 
-    .btn-submit {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        border: none;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .file-upload-text {
+        color: #004b4c;
         font-weight: 600;
-        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .file-upload-hint {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .file-preview {
+        margin-top: 15px;
+        padding: 10px;
+        background: #e9ecef;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .file-name {
+        font-size: 14px;
+        color: #004b4c;
+        font-weight: 500;
+    }
+
+    .file-remove {
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    /* Buttons */
+    .btn-submit {
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        color: white;
+        padding: 15px 50px;
+        font-size: 18px;
+        border-radius: 30px;
+        border: none;
+        font-weight: 700;
         transition: all 0.3s ease;
     }
 
     .btn-submit:hover {
-        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 75, 76, 0.4);
         color: white;
     }
 
     .btn-cancel {
         background: #6c757d;
-        border: none;
         color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
+        padding: 15px 30px;
+        border-radius: 25px;
+        border: none;
         font-weight: 600;
-        font-size: 1rem;
-        margin-right: 1rem;
+        margin-right: 15px;
+        transition: all 0.3s ease;
     }
 
     .btn-cancel:hover {
         background: #5a6268;
+        transform: translateY(-2px);
         color: white;
     }
 
-    .required-field::after {
-        content: ' *';
-        color: #dc3545;
-        font-weight: bold;
+    /* Alert Messages */
+    .alert-custom {
+        border-radius: 15px;
+        border: none;
+        padding: 20px;
+        margin-bottom: 30px;
     }
 
-    .help-text {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border: 1px solid #2196f3;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    /* Image Gallery */
+    .image-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
     }
 
     .image-preview {
         max-width: 100px;
         max-height: 100px;
         object-fit: cover;
-        border-radius: 4px;
-        margin: 0.25rem;
-    }
-
-    .image-gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+        border-radius: 8px;
     }
 
     .image-item {
@@ -219,117 +330,197 @@
     }
 
     .image-item .btn {
-        padding: 0.125rem 0.25rem;
-        font-size: 0.75rem;
-        line-height: 1;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 2px 6px;
+        font-size: 12px;
     }
 
-    .btn-outline-primary {
-        border-color: #004b4c;
-        color: #004b4c;
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .btn-outline-primary:hover {
-        background-color: #004b4c;
-        border-color: #004b4c;
-        color: white;
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        border: none;
-        color: white;
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
-        transform: translateY(-1px);
-        color: white;
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
-    .text-dark {
-        color: #004b4c !important;
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out;
     }
 
-    .text-muted {
-        color: #6c757d !important;
+    .animate-slide-in-left {
+        animation: slideInLeft 0.8s ease-out;
     }
 
-    .fw-semibold {
-        font-weight: 600;
+    .animate-slide-in-right {
+        animation: slideInRight 0.8s ease-out;
     }
 
-    .fw-medium {
-        font-weight: 500;
+    .animate-bounce-in {
+        animation: bounceIn 1s ease-out;
     }
 
-    .section-wrapper {
-        margin-bottom: 2rem;
-    }
-
+    /* Responsive */
     @media (max-width: 768px) {
-        .welcome-section {
-            padding: 1.5rem;
+        .hero-section {
+            min-height: 30vh;
+            padding: 40px 0;
+            margin-bottom: -30px;
+        }
+
+        .edit-container {
+            border-radius: 15px;
+        }
+
+        .edit-header {
+            padding: 20px;
         }
 
         .form-section {
-            padding: 1rem;
+            padding: 20px;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
         }
 
         .btn-submit, .btn-cancel {
             width: 100%;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
         }
 
         .btn-cancel {
             margin-right: 0;
         }
+
+        .file-upload-area {
+            padding: 20px;
+        }
+    }
+
+    /* Loading state */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255,255,255,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #004b4c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid py-4">
-    <!-- Welcome Section -->
-    <div class="section-wrapper mb-4">
-        <div class="welcome-section animate-fade-in">
-            <div class="welcome-content">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h2 class="mb-2">
-                            <i class="mdi mdi-pencil me-2"></i>
-                            Edit Profil Madrasah
-                        </h2>
-                        <p class="mb-0 opacity-75">Lengkapi informasi profil {{ $madrasah->name }}</p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-light">
-                            <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
-                        </a>
-                    </div>
-                </div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3 animate-fade-in-up">
+                    <i class="fas fa-edit text-warning me-3"></i>Edit Profil Madrasah
+                </h1>
+                <h2 class="lead mb-0 animate-fade-in-up">{{ $madrasah->name }}</h2>
+                <h4 class="text-muted animate-fade-in-up">Kelola informasi dan pengaturan madrasah</h4>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- Success/Error Messages -->
+<!-- Edit Form Container -->
+<div class="container edit-container animate-bounce-in">
+    <!-- Header Section -->
+    <div class="edit-header">
+        <h2>
+            <i class="fas fa-school me-2"></i>Edit Profil Madrasah
+        </h2>
+        <p>Lengkapi dan perbarui informasi profil {{ $madrasah->name }}</p>
+    </div>
+
+    <!-- Alert Messages -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show hover-lift" role="alert">
-            <i class="mdi mdi-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-custom animate-fade-in-up">
+            <h5 class="alert-heading">
+                <i class="fas fa-check-circle me-2"></i>Berhasil!
+            </h5>
+            <p class="mb-0">{{ session('success') }}</p>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show hover-lift" role="alert">
-            <i class="mdi mdi-alert-circle me-2"></i>
-            <strong>Terjadi kesalahan:</strong>
-            <ul class="mb-0 mt-2">
+        <div class="alert alert-danger alert-custom animate-fade-in-up">
+            <h5 class="alert-heading">
+                <i class="fas fa-exclamation-triangle me-2"></i>Terjadi Kesalahan
+            </h5>
+            <ul class="mb-0">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -338,12 +529,13 @@
         @method('PUT')
 
         <!-- Informasi Dasar -->
-        <div class="form-section hover-lift">
+        <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">
-                    <i class="mdi mdi-information-outline me-2"></i>Informasi Dasar
-                </h3>
-                <p class="section-subtitle">Informasi pokok tentang madrasah</p>
+                <div class="section-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h4 class="section-title">Informasi Dasar</h4>
+                <p class="section-description">Informasi pokok tentang madrasah</p>
             </div>
 
             <div class="row">
@@ -461,12 +653,13 @@
         </div>
 
         <!-- Profil Madrasah -->
-        <div class="form-section hover-lift">
+        <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">
-                    <i class="mdi mdi-school me-2"></i>Profil Madrasah
-                </h3>
-                <p class="section-subtitle">Deskripsi dan informasi detail tentang madrasah</p>
+                <div class="section-icon">
+                    <i class="fas fa-school"></i>
+                </div>
+                <h4 class="section-title">Profil Madrasah</h4>
+                <p class="section-description">Deskripsi dan informasi detail tentang madrasah</p>
             </div>
 
             <div class="form-group">
@@ -742,12 +935,13 @@
         </div>
 
         <!-- Kepala Sekolah -->
-        <div class="form-section hover-lift">
+        <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">
-                    <i class="mdi mdi-account-tie me-2"></i>Kepala Sekolah
-                </h3>
-                <p class="section-subtitle">Informasi tentang kepala sekolah</p>
+                <div class="section-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h4 class="section-title">Kepala Sekolah</h4>
+                <p class="section-description">Informasi tentang kepala sekolah</p>
             </div>
 
             <div class="row">
@@ -850,10 +1044,11 @@
         <!-- Media dan Dokumen -->
         <div class="form-section">
             <div class="section-header">
-                <h3 class="section-title">
-                    <i class="mdi mdi-camera me-2"></i>Media & Dokumen
-                </h3>
-                <p class="section-subtitle">Upload gambar galeri dan dokumen pendukung</p>
+                <div class="section-icon">
+                    <i class="fas fa-images"></i>
+                </div>
+                <h4 class="section-title">Media & Dokumen</h4>
+                <p class="section-description">Upload gambar galeri dan dokumen pendukung</p>
             </div>
 
             <div class="row">
@@ -900,10 +1095,12 @@
 
             <div class="form-group">
                 <label class="form-label">Galeri Foto</label>
-                <div class="file-upload-area" id="galeri-upload-area">
-                    <i class="mdi mdi-cloud-upload fs-1 text-muted mb-2"></i>
-                    <p class="mb-1">Klik untuk upload gambar galeri</p>
-                    <small class="text-muted">atau drag & drop file gambar (JPG, PNG, GIF) - Maksimal 2MB per file</small>
+            <div class="file-upload-area" id="galeri-upload-area">
+                    <div class="file-upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="file-upload-text">Klik untuk upload gambar galeri</div>
+                    <div class="file-upload-hint">atau drag & drop file gambar (JPG, PNG, GIF) - Maksimal 2MB per file</div>
                     <input type="file" id="galeri_foto" name="galeri_foto[]" multiple accept="image/*" style="display: none;">
                 </div>
                 @error('galeri_foto.*')
@@ -931,13 +1128,13 @@
         </div>
 
         <!-- Submit Buttons -->
-        <div class="form-section hover-lift">
-            <div class="d-flex justify-content-end">
+        <div class="form-section">
+            <div class="d-flex justify-content-between align-items-center">
                 <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-cancel">
-                    <i class="mdi mdi-close me-1"></i>Batal
+                    <i class="fas fa-arrow-left me-2"></i>Kembali ke Dashboard
                 </a>
-                <button type="submit" class="btn btn-submit text-white">
-                    <i class="mdi mdi-content-save me-1"></i>Simpan Perubahan
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-save me-2"></i>Simpan Perubahan
                 </button>
             </div>
         </div>
@@ -1126,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show success message
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
-            button.innerHTML = '<i class="mdi mdi-check me-1"></i>Berhasil Disalin!';
+            button.innerHTML = '<i class="fas fa-check me-1"></i>Berhasil Disalin!';
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-success');
 
@@ -1151,22 +1348,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Delete image function
-    window.deleteImage = function(imageName, index) {
-        if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
-            // Remove from DOM
-            const imageItem = document.querySelector(`.image-item[data-image="${imageName}"]`);
-            if (imageItem) {
-                imageItem.remove();
-            }
 
-            // Add to deleted list
-            const deletedInput = document.getElementById('deleted_galeri_foto');
-            let deletedImages = deletedInput.value ? deletedInput.value.split(',') : [];
-            deletedImages.push(imageName);
-            deletedInput.value = deletedImages.join(',');
-        }
-    }
 
     // Form validation
     const form = document.querySelector('form');
