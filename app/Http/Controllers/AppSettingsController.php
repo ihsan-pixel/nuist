@@ -21,18 +21,15 @@ class AppSettingsController extends Controller
             abort(403, 'Unauthorized access');
         }
 
-        // Get current app version from config or latest development history
-        $currentVersion = $this->getCurrentAppVersion();
+        // Get app settings from database (including version)
+        $appSettings = AppSetting::getSettings();
 
         // Get latest development history for version info
         $latestHistory = DevelopmentHistory::orderBy('development_date', 'desc')->first();
 
-        // Get app settings from database
-        $appSettings = AppSetting::getSettings();
-
         $settings = [
             'app_name' => $appSettings->app_name,
-            'app_version' => $currentVersion,
+            'app_version' => $appSettings->app_version,
             'banner_image' => $appSettings->banner_image,
             'banner_image_url' => $appSettings->banner_image_url,
             'maintenance_mode' => $appSettings->maintenance_mode,
