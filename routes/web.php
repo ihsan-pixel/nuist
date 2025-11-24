@@ -314,12 +314,18 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
 
     Route::middleware(['role:admin,super_admin,pengurus,tenaga_pendidik'])->group(function () {
         Route::get('/', [IzinController::class, 'index'])->name('index');
-        Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('approve');
-        Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');
 
-        // New routes for Izin model (tugas_luar) approval/rejection
-        Route::post('/izin/{izin}/approve', [IzinController::class, 'approveIzinModel'])->name('izin.approve');
-        Route::post('/izin/{izin}/reject', [IzinController::class, 'rejectIzinModel'])->name('izin.reject');
+        // Presensi-based izin
+        Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+        Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('izin.reject');
+
+        // Izin tugas luar (table izins)
+        Route::post('/izin/{izin}/approve', [IzinController::class, 'approveIzinModel'])->name('izin.model.approve');
+        Route::post('/izin/{izin}/reject', [IzinController::class, 'rejectIzinModel'])->name('izin.model.reject');
+
+        // Batch approve/reject routes for kepala madrasah/sekolah
+        Route::post('/approve-all', [IzinController::class, 'approveAll'])->name('approve.all');
+        Route::post('/reject-all', [IzinController::class, 'rejectAll'])->name('reject.all');
     });
 });
 
