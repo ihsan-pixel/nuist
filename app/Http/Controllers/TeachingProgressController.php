@@ -31,12 +31,14 @@ class TeachingProgressController extends Controller
                 return $group->sortBy(function ($madrasah) {
                     return $madrasah->scod ?? PHP_INT_MAX;
                 })->map(function ($madrasah) {
-                    // Get all teachers for this madrasah
+                    // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8
                     $teachers = User::where('madrasah_id', $madrasah->id)
                         ->where('role', 'tenaga_pendidik')
+                        ->whereNotIn('status_kepegawaian_id', [7, 8])
                         ->get();
 
                     $totalTeachers = $teachers->count();
+
 
                     if ($totalTeachers == 0) {
                         $madrasah->schedule_input_percentage = 0;
