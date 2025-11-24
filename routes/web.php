@@ -306,26 +306,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/presensi/laporan', [PresensiController::class, 'laporan'])->name('presensi.laporan');
 });
 
-Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
+Route::prefix('izin')->middleware(['auth'])->group(function () {
     Route::middleware(['role:tenaga_pendidik'])->group(function () {
-        Route::get('/create', [IzinController::class, 'create'])->name('create');
-        Route::post('/store', [IzinController::class, 'store'])->name('store');
+        Route::get('/create', [IzinController::class, 'create'])->name('izin.create');
+        Route::post('/store', [IzinController::class, 'store'])->name('izin.store');
     });
 
     Route::middleware(['role:admin,super_admin,pengurus,tenaga_pendidik'])->group(function () {
-        Route::get('/', [IzinController::class, 'index'])->name('index');
+        Route::get('/', [IzinController::class, 'index'])->name('izin.index');
 
         // Presensi-based izin
         Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('izin.approve');
         Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('izin.reject');
 
         // Izin tugas luar (table izins)
-        Route::post('/izin/{izin}/approve', [IzinController::class, 'approveIzinModel'])->name('izin.model.approve');
-        Route::post('/izin/{izin}/reject', [IzinController::class, 'rejectIzinModel'])->name('izin.model.reject');
+        Route::post('/model/{izin}/approve', [IzinController::class, 'approveIzinModel'])->name('izin.model.approve');
+        Route::post('/model/{izin}/reject', [IzinController::class, 'rejectIzinModel'])->name('izin.model.reject');
 
         // Batch approve/reject routes for kepala madrasah/sekolah
-        Route::post('/approve-all', [IzinController::class, 'approveAll'])->name('approve.all');
-        Route::post('/reject-all', [IzinController::class, 'rejectAll'])->name('reject.all');
+        Route::post('/approve-all', [IzinController::class, 'approveAll'])->name('izin.approve.all');
+        Route::post('/reject-all', [IzinController::class, 'rejectAll'])->name('izin.reject.all');
     });
 });
 
