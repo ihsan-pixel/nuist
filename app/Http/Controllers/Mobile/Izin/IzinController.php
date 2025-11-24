@@ -372,24 +372,27 @@ class IzinController extends \App\Http\Controllers\Controller
      */
     public function approve(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
             abort(403, 'Unauthorized');
         }
 
-        // Try to find the izin in Presensi or Izin table
-        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
+        // Try to find the izin in Izin or Presensi table
         $izin = \App\Models\Izin::where('id', $id)->first();
 
-        if ($presensi) {
-            $presensi->status_izin = 'approved';
-            $presensi->save();
-        } elseif ($izin) {
+        if ($izin && $izin->type === 'tugas_luar') {
             $izin->status = 'approved';
             $izin->save();
         } else {
-            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
+            $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
+
+            if ($presensi) {
+                $presensi->status_izin = 'approved';
+                $presensi->save();
+            } else {
+                return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
+            }
         }
 
         // Optionally create notification about approval here
@@ -406,7 +409,7 @@ class IzinController extends \App\Http\Controllers\Controller
      */
     public function reject(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
             abort(403, 'Unauthorized');
