@@ -390,6 +390,10 @@ class IzinController extends \App\Http\Controllers\Controller
         if ($izin && $izin->type === 'tugas_luar') {
             $izin->status = 'approved';
             $izin->save();
+        } elseif ($izin) {
+            // If it's other type in izins table
+            $izin->status = 'approved';
+            $izin->save();
         } else {
             $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
 
