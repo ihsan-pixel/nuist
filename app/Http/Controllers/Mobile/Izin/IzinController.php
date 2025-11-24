@@ -443,8 +443,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
         return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
     }
-}
-     *
+
     /**
      * Approve Izin model (tugas_luar) request.
 
