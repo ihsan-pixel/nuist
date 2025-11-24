@@ -53,6 +53,6 @@ class AppSetting extends Model
      */
     public function getBannerImageUrlAttribute()
     {
-        return $this->banner_image ? asset('storage/app/public/' . $this->banner_image) : null;
+        return $this->banner_image ? asset('storage/' . $this->banner_image) : null;
     }
 }
