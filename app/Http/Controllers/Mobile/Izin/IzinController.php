@@ -443,6 +443,7 @@ class IzinController extends \App\Http\Controllers\Controller
 
         return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
     }
+}
 
     /**
      * Approve Izin model (tugas_luar) request.
@@ -488,25 +489,5 @@ class IzinController extends \App\Http\Controllers\Controller
         // Optionally create notification here
 
         return redirect()->back()->with('success', 'Izin tugas luar berhasil ditolak.');
-    }
-}
-
-        // Try to find the izin in Presensi or Izin table
-        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
-        $izin = \App\Models\Izin::where('id', $id)->first();
-
-        if ($presensi) {
-            $presensi->status_izin = 'rejected';
-            $presensi->save();
-        } elseif ($izin) {
-            $izin->status = 'rejected';
-            $izin->save();
-        } else {
-            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
-        }
-
-        // Optionally create notification about rejection here
-
-        return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
     }
 }
