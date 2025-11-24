@@ -31,10 +31,11 @@ class AppServiceProvider extends ServiceProvider
         //
         Schema::defaultStringLength(191);
 
-        // Share current app settings with all views
+        // Share current app settings with all views from database AppSetting
         View::composer('*', function ($view) {
-            $view->with('app_version', $this->getCurrentAppVersion());
-            $view->with('app_name', Cache::get('app_name', config('app.name', 'NUIST')));
+            $settings = \App\Models\AppSetting::getSettings();
+            $view->with('app_name', $settings->app_name)
+                 ->with('app_version', $settings->app_version);
         });
     }
 
