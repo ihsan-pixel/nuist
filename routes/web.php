@@ -314,8 +314,8 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
 
     Route::middleware(['role:admin,super_admin,pengurus,tenaga_pendidik'])->group(function () {
         Route::get('/', [IzinController::class, 'index'])->name('index');
-        Route::post('/{presensi}/approve', [IzinController::class, 'approve'])->name('approve');
-        Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');
+        Route::post('/presensi/{presensi}/approve', [IzinController::class, 'approve'])->name('presensi.approve');
+        Route::post('/presensi/{presensi}/reject', [IzinController::class, 'reject'])->name('presensi.reject');
 
         // New routes for Izin model (tugas_luar) approval/rejection
         Route::post('/izin/{izin}/approve', [IzinController::class, 'approve'])->name('izin.approve');
