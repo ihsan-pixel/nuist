@@ -237,13 +237,13 @@
             <div class="izin-actions">
                 @if($izin->model_type === 'presensi')
                     <!-- Presensi-based izin -->
-                    <form action="{{ route('presensi.approve', ['presensi' => $izin->id]) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.approve', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-approve">
                             <i class="bx bx-check"></i> Setujui
                         </button>
                     </form>
-                    <form action="{{ route('presensi.reject', ['presensi' => $izin->id]) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.reject', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-reject">
                             <i class="bx bx-x"></i> Tolak
@@ -251,13 +251,13 @@
                     </form>
                 @elseif($izin->model_type === 'izin')
                     <!-- Izin table-based (tugas_luar) -->
-                    <form action="{{ route('izin.approve', ['izin' => $izin->id]) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.approve', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-approve">
                             <i class="bx bx-check"></i> Setujui
                         </button>
                     </form>
-                    <form action="{{ route('izin.reject', ['izin' => $izin->id]) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.reject', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-reject">
                             <i class="bx bx-x"></i> Tolak

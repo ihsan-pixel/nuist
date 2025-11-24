@@ -387,7 +387,11 @@ class IzinController extends \App\Http\Controllers\Controller
         // Try to find the izin in Izin or Presensi table
         $izin = \App\Models\Izin::where('id', $id)->first();
 
-        if ($izin) {
+        if ($izin && $izin->type === 'tugas_luar') {
+            $izin->status = 'approved';
+            $izin->save();
+        } elseif ($izin) {
+            // If it's other type in izins table
             $izin->status = 'approved';
             $izin->save();
         } else {
@@ -439,5 +443,68 @@ class IzinController extends \App\Http\Controllers\Controller
 
         return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
     }
-}
 
+    /**
+     * Approve Izin model (tugas_luar) request.
+
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Izin $izin
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function approveIzinModel(Request $request, \App\Models\Izin $izin)
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        $izin->status = 'approved';
+        $izin->save();
+
+        // Optionally create notification here
+
+        return redirect()->back()->with('success', 'Izin tugas luar berhasil disetujui.');
+    }
+
+    /**
+     * Reject Izin model (tugas_luar) request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Izin $izin
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function rejectIzinModel(Request $request, \App\Models\Izin $izin)
+    {
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        $izin->status = 'rejected';
+        $izin->save();
+
+        // Optionally create notification here
+
+        return redirect()->back()->with('success', 'Izin tugas luar berhasil ditolak.');
+    }
+
+        // Try to find the izin in Presensi or Izin table
+        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
+        $izin = \App\Models\Izin::where('id', $id)->first();
+
+        if ($presensi) {
+            $presensi->status_izin = 'rejected';
+            $presensi->save();
+        } elseif ($izin) {
+            $izin->status = 'rejected';
+            $izin->save();
+        } else {
+            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
+        }
+
+        // Optionally create notification about rejection here
+
+        return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
+    }
