@@ -362,4 +362,72 @@ class IzinController extends \App\Http\Controllers\Controller
         // Fallback: unauthorized for other roles
         abort(403, 'Unauthorized.');
     }
+
+    /**
+     * Approve the izin request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function approve(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Try to find the izin in Presensi or Izin table
+        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
+        $izin = \App\Models\Izin::where('id', $id)->first();
+
+        if ($presensi) {
+            $presensi->status_izin = 'approved';
+            $presensi->save();
+        } elseif ($izin) {
+            $izin->status = 'approved';
+            $izin->save();
+        } else {
+            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
+        }
+
+        // Optionally create notification about approval here
+
+        return redirect()->back()->with('success', 'Pengajuan izin berhasil disetujui.');
+    }
+
+    /**
+     * Reject the izin request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function reject(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        if (!in_array($user->role, ['admin', 'super_admin', 'pengurus', 'tenaga_pendidik'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Try to find the izin in Presensi or Izin table
+        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
+        $izin = \App\Models\Izin::where('id', $id)->first();
+
+        if ($presensi) {
+            $presensi->status_izin = 'rejected';
+            $presensi->save();
+        } elseif ($izin) {
+            $izin->status = 'rejected';
+            $izin->save();
+        } else {
+            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
+        }
+
+        // Optionally create notification about rejection here
+
+        return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
+    }
 }
