@@ -318,8 +318,8 @@ Route::prefix('izin')->middleware(['auth'])->name('izin.')->group(function () {
         Route::post('/{presensi}/reject', [IzinController::class, 'reject'])->name('reject');
 
         // New routes for Izin model (tugas_luar) approval/rejection
-        Route::post('/izin/{izin}/approve', [IzinController::class, 'approveIzinModel'])->name('izin.approve');
-        Route::post('/izin/{izin}/reject', [IzinController::class, 'rejectIzinModel'])->name('izin.reject');
+        Route::post('/izin/{izin}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+        Route::post('/izin/{izin}/reject', [IzinController::class, 'reject'])->name('izin.reject');
     });
 });
 
