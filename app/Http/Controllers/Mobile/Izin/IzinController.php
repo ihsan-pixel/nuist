@@ -302,8 +302,14 @@ class IzinController extends \App\Http\Controllers\Controller
                 $izinTableQuery->where('status', $status);
             }
 
-            $presensiIzinRequests = $presensiIzinQuery->get();
-            $izinTableRequests = $izinTableQuery->get();
+            $presensiIzinRequests = $presensiIzinQuery->get()->map(function ($item) {
+                $item->model_type = 'presensi';
+                return $item;
+            });
+            $izinTableRequests = $izinTableQuery->get()->map(function ($item) {
+                $item->model_type = 'izin';
+                return $item;
+            });
 
             // Combine and sort by tanggal desc
             $combinedRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');

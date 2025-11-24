@@ -235,7 +235,7 @@
 
             @if((isset($izin->status_izin) && $izin->status_izin === 'pending') || (isset($izin->status) && $izin->status === 'pending'))
             <div class="izin-actions">
-                @if(isset($izin->status_izin))
+                @if($izin->model_type === 'presensi')
                     <!-- Presensi-based izin -->
                     <form action="{{ route('izin.approve', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
@@ -249,15 +249,15 @@
                             <i class="bx bx-x"></i> Tolak
                         </button>
                     </form>
-                @else
+                @elseif($izin->model_type === 'izin')
                     <!-- Izin table-based (tugas_luar) -->
-                    <form action="{{ route('izin.approve', $izin->id) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.approve', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-approve">
                             <i class="bx bx-check"></i> Setujui
                         </button>
                     </form>
-                    <form action="{{ route('izin.reject', $izin->id) }}" method="POST" style="flex: 1;">
+                    <form action="{{ route('izin.reject', $izin) }}" method="POST" style="flex: 1;">
                         @csrf
                         <button type="submit" class="btn-reject">
                             <i class="bx bx-x"></i> Tolak
