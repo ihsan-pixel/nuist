@@ -365,6 +365,7 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>Nama</th>
                             <th>Status Kepegawaian</th>
                             <th>Status Presensi</th>
@@ -372,7 +373,7 @@
                     </thead>
                     <tbody id="modalTeacherList">
                         <tr>
-                            <td colspan="3" class="text-center">Memuat data...</td>
+                            <td colspan="4" class="text-center">Memuat data...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -402,31 +403,33 @@
             $('#modalAttendance').text(attendance + '%');
             $('#modalPending').text(pending + '%');
 
-            // Load teacher list via AJAX
-            $('#modalTeacherList').html('<tr><td colspan="3" class="text-center">Memuat data...</td></tr>');
-            $.ajax({
-                url: '/teaching-progress/madrasah/' + madrasahId + '/teachers',
-                method: 'GET',
-                success: function (response) {
-                    if (response.teachers.length === 0) {
-                        $('#modalTeacherList').html('<tr><td colspan="3" class="text-center">Tidak ada tenaga pendidik</td></tr>');
-                        return;
-                    }
+                // Load teacher list via AJAX
+                $('#modalTeacherList').html('<tr><td colspan="4" class="text-center">Memuat data...</td></tr>');
+                $.ajax({
+                    url: '/teaching-progress/madrasah/' + madrasahId + '/teachers',
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.teachers.length === 0) {
+                            $('#modalTeacherList').html('<tr><td colspan="4" class="text-center">Tidak ada tenaga pendidik</td></tr>');
+                            return;
+                        }
 
-                    var rows = '';
-                    response.teachers.forEach(function (teacher) {
-                        rows += '<tr>' +
-                            '<td>' + teacher.name + '</td>' +
-                            '<td>' + teacher.status_kepegawaian + '</td>' +
-                            '<td>' + teacher.presensi_status + '</td>' +
-                            '</tr>';
-                    });
-                    $('#modalTeacherList').html(rows);
-                },
-                error: function () {
-                    $('#modalTeacherList').html('<tr><td colspan="3" class="text-center text-danger">Gagal memuat data tenaga pendidik</td></tr>');
-                }
-            });
+                        var rows = '';
+                        // add numbering no column
+                        response.teachers.forEach(function (teacher, index) {
+                            rows += '<tr>' +
+                                '<td>' + (index + 1) + '</td>' +
+                                '<td>' + teacher.name + '</td>' +
+                                '<td>' + teacher.status_kepegawaian + '</td>' +
+                                '<td>' + teacher.presensi_status + '</td>' +
+                                '</tr>';
+                        });
+                        $('#modalTeacherList').html(rows);
+                    },
+                    error: function () {
+                        $('#modalTeacherList').html('<tr><td colspan="4" class="text-center text-danger">Gagal memuat data tenaga pendidik</td></tr>');
+                    }
+                });
 
             // Show modal
             var modal = new bootstrap.Modal(document.getElementById('detailModal'));
