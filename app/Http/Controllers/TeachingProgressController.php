@@ -92,4 +92,36 @@ class TeachingProgressController extends Controller
 
         return view('admin.teaching_progress', compact('madrasahs', 'kabupatenOrder'));
     }
+
+    /**
+     * Get teacher detail data for a madrasah.
+     */
+    public function getMadrasahTeachers($madrasahId)
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $teachers = User::where('madrasah_id', $madrasahId)
+            ->where('role', 'tenaga_pendidik')
+            ->whereNotIn('status_kepegawaian_id', [7, 8])
+            ->get()
+            ->map(function ($teacher) use ($currentMonth, $currentYear) {
+                $hasAttendance = \App\Models\TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
+                    $q->where('teacher_id', $teacher->id);
+                })
+                ->whereMonth('tanggal', $currentMonth)
+                ->whereYear('tanggal', $currentYear)
+                ->exists();
+
+                return [
+                    'name' => $teacher->name,
+                    'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
+                    'presensi_status' => $hasAttendance ? 'Sudah Presensi' : 'Belum Presensi',
+                ];
+            });
+
+        return response()->json([
+            'teachers' => $teachers
+        ]);
+    }
 }

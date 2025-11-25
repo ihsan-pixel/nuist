@@ -243,50 +243,56 @@
     </div>
     <div class="kabupaten-table p-3">
         <table id="datatable-{{ \Illuminate\Support\Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
-            <thead>
-                <tr>
-                    <th>SCOD</th>
-                    <th>Nama Sekolah</th>
-                    <th>Sudah Input Jadwal (%)</th>
-                    <th>Rincian Jadwal</th>
-                    <th>Sudah Presensi Mengajar (%)</th>
-                    <th>Rincian Presensi</th>
-                    <th>Guru Belum Presensi (%)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($madrasahs[$kabupaten] ?? [] as $index => $madrasah)
-                <tr>
-                    <td>{{ $madrasah->scod }}</td>
-                    <td class="school-name">{{ $madrasah->name }}</td>
-                    <td style="text-align: center; font-weight: bold;">
-                        <span class="badge bg-{{ $madrasah->schedule_input_percentage >= 80 ? 'success' : ($madrasah->schedule_input_percentage >= 50 ? 'warning' : 'danger') }}">
-                            {{ $madrasah->schedule_input_percentage }}%
-                        </span>
-                    </td>
-                    <td style="text-align: center; font-size: 12px;">
-                        <div>Total: {{ $madrasah->total_teachers ?? 0 }}</div>
-                        <div>Sudah: {{ $madrasah->teachers_with_schedule ?? 0 }}</div>
-                        <div>Belum: {{ $madrasah->teachers_without_schedule ?? 0 }}</div>
-                    </td>
-                    <td style="text-align: center; font-weight: bold;">
-                        <span class="badge bg-{{ $madrasah->attendance_percentage >= 80 ? 'success' : ($madrasah->attendance_percentage >= 50 ? 'warning' : 'danger') }}">
-                            {{ $madrasah->attendance_percentage }}%
-                        </span>
-                    </td>
-                    <td style="text-align: center; font-size: 12px;">
-                        <div>Total: {{ $madrasah->total_teachers ?? 0 }}</div>
-                        <div>Sudah: {{ $madrasah->teachers_with_attendance ?? 0 }}</div>
-                        <div>Belum: {{ $madrasah->teachers_without_attendance ?? 0 }}</div>
-                    </td>
-                    <td style="text-align: center; font-weight: bold;">
-                        <span class="badge bg-{{ $madrasah->attendance_pending_percentage <= 20 ? 'success' : ($madrasah->attendance_pending_percentage <= 50 ? 'warning' : 'danger') }}">
-                            {{ $madrasah->attendance_pending_percentage }}%
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
+<thead>
+    <tr>
+        <th>SCOD</th>
+        <th>Nama Sekolah</th>
+        <th>Sudah Input Jadwal (%)</th>
+        <th>Rincian Jadwal</th>
+        <th>Sudah Presensi Mengajar (%)</th>
+        <th>Rincian Presensi</th>
+        <th>Guru Belum Presensi (%)</th>
+        <th>Action</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach($madrasahs[$kabupaten] ?? [] as $index => $madrasah)
+    <tr>
+        <td>{{ $madrasah->scod }}</td>
+        <td class="school-name">{{ $madrasah->name }}</td>
+        <td style="text-align: center; font-weight: bold;">
+            <span class="badge bg-{{ $madrasah->schedule_input_percentage >= 80 ? 'success' : ($madrasah->schedule_input_percentage >= 50 ? 'warning' : 'danger') }}">
+                {{ $madrasah->schedule_input_percentage }}%
+            </span>
+        </td>
+        <td style="text-align: center; font-size: 12px;">
+            <div>Total: {{ $madrasah->total_teachers ?? 0 }}</div>
+            <div>Sudah: {{ $madrasah->teachers_with_schedule ?? 0 }}</div>
+            <div>Belum: {{ $madrasah->teachers_without_schedule ?? 0 }}</div>
+        </td>
+        <td style="text-align: center; font-weight: bold;">
+            <span class="badge bg-{{ $madrasah->attendance_percentage >= 80 ? 'success' : ($madrasah->attendance_percentage >= 50 ? 'warning' : 'danger') }}">
+                {{ $madrasah->attendance_percentage }}%
+            </span>
+        </td>
+        <td style="text-align: center; font-size: 12px;">
+            <div>Total: {{ $madrasah->total_teachers ?? 0 }}</div>
+            <div>Sudah: {{ $madrasah->teachers_with_attendance ?? 0 }}</div>
+            <div>Belum: {{ $madrasah->teachers_without_attendance ?? 0 }}</div>
+        </td>
+        <td style="text-align: center; font-weight: bold;">
+            <span class="badge bg-{{ $madrasah->attendance_pending_percentage <= 20 ? 'success' : ($madrasah->attendance_pending_percentage <= 50 ? 'warning' : 'danger') }}">
+                {{ $madrasah->attendance_pending_percentage }}%
+            </span>
+        </td>
+        <td style="text-align: center;">
+            <a href="{{ route('madrasah.detail', ['id' => $madrasah->id]) }}" class="btn btn-primary btn-sm">
+                Lihat Detail
+            </a>
+        </td>
+    </tr>
+    @endforeach
+</tbody>
         </table>
     </div>
 </div>
