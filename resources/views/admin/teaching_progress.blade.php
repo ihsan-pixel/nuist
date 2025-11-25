@@ -119,8 +119,8 @@
 }
 
 .kabupaten-table .table thead th {
-    background: linear-gradient(135deg, #0e8549 0%, #0e8549 100%) !important;
-    color: white !important;
+    /* background: linear-gradient(135deg, #0e8549 0%, #0e8549 100%) !important; */
+    color: black !important;
     border: none !important;
     font-weight: 600 !important;
     padding: 1rem !important;
