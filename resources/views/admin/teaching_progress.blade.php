@@ -291,15 +291,15 @@
             </span>
         </td>
             <td style="text-align: center;">
-                <button
-                    class="btn btn-primary btn-sm btn-detail"
-                    data-madrasah-id="{{ $madrasah->id }}"
-                    data-schedule-input="{{ $madrasah->schedule_input_percentage }}"
-                    data-attendance="{{ $madrasah->attendance_percentage }}"
-                    data-pending="{{ $madrasah->attendance_pending_percentage }}"
+                <a href="javascript:void(0);"
+                   class="action-btn btn-detail"
+                   data-madrasah-id="{{ $madrasah->id }}"
+                   data-schedule-input="{{ $madrasah->schedule_input_percentage }}"
+                   data-attendance="{{ $madrasah->attendance_percentage }}"
+                   data-pending="{{ $madrasah->attendance_pending_percentage }}"
                 >
-                    Lihat Detail
-                </button>
+                    <i class="mdi mdi-eye me-1"></i>Lihat Detail
+                </a>
             </td>
     </tr>
     @endforeach
