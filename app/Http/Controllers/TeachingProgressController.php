@@ -135,7 +135,7 @@ class TeachingProgressController extends Controller
         });
 
         return response()->json([
-            'teachers' => $teachersWithPresensi
+            'teachers' => $teachersWithPresensi->values()->all()
         ]);
     }
 }
