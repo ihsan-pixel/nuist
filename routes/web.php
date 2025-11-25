@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     // Teaching Progress Routes - Super Admin Only
     Route::middleware(['role:super_admin'])->group(function () {
         Route::get('/teaching-progress', [App\Http\Controllers\TeachingProgressController::class, 'index'])->name('admin.teaching_progress');
+        Route::get('/teaching-progress/madrasah/{madrasahId}/teachers', [App\Http\Controllers\TeachingProgressController::class, 'getMadrasahTeachers'])->name('admin.teaching_progress.teachers');
     });
 
     // Development History Routes - Super Admin Only
