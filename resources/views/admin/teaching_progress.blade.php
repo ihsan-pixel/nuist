@@ -247,7 +247,7 @@
         <i class="mdi mdi-map-marker-radius"></i> Kabupaten: {{ $kabupaten }}
     </div>
     <div class="kabupaten-table p-3">
-        <table id="datatable-{{ \Illuminate\Support\Str::slug($kabupaten) }}" class="table table-bordered nowrap w-100">
+        <table id="datatable-{{ \Illuminate\Support\Str::slug($kabupaten) }}" class="table table-bordered dt-responsive nowrap w-100">
 <thead>
     <tr>
         <th>SCOD</th>
