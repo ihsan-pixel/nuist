@@ -323,6 +323,16 @@
             order: [[0, 'asc']]
         });
         @endforeach
+
+        // Reload page when modal is closed
+        $('#detailModal').on('hidden.bs.modal', function () {
+            window.location.href = "{{ route('admin.teaching_progress') }}";
+        });
+
+        // Also reload page when modal close button is clicked
+        $('#detailModal .btn-close').on('click', function() {
+            window.location.href = "{{ route('admin.teaching_progress') }}";
+        });
     });
 </script>
 @endpush
