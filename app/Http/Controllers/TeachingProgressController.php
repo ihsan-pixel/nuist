@@ -39,7 +39,6 @@ class TeachingProgressController extends Controller
 
                     $totalTeachers = $teachers->count();
 
-
                     if ($totalTeachers == 0) {
                         $madrasah->schedule_input_percentage = 0;
                         $madrasah->attendance_percentage = 0;
@@ -95,33 +94,48 @@ class TeachingProgressController extends Controller
 
     /**
      * Get teacher detail data for a madrasah.
+     * Includes users with status_kepegawaian 7 and 8 only if they have presensi.
      */
     public function getMadrasahTeachers($madrasahId)
     {
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
-        $teachers = User::where('madrasah_id', $madrasahId)
+        // Get all teachers
+        $allTeachers = User::where('madrasah_id', $madrasahId)
             ->where('role', 'tenaga_pendidik')
-            ->whereNotIn('status_kepegawaian_id', [7, 8])
-            ->get()
-            ->map(function ($teacher) use ($currentMonth, $currentYear) {
-                $hasAttendance = \App\Models\TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
+            ->get();
+
+        $teachersFiltered = $allTeachers->filter(function ($teacher) use ($currentMonth, $currentYear) {
+            if (in_array($teacher->status_kepegawaian_id, [7, 8])) {
+                $hasPresensi = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
+                        $q->where('teacher_id', $teacher->id);
+                    })
+                    ->whereMonth('tanggal', $currentMonth)
+                    ->whereYear('tanggal', $currentYear)
+                    ->exists();
+                return $hasPresensi;
+            }
+            return true;
+        });
+
+        $teachersWithPresensi = $teachersFiltered->map(function ($teacher) use ($currentMonth, $currentYear) {
+            $hasPresensi = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
                     $q->where('teacher_id', $teacher->id);
                 })
                 ->whereMonth('tanggal', $currentMonth)
                 ->whereYear('tanggal', $currentYear)
                 ->exists();
 
-                return [
-                    'name' => $teacher->name,
-                    'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
-                    'presensi_status' => $hasAttendance ? 'Sudah Presensi' : 'Belum Presensi',
-                ];
-            });
+            return [
+                'name' => $teacher->name,
+                'status_kepegawaian' => $teacher->statusKepegawaian->name ?? '-',
+                'presensi_status' => $hasPresensi ? 'Sudah Presensi' : 'Belum Presensi',
+            ];
+        });
 
         return response()->json([
-            'teachers' => $teachers
+            'teachers' => $teachersWithPresensi
         ]);
     }
 }
