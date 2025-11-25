@@ -109,7 +109,7 @@ Login - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 <h2>Welcome Back!</h2>
                 <p>Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
                 <div class="illustration-placeholder">
-                    <img src="{{ asset('images/p.png') }}" alt="Login Illustration" class="illustration-image">
+                    <img src="{{ asset('images/maintenance.svg') }}" alt="Login Illustration" class="illustration-image">
                 </div>
             </div>
         </div>
