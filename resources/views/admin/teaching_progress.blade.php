@@ -291,12 +291,8 @@
             </span>
         </td>
             <td style="text-align: center;">
-                <a href="javascript:void(0);"
-                   class="action-btn btn-detail"
-                   data-madrasah-id="{{ $madrasah->id }}"
-                   data-schedule-input="{{ $madrasah->schedule_input_percentage }}"
-                   data-attendance="{{ $madrasah->attendance_percentage }}"
-                   data-pending="{{ $madrasah->attendance_pending_percentage }}"
+                <a href="{{ route('presensi_admin.show_detail', $madrasah->id) }}?date={{ \Carbon\Carbon::now()->format('Y-m-d') }}"
+                   class="btn btn-outline-info btn-sm"
                 >
                     <i class="mdi mdi-eye me-1"></i>Lihat Detail
                 </a>
