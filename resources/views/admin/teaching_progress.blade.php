@@ -285,11 +285,17 @@
                 {{ $madrasah->attendance_pending_percentage }}%
             </span>
         </td>
-        <td style="text-align: center;">
-            <a href="{{ route('madrasah.detail', ['id' => $madrasah->id]) }}" class="btn btn-primary btn-sm">
-                Lihat Detail
-            </a>
-        </td>
+            <td style="text-align: center;">
+                <button
+                    class="btn btn-primary btn-sm btn-detail"
+                    data-madrasah-id="{{ $madrasah->id }}"
+                    data-schedule-input="{{ $madrasah->schedule_input_percentage }}"
+                    data-attendance="{{ $madrasah->attendance_percentage }}"
+                    data-pending="{{ $madrasah->attendance_pending_percentage }}"
+                >
+                    Lihat Detail
+                </button>
+            </td>
     </tr>
     @endforeach
 </tbody>
@@ -311,6 +317,105 @@
             order: [[0, 'asc']]
         });
         @endforeach
+    });
+</script>
+@endpush
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Presensi Mengajar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col text-center">
+                        <h6>Sudah Input Jadwal (%)</h6>
+                        <p id="modalScheduleInput" class="fs-4 fw-bold text-primary mb-0"></p>
+                    </div>
+                    <div class="col text-center">
+                        <h6>Sudah Presensi Mengajar (%)</h6>
+                        <p id="modalAttendance" class="fs-4 fw-bold text-success mb-0"></p>
+                    </div>
+                    <div class="col text-center">
+                        <h6>Belum Presensi Mengajar (%)</h6>
+                        <p id="modalPending" class="fs-4 fw-bold text-danger mb-0"></p>
+                    </div>
+                </div>
+                <hr>
+                <h6>Daftar Tenaga Pendidik</h6>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Status Kepegawaian</th>
+                            <th>Status Presensi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTeacherList">
+                        <tr>
+                            <td colspan="3" class="text-center">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    $(document).ready(function () {
+        // Handler for Lihat Detail button click
+        $('table').on('click', '.btn-detail', function (e) {
+            e.preventDefault();
+
+            var button = $(this);
+            var madrasahId = button.data('madrasah-id');
+            var scheduleInput = button.data('schedule-input');
+            var attendance = button.data('attendance');
+            var pending = button.data('pending');
+
+            // Set percentage info in modal
+            $('#modalScheduleInput').text(scheduleInput + '%');
+            $('#modalAttendance').text(attendance + '%');
+            $('#modalPending').text(pending + '%');
+
+            // Load teacher list via AJAX
+            $('#modalTeacherList').html('<tr><td colspan="3" class="text-center">Memuat data...</td></tr>');
+            $.ajax({
+                url: '/teaching-progress/madrasah/' + madrasahId + '/teachers',
+                method: 'GET',
+                success: function (response) {
+                    if (response.teachers.length === 0) {
+                        $('#modalTeacherList').html('<tr><td colspan="3" class="text-center">Tidak ada tenaga pendidik</td></tr>');
+                        return;
+                    }
+
+                    var rows = '';
+                    response.teachers.forEach(function (teacher) {
+                        rows += '<tr>' +
+                            '<td>' + teacher.name + '</td>' +
+                            '<td>' + teacher.status_kepegawaian + '</td>' +
+                            '<td>' + teacher.presensi_status + '</td>' +
+                            '</tr>';
+                    });
+                    $('#modalTeacherList').html(rows);
+                },
+                error: function () {
+                    $('#modalTeacherList').html('<tr><td colspan="3" class="text-center text-danger">Gagal memuat data tenaga pendidik</td></tr>');
+                }
+            });
+
+            // Show modal
+            var modal = new bootstrap.Modal(document.getElementById('detailModal'));
+            modal.show();
+        });
     });
 </script>
 @endpush
