@@ -192,9 +192,9 @@
                 <div class="col-lg-8">
                     <h2 class="mb-2">
                         <i class="mdi mdi-view-dashboard me-2"></i>
-                        Data Presensi Tenaga Pendidik
+                        Data Presensi Mengajar Tenaga Pendidik
                     </h2>
-                    <p class="mb-0 opacity-75">Pantau dan kelola presensi tenaga pendidik di seluruh madrasah Ma'arif</p>
+                    <p class="mb-0 opacity-75">Pantau dan kelola presensi mengajar tenaga pendidik di seluruh madrasah Ma'arif</p>
                 </div>
         </div>
     </div>
