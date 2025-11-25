@@ -185,6 +185,11 @@
 @endsection
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Presensi Admin @endslot
+    @slot('title') Data Presensi @endslot
+@endcomponent
+
 @if(in_array(Auth::user()->role, ['super_admin']))
 <div class="welcome-section">
     <div class="welcome-content container">
