@@ -192,7 +192,7 @@
 
 @if(in_array(Auth::user()->role, ['super_admin']))
 <div class="welcome-section mb-4">
-    <div class="welcome-content container">
+    <div class="welcome-content container" style="position: relative !important; z-index: 1 !important;">
         <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h2 class="mb-2">
