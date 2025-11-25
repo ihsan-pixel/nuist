@@ -186,12 +186,12 @@
 
 @section('content')
 @component('components.breadcrumb')
-    @slot('li_1') Presensi Admin @endslot
-    @slot('title') Data Presensi @endslot
+    @slot('li_1') Teaching Progress @endslot
+    @slot('title') Data Presensi Mengajar @endslot
 @endcomponent
 
 @if(in_array(Auth::user()->role, ['super_admin']))
-<div class="welcome-section">
+<div class="welcome-section mb-4">
     <div class="welcome-content container">
         <div class="row align-items-center">
                 <div class="col-lg-8">
