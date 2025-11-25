@@ -1,10 +1,5 @@
 <!-- JAVASCRIPT -->
 <script src="{{ asset('build/libs/jquery/jquery.min.js')}}"></script>
-<script src="{{ asset('build/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ asset('build/libs/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
 <script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
 <script src="{{ asset('build/libs/metismenu/metisMenu.min.js')}}"></script>
 <script src="{{ asset('build/libs/simplebar/simplebar.min.js')}}"></script>

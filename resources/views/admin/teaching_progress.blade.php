@@ -314,11 +314,7 @@
 <script>
     $(document).ready(function() {
         @foreach($kabupatenOrder as $kabupaten)
-        var tableId = '#datatable-{{ \Illuminate\Support\Str::slug($kabupaten) }}';
-        if ( $.fn.DataTable.isDataTable(tableId) ) {
-            $(tableId).DataTable().clear().destroy();
-        }
-        $(tableId).DataTable({
+        $('#datatable-{{ \Illuminate\Support\Str::slug($kabupaten) }}').DataTable({
             dom: 'Bfrtip',
             buttons: [
                 'copy', 'pdf', 'print', 'colvis'
