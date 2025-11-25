@@ -188,40 +188,40 @@
 @if(in_array(Auth::user()->role, ['super_admin']))
 <div class="welcome-section">
     <div class="welcome-content container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card total-madrasah">
-                    <div class="stat-number">{{ $madrasahs->flatten()->count() }}</div>
-                    <div class="stat-label">Total Madrasah</div>
-                </div>
-            </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card total-madrasah">
+            <div class="stat-number">{{ $madrasahs->flatten()->count() }}</div>
+            <div class="stat-label">Total Madrasah</div>
+        </div>
+    </div>
 
-            @php
-            $overallScheduleInput = $madrasahs->flatten()->avg('schedule_input_percentage') ?? 0;
-            $overallAttendance = $madrasahs->flatten()->avg('attendance_percentage') ?? 0;
-            $overallPending = $madrasahs->flatten()->avg('attendance_pending_percentage') ?? 0;
-            @endphp
+    @php
+    $overallScheduleInput = $madrasahs->flatten()->avg('schedule_input_percentage') ?? 0;
+    $overallAttendance = $madrasahs->flatten()->avg('attendance_percentage') ?? 0;
+    $overallPending = $madrasahs->flatten()->avg('attendance_pending_percentage') ?? 0;
+    @endphp
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card schedule-input">
-                    <div class="stat-number">{{ round($overallScheduleInput) }}%</div>
-                    <div class="stat-label">Sudah Input Jadwal</div>
-                </div>
-            </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card schedule-input">
+            <div class="stat-number">{{ round($overallScheduleInput) }}%</div>
+            <div class="stat-label">Sudah Input Jadwal</div>
+        </div>
+    </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card attendance">
-                    <div class="stat-number">{{ round($overallAttendance) }}%</div>
-                    <div class="stat-label">Sudah Presensi Mengajar</div>
-                </div>
-            </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card attendance">
+            <div class="stat-number">{{ round($overallAttendance) }}%</div>
+            <div class="stat-label">Sudah Presensi Mengajar</div>
+        </div>
+    </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card pending">
-                    <div class="stat-number">{{ round($overallPending) }}%</div>
-                    <div class="stat-label">Guru Belum Presensi</div>
-                </div>
-            </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card pending">
+            <div class="stat-number">{{ round($overallPending) }}%</div>
+            <div class="stat-label">Guru Belum Presensi</div>
         </div>
     </div>
 </div>
