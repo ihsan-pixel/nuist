@@ -19,8 +19,8 @@
             <th>Hari</th>
             <th>Nama Guru</th>
             <th>Status Kepegawaian</th>
-            <th>NIP</th>
-            <th>NUPTK</th>
+            {{-- <th>NIP</th> --}}
+            {{-- <th>NUPTK</th> --}}
             <th>Status Presensi</th>
             <th>Masuk</th>
             <th>Foto Masuk</th>
@@ -37,8 +37,8 @@
             <td>{{ $item['hari'] }}</td>
             <td>{{ $item['user']->name }}</td>
             <td>{{ $item['user']->statusKepegawaian->name ?? '-' }}</td>
-            <td>{{ $item['user']->nip }}</td>
-            <td>{{ $item['user']->nuptk }}</td>
+            {{-- <td>{{ $item['user']->nip }}</td> --}}
+            {{-- <td>{{ $item['user']->nuptk }}</td> --}}
             <td>{{ $item['status'] }}</td>
             <td>{{ $item['presensi'] ? $item['presensi']->waktu_masuk : '-' }}</td>
             <td>
