@@ -10,10 +10,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawings
+class PresensiPerBulanExport implements FromCollection, WithHeadings
 {
     protected $madrasahId;
     protected $bulan;
@@ -82,10 +80,13 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
                     ->whereDate('tanggal', $date)
                     ->first();
 
+                $hari = Carbon::parse($date)->locale('id')->dayName;
+
                 if ($presensi) {
                     // User has presensi
                     $data->push([
                         'Tanggal' => $date,
+                        'Hari' => $hari,
                         'Nama Guru' => $tp->name,
                         'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
                         'NIP' => $tp->nip,
@@ -95,24 +96,21 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
                         'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
                         'Keterangan' => $presensi->keterangan,
                         'Lokasi' => $presensi->lokasi,
-                        'Foto Masuk' => $presensi->selfie_masuk_path ? 'Foto Masuk' : '-',
-                        'Foto Keluar' => $presensi->selfie_keluar_path ? 'Foto Keluar' : '-',
                     ]);
                 } else {
                     // User belum presensi
                     $data->push([
                         'Tanggal' => $date,
+                        'Hari' => $hari,
                         'Nama Guru' => $tp->name,
                         'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
                         'NIP' => $tp->nip,
                         'NUPTK' => $tp->nuptk,
-                        'Status Presensi' => 'belum presensi',
+                        'Status Presensi' => 'alpha/tidak presensi',
                         'Waktu Masuk' => null,
                         'Waktu Keluar' => null,
                         'Keterangan' => null,
                         'Lokasi' => null,
-                        'Foto Masuk' => '-',
-                        'Foto Keluar' => '-',
                     ]);
                 }
             }
@@ -121,97 +119,5 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
         return $data;
     }
 
-    public function drawings()
-    {
-        $drawings = [];
 
-        // Parse bulan input
-        if (preg_match('/^\d{4}-\d{2}$/', $this->bulan)) {
-            list($year, $monthNum) = explode('-', $this->bulan);
-        }
-        elseif (preg_match('/^\d{1,2}$/', $this->bulan)) {
-            $year = date('Y');
-            $monthNum = $this->bulan;
-        }
-        else {
-            $bulanParts = explode(' ', $this->bulan);
-            $monthName = $bulanParts[0];
-            $year = $bulanParts[1] ?? date('Y');
-            $monthNum = date('m', strtotime("$monthName 1"));
-        }
-
-        // Get madrasah to determine hari_kbm
-        $madrasah = Madrasah::find($this->madrasahId);
-        $hariKbm = $madrasah ? $madrasah->hari_kbm : '5'; // Default to 5 if not set
-
-        // Get all tenaga pendidik for this madrasah
-        $tenagaPendidik = User::where('madrasah_id', $this->madrasahId)
-            ->where('role', 'tenaga_pendidik')
-            ->get();
-
-        // Generate working dates in the month (based on hari_kbm, exclude holidays)
-        $startDate = Carbon::createFromDate($year, $monthNum, 1);
-        $endDate = $startDate->copy()->endOfMonth();
-
-        $dates = [];
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
-
-            // Check if it's a working day based on hari_kbm
-            $isWorkingDay = false;
-            if ($hariKbm == '5') {
-                // Monday to Friday (1-5)
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
-            } elseif ($hariKbm == '6') {
-                // Monday to Saturday (1-6)
-                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
-            }
-
-            // Exclude holidays
-            if ($isWorkingDay && !Holiday::isHoliday($date->format('Y-m-d'))) {
-                $dates[] = $date->format('Y-m-d');
-            }
-        }
-
-        $rowIndex = 2; // Start after headers
-
-        foreach ($dates as $date) {
-            foreach ($tenagaPendidik as $tp) {
-                $presensi = Presensi::where('user_id', $tp->id)
-                    ->whereDate('tanggal', $date)
-                    ->first();
-
-                if ($presensi) {
-                    // FOTO MASUK
-                    $fotoMasukPath = public_path('storage/' . $presensi->selfie_masuk_path);
-                    if ($presensi->selfie_masuk_path && file_exists($fotoMasukPath)) {
-                        $drawing = new Drawing();
-                        $drawing->setName('Foto Masuk ' . $rowIndex);
-                        $drawing->setDescription('Foto Presensi Masuk');
-                        $drawing->setPath($fotoMasukPath);
-                        $drawing->setHeight(50);
-                        $drawing->setCoordinates('K' . $rowIndex);
-                        $drawings[] = $drawing;
-                    }
-
-                    // FOTO KELUAR
-                    $fotoKeluarPath = public_path('storage/' . $presensi->selfie_keluar_path);
-                    if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
-                        $drawing = new Drawing();
-                        $drawing->setName('Foto Keluar ' . $rowIndex);
-                        $drawing->setDescription('Foto Presensi Keluar');
-                        $drawing->setPath($fotoKeluarPath);
-                        $drawing->setHeight(50);
-                        $drawing->setCoordinates('L' . $rowIndex);
-                        $drawings[] = $drawing;
-                    }
-                }
-                // If no presensi, no drawings to add
-
-                $rowIndex++;
-            }
-        }
-
-        return $drawings;
-    }
 }
