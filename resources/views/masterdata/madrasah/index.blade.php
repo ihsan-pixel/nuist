@@ -1,5 +1,4 @@
-
-git c@extends('layouts.master')
+@extends('layouts.master')
 
 @section('title')
     Madrasah/Sekolah
