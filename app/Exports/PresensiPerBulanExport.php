@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
-use App\Models\Presensi;
-use App\Models\User;
 use App\Models\Madrasah;
 use App\Models\Holiday;
+use Carbon\Carbon;
+use App\Models\Presensi;
+use App\Models\User;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -26,6 +26,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
     {
         return [
             'Tanggal',
+            'Hari',
             'Nama Guru',
             'Status Kepegawaian',
             'NIP',
@@ -35,8 +36,6 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
             'Waktu Keluar',
             'Keterangan',
             'Lokasi',
-            'Foto Masuk',
-            'Foto Keluar',
         ];
     }
 
@@ -59,19 +58,48 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
             $monthNum = date('m', strtotime("$monthName 1"));
         }
 
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($this->madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : '5'; // Default to 5 if not set
+
         // Get all tenaga pendidik for this madrasah
         $tenagaPendidik = User::with('statusKepegawaian')
             ->where('madrasah_id', $this->madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->get();
 
-        // Generate all dates in the month
-        $startDate = Carbon::createFromDate($year, $monthNum, 1);
-        $endDate = $startDate->copy()->endOfMonth();
+        // Get all unique dates that have presensi for this madrasah in the specified month, filtered by working days and excluding holidays
+        $rawDates = Presensi::whereHas('user', function ($q) {
+                $q->where('madrasah_id', $this->madrasahId)
+                  ->where('role', 'tenaga_pendidik');
+            })
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $monthNum)
+            ->selectRaw('DATE(tanggal) as date')
+            ->distinct()
+            ->orderBy('date', 'desc')
+            ->pluck('date');
 
+        // Filter dates to only working days based on hari_kbm and exclude holidays
         $dates = [];
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $dates[] = $date->format('Y-m-d');
+        foreach ($rawDates as $date) {
+            $carbonDate = Carbon::parse($date);
+            $dayOfWeek = $carbonDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+            // Check if it's a working day based on hari_kbm
+            $isWorkingDay = false;
+            if ($hariKbm == '5') {
+                // Monday to Friday (1-5)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+            } elseif ($hariKbm == '6') {
+                // Monday to Saturday (1-6)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+            }
+
+            // Exclude holidays
+            if ($isWorkingDay && !Holiday::isHoliday($date)) {
+                $dates[] = $date;
+            }
         }
 
         foreach ($dates as $date) {
@@ -118,6 +146,4 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings
 
         return $data;
     }
-
-
 }
