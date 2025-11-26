@@ -116,7 +116,7 @@ class PresensiSemuaExport implements FromCollection, WithHeadings, WithDrawings
                         'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
                         'NIP' => $tp->nip,
                         'NUPTK' => $tp->nuptk,
-                        'Status Presensi' => 'belum presensi',
+                        'Status Presensi' => 'alpha/tidak presensi',
                         'Waktu Masuk' => null,
                         'Waktu Keluar' => null,
                         'Keterangan' => null,
