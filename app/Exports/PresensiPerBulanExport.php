@@ -44,16 +44,14 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
     {
         $data = collect();
 
-        // Jika format bulan adalah "YYYY-MM"
+        // Parse bulan input
         if (preg_match('/^\d{4}-\d{2}$/', $this->bulan)) {
             list($year, $monthNum) = explode('-', $this->bulan);
         }
-        // Jika format bulan hanya "MM"
         elseif (preg_match('/^\d{1,2}$/', $this->bulan)) {
             $year = date('Y');
             $monthNum = $this->bulan;
         }
-        // Jika format bulan seperti "November 2025"
         else {
             $bulanParts = explode(' ', $this->bulan);
             $monthName = $bulanParts[0];
@@ -61,29 +59,61 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             $monthNum = date('m', strtotime("$monthName 1"));
         }
 
-        $presensis = Presensi::with(['user.statusKepegawaian'])
-            ->whereHas('user', function ($q) {
-                $q->where('madrasah_id', $this->madrasahId)
-                ->where('role', 'tenaga_pendidik');
-            })
-            ->whereYear('tanggal', $year)
-            ->whereMonth('tanggal', $monthNum)
-            ->orderBy('tanggal', 'desc')
+        // Get all tenaga pendidik for this madrasah
+        $tenagaPendidik = User::with('statusKepegawaian')
+            ->where('madrasah_id', $this->madrasahId)
+            ->where('role', 'tenaga_pendidik')
             ->get();
 
-        foreach ($presensis as $presensi) {
-            $data->push([
-                'Tanggal' => $presensi->tanggal->format('Y-m-d'),
-                'Nama Guru' => $presensi->user->name,
-                'Status Kepegawaian' => $presensi->user->statusKepegawaian->name ?? '-',
-                'NIP' => $presensi->user->nip,
-                'NUPTK' => $presensi->user->nuptk,
-                'Status Presensi' => $presensi->status,
-                'Waktu Masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
-                'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
-                'Keterangan' => $presensi->keterangan,
-                'Lokasi' => $presensi->lokasi,
-            ]);
+        // Generate all dates in the month
+        $startDate = Carbon::createFromDate($year, $monthNum, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+
+        $dates = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
+
+        foreach ($dates as $date) {
+            foreach ($tenagaPendidik as $tp) {
+                $presensi = Presensi::where('user_id', $tp->id)
+                    ->whereDate('tanggal', $date)
+                    ->first();
+
+                if ($presensi) {
+                    // User has presensi
+                    $data->push([
+                        'Tanggal' => $date,
+                        'Nama Guru' => $tp->name,
+                        'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                        'NIP' => $tp->nip,
+                        'NUPTK' => $tp->nuptk,
+                        'Status Presensi' => $presensi->status,
+                        'Waktu Masuk' => $presensi->waktu_masuk ? $presensi->waktu_masuk->format('H:i:s') : null,
+                        'Waktu Keluar' => $presensi->waktu_keluar ? $presensi->waktu_keluar->format('H:i:s') : null,
+                        'Keterangan' => $presensi->keterangan,
+                        'Lokasi' => $presensi->lokasi,
+                        'Foto Masuk' => $presensi->selfie_masuk_path ? 'Foto Masuk' : '-',
+                        'Foto Keluar' => $presensi->selfie_keluar_path ? 'Foto Keluar' : '-',
+                    ]);
+                } else {
+                    // User belum presensi
+                    $data->push([
+                        'Tanggal' => $date,
+                        'Nama Guru' => $tp->name,
+                        'Status Kepegawaian' => $tp->statusKepegawaian->name ?? '-',
+                        'NIP' => $tp->nip,
+                        'NUPTK' => $tp->nuptk,
+                        'Status Presensi' => 'belum presensi',
+                        'Waktu Masuk' => null,
+                        'Waktu Keluar' => null,
+                        'Keterangan' => null,
+                        'Lokasi' => null,
+                        'Foto Masuk' => '-',
+                        'Foto Keluar' => '-',
+                    ]);
+                }
+            }
         }
 
         return $data;
