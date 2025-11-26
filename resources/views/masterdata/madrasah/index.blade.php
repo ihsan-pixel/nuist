@@ -362,7 +362,13 @@
 
                                 <div class="mb-3">
                                     <label>Area Polygon Presensi</label>
-                                    <div id="map-add" class="polygon-map-container" style="height:300px;"></div>
+                                    <div id="map-add" class="polygon-map-container" style="height:300px;">
+                                        <!-- Loading indicator -->
+                                        <div id="loading-map-add" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d; text-align: center;">
+                                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 mt-2 small">Memuat peta...</p>
+                                        </div>
+                                    </div>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat_add" value="[]">
                                     <small class="text-muted">Gunakan toolbar pada peta untuk menggambar area polygon presensi.</small>
                                 </div>
@@ -503,6 +509,11 @@
                                     <label>Area Polygon Presensi Utama</label>
                                     <input type="hidden" name="polygon_koordinat" id="polygon_koordinat-edit-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat ?? '[]' }}">
                                     <div class="polygon-map-container" id="map-edit-{{ $madrasah->id }}" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
+                                        <!-- Loading indicator -->
+                                        <div id="loading-map-edit-{{ $madrasah->id }}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d; text-align: center;">
+                                            <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 mt-2 small">Memuat peta...</p>
+                                        </div>
                                         <!-- Map will be initialized here -->
                                     </div>
                                     <div class="polygon-info mt-2">
@@ -540,11 +551,12 @@
                                     <label>Area Polygon Presensi Kedua</label>
                                     <input type="hidden" name="polygon_koordinat_2" id="polygon_koordinat_2-edit-{{ $madrasah->id }}" value="{{ $madrasah->polygon_koordinat_2 ?? '[]' }}">
                                     <div class="polygon-map-container" id="map2-edit-{{ $madrasah->id }}" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #dee2e6; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #f8f9fa; position: relative;">
-                                        <!-- Map will be initialized here -->
-                                        {{-- <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d;">
+                                        <!-- Loading indicator -->
+                                        <div id="loading-map2-edit-{{ $madrasah->id }}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; color: #6c757d; text-align: center;">
                                             <i class="mdi mdi-loading mdi-spin" style="font-size: 2rem;"></i>
-                                            <p class="mb-0 mt-2 small">Memuat peta...</p>
-                                        </div> --}}
+                                            <p class="mb-0 mt-2 small">Memuat peta kedua...</p>
+                                        </div>
+                                        <!-- Map will be initialized here -->
                                     </div>
                                     <div class="polygon-info mt-2">
                                         <div id="polygon2-display-{{ $madrasah->id }}">
@@ -785,14 +797,17 @@
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
+                console.log('Loading existing dual polygon data:', existingCoordinates);
                 if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
                     try {
                         const coordData = JSON.parse(existingCoordinates);
+                        console.log('Parsed dual coordinate data:', coordData);
                         if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
                             // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
                             // Convert [lon,lat] to [lat,lon] for Leaflet
                             const geoJSONCoords = coordData.coordinates[0];
                             const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
+                            console.log('Converted dual polygon to Leaflet coords:', leafletCoords);
 
                             const polygon = L.polygon(leafletCoords, {
                                 color: '#28a745',
@@ -800,16 +815,56 @@
                                 weight: 2
                             });
                             drawnItems.addLayer(polygon);
+                            console.log('Dual polygon added to map:', polygon);
 
                             // Fit map to polygon bounds
                             setTimeout(() => {
-                                map.fitBounds(polygon.getBounds());
+                                try {
+                                    map.fitBounds(polygon.getBounds());
+                                    console.log('Dual map fitted to polygon bounds');
+                                } catch (boundsError) {
+                                    console.warn('Could not fit dual polygon bounds:', boundsError);
+                                }
                             }, 100);
                             updatePolygonDisplay(coordData, polygonDisplay, checklist);
+                        } else {
+                            console.log('No valid coordinates found in dual polygon data');
                         }
                     } catch (e) {
                         console.warn('Failed to parse existing dual polygon coordinates:', e);
+                        console.warn('Raw dual polygon data:', existingCoordinates);
                     }
+                } else {
+                    console.log('No existing dual polygon data to load');
+                    // Add a test polygon to verify dual map is working
+                    console.log('Adding test dual polygon to verify map functionality');
+                    const testDualCoords = [
+                        [-7.7956, 110.3715],
+                        [-7.7966, 110.3725],
+                        [-7.7976, 110.3715],
+                        [-7.7966, 110.3705]
+                    ];
+
+                    const testDualPolygon = L.polygon(testDualCoords, {
+                        color: '#4ecdc4',
+                        fillOpacity: 0.1,
+                        weight: 2,
+                        dashArray: '5, 5'
+                    });
+                    drawnItems.addLayer(testDualPolygon);
+
+                    // Add a label to indicate this is a test polygon
+                    const testDualLabel = L.marker([-7.7966, 110.3715]).addTo(map)
+                        .bindPopup('Test Dual Polygon - Map is working!')
+                        .openPopup();
+
+                    console.log('Test dual polygon added for verification');
+                }
+
+                // Hide loading indicator for dual map
+                const dualLoadingIndicator = el('#loading-map2-edit-' + madrasahId);
+                if (dualLoadingIndicator) {
+                    dualLoadingIndicator.style.display = 'none';
                 }
 
                 // Helper function to update polygon data for dual polygon
@@ -998,14 +1053,17 @@
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
+                console.log('Loading existing polygon data:', existingCoordinates);
                 if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
                     try {
                         const coordData = JSON.parse(existingCoordinates);
+                        console.log('Parsed coordinate data:', coordData);
                         if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
                             // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
                             // Convert [lon,lat] to [lat,lon] for Leaflet
                             const geoJSONCoords = coordData.coordinates[0];
                             const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
+                            console.log('Converted to Leaflet coords:', leafletCoords);
 
                             const polygon = L.polygon(leafletCoords, {
                                 color: '#3388ff',
@@ -1013,16 +1071,27 @@
                                 weight: 2
                             });
                             drawnItems.addLayer(polygon);
+                            console.log('Polygon added to map:', polygon);
 
                             // Fit map to polygon bounds
                             setTimeout(() => {
-                                map.fitBounds(polygon.getBounds());
+                                try {
+                                    map.fitBounds(polygon.getBounds());
+                                    console.log('Map fitted to polygon bounds');
+                                } catch (boundsError) {
+                                    console.warn('Could not fit bounds:', boundsError);
+                                }
                             }, 100);
                             updatePolygonDisplay(coordData, polygonDisplay);
+                        } else {
+                            console.log('No valid coordinates found in data');
                         }
                     } catch (e) {
                         console.warn('Failed to parse existing polygon coordinates:', e);
+                        console.warn('Raw data:', existingCoordinates);
                     }
+                } else {
+                    console.log('No existing polygon data to load');
                 }
 
                 // Event handlers for draw actions
@@ -1233,6 +1302,36 @@
                                     }
                                 });
                                 mapAdd.addControl(drawControl);
+
+                                // Add a test polygon to verify add map is working
+                                console.log('Adding test polygon to add map for verification');
+                                const testAddCoords = [
+                                    [-7.7956, 110.3675],
+                                    [-7.7966, 110.3685],
+                                    [-7.7976, 110.3675],
+                                    [-7.7966, 110.3665]
+                                ];
+
+                                const testAddPolygon = L.polygon(testAddCoords, {
+                                    color: '#ffd93d',
+                                    fillOpacity: 0.1,
+                                    weight: 2,
+                                    dashArray: '5, 5'
+                                });
+                                drawnItems.addLayer(testAddPolygon);
+
+                                // Add a label to indicate this is a test polygon
+                                const testAddLabel = L.marker([-7.7966, 110.3675]).addTo(mapAdd)
+                                    .bindPopup('Test Add Polygon - Map is working!')
+                                    .openPopup();
+
+                                console.log('Test polygon added to add map for verification');
+
+                                // Hide loading indicator for add map
+                                const addLoadingIndicator = el('#loading-map-add');
+                                if (addLoadingIndicator) {
+                                    addLoadingIndicator.style.display = 'none';
+                                }
 
                                 // Event handlers for draw actions
                                 mapAdd.on(L.Draw.Event.CREATED, function (event) {
