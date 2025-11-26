@@ -3,7 +3,9 @@
 namespace App\Exports;
 
 use App\Models\Presensi;
+use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithDrawings;
@@ -91,7 +93,7 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
     {
         $drawings = [];
 
-        // Gunakan parsing bulan yang sama dengan collection()
+        // Parse bulan input
         if (preg_match('/^\d{4}-\d{2}$/', $this->bulan)) {
             list($year, $monthNum) = explode('-', $this->bulan);
         }
@@ -106,41 +108,56 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             $monthNum = date('m', strtotime("$monthName 1"));
         }
 
-        $presensis = Presensi::with(['user.statusKepegawaian'])
-            ->whereHas('user', function ($q) {
-                $q->where('madrasah_id', $this->madrasahId)
-                ->where('role', 'tenaga_pendidik');
-            })
-            ->whereYear('tanggal', $year)
-            ->whereMonth('tanggal', $monthNum)
-            ->orderBy('tanggal', 'desc')
+        // Get all tenaga pendidik for this madrasah
+        $tenagaPendidik = User::where('madrasah_id', $this->madrasahId)
+            ->where('role', 'tenaga_pendidik')
             ->get();
 
-        foreach ($presensis as $index => $presensi) {
-            $row = $index + 2;
+        // Generate all dates in the month
+        $startDate = Carbon::createFromDate($year, $monthNum, 1);
+        $endDate = $startDate->copy()->endOfMonth();
 
-            // FOTO MASUK
-            $fotoMasukPath = public_path('storage/' . $presensi->selfie_masuk_path);
-            if ($presensi->selfie_masuk_path && file_exists($fotoMasukPath)) {
-                $drawing = new Drawing();
-                $drawing->setName('Foto Masuk ' . ($index + 1));
-                $drawing->setDescription('Foto Presensi Masuk');
-                $drawing->setPath($fotoMasukPath);
-                $drawing->setHeight(50);
-                $drawing->setCoordinates('K' . $row);
-                $drawings[] = $drawing;
-            }
+        $dates = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
 
-            // FOTO KELUAR
-            $fotoKeluarPath = public_path('storage/' . $presensi->selfie_keluar_path);
-            if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
-                $drawing = new Drawing();
-                $drawing->setName('Foto Keluar ' . ($index + 1));
-                $drawing->setDescription('Foto Presensi Keluar');
-                $drawing->setPath($fotoKeluarPath);
-                $drawing->setHeight(50);
-                $drawing->setCoordinates('L' . $row);
-                $drawings[] = $drawing;
+        $rowIndex = 2; // Start after headers
+
+        foreach ($dates as $date) {
+            foreach ($tenagaPendidik as $tp) {
+                $presensi = Presensi::where('user_id', $tp->id)
+                    ->whereDate('tanggal', $date)
+                    ->first();
+
+                if ($presensi) {
+                    // FOTO MASUK
+                    $fotoMasukPath = public_path('storage/' . $presensi->selfie_masuk_path);
+                    if ($presensi->selfie_masuk_path && file_exists($fotoMasukPath)) {
+                        $drawing = new Drawing();
+                        $drawing->setName('Foto Masuk ' . $rowIndex);
+                        $drawing->setDescription('Foto Presensi Masuk');
+                        $drawing->setPath($fotoMasukPath);
+                        $drawing->setHeight(50);
+                        $drawing->setCoordinates('K' . $rowIndex);
+                        $drawings[] = $drawing;
+                    }
+
+                    // FOTO KELUAR
+                    $fotoKeluarPath = public_path('storage/' . $presensi->selfie_keluar_path);
+                    if ($presensi->selfie_keluar_path && file_exists($fotoKeluarPath)) {
+                        $drawing = new Drawing();
+                        $drawing->setName('Foto Keluar ' . $rowIndex);
+                        $drawing->setDescription('Foto Presensi Keluar');
+                        $drawing->setPath($fotoKeluarPath);
+                        $drawing->setHeight(50);
+                        $drawing->setCoordinates('L' . $rowIndex);
+                        $drawings[] = $drawing;
+                    }
+                }
+                // If no presensi, no drawings to add
+
+                $rowIndex++;
             }
         }
 
