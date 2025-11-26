@@ -47,10 +47,19 @@
             }
         });
     });
+
 </script>
 
 <!-- Script tambahan yang didorong oleh @push('scripts') -->
 @stack('scripts')
+
+<!-- Leaflet Core -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet Draw -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <!-- Script halaman yang menggunakan @section('script') -->
 @yield('script')   {{-- ← FIX WAJIB AGAR DATATABLES JALAN --}}
