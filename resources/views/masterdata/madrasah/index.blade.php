@@ -744,7 +744,19 @@
             const checklist = el('#polygon2-checklist-' + madrasahId);
 
             if (!mapContainer || !polygonInput || typeof L === 'undefined') {
-                console.error('Dual polygon map container or Leaflet not found');
+                console.error('Dual polygon map container or Leaflet not found for madrasah ID:', madrasahId);
+                return;
+            }
+
+            // Check if dual map is already initialized on this container
+            if (dualPolygonMaps[madrasahId]) {
+                console.warn('Dual map already exists for madrasah ID:', madrasahId, '- skipping initialization');
+                return;
+            }
+
+            // Double-check that the container doesn't already have a map
+            if (mapContainer._leaflet_id) {
+                console.warn('Dual map container already has a map for madrasah ID:', madrasahId, '- skipping initialization');
                 return;
             }
 
@@ -960,6 +972,18 @@
                 return;
             }
 
+            // Check if primary map is already initialized on this container
+            if (polygonMaps[madrasahId]) {
+                console.warn('Primary map already exists for madrasah ID:', madrasahId, '- skipping initialization');
+                return;
+            }
+
+            // Double-check that the container doesn't already have a map
+            if (mapContainer._leaflet_id) {
+                console.warn('Map container already has a map for madrasah ID:', madrasahId, '- skipping initialization');
+                return;
+            }
+
             console.log('Initializing polygon map for madrasah ID:', madrasahId);
 
             // Helper function to update polygon data for primary polygon
@@ -1123,6 +1147,12 @@
                 polygonMaps[madrasahId] = map;
                 polygonEditableLayers[madrasahId] = drawnItems;
 
+                // Hide loading indicator for primary map
+                const primaryLoadingIndicator = el('#loading-map-edit-' + madrasahId);
+                if (primaryLoadingIndicator) {
+                    primaryLoadingIndicator.style.display = 'none';
+                }
+
                 // Apply universal map fix after initialization
                 setTimeout(() => {
                     if (map) forceFixLeafletMap(map);
@@ -1195,8 +1225,10 @@
 
                         // Initialize or refresh map
                         if (!polygonMaps[id]) {
+                            console.log('Initializing new primary map for ID:', id);
                             await initPolygonMap(id);
                         } else {
+                            console.log('Refreshing existing primary map for ID:', id);
                             polygonMaps[id].invalidateSize();
                         }
 
@@ -1223,15 +1255,45 @@
 
                     // Attach hidden handler to destroy maps when modal is closed
                     const onHidden = function() {
+                        console.log('Destroying maps for madrasah ID:', id);
+
+                        // Properly destroy primary map
                         if (polygonMaps[id]) {
-                            polygonMaps[id].remove();
+                            try {
+                                polygonMaps[id].remove();
+                                console.log('Primary map removed for ID:', id);
+                            } catch (e) {
+                                console.warn('Error removing primary map:', e);
+                            }
                             delete polygonMaps[id];
                             delete polygonEditableLayers[id];
                         }
+
+                        // Properly destroy dual map
                         if (dualPolygonMaps[id]) {
-                            dualPolygonMaps[id].remove();
+                            try {
+                                dualPolygonMaps[id].remove();
+                                console.log('Dual map removed for ID:', id);
+                            } catch (e) {
+                                console.warn('Error removing dual map:', e);
+                            }
                             delete dualPolygonMaps[id];
                             delete dualPolygonEditableLayers[id];
+                        }
+
+                        // Clear any remaining references
+                        const mapContainer = document.getElementById('map-edit-' + id);
+                        if (mapContainer) {
+                            // Remove any leftover Leaflet elements
+                            const leafletElements = mapContainer.querySelectorAll('.leaflet-container, .leaflet-control-container, .leaflet-pane, .leaflet-tile-pane');
+                            leafletElements.forEach(el => el.remove());
+                        }
+
+                        const dualMapContainer = document.getElementById('map2-edit-' + id);
+                        if (dualMapContainer) {
+                            // Remove any leftover Leaflet elements
+                            const leafletElements = dualMapContainer.querySelectorAll('.leaflet-container, .leaflet-control-container, .leaflet-pane, .leaflet-tile-pane');
+                            leafletElements.forEach(el => el.remove());
                         }
                     };
 
@@ -1266,6 +1328,13 @@
                     setTimeout(async () => {
                         await waitForLeaflet();
                         if (!mapAdd && typeof L !== 'undefined') {
+                            console.log('Initializing add map');
+                            // Double-check that the container doesn't already have a map
+                            const addContainer = document.getElementById('map-add');
+                            if (addContainer && addContainer._leaflet_id) {
+                                console.warn('Add map container already has a map - skipping initialization');
+                                return;
+                            }
                             try {
                                 mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
                                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
@@ -1377,9 +1446,22 @@
 
                 // Destroy add map when modal is hidden
                 modalTambah.addEventListener('hidden.bs.modal', function() {
+                    console.log('Destroying add map');
                     if (mapAdd) {
-                        mapAdd.remove();
+                        try {
+                            mapAdd.remove();
+                            console.log('Add map removed');
+                        } catch (e) {
+                            console.warn('Error removing add map:', e);
+                        }
                         mapAdd = null;
+                    }
+
+                    // Clear any remaining Leaflet elements from add map container
+                    const addMapContainer = document.getElementById('map-add');
+                    if (addMapContainer) {
+                        const leafletElements = addMapContainer.querySelectorAll('.leaflet-container, .leaflet-control-container, .leaflet-pane, .leaflet-tile-pane');
+                        leafletElements.forEach(el => el.remove());
                     }
                 }, { once: false });
             }
@@ -1472,5 +1554,3 @@
         })();
     </script>
 @endsection
-
-{{-- reference image (screenshot): /mnt/data/Screen Shot 2025-11-19 at 14.30.57.png --}}
