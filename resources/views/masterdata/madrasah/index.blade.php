@@ -1304,6 +1304,8 @@
 
                         // Manually remove modal-open class and backdrop to prevent lingering
                         document.body.classList.remove("modal-open");
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
                         $(".modal-backdrop").remove();
                     };
 
