@@ -4,6 +4,8 @@ namespace App\Exports;
 
 use App\Models\Presensi;
 use App\Models\User;
+use App\Models\Madrasah;
+use App\Models\Holiday;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -138,18 +140,37 @@ class PresensiPerBulanExport implements FromCollection, WithHeadings, WithDrawin
             $monthNum = date('m', strtotime("$monthName 1"));
         }
 
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($this->madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : '5'; // Default to 5 if not set
+
         // Get all tenaga pendidik for this madrasah
         $tenagaPendidik = User::where('madrasah_id', $this->madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->get();
 
-        // Generate all dates in the month
+        // Generate working dates in the month (based on hari_kbm, exclude holidays)
         $startDate = Carbon::createFromDate($year, $monthNum, 1);
         $endDate = $startDate->copy()->endOfMonth();
 
         $dates = [];
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $dates[] = $date->format('Y-m-d');
+            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+            // Check if it's a working day based on hari_kbm
+            $isWorkingDay = false;
+            if ($hariKbm == '5') {
+                // Monday to Friday (1-5)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+            } elseif ($hariKbm == '6') {
+                // Monday to Saturday (1-6)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+            }
+
+            // Exclude holidays
+            if ($isWorkingDay && !Holiday::isHoliday($date->format('Y-m-d'))) {
+                $dates[] = $date->format('Y-m-d');
+            }
         }
 
         $rowIndex = 2; // Start after headers

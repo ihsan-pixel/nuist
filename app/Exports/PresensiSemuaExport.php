@@ -41,14 +41,18 @@ class PresensiSemuaExport implements FromCollection, WithHeadings, WithDrawings
     {
         $data = collect();
 
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($this->madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : '5'; // Default to 5 if not set
+
         // Get all tenaga pendidik for this madrasah
         $tenagaPendidik = User::with('statusKepegawaian')
             ->where('madrasah_id', $this->madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->get();
 
-        // Get all unique dates that have presensi for this madrasah
-        $dates = Presensi::whereHas('user', function ($q) {
+        // Get all unique dates that have presensi for this madrasah, filtered by working days and excluding holidays
+        $rawDates = Presensi::whereHas('user', function ($q) {
                 $q->where('madrasah_id', $this->madrasahId)
                   ->where('role', 'tenaga_pendidik');
             })
@@ -56,6 +60,28 @@ class PresensiSemuaExport implements FromCollection, WithHeadings, WithDrawings
             ->distinct()
             ->orderBy('date', 'desc')
             ->pluck('date');
+
+        // Filter dates to only working days based on hari_kbm and exclude holidays
+        $dates = [];
+        foreach ($rawDates as $date) {
+            $carbonDate = Carbon::parse($date);
+            $dayOfWeek = $carbonDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+            // Check if it's a working day based on hari_kbm
+            $isWorkingDay = false;
+            if ($hariKbm == '5') {
+                // Monday to Friday (1-5)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+            } elseif ($hariKbm == '6') {
+                // Monday to Saturday (1-6)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+            }
+
+            // Exclude holidays
+            if ($isWorkingDay && !Holiday::isHoliday($date)) {
+                $dates[] = $date;
+            }
+        }
 
         foreach ($dates as $date) {
             foreach ($tenagaPendidik as $tp) {
@@ -106,13 +132,17 @@ class PresensiSemuaExport implements FromCollection, WithHeadings, WithDrawings
     {
         $drawings = [];
 
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($this->madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : '5'; // Default to 5 if not set
+
         // Get all tenaga pendidik for this madrasah
         $tenagaPendidik = User::where('madrasah_id', $this->madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->get();
 
-        // Get all unique dates that have presensi for this madrasah
-        $dates = Presensi::whereHas('user', function ($q) {
+        // Get all unique dates that have presensi for this madrasah, filtered by working days and excluding holidays
+        $rawDates = Presensi::whereHas('user', function ($q) {
                 $q->where('madrasah_id', $this->madrasahId)
                   ->where('role', 'tenaga_pendidik');
             })
@@ -120,6 +150,28 @@ class PresensiSemuaExport implements FromCollection, WithHeadings, WithDrawings
             ->distinct()
             ->orderBy('date', 'desc')
             ->pluck('date');
+
+        // Filter dates to only working days based on hari_kbm and exclude holidays
+        $dates = [];
+        foreach ($rawDates as $date) {
+            $carbonDate = Carbon::parse($date);
+            $dayOfWeek = $carbonDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+            // Check if it's a working day based on hari_kbm
+            $isWorkingDay = false;
+            if ($hariKbm == '5') {
+                // Monday to Friday (1-5)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+            } elseif ($hariKbm == '6') {
+                // Monday to Saturday (1-6)
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+            }
+
+            // Exclude holidays
+            if ($isWorkingDay && !Holiday::isHoliday($date)) {
+                $dates[] = $date;
+            }
+        }
 
         $rowIndex = 2; // Start after headers
 
