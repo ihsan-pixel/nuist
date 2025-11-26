@@ -1,4 +1,5 @@
-@extends('layouts.master')
+
+git c@extends('layouts.master')
 
 @section('title')
     Madrasah/Sekolah
@@ -137,10 +138,13 @@
 
         #map-add,
         [id^="map-edit-"] {
-            height: 100% !important;
+            height: 300px !important;
             width: 100% !important;
             border-radius: 0.5rem;
             position: relative !important;
+            min-height: 300px !important;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .leaflet-container {
@@ -149,8 +153,12 @@
         }
 
         .modal .leaflet-container {
-            z-index: 999 !important;
+            z-index: 1051 !important;
             border-radius: 0.5rem;
+        }
+
+        .modal-backdrop {
+            z-index: 1040 !important;
         }
 
         /* Toolbar styling */
@@ -605,17 +613,8 @@
     <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
     {{-- Leaflet scripts for polygon editing --}}
-    {{-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /> --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-
-    <!-- LEAFLET -->
-    {{-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> --}}
-
-    <!-- LEAFLET DRAW (CSS + ICON FIXED) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    {{-- <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script> --}}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq65x0Vw2rFeEbSpgDJUb+xBzvfqn6U9G3fjEWr0y+qdcWVgJRapgKoEHLmZKLEd5X6lxCOJLQKFkRDuM+C8A==" crossorigin=""></script>
 
     <script>
         // Flag to indicate Leaflet is loaded
@@ -625,8 +624,7 @@
     <script>
     (function(){
         // ---------------------- Helper utilities ----------------------
-        const el = (selector, ctx = document) => ctx.querySelector(selector);
-        const els = (selector, ctx = document) => Array.from(ctx.querySelectorAll(selector));
+        const el = (selector, ctx = document) => ctx.querySelector(selector);        const els = (selector, ctx = document) => Array.from(ctx.querySelectorAll(selector));
 
         // ---------------------- Logo preview (add) ----------------------
         const logoInput = el('#logoInput');
@@ -901,9 +899,14 @@
             const polygonDisplay = el('#polygon-display-' + madrasahId);
 
             if (!mapContainer || !polygonInput || typeof L === 'undefined') {
-                console.error('Map container or Leaflet not found');
+                console.error('Map container or Leaflet not found for madrasah ID:', madrasahId);
+                console.error('Map container:', mapContainer);
+                console.error('Polygon input:', polygonInput);
+                console.error('Leaflet available:', typeof L !== 'undefined');
                 return;
             }
+
+            console.log('Initializing polygon map for madrasah ID:', madrasahId);
 
             // Helper function to update polygon data for primary polygon
             function updatePolygonData(polygonInput, polygonDisplay) {
@@ -1112,8 +1115,15 @@
 
                     // Attach shown handler before showing modal. Use { once: true } so it auto-removes.
                     const onShown = async function() {
-                        // small delay to ensure DOM inside modal is painted
-                        await new Promise(resolve => setTimeout(resolve, 300));
+                        // Longer delay to ensure DOM inside modal is fully painted and stable
+                        await new Promise(resolve => setTimeout(resolve, 500));
+
+                        // Check if map container exists before initializing
+                        const mapContainer = document.getElementById('map-edit-' + id);
+                        if (!mapContainer) {
+                            console.error('Map container not found for madrasah ID:', id);
+                            return;
+                        }
 
                         // Initialize or refresh map
                         if (!polygonMaps[id]) {
@@ -1132,13 +1142,15 @@
                             }
                         }
 
-                        // Ensure map is visible
-                        const mapContainer = document.getElementById('map-edit-' + id);
-                        if (mapContainer && polygonMaps[id]) {
-                            setTimeout(() => {
+                        // Additional invalidate after everything is set up
+                        setTimeout(() => {
+                            if (polygonMaps[id]) {
                                 polygonMaps[id].invalidateSize();
-                            }, 100);
-                        }
+                            }
+                            if (dualPolygonMaps[id]) {
+                                dualPolygonMaps[id].invalidateSize();
+                            }
+                        }, 200);
                     };
 
                     // Attach hidden handler to destroy maps when modal is closed
