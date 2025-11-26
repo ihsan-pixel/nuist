@@ -1,12 +1,15 @@
-# TODO: Add Facility Gallery Feature
+# Bootstrap Modal Backdrop Fix - Madrasah Index
 
-## Tasks
-- [x] Update AdminLPController to handle facility photo uploads
-- [x] Modify lp-edit.blade.php to include photo inputs for facilities
-- [x] Update sekolah.blade.php to display facility gallery section
-- [ ] Test the functionality
+## Completed Tasks
+- [x] Remove the duplicate shown.bs.modal listener (the commented one for aria-hidden) in edit modal
+- [x] In the onHidden function for edit modal, add manual removal of modal-open class and modal-backdrop elements
+- [x] Remove the manual removal of Leaflet elements in onHidden for edit modal, as map.remove() should suffice
+- [x] Apply similar fixes to the add modal (remove manual Leaflet element removal and add modal backdrop cleanup)
 
-## Details
-- Add 'foto' field to facility JSON structure
-- Store facility photos in images/madrasah/galeri/
-- Display facility photos with facility names as captions
+## Summary
+Fixed Bootstrap modal backdrop lingering issue by:
+1. Removing duplicate event listeners that could cause conflicts
+2. Adding proper cleanup of modal-open class and backdrop elements in hidden handlers
+3. Relying on map.remove() for Leaflet cleanup instead of manual DOM manipulation
+
+The modal should now close properly without leaving backdrop or modal-open class behind.

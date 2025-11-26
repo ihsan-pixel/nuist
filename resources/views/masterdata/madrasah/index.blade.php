@@ -1302,33 +1302,13 @@
                             delete dualPolygonEditableLayers[id];
                         }
 
-                        // Clear any remaining references
-                        const mapContainer = document.getElementById('map-edit-' + id);
-                        if (mapContainer) {
-                            // Remove any leftover Leaflet elements
-                            const leafletElements = mapContainer.querySelectorAll('.leaflet-container, .leaflet-control-container, .leaflet-pane, .leaflet-tile-pane');
-                            leafletElements.forEach(el => el.remove());
-                        }
-
-                        const dualMapContainer = document.getElementById('map2-edit-' + id);
-                        if (dualMapContainer) {
-                            // Remove any leftover Leaflet elements
-                            const leafletElements = dualMapContainer.querySelectorAll('.leaflet-container, .leaflet-control-container, .leaflet-pane, .leaflet-tile-pane');
-                            leafletElements.forEach(el => el.remove());
-                        }
+                        // Manually remove modal-open class and backdrop to prevent lingering
+                        document.body.classList.remove("modal-open");
+                        $(".modal-backdrop").remove();
                     };
 
                     modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
                     modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
-                    modalEl.addEventListener('shown.bs.modal', function() {
-                        // Fix accessibility issue: remove aria-hidden when modal is shown
-                        modalEl.removeAttribute('aria-hidden');
-                        // Focus trap for accessibility
-                        const focusableElements = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                        if (focusableElements.length > 0) {
-                            focusableElements[0].focus();
-                        }
-                    }, { once: true });
                     bsModal.show();
                 } catch (e) {
                     console.warn('Bootstrap modal not available or failed to show', e);
@@ -1473,8 +1453,8 @@
                     }, 200);
                 }, { once: false });
 
-                // Destroy add map when modal is hidden
-                modalTambah.addEventListener('hidden.bs.modal', function() {
+                // Destroy add map when modal is about to hide
+                modalTambah.addEventListener('hide.bs.modal', function() {
                     console.log('Destroying add map');
                     if (mapAdd) {
                         try {
