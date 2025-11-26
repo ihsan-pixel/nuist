@@ -27,7 +27,6 @@
             <th>Keluar</th>
             <th>Foto Keluar</th>
             <th>Keterangan</th>
-            <th>Lokasi</th>
         </tr>
     </thead>
 
@@ -79,7 +78,7 @@
                 @endif
             </td>
             <td>{{ $item['presensi'] ? $item['presensi']->keterangan : '-' }}</td>
-            <td>{{ $item['presensi'] ? $item['presensi']->lokasi : '-' }}</td>
+            {{-- <td>{{ $item['presensi'] ? $item['presensi']->lokasi : '-' }}</td> --}}
         </tr>
         @endforeach
     </tbody>
