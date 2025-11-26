@@ -1141,7 +1141,22 @@
                         }
                     };
 
+                    // Attach hidden handler to destroy maps when modal is closed
+                    const onHidden = function() {
+                        if (polygonMaps[id]) {
+                            polygonMaps[id].remove();
+                            delete polygonMaps[id];
+                            delete polygonEditableLayers[id];
+                        }
+                        if (dualPolygonMaps[id]) {
+                            dualPolygonMaps[id].remove();
+                            delete dualPolygonMaps[id];
+                            delete dualPolygonEditableLayers[id];
+                        }
+                    };
+
                     modalEl.addEventListener('shown.bs.modal', onShown, { once: true });
+                    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
                     modalEl.addEventListener('shown.bs.modal', function() {
                         // Fix accessibility issue: remove aria-hidden when modal is shown
                         modalEl.removeAttribute('aria-hidden');
@@ -1174,12 +1189,88 @@
                             try {
                                 mapAdd = L.map('map-add').setView([-7.7956, 110.3695], 12);
                                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapAdd);
+
+                                // Initialize FeatureGroup to store editable layers
+                                const drawnItems = new L.FeatureGroup();
+                                mapAdd.addLayer(drawnItems);
+
+                                // Initialize the draw control and pass it the FeatureGroup of editable layers
+                                const drawControl = new L.Control.Draw({
+                                    edit: {
+                                        featureGroup: drawnItems,
+                                        remove: true
+                                    },
+                                    draw: {
+                                        polygon: {
+                                            allowIntersection: false,
+                                            showArea: true,
+                                            drawError: {
+                                                color: '#e1e100',
+                                                message: '<strong>Error:</strong> Shape edges cannot cross!'
+                                            },
+                                            shapeOptions: {
+                                                color: '#3388ff',
+                                                fillOpacity: 0.2,
+                                                weight: 2
+                                            }
+                                        },
+                                        polyline: false,
+                                        rectangle: false,
+                                        circle: false,
+                                        marker: false,
+                                        circlemarker: false
+                                    }
+                                });
+                                mapAdd.addControl(drawControl);
+
+                                // Event handlers for draw actions
+                                mapAdd.on(L.Draw.Event.CREATED, function (event) {
+                                    const layer = event.layer;
+                                    // Clear existing layers to ensure only one polygon at a time
+                                    drawnItems.clearLayers();
+                                    drawnItems.addLayer(layer);
+                                    updateAddPolygonData();
+                                });
+
+                                mapAdd.on(L.Draw.Event.EDITED, function (event) {
+                                    updateAddPolygonData();
+                                });
+
+                                mapAdd.on(L.Draw.Event.DELETED, function (event) {
+                                    updateAddPolygonData();
+                                });
+
+                                // Function to update polygon data for add modal
+                                function updateAddPolygonData() {
+                                    const layers = drawnItems.getLayers();
+                                    if (layers.length > 0 && layers[0] instanceof L.Polygon) {
+                                        const polygon = layers[0];
+                                        // Leaflet uses [lat,lng], convert to GeoJSON format [lon,lat]
+                                        const coordinates = polygon.getLatLngs()[0].map(latlng => [latlng.lng, latlng.lat]);
+                                        const geoJSON = {
+                                            type: 'Polygon',
+                                            coordinates: [coordinates]
+                                        };
+                                        document.getElementById('polygon_koordinat_add').value = JSON.stringify(geoJSON);
+                                    } else {
+                                        document.getElementById('polygon_koordinat_add').value = '[]';
+                                    }
+                                }
+
                             } catch (e) {
                                 console.error('Failed to init add-map', e);
                             }
                         }
                         if (mapAdd) forceFixLeafletMap(mapAdd);
                     }, 200);
+                }, { once: false });
+
+                // Destroy add map when modal is hidden
+                modalTambah.addEventListener('hidden.bs.modal', function() {
+                    if (mapAdd) {
+                        mapAdd.remove();
+                        mapAdd = null;
+                    }
                 }, { once: false });
             }
 
