@@ -615,7 +615,7 @@
 
     <!-- LEAFLET DRAW (CSS + ICON FIXED) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script> --}}
 
     <script>
         // Flag to indicate Leaflet is loaded
