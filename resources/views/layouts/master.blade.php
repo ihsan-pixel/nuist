@@ -21,7 +21,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.head-css')
-    @yield('css')
+    {{-- @yield('css') --}}
 </head>
 
 <body data-topbar="light" data-layout-mode="light">
