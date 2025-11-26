@@ -779,7 +779,9 @@
                 map.addLayer(drawnItems);
 
                 // Initialize the draw control and pass it the FeatureGroup of editable layers
+                console.log('Adding draw control to dual map for madrasah ID:', madrasahId);
                 const drawControl = new L.Control.Draw({
+                    position: 'topleft',
                     edit: {
                         featureGroup: drawnItems,
                         remove: true
@@ -805,21 +807,27 @@
                         circlemarker: false
                     }
                 });
-                map.addControl(drawControl);
+
+                try {
+                    map.addControl(drawControl);
+                    console.log('Draw control added successfully to dual map for madrasah ID:', madrasahId);
+                } catch (drawError) {
+                    console.error('Failed to add draw control to dual map:', drawError);
+                }
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
-                console.log('Loading existing dual polygon data:', existingCoordinates);
-                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
+                console.log('Loading existing dual polygon data for madrasah ID:', madrasahId, 'Data:', existingCoordinates);
+                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '' && existingCoordinates !== 'null') {
                     try {
                         const coordData = JSON.parse(existingCoordinates);
-                        console.log('Parsed dual coordinate data:', coordData);
-                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
+                        console.log('Parsed dual coordinate data for madrasah ID:', madrasahId, coordData);
+                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0 && coordData.coordinates[0].length > 0) {
                             // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
                             // Convert [lon,lat] to [lat,lon] for Leaflet
                             const geoJSONCoords = coordData.coordinates[0];
                             const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
-                            console.log('Converted dual polygon to Leaflet coords:', leafletCoords);
+                            console.log('Converted dual polygon to Leaflet coords for madrasah ID:', madrasahId, leafletCoords);
 
                             const polygon = L.polygon(leafletCoords, {
                                 color: '#28a745',
@@ -827,29 +835,30 @@
                                 weight: 2
                             });
                             drawnItems.addLayer(polygon);
-                            console.log('Dual polygon added to map:', polygon);
+                            console.log('Dual polygon added to map for madrasah ID:', madrasahId, polygon);
 
                             // Fit map to polygon bounds
                             setTimeout(() => {
                                 try {
                                     map.fitBounds(polygon.getBounds());
-                                    console.log('Dual map fitted to polygon bounds');
+                                    console.log('Dual map fitted to polygon bounds for madrasah ID:', madrasahId);
                                 } catch (boundsError) {
-                                    console.warn('Could not fit dual polygon bounds:', boundsError);
+                                    console.warn('Could not fit dual polygon bounds for madrasah ID:', madrasahId, boundsError);
                                 }
                             }, 100);
                             updatePolygonDisplay(coordData, polygonDisplay, checklist);
+                            console.log('Dual polygon display updated for madrasah ID:', madrasahId);
                         } else {
-                            console.log('No valid coordinates found in dual polygon data');
+                            console.log('No valid coordinates found in dual polygon data for madrasah ID:', madrasahId);
                         }
                     } catch (e) {
-                        console.warn('Failed to parse existing dual polygon coordinates:', e);
-                        console.warn('Raw dual polygon data:', existingCoordinates);
+                        console.warn('Failed to parse existing dual polygon coordinates for madrasah ID:', madrasahId, e);
+                        console.warn('Raw dual polygon data for madrasah ID:', madrasahId, existingCoordinates);
                     }
                 } else {
-                    console.log('No existing dual polygon data to load');
+                    console.log('No existing dual polygon data to load for madrasah ID:', madrasahId);
                     // Add a test polygon to verify dual map is working
-                    console.log('Adding test dual polygon to verify map functionality');
+                    console.log('Adding test dual polygon to verify map functionality for madrasah ID:', madrasahId);
                     const testDualCoords = [
                         [-7.7956, 110.3715],
                         [-7.7966, 110.3725],
@@ -870,7 +879,7 @@
                         .bindPopup('Test Dual Polygon - Map is working!')
                         .openPopup();
 
-                    console.log('Test dual polygon added for verification');
+                    console.log('Test dual polygon added for verification for madrasah ID:', madrasahId);
                 }
 
                 // Hide loading indicator for dual map
@@ -1026,7 +1035,9 @@
                 map.addLayer(drawnItems);
 
                 // Initialize the draw control and pass it the FeatureGroup of editable layers
+                console.log('Adding draw control to primary map for madrasah ID:', madrasahId);
                 const drawControl = new L.Control.Draw({
+                    position: 'topleft',
                     edit: {
                         featureGroup: drawnItems,
                         remove: true
@@ -1052,7 +1063,13 @@
                         circlemarker: false
                     }
                 });
-                map.addControl(drawControl);
+
+                try {
+                    map.addControl(drawControl);
+                    console.log('Draw control added successfully to primary map for madrasah ID:', madrasahId);
+                } catch (drawError) {
+                    console.error('Failed to add draw control to primary map:', drawError);
+                }
 
                 // Helper function to update polygon data for primary polygon
                 function updatePolygonData(polygonInput, polygonDisplay) {
@@ -1077,17 +1094,17 @@
 
                 // Load existing polygon from database if available
                 const existingCoordinates = polygonInput.value;
-                console.log('Loading existing polygon data:', existingCoordinates);
-                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '') {
+                console.log('Loading existing polygon data for madrasah ID:', madrasahId, 'Data:', existingCoordinates);
+                if (existingCoordinates && existingCoordinates !== '[]' && existingCoordinates !== '' && existingCoordinates !== 'null') {
                     try {
                         const coordData = JSON.parse(existingCoordinates);
-                        console.log('Parsed coordinate data:', coordData);
-                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0) {
+                        console.log('Parsed coordinate data for madrasah ID:', madrasahId, coordData);
+                        if (coordData && coordData.coordinates && coordData.coordinates.length > 0 && coordData.coordinates[0].length > 0) {
                             // GeoJSON format: { type: "Polygon", coordinates: [[[lon,lat], [lon,lat], ...]] }
                             // Convert [lon,lat] to [lat,lon] for Leaflet
                             const geoJSONCoords = coordData.coordinates[0];
                             const leafletCoords = geoJSONCoords.map(coord => [coord[1], coord[0]]);
-                            console.log('Converted to Leaflet coords:', leafletCoords);
+                            console.log('Converted to Leaflet coords for madrasah ID:', madrasahId, leafletCoords);
 
                             const polygon = L.polygon(leafletCoords, {
                                 color: '#3388ff',
@@ -1095,27 +1112,28 @@
                                 weight: 2
                             });
                             drawnItems.addLayer(polygon);
-                            console.log('Polygon added to map:', polygon);
+                            console.log('Polygon added to map for madrasah ID:', madrasahId, polygon);
 
                             // Fit map to polygon bounds
                             setTimeout(() => {
                                 try {
                                     map.fitBounds(polygon.getBounds());
-                                    console.log('Map fitted to polygon bounds');
+                                    console.log('Map fitted to polygon bounds for madrasah ID:', madrasahId);
                                 } catch (boundsError) {
-                                    console.warn('Could not fit bounds:', boundsError);
+                                    console.warn('Could not fit bounds for madrasah ID:', madrasahId, boundsError);
                                 }
                             }, 100);
                             updatePolygonDisplay(coordData, polygonDisplay);
+                            console.log('Polygon display updated for madrasah ID:', madrasahId);
                         } else {
-                            console.log('No valid coordinates found in data');
+                            console.log('No valid coordinates found in data for madrasah ID:', madrasahId);
                         }
                     } catch (e) {
-                        console.warn('Failed to parse existing polygon coordinates:', e);
-                        console.warn('Raw data:', existingCoordinates);
+                        console.warn('Failed to parse existing polygon coordinates for madrasah ID:', madrasahId, e);
+                        console.warn('Raw data for madrasah ID:', madrasahId, existingCoordinates);
                     }
                 } else {
-                    console.log('No existing polygon data to load');
+                    console.log('No existing polygon data to load for madrasah ID:', madrasahId);
                 }
 
                 // Event handlers for draw actions
@@ -1344,7 +1362,9 @@
                                 mapAdd.addLayer(drawnItems);
 
                                 // Initialize the draw control and pass it the FeatureGroup of editable layers
+                                console.log('Adding draw control to add map');
                                 const drawControl = new L.Control.Draw({
+                                    position: 'topleft',
                                     edit: {
                                         featureGroup: drawnItems,
                                         remove: true
@@ -1370,7 +1390,13 @@
                                         circlemarker: false
                                     }
                                 });
-                                mapAdd.addControl(drawControl);
+
+                                try {
+                                    mapAdd.addControl(drawControl);
+                                    console.log('Draw control added successfully to add map');
+                                } catch (drawError) {
+                                    console.error('Failed to add draw control to add map:', drawError);
+                                }
 
                                 // Add a test polygon to verify add map is working
                                 console.log('Adding test polygon to add map for verification');
