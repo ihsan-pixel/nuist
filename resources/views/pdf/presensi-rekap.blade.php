@@ -16,30 +16,39 @@
     <thead>
         <tr>
             <th>Tanggal</th>
+            <th>Hari</th>
             <th>Nama Guru</th>
+            <th>Status Kepegawaian</th>
+            <th>NIP</th>
+            <th>NUPTK</th>
+            <th>Status Presensi</th>
             <th>Masuk</th>
             <th>Foto Masuk</th>
             <th>Keluar</th>
             <th>Foto Keluar</th>
             <th>Keterangan</th>
+            <th>Lokasi</th>
         </tr>
     </thead>
 
     <tbody>
-        @foreach ($presensis as $p)
+        @foreach ($data as $item)
         <tr>
-            <td>{{ $p->tanggal }}</td>
-            <td>{{ $p->user->name }}</td>
-
-            <td>{{ $p->waktu_masuk }}</td>
+            <td>{{ $item['tanggal'] }}</td>
+            <td>{{ $item['hari'] }}</td>
+            <td>{{ $item['user']->name }}</td>
+            <td>{{ $item['user']->statusKepegawaian->name ?? '-' }}</td>
+            <td>{{ $item['user']->nip }}</td>
+            <td>{{ $item['user']->nuptk }}</td>
+            <td>{{ $item['status'] }}</td>
+            <td>{{ $item['presensi'] ? $item['presensi']->waktu_masuk : '-' }}</td>
             <td>
                @php
                     $fotoMasuk = null;
 
-                    if (!empty($p->selfie_masuk_path)) {
-
+                    if ($item['presensi'] && !empty($item['presensi']->selfie_masuk_path)) {
                         // Path sesuai screenshot Boss
-                        $pathMasuk = base_path('../public_html/storage/' . $p->selfie_masuk_path);
+                        $pathMasuk = base_path('../public_html/storage/' . $item['presensi']->selfie_masuk_path);
 
                         if (is_file($pathMasuk)) {
                             $fotoMasuk = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathMasuk));
@@ -50,16 +59,14 @@
                 @if($fotoMasuk)
                     <img src="{{ $fotoMasuk }}" width="120">
                 @endif
-
             </td>
-            <td>{{ $p->waktu_keluar }}</td>
+            <td>{{ $item['presensi'] ? $item['presensi']->waktu_keluar : '-' }}</td>
             <td>
                 @php
                     $fotoKeluar = null;
 
-                    if (!empty($p->selfie_keluar_path)) {
-
-                        $pathKeluar = base_path('../public_html/storage/' . $p->selfie_keluar_path);
+                    if ($item['presensi'] && !empty($item['presensi']->selfie_keluar_path)) {
+                        $pathKeluar = base_path('../public_html/storage/' . $item['presensi']->selfie_keluar_path);
 
                         if (is_file($pathKeluar)) {
                             $fotoKeluar = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($pathKeluar));
@@ -71,8 +78,8 @@
                     <img src="{{ $fotoKeluar }}" width="120">
                 @endif
             </td>
-
-            <td>{{ $p->keterangan }}</td>
+            <td>{{ $item['presensi'] ? $item['presensi']->keterangan : '-' }}</td>
+            <td>{{ $item['presensi'] ? $item['presensi']->lokasi : '-' }}</td>
         </tr>
         @endforeach
     </tbody>
