@@ -1260,16 +1260,19 @@
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTable - sama seperti pengurus index
-    let table = $("#attendance-datatable").DataTable({
-        responsive: true,
-        lengthChange: true,
-        autoWidth: false,
-        buttons: ["copy", "excel", "pdf", "print", "colvis"]
-    });
+    // Check if DataTable is already initialized to prevent reinitialization error
+    if (!$.fn.DataTable.isDataTable('#attendance-datatable')) {
+        // Initialize DataTable - sama seperti pengurus index
+        let table = $("#attendance-datatable").DataTable({
+            responsive: true,
+            lengthChange: true,
+            autoWidth: false,
+            buttons: ["copy", "excel", "pdf", "print", "colvis"]
+        });
 
-    table.buttons().container()
-        .appendTo('#attendance-datatable_wrapper .col-md-6:eq(0)');
+        table.buttons().container()
+            .appendTo('#attendance-datatable_wrapper .col-md-6:eq(0)');
+    }
 });
 </script>
 
