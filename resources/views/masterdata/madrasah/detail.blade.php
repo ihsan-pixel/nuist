@@ -186,7 +186,7 @@
 <!-- Modal for Editing Tenaga Pendidik -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <form action="{{ route('tenaga-pendidik.update', '') }}" method="POST" enctype="multipart/form-data" id="editForm">
+        <form action="{{ route('tenaga-pendidik.update', ':id') }}" method="POST" enctype="multipart/form-data" id="editForm">
             @csrf
             @method('PUT')
             <div class="modal-content">
