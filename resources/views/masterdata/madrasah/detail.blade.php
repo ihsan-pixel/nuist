@@ -235,7 +235,12 @@
 
                     <div class="col-md-6">
                         <label>Password (Kosongkan jika tidak diubah)</label>
-                        <input type="password" name="password" class="form-control" id="edit-password">
+                        <div class="input-group">
+                            <input type="password" name="password" class="form-control" id="edit-password">
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                <i class="bx bx-show"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
