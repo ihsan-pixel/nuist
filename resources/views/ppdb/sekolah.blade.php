@@ -181,6 +181,45 @@
         transform: scale(1.05);
     }
 
+    .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .facility-gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .facility-gallery-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .facility-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 75, 76, 0.9));
+        padding: 20px 15px 15px;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .facility-gallery-item:hover .facility-overlay {
+        transform: translateY(0);
+    }
+
     .advantage-icon {
         width: 60px;
         height: 60px;
@@ -658,6 +697,12 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="#sejarah">
+                        Sejarah
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="#kontak">
                         Kontak
                     </a>
@@ -719,6 +764,18 @@
                         <i class="fas fa-info-circle me-1"></i>About
                     </a>
                 </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#galeri" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-images me-1"></i>Galeri
+                    </a>
+                </li>
+
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#brosur" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-download me-1"></i>Brosur
+                    </a>
+                </li>
+
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="#kontak" onclick="closeMobileMenuSchool()">
                         <i class="fas fa-phone me-1"></i>Kontak
@@ -1189,12 +1246,14 @@
 </section>
 
 <!-- Sejarah Sekolah -->
-@if($madrasah->sejarah || $madrasah->tahun_berdiri)
-<section class="section-padding bg-light">
+@if($madrasah->sejarah || $madrasah->tahun_berdiri || $madrasah->akreditasi || $madrasah->nilai_nilai)
+<section id="sejarah" class="section-padding bg-light">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="section-title">Sejarah Sekolah</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-history text-primary me-3"></i>Sejarah Sekolah
+                </h2>
             </div>
         </div>
         <div class="row">
@@ -1426,49 +1485,178 @@
 </section>
 @endif
 
-<!-- Video Profile & Galeri -->
-@if($madrasah->video_profile || $madrasah->galeri_foto)
-<section class="section-padding bg-light">
+<!-- Galeri & Media Sekolah -->
+@php
+    $hasGallery = false;
+    $galeriFotoData = $madrasah->galeri_foto;
+    if (is_string($galeriFotoData)) {
+        $galeriFotoData = json_decode($galeriFotoData, true) ?? [];
+    } elseif (!is_array($galeriFotoData)) {
+        $galeriFotoData = [];
+    }
+    if ($galeriFotoData && count($galeriFotoData) > 0) {
+        $hasGallery = true;
+    }
+
+    $fasilitasData = $madrasah->fasilitas;
+    if (is_string($fasilitasData)) {
+        $fasilitasData = json_decode($fasilitasData, true) ?? [];
+    } elseif (!is_array($fasilitasData)) {
+        $fasilitasData = [];
+    }
+    $facilityPhotos = [];
+    if ($fasilitasData && count($fasilitasData) > 0) {
+        foreach ($fasilitasData as $fasilitas) {
+            if (isset($fasilitas['image']) && $fasilitas['image']) {
+                $facilityPhotos[] = $fasilitas;
+                $hasGallery = true;
+            }
+        }
+    }
+
+    $hasVideo = false;
+    $videoUrl = '';
+    if ($madrasah->video_profile) {
+        $videoUrl = $madrasah->video_profile;
+        // Check if it's a YouTube URL and convert to embed format
+        if (strpos($videoUrl, 'youtube.com') !== false || strpos($videoUrl, 'youtu.be') !== false) {
+            if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $matches)) {
+                $videoUrl = 'https://www.youtube.com/embed/' . $matches[1];
+            }
+        }
+        $hasVideo = true;
+        $hasGallery = true;
+    }
+@endphp
+
+@if($hasGallery)
+<section id="galeri" class="section-padding bg-light">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="section-title">Galeri & Media Sekolah</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-images text-primary me-3"></i>Galeri & Media Sekolah
+                </h2>
             </div>
         </div>
-        <div class="row">
-            @if($madrasah->video_profile)
-            <div class="col-lg-6 mb-4">
+
+        <!-- Video Section -->
+        @if($hasVideo)
+        <div class="row mb-5">
+            <div class="col-lg-8">
                 <div class="card-custom p-4">
-                    <h5 class="text-primary mb-3">Video Profile Sekolah</h5>
+                    <h4 class="text-primary mb-4 text-center">
+                        <i class="fas fa-play-circle me-2"></i>Video Profile Sekolah
+                    </h4>
                     <div class="video-container">
-                        <iframe src="{{ $madrasah->video_profile }}" frameborder="0" allowfullscreen></iframe>
+                        <iframe src="{{ $videoUrl }}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    @if(strpos($madrasah->video_profile, 'youtube.com') !== false || strpos($madrasah->video_profile, 'youtu.be') !== false)
+                        <div class="text-center mt-3">
+                            <a href="{{ $madrasah->video_profile }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-youtube me-2"></i>Tonton di YouTube
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card-custom p-4 h-100">
+                    <h4 class="text-primary mb-4 text-center">
+                        <i class="fas fa-download me-2"></i>Download Brosur
+                    </h4>
+                    @php
+                        $brosurData = $ppdb ?? $madrasah;
+                        $hasBrosur = !empty($brosurData->brosur_pdf);
+                    @endphp
+                    @if($hasBrosur)
+                        <div class="text-center">
+                            <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
+                            <a href="{{ asset('storage/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                                <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
+                            </a>
+                            <p class="text-muted small mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Ukuran file: PDF
+                            </p>
+                        </div>
+                    @else
+                        <div class="text-center">
+                            <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Brosur sedang dalam proses penyusunan.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Standalone Brosur Section (if no video) -->
+        @if(!$hasVideo && $hasBrosur)
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card-custom p-4 text-center">
+                    <h4 class="text-primary mb-4">
+                        <i class="fas fa-download me-2"></i>Download Brosur Sekolah
+                    </h4>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <p class="text-muted mb-4">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF yang mudah diunduh dan dibagikan.</p>
+                            <a href="{{ asset('storage/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                                <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
+                            </a>
+                            <p class="text-muted small mt-3">
+                                <i class="fas fa-info-circle me-1"></i>Klik untuk mengunduh brosur informasi sekolah
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-            @endif
-            @php
-                $galeriFotoData = $madrasah->galeri_foto;
-                if (is_string($galeriFotoData)) {
-                    $galeriFotoData = json_decode($galeriFotoData, true) ?? [];
-                } elseif (!is_array($galeriFotoData)) {
-                    $galeriFotoData = [];
-                }
-            @endphp
+        </div>
+        @endif
+
+        <!-- Photo Gallery -->
+        @if($galeriFotoData && count($galeriFotoData) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
+        <div class="row">
+            <!-- Galeri Foto Kegiatan -->
             @if($galeriFotoData && count($galeriFotoData) > 0)
-            <div class="col-lg-{{ $madrasah->video_profile ? '6' : '12' }} mb-4">
-                <div class="card-custom p-4">
-                    <h5 class="text-primary mb-3">Galeri Foto Kegiatan</h5>
-                    <div class="row">
-                        @foreach($galeriFotoData as $foto)
-                        <div class="col-md-6 mb-3">
-                            <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto" class="gallery-img">
+            <div class="col-12 mb-4">
+                <h4 class="text-primary mb-3">
+                    <i class="fas fa-camera me-2"></i>Galeri Foto Kegiatan
+                </h4>
+                <div class="row">
+                    @foreach($galeriFotoData as $foto)
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="gallery-item">
+                            <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto" class="gallery-img w-100">
                         </div>
-                        @endforeach
                     </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Foto Fasilitas -->
+            @if($facilityPhotos && count($facilityPhotos) > 0)
+            <div class="col-12">
+                <h4 class="text-primary mb-3">
+                    <i class="fas fa-building me-2"></i>Foto Fasilitas Sekolah
+                </h4>
+                <div class="row">
+                    @foreach($facilityPhotos as $fasilitas)
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="facility-gallery-item">
+                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] ?? 'Fasilitas' }}" class="gallery-img w-100">
+                            <div class="facility-overlay">
+                                <h6 class="text-white mb-0">{{ $fasilitas['name'] ?? '' }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
             @endif
         </div>
+        @endif
     </div>
 </section>
 @endif
@@ -1587,6 +1775,9 @@
                     <li class="mb-2"><a href="#jurusan" class="text-light text-decoration-none">Jurusan</a></li>
                     <li class="mb-2"><a href="#fasilitas" class="text-light text-decoration-none">Fasilitas</a></li>
                     <li class="mb-2"><a href="#about" class="text-light text-decoration-none">Tentang</a></li>
+                    <li class="mb-2"><a href="#sejarah" class="text-light text-decoration-none">Sejarah</a></li>
+                    <li class="mb-2"><a href="#galeri" class="text-light text-decoration-none">Galeri</a></li>
+                    <li class="mb-2"><a href="#brosur" class="text-light text-decoration-none">Brosur</a></li>
                 </ul>
             </div>
 
