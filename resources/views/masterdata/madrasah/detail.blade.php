@@ -161,6 +161,32 @@
                                                     data-jabatan="{{ $tp->jabatan ?? '-' }}">
                                                 <i class="bx bx-show"></i> View
                                             </button>
+                                            @if(auth()->user()->role == 'super_admin')
+                                            <button class="btn btn-sm btn-warning edit-btn ms-1"
+                                                    data-id="{{ $tp->id }}"
+                                                    data-name="{{ $tp->name }}"
+                                                    data-email="{{ $tp->email }}"
+                                                    data-tempat_lahir="{{ $tp->tempat_lahir ?? '' }}"
+                                                    data-tanggal_lahir="{{ $tp->tanggal_lahir ? $tp->tanggal_lahir->format('Y-m-d') : '' }}"
+                                                    data-no_hp="{{ $tp->no_hp ?? '' }}"
+                                                    data-kartanu="{{ $tp->kartanu ?? '' }}"
+                                                    data-nip="{{ $tp->nip ?? '' }}"
+                                                    data-nuptk="{{ $tp->nuptk ?? '' }}"
+                                                    data-npk="{{ $tp->npk ?? '' }}"
+                                                    data-madrasah_id="{{ $tp->madrasah_id }}"
+                                                    data-status_kepegawaian_id="{{ $tp->status_kepegawaian_id }}"
+                                                    data-tmt="{{ $tp->tmt ? $tp->tmt->format('Y-m-d') : '' }}"
+                                                    data-pendidikan_terakhir="{{ $tp->pendidikan_terakhir ?? '' }}"
+                                                    data-tahun_lulus="{{ $tp->tahun_lulus ?? '' }}"
+                                                    data-program_studi="{{ $tp->program_studi ?? '' }}"
+                                                    data-ketugasan="{{ $tp->ketugasan ?? '' }}"
+                                                    data-mengajar="{{ $tp->mengajar ?? '' }}"
+                                                    data-alamat="{{ $tp->alamat ?? '' }}"
+                                                    data-pemenuhan_beban_kerja_lain="{{ $tp->pemenuhan_beban_kerja_lain ? '1' : '0' }}"
+                                                    data-madrasah_id_tambahan="{{ $tp->madrasah_id_tambahan }}">
+                                                <i class="bx bx-edit"></i> Edit
+                                            </button>
+                                            @endif
                                         </td>
                                     </tr>
                                     @empty
