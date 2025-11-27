@@ -1,6 +1,6 @@
 @extends('layouts.master-without-nav')
 
-@section('title', 'Profile ' . $ppdb->nama_sekolah . ' - PPDB NUIST')
+@section('title', 'Profile ' . ($ppdb->nama_sekolah ?? $madrasah->name) . ' - PPDB NUIST')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
@@ -800,14 +800,14 @@
                         </div>
                     @endif
                     <div>
-                        <h1 class="display-4 fw-bold mb-2">{{ $madrasah->name }}</h1>
+                        <h1 class="display-4 fw-bold mb-2">{{ $ppdb->nama_sekolah ?? $madrasah->name }}</h1>
                         @if($madrasah->tagline)
                             <p class="h4 text-warning mb-0">{{ $madrasah->tagline }}</p>
                         @endif
                     </div>
                 </div>
-                @if($madrasah->deskripsi_singkat)
-                    <p class="lead mb-4">{{ $madrasah->deskripsi_singkat }}</p>
+                @if($ppdb->deskripsi_singkat ?? $madrasah->deskripsi_singkat)
+                    <p class="lead mb-4">{{ $ppdb->deskripsi_singkat ?? $madrasah->deskripsi_singkat }}</p>
                 @endif
                 <div class="d-flex gap-3 flex-wrap">
                     @php $currentSlug = request()->route('slug'); @endphp
@@ -877,11 +877,18 @@
         </div>
         <div class="row">
             @php
-                // Normalize jurusan data: prefer column `jurusn` (could be JSON or comma-separated),
-                // fall back to existing $madrasah->jurusan structure.
+                // Normalize jurusan data: prefer ppdb_settings data, fall back to madrasah data
                 $jurusanData = [];
 
-                if(!empty($madrasah->jurusn)) {
+                if(!empty($ppdb->jurusan) && count($ppdb->jurusan) > 0) {
+                    foreach($ppdb->jurusan as $j) {
+                        if(is_array($j)) {
+                            $jurusanData[] = $j;
+                        } else {
+                            $jurusanData[] = ['name' => $j];
+                        }
+                    }
+                } elseif(!empty($madrasah->jurusn)) {
                     $decoded = json_decode($madrasah->jurusn, true);
                     if(is_array($decoded) && count($decoded) > 0) {
                         $jurusanData = $decoded;
@@ -1003,20 +1010,24 @@
         </div>
 
         <!-- Visi & Misi -->
-        @if($madrasah->visi || $madrasah->misi)
+        @php
+            $visiData = $ppdb->visi ?? $madrasah->visi;
+            $misiData = $ppdb->misi ?? $madrasah->misi;
+        @endphp
+        @if($visiData || $misiData)
         <div class="row mb-5">
-            @if($madrasah->visi)
+            @if($visiData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4 h-100 text-center">
                     <div class="advantage-icon mb-4">
                         <i class="fas fa-eye"></i>
                     </div>
                     <h4 class="text-white mb-4">Visi</h4>
-                    <p class="lead text-white">{{ $madrasah->visi }}</p>
+                    <p class="lead text-white">{{ $visiData }}</p>
                 </div>
             </div>
             @endif
-            @if($madrasah->misi)
+            @if($misiData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4 h-100 text-center">
                     <div class="advantage-icon mb-4">
@@ -1024,7 +1035,7 @@
                     </div>
                     <h4 class="text-white mb-4">Misi</h4>
                     <ul class="list-unstyled text-start">
-                        @foreach($madrasah->misi ?? [] as $misi)
+                        @foreach($misiData ?? [] as $misi)
                             <li class="mb-3">
                                 <i class="fas fa-check-circle text-warning me-2"></i>
                                 <span class="text-white">{{ $misi }}</span>
@@ -1060,14 +1071,17 @@
         @endif
 
         <!-- Prestasi Sekolah -->
-        @if($madrasah->prestasi)
+        @php
+            $prestasiData = $ppdb->prestasi ?? $madrasah->prestasi;
+        @endphp
+        @if($prestasiData)
         <div class="row">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-white">
                     <i class="fas fa-trophy text-warning me-2"></i>Prestasi Sekolah
                 </h3>
             </div>
-            @foreach($madrasah->prestasi ?? [] as $prestasi)
+            @foreach($prestasiData ?? [] as $prestasi)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="achievement-badge">
                     <div class="mb-2">
@@ -1169,7 +1183,11 @@
 @endif
 
 <!-- Program Unggulan & Ekstrakurikuler -->
-@if($madrasah->program_unggulan || $madrasah->ekstrakurikuler)
+@php
+    $programUnggulanData = $ppdb->program_unggulan ?? $madrasah->program_unggulan;
+    $ekstrakurikulerData = $ppdb->ekstrakurikuler ?? $madrasah->ekstrakurikuler;
+@endphp
+@if($programUnggulanData || $ekstrakurikulerData)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1178,12 +1196,12 @@
             </div>
         </div>
         <div class="row">
-            @if($madrasah->program_unggulan)
+            @if($programUnggulanData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Program Unggulan</h4>
                     <div class="row">
-                        @foreach($madrasah->program_unggulan ?? [] as $program)
+                        @foreach($programUnggulanData ?? [] as $program)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-check-circle text-success me-2"></i>
@@ -1195,12 +1213,12 @@
                 </div>
             </div>
             @endif
-            @if($madrasah->ekstrakurikuler)
+            @if($ekstrakurikulerData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
                     <div class="row">
-                        @foreach($madrasah->ekstrakurikuler ?? [] as $ekstra)
+                        @foreach($ekstrakurikulerData ?? [] as $ekstra)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-run text-primary me-2"></i>
@@ -1286,7 +1304,13 @@
 @endif
 
 <!-- Data Statistik -->
-@if($madrasah->jumlah_siswa || $madrasah->jumlah_guru || $madrasah->jumlah_jurusan || $madrasah->jumlah_sarana)
+@php
+    $jumlahSiswa = $ppdb->jumlah_siswa ?? $madrasah->jumlah_siswa;
+    $jumlahGuru = $ppdb->jumlah_guru ?? $madrasah->jumlah_guru;
+    $jumlahJurusan = $ppdb->jumlah_jurusan ?? $madrasah->jumlah_jurusan;
+    $jumlahSarana = $ppdb->jumlah_sarana ?? $madrasah->jumlah_sarana;
+@endphp
+@if($jumlahSiswa || $jumlahGuru || $jumlahJurusan || $jumlahSarana)
 <section class="section-padding">
     <div class="container">
         <div class="row">
@@ -1295,34 +1319,34 @@
             </div>
         </div>
         <div class="row">
-            @if($madrasah->jumlah_siswa)
+            @if($jumlahSiswa)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="stats-counter">
-                    <div class="stats-number">{{ number_format($madrasah->jumlah_siswa) }}</div>
+                    <div class="stats-number">{{ number_format($jumlahSiswa) }}</div>
                     <h6>Jumlah Siswa</h6>
                 </div>
             </div>
             @endif
-            @if($madrasah->jumlah_guru)
+            @if($jumlahGuru)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="stats-counter">
-                    <div class="stats-number">{{ number_format($madrasah->jumlah_guru) }}</div>
+                    <div class="stats-number">{{ number_format($jumlahGuru) }}</div>
                     <h6>Jumlah Guru</h6>
                 </div>
             </div>
             @endif
-            @if($madrasah->jumlah_jurusan)
+            @if($jumlahJurusan)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="stats-counter">
-                    <div class="stats-number">{{ $madrasah->jumlah_jurusan }}</div>
+                    <div class="stats-number">{{ $jumlahJurusan }}</div>
                     <h6>Jumlah Jurusan</h6>
                 </div>
             </div>
             @endif
-            @if($madrasah->jumlah_sarana)
+            @if($jumlahSarana)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="stats-counter">
-                    <div class="stats-number">{{ $madrasah->jumlah_sarana }}</div>
+                    <div class="stats-number">{{ $jumlahSarana }}</div>
                     <h6>Jumlah Sarana</h6>
                 </div>
             </div>
@@ -1499,16 +1523,16 @@
                 <div class="d-flex align-items-start mb-2">
                     <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
                     <div>
-                        <p class="mb-0">{{ $madrasah->alamat ?? 'Alamat belum ditentukan' }}</p>
+                        <p class="mb-0">{{ $ppdb->alamat ?? $madrasah->alamat ?? 'Alamat belum ditentukan' }}</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-telephone-fill text-primary me-3"></i>
-                    <p class="mb-0">{{ $madrasah->telepon ?? 'Telepon belum ditentukan' }}</p>
+                    <p class="mb-0">{{ $ppdb->telepon ?? $madrasah->telepon ?? 'Telepon belum ditentukan' }}</p>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-envelope-fill text-primary me-3"></i>
-                    <p class="mb-0">{{ $madrasah->email ?? 'Email belum ditentukan' }}</p>
+                    <p class="mb-0">{{ $ppdb->email ?? $madrasah->email ?? 'Email belum ditentukan' }}</p>
                 </div>
                 @if($madrasah->website)
                 <div class="d-flex align-items-center mb-2">
