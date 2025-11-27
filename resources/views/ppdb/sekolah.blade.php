@@ -1078,14 +1078,22 @@
         @endif
 
         <!-- Keunggulan Sekolah -->
-        @if($madrasah->keunggulan)
+        @php
+            $keunggulanData = $madrasah->keunggulan;
+            if (is_string($keunggulanData)) {
+                $keunggulanData = json_decode($keunggulanData, true) ?? [];
+            } elseif (!is_array($keunggulanData)) {
+                $keunggulanData = [];
+            }
+        @endphp
+        @if($keunggulanData && count($keunggulanData) > 0)
         <div class="row mb-5">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-white">
                     <i class="fas fa-star text-warning me-2"></i>Keunggulan Sekolah
                 </h3>
             </div>
-            @foreach($madrasah->keunggulan ?? [] as $keunggulan)
+            @foreach($keunggulanData as $keunggulan)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card-custom p-4 text-center h-100">
                     <div class="advantage-icon mb-3">
@@ -1226,6 +1234,20 @@
 @php
     $programUnggulanData = $ppdb->program_unggulan ?? $madrasah->program_unggulan;
     $ekstrakurikulerData = $ppdb->ekstrakurikuler ?? $madrasah->ekstrakurikuler;
+
+    // Ensure programUnggulanData is an array
+    if (is_string($programUnggulanData)) {
+        $programUnggulanData = json_decode($programUnggulanData, true) ?? [];
+    } elseif (!is_array($programUnggulanData)) {
+        $programUnggulanData = [];
+    }
+
+    // Ensure ekstrakurikulerData is an array
+    if (is_string($ekstrakurikulerData)) {
+        $ekstrakurikulerData = json_decode($ekstrakurikulerData, true) ?? [];
+    } elseif (!is_array($ekstrakurikulerData)) {
+        $ekstrakurikulerData = [];
+    }
 @endphp
 @if($programUnggulanData || $ekstrakurikulerData)
 <section class="section-padding bg-light">
@@ -1241,7 +1263,7 @@
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Program Unggulan</h4>
                     <div class="row">
-                        @foreach($programUnggulanData ?? [] as $program)
+                        @foreach($programUnggulanData as $program)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-check-circle text-success me-2"></i>
@@ -1276,7 +1298,15 @@
 @endif
 
 <!-- Testimoni -->
-@if($madrasah->testimoni)
+@php
+    $testimoniData = $madrasah->testimoni;
+    if (is_string($testimoniData)) {
+        $testimoniData = json_decode($testimoniData, true) ?? [];
+    } elseif (!is_array($testimoniData)) {
+        $testimoniData = [];
+    }
+@endphp
+@if($testimoniData && count($testimoniData) > 0)
 <section class="section-padding">
     <div class="container">
         <div class="row">
@@ -1285,7 +1315,7 @@
             </div>
         </div>
         <div class="row">
-            @foreach($madrasah->testimoni ?? [] as $testimoni)
+            @foreach($testimoniData as $testimoni)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="testimonial-card">
                     <div class="d-flex align-items-center mb-3">
@@ -1416,12 +1446,20 @@
                 </div>
             </div>
             @endif
-            @if($madrasah->galeri_foto)
+            @php
+                $galeriFotoData = $madrasah->galeri_foto;
+                if (is_string($galeriFotoData)) {
+                    $galeriFotoData = json_decode($galeriFotoData, true) ?? [];
+                } elseif (!is_array($galeriFotoData)) {
+                    $galeriFotoData = [];
+                }
+            @endphp
+            @if($galeriFotoData && count($galeriFotoData) > 0)
             <div class="col-lg-{{ $madrasah->video_profile ? '6' : '12' }} mb-4">
                 <div class="card-custom p-4">
                     <h5 class="text-primary mb-3">Galeri Foto Kegiatan</h5>
                     <div class="row">
-                        @foreach($madrasah->galeri_foto ?? [] as $foto)
+                        @foreach($galeriFotoData as $foto)
                         <div class="col-md-6 mb-3">
                             <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto" class="gallery-img">
                         </div>
@@ -1464,7 +1502,15 @@
 @endif
 
 <!-- Alur Pendaftaran -->
-@if($madrasah->alur_pendaftaran)
+@php
+    $alurPendaftaranData = $madrasah->alur_pendaftaran;
+    if (is_string($alurPendaftaranData)) {
+        $alurPendaftaranData = json_decode($alurPendaftaranData, true) ?? [];
+    } elseif (!is_array($alurPendaftaranData)) {
+        $alurPendaftaranData = [];
+    }
+@endphp
+@if($alurPendaftaranData && count($alurPendaftaranData) > 0)
 <section class="section-padding">
     <div class="container">
         <div class="row">
@@ -1475,7 +1521,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="timeline">
-                    @foreach($madrasah->alur_pendaftaran ?? [] as $index => $step)
+                    @foreach($alurPendaftaranData as $index => $step)
                     <div class="timeline-item">
                         <h5 class="text-primary">Langkah {{ $index + 1 }}</h5>
                         <p>{{ $step['description'] ?? $step }}</p>
