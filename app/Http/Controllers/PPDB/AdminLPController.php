@@ -376,7 +376,20 @@ $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadw
             $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
         }
 
-        $madrasah->update($data);
+        // Find or create PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $madrasah->id,
+                'tahun' => $tahun
+            ],
+            [
+                'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
+                'nama_sekolah' => $madrasah->name
+            ]
+        );
+
+        $ppdbSetting->update($data);
 
         return redirect()->route('ppdb.lp.ppdb-settings', $madrasah->id)
             ->with('success', 'Pengaturan PPDB berhasil diperbarui');
