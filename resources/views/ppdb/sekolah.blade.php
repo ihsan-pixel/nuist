@@ -964,8 +964,16 @@
             </div>
         </div>
         <div class="row">
-            @if($madrasah->fasilitas && count($madrasah->fasilitas) > 0)
-                @foreach($madrasah->fasilitas as $fasilitas)
+            @php
+                $fasilitasData = $madrasah->fasilitas;
+                if (is_string($fasilitasData)) {
+                    $fasilitasData = json_decode($fasilitasData, true) ?? [];
+                } elseif (!is_array($fasilitasData)) {
+                    $fasilitasData = [];
+                }
+            @endphp
+            @if($fasilitasData && count($fasilitasData) > 0)
+                @foreach($fasilitasData as $fasilitas)
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="facility-card">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
@@ -1094,15 +1102,26 @@
         <!-- Prestasi Sekolah -->
         @php
             $prestasiData = $ppdb->prestasi ?? $madrasah->prestasi;
+            // Ensure prestasiData is an array
+            if (is_string($prestasiData)) {
+                $decoded = json_decode($prestasiData, true);
+                if (is_array($decoded)) {
+                    $prestasiData = $decoded;
+                } else {
+                    $prestasiData = [];
+                }
+            } elseif (!is_array($prestasiData)) {
+                $prestasiData = [];
+            }
         @endphp
-        @if($prestasiData)
+        @if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0)
         <div class="row">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-white">
                     <i class="fas fa-trophy text-warning me-2"></i>Prestasi Sekolah
                 </h3>
             </div>
-            @foreach($prestasiData ?? [] as $prestasi)
+            @foreach($prestasiData as $prestasi)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="achievement-badge">
                     <div class="mb-2">
