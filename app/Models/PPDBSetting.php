@@ -90,4 +90,26 @@ class PPDBSetting extends Model
     {
         return $this->hasMany(PPDBVerifikasi::class, 'ppdb_setting_id');
     }
+
+    /**
+     * Check if PPDB is currently open
+     */
+    public function isPembukaan()
+    {
+        return $this->ppdb_status === 'buka' &&
+               $this->ppdb_jadwal_buka &&
+               $this->ppdb_jadwal_tutup &&
+               now()->between($this->ppdb_jadwal_buka, $this->ppdb_jadwal_tutup);
+    }
+
+    /**
+     * Check if PPDB is about to start (within 7 days before opening)
+     */
+    public function isStarted()
+    {
+        return $this->ppdb_status === 'buka' &&
+               $this->ppdb_jadwal_buka &&
+               now()->lt($this->ppdb_jadwal_buka) &&
+               now()->diffInDays($this->ppdb_jadwal_buka) <= 7;
+    }
 }

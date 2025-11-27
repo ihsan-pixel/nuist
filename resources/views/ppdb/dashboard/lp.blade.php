@@ -728,18 +728,18 @@
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
                                                 {{-- Tampilkan tombol Lihat Detail HANYA jika status PPDB = buka --}}
-                                                {{-- @if($detail['status_ppdb'] === 'buka' && !empty($detail['slug']))
+                                                @if($detail['status_ppdb'] === 'buka' && !empty($detail['slug']))
                                                     <a href="{{ route('ppdb.sekolah.dashboard', $detail['slug']) }}" class="action-btn btn-sm" target="_blank" title="Lihat halaman PPDB di tab baru">
                                                         <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                                     </a>
                                                 @elseif($detail['status_ppdb'] === 'buka')
                                                     <span class="badge badge-warning">Slug Kosong</span>
-                                                @else --}}
+                                                @else
                                                     {{-- Tampilkan info jika PPDB tidak aktif --}}
-                                                    {{-- <span class="badge badge-{{ $detail['status_ppdb'] }}" title="Status PPDB: {{ ucfirst($detail['status_ppdb']) }}">
+                                                    <span class="badge badge-{{ $detail['status_ppdb'] }}" title="Status PPDB: {{ ucfirst($detail['status_ppdb']) }}">
                                                         <i class="mdi mdi-block-helper me-1"></i>{{ ucfirst($detail['status_ppdb']) }}
                                                     </span>
-                                                @endif --}}
+                                                @endif
                                                 <a href="{{ route('ppdb.lp.ppdb-settings', $detail['sekolah']->id) }}" class="btn btn-outline-info btn-sm">
                                                     <i class="mdi mdi-cog me-1"></i>Pengaturan
                                                 </a>

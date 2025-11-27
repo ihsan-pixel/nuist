@@ -41,8 +41,8 @@ class AdminLPController extends Controller
         $detailSekolah = $madrasahs->map(function ($madrasah) use (&$statistik, &$totalPendaftar, &$totalBuka) {
             $ppdbSetting = $madrasah->ppdbSettings->first();
 
-            // Debug: Pastikan ppdb_status tersedia
-            $ppdbStatus = $madrasah->ppdb_status ?? 'tidak_aktif';
+            // Get ppdb_status from ppdb_settings
+            $ppdbStatus = $ppdbSetting->ppdb_status ?? 'tidak_aktif';
 
             // Buat slug fallback jika tidak ada ppdb_setting
             $slug = $ppdbSetting?->slug ?? \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id);
