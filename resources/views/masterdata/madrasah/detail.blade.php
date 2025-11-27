@@ -183,6 +183,165 @@
     </div>
 </div>
 
+<!-- Modal for Editing Tenaga Pendidik -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <form action="{{ route('tenaga-pendidik.update', '') }}" method="POST" enctype="multipart/form-data" id="editForm">
+            @csrf
+            @method('PUT')
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editModalLabel">
+                        <i class="bx bx-edit me-2"></i>Edit Tenaga Pendidik
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <div class="col-md-6">
+                        <label>Nama Lengkap & Gelar</label>
+                        <input type="text" name="nama" class="form-control" id="edit-nama" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" id="edit-email" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Password (Kosongkan jika tidak diubah)</label>
+                        <input type="password" name="password" class="form-control" id="edit-password">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tempat Lahir</label>
+                        <input type="text" name="tempat_lahir" class="form-control" id="edit-tempat_lahir">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" name="tanggal_lahir" class="form-control" id="edit-tanggal_lahir">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>No HP</label>
+                        <input type="text" name="no_hp" class="form-control" id="edit-no_hp">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Kartu NU</label>
+                        <input type="text" name="kartanu" class="form-control" id="edit-kartanu">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>NIP Ma'arif</label>
+                        <input type="text" name="nip" class="form-control" id="edit-nip">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>NUPTK</label>
+                        <input type="text" name="nuptk" class="form-control" id="edit-nuptk">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>NPK</label>
+                        <input type="text" name="npk" class="form-control" id="edit-npk">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Madrasah</label>
+                        <select name="madrasah_id" class="form-control" id="edit-madrasah_id">
+                            <option value="">-- Pilih Madrasah --</option>
+                            @foreach($madrasahs as $madrasah)
+                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Status Kepegawaian</label>
+                        <select name="status_kepegawaian_id" class="form-control" id="edit-status_kepegawaian_id">
+                            <option value="">-- Pilih Status Kepegawaian --</option>
+                            @foreach($statusKepegawaian as $status)
+                                <option value="{{ $status->id }}">{{ $status->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>TMT</label>
+                        <input type="date" name="tmt" class="form-control" id="edit-tmt">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Pendidikan Terakhir</label>
+                        <input type="text" name="pendidikan_terakhir" class="form-control" id="edit-pendidikan_terakhir">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tahun Lulus</label>
+                        <input type="number" name="tahun_lulus" class="form-control" id="edit-tahun_lulus">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Program Studi</label>
+                        <input type="text" name="program_studi" class="form-control" id="edit-program_studi">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Foto Profile</label>
+                        <input type="file" name="avatar" class="form-control" id="edit-avatar">
+                        <small class="text-muted">Opsional, boleh dikosongkan</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Ketugasan</label>
+                        <select name="ketugasan" class="form-control" id="edit-ketugasan">
+                            <option value="">-- Pilih Ketugasan --</option>
+                            <option value="tenaga pendidik">Tenaga Pendidik</option>
+                            <option value="penjaga sekolah">Penjaga Sekolah</option>
+                            <option value="kepala madrasah/sekolah">Kepala Madrasah/Sekolah</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Mengajar</label>
+                        <input type="text" name="mengajar" class="form-control" id="edit-mengajar">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Pemenuhan Beban Kerja di Sekolah/Madrasah Lain</label>
+                        <select name="pemenuhan_beban_kerja_lain" id="edit-pemenuhan_beban_kerja_lain" class="form-control">
+                            <option value="">-- Pilih --</option>
+                            <option value="1">Iya</option>
+                            <option value="0">Tidak</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="edit-madrasah_tambahan_container" style="display: none;">
+                        <label>Madrasah Tambahan</label>
+                        <select name="madrasah_id_tambahan" class="form-control" id="edit-madrasah_id_tambahan">
+                            <option value="">-- Pilih Madrasah --</option>
+                            @foreach($madrasahs as $madrasah)
+                                <option value="{{ $madrasah->id }}">{{ $madrasah->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label>Alamat</label>
+                        <textarea name="alamat" class="form-control" rows="2" id="edit-alamat"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal for Viewing Tenaga Pendidik Details -->
 <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -320,6 +479,53 @@ $(document).ready(function () {
         $('#modal-mengajar').text(data.mengajar);
         $('#modal-avatar').attr('src', data.avatar);
         $('#viewModal').modal('show');
+    });
+
+    // Handle Edit Button Click
+    $('#tenaga-pendidik-table').on('click', '.edit-btn', function() {
+        const data = $(this).data();
+        $('#edit-nama').val(data.name);
+        $('#edit-email').val(data.email);
+        $('#edit-tempat_lahir').val(data.tempat_lahir);
+        $('#edit-tanggal_lahir').val(data.tanggal_lahir);
+        $('#edit-no_hp').val(data.no_hp);
+        $('#edit-kartanu').val(data.kartanu);
+        $('#edit-nip').val(data.nip);
+        $('#edit-nuptk').val(data.nuptk);
+        $('#edit-npk').val(data.npk);
+        $('#edit-madrasah_id').val(data.madrasah_id);
+        $('#edit-status_kepegawaian_id').val(data.status_kepegawaian_id);
+        $('#edit-tmt').val(data.tmt);
+        $('#edit-pendidikan_terakhir').val(data.pendidikan_terakhir);
+        $('#edit-tahun_lulus').val(data.tahun_lulus);
+        $('#edit-program_studi').val(data.program_studi);
+        $('#edit-ketugasan').val(data.ketugasan);
+        $('#edit-mengajar').val(data.mengajar);
+        $('#edit-alamat').val(data.alamat);
+        $('#edit-pemenuhan_beban_kerja_lain').val(data.pemenuhan_beban_kerja_lain);
+        $('#edit-madrasah_id_tambahan').val(data.madrasah_id_tambahan);
+
+        // Update form action URL
+        const editUrl = '{{ route("tenaga-pendidik.update", ":id") }}'.replace(':id', data.id);
+        $('#editForm').attr('action', editUrl);
+
+        // Handle madrasah tambahan visibility
+        if (data.pemenuhan_beban_kerja_lain === '1') {
+            $('#edit-madrasah_tambahan_container').show();
+        } else {
+            $('#edit-madrasah_tambahan_container').hide();
+        }
+
+        $('#editModal').modal('show');
+    });
+
+    // Handle pemenuhan beban kerja lain change in edit modal
+    $('#edit-pemenuhan_beban_kerja_lain').change(function() {
+        if ($(this).val() == '1') {
+            $('#edit-madrasah_tambahan_container').show();
+        } else {
+            $('#edit-madrasah_tambahan_container').hide();
+        }
     });
 
     @if(session('success'))
