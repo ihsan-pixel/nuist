@@ -386,7 +386,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-4 text-center">
-                        <img id="modal-avatar" src="{{ asset('storage/' . $users->avatar) }}" alt="Avatar" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                        <img id="modal-avatar" src="" alt="Avatar" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
                         <h5 id="modal-name" class="fw-bold text-primary"></h5>
                         <p class="text-muted"><i class="bx bx-envelope me-1"></i><span id="modal-email"></span></p>
                         <span class="badge bg-success" id="modal-status"></span>
