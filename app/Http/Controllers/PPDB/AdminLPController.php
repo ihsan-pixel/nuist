@@ -130,7 +130,13 @@ class AdminLPController extends Controller
         // Hitung jumlah guru dari tenaga pendidik
         $jumlahGuru = $madrasah->tenagaPendidikUsers()->count();
 
-        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'jumlahGuru'));
+        // Get PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+            ->where('tahun', $tahun)
+            ->first();
+
+        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'jumlahGuru', 'ppdbSetting'));
     }
 
     /**
@@ -363,7 +369,14 @@ class AdminLPController extends Controller
     public function ppdbSettings($id)
     {
         $madrasah = \App\Models\Madrasah::findOrFail($id);
-        return view('ppdb.dashboard.ppdb-settings', compact('madrasah'));
+
+        // Get PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+            ->where('tahun', $tahun)
+            ->first();
+
+        return view('ppdb.dashboard.ppdb-settings', compact('madrasah', 'ppdbSetting'));
     }
 
     /**

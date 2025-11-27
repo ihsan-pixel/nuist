@@ -473,7 +473,7 @@
                 <label for="deskripsi_singkat" class="form-label">Deskripsi Singkat</label>
                 <textarea class="form-control @error('deskripsi_singkat') is-invalid @enderror"
                           id="deskripsi_singkat" name="deskripsi_singkat" rows="3"
-                          placeholder="Deskripsi singkat tentang madrasah dalam 1-2 paragraf">{{ old('deskripsi_singkat', $madrasah->deskripsi_singkat) }}</textarea>
+                          placeholder="Deskripsi singkat tentang madrasah dalam 1-2 paragraf">{{ old('deskripsi_singkat', $ppdbSetting->deskripsi_singkat ?? '') }}</textarea>
                 @error('deskripsi_singkat')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -483,7 +483,7 @@
                 <label for="sejarah" class="form-label">Sejarah Madrasah</label>
                 <textarea class="form-control @error('sejarah') is-invalid @enderror"
                           id="sejarah" name="sejarah" rows="4"
-                          placeholder="Ceritakan sejarah berdirinya madrasah">{{ old('sejarah', $madrasah->sejarah) }}</textarea>
+                          placeholder="Ceritakan sejarah berdirinya madrasah">{{ old('sejarah', $ppdbSetting->sejarah ?? '') }}</textarea>
                 @error('sejarah')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -503,7 +503,7 @@
                 <label for="visi" class="form-label">Visi</label>
                 <textarea class="form-control @error('visi') is-invalid @enderror"
                           id="visi" name="visi" rows="3"
-                          placeholder="Visi madrasah">{{ old('visi', $madrasah->visi) }}</textarea>
+                          placeholder="Visi madrasah">{{ old('visi', $ppdbSetting->visi ?? '') }}</textarea>
                 @error('visi')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -558,7 +558,7 @@
             <div class="form-group">
                 <label class="form-label">Fasilitas</label>
                 <div id="fasilitas-container" class="array-input-container">
-                    @php $fasilitasArray = old('fasilitas', $madrasah->fasilitas ?? []); @endphp
+                    @php $fasilitasArray = old('fasilitas', $ppdbSetting->fasilitas ?? []); @endphp
                     @if(is_array($fasilitasArray) && count($fasilitasArray) > 0)
                         @foreach($fasilitasArray as $index => $fasilitas)
                             <div class="array-input-item mb-3 p-3 border rounded existing-fasilitas" data-index="{{ $index }}">
@@ -652,7 +652,7 @@
             <div class="form-group">
                 <label class="form-label">Jurusan</label>
                 <div id="jurusan-container" class="array-input-container">
-                    @php $jurusanArray = old('jurusan', $madrasah->jurusan ?? []); @endphp
+                    @php $jurusanArray = old('jurusan', $ppdbSetting->jurusan ?? []); @endphp
                     @if(is_array($jurusanArray) && count($jurusanArray) > 0)
                         @foreach($jurusanArray as $index => $jurusan)
                             <div class="array-input-item">
@@ -683,7 +683,7 @@
             <div class="form-group">
                 <label class="form-label">Prestasi</label>
                 <div id="prestasi-container" class="array-input-container">
-                    @php $prestasiArray = old('prestasi', $madrasah->prestasi ?? []); @endphp
+                    @php $prestasiArray = old('prestasi', $ppdbSetting->prestasi ?? []); @endphp
                     @if(is_array($prestasiArray) && count($prestasiArray) > 0)
                         @foreach($prestasiArray as $index => $prestasi)
                             <div class="array-input-item">
@@ -714,7 +714,7 @@
             <div class="form-group">
                 <label class="form-label">Program Unggulan</label>
                 <div id="program_unggulan-container" class="array-input-container">
-                    @php $programUnggulanArray = old('program_unggulan', $madrasah->program_unggulan ?? []); @endphp
+                    @php $programUnggulanArray = old('program_unggulan', $ppdbSetting->program_unggulan ?? []); @endphp
                     @if(is_array($programUnggulanArray) && count($programUnggulanArray) > 0)
                         @foreach($programUnggulanArray as $index => $program)
                             <div class="array-input-item">
@@ -745,7 +745,7 @@
             <div class="form-group">
                 <label class="form-label">Ekstrakurikuler</label>
                 <div id="ekstrakurikuler-container" class="array-input-container">
-                    @php $ekstrakurikulerArray = old('ekstrakurikuler', $madrasah->ekstrakurikuler ?? []); @endphp
+                    @php $ekstrakurikulerArray = old('ekstrakurikuler', $ppdbSetting->ekstrakurikuler ?? []); @endphp
                     @if(is_array($ekstrakurikulerArray) && count($ekstrakurikulerArray) > 0)
                         @foreach($ekstrakurikulerArray as $index => $ekstra)
                             <div class="array-input-item">
@@ -788,7 +788,7 @@
                         <label for="kepala_sekolah_nama" class="form-label">Nama Kepala Sekolah</label>
                         <input type="text" class="form-control @error('kepala_sekolah_nama') is-invalid @enderror"
                                id="kepala_sekolah_nama" name="kepala_sekolah_nama"
-                               value="{{ old('kepala_sekolah_nama', $madrasah->kepala_sekolah_nama) }}"
+                               value="{{ old('kepala_sekolah_nama', $ppdbSetting->kepala_sekolah_nama ?? '') }}"
                                placeholder="Dr. H. Ahmad Susanto, M.Pd.">
                         @error('kepala_sekolah_nama')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -814,7 +814,7 @@
                 <label for="kepala_sekolah_sambutan" class="form-label">Sambutan Kepala Sekolah</label>
                 <textarea class="form-control @error('kepala_sekolah_sambutan') is-invalid @enderror"
                           id="kepala_sekolah_sambutan" name="kepala_sekolah_sambutan" rows="4"
-                          placeholder="Sambutan dari kepala sekolah">{{ old('kepala_sekolah_sambutan', $madrasah->kepala_sekolah_sambutan) }}</textarea>
+                          placeholder="Sambutan dari kepala sekolah">{{ old('kepala_sekolah_sambutan', $ppdbSetting->kepala_sekolah_sambutan ?? '') }}</textarea>
                 @error('kepala_sekolah_sambutan')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -870,7 +870,7 @@
                     <div class="form-group">
                         <label for="jumlah_sarana" class="form-label">Jumlah Sarana</label>
                         <input type="number" class="form-control @error('jumlah_sarana') is-invalid @enderror"
-                               id="jumlah_sarana" name="jumlah_sarana" value="{{ old('jumlah_sarana', $madrasah->jumlah_sarana) }}" min="0">
+                               id="jumlah_sarana" name="jumlah_sarana" value="{{ old('jumlah_sarana', $ppdbSetting->jumlah_sarana ?? '') }}" min="0">
                         @error('jumlah_sarana')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -893,7 +893,7 @@
                     <div class="form-group">
                         <label for="video_profile" class="form-label">Link Video Profile</label>
                         <input type="url" class="form-control @error('video_profile') is-invalid @enderror"
-                               id="video_profile" name="video_profile" value="{{ old('video_profile', $madrasah->video_profile) }}"
+                               id="video_profile" name="video_profile" value="{{ old('video_profile', $ppdbSetting->video_profile ?? '') }}"
                                placeholder="https://youtube.com/watch?v=...">
                         <div class="help-text">Link YouTube atau video lainnya</div>
                         @error('video_profile')
@@ -905,9 +905,9 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="brosur_pdf" class="form-label">Upload Brosur (PDF)</label>
-                        @if($madrasah->brosur_pdf)
+                        @if($ppdbSetting && $ppdbSetting->brosur_pdf)
                             <div class="mb-2" id="brosur-actions">
-                                <a href="{{ asset('uploads/brosur/' . $madrasah->brosur_pdf) }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                <a href="{{ asset('uploads/brosur/' . $ppdbSetting->brosur_pdf) }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
                                     <i class="mdi mdi-eye me-1"></i>Lihat Brosur
                                 </a>
                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteBrosur()">
@@ -943,9 +943,9 @@
                 @enderror
 
                 <!-- Preview existing images -->
-                @if($madrasah->galeri_foto && is_array($madrasah->galeri_foto))
+                @if($ppdbSetting && $ppdbSetting->galeri_foto && is_array($ppdbSetting->galeri_foto))
                     <div class="image-gallery" id="existing-gallery">
-                        @foreach($madrasah->galeri_foto as $index => $image)
+                        @foreach($ppdbSetting->galeri_foto as $index => $image)
                             <div class="image-item position-relative d-inline-block me-2 mb-2" data-image="{{ $image }}">
                                 <img src="{{ asset('images/madrasah/galeri/' . $image) }}" alt="Galeri" class="image-preview">
                                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="deleteImage('{{ $image }}', {{ $index }})">
