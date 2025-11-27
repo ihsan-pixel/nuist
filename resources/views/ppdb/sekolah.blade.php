@@ -1013,6 +1013,27 @@
         @php
             $visiData = $ppdb->visi ?? $madrasah->visi;
             $misiData = $ppdb->misi ?? $madrasah->misi;
+            // Ensure misiData is an array
+            if (is_string($misiData)) {
+                $decoded = json_decode($misiData, true);
+                if (is_array($decoded)) {
+                    $misiData = $decoded;
+                } elseif (is_string($decoded)) {
+                    // Handle case where JSON contains a single string
+                    $misiData = [$decoded];
+                } else {
+                    // Try to split by newlines or common separators
+                    $misiData = array_filter(array_map('trim', explode("\n", $misiData)));
+                    if (empty($misiData)) {
+                        $misiData = array_filter(array_map('trim', explode(",", $misiData)));
+                    }
+                    if (empty($misiData)) {
+                        $misiData = [$misiData]; // Single string as array
+                    }
+                }
+            } elseif (!is_array($misiData)) {
+                $misiData = [];
+            }
         @endphp
         @if($visiData || $misiData)
         <div class="row mb-5">
