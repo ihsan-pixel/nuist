@@ -190,7 +190,7 @@ class AdminLPController extends Controller
             // Note: PPDB settings validation moved to updatePPDBSettings method
         ]);
 
-$data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
+        $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {
@@ -299,6 +299,38 @@ $data = $request->except(['galeri_foto', 'brosur_pdf', 'ppdb_status', 'ppdb_jadw
         }
 
         $madrasah->update($data);
+
+        // Handle PPDB settings if provided
+        if ($request->hasAny(['ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman'])) {
+            $ppdbData = $request->only(['ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
+
+            // Handle PPDB jalur
+            if ($request->has('ppdb_jalur')) {
+                $ppdbData['ppdb_jalur'] = array_filter($request->input('ppdb_jalur', []), function($value) {
+                    return !empty(trim($value));
+                });
+            }
+
+            // Handle PPDB kuota jurusan
+            if ($request->filled('ppdb_kuota_jurusan')) {
+                $ppdbData['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
+            }
+
+            // Find or create PPDB setting for current year
+            $tahun = now()->year;
+            $ppdbSetting = PPDBSetting::firstOrCreate(
+                [
+                    'sekolah_id' => $madrasah->id,
+                    'tahun' => $tahun
+                ],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
+                    'nama_sekolah' => $madrasah->name
+                ]
+            );
+
+            $ppdbSetting->update($ppdbData);
+        }
 
         return redirect()->route('ppdb.lp.dashboard')->with('success', 'Profil madrasah berhasil diperbarui.');
     }
