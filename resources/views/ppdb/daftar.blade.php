@@ -554,7 +554,7 @@
                         <label for="nik" class="form-label">
                             <i class="fas fa-id-card me-2"></i>NIK <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control @error('nik') is-invalid @enderror"
+                        <input type="number" class="form-control @error('nik') is-invalid @enderror"
                                id="nik" name="nik" value="{{ old('nik') }}"
                                placeholder="Nomor Induk Kependudukan (16 digit)" maxlength="16" required>
                         @error('nik')
@@ -617,7 +617,7 @@
                         <label for="nisn" class="form-label">
                             <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
                         </label>
-                        <input type="text" class="form-control @error('nisn') is-invalid @enderror"
+                        <input type="number" class="form-control @error('nisn') is-invalid @enderror"
                                id="nisn" name="nisn" value="{{ old('nisn') }}"
                                placeholder="Nomor Induk Siswa Nasional" required
                                onblur="checkNISNAvailability()">
