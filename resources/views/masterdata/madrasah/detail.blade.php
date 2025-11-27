@@ -517,6 +517,7 @@ $(document).ready(function () {
         const data = $(this).data();
         $('#edit-nama').val(data.name);
         $('#edit-email').val(data.email);
+        $('#edit-password').val(data.password);
         $('#edit-tempat_lahir').val(data.tempat_lahir);
         $('#edit-tanggal_lahir').val(data.tanggal_lahir);
         $('#edit-no_hp').val(data.no_hp);
