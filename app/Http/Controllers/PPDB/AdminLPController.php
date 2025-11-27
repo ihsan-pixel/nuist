@@ -260,7 +260,7 @@ class AdminLPController extends Controller
         // Handle facility photos
         if ($request->hasFile('fasilitas_foto')) {
             $fasilitasFoto = [];
-            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
+            $galeriPath = public_path('images/madrasah/galeri');
 
             // Ensure directory exists
             if (!is_dir($galeriPath)) {
@@ -290,7 +290,7 @@ class AdminLPController extends Controller
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
             $galeriFiles = [];
-            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
+            $galeriPath = public_path('images/madrasah/galeri');
 
             // Ensure directory exists
             if (!is_dir($galeriPath)) {
@@ -305,14 +305,15 @@ class AdminLPController extends Controller
                 }
             }
             if (!empty($galeriFiles)) {
-                $data['galeri_foto'] = array_merge($ppdbSetting->galeri_foto ?? [], $galeriFiles);
+                $currentGaleri = $ppdbSetting->galeri_foto ?? [];
+                $data['galeri_foto'] = array_merge($currentGaleri, $galeriFiles);
             }
         }
 
         if ($request->hasFile('brosur_pdf')) {
             $brosurFile = $request->file('brosur_pdf');
             if ($brosurFile->isValid()) {
-                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur';
+                $brosurPath = public_path('uploads/brosur');
 
                 // Ensure directory exists
                 if (!is_dir($brosurPath)) {
