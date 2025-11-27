@@ -556,7 +556,7 @@
                         </label>
                         <input type="number" class="form-control @error('nik') is-invalid @enderror"
                                id="nik" name="nik" value="{{ old('nik') }}"
-                               placeholder="Nomor Induk Kependudukan (16 digit)" maxlength="16" required>
+                               placeholder="Nomor Induk Kependudukan (16 digit)" maxlength="16" pattern="[0-9]{16}" required>
                         @error('nik')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -1076,6 +1076,24 @@ function validateCurrentStep() {
         const nisnInput = document.getElementById('nisn');
         if (nisnInput.classList.contains('is-invalid')) {
             isValid = false;
+        }
+
+        // Validasi NIK harus 16 digit
+        const nikInput = document.getElementById('nik');
+        const nikValue = nikInput.value.trim();
+        if (nikValue && nikValue.length !== 16) {
+            nikInput.classList.add('is-invalid');
+            // Tambahkan pesan error jika belum ada
+            let errorDiv = nikInput.parentNode.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                nikInput.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.textContent = 'NIK harus terdiri dari 16 digit angka.';
+            isValid = false;
+        } else if (nikValue.length === 16) {
+            nikInput.classList.remove('is-invalid');
         }
     }
 
