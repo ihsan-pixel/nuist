@@ -1909,12 +1909,7 @@
     <i class="bi bi-arrow-up"></i>
 </button>
 
-<!-- Floating Daftar Button -->
-@if(isset($ppdb->id))
-<button id="floatingDaftarBtn" class="btn btn-ppdb position-fixed animate-pulse" style="bottom: 90px; right: 20px; border-radius: 50%; width: 60px; height: 60px; z-index: 1050; box-shadow: 0 5px 15px rgba(239, 170, 12, 0.4);">
-    <i class="fas fa-edit fa-lg"></i>
-</button>
-@endif
+
 
 <script>
     // Back to Top functionality
