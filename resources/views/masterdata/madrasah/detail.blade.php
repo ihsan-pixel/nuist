@@ -559,6 +559,20 @@ $(document).ready(function () {
         }
     });
 
+    // Handle toggle password visibility
+    $('#toggle-password').click(function() {
+        const passwordInput = $('#edit-password');
+        const icon = $(this).find('i');
+
+        if (passwordInput.attr('type') === 'password') {
+            passwordInput.attr('type', 'text');
+            icon.removeClass('bx-show').addClass('bx-hide');
+        } else {
+            passwordInput.attr('type', 'password');
+            icon.removeClass('bx-hide').addClass('bx-show');
+        }
+    });
+
     @if(session('success'))
         Swal.fire({
             icon: 'success',
