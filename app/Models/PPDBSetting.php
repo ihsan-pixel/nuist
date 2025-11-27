@@ -112,4 +112,12 @@ class PPDBSetting extends Model
                now()->lt($this->ppdb_jadwal_buka) &&
                now()->diffInDays($this->ppdb_jadwal_buka) <= 7;
     }
+
+    /**
+     * Get total number of pendaftar
+     */
+    public function totalPendaftar()
+    {
+        return $this->pendaftars()->count();
+    }
 }
