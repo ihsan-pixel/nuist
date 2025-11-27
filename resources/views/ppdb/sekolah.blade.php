@@ -1779,6 +1779,39 @@
     </div>
 </section>
 
+<!-- Galeri Foto PPDB Settings -->
+@php
+    $ppdbGaleriFoto = $ppdb->galeri_foto ?? [];
+    if (is_string($ppdbGaleriFoto)) {
+        $ppdbGaleriFoto = json_decode($ppdbGaleriFoto, true) ?? [];
+    } elseif (!is_array($ppdbGaleriFoto)) {
+        $ppdbGaleriFoto = [];
+    }
+@endphp
+@if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0)
+<section class="section-padding bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">
+                    <i class="fas fa-images text-primary me-3"></i>Galeri Foto PPDB
+                </h2>
+                <p class="text-muted text-center mb-4">Koleksi foto-foto kegiatan dan fasilitas sekolah dari pengaturan PPDB</p>
+            </div>
+        </div>
+        <div class="row">
+            @foreach($ppdbGaleriFoto as $foto)
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="gallery-item">
+                    <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Custom Footer for School Page -->
 <footer class="bg-dark text-light py-5 mt-5">
     <div class="container">
