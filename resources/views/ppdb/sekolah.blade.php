@@ -1258,16 +1258,20 @@
         </div>
         <div class="row">
             <div class="col-lg-8">
-                @if($madrasah->tahun_berdiri)
+                @php
+                    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
+                    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
+                @endphp
+                @if($tahunBerdiri)
                     <div class="timeline">
                         <div class="timeline-item">
-                            <h5 class="text-primary">{{ $madrasah->tahun_berdiri }}</h5>
+                            <h5 class="text-primary">{{ $tahunBerdiri }}</h5>
                             <p>Tahun berdiri {{ $madrasah->name }}</p>
                         </div>
-                        @if($madrasah->sejarah)
+                        @if($sejarah)
                             <div class="timeline-item">
                                 <h5 class="text-primary">Perjalanan</h5>
-                                <p>{{ $madrasah->sejarah }}</p>
+                                <p>{{ $sejarah }}</p>
                             </div>
                         @endif
                     </div>
@@ -1276,11 +1280,18 @@
             <div class="col-lg-4">
                 <div class="card-custom p-4">
                     <h5 class="text-primary mb-3">Informasi Sekolah</h5>
-                    @if($madrasah->akreditasi)
-                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $madrasah->akreditasi }}</p>
+                    @php
+                        $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
+                        $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
+                    @endphp
+                    @if($akreditasi)
+                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $akreditasi }}</p>
                     @endif
-                    @if($madrasah->nilai_nilai)
-                        <p class="mb-0"><strong>Nilai-Nilai:</strong> {{ $madrasah->nilai_nilai }}</p>
+                    @if($nilaiNilai)
+                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $nilaiNilai }}</p>
+                    @endif
+                    @if($tahunBerdiri)
+                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $tahunBerdiri }}</p>
                     @endif
                 </div>
             </div>
