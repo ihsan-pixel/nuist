@@ -19,6 +19,11 @@ return new class extends Migration
                 'jadwal_tutup',
                 'biaya_pendidikan',
                 'informasi_tambahan',
+                'periode_presensi_mulai',
+                'periode_presensi_selesai',
+                'wajib_unggah_foto',
+                'wajib_unggah_kk',
+                'syarat_tambahan',
             ]);
         });
     }
@@ -35,6 +40,11 @@ return new class extends Migration
             $table->dateTime('jadwal_tutup')->nullable()->after('jadwal_buka');
             $table->text('biaya_pendidikan')->nullable()->after('ekstrakurikuler');
             $table->text('informasi_tambahan')->nullable()->after('biaya_pendidikan');
+            $table->date('periode_presensi_mulai')->nullable()->after('informasi_tambahan');
+            $table->date('periode_presensi_selesai')->nullable()->after('periode_presensi_mulai');
+            $table->boolean('wajib_unggah_foto')->default(false)->after('periode_presensi_selesai');
+            $table->boolean('wajib_unggah_kk')->default(false)->after('wajib_unggah_foto');
+            $table->text('syarat_tambahan')->nullable()->after('wajib_unggah_kk');
         });
     }
 };

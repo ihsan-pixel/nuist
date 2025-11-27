@@ -40,13 +40,13 @@ class PPDBSetting extends Model
     ];
 
     protected $casts = [
-        'jadwal_buka' => 'datetime',
-        'jadwal_tutup' => 'datetime',
         'ppdb_jadwal_buka' => 'datetime',
         'ppdb_jadwal_tutup' => 'datetime',
         'ppdb_jadwal_pengumuman' => 'datetime',
         'ppdb_kuota_jurusan' => 'array',
         'ppdb_jalur' => 'array',
+        'jurusan' => 'array',
+        'galeri_foto' => 'array',
     ];
 
     // Relasi ke Madrasah
