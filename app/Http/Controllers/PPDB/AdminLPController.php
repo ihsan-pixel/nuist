@@ -187,15 +187,39 @@ class AdminLPController extends Controller
             'faq.*' => 'nullable|string',
             'alur_pendaftaran' => 'nullable|array',
             'alur_pendaftaran.*' => 'nullable|string',
-            // Note: PPDB settings validation moved to updatePPDBSettings method
+            // PPDB settings fields
+            'ppdb_status' => 'nullable|string|in:tutup,buka',
+            'ppdb_jadwal_buka' => 'nullable|date',
+            'ppdb_jadwal_tutup' => 'nullable|date|after:ppdb_jadwal_buka',
+            'ppdb_kuota_total' => 'nullable|integer|min:0',
+            'ppdb_jadwal_pengumuman' => 'nullable|date',
+            'ppdb_kuota_jurusan' => 'nullable|array',
+            'ppdb_kuota_jurusan.*' => 'nullable|string',
+            'ppdb_jalur' => 'nullable|array',
+            'ppdb_jalur.*' => 'nullable|string',
+            'ppdb_biaya_pendaftaran' => 'nullable|string',
+            'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
+
+        // Find or create PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $madrasah->id,
+                'tahun' => $tahun
+            ],
+            [
+                'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
+                'nama_sekolah' => $madrasah->name
+            ]
+        );
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {
-            if ($madrasah->brosur_pdf) {
-                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur/' . $madrasah->brosur_pdf;
+            if ($ppdbSetting->brosur_pdf) {
+                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur/' . $ppdbSetting->brosur_pdf;
                 if (file_exists($brosurPath)) {
                     unlink($brosurPath);
                 }
@@ -206,7 +230,7 @@ class AdminLPController extends Controller
         // Handle deletion of galeri images
         if ($request->filled('deleted_galeri_foto')) {
             $deletedImages = explode(',', $request->input('deleted_galeri_foto'));
-            $currentGaleri = $madrasah->galeri_foto ?? [];
+            $currentGaleri = $ppdbSetting->galeri_foto ?? [];
             $currentGaleri = array_diff($currentGaleri, $deletedImages);
             // Delete physical files
             foreach ($deletedImages as $delImage) {
@@ -219,13 +243,18 @@ class AdminLPController extends Controller
         }
 
         // Handle array fields (excluding fasilitas which has special handling)
-        $arrayFields = ['misi', 'keunggulan', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran'];
+        $arrayFields = ['misi', 'keunggulan', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
         foreach ($arrayFields as $field) {
             if ($request->has($field)) {
                 $data[$field] = array_filter($request->input($field, []), function($value) {
                     return !empty(trim($value));
                 });
             }
+        }
+
+        // Handle PPDB kuota jurusan
+        if ($request->filled('ppdb_kuota_jurusan')) {
+            $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
         }
 
         // Handle facility photos
@@ -258,8 +287,6 @@ class AdminLPController extends Controller
             }
         }
 
-
-
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
             $galeriFiles = [];
@@ -278,7 +305,7 @@ class AdminLPController extends Controller
                 }
             }
             if (!empty($galeriFiles)) {
-                $data['galeri_foto'] = array_merge($madrasah->galeri_foto ?? [], $galeriFiles);
+                $data['galeri_foto'] = array_merge($ppdbSetting->galeri_foto ?? [], $galeriFiles);
             }
         }
 
@@ -298,39 +325,7 @@ class AdminLPController extends Controller
             }
         }
 
-        $madrasah->update($data);
-
-        // Handle PPDB settings if provided
-        if ($request->hasAny(['ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_kuota_jurusan', 'ppdb_jalur', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman'])) {
-            $ppdbData = $request->only(['ppdb_status', 'ppdb_jadwal_buka', 'ppdb_jadwal_tutup', 'ppdb_kuota_total', 'ppdb_jadwal_pengumuman', 'ppdb_biaya_pendaftaran', 'ppdb_catatan_pengumuman']);
-
-            // Handle PPDB jalur
-            if ($request->has('ppdb_jalur')) {
-                $ppdbData['ppdb_jalur'] = array_filter($request->input('ppdb_jalur', []), function($value) {
-                    return !empty(trim($value));
-                });
-            }
-
-            // Handle PPDB kuota jurusan
-            if ($request->filled('ppdb_kuota_jurusan')) {
-                $ppdbData['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
-            }
-
-            // Find or create PPDB setting for current year
-            $tahun = now()->year;
-            $ppdbSetting = PPDBSetting::firstOrCreate(
-                [
-                    'sekolah_id' => $madrasah->id,
-                    'tahun' => $tahun
-                ],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
-                    'nama_sekolah' => $madrasah->name
-                ]
-            );
-
-            $ppdbSetting->update($ppdbData);
-        }
+        $ppdbSetting->update($data);
 
         return redirect()->route('ppdb.lp.dashboard')->with('success', 'Profil madrasah berhasil diperbarui.');
     }
