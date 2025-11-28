@@ -213,13 +213,10 @@ class AdminLPController extends Controller
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
-        // Set nama_sekolah from madrasah table (readonly field)
+        // Set readonly fields from madrasah table
         $data['nama_sekolah'] = $madrasah->name;
-
-        // Update madrasah table to sync basic info (only telepon since name, kabupaten, alamat are readonly)
-        $madrasah->update([
-            'telepon' => $data['telepon'] ?? $madrasah->telepon,
-        ]);
+        $data['kabupaten'] = $madrasah->kabupaten;
+        $data['alamat'] = $madrasah->alamat;
 
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {
