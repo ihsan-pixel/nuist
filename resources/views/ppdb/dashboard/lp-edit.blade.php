@@ -1011,6 +1011,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update indices for all fasilitas items
                 updateFasilitasIndices();
+            } else if (targetId === 'jurusan-container') {
+                // Special handling for jurusan container
+                const newItem = document.createElement('div');
+                newItem.className = 'array-input-item mb-3 p-3 border rounded';
+                newItem.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="jurusan[0][nama]" placeholder="Nama Jurusan">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="jurusan[0][prospek_karir]" placeholder="Prospek Karir">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="jurusan[0][skill_dipelajari][]" placeholder="Skill yang Dipelajari (pisahkan dengan koma)">
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Insert before the last item (which should be empty)
+                const items = container.querySelectorAll('.array-input-item');
+                if (items.length > 0) {
+                    container.insertBefore(newItem, items[items.length - 1]);
+                } else {
+                    container.appendChild(newItem);
+                }
+
+                // Update indices for all jurusan items
+                updateJurusanIndices();
             } else {
                 // Default handling for other containers
                 const newItem = document.createElement('div');
@@ -1182,9 +1215,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Update jurusan indices function
+    function updateJurusanIndices() {
+        const container = document.getElementById('jurusan-container');
+        const items = container.querySelectorAll('.array-input-item');
+        items.forEach((item, index) => {
+            const inputs = item.querySelectorAll('input');
+            inputs.forEach(input => {
+                const name = input.name;
+                if (name.includes('jurusan[')) {
+                    input.name = name.replace(/jurusan\[\d+\]/, `jurusan[${index}]`);
+                }
+            });
+        });
+    }
+
     // Initialize on page load
     updateJumlahJurusan();
     updateFasilitasIndices();
+    updateJurusanIndices();
 
     // Copy to clipboard function
     window.copyToClipboard = function(event, text) {

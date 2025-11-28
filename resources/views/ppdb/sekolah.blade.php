@@ -1024,19 +1024,23 @@
                             <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
                         </h5>
                         <p class="text-muted mb-3">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
-                        @if(isset($jurusan['prospects']))
+                        @if(isset($jurusan['prospek_karir']) && !empty($jurusan['prospek_karir']))
                             <div class="mb-3">
                                 <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
-                                <p class="text-muted small">{{ $jurusan['prospects'] }}</p>
+                                <p class="text-muted small">{{ $jurusan['prospek_karir'] }}</p>
                             </div>
                         @endif
-                        @if(isset($jurusan['skills']))
+                        @if(isset($jurusan['skill_dipelajari']) && !empty($jurusan['skill_dipelajari']))
                             <div>
                                 <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
                                 <ul class="text-muted small">
-                                    @foreach($jurusan['skills'] ?? [] as $skill)
-                                        <li>{{ $skill }}</li>
-                                    @endforeach
+                                    @if(is_array($jurusan['skill_dipelajari']))
+                                        @foreach($jurusan['skill_dipelajari'] as $skill)
+                                            <li>{{ $skill }}</li>
+                                        @endforeach
+                                    @else
+                                        <li>{{ $jurusan['skill_dipelajari'] }}</li>
+                                    @endif
                                 </ul>
                             </div>
                         @endif
