@@ -291,7 +291,7 @@ class AdminLPController extends Controller
         // Handle facility photos
         if ($request->hasFile('fasilitas_foto')) {
             $fasilitasFoto = [];
-            $galeriPath = public_path('images/madrasah/galeri');
+            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
 
             // Ensure directory exists
             if (!is_dir($galeriPath)) {
@@ -344,7 +344,7 @@ class AdminLPController extends Controller
         if ($request->hasFile('brosur_pdf')) {
             $brosurFile = $request->file('brosur_pdf');
             if ($brosurFile->isValid()) {
-                $brosurPath = public_path('uploads/brosur');
+                $brosurPath = $_SERVER['DOCUMENT_ROOT'] . '/uploads/brosur';
 
                 // Ensure directory exists
                 if (!is_dir($brosurPath)) {
