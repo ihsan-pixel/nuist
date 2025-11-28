@@ -299,6 +299,8 @@ class AdminLPController extends Controller
             }
 
             $data['jurusan'] = $processedJurusan;
+            // Update jumlah_jurusan automatically
+            $data['jumlah_jurusan'] = count($processedJurusan);
         }
 
         // Handle PPDB kuota jurusan
