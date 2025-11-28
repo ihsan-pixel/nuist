@@ -922,6 +922,61 @@
     </div>
 </section>
 
+<!-- Profile Sekolah -->
+@if($madrasah->sejarah || $madrasah->tahun_berdiri || $madrasah->akreditasi || $madrasah->nilai_nilai)
+<section id="sejarah" class="section-padding bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">
+                    <i class="fas fa-history text-primary me-3"></i>Profile Sekolah
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                @php
+                    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
+                    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
+                @endphp
+                @if($tahunBerdiri)
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h5 class="text-primary">{{ $tahunBerdiri }}</h5>
+                            <p>Tahun berdiri {{ $madrasah->name }}</p>
+                        </div>
+                        @if($sejarah)
+                            <div class="timeline-item">
+                                <h5 class="text-primary">Perjalanan</h5>
+                                <p>{{ $sejarah }}</p>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </div>
+            <div class="col-lg-4">
+                <div class="card-custom p-4">
+                    <h5 class="text-primary mb-3">Informasi Sekolah</h5>
+                    @php
+                        $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
+                        $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
+                    @endphp
+                    @if($akreditasi)
+                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $akreditasi }}</p>
+                    @endif
+                    @if($nilaiNilai)
+                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $nilaiNilai }}</p>
+                    @endif
+                    @if($tahunBerdiri)
+                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $tahunBerdiri }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Jurusan/Program Studi -->
 <section id="jurusan" class="section-padding bg-light">
     <div class="container">
@@ -1061,6 +1116,73 @@
         </div>
     </div>
 </section>
+
+<!-- Program Unggulan & Ekstrakurikuler -->
+@php
+    $programUnggulanData = $ppdb->program_unggulan ?? $madrasah->program_unggulan;
+    $ekstrakurikulerData = $ppdb->ekstrakurikuler ?? $madrasah->ekstrakurikuler;
+
+    // Ensure programUnggulanData is an array
+    if (is_string($programUnggulanData)) {
+        $programUnggulanData = json_decode($programUnggulanData, true) ?? [];
+    } elseif (!is_array($programUnggulanData)) {
+        $programUnggulanData = [];
+    }
+
+    // Ensure ekstrakurikulerData is an array
+    if (is_string($ekstrakurikulerData)) {
+        $ekstrakurikulerData = json_decode($ekstrakurikulerData, true) ?? [];
+    } elseif (!is_array($ekstrakurikulerData)) {
+        $ekstrakurikulerData = [];
+    }
+@endphp
+@if($programUnggulanData || $ekstrakurikulerData)
+<section class="section-padding bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title">Program Unggulan & Ekstrakurikuler</h2>
+            </div>
+        </div>
+        <div class="row">
+            @if($programUnggulanData)
+            <div class="col-lg-6 mb-4">
+                <div class="card-custom p-4">
+                    <h4 class="text-primary mb-4">Program Unggulan</h4>
+                    <div class="row">
+                        @foreach($programUnggulanData as $program)
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>{{ $program['name'] ?? $program }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+            @if($ekstrakurikulerData)
+            <div class="col-lg-6 mb-4">
+                <div class="card-custom p-4">
+                    <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
+                    <div class="row">
+                        @foreach($ekstrakurikulerData ?? [] as $ekstra)
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-run text-primary me-2"></i>
+                                <span>{{ $ekstra['name'] ?? $ekstra }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- About Section -->
 <section id="about" class="about-section">
@@ -1245,128 +1367,6 @@
     </div>
 </section>
 
-<!-- Sejarah Sekolah -->
-@if($madrasah->sejarah || $madrasah->tahun_berdiri || $madrasah->akreditasi || $madrasah->nilai_nilai)
-<section id="sejarah" class="section-padding bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">
-                    <i class="fas fa-history text-primary me-3"></i>Sejarah Sekolah
-                </h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-8">
-                @php
-                    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
-                    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
-                @endphp
-                @if($tahunBerdiri)
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <h5 class="text-primary">{{ $tahunBerdiri }}</h5>
-                            <p>Tahun berdiri {{ $madrasah->name }}</p>
-                        </div>
-                        @if($sejarah)
-                            <div class="timeline-item">
-                                <h5 class="text-primary">Perjalanan</h5>
-                                <p>{{ $sejarah }}</p>
-                            </div>
-                        @endif
-                    </div>
-                @endif
-            </div>
-            <div class="col-lg-4">
-                <div class="card-custom p-4">
-                    <h5 class="text-primary mb-3">Informasi Sekolah</h5>
-                    @php
-                        $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
-                        $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
-                    @endphp
-                    @if($akreditasi)
-                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $akreditasi }}</p>
-                    @endif
-                    @if($nilaiNilai)
-                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $nilaiNilai }}</p>
-                    @endif
-                    @if($tahunBerdiri)
-                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $tahunBerdiri }}</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-@endif
-
-<!-- Program Unggulan & Ekstrakurikuler -->
-@php
-    $programUnggulanData = $ppdb->program_unggulan ?? $madrasah->program_unggulan;
-    $ekstrakurikulerData = $ppdb->ekstrakurikuler ?? $madrasah->ekstrakurikuler;
-
-    // Ensure programUnggulanData is an array
-    if (is_string($programUnggulanData)) {
-        $programUnggulanData = json_decode($programUnggulanData, true) ?? [];
-    } elseif (!is_array($programUnggulanData)) {
-        $programUnggulanData = [];
-    }
-
-    // Ensure ekstrakurikulerData is an array
-    if (is_string($ekstrakurikulerData)) {
-        $ekstrakurikulerData = json_decode($ekstrakurikulerData, true) ?? [];
-    } elseif (!is_array($ekstrakurikulerData)) {
-        $ekstrakurikulerData = [];
-    }
-@endphp
-@if($programUnggulanData || $ekstrakurikulerData)
-<section class="section-padding bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">Program Unggulan & Ekstrakurikuler</h2>
-            </div>
-        </div>
-        <div class="row">
-            @if($programUnggulanData)
-            <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4">
-                    <h4 class="text-primary mb-4">Program Unggulan</h4>
-                    <div class="row">
-                        @foreach($programUnggulanData as $program)
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <span>{{ $program['name'] ?? $program }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-            @if($ekstrakurikulerData)
-            <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4">
-                    <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
-                    <div class="row">
-                        @foreach($ekstrakurikulerData ?? [] as $ekstra)
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-run text-primary me-2"></i>
-                                <span>{{ $ekstra['name'] ?? $ekstra }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-    </div>
-</section>
-@endif
-
 <!-- Testimoni -->
 @php
     $testimoniData = $madrasah->testimoni;
@@ -1438,59 +1438,6 @@
                     <p class="lead">{{ $madrasah->kepala_sekolah_sambutan }}</p>
                 @endif
             </div>
-        </div>
-    </div>
-</section>
-@endif
-
-<!-- Data Statistik -->
-@php
-    $jumlahSiswa = $ppdb->jumlah_siswa ?? $madrasah->jumlah_siswa;
-    $jumlahGuru = $ppdb->jumlah_guru ?? $madrasah->jumlah_guru;
-    $jumlahJurusan = $ppdb->jumlah_jurusan ?? $madrasah->jumlah_jurusan;
-    $jumlahSarana = $ppdb->jumlah_sarana ?? $madrasah->jumlah_sarana;
-@endphp
-@if($jumlahSiswa || $jumlahGuru || $jumlahJurusan || $jumlahSarana)
-<section class="section-padding">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">Data Statistik Sekolah</h2>
-            </div>
-        </div>
-        <div class="row">
-            @if($jumlahSiswa)
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stats-counter">
-                    <div class="stats-number">{{ number_format($jumlahSiswa) }}</div>
-                    <h6>Jumlah Siswa</h6>
-                </div>
-            </div>
-            @endif
-            @if($jumlahGuru)
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stats-counter">
-                    <div class="stats-number">{{ number_format($jumlahGuru) }}</div>
-                    <h6>Jumlah Guru</h6>
-                </div>
-            </div>
-            @endif
-            @if($jumlahJurusan)
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stats-counter">
-                    <div class="stats-number">{{ $jumlahJurusan }}</div>
-                    <h6>Jumlah Jurusan</h6>
-                </div>
-            </div>
-            @endif
-            @if($jumlahSarana)
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stats-counter">
-                    <div class="stats-number">{{ $jumlahSarana }}</div>
-                    <h6>Jumlah Sarana</h6>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 </section>
@@ -1778,39 +1725,6 @@
         </div>
     </div>
 </section>
-
-<!-- Galeri Foto PPDB Settings -->
-@php
-    $ppdbGaleriFoto = $ppdb->galeri_foto ?? [];
-    if (is_string($ppdbGaleriFoto)) {
-        $ppdbGaleriFoto = json_decode($ppdbGaleriFoto, true) ?? [];
-    } elseif (!is_array($ppdbGaleriFoto)) {
-        $ppdbGaleriFoto = [];
-    }
-@endphp
-@if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0)
-<section class="section-padding bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">
-                    <i class="fas fa-images text-primary me-3"></i>Galeri Foto PPDB
-                </h2>
-                <p class="text-muted text-center mb-4">Koleksi foto-foto kegiatan dan fasilitas sekolah dari pengaturan PPDB</p>
-            </div>
-        </div>
-        <div class="row">
-            @foreach($ppdbGaleriFoto as $foto)
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="gallery-item">
-                    <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
 <!-- Custom Footer for School Page -->
 <footer class="bg-dark text-light py-5 mt-5">
