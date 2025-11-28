@@ -12,11 +12,13 @@
         background-size: cover;
         background-position: center;
         background-attachment: absolute;
+
+        /* FIX TERPENTING */
+        display: block; /* buang flex agar elemen tidak ketarik tengah */
+        padding-top: 40px; /* beri ruang flayer lebih kecil */
+        padding-bottom: 80px;
         min-height: 93vh;
         position: relative;
-        display: flex;
-        align-items: center;
-        padding: 80px 0;
     }
 
     /* .hero-section::before {
@@ -37,7 +39,8 @@
     }
 
     .hero-flayer {
-        margin-top: -60px !important;
+        text-align: center;
+        margin-bottom: 120px;
     }
 
     .school-logo {
@@ -847,17 +850,19 @@
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <div class="container hero-content">
-        <div class="row align-items-center">
 
-            <!-- Flayer di atas -->
-            <div class="container hero-flayer animate-fade-in-up" style="margin-top: -40px;">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6 text-center">
-                        <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
-                    </div>
-                </div>
+    <!-- Flayer di atas -->
+    <div class="container hero-flayer animate-fade-in-up">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
             </div>
+        </div>
+    </div>
+
+    <!-- Bagian Text + Image Hero -->
+    <div class="container">
+        <div class="row align-items-center">
 
             <!-- Text Kiri -->
             <div class="col-lg-6 animate-slide-in-left">
