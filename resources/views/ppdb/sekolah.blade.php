@@ -1530,7 +1530,7 @@
                     @if($hasBrosur)
                         <div class="text-center">
                             <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
-                            <a href="{{ asset('upload/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('upload/brosur/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-2">
