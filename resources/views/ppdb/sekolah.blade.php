@@ -1478,8 +1478,9 @@
 
     $hasVideo = false;
     $videoUrl = '';
-    if ($madrasah->video_profile) {
-        $videoUrl = $madrasah->video_profile;
+    $linkVideoYoutube = $ppdb->link_video_youtube;
+    if ($linkVideoYoutube) {
+        $videoUrl = $linkVideoYoutube;
         // Check if it's a YouTube URL and convert to embed format
         if (strpos($videoUrl, 'youtube.com') !== false || strpos($videoUrl, 'youtu.be') !== false) {
             if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $matches)) {
@@ -1513,9 +1514,9 @@
                     <div class="video-container">
                         <iframe src="{{ $videoUrl }}" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    @if(strpos($madrasah->video_profile, 'youtube.com') !== false || strpos($madrasah->video_profile, 'youtu.be') !== false)
+                    @if(strpos($linkVideoYoutube, 'youtube.com') !== false || strpos($linkVideoYoutube, 'youtu.be') !== false)
                         <div class="text-center mt-3">
-                            <a href="{{ $madrasah->video_profile }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{{ $linkVideoYoutube }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                 <i class="fab fa-youtube me-2"></i>Tonton di YouTube
                             </a>
                         </div>
@@ -1528,13 +1529,13 @@
                         <i class="fas fa-download me-2"></i>Download Brosur
                     </h4>
                     @php
-                        $brosurData = $ppdb ?? $madrasah;
-                        $hasBrosur = !empty($brosurData->brosur_pdf);
+                        $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
+                        $hasBrosur = !empty($brosurData);
                     @endphp
                     @if($hasBrosur)
                         <div class="text-center">
                             <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
-                            <a href="{{ asset('upload/brosur/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('storage/' . $brosurData) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-2">
@@ -1585,26 +1586,8 @@
                 $ppdbGaleriFoto = [];
             }
         @endphp
-        @if($galeriFotoData && count($galeriFotoData) > 0 || $ppdbGaleriFoto && count($ppdbGaleriFoto) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
+        @if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
         <div class="row">
-            <!-- Galeri Foto Kegiatan -->
-            @if($galeriFotoData && count($galeriFotoData) > 0)
-            <div class="col-12 mb-4">
-                <h4 class="text-primary mb-3">
-                    <i class="fas fa-camera me-2"></i>Galeri Foto Kegiatan
-                </h4>
-                <div class="row">
-                    @foreach($galeriFotoData as $foto)
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="gallery-item">
-                            <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto" class="gallery-img w-100">
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
             <!-- Galeri Foto PPDB -->
             @if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0)
             <div class="col-12 mb-4">
@@ -1616,7 +1599,7 @@
                     @foreach($ppdbGaleriFoto as $foto)
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="gallery-item">
-                            <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
+                            <img src="{{ asset('storage/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
                         </div>
                     </div>
                     @endforeach
@@ -1720,8 +1703,11 @@
             @if(isset($ppdb->id) && $ppdb->isPembukaan())
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-ppdb btn-lg">Daftar PPDB Sekarang</a>
             @endif
-            @if($madrasah->brosur_pdf)
-                <a href="{{ asset('storage/' . $madrasah->brosur_pdf) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
+            @php
+                $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
+            @endphp
+            @if($brosurData)
+                <a href="{{ asset('storage/' . $brosurData) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
             @endif
             <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $madrasah->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($madrasah->name) }}" target="_blank" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-whatsapp me-2"></i>Hubungi Admin
@@ -1776,8 +1762,11 @@
                 <ul class="list-unstyled">
                     <li class="mb-2"><a href="#faq" class="text-light text-decoration-none">FAQ PPDB</a></li>
                     <li class="mb-2"><a href="#alur" class="text-light text-decoration-none">Alur Pendaftaran</a></li>
-                    @if($madrasah->brosur_pdf)
-                        <li class="mb-2"><a href="{{ asset('storage/' . $madrasah->brosur_pdf) }}" class="text-light text-decoration-none" target="_blank">Download Brosur</a></li>
+                    @php
+                        $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
+                    @endphp
+                    @if($brosurData)
+                        <li class="mb-2"><a href="{{ asset('storage/' . $brosurData) }}" class="text-light text-decoration-none" target="_blank">Download Brosur</a></li>
                     @endif
                     <li class="mb-2"><a href="#kontak" class="text-light text-decoration-none">Kontak</a></li>
                 </ul>
