@@ -1211,6 +1211,46 @@
 </section>
 @endif
 
+<!-- Prestasi Sekolah -->
+@php
+    $prestasiData = $ppdb->prestasi;
+    if (is_string($prestasiData)) {
+        $prestasiData = json_decode($prestasiData, true) ?? [];
+    } elseif (!is_array($prestasiData)) {
+        $prestasiData = [];
+    }
+@endphp
+@if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0)
+<section id="prestasi" class="about-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold">
+                    <i class="fas fa-trophy text-warning me-3"></i>Prestasi <span style="color: #efaa0c;">Sekolah</span>
+                </h2>
+                <p class="lead">Pencapaian dan penghargaan yang telah diraih sekolah kami</p>
+            </div>
+        </div>
+        <div class="row">
+            @foreach($prestasiData as $prestasi)
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="achievement-badge">
+                    <div class="mb-2">
+                        <i class="fas fa-medal fa-2x text-warning"></i>
+                    </div>
+                    <h6 class="mb-2">{{ $prestasi['title'] ?? '' }}</h6>
+                    <p class="small mb-0">{{ $prestasi['description'] ?? '' }}</p>
+                    @if(isset($prestasi['year']))
+                        <small class="text-warning">{{ $prestasi['year'] }}</small>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- About Section -->
 <section id="about" class="about-section">
     <div class="container">
@@ -1296,38 +1336,7 @@
         </div>
         @endif
 
-        <!-- Prestasi Sekolah -->
-        @php
-            $prestasiData = $ppdb->prestasi;
-            if (is_string($prestasiData)) {
-                $prestasiData = json_decode($prestasiData, true) ?? [];
-            } elseif (!is_array($prestasiData)) {
-                $prestasiData = [];
-            }
-        @endphp
-        @if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0)
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h3 class="text-white">
-                    <i class="fas fa-trophy text-warning me-2"></i>Prestasi Sekolah
-                </h3>
-            </div>
-            @foreach($prestasiData as $prestasi)
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="achievement-badge">
-                    <div class="mb-2">
-                        <i class="fas fa-medal fa-2x text-warning"></i>
-                    </div>
-                    <h6 class="mb-2">{{ $prestasi['title'] ?? '' }}</h6>
-                    <p class="small mb-0">{{ $prestasi['description'] ?? '' }}</p>
-                    @if(isset($prestasi['year']))
-                        <small class="text-warning">{{ $prestasi['year'] }}</small>
-                    @endif
-                </div>
-            </div>
-            @endforeach
-        </div>
-        @endif
+
     </div>
 </section>
 
