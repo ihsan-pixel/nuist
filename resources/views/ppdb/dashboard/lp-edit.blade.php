@@ -890,7 +890,7 @@
                     <div class="form-group">
                         <label for="jumlah_jurusan" class="form-label">Jumlah Jurusan</label>
                         <input type="number" class="form-control @error('jumlah_jurusan') is-invalid @enderror"
-                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $jumlahJurusan ?? $ppdbSetting->jumlah_jurusan ?? '') }}" min="0" readonly>
+                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ $jumlahJurusan }}" min="0" readonly>
                         <small class="text-muted">Jumlah jurusan dihitung otomatis dari data yang tersimpan</small>
                         @error('jumlah_jurusan')
                             <div class="invalid-feedback">{{ $message }}</div>
