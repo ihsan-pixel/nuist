@@ -248,13 +248,40 @@ class AdminLPController extends Controller
         }
 
         // Handle array fields (excluding fasilitas which has special handling)
-        $arrayFields = ['misi', 'keunggulan', 'jurusan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
+        $arrayFields = ['misi', 'keunggulan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
         foreach ($arrayFields as $field) {
             if ($request->has($field)) {
                 $data[$field] = array_filter($request->input($field, []), function($value) {
                     return !empty(trim($value));
                 });
             }
+        }
+
+        // Special handling for jurusan (nested objects)
+        if ($request->has('jurusan')) {
+            $jurusanData = $request->input('jurusan', []);
+            $processedJurusan = [];
+
+            foreach ($jurusanData as $jurusan) {
+                // Check if jurusan is an array (new format) or string (old format)
+                if (is_array($jurusan)) {
+                    // New format: check if nama is not empty
+                    if (!empty(trim($jurusan['nama'] ?? ''))) {
+                        $processedJurusan[] = [
+                            'nama' => trim($jurusan['nama']),
+                            'prospek_karir' => trim($jurusan['prospek_karir'] ?? ''),
+                            'skill_dipelajari' => $this->processSkills($jurusan['skill_dipelajari'] ?? '')
+                        ];
+                    }
+                } else {
+                    // Old format: simple string
+                    if (!empty(trim($jurusan))) {
+                        $processedJurusan[] = trim($jurusan);
+                    }
+                }
+            }
+
+            $data['jurusan'] = $processedJurusan;
         }
 
         // Handle PPDB kuota jurusan
