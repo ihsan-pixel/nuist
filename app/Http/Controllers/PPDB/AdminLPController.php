@@ -376,9 +376,11 @@ class AdminLPController extends Controller
                                     'name' => $name,
                                     'description' => $facilityName
                                 ];
-                                // Assign photo if available for this index
+                                // Assign photo: new upload takes precedence, otherwise keep existing
                                 if (isset($fasilitasFoto[$index])) {
                                     $facility['foto'] = $fasilitasFoto[$index];
+                                } elseif (isset($fasilitas['foto'])) {
+                                    $facility['foto'] = $fasilitas['foto'];
                                 }
                                 $processedFasilitas[] = $facility;
                             }
@@ -389,9 +391,11 @@ class AdminLPController extends Controller
                             'name' => $name,
                             'description' => $description
                         ];
-                        // Assign photo if available for this index
+                        // Assign photo: new upload takes precedence, otherwise keep existing
                         if (isset($fasilitasFoto[$index])) {
                             $facility['foto'] = $fasilitasFoto[$index];
+                        } elseif (isset($fasilitas['foto'])) {
+                            $facility['foto'] = $fasilitas['foto'];
                         }
                         $processedFasilitas[] = $facility;
                     }
