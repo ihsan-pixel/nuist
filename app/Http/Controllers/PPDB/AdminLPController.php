@@ -150,7 +150,12 @@ class AdminLPController extends Controller
         }
         $jumlahJurusan = is_array($jurusanArray) ? count($jurusanArray) : 0;
 
-        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru', 'jumlahFasilitas', 'jumlahJurusan'));
+        // Ambil data kepala sekolah dari users table berdasarkan madrasah_id dan ketugasan
+        $kepalaSekolah = $ppdbSetting->sekolah->admins()
+            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->first();
+
+        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru', 'jumlahFasilitas', 'jumlahJurusan', 'kepalaSekolah'));
     }
 
     /**
@@ -234,7 +239,7 @@ class AdminLPController extends Controller
 
         // Set kepala sekolah nama from users table
         $kepalaSekolah = $madrasah->admins()
-            ->whereIn('ketugasan', ['kepala madrasah/sekolah'])
+            ->where('ketugasan', 'kepala madrasah/sekolah')
             ->first();
         $data['kepala_sekolah_nama'] = $kepalaSekolah ? $kepalaSekolah->name : null;
 
