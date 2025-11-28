@@ -863,8 +863,8 @@
                         @endif
                     </div>
                 </div>
-                @if($ppdb->deskripsi_singkat ?? $madrasah->deskripsi_singkat)
-                    <p class="lead mb-4">{{ $ppdb->deskripsi_singkat ?? $madrasah->deskripsi_singkat }}</p>
+                @if($ppdb->deskripsi_singkat)
+                    <p class="lead mb-4">{{ $ppdb->deskripsi_singkat }}</p>
                 @endif
                 <div class="d-flex gap-3 flex-wrap">
                     @php $currentSlug = request()->route('slug'); @endphp
@@ -941,16 +941,16 @@
         </div>
         <div class="row">
             <div class="col-lg-8">
-                @if($tahunBerdiri)
+                @if($ppdb->tahun_berdiri)
                     <div class="timeline">
                         <div class="timeline-item">
-                            <h5 class="text-primary">{{ $tahunBerdiri }}</h5>
-                            <p>Tahun berdiri {{ $madrasah->name }}</p>
+                            <h5 class="text-primary">{{ $ppdb->tahun_berdiri }}</h5>
+                            <p>Tahun berdiri {{ $ppdb->nama_sekolah ?? $ppdb->name }}</p>
                         </div>
-                        @if($sejarah)
+                        @if($ppdb->sejarah)
                             <div class="timeline-item">
                                 <h5 class="text-primary">Perjalanan</h5>
-                                <p>{{ $sejarah }}</p>
+                                <p>{{ $ppdb->sejarah }}</p>
                             </div>
                         @endif
                     </div>
@@ -959,14 +959,14 @@
             <div class="col-lg-4">
                 <div class="card-custom p-4">
                     <h5 class="text-primary mb-3">Informasi Sekolah</h5>
-                    @if($akreditasi)
-                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $akreditasi }}</p>
+                    @if($ppdb->akreditasi)
+                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
                     @endif
-                    @if($nilaiNilai)
-                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $nilaiNilai }}</p>
+                    @if($ppdb->nilai_nilai)
+                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $ppdb->nilai_nilai }}</p>
                     @endif
-                    @if($tahunBerdiri)
-                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $tahunBerdiri }}</p>
+                    @if($ppdb->tahun_berdiri)
+                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $ppdb->tahun_berdiri }}</p>
                     @endif
                 </div>
             </div>
@@ -986,42 +986,8 @@
             </div>
         </div>
         <div class="row">
-            @php
-                // Normalize jurusan data: prefer ppdb_settings data, fall back to madrasah data
-                $jurusanData = [];
-
-                if(!empty($ppdb->jurusan) && count($ppdb->jurusan) > 0) {
-                    foreach($ppdb->jurusan as $j) {
-                        if(is_array($j)) {
-                            $jurusanData[] = $j;
-                        } else {
-                            $jurusanData[] = ['name' => $j];
-                        }
-                    }
-                } elseif(!empty($madrasah->jurusn)) {
-                    $decoded = json_decode($madrasah->jurusn, true);
-                    if(is_array($decoded) && count($decoded) > 0) {
-                        $jurusanData = $decoded;
-                    } else {
-                        // Assume comma-separated string of names
-                        $pieces = array_filter(array_map('trim', explode(',', $madrasah->jurusn)));
-                        foreach($pieces as $p) {
-                            $jurusanData[] = ['name' => $p];
-                        }
-                    }
-                } elseif(!empty($madrasah->jurusan) && count($madrasah->jurusan) > 0) {
-                    foreach($madrasah->jurusan as $j) {
-                        if(is_array($j)) {
-                            $jurusanData[] = $j;
-                        } else {
-                            $jurusanData[] = ['name' => $j];
-                        }
-                    }
-                }
-            @endphp
-
-            @if(count($jurusanData) > 0)
-                @foreach($jurusanData as $jurusan)
+            @if($ppdb->jurusan && count($ppdb->jurusan) > 0)
+                @foreach($ppdb->jurusan as $jurusan)
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         @if(isset($jurusan['image']) && $jurusan['image'])
@@ -1074,16 +1040,8 @@
             </div>
         </div>
         <div class="row">
-            @php
-                $fasilitasData = $madrasah->fasilitas;
-                if (is_string($fasilitasData)) {
-                    $fasilitasData = json_decode($fasilitasData, true) ?? [];
-                } elseif (!is_array($fasilitasData)) {
-                    $fasilitasData = [];
-                }
-            @endphp
-            @if($fasilitasData && count($fasilitasData) > 0)
-                @foreach($fasilitasData as $fasilitas)
+            @if($ppdb->fasilitas && count($ppdb->fasilitas) > 0)
+                @foreach($ppdb->fasilitas as $fasilitas)
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="facility-card">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
@@ -1116,25 +1074,7 @@
 </section>
 
 <!-- Program Unggulan & Ekstrakurikuler -->
-@php
-    $programUnggulanData = $ppdb->program_unggulan ?? $madrasah->program_unggulan;
-    $ekstrakurikulerData = $ppdb->ekstrakurikuler ?? $madrasah->ekstrakurikuler;
-
-    // Ensure programUnggulanData is an array
-    if (is_string($programUnggulanData)) {
-        $programUnggulanData = json_decode($programUnggulanData, true) ?? [];
-    } elseif (!is_array($programUnggulanData)) {
-        $programUnggulanData = [];
-    }
-
-    // Ensure ekstrakurikulerData is an array
-    if (is_string($ekstrakurikulerData)) {
-        $ekstrakurikulerData = json_decode($ekstrakurikulerData, true) ?? [];
-    } elseif (!is_array($ekstrakurikulerData)) {
-        $ekstrakurikulerData = [];
-    }
-@endphp
-@if($programUnggulanData || $ekstrakurikulerData)
+@if($ppdb->program_unggulan || $ppdb->ekstrakurikuler)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1143,12 +1083,12 @@
             </div>
         </div>
         <div class="row">
-            @if($programUnggulanData)
+            @if($ppdb->program_unggulan)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Program Unggulan</h4>
                     <div class="row">
-                        @foreach($programUnggulanData as $program)
+                        @foreach($ppdb->program_unggulan as $program)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-check-circle text-success me-2"></i>
@@ -1160,12 +1100,12 @@
                 </div>
             </div>
             @endif
-            @if($ekstrakurikulerData)
+            @if($ppdb->ekstrakurikuler)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
                     <div class="row">
-                        @foreach($ekstrakurikulerData ?? [] as $ekstra)
+                        @foreach($ppdb->ekstrakurikuler as $ekstra)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-run text-primary me-2"></i>
@@ -1195,45 +1135,20 @@
         </div>
 
         <!-- Visi & Misi -->
-        @php
-            $visiData = $ppdb->visi ?? $madrasah->visi;
-            $misiData = $ppdb->misi ?? $madrasah->misi;
-            // Ensure misiData is an array
-            if (is_string($misiData)) {
-                $decoded = json_decode($misiData, true);
-                if (is_array($decoded)) {
-                    $misiData = $decoded;
-                } elseif (is_string($decoded)) {
-                    // Handle case where JSON contains a single string
-                    $misiData = [$decoded];
-                } else {
-                    // Try to split by newlines or common separators
-                    $misiData = array_filter(array_map('trim', explode("\n", $misiData)));
-                    if (empty($misiData)) {
-                        $misiData = array_filter(array_map('trim', explode(",", $misiData)));
-                    }
-                    if (empty($misiData)) {
-                        $misiData = [$misiData]; // Single string as array
-                    }
-                }
-            } elseif (!is_array($misiData)) {
-                $misiData = [];
-            }
-        @endphp
-        @if($visiData || $misiData)
+        @if($ppdb->visi || $ppdb->misi)
         <div class="row mb-5">
-            @if($visiData)
+            @if($ppdb->visi)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4 h-100 text-center">
                     <div class="advantage-icon mb-4">
                         <i class="fas fa-eye"></i>
                     </div>
                     <h4 class="text-white mb-4">Visi</h4>
-                    <p class="lead text-white">{{ $visiData }}</p>
+                    <p class="lead text-white">{{ $ppdb->visi }}</p>
                 </div>
             </div>
             @endif
-            @if($misiData)
+            @if($ppdb->misi)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4 h-100 text-center">
                     <div class="advantage-icon mb-4">
@@ -1241,7 +1156,7 @@
                     </div>
                     <h4 class="text-white mb-4">Misi</h4>
                     <ul class="list-unstyled text-start">
-                        @foreach($misiData ?? [] as $misi)
+                        @foreach($ppdb->misi as $misi)
                             <li class="mb-3">
                                 <i class="fas fa-check-circle text-warning me-2"></i>
                                 <span class="text-white">{{ $misi }}</span>
@@ -1285,28 +1200,14 @@
         @endif
 
         <!-- Prestasi Sekolah -->
-        @php
-            $prestasiData = $ppdb->prestasi ?? $madrasah->prestasi;
-            // Ensure prestasiData is an array
-            if (is_string($prestasiData)) {
-                $decoded = json_decode($prestasiData, true);
-                if (is_array($decoded)) {
-                    $prestasiData = $decoded;
-                } else {
-                    $prestasiData = [];
-                }
-            } elseif (!is_array($prestasiData)) {
-                $prestasiData = [];
-            }
-        @endphp
-        @if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0)
+        @if($ppdb->prestasi && is_array($ppdb->prestasi) && count($ppdb->prestasi) > 0)
         <div class="row">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-white">
                     <i class="fas fa-trophy text-warning me-2"></i>Prestasi Sekolah
                 </h3>
             </div>
-            @foreach($prestasiData as $prestasi)
+            @foreach($ppdb->prestasi as $prestasi)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="achievement-badge">
                     <div class="mb-2">
@@ -1342,7 +1243,7 @@
                 <div class="contact-card h-100 animate-fade-in-up">
                     <i class="fas fa-phone"></i>
                     <h5>Telepon</h5>
-                    <p>{{ $madrasah->telepon ?? 'Tidak tersedia' }}</p>
+                    <p>{{ $ppdb->telepon ?? 'Tidak tersedia' }}</p>
                 </div>
             </div>
 
@@ -1350,7 +1251,7 @@
                 <div class="contact-card h-100 animate-fade-in-up">
                     <i class="fas fa-envelope"></i>
                     <h5>Email</h5>
-                    <p>{{ $madrasah->email ?? 'Tidak tersedia' }}</p>
+                    <p>{{ $ppdb->email ?? 'Tidak tersedia' }}</p>
                 </div>
             </div>
 
@@ -1358,7 +1259,7 @@
                 <div class="contact-card h-100 animate-fade-in-up">
                     <i class="fas fa-map-marker-alt"></i>
                     <h5>Alamat</h5>
-                    <p>{{ $madrasah->alamat ?? 'Alamat belum ditentukan' }}</p>
+                    <p>{{ $ppdb->alamat ?? 'Alamat belum ditentukan' }}</p>
                 </div>
             </div>
         </div>
@@ -1409,13 +1310,7 @@
 @endif --}}
 
 <!-- Kepala Sekolah -->
-@php
-    $kepalaSekolahNama = $ppdb->kepala_sekolah_nama ?? $madrasah->kepala_sekolah_nama;
-    $kepalaSekolahGelar = $ppdb->kepala_sekolah_gelar ?? $madrasah->kepala_sekolah_gelar;
-    $kepalaSekolahSambutan = $ppdb->kepala_sekolah_sambutan ?? $madrasah->kepala_sekolah_sambutan;
-    $kepalaSekolahFoto = $ppdb->kepala_sekolah_foto ?? $madrasah->kepala_sekolah_foto;
-@endphp
-@if($kepalaSekolahNama)
+@if($ppdb->kepala_sekolah_nama)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1425,21 +1320,21 @@
         </div>
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
-                @if($kepalaSekolahFoto)
-                    <img src="{{ asset('storage/' . $kepalaSekolahFoto) }}" alt="{{ $kepalaSekolahNama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
+                @if($ppdb->kepala_sekolah_foto)
+                    <img src="{{ asset('storage/' . $ppdb->kepala_sekolah_foto) }}" alt="{{ $ppdb->kepala_sekolah_nama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
                 @else
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
-                        <span class="text-white display-4">{{ substr($kepalaSekolahNama, 0, 1) }}</span>
+                        <span class="text-white display-4">{{ substr($ppdb->kepala_sekolah_nama, 0, 1) }}</span>
                     </div>
                 @endif
             </div>
             <div class="col-lg-8">
-                <h4 class="text-primary mb-2">{{ $kepalaSekolahNama }}</h4>
-                @if($kepalaSekolahGelar)
-                    <p class="text-muted mb-3">{{ $kepalaSekolahGelar }}</p>
+                <h4 class="text-primary mb-2">{{ $ppdb->kepala_sekolah_nama }}</h4>
+                @if($ppdb->kepala_sekolah_gelar)
+                    <p class="text-muted mb-3">{{ $ppdb->kepala_sekolah_gelar }}</p>
                 @endif
-                @if($kepalaSekolahSambutan)
-                    <p class="lead">{{ $kepalaSekolahSambutan }}</p>
+                @if($ppdb->kepala_sekolah_sambutan)
+                    <p class="lead">{{ $ppdb->kepala_sekolah_sambutan }}</p>
                 @endif
             </div>
         </div>
@@ -1514,9 +1409,9 @@
                     <div class="video-container">
                         <iframe src="{{ $videoUrl }}" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    @if(strpos($linkVideoYoutube, 'youtube.com') !== false || strpos($linkVideoYoutube, 'youtu.be') !== false)
+                    @if(strpos($ppdb->link_video_youtube, 'youtube.com') !== false || strpos($ppdb->link_video_youtube, 'youtu.be') !== false)
                         <div class="text-center mt-3">
-                            <a href="{{ $linkVideoYoutube }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{{ $ppdb->link_video_youtube }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                 <i class="fab fa-youtube me-2"></i>Tonton di YouTube
                             </a>
                         </div>
@@ -1528,14 +1423,10 @@
                     <h4 class="text-primary mb-4 text-center">
                         <i class="fas fa-download me-2"></i>Download Brosur
                     </h4>
-                    @php
-                        $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
-                        $hasBrosur = !empty($brosurData);
-                    @endphp
-                    @if($hasBrosur)
+                    @if($ppdb->brosur_pdf)
                         <div class="text-center">
                             <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
-                            <a href="{{ asset('storage/' . $brosurData) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('storage/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-2">
@@ -1554,7 +1445,7 @@
         @endif
 
         <!-- Standalone Brosur Section (if no video) -->
-        @if(!$hasVideo && $hasBrosur)
+        @if(!$hasVideo && $ppdb->brosur_pdf)
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card-custom p-4 text-center">
@@ -1564,7 +1455,7 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-6">
                             <p class="text-muted mb-4">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF yang mudah diunduh dan dibagikan.</p>
-                            <a href="{{ asset('uploads/brosur/' . $brosurData->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('storage/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-3">
@@ -1578,25 +1469,17 @@
         @endif
 
         <!-- Photo Gallery -->
-        @php
-            $ppdbGaleriFoto = $ppdb->galeri_foto ?? [];
-            if (is_string($ppdbGaleriFoto)) {
-                $ppdbGaleriFoto = json_decode($ppdbGaleriFoto, true) ?? [];
-            } elseif (!is_array($ppdbGaleriFoto)) {
-                $ppdbGaleriFoto = [];
-            }
-        @endphp
-        @if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
+        @if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
         <div class="row">
             <!-- Galeri Foto PPDB -->
-            @if($ppdbGaleriFoto && count($ppdbGaleriFoto) > 0)
+            @if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0)
             <div class="col-12 mb-4">
                 <h4 class="text-primary mb-3">
                     <i class="fas fa-images me-2"></i>Galeri Foto PPDB
                 </h4>
                 <p class="text-muted mb-3">Koleksi foto-foto kegiatan dan fasilitas sekolah dari pengaturan PPDB</p>
                 <div class="row">
-                    @foreach($ppdbGaleriFoto as $foto)
+                    @foreach($ppdb->galeri_foto as $foto)
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="gallery-item">
                             <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
@@ -1634,7 +1517,7 @@
 @endif
 
 <!-- FAQ -->
-@if($madrasah->faq)
+@if($ppdb->faq)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1644,7 +1527,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                @foreach($madrasah->faq ?? [] as $faq)
+                @foreach($ppdb->faq ?? [] as $faq)
                 <div class="faq-item">
                     <button class="faq-question">
                         <i class="fas fa-chevron-down me-2"></i>
@@ -1697,7 +1580,7 @@
 <!-- CTA Section -->
 <section class="section-padding bg-primary text-white">
     <div class="container text-center">
-        <h2 class="display-5 fw-bold mb-4">Siap Bergabung dengan {{ $madrasah->name }}?</h2>
+        <h2 class="display-5 fw-bold mb-4">Siap Bergabung dengan {{ $ppdb->nama_sekolah ?? $ppdb->name }}?</h2>
         <p class="lead mb-4">Daftarkan diri Anda sekarang dan jadilah bagian dari sekolah unggul kami</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             @if(isset($ppdb->id) && $ppdb->isPembukaan())
@@ -1709,7 +1592,7 @@
             @if($brosurData)
                 <a href="{{ asset('storage/' . $brosurData) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
             @endif
-            <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $madrasah->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($madrasah->name) }}" target="_blank" class="btn btn-outline-light btn-lg">
+            <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $ppdb->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($ppdb->nama_sekolah ?? $ppdb->name) }}" target="_blank" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-whatsapp me-2"></i>Hubungi Admin
             </a>
         </div>
@@ -1723,21 +1606,21 @@
             <!-- Logo dan Deskripsi Sekolah -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center mb-3">
-                    @if($madrasah->logo)
-                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="me-2" style="height: 40px; width: auto; border-radius: 5px;">
+                    @if($ppdb->logo)
+                        <img src="{{ asset('storage/' . $ppdb->logo) }}" alt="{{ $ppdb->nama_sekolah ?? $ppdb->name }}" class="me-2" style="height: 40px; width: auto; border-radius: 5px;">
                     @endif
-                    <span class="fw-bold text-primary">{{ $madrasah->name }}</span>
+                    <span class="fw-bold text-primary">{{ $ppdb->nama_sekolah ?? $ppdb->name }}</span>
                 </div>
-                <p class="mb-3">{{ $madrasah->deskripsi_singkat ?? 'Sekolah unggul di bawah naungan LP. Ma\'arif NU PWNU D.I. Yogyakarta' }}</p>
+                <p class="mb-3">{{ $ppdb->deskripsi_singkat ?? 'Sekolah unggul di bawah naungan LP. Ma\'arif NU PWNU D.I. Yogyakarta' }}</p>
                 <div class="social-links">
-                    @if($madrasah->facebook)
-                        <a href="{{ $madrasah->facebook }}" class="text-light me-3" target="_blank"><i class="bi bi-facebook"></i></a>
+                    @if($ppdb->facebook)
+                        <a href="{{ $ppdb->facebook }}" class="text-light me-3" target="_blank"><i class="bi bi-facebook"></i></a>
                     @endif
-                    @if($madrasah->instagram)
-                        <a href="{{ $madrasah->instagram }}" class="text-light me-3" target="_blank"><i class="bi bi-instagram"></i></a>
+                    @if($ppdb->instagram)
+                        <a href="{{ $ppdb->instagram }}" class="text-light me-3" target="_blank"><i class="bi bi-instagram"></i></a>
                     @endif
-                    @if($madrasah->youtube)
-                        <a href="{{ $madrasah->youtube }}" class="text-light" target="_blank"><i class="bi bi-youtube"></i></a>
+                    @if($ppdb->youtube)
+                        <a href="{{ $ppdb->youtube }}" class="text-light" target="_blank"><i class="bi bi-youtube"></i></a>
                     @endif
                 </div>
             </div>
@@ -1802,7 +1685,7 @@
         <hr class="my-4">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0">&copy; 2025 {{ $madrasah->name }}. All rights reserved.</p>
+                <p class="mb-0">&copy; 2025 {{ $ppdb->nama_sekolah ?? $ppdb->name }}. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="mb-0">Powered by <a href="{{ route('ppdb.index') }}" class="text-primary text-decoration-none">PPDB NUIST</a></p>
