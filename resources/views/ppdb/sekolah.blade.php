@@ -1614,11 +1614,11 @@
                 <div class="row">
                     @foreach($facilityPhotos as $fasilitas)
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="facility-gallery-item">
-                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] ?? 'Fasilitas' }}" class="gallery-img w-100">
-                            <div class="facility-overlay">
-                                <h6 class="text-white mb-0">{{ $fasilitas['name'] ?? '' }}</h6>
+                        <div class="text-center">
+                            <div class="facility-gallery-item mb-2">
+                                <img src="{{ asset('images/madrasah/galeri/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] ?? 'Fasilitas' }}" class="gallery-img w-100">
                             </div>
+                            <h6 class="text-primary">{{ $fasilitas['name'] ?? '' }}</h6>
                         </div>
                     </div>
                     @endforeach
