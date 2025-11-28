@@ -35,6 +35,7 @@ class PPDBSetting extends Model
         'prestasi',
         'program_unggulan',
         'ekstrakurikuler',
+        'testimoni',
         'kepala_sekolah_nama',
         'kepala_sekolah_gelar',
         'kepala_sekolah_sambutan',
@@ -74,6 +75,15 @@ class PPDBSetting extends Model
         'ppdb_jalur' => 'array',
         'jurusan' => 'array',
         'galeri_foto' => 'array',
+        'misi' => 'array',
+        'fasilitas' => 'array',
+        'keunggulan' => 'array',
+        'prestasi' => 'array',
+        'program_unggulan' => 'array',
+        'ekstrakurikuler' => 'array',
+        'testimoni' => 'array',
+        'faq' => 'array',
+        'alur_pendaftaran' => 'array',
     ];
 
     // Relasi ke Madrasah
