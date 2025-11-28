@@ -54,59 +54,37 @@ class PPDBController extends Controller
      */
     public function showSekolah($slug)
     {
-        // Cek apakah $slug adalah ID numerik atau slug string
+        // Jika slug numerik → cari madrasah
         if (is_numeric($slug)) {
-            // Jika numerik, cari berdasarkan madrasah ID
             $madrasah = Madrasah::findOrFail($slug);
-            $ppdb = PPDBSetting::where('sekolah_id', $madrasah->id)
-                ->where('tahun', now()->year)
-                ->first();
-
-            if (!$ppdb) {
-                // Jika tidak ada PPDB setting, buat objek temporary untuk tampilan
-                $ppdb = (object) [
-                    'nama_sekolah' => $madrasah->name,
-                    'tahun' => now()->year,
-                    'status' => 'tutup',
-                    'slug' => null,
-                    'sekolah' => $madrasah
-                ];
-            }
         } else {
-            // Jika string, cari berdasarkan slug PPDB setting
+            // Cari PPDBSetting berdasarkan slug
             $ppdb = PPDBSetting::where('slug', $slug)
                 ->where('tahun', now()->year)
                 ->with('sekolah')
                 ->first();
 
-            // Jika tidak ditemukan berdasarkan slug PPDB, cari berdasarkan nama madrasah
-            if (!$ppdb) {
-                $madrasah = Madrasah::where('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
-                    ->orWhere('name', 'like', '%' . $slug . '%')
-                    ->first();
-
-                if ($madrasah) {
-                    $ppdb = PPDBSetting::where('sekolah_id', $madrasah->id)
-                        ->where('tahun', now()->year)
-                        ->first();
-
-                    if (!$ppdb) {
-                        // Jika tidak ada PPDB setting, buat objek temporary untuk tampilan
-                        $ppdb = (object) [
-                            'nama_sekolah' => $madrasah->name,
-                            'tahun' => now()->year,
-                            'status' => 'tutup',
-                            'slug' => null,
-                            'sekolah' => $madrasah
-                        ];
-                    }
-                } else {
-                    abort(404, 'Sekolah tidak ditemukan');
-                }
-            } else {
+            if ($ppdb) {
                 $madrasah = $ppdb->sekolah;
+            } else {
+                // Jika slug tidak cocok, cari madrasah berdasarkan nama
+                $madrasah = Madrasah::where('slug', $slug)
+                    ->orWhere('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
+                    ->firstOrFail();
             }
         }
+
+        // Ambil/tambahkan setting tahun berjalan
+        $ppdb = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $madrasah->id,
+                'tahun' => now()->year
+            ],
+            [
+                'nama_sekolah' => $madrasah->name,
+                'slug' => \Str::slug($madrasah->name . '-' . $madrasah->id . '-' . now()->year)
+            ]
+        );
 
         $pendaftarCount = isset($ppdb->id) ? $ppdb->pendaftars()->count() : 0;
 
