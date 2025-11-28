@@ -274,6 +274,42 @@ class AdminLPController extends Controller
             }
         }
 
+        // Special handling for fasilitas (allow multiple facilities per description)
+        if ($request->has('fasilitas')) {
+            $fasilitasData = $request->input('fasilitas', []);
+            $processedFasilitas = [];
+
+            foreach ($fasilitasData as $index => $fasilitas) {
+                if (is_array($fasilitas) && !empty(trim($fasilitas['name'] ?? ''))) {
+                    $name = trim($fasilitas['name']);
+                    $description = trim($fasilitas['description'] ?? '');
+
+                    // If description contains commas, split into multiple facilities
+                    if (!empty($description) && strpos($description, ',') !== false) {
+                        $facilityNames = array_map('trim', explode(',', $description));
+                        foreach ($facilityNames as $facilityName) {
+                            if (!empty($facilityName)) {
+                                $processedFasilitas[] = [
+                                    'name' => $name,
+                                    'description' => $facilityName
+                                ];
+                            }
+                        }
+                    } else {
+                        // Single facility or no description
+                        $processedFasilitas[] = [
+                            'name' => $name,
+                            'description' => $description
+                        ];
+                    }
+                }
+            }
+
+            $data['fasilitas'] = $processedFasilitas;
+            // Update jumlah_sarana automatically
+            $data['jumlah_sarana'] = count($processedFasilitas);
+        }
+
         // Special handling for jurusan (nested objects)
         if ($request->has('jurusan')) {
             $jurusanData = $request->input('jurusan', []);
