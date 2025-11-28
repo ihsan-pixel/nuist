@@ -1,6 +1,6 @@
 @extends('layouts.master-without-nav')
 
-@section('title', 'Profile ' . ($ppdb->nama_sekolah ?? $madrasah->name) . ' - PPDB NUIST')
+@section('title', 'Profile ' . ($ppdb->nama_sekolah) . ' - PPDB NUIST')
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/ppdb-custom.css') }}">
@@ -867,15 +867,15 @@
             <!-- Text Kiri -->
             <div class="col-lg-6 animate-slide-in-left">
                 <div class="d-flex align-items-center mb-4">
-                    @if($madrasah->logo)
-                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}" class="school-logo me-4">
+                    @if($ppdb->logo ?? $madrasah->logo)
+                        <img src="{{ asset('storage/' . ($ppdb->logo ?? $madrasah->logo)) }}" alt="{{ $ppdb->nama_sekolah }}" class="school-logo me-4">
                     @else
                         <div class="school-logo bg-light d-flex align-items-center justify-content-center me-4">
                             <i class="fas fa-school fa-2x text-muted"></i>
                         </div>
                     @endif
                     <div>
-                        <h1 class="display-4 fw-bold mb-2">{{ $ppdb->nama_sekolah ?? $madrasah->name }}</h1>
+                        <h1 class="display-4 fw-bold mb-2">{{ $ppdb->nama_sekolah }}</h1>
                         @if($ppdb->tagline)
                             <p class="h4 text-warning mb-0">{{ $ppdb->tagline }}</p>
                         @endif
@@ -1177,7 +1177,7 @@
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h2 class="display-5 fw-bold">
-                    <i class="fas fa-info-circle text-warning me-3"></i>Tentang <span style="color: #efaa0c;">{{ $madrasah->name }}</span>
+                    <i class="fas fa-info-circle text-warning me-3"></i>Tentang <span style="color: #efaa0c;">{{ $ppdb->nama_sekolah }}</span>
                 </h2>
                 <p class="lead">Mengenal lebih dalam tentang sekolah kami</p>
             </div>
@@ -1410,7 +1410,7 @@
 <!-- Galeri & Media Sekolah -->
 @php
     $hasGallery = false;
-    $galeriFotoData = $madrasah->galeri_foto;
+    $galeriFotoData = $ppdb->galeri_foto;
     if (is_string($galeriFotoData)) {
         $galeriFotoData = json_decode($galeriFotoData, true) ?? [];
     } elseif (!is_array($galeriFotoData)) {
@@ -1627,7 +1627,7 @@
 
 <!-- Alur Pendaftaran -->
 @php
-    $alurPendaftaranData = $madrasah->alur_pendaftaran;
+    $alurPendaftaranData = $ppdb->alur_pendaftaran;
     if (is_string($alurPendaftaranData)) {
         $alurPendaftaranData = json_decode($alurPendaftaranData, true) ?? [];
     } elseif (!is_array($alurPendaftaranData)) {
@@ -1738,7 +1738,7 @@
 
             <!-- Kontak Sekolah -->
             <div class="col-lg-4 col-md-4">
-                <h5 class="fw-bold mb-3">Hubungi {{ $madrasah->name }}</h5>
+                <h5 class="fw-bold mb-3">Hubungi {{ $ppdb->nama_sekolah }}</h5>
                 <div class="d-flex align-items-start mb-2">
                     <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
                     <div>
