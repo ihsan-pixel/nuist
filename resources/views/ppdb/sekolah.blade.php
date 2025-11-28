@@ -36,6 +36,10 @@
         color: #0a5f35;
     }
 
+    .hero-flayer {
+        margin-top: -40px;
+    }
+
     .school-logo {
         width: 120px;
         height: 120px;
