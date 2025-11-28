@@ -211,7 +211,7 @@ class AdminLPController extends Controller
         // Get the associated madrasah
         $madrasah = $ppdbSetting->sekolah;
 
-        $data = $request->except(['galeri_foto', 'brosur_pdf']);
+        $data = $request->except(['galeri_foto', 'brosur_pdf', 'name']);
 
         // Set readonly fields from madrasah table
         $data['nama_sekolah'] = $madrasah->name;
