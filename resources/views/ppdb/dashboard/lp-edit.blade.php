@@ -300,7 +300,7 @@
                             <i class="mdi mdi-pencil me-2"></i>
                             Edit Profil Madrasah
                         </h2>
-                        <p class="mb-0 opacity-75">Lengkapi informasi profil {{ $madrasah->name }}</p>
+                        <p class="mb-0 opacity-75">Lengkapi informasi profil {{ $ppdbSetting->nama_sekolah }}</p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
                         <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-light">
@@ -846,7 +846,7 @@
                     <div class="form-group">
                         <label for="jumlah_guru" class="form-label">Jumlah Guru</label>
                         <input type="number" class="form-control @error('jumlah_guru') is-invalid @enderror"
-                               id="jumlah_guru" name="jumlah_guru" value="{{ old('jumlah_guru', $jumlahGuru ?? $madrasah->jumlah_guru ?? '') }}" min="0" readonly>
+                               id="jumlah_guru" name="jumlah_guru" value="{{ old('jumlah_guru', $jumlahGuru ?? $ppdbSetting->jumlah_guru ?? '') }}" min="0" readonly>
                         <small class="text-muted">Jumlah guru dihitung otomatis dari data tenaga pendidik</small>
                         @error('jumlah_guru')
                             <div class="invalid-feedback">{{ $message }}</div>
