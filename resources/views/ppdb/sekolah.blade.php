@@ -851,7 +851,7 @@
         <div class="row align-items-center">
 
             <!-- Flayer di atas -->
-            <div class="container hero-flayer animate-fade-in-up">
+            <div class="container hero-flayer animate-fade-in-up" style="margin-top: -40px;">
                 <div class="row justify-content-center">
                     <div class="col-lg-6 text-center">
                         <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
