@@ -1473,7 +1473,7 @@
                     @if($ppdb->brosur_pdf)
                         <div class="text-center">
                             <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
-                            <a href="{{ asset('storage/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('uploads/brosur/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-2">
@@ -1502,7 +1502,7 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-6">
                             <p class="text-muted mb-4">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF yang mudah diunduh dan dibagikan.</p>
-                            <a href="{{ asset('storage/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
+                            <a href="{{ asset('uploads/brosur/' . $ppdb->brosur_pdf) }}" target="_blank" class="btn btn-primary btn-lg">
                                 <i class="fas fa-file-pdf me-2"></i>Download Brosur PDF
                             </a>
                             <p class="text-muted small mt-3">
