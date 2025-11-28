@@ -379,6 +379,24 @@ class AdminLPController extends Controller
     }
 
     /**
+     * Process skills string into array
+     */
+    private function processSkills($skillsInput)
+    {
+        if (is_string($skillsInput)) {
+            // Split by comma and trim each skill
+            $skills = array_map('trim', explode(',', $skillsInput));
+            // Filter out empty skills
+            return array_filter($skills, function($skill) {
+                return !empty($skill);
+            });
+        } elseif (is_array($skillsInput)) {
+            return $skillsInput;
+        }
+        return [];
+    }
+
+    /**
      * Handle PPDB Jalur creation, update, and deletion
      * Note: This method is now deprecated as jalur is stored as JSON
      */
