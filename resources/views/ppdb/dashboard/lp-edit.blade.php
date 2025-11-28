@@ -1022,19 +1022,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Special handling for fasilitas container
             if (targetId === 'fasilitas-container') {
+                // Get the next available index for new fasilitas
+                const existingItems = container.querySelectorAll('.array-input-item');
+                const nextIndex = existingItems.length;
+
                 const newItem = document.createElement('div');
                 newItem.className = 'array-input-item mb-3 p-3 border rounded';
                 newItem.innerHTML = `
                     <div class="row">
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
+                            <input type="text" class="form-control" name="fasilitas[${nextIndex}][name]" placeholder="Nama Fasilitas">
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas (pisahkan dengan koma jika lebih dari 1)">
+                            <input type="text" class="form-control" name="fasilitas[${nextIndex}][description]" placeholder="Deskripsi Fasilitas (pisahkan dengan koma jika lebih dari 1)">
                             <small class="text-muted">Contoh: Ruang kelas, AC, Proyektor</small>
                         </div>
                         <div class="col-md-3">
-                            <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
+                            <input type="file" class="form-control" name="fasilitas_foto[${nextIndex}]" accept="image/*">
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-remove-array remove-array-item">
@@ -1051,6 +1055,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateJumlahFasilitas();
                 updateFasilitasIndices();
             } else if (targetId === 'jurusan-container') {
+
                 // Special handling for jurusan container - add only 1 empty row
                 const newItem = document.createElement('div');
                 newItem.className = 'array-input-item mb-3 p-3 border rounded';
