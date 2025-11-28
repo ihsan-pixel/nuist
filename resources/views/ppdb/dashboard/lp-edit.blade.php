@@ -827,7 +827,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="kepala_sekolah_nama" class="form-label">Nama Kepala Sekolah</label>
                         <input type="text" class="form-control @error('kepala_sekolah_nama') is-invalid @enderror"
@@ -890,8 +890,8 @@
                     <div class="form-group">
                         <label for="jumlah_jurusan" class="form-label">Jumlah Jurusan</label>
                         <input type="number" class="form-control @error('jumlah_jurusan') is-invalid @enderror"
-                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $ppdbSetting->jumlah_jurusan ?? '') }}" min="0" readonly>
-                        <div class="help-text">Otomatis dihitung dari jumlah jurusan yang diisi</div>
+                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $jumlahJurusan ?? $ppdbSetting->jumlah_jurusan ?? '') }}" min="0" readonly>
+                        <small class="text-muted">Jumlah jurusan dihitung otomatis dari data yang tersimpan</small>
                         @error('jumlah_jurusan')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -900,9 +900,10 @@
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="jumlah_sarana" class="form-label">Jumlah Sarana</label>
+                        <label for="jumlah_sarana" class="form-label">Jumlah Fasilitas</label>
                         <input type="number" class="form-control @error('jumlah_sarana') is-invalid @enderror"
-                               id="jumlah_sarana" name="jumlah_sarana" value="{{ old('jumlah_sarana', $ppdbSetting->jumlah_sarana ?? '') }}" min="0">
+                               id="jumlah_sarana" name="jumlah_sarana" value="{{ old('jumlah_sarana', $jumlahFasilitas ?? $ppdbSetting->jumlah_sarana ?? '') }}" min="0" readonly>
+                        <small class="text-muted">Jumlah fasilitas dihitung otomatis dari data yang tersimpan</small>
                         @error('jumlah_sarana')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

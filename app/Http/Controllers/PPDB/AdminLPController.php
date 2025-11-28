@@ -136,7 +136,21 @@ class AdminLPController extends Controller
         // Hitung jumlah guru dari tenaga pendidik
         $jumlahGuru = $ppdbSetting->sekolah->tenagaPendidikUsers()->count();
 
-        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru'));
+        // Hitung jumlah fasilitas dari array fasilitas
+        $fasilitasArray = $ppdbSetting->fasilitas ?? [];
+        if (is_string($fasilitasArray)) {
+            $fasilitasArray = json_decode($fasilitasArray, true) ?? [];
+        }
+        $jumlahFasilitas = is_array($fasilitasArray) ? count($fasilitasArray) : 0;
+
+        // Hitung jumlah jurusan dari array jurusan
+        $jurusanArray = $ppdbSetting->jurusan ?? [];
+        if (is_string($jurusanArray)) {
+            $jurusanArray = json_decode($jurusanArray, true) ?? [];
+        }
+        $jumlahJurusan = is_array($jurusanArray) ? count($jurusanArray) : 0;
+
+        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru', 'jumlahFasilitas', 'jumlahJurusan'));
     }
 
     /**
