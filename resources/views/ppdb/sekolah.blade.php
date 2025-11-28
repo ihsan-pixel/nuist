@@ -948,13 +948,14 @@
     $nilaiNilai = $ppdb->nilai_nilai;
 @endphp
 @if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai))
-<section id="about" class="section-padding bg-light">
+<section id="sejarah" class="about-section">
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">
-                    <i class="fas fa-history text-primary me-3"></i>Profile Sekolah
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold">
+                    <i class="fas fa-history text-warning me-3"></i>Profile <span style="color: #efaa0c;">Sekolah</span>
                 </h2>
+                <p class="lead">Mengenal lebih dalam tentang sekolah kami</p>
             </div>
         </div>
         <div class="row">
@@ -962,29 +963,32 @@
                 @if($ppdb->tahun_berdiri)
                     <div class="timeline">
                         <div class="timeline-item">
-                            <h5 class="text-primary">{{ $ppdb->tahun_berdiri }}</h5>
-                            <p>Tahun berdiri {{ $ppdb->nama_sekolah ?? $ppdb->name }}</p>
+                            <h5 class="text-warning">{{ $ppdb->tahun_berdiri }}</h5>
+                            <p class="text-white">Tahun berdiri {{ $ppdb->nama_sekolah ?? $ppdb->name }}</p>
                         </div>
                         @if($ppdb->sejarah)
                             <div class="timeline-item">
-                                <h5 class="text-primary">Perjalanan</h5>
-                                <p>{{ $ppdb->sejarah }}</p>
+                                <h5 class="text-warning">Perjalanan</h5>
+                                <p class="text-white">{{ $ppdb->sejarah }}</p>
                             </div>
                         @endif
                     </div>
                 @endif
             </div>
             <div class="col-lg-4">
-                <div class="card-custom p-4">
-                    <h5 class="text-primary mb-3">Informasi Sekolah</h5>
+                <div class="card-custom p-4 h-100 text-center">
+                    <div class="advantage-icon mb-4">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <h4 class="text-white mb-4">Informasi Sekolah</h4>
                     @if($ppdb->akreditasi)
-                        <p class="mb-2"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
+                        <p class="text-white mb-2"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
                     @endif
                     @if($ppdb->nilai_nilai)
-                        <p class="mb-2"><strong>Nilai-Nilai:</strong> {{ $ppdb->nilai_nilai }}</p>
+                        <p class="text-white mb-2"><strong>Nilai-Nilai:</strong> {{ $ppdb->nilai_nilai }}</p>
                     @endif
                     @if($ppdb->tahun_berdiri)
-                        <p class="mb-0"><strong>Tahun Berdiri:</strong> {{ $ppdb->tahun_berdiri }}</p>
+                        <p class="text-white mb-0"><strong>Tahun Berdiri:</strong> {{ $ppdb->tahun_berdiri }}</p>
                     @endif
                 </div>
             </div>
