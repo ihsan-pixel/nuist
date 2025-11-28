@@ -995,63 +995,66 @@
 @endif
 
 <!-- Jurusan/Program Studi -->
-@php
-    $jurusanData = $ppdb->jurusan;
-    if (is_string($jurusanData)) {
-        $jurusanData = json_decode($jurusanData, true) ?? [];
-    } elseif (!is_array($jurusanData)) {
-        $jurusanData = [];
-    }
-@endphp
-@if($jurusanData && count($jurusanData) > 0)
-<section id="jurusan" class="about-section">
+<section id="jurusan" class="section-padding">
     <div class="container">
         <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">
-                    <i class="fas fa-graduation-cap text-warning me-3"></i>Jurusan/Program <span style="color: #efaa0c;">Studi</span>
+            <div class="col-12">
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap text-primary me-3"></i>Jurusan/Program Studi
                 </h2>
-                <p class="lead">Program studi unggulan untuk masa depan yang cerah</p>
             </div>
         </div>
         <div class="row">
-            @foreach($jurusanData as $jurusan)
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card-custom p-4 text-center h-100" style="background: white; color: #004b4c;">
-                    @if(isset($jurusan['image']) && $jurusan['image'])
-                        <img src="{{ asset('storage/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
-                    @else
-                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
-                            <i class="fas fa-graduation-cap fa-2x text-muted"></i>
-                        </div>
-                    @endif
-                    <h5 class="mb-3" style="color: #004b4c;">
-                        <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
-                    </h5>
-                    <p class="mb-3" style="color: #004b4c;">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
-                    @if(isset($jurusan['prospects']))
-                        <div class="mb-3">
-                            <strong style="color: #004b4c;"><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
-                            <p class="small mb-0" style="color: #004b4c;">{{ $jurusan['prospects'] }}</p>
-                        </div>
-                    @endif
-                    @if(isset($jurusan['skills']))
-                        <div>
-                            <strong style="color: #004b4c;"><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
-                            <ul class="small mb-0" style="color: #004b4c; text-align: left;">
-                                @foreach($jurusan['skills'] ?? [] as $skill)
-                                    <li>{{ $skill }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+            @php
+                $jurusanData = $ppdb->jurusan;
+                if (is_string($jurusanData)) {
+                    $jurusanData = json_decode($jurusanData, true) ?? [];
+                } elseif (!is_array($jurusanData)) {
+                    $jurusanData = [];
+                }
+            @endphp
+            @if($jurusanData && count($jurusanData) > 0)
+                @foreach($jurusanData as $jurusan)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="major-card">
+                        @if(isset($jurusan['image']) && $jurusan['image'])
+                            <img src="{{ asset('storage/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
+                        @endif
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
+                        </h5>
+                        <p class="text-muted mb-3">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
+                        @if(isset($jurusan['prospects']))
+                            <div class="mb-3">
+                                <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
+                                <p class="text-muted small">{{ $jurusan['prospects'] }}</p>
+                            </div>
+                        @endif
+                        @if(isset($jurusan['skills']))
+                            <div>
+                                <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
+                                <ul class="text-muted small">
+                                    @foreach($jurusan['skills'] ?? [] as $skill)
+                                        <li>{{ $skill }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endforeach
+                @endforeach
+            @else
+                <div class="col-12 text-center">
+                    <div class="card-custom p-5">
+                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Program Studi Akan Segera Ditambahkan</h5>
+                        <p class="text-muted">Informasi jurusan/program studi sedang dalam proses penyusunan.</p>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </section>
-@endif
 
 <!-- Fasilitas Sekolah -->
 @php
