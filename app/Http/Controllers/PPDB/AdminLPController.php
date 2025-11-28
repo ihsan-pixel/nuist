@@ -343,6 +343,25 @@ class AdminLPController extends Controller
             $fasilitasData = $request->input('fasilitas', []);
             $processedFasilitas = [];
 
+            // Handle facility photos first (before processing fasilitas data)
+            $fasilitasFoto = [];
+            if ($request->hasFile('fasilitas_foto')) {
+                $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
+
+                // Ensure directory exists
+                if (!is_dir($galeriPath)) {
+                    mkdir($galeriPath, 0755, true);
+                }
+
+                foreach ($request->file('fasilitas_foto') as $index => $file) {
+                    if ($file && $file->isValid()) {
+                        $filename = time() . '_fasilitas_' . $index . '.' . $file->getClientOriginalExtension();
+                        $file->move($galeriPath, $filename);
+                        $fasilitasFoto[$index] = $filename;
+                    }
+                }
+            }
+
             foreach ($fasilitasData as $index => $fasilitas) {
                 if (is_array($fasilitas) && !empty(trim($fasilitas['name'] ?? ''))) {
                     $name = trim($fasilitas['name']);
@@ -353,18 +372,28 @@ class AdminLPController extends Controller
                         $facilityNames = array_map('trim', explode(',', $description));
                         foreach ($facilityNames as $facilityName) {
                             if (!empty($facilityName)) {
-                                $processedFasilitas[] = [
+                                $facility = [
                                     'name' => $name,
                                     'description' => $facilityName
                                 ];
+                                // Assign photo if available for this index
+                                if (isset($fasilitasFoto[$index])) {
+                                    $facility['foto'] = $fasilitasFoto[$index];
+                                }
+                                $processedFasilitas[] = $facility;
                             }
                         }
                     } else {
                         // Single facility or no description
-                        $processedFasilitas[] = [
+                        $facility = [
                             'name' => $name,
                             'description' => $description
                         ];
+                        // Assign photo if available for this index
+                        if (isset($fasilitasFoto[$index])) {
+                            $facility['foto'] = $fasilitasFoto[$index];
+                        }
+                        $processedFasilitas[] = $facility;
                     }
                 }
             }
@@ -408,35 +437,7 @@ class AdminLPController extends Controller
             $data['ppdb_kuota_jurusan'] = $this->processKuotaJurusan($request->input('ppdb_kuota_jurusan', []));
         }
 
-        // Handle facility photos
-        if ($request->hasFile('fasilitas_foto')) {
-            $fasilitasFoto = [];
-            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
 
-            // Ensure directory exists
-            if (!is_dir($galeriPath)) {
-                mkdir($galeriPath, 0755, true);
-            }
-
-            foreach ($request->file('fasilitas_foto') as $index => $file) {
-                if ($file && $file->isValid()) {
-                    $filename = time() . '_fasilitas_' . $index . '.' . $file->getClientOriginalExtension();
-                    $file->move($galeriPath, $filename);
-                    $fasilitasFoto[$index] = $filename;
-                }
-            }
-
-            // Update fasilitas array with foto field
-            if (!empty($fasilitasFoto) && isset($data['fasilitas'])) {
-                $fasilitas = $data['fasilitas'];
-                foreach ($fasilitas as $key => $fasilitasItem) {
-                    if (isset($fasilitasFoto[$key])) {
-                        $fasilitas[$key]['foto'] = $fasilitasFoto[$key];
-                    }
-                }
-                $data['fasilitas'] = $fasilitas;
-            }
-        }
 
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
