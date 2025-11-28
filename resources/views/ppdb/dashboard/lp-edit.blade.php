@@ -383,7 +383,7 @@
                     <div class="form-group">
                         <label for="tagline" class="form-label">Tagline</label>
                         <input type="text" class="form-control @error('tagline') is-invalid @enderror"
-                               id="tagline" name="tagline" value="{{ old('tagline', $madrasah->tagline) }}"
+                               id="tagline" name="tagline" value="{{ old('tagline', $ppdbSetting->tagline ?? '') }}"
                                placeholder="Contoh: Madrasah Unggul di Bidang Teknologi">
                         @error('tagline')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -396,9 +396,9 @@
                         <label for="akreditasi" class="form-label">Akreditasi</label>
                         <select class="form-select @error('akreditasi') is-invalid @enderror" id="akreditasi" name="akreditasi">
                             <option value="">Pilih Akreditasi</option>
-                            <option value="A" {{ old('akreditasi', $madrasah->akreditasi) == 'A' ? 'selected' : '' }}>A (Unggul)</option>
-                            <option value="B" {{ old('akreditasi', $madrasah->akreditasi) == 'B' ? 'selected' : '' }}>B (Baik)</option>
-                            <option value="C" {{ old('akreditasi', $madrasah->akreditasi) == 'C' ? 'selected' : '' }}>C (Cukup)</option>
+                            <option value="A" {{ old('akreditasi', $ppdbSetting->akreditasi ?? '') == 'A' ? 'selected' : '' }}>A (Unggul)</option>
+                            <option value="B" {{ old('akreditasi', $ppdbSetting->akreditasi ?? '') == 'B' ? 'selected' : '' }}>B (Baik)</option>
+                            <option value="C" {{ old('akreditasi', $ppdbSetting->akreditasi ?? '') == 'C' ? 'selected' : '' }}>C (Cukup)</option>
                         </select>
                         @error('akreditasi')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -412,7 +412,7 @@
                     <div class="form-group">
                         <label for="tahun_berdiri" class="form-label">Tahun Berdiri</label>
                         <input type="number" class="form-control @error('tahun_berdiri') is-invalid @enderror"
-                               id="tahun_berdiri" name="tahun_berdiri" value="{{ old('tahun_berdiri', $madrasah->tahun_berdiri) }}"
+                               id="tahun_berdiri" name="tahun_berdiri" value="{{ old('tahun_berdiri', $ppdbSetting->tahun_berdiri ?? '') }}"
                                min="1800" max="{{ date('Y') + 1 }}">
                         @error('tahun_berdiri')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -438,7 +438,7 @@
                     <div class="form-group">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control @error('email') is-invalid @enderror"
-                               id="email" name="email" value="{{ old('email', $madrasah->email) }}"
+                               id="email" name="email" value="{{ old('email', $ppdbSetting->email ?? '') }}"
                                placeholder="info@madrasah.com">
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -450,7 +450,7 @@
                     <div class="form-group">
                         <label for="website" class="form-label">Website</label>
                         <input type="url" class="form-control @error('website') is-invalid @enderror"
-                               id="website" name="website" value="{{ old('website', $madrasah->website) }}"
+                               id="website" name="website" value="{{ old('website', $ppdbSetting->website ?? '') }}"
                                placeholder="https://www.madrasah.com">
                         @error('website')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -493,7 +493,7 @@
                 <label for="nilai_nilai" class="form-label">Nilai-Nilai</label>
                 <textarea class="form-control @error('nilai_nilai') is-invalid @enderror"
                           id="nilai_nilai" name="nilai_nilai" rows="3"
-                          placeholder="Nilai-nilai yang dianut oleh madrasah">{{ old('nilai_nilai', $madrasah->nilai_nilai) }}</textarea>
+                          placeholder="Nilai-nilai yang dianut oleh madrasah">{{ old('nilai_nilai', $ppdbSetting->nilai_nilai ?? '') }}</textarea>
                 @error('nilai_nilai')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -621,7 +621,7 @@
             <div class="form-group">
                 <label class="form-label">Keunggulan</label>
                 <div id="keunggulan-container" class="array-input-container">
-                    @php $keunggulanArray = old('keunggulan', $madrasah->keunggulan ?? []); @endphp
+                    @php $keunggulanArray = old('keunggulan', $ppdbSetting->keunggulan ?? []); @endphp
                     @if(is_array($keunggulanArray) && count($keunggulanArray) > 0)
                         @foreach($keunggulanArray as $index => $keunggulan)
                             <div class="array-input-item">
@@ -801,7 +801,7 @@
                         <label for="kepala_sekolah_gelar" class="form-label">Gelar</label>
                         <input type="text" class="form-control @error('kepala_sekolah_gelar') is-invalid @enderror"
                                id="kepala_sekolah_gelar" name="kepala_sekolah_gelar"
-                               value="{{ old('kepala_sekolah_gelar', $madrasah->kepala_sekolah_gelar) }}"
+                               value="{{ old('kepala_sekolah_gelar', $ppdbSetting->kepala_sekolah_gelar ?? '') }}"
                                placeholder="M.Pd., S.Pd., dll">
                         @error('kepala_sekolah_gelar')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -835,7 +835,7 @@
                     <div class="form-group">
                         <label for="jumlah_siswa" class="form-label">Jumlah Siswa</label>
                         <input type="number" class="form-control @error('jumlah_siswa') is-invalid @enderror"
-                               id="jumlah_siswa" name="jumlah_siswa" value="{{ old('jumlah_siswa', $madrasah->jumlah_siswa) }}" min="0">
+                               id="jumlah_siswa" name="jumlah_siswa" value="{{ old('jumlah_siswa', $ppdbSetting->jumlah_siswa ?? '') }}" min="0">
                         @error('jumlah_siswa')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -858,7 +858,7 @@
                     <div class="form-group">
                         <label for="jumlah_jurusan" class="form-label">Jumlah Jurusan</label>
                         <input type="number" class="form-control @error('jumlah_jurusan') is-invalid @enderror"
-                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $madrasah->jumlah_jurusan) }}" min="0" readonly>
+                               id="jumlah_jurusan" name="jumlah_jurusan" value="{{ old('jumlah_jurusan', $ppdbSetting->jumlah_jurusan ?? '') }}" min="0" readonly>
                         <div class="help-text">Otomatis dihitung dari jumlah jurusan yang diisi</div>
                         @error('jumlah_jurusan')
                             <div class="invalid-feedback">{{ $message }}</div>

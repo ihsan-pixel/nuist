@@ -876,8 +876,8 @@
                     @endif
                     <div>
                         <h1 class="display-4 fw-bold mb-2">{{ $ppdb->nama_sekolah ?? $madrasah->name }}</h1>
-                        @if($madrasah->tagline)
-                            <p class="h4 text-warning mb-0">{{ $madrasah->tagline }}</p>
+                        @if($ppdb->tagline)
+                            <p class="h4 text-warning mb-0">{{ $ppdb->tagline }}</p>
                         @endif
                     </div>
                 </div>
@@ -942,10 +942,10 @@
 
 <!-- Profile Sekolah -->
 @php
-    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
-    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
-    $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
-    $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
+    $tahunBerdiri = $ppdb->tahun_berdiri;
+    $sejarah = $ppdb->sejarah;
+    $akreditasi = $ppdb->akreditasi;
+    $nilaiNilai = $ppdb->nilai_nilai;
 @endphp
 @if($sejarah || $tahunBerdiri || $akreditasi || $nilaiNilai)
 <section id="sejarah" class="section-padding bg-light">
@@ -1228,7 +1228,7 @@
 
         <!-- Keunggulan Sekolah -->
         @php
-            $keunggulanData = $madrasah->keunggulan;
+            $keunggulanData = $ppdb->keunggulan;
             if (is_string($keunggulanData)) {
                 $keunggulanData = json_decode($keunggulanData, true) ?? [];
             } elseif (!is_array($keunggulanData)) {
@@ -1747,16 +1747,16 @@
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-telephone-fill text-primary me-3"></i>
-                    <p class="mb-0">{{ $ppdb->telepon ?? $madrasah->telepon ?? 'Telepon belum ditentukan' }}</p>
+                    <p class="mb-0">{{ $ppdb->telepon ?? 'Telepon belum ditentukan' }}</p>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-envelope-fill text-primary me-3"></i>
-                    <p class="mb-0">{{ $ppdb->email ?? $madrasah->email ?? 'Email belum ditentukan' }}</p>
+                    <p class="mb-0">{{ $ppdb->email ?? 'Email belum ditentukan' }}</p>
                 </div>
-                @if($madrasah->website)
+                @if($ppdb->website)
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-globe text-primary me-3"></i>
-                    <a href="{{ $madrasah->website }}" class="text-light text-decoration-none" target="_blank">{{ $madrasah->website }}</a>
+                    <a href="{{ $ppdb->website }}" class="text-light text-decoration-none" target="_blank">{{ $ppdb->website }}</a>
                 </div>
                 @endif
             </div>
