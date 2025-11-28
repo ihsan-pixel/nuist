@@ -1367,7 +1367,7 @@
     </div>
 </section>
 
-<!-- Testimoni -->
+{{-- <!-- Testimoni -->
 @php
     $testimoniData = $madrasah->testimoni;
     if (is_string($testimoniData)) {
@@ -1408,7 +1408,7 @@
         </div>
     </div>
 </section>
-@endif
+@endif --}}
 
 <!-- Kepala Sekolah -->
 @if($madrasah->kepala_sekolah_nama)
