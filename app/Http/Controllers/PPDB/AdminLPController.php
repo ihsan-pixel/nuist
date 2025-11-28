@@ -145,7 +145,6 @@ class AdminLPController extends Controller
     public function update(Request $request, $sekolahId)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
             'kabupaten' => 'required|string|max:255',
             'alamat' => 'required|string',
             'tagline' => 'nullable|string|max:255',
@@ -216,11 +215,8 @@ class AdminLPController extends Controller
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
-        // Map 'name' to 'nama_sekolah' for ppdb_settings table
-        if (isset($data['name'])) {
-            $data['nama_sekolah'] = $data['name'];
-            unset($data['name']);
-        }
+        // Set nama_sekolah from madrasah table (readonly field)
+        $data['nama_sekolah'] = $madrasah->name;
 
         // Update madrasah table to sync basic info
         $madrasah->update([
