@@ -995,7 +995,7 @@
 @endif
 
 <!-- Jurusan/Program Studi -->
-<section id="jurusan" class="section-padding bg-light">
+<section id="jurusan" class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12">
