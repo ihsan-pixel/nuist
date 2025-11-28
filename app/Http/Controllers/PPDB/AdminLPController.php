@@ -145,8 +145,6 @@ class AdminLPController extends Controller
     public function update(Request $request, $sekolahId)
     {
         $request->validate([
-            'kabupaten' => 'required|string|max:255',
-            'alamat' => 'required|string',
             'tagline' => 'nullable|string|max:255',
             'deskripsi_singkat' => 'nullable|string',
             'tahun_berdiri' => 'nullable|integer|min:1800|max:' . (date('Y') + 1),
@@ -218,11 +216,8 @@ class AdminLPController extends Controller
         // Set nama_sekolah from madrasah table (readonly field)
         $data['nama_sekolah'] = $madrasah->name;
 
-        // Update madrasah table to sync basic info
+        // Update madrasah table to sync basic info (only telepon since name, kabupaten, alamat are readonly)
         $madrasah->update([
-            'name' => $data['nama_sekolah'],
-            'kabupaten' => $data['kabupaten'] ?? $madrasah->kabupaten,
-            'alamat' => $data['alamat'] ?? $madrasah->alamat,
             'telepon' => $data['telepon'] ?? $madrasah->telepon,
         ]);
 

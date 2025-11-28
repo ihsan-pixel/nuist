@@ -357,12 +357,9 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="kabupaten" class="form-label required-field">Kabupaten</label>
-                        <input type="text" class="form-control @error('kabupaten') is-invalid @enderror"
-                               id="kabupaten" name="kabupaten" value="{{ old('kabupaten', $ppdbSetting->kabupaten) }}" required>
-                        @error('kabupaten')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label for="kabupaten" class="form-label">Kabupaten</label>
+                        <input type="text" class="form-control" id="kabupaten" name="kabupaten" value="{{ $ppdbSetting->sekolah->kabupaten }}" readonly>
+                        <small class="text-muted">Kabupaten diambil otomatis dari database dan tidak dapat diubah</small>
                     </div>
                 </div>
             </div>
