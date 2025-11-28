@@ -581,25 +581,26 @@
                                 @endif
                             </div>
                         @endforeach
-                    @endif
-                    <div class="array-input-item mb-3 p-3 border rounded">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
+                    @else
+                        <div class="array-input-item mb-3 p-3 border rounded">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-remove-array remove-array-item">
+                                        <i class="mdi mdi-minus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
                 <button type="button" class="btn btn-add-array add-array-item text-white" data-target="fasilitas-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Fasilitas
