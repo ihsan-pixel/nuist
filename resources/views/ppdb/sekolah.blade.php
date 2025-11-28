@@ -947,7 +947,7 @@
     $akreditasi = $ppdb->akreditasi;
     $nilaiNilai = $ppdb->nilai_nilai;
 @endphp
-@if($sejarah || $tahunBerdiri || $akreditasi || $nilaiNilai)
+@if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai))
 <section id="sejarah" class="section-padding bg-light">
     <div class="container">
         <div class="row">
