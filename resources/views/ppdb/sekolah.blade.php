@@ -1653,7 +1653,7 @@
                 $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
             @endphp
             @if($brosurData)
-                <a href="{{ asset('storage/' . $brosurData) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
+                <a href="{{ asset('uploads/brosur/' . $brosurData) }}" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
             @endif
             <a href="https://wa.me/{{ str_replace(['+', '-', ' '], '', $ppdb->telepon ?? '6281234567890') }}?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20{{ urlencode($ppdb->nama_sekolah ?? $ppdb->name) }}" target="_blank" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-whatsapp me-2"></i>Hubungi Admin
