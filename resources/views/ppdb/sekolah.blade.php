@@ -976,8 +976,11 @@
                 @endif
             </div>
             <div class="col-lg-4">
-                <div class="card-custom p-4">
-                    <h5 class="text-white mb-3">Informasi Sekolah</h5>
+                <div class="card-custom p-4 h-100 text-center">
+                    <div class="advantage-icon mb-4">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <h4 class="text-white mb-4">Informasi Sekolah</h4>
                     @if($ppdb->akreditasi)
                         <p class="text-white mb-2"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
                     @endif
