@@ -1434,7 +1434,7 @@
     }
 @endphp
 
-@if($hasGallery)
+{{-- @if($hasGallery) --}}
 <section id="galeri" class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1569,7 +1569,7 @@
         @endif
     </div>
 </section>
-@endif
+{{-- @endif --}}
 
 <!-- FAQ -->
 @php
