@@ -835,7 +835,7 @@
                                id="kepala_sekolah_nama" name="kepala_sekolah_nama"
                                value="{{ old('kepala_sekolah_nama', $kepalaSekolah->name ?? $ppdbSetting->kepala_sekolah_nama ?? '') }}"
                                placeholder="Dr. H. Ahmad Susanto, M.Pd." readonly>
-                        <small class="text-muted">Nama kepala sekolah diambil otomatis dari database users</small>
+                        <small class="text-muted">Nama kepala sekolah diambil otomatis</small>
                         @error('kepala_sekolah_nama')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
