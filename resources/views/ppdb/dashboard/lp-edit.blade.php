@@ -1030,7 +1030,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <input type="text" class="form-control" name="fasilitas[0][name]" placeholder="Nama Fasilitas">
                         </div>
                         <div class="col-md-4">
-                            <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas">
+                            <input type="text" class="form-control" name="fasilitas[0][description]" placeholder="Deskripsi Fasilitas (pisahkan dengan koma jika lebih dari 1)">
+                            <small class="text-muted">Contoh: Ruang kelas, AC, Proyektor</small>
                         </div>
                         <div class="col-md-3">
                             <input type="file" class="form-control" name="fasilitas_foto[0]" accept="image/*">
@@ -1043,15 +1044,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
 
-                // Insert before the last item (which should be empty)
-                const items = container.querySelectorAll('.array-input-item');
-                if (items.length > 0) {
-                    container.insertBefore(newItem, items[items.length - 1]);
-                } else {
-                    container.appendChild(newItem);
-                }
+                // Always append to the end of the container
+                container.appendChild(newItem);
 
                 // Update indices for all fasilitas items
+                updateJumlahFasilitas();
                 updateFasilitasIndices();
             } else if (targetId === 'jurusan-container') {
                 // Special handling for jurusan container - add only 1 empty row
@@ -1291,6 +1288,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 const name = input.name;
                 if (name.includes('jurusan[')) {
                     input.name = name.replace(/jurusan\[\d+\]/, `jurusan[${index}]`);
+                }
+            });
+        });
+    }
+
+    // Update fasilitas indices function
+    function updateFasilitasIndices() {
+        const container = document.getElementById('fasilitas-container');
+        const items = container.querySelectorAll('.array-input-item');
+        items.forEach((item, index) => {
+            const inputs = item.querySelectorAll('input');
+            inputs.forEach(input => {
+                const name = input.name;
+                if (name.includes('fasilitas[')) {
+                    input.name = name.replace(/fasilitas\[\d+\]/, `fasilitas[${index}]`);
                 }
             });
         });
