@@ -5,7 +5,9 @@ namespace App\Http\Controllers\PPDB;
 use App\Http\Controllers\Controller;
 use App\Models\PPDBSetting;
 use App\Models\PPDBPendaftar;
+use App\Models\Madrasah;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AdminLPController extends Controller
 {
@@ -19,7 +21,7 @@ class AdminLPController extends Controller
 
         // Ambil semua madrasah dan PPDB setting untuk tahun ini
         // Pastikan kolom ppdb_status di-select
-        $madrasahs = \App\Models\Madrasah::select('*')->with(['ppdbSettings' => function($query) use ($tahun) {
+        $madrasahs = Madrasah::select('*')->with(['ppdbSettings' => function($query) use ($tahun) {
             $query->where('tahun', $tahun);
         }])->get();
 
@@ -45,7 +47,7 @@ class AdminLPController extends Controller
             $ppdbStatus = $ppdbSetting->ppdb_status ?? 'tidak_aktif';
 
             // Buat slug fallback jika tidak ada ppdb_setting
-            $slug = $ppdbSetting?->slug ?? \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id);
+            $slug = $ppdbSetting?->slug ?? Str::slug($madrasah->name . '-' . $madrasah->id);
 
             $data = [
                 'sekolah' => $madrasah,
@@ -140,14 +142,8 @@ class AdminLPController extends Controller
     /**
      * Update school profile
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $sekolahId)
     {
-        // Get PPDB setting for current year
-        $tahun = now()->year;
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
-            ->where('tahun', $tahun)
-            ->firstOrFail();
-
         $request->validate([
             'name' => 'required|string|max:255',
             'kabupaten' => 'required|string|max:255',
@@ -209,18 +205,14 @@ class AdminLPController extends Controller
             'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
 
-        // Find or create PPDB setting for current year
+        // Get PPDB setting for current year
         $tahun = now()->year;
-        $ppdbSetting = PPDBSetting::firstOrCreate(
-            [
-                'sekolah_id' => $madrasah->id,
-                'tahun' => $tahun
-            ],
-            [
-                'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
-                'nama_sekolah' => $madrasah->name
-            ]
-        );
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolahId)
+            ->where('tahun', $tahun)
+            ->firstOrFail();
+
+        // Get the associated madrasah
+        $madrasah = $ppdbSetting->sekolah;
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
@@ -230,8 +222,7 @@ class AdminLPController extends Controller
             unset($data['name']);
         }
 
-        // Update madrasah table as well if needed
-        $madrasah = \App\Models\Madrasah::findOrFail($id);
+        // Update madrasah table to sync basic info
         $madrasah->update([
             'name' => $data['nama_sekolah'],
             'kabupaten' => $data['kabupaten'] ?? $madrasah->kabupaten,
@@ -385,7 +376,7 @@ class AdminLPController extends Controller
      */
     public function ppdbSettings($id)
     {
-        $madrasah = \App\Models\Madrasah::findOrFail($id);
+        $madrasah = Madrasah::findOrFail($id);
 
         // Get PPDB setting for current year
         $tahun = now()->year;
@@ -442,7 +433,7 @@ class AdminLPController extends Controller
                 'tahun' => $tahun
             ],
             [
-                'slug' => \Illuminate\Support\Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
+                'slug' => Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
                 'nama_sekolah' => $madrasah->name
             ]
         );
