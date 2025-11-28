@@ -1104,7 +1104,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="card-custom p-4 text-center h-100" style="background: white; color: #004b4c;">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
-                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
+                            <img src="{{ asset('images/madrasah/galeri/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @else
                             <img src="{{ asset('images/default-facility.jpg') }}" alt="{{ $fasilitas['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @endif
