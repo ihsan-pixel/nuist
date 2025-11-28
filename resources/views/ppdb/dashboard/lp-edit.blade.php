@@ -832,22 +832,10 @@
                         <label for="kepala_sekolah_nama" class="form-label">Nama Kepala Sekolah</label>
                         <input type="text" class="form-control @error('kepala_sekolah_nama') is-invalid @enderror"
                                id="kepala_sekolah_nama" name="kepala_sekolah_nama"
-                               value="{{ old('kepala_sekolah_nama', $ppdbSetting->kepala_sekolah_nama ?? '') }}"
-                               placeholder="Dr. H. Ahmad Susanto, M.Pd.">
+                               value="{{ old('kepala_sekolah_nama', $kepalaSekolah->name ?? $ppdbSetting->kepala_sekolah_nama ?? '') }}"
+                               placeholder="Dr. H. Ahmad Susanto, M.Pd." readonly>
+                        <small class="text-muted">Nama kepala sekolah diambil otomatis dari database users</small>
                         @error('kepala_sekolah_nama')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="kepala_sekolah_gelar" class="form-label">Gelar</label>
-                        <input type="text" class="form-control @error('kepala_sekolah_gelar') is-invalid @enderror"
-                               id="kepala_sekolah_gelar" name="kepala_sekolah_gelar"
-                               value="{{ old('kepala_sekolah_gelar', $ppdbSetting->kepala_sekolah_gelar ?? '') }}"
-                               placeholder="M.Pd., S.Pd., dll">
-                        @error('kepala_sekolah_gelar')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

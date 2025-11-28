@@ -170,8 +170,6 @@ class AdminLPController extends Controller
             'ekstrakurikuler.*' => 'nullable|string',
             'testimoni' => 'nullable|array',
             'testimoni.*' => 'nullable|string',
-            'kepala_sekolah_nama' => 'nullable|string|max:255',
-            'kepala_sekolah_gelar' => 'nullable|string|max:255',
             'kepala_sekolah_sambutan' => 'nullable|string',
             'jumlah_siswa' => 'nullable|integer|min:0',
             'jumlah_guru' => 'nullable|integer|min:0',
@@ -219,6 +217,12 @@ class AdminLPController extends Controller
         $data['nama_sekolah'] = $madrasah->name;
         $data['kabupaten'] = $madrasah->kabupaten;
         $data['alamat'] = $madrasah->alamat;
+
+        // Set kepala sekolah nama from users table
+        $kepalaSekolah = $madrasah->admins()
+            ->where('ketugasan', 'kepala sekolah')
+            ->first();
+        $data['kepala_sekolah_nama'] = $kepalaSekolah ? $kepalaSekolah->name : null;
 
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {
