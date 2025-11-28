@@ -619,7 +619,12 @@
             <div class="form-group">
                 <label class="form-label">Keunggulan</label>
                 <div id="keunggulan-container" class="array-input-container">
-                    @php $keunggulanArray = old('keunggulan', $ppdbSetting->keunggulan ?? []); @endphp
+                    @php
+                        $keunggulanArray = old('keunggulan', $ppdbSetting->keunggulan ?? []);
+                        if (is_string($keunggulanArray)) {
+                            $keunggulanArray = json_decode($keunggulanArray, true) ?? [];
+                        }
+                    @endphp
                     @if(is_array($keunggulanArray) && count($keunggulanArray) > 0)
                         @foreach($keunggulanArray as $index => $keunggulan)
                             <div class="array-input-item">
