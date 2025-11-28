@@ -948,7 +948,7 @@
     $nilaiNilai = $ppdb->nilai_nilai;
 @endphp
 @if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai))
-<section id="sejarah" class="section-padding bg-light">
+<section id="aboute" class="section-padding bg-light">
     <div class="container">
         <div class="row">
             <div class="col-12">
