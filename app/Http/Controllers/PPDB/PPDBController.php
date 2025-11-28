@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PPDBSetting;
 use App\Models\Madrasah;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class PPDBController extends Controller
@@ -54,11 +55,11 @@ class PPDBController extends Controller
      */
     public function showSekolah($slug)
     {
-        // Jika slug numerik → cari madrasah
+        // Jika slug numerik → cari madrasah berdasarkan ID
         if (is_numeric($slug)) {
             $madrasah = Madrasah::findOrFail($slug);
         } else {
-            // Cari PPDBSetting berdasarkan slug
+            // Cari PPDBSetting berdasarkan slug valid
             $ppdb = PPDBSetting::where('slug', $slug)
                 ->where('tahun', now()->year)
                 ->with('sekolah')
@@ -67,14 +68,17 @@ class PPDBController extends Controller
             if ($ppdb) {
                 $madrasah = $ppdb->sekolah;
             } else {
-                // Jika slug tidak cocok, cari madrasah berdasarkan nama
-                $madrasah = Madrasah::where('slug', $slug)
+                // Jika slug tidak cocok, buat pencarian slug dari name
+                $madrasah = Madrasah::whereRaw(
+                        'LOWER(REPLACE(name, " ", "-")) = ?',
+                        [strtolower($slug)]
+                    )
                     ->orWhere('name', 'like', '%' . str_replace('-', ' ', $slug) . '%')
                     ->firstOrFail();
             }
         }
 
-        // Ambil/tambahkan setting tahun berjalan
+        // Ambil/tambahkan setting PPDB tahun berjalan
         $ppdb = PPDBSetting::firstOrCreate(
             [
                 'sekolah_id' => $madrasah->id,
@@ -82,11 +86,11 @@ class PPDBController extends Controller
             ],
             [
                 'nama_sekolah' => $madrasah->name,
-                'slug' => \Str::slug($madrasah->name . '-' . $madrasah->id . '-' . now()->year)
+                'slug' => Str::slug($madrasah->name . '-' . $madrasah->id . '-' . now()->year)
             ]
         );
 
-        $pendaftarCount = isset($ppdb->id) ? $ppdb->pendaftars()->count() : 0;
+        $pendaftarCount = $ppdb->pendaftars()->count();
 
         return view('ppdb.sekolah', compact('ppdb', 'pendaftarCount', 'madrasah'));
     }
