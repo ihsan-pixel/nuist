@@ -923,7 +923,13 @@
 </section>
 
 <!-- Profile Sekolah -->
-@if($madrasah->sejarah || $madrasah->tahun_berdiri || $madrasah->akreditasi || $madrasah->nilai_nilai)
+@php
+    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
+    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
+    $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
+    $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
+@endphp
+@if($sejarah || $tahunBerdiri || $akreditasi || $nilaiNilai)
 <section id="sejarah" class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -935,10 +941,6 @@
         </div>
         <div class="row">
             <div class="col-lg-8">
-                @php
-                    $tahunBerdiri = $ppdb->tahun_berdiri ?? $madrasah->tahun_berdiri;
-                    $sejarah = $ppdb->sejarah ?? $madrasah->sejarah;
-                @endphp
                 @if($tahunBerdiri)
                     <div class="timeline">
                         <div class="timeline-item">
@@ -957,10 +959,6 @@
             <div class="col-lg-4">
                 <div class="card-custom p-4">
                     <h5 class="text-primary mb-3">Informasi Sekolah</h5>
-                    @php
-                        $akreditasi = $ppdb->akreditasi ?? $madrasah->akreditasi;
-                        $nilaiNilai = $ppdb->nilai_nilai ?? $madrasah->nilai_nilai;
-                    @endphp
                     @if($akreditasi)
                         <p class="mb-2"><strong>Akreditasi:</strong> {{ $akreditasi }}</p>
                     @endif
@@ -1411,7 +1409,13 @@
 @endif --}}
 
 <!-- Kepala Sekolah -->
-@if($kepalaSekolah)
+@php
+    $kepalaSekolahNama = $ppdb->kepala_sekolah_nama ?? $madrasah->kepala_sekolah_nama;
+    $kepalaSekolahGelar = $ppdb->kepala_sekolah_gelar ?? $madrasah->kepala_sekolah_gelar;
+    $kepalaSekolahSambutan = $ppdb->kepala_sekolah_sambutan ?? $madrasah->kepala_sekolah_sambutan;
+    $kepalaSekolahFoto = $ppdb->kepala_sekolah_foto ?? $madrasah->kepala_sekolah_foto;
+@endphp
+@if($kepalaSekolahNama)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1421,21 +1425,21 @@
         </div>
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
-                @if($kepalaSekolah->avatar)
-                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="{{ $kepalaSekolah->name }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
+                @if($kepalaSekolahFoto)
+                    <img src="{{ asset('storage/' . $kepalaSekolahFoto) }}" alt="{{ $kepalaSekolahNama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
                 @else
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
-                        <span class="text-white display-4">{{ substr($kepalaSekolah->name, 0, 1) }}</span>
+                        <span class="text-white display-4">{{ substr($kepalaSekolahNama, 0, 1) }}</span>
                     </div>
                 @endif
             </div>
             <div class="col-lg-8">
-                <h4 class="text-primary mb-2">{{ $kepalaSekolah->name }}</h4>
-                @if($kepalaSekolah->jabatan)
-                    <p class="text-muted mb-3">{{ $kepalaSekolah->jabatan }}</p>
+                <h4 class="text-primary mb-2">{{ $kepalaSekolahNama }}</h4>
+                @if($kepalaSekolahGelar)
+                    <p class="text-muted mb-3">{{ $kepalaSekolahGelar }}</p>
                 @endif
-                @if($kepalaSekolah->alamat)
-                    <p class="lead">{{ $kepalaSekolah->alamat }}</p>
+                @if($kepalaSekolahSambutan)
+                    <p class="lead">{{ $kepalaSekolahSambutan }}</p>
                 @endif
             </div>
         </div>
