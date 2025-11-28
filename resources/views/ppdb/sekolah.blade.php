@@ -37,7 +37,7 @@
     }
 
     .hero-flayer {
-        margin-top: -40px;
+        margin-top: -100px;
     }
 
     .school-logo {
