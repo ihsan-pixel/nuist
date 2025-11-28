@@ -728,24 +728,63 @@
             <div class="form-group">
                 <label class="form-label">Prestasi</label>
                 <div id="prestasi-container" class="array-input-container">
-                    @php $prestasiArray = old('prestasi', $ppdbSetting->prestasi ?? []); @endphp
-                    @if(is_array($prestasiArray) && count($prestasiArray) > 0)
+                    @php
+                        $prestasiArray = old('prestasi', $ppdbSetting->prestasi ?? []);
+                        if (is_string($prestasiArray)) {
+                            $prestasiArray = json_decode($prestasiArray, true) ?? [];
+                        }
+                        $hasExistingPrestasi = is_array($prestasiArray) && count($prestasiArray) > 0;
+                    @endphp
+                    @if($hasExistingPrestasi)
                         @foreach($prestasiArray as $index => $prestasi)
-                            <div class="array-input-item">
-                                <input type="text" class="form-control @error('prestasi.' . $index) is-invalid @enderror"
-                                       name="prestasi[]" value="{{ $prestasi }}" placeholder="Contoh: Juara 1 Lomba Matematika Tingkat Nasional">
-                                <button type="button" class="btn btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
+                            <div class="array-input-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('prestasi.' . $index . '.title') is-invalid @enderror"
+                                               name="prestasi[{{ $index }}][title]"
+                                               value="{{ is_array($prestasi) ? ($prestasi['title'] ?? '') : $prestasi }}"
+                                               placeholder="Jenis Prestasi">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('prestasi.' . $index . '.description') is-invalid @enderror"
+                                               name="prestasi[{{ $index }}][description]"
+                                               value="{{ is_array($prestasi) ? ($prestasi['description'] ?? '') : '' }}"
+                                               placeholder="Deskripsi Prestasi">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control @error('prestasi.' . $index . '.year') is-invalid @enderror"
+                                               name="prestasi[{{ $index }}][year]"
+                                               value="{{ is_array($prestasi) ? ($prestasi['year'] ?? '') : '' }}"
+                                               placeholder="Tahun" min="1900" max="{{ date('Y') + 1 }}">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-remove-array remove-array-item">
+                                            <i class="mdi mdi-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
+                    @else
+                        <div class="array-input-item mb-3 p-3 border rounded">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="prestasi[0][title]" placeholder="Jenis Prestasi">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="prestasi[0][description]" placeholder="Deskripsi Prestasi">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" name="prestasi[0][year]" placeholder="Tahun" min="1900" max="{{ date('Y') + 1 }}">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-remove-array remove-array-item">
+                                        <i class="mdi mdi-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     @endif
-                    <div class="array-input-item">
-                        <input type="text" class="form-control" name="prestasi[]" placeholder="Contoh: Juara 1 Lomba Matematika Tingkat Nasional">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
-                    </div>
                 </div>
                 <button type="button" class="btn btn-add-array add-array-item text-white" data-target="prestasi-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Prestasi

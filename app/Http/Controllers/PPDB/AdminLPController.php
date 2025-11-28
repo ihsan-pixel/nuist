@@ -182,7 +182,9 @@ class AdminLPController extends Controller
             'jurusan.*.prospek_karir' => 'nullable|string',
             'jurusan.*.skill_dipelajari' => 'nullable',
             'prestasi' => 'nullable|array',
-            'prestasi.*' => 'nullable|string',
+            'prestasi.*.title' => 'nullable|string',
+            'prestasi.*.description' => 'nullable|string',
+            'prestasi.*.year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'program_unggulan' => 'nullable|array',
             'program_unggulan.*' => 'nullable|string',
             'ekstrakurikuler' => 'nullable|array',
@@ -269,14 +271,41 @@ class AdminLPController extends Controller
             $data['galeri_foto'] = array_values($currentGaleri);
         }
 
-        // Handle array fields (excluding fasilitas which has special handling)
-        $arrayFields = ['misi', 'keunggulan', 'prestasi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
+        // Handle array fields (excluding fasilitas, jurusan, and prestasi which have special handling)
+        $arrayFields = ['misi', 'keunggulan', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
         foreach ($arrayFields as $field) {
             if ($request->has($field)) {
                 $data[$field] = array_filter($request->input($field, []), function($value) {
                     return !empty(trim($value));
                 });
             }
+        }
+
+        // Special handling for prestasi (nested objects)
+        if ($request->has('prestasi')) {
+            $prestasiData = $request->input('prestasi', []);
+            $processedPrestasi = [];
+
+            foreach ($prestasiData as $prestasi) {
+                // Check if prestasi is an array (new format) or string (old format)
+                if (is_array($prestasi)) {
+                    // New format: check if title is not empty
+                    if (!empty(trim($prestasi['title'] ?? ''))) {
+                        $processedPrestasi[] = [
+                            'title' => trim($prestasi['title']),
+                            'description' => trim($prestasi['description'] ?? ''),
+                            'year' => !empty($prestasi['year']) ? (int)$prestasi['year'] : null
+                        ];
+                    }
+                } else {
+                    // Old format: simple string
+                    if (!empty(trim($prestasi))) {
+                        $processedPrestasi[] = trim($prestasi);
+                    }
+                }
+            }
+
+            $data['prestasi'] = $processedPrestasi;
         }
 
         // Special handling for fasilitas (allow multiple facilities per description)
