@@ -986,8 +986,16 @@
             </div>
         </div>
         <div class="row">
-            @if($ppdb->jurusan && count($ppdb->jurusan) > 0)
-                @foreach($ppdb->jurusan as $jurusan)
+            @php
+                $jurusanData = $ppdb->jurusan;
+                if (is_string($jurusanData)) {
+                    $jurusanData = json_decode($jurusanData, true) ?? [];
+                } elseif (!is_array($jurusanData)) {
+                    $jurusanData = [];
+                }
+            @endphp
+            @if($jurusanData && count($jurusanData) > 0)
+                @foreach($jurusanData as $jurusan)
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         @if(isset($jurusan['image']) && $jurusan['image'])
@@ -1030,6 +1038,14 @@
 </section>
 
 <!-- Fasilitas Sekolah -->
+@php
+    $fasilitasData = $ppdb->fasilitas;
+    if (is_string($fasilitasData)) {
+        $fasilitasData = json_decode($fasilitasData, true) ?? [];
+    } elseif (!is_array($fasilitasData)) {
+        $fasilitasData = [];
+    }
+@endphp
 <section id="fasilitas" class="section-padding">
     <div class="container">
         <div class="row">
@@ -1040,8 +1056,8 @@
             </div>
         </div>
         <div class="row">
-            @if($ppdb->fasilitas && count($ppdb->fasilitas) > 0)
-                @foreach($ppdb->fasilitas as $fasilitas)
+            @if($fasilitasData && count($fasilitasData) > 0)
+                @foreach($fasilitasData as $fasilitas)
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="facility-card">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
@@ -1200,7 +1216,15 @@
         @endif
 
         <!-- Prestasi Sekolah -->
-        @if($ppdb->prestasi && is_array($ppdb->prestasi) && count($ppdb->prestasi) > 0)
+        @php
+            $prestasiData = $ppdb->prestasi;
+            if (is_string($prestasiData)) {
+                $prestasiData = json_decode($prestasiData, true) ?? [];
+            } elseif (!is_array($prestasiData)) {
+                $prestasiData = [];
+            }
+        @endphp
+        @if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0)
         <div class="row">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-white">
@@ -1469,7 +1493,15 @@
         @endif
 
         <!-- Photo Gallery -->
-        @if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
+        @php
+            $galeriFotoData = $ppdb->galeri_foto;
+            if (is_string($galeriFotoData)) {
+                $galeriFotoData = json_decode($galeriFotoData, true) ?? [];
+            } elseif (!is_array($galeriFotoData)) {
+                $galeriFotoData = [];
+            }
+        @endphp
+        @if($galeriFotoData && count($galeriFotoData) > 0 || $facilityPhotos && count($facilityPhotos) > 0)
         <div class="row">
             <!-- Galeri Foto PPDB -->
             @if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0)
