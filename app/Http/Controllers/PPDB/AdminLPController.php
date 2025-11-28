@@ -174,7 +174,10 @@ class AdminLPController extends Controller
             'misi' => 'nullable|array',
             'misi.*' => 'nullable|string',
             'keunggulan' => 'nullable|array',
-            'keunggulan.*' => 'nullable|string',
+            'keunggulan.*' => 'nullable|array',
+            'keunggulan.*.title' => 'nullable|string',
+            'keunggulan.*.description' => 'nullable|string',
+            'keunggulan.*.icon' => 'nullable|string',
             'fasilitas' => 'nullable|array',
             'fasilitas.*' => 'nullable',
             'jurusan' => 'nullable|array',
@@ -271,14 +274,41 @@ class AdminLPController extends Controller
             $data['galeri_foto'] = array_values($currentGaleri);
         }
 
-        // Handle array fields (excluding fasilitas, jurusan, and prestasi which have special handling)
-        $arrayFields = ['misi', 'keunggulan', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
+        // Handle array fields (excluding fasilitas, jurusan, prestasi, and keunggulan which have special handling)
+        $arrayFields = ['misi', 'program_unggulan', 'ekstrakurikuler', 'testimoni', 'faq', 'alur_pendaftaran', 'ppdb_jalur'];
         foreach ($arrayFields as $field) {
             if ($request->has($field)) {
                 $data[$field] = array_filter($request->input($field, []), function($value) {
                     return !empty(trim($value));
                 });
             }
+        }
+
+        // Special handling for keunggulan (nested objects)
+        if ($request->has('keunggulan')) {
+            $keunggulanData = $request->input('keunggulan', []);
+            $processedKeunggulan = [];
+
+            foreach ($keunggulanData as $keunggulan) {
+                // Check if keunggulan is an array (new format) or string (old format)
+                if (is_array($keunggulan)) {
+                    // New format: check if title is not empty
+                    if (!empty(trim($keunggulan['title'] ?? ''))) {
+                        $processedKeunggulan[] = [
+                            'title' => trim($keunggulan['title']),
+                            'description' => trim($keunggulan['description'] ?? ''),
+                            'icon' => trim($keunggulan['icon'] ?? 'star')
+                        ];
+                    }
+                } else {
+                    // Old format: simple string
+                    if (!empty(trim($keunggulan))) {
+                        $processedKeunggulan[] = trim($keunggulan);
+                    }
+                }
+            }
+
+            $data['keunggulan'] = $processedKeunggulan;
         }
 
         // Special handling for prestasi (nested objects)

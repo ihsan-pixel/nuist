@@ -626,23 +626,78 @@
                         if (is_string($keunggulanArray)) {
                             $keunggulanArray = json_decode($keunggulanArray, true) ?? [];
                         }
+                        $hasExistingKeunggulan = is_array($keunggulanArray) && count($keunggulanArray) > 0;
                     @endphp
-                    @if(is_array($keunggulanArray) && count($keunggulanArray) > 0)
+                    @if($hasExistingKeunggulan)
                         @foreach($keunggulanArray as $index => $keunggulan)
-                            <div class="array-input-item">
-                                <input type="text" class="form-control @error('keunggulan.' . $index) is-invalid @enderror"
-                                       name="keunggulan[]" value="{{ $keunggulan }}" placeholder="Keunggulan madrasah">
-                                <button type="button" class="btn btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
+                            <div class="array-input-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control @error('keunggulan.' . $index . '.title') is-invalid @enderror"
+                                               name="keunggulan[{{ $index }}][title]"
+                                               value="{{ is_array($keunggulan) ? ($keunggulan['title'] ?? '') : $keunggulan }}"
+                                               placeholder="Judul Keunggulan">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('keunggulan.' . $index . '.description') is-invalid @enderror"
+                                               name="keunggulan[{{ $index }}][description]"
+                                               value="{{ is_array($keunggulan) ? ($keunggulan['description'] ?? '') : '' }}"
+                                               placeholder="Deskripsi Keunggulan">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select @error('keunggulan.' . $index . '.icon') is-invalid @enderror"
+                                                name="keunggulan[{{ $index }}][icon]">
+                                            <option value="">Pilih Icon</option>
+                                            <option value="star" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'star' ? 'selected' : '' }}>⭐ Star</option>
+                                            <option value="graduation-cap" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'graduation-cap' ? 'selected' : '' }}>🎓 Graduation Cap</option>
+                                            <option value="users" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'users' ? 'selected' : '' }}>👥 Users</option>
+                                            <option value="book" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'book' ? 'selected' : '' }}>📚 Book</option>
+                                            <option value="trophy" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'trophy' ? 'selected' : '' }}>🏆 Trophy</option>
+                                            <option value="lightbulb" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'lightbulb' ? 'selected' : '' }}>💡 Lightbulb</option>
+                                            <option value="heart" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'heart' ? 'selected' : '' }}>❤️ Heart</option>
+                                            <option value="shield" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'shield' ? 'selected' : '' }}>🛡️ Shield</option>
+                                            <option value="rocket" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'rocket' ? 'selected' : '' }}>🚀 Rocket</option>
+                                            <option value="thumbs-up" {{ (is_array($keunggulan) ? ($keunggulan['icon'] ?? '') : '') == 'thumbs-up' ? 'selected' : '' }}>👍 Thumbs Up</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-remove-array remove-array-item">
+                                            <i class="mdi mdi-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     @else
-                        <div class="array-input-item">
-                            <input type="text" class="form-control" name="keunggulan[]" placeholder="Keunggulan madrasah">
-                            <button type="button" class="btn btn-remove-array remove-array-item">
-                                <i class="mdi mdi-minus"></i>
-                            </button>
+                        <div class="array-input-item mb-3 p-3 border rounded">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control" name="keunggulan[0][title]" placeholder="Judul Keunggulan">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" name="keunggulan[0][description]" placeholder="Deskripsi Keunggulan">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" name="keunggulan[0][icon]">
+                                        <option value="">Pilih Icon</option>
+                                        <option value="star">⭐ Star</option>
+                                        <option value="graduation-cap">🎓 Graduation Cap</option>
+                                        <option value="users">👥 Users</option>
+                                        <option value="book">📚 Book</option>
+                                        <option value="trophy">🏆 Trophy</option>
+                                        <option value="lightbulb">💡 Lightbulb</option>
+                                        <option value="heart">❤️ Heart</option>
+                                        <option value="shield">🛡️ Shield</option>
+                                        <option value="rocket">🚀 Rocket</option>
+                                        <option value="thumbs-up">👍 Thumbs Up</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-remove-array remove-array-item">
+                                        <i class="mdi mdi-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
