@@ -827,7 +827,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <div class="form-group">
                         <label for="kepala_sekolah_nama" class="form-label">Nama Kepala Sekolah</label>
                         <input type="text" class="form-control @error('kepala_sekolah_nama') is-invalid @enderror"
