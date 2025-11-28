@@ -1612,7 +1612,7 @@
                     @foreach($ppdbGaleriFoto as $foto)
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="gallery-item">
-                            <img src="{{ asset('storage/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
+                            <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
                         </div>
                     </div>
                     @endforeach
