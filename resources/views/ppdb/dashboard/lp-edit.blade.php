@@ -1079,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.appendChild(newItem);
 
                 // Update indices for all jurusan items
+                updateJumlahJurusan();
                 updateJurusanIndices();
             } else {
                 // Default handling for other containers
@@ -1106,6 +1107,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (item) {
                 item.remove();
                 // Update indices after removal
+                updateJumlahJurusan();
+                updateJumlahFasilitas();
                 updateFasilitasIndices();
             }
         }
@@ -1223,33 +1226,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Auto-update jumlah jurusan
     function updateJumlahJurusan() {
-        const jurusanInputs = document.querySelectorAll('input[name="jurusan[]"]');
+        const jurusanContainer = document.getElementById('jurusan-container');
+        const jurusanItems = jurusanContainer.querySelectorAll('.array-input-item');
         let count = 0;
-        jurusanInputs.forEach(input => {
-            if (input.value.trim() !== '') {
+
+        jurusanItems.forEach(item => {
+            const namaInput = item.querySelector('input[name*="[nama]"]');
+            if (namaInput && namaInput.value.trim() !== '') {
                 count++;
             }
         });
+
         document.getElementById('jumlah_jurusan').value = count;
     }
 
-    // Listen for changes in jurusan inputs
+    // Auto-update jumlah fasilitas
+    function updateJumlahFasilitas() {
+        const fasilitasContainer = document.getElementById('fasilitas-container');
+        const fasilitasItems = fasilitasContainer.querySelectorAll('.array-input-item');
+        let count = 0;
+
+        fasilitasItems.forEach(item => {
+            const nameInput = item.querySelector('input[name*="[name]"]');
+            if (nameInput && nameInput.value.trim() !== '') {
+                count++;
+            }
+        });
+
+        document.getElementById('jumlah_sarana').value = count;
+    }
+
+    // Listen for changes in jurusan and fasilitas inputs
     document.addEventListener('input', function(e) {
-        if (e.target.name === 'jurusan[]') {
-            updateJumlahJurusan();
+        if (e.target.name && (e.target.name.includes('jurusan[') || e.target.name.includes('fasilitas['))) {
+            if (e.target.name.includes('jurusan[')) {
+                updateJumlahJurusan();
+            }
+            if (e.target.name.includes('fasilitas[')) {
+                updateJumlahFasilitas();
+            }
         }
     });
 
-    // Also listen for array item additions/removals
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('add-array-item') || e.target.classList.contains('remove-array-item') ||
-            e.target.closest('.add-array-item') || e.target.closest('.remove-array-item')) {
-            setTimeout(() => {
-                updateJumlahJurusan();
-                updateFasilitasIndices();
-            }, 100); // Small delay to ensure DOM updates
-        }
-    });
+        // Also listen for array item additions/removals
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('add-array-item') || e.target.classList.contains('remove-array-item') ||
+                e.target.closest('.add-array-item') || e.target.closest('.remove-array-item')) {
+                setTimeout(() => {
+                    updateJumlahJurusan();
+                    updateJumlahFasilitas();
+                    updateFasilitasIndices();
+                }, 100); // Small delay to ensure DOM updates
+            }
+        });
 
     // Update jurusan indices function
     function updateJurusanIndices() {
@@ -1268,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize on page load
     updateJumlahJurusan();
+    updateJumlahFasilitas();
     updateFasilitasIndices();
     updateJurusanIndices();
 
