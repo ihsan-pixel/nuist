@@ -1252,14 +1252,14 @@
 @endif
 
 <!-- About Section -->
-<section id="about" class="about-section">
+<section id="about" class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">
-                    <i class="fas fa-info-circle text-warning me-3"></i>Tentang <span style="color: #efaa0c;">{{ $ppdb->nama_sekolah }}</span>
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle text-primary me-3"></i>Tentang <span style="color: #efaa0c;">{{ $ppdb->nama_sekolah }}</span>
                 </h2>
-                <p class="lead">Mengenal lebih dalam tentang sekolah kami</p>
+                <p class="lead text-muted">Mengenal lebih dalam tentang sekolah kami</p>
             </div>
         </div>
 
@@ -1268,22 +1268,22 @@
         <div class="row mb-5">
             @if($ppdb->visi)
             <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4 h-100 text-center">
+                <div class="major-card text-center">
                     <div class="advantage-icon mb-4">
                         <i class="fas fa-eye"></i>
                     </div>
-                    <h4 class="text-white mb-4">Visi</h4>
-                    <p class="lead text-white">{{ $ppdb->visi }}</p>
+                    <h4 class="text-primary mb-4">Visi</h4>
+                    <p class="text-muted">{{ $ppdb->visi }}</p>
                 </div>
             </div>
             @endif
             @if($ppdb->misi)
             <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4 h-100 text-center">
+                <div class="major-card text-center">
                     <div class="advantage-icon mb-4">
                         <i class="fas fa-bullseye"></i>
                     </div>
-                    <h4 class="text-white mb-4">Misi</h4>
+                    <h4 class="text-primary mb-4">Misi</h4>
                     <ul class="list-unstyled text-start">
                         @php
                             $misiData = $ppdb->misi;
@@ -1296,7 +1296,7 @@
                         @foreach($misiData as $misi)
                             <li class="mb-3">
                                 <i class="fas fa-check-circle text-warning me-2"></i>
-                                <span class="text-white">{{ $misi }}</span>
+                                <span class="text-dark">{{ $misi }}</span>
                             </li>
                         @endforeach
                     </ul>
@@ -1318,18 +1318,18 @@
         @if($keunggulanData && count($keunggulanData) > 0)
         <div class="row mb-5">
             <div class="col-12 text-center mb-4">
-                <h3 class="text-white">
+                <h3 class="text-primary">
                     <i class="fas fa-star text-warning me-2"></i>Keunggulan Sekolah
                 </h3>
             </div>
             @foreach($keunggulanData as $keunggulan)
             <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card-custom p-4 text-center h-100">
+                <div class="major-card text-center">
                     <div class="advantage-icon mb-3">
                         <i class="fas fa-{{ $keunggulan['icon'] ?? 'star' }}"></i>
                     </div>
-                    <h5 class="text-white mb-3">{{ $keunggulan['title'] ?? '' }}</h5>
-                    <p class="text-white-50">{{ $keunggulan['description'] ?? '' }}</p>
+                    <h5 class="text-primary mb-3">{{ $keunggulan['title'] ?? '' }}</h5>
+                    <p class="text-muted">{{ $keunggulan['description'] ?? '' }}</p>
                 </div>
             </div>
             @endforeach
