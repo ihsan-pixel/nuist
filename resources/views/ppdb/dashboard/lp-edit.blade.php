@@ -365,11 +365,9 @@
             </div>
 
             <div class="form-group">
-                <label for="alamat" class="form-label required-field">Alamat Lengkap</label>
-                <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" required>{{ old('alamat', $ppdbSetting->alamat) }}</textarea>
-                @error('alamat')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                <label for="alamat" class="form-label">Alamat Lengkap</label>
+                <textarea class="form-control" id="alamat" name="alamat" rows="3" readonly>{{ $ppdbSetting->sekolah->alamat }}</textarea>
+                <small class="text-muted">Alamat lengkap diambil otomatis dari database dan tidak dapat diubah</small>
             </div>
 
             <div class="row">
