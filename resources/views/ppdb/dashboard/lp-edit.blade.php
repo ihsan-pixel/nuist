@@ -644,23 +644,60 @@
             <div class="form-group">
                 <label class="form-label">Jurusan</label>
                 <div id="jurusan-container" class="array-input-container">
-                    @php $jurusanArray = old('jurusan', $ppdbSetting->jurusan ?? []); @endphp
+                    @php
+                        $jurusanArray = old('jurusan', $ppdbSetting->jurusan ?? []);
+                        if (is_string($jurusanArray)) {
+                            $jurusanArray = json_decode($jurusanArray, true) ?? [];
+                        }
+                    @endphp
                     @if(is_array($jurusanArray) && count($jurusanArray) > 0)
                         @foreach($jurusanArray as $index => $jurusan)
-                            <div class="array-input-item">
-                                <input type="text" class="form-control @error('jurusan.' . $index) is-invalid @enderror"
-                                       name="jurusan[]" value="{{ $jurusan }}" placeholder="Contoh: Teknik Informatika">
+                            <div class="array-input-item mb-3 p-3 border rounded">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('jurusan.' . $index . '.nama') is-invalid @enderror"
+                                               name="jurusan[{{ $index }}][nama]"
+                                               value="{{ is_array($jurusan) ? ($jurusan['nama'] ?? $jurusan['name'] ?? '') : $jurusan }}"
+                                               placeholder="Nama Jurusan">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control @error('jurusan.' . $index . '.prospek_karir') is-invalid @enderror"
+                                               name="jurusan[{{ $index }}][prospek_karir]"
+                                               value="{{ is_array($jurusan) ? ($jurusan['prospek_karir'] ?? '') : '' }}"
+                                               placeholder="Prospek Karir">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control @error('jurusan.' . $index . '.skill_dipelajari') is-invalid @enderror"
+                                               name="jurusan[{{ $index }}][skill_dipelajari]"
+                                               value="{{ is_array($jurusan) ? (is_array($jurusan['skill_dipelajari'] ?? null) ? implode(', ', $jurusan['skill_dipelajari']) : ($jurusan['skill_dipelajari'] ?? '')) : '' }}"
+                                               placeholder="Skill yang Dipelajari (pisahkan dengan koma)">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-remove-array remove-array-item">
+                                            <i class="mdi mdi-minus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                    <div class="array-input-item mb-3 p-3 border rounded">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="jurusan[0][nama]" placeholder="Nama Jurusan">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="jurusan[0][prospek_karir]" placeholder="Prospek Karir">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" name="jurusan[0][skill_dipelajari]" placeholder="Skill yang Dipelajari (pisahkan dengan koma)">
+                            </div>
+                            <div class="col-md-1">
                                 <button type="button" class="btn btn-remove-array remove-array-item">
                                     <i class="mdi mdi-minus"></i>
                                 </button>
                             </div>
-                        @endforeach
-                    @endif
-                    <div class="array-input-item">
-                        <input type="text" class="form-control" name="jurusan[]" placeholder="Contoh: Teknik Informatika">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-add-array add-array-item text-white" data-target="jurusan-container">

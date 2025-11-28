@@ -1021,28 +1021,41 @@
                             <img src="{{ asset('storage/' . $jurusan['image']) }}" alt="{{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @endif
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-book me-2"></i>{{ $jurusan['name'] ?? $jurusan['nama'] ?? $jurusan[0] ?? '' }}
+                            <i class="fas fa-book me-2"></i>
+                            @if(is_array($jurusan))
+                                {{ $jurusan['name'] ?? $jurusan['nama'] ?? '' }}
+                            @else
+                                {{ $jurusan }}
+                            @endif
                         </h5>
-                        <p class="text-muted mb-3">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
-                        @if(isset($jurusan['prospek_karir']) && !empty($jurusan['prospek_karir']))
-                            <div class="mb-3">
-                                <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
-                                <p class="text-muted small">{{ $jurusan['prospek_karir'] }}</p>
-                            </div>
-                        @endif
-                        @if(isset($jurusan['skill_dipelajari']) && !empty($jurusan['skill_dipelajari']))
-                            <div>
-                                <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
-                                <ul class="text-muted small">
-                                    @if(is_array($jurusan['skill_dipelajari']))
-                                        @foreach($jurusan['skill_dipelajari'] as $skill)
+                        @if(is_array($jurusan))
+                            <p class="text-muted mb-3">{{ $jurusan['description'] ?? $jurusan['deskripsi'] ?? '' }}</p>
+                            @if(isset($jurusan['prospek_karir']) && !empty($jurusan['prospek_karir']))
+                                <div class="mb-3">
+                                    <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
+                                    <p class="text-muted small">{{ $jurusan['prospek_karir'] }}</p>
+                                </div>
+                            @endif
+                            @if(isset($jurusan['skill_dipelajari']) && !empty($jurusan['skill_dipelajari']))
+                                <div>
+                                    <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
+                                    <ul class="text-muted small">
+                                        @php
+                                            $skills = $jurusan['skill_dipelajari'];
+                                            if (is_string($skills)) {
+                                                $skills = array_map('trim', explode(',', $skills));
+                                            } elseif (!is_array($skills)) {
+                                                $skills = [$skills];
+                                            }
+                                        @endphp
+                                        @foreach($skills as $skill)
                                             <li>{{ $skill }}</li>
                                         @endforeach
-                                    @else
-                                        <li>{{ $jurusan['skill_dipelajari'] }}</li>
-                                    @endif
-                                </ul>
-                            </div>
+                                    </ul>
+                                </div>
+                            @endif
+                        @else
+                            <p class="text-muted mb-3">{{ $jurusan }}</p>
                         @endif
                     </div>
                 </div>
