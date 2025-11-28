@@ -1051,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update indices for all fasilitas items
                 updateFasilitasIndices();
             } else if (targetId === 'jurusan-container') {
-                // Special handling for jurusan container
+                // Special handling for jurusan container - add only 1 empty row
                 const newItem = document.createElement('div');
                 newItem.className = 'array-input-item mb-3 p-3 border rounded';
                 newItem.innerHTML = `
@@ -1063,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <input type="text" class="form-control" name="jurusan[0][prospek_karir]" placeholder="Prospek Karir">
                         </div>
                         <div class="col-md-3">
-                            <input type="text" class="form-control" name="jurusan[0][skill_dipelajari][]" placeholder="Skill yang Dipelajari (pisahkan dengan koma)">
+                            <input type="text" class="form-control" name="jurusan[0][skill_dipelajari]" placeholder="Skill yang Dipelajari (pisahkan dengan koma)">
                         </div>
                         <div class="col-md-1">
                             <button type="button" class="btn btn-remove-array remove-array-item">
@@ -1073,13 +1073,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
 
-                // Insert before the last item (which should be empty)
-                const items = container.querySelectorAll('.array-input-item');
-                if (items.length > 0) {
-                    container.insertBefore(newItem, items[items.length - 1]);
-                } else {
-                    container.appendChild(newItem);
-                }
+                // Always append to the end of the container
+                container.appendChild(newItem);
 
                 // Update indices for all jurusan items
                 updateJurusanIndices();
