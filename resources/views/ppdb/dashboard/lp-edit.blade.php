@@ -550,7 +550,12 @@
             <div class="form-group">
                 <label class="form-label">Fasilitas</label>
                 <div id="fasilitas-container" class="array-input-container">
-                    @php $fasilitasArray = old('fasilitas', $ppdbSetting->fasilitas ?? []); @endphp
+                    @php
+                        $fasilitasArray = old('fasilitas', $ppdbSetting->fasilitas ?? []);
+                        if (is_string($fasilitasArray)) {
+                            $fasilitasArray = json_decode($fasilitasArray, true) ?? [];
+                        }
+                    @endphp
                     @if(is_array($fasilitasArray) && count($fasilitasArray) > 0)
                         @foreach($fasilitasArray as $index => $fasilitas)
                             <div class="array-input-item mb-3 p-3 border rounded existing-fasilitas" data-index="{{ $index }}">
@@ -625,13 +630,14 @@
                                 </button>
                             </div>
                         @endforeach
+                    @else
+                        <div class="array-input-item">
+                            <input type="text" class="form-control" name="keunggulan[]" placeholder="Keunggulan madrasah">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
                     @endif
-                    <div class="array-input-item">
-                        <input type="text" class="form-control" name="keunggulan[]" placeholder="Keunggulan madrasah">
-                        <button type="button" class="btn btn-remove-array remove-array-item">
-                            <i class="mdi mdi-minus"></i>
-                        </button>
-                    </div>
                 </div>
                 <button type="button" class="btn btn-add-array add-array-item text-white" data-target="keunggulan-container">
                     <i class="mdi mdi-plus me-1"></i>Tambah Keunggulan
