@@ -125,18 +125,16 @@ class AdminLPController extends Controller
      */
     public function edit($id)
     {
-        $madrasah = \App\Models\Madrasah::findOrFail($id);
-
-        // Hitung jumlah guru dari tenaga pendidik
-        $jumlahGuru = $madrasah->tenagaPendidikUsers()->count();
-
         // Get PPDB setting for current year
         $tahun = now()->year;
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
             ->where('tahun', $tahun)
-            ->first();
+            ->firstOrFail();
 
-        return view('ppdb.dashboard.lp-edit', compact('madrasah', 'jumlahGuru', 'ppdbSetting'));
+        // Hitung jumlah guru dari tenaga pendidik
+        $jumlahGuru = $ppdbSetting->sekolah->tenagaPendidikUsers()->count();
+
+        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru'));
     }
 
     /**
@@ -144,7 +142,11 @@ class AdminLPController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $madrasah = \App\Models\Madrasah::findOrFail($id);
+        // Get PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
+            ->where('tahun', $tahun)
+            ->firstOrFail();
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -227,6 +229,15 @@ class AdminLPController extends Controller
             $data['nama_sekolah'] = $data['name'];
             unset($data['name']);
         }
+
+        // Update madrasah table as well if needed
+        $madrasah = \App\Models\Madrasah::findOrFail($id);
+        $madrasah->update([
+            'name' => $data['nama_sekolah'],
+            'kabupaten' => $data['kabupaten'] ?? $madrasah->kabupaten,
+            'alamat' => $data['alamat'] ?? $madrasah->alamat,
+            'telepon' => $data['telepon'] ?? $madrasah->telepon,
+        ]);
 
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {

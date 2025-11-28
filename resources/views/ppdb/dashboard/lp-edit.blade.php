@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Edit Profil Madrasah - ' . $madrasah->name)
+@section('title', 'Edit Profil Madrasah - ' . $ppdbSetting->nama_sekolah)
 
 @push('css')
 <style>
@@ -333,7 +333,7 @@
         </div>
     @endif
 
-    <form action="{{ route('ppdb.lp.update', $madrasah->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('ppdb.lp.update', $ppdbSetting->sekolah_id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -351,7 +351,7 @@
                     <div class="form-group">
                         <label for="name" class="form-label required-field">Nama Madrasah</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
-                               id="name" name="name" value="{{ old('name', $madrasah->name) }}" required>
+                               id="name" name="name" value="{{ old('name', $ppdbSetting->nama_sekolah) }}" required>
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -362,7 +362,7 @@
                     <div class="form-group">
                         <label for="kabupaten" class="form-label required-field">Kabupaten</label>
                         <input type="text" class="form-control @error('kabupaten') is-invalid @enderror"
-                               id="kabupaten" name="kabupaten" value="{{ old('kabupaten', $madrasah->kabupaten) }}" required>
+                               id="kabupaten" name="kabupaten" value="{{ old('kabupaten', $ppdbSetting->kabupaten) }}" required>
                         @error('kabupaten')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -372,7 +372,7 @@
 
             <div class="form-group">
                 <label for="alamat" class="form-label required-field">Alamat Lengkap</label>
-                <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" required>{{ old('alamat', $madrasah->alamat) }}</textarea>
+                <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" required>{{ old('alamat', $ppdbSetting->alamat) }}</textarea>
                 @error('alamat')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -424,7 +424,7 @@
                     <div class="form-group">
                         <label for="telepon" class="form-label">Telepon</label>
                         <input type="text" class="form-control @error('telepon') is-invalid @enderror"
-                               id="telepon" name="telepon" value="{{ old('telepon', $madrasah->telepon) }}"
+                               id="telepon" name="telepon" value="{{ old('telepon', $ppdbSetting->telepon) }}"
                                placeholder="Contoh: (021) 1234567">
                         @error('telepon')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -513,7 +513,7 @@
             <div class="form-group">
                 <label class="form-label">Misi</label>
                 <div id="misi-container" class="array-input-container">
-                    @php $misiArray = old('misi', $madrasah->misi ?? []); @endphp
+                    @php $misiArray = old('misi', $ppdbSetting->misi ?? []); @endphp
                     @if(is_array($misiArray) && count($misiArray) > 0)
                         @foreach($misiArray as $index => $misi)
                             <div class="array-input-item">
