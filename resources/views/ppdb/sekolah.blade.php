@@ -976,19 +976,16 @@
                 @endif
             </div>
             <div class="col-lg-4">
-                <div class="card-custom p-4 h-100 text-center">
-                    <div class="advantage-icon mb-4">
-                        <i class="fas fa-school"></i>
-                    </div>
-                    <h4 class="text-white mb-4">Informasi Sekolah</h4>
+                <div class="card-custom p-4" style="background: white; color: #004b4c;">
+                    <h5 class="mb-3" style="color: #004b4c;">Informasi Sekolah</h5>
                     @if($ppdb->akreditasi)
-                        <p class="text-white mb-2"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
+                        <p class="mb-2" style="color: #004b4c;"><strong>Akreditasi:</strong> {{ $ppdb->akreditasi }}</p>
                     @endif
                     @if($ppdb->nilai_nilai)
-                        <p class="text-white mb-2"><strong>Nilai-Nilai:</strong> {{ $ppdb->nilai_nilai }}</p>
+                        <p class="mb-2" style="color: #004b4c;"><strong>Nilai-Nilai:</strong> {{ $ppdb->nilai_nilai }}</p>
                     @endif
                     @if($ppdb->tahun_berdiri)
-                        <p class="text-white mb-0"><strong>Tahun Berdiri:</strong> {{ $ppdb->tahun_berdiri }}</p>
+                        <p class="mb-0" style="color: #004b4c;"><strong>Tahun Berdiri:</strong> {{ $ppdb->tahun_berdiri }}</p>
                     @endif
                 </div>
             </div>
