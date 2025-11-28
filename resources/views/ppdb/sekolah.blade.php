@@ -1065,42 +1065,41 @@
         $fasilitasData = [];
     }
 @endphp
-<section id="fasilitas" class="section-padding">
+<section id="fasilitas" class="about-section">
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <h2 class="section-title">
-                    <i class="fas fa-building text-primary me-3"></i>Fasilitas Sekolah
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold">
+                    <i class="fas fa-building text-warning me-3"></i>Fasilitas <span style="color: #efaa0c;">Sekolah</span>
                 </h2>
+                <p class="lead">Fasilitas lengkap untuk mendukung pembelajaran siswa</p>
             </div>
         </div>
         <div class="row">
             @if($fasilitasData && count($fasilitasData) > 0)
                 @foreach($fasilitasData as $fasilitas)
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="facility-card">
+                    <div class="card-custom p-4 text-center h-100" style="background: white; color: #004b4c;">
                         @if(isset($fasilitas['image']) && $fasilitas['image'])
-                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="facility-img w-100">
+                            <img src="{{ asset('storage/' . $fasilitas['image']) }}" alt="{{ $fasilitas['name'] }}" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         @else
-                            <div class="facility-img bg-light d-flex align-items-center justify-content-center">
-                                <i class="fas fa-building bx-lg text-muted"></i>
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-building fa-2x text-muted"></i>
                             </div>
                         @endif
-                        <div class="p-3">
-                            <h6 class="text-primary mb-2">
-                                <i class="fas fa-cog me-2"></i>{{ $fasilitas['name'] ?? '' }}
-                            </h6>
-                            <p class="text-muted small mb-0">{{ $fasilitas['description'] ?? '' }}</p>
-                        </div>
+                        <h6 class="mb-2" style="color: #004b4c;">
+                            <i class="fas fa-cog me-2"></i>{{ $fasilitas['name'] ?? '' }}
+                        </h6>
+                        <p class="small mb-0" style="color: #004b4c;">{{ $fasilitas['description'] ?? '' }}</p>
                     </div>
                 </div>
                 @endforeach
             @else
                 <div class="col-12 text-center">
-                    <div class="card-custom p-5">
+                    <div class="card-custom p-5" style="background: white; color: #004b4c;">
                         <i class="fas fa-building fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Fasilitas Akan Segera Ditambahkan</h5>
-                        <p class="text-muted">Informasi fasilitas sekolah sedang dalam proses penyusunan.</p>
+                        <h5 style="color: #004b4c;">Fasilitas Akan Segera Ditambahkan</h5>
+                        <p style="color: #004b4c;">Informasi fasilitas sekolah sedang dalam proses penyusunan.</p>
                     </div>
                 </div>
             @endif
