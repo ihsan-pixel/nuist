@@ -321,7 +321,7 @@ class AdminLPController extends Controller
         // Handle file uploads
         if ($request->hasFile('galeri_foto')) {
             $galeriFiles = [];
-            $galeriPath = public_path('images/madrasah/galeri');
+            $galeriPath = $_SERVER['DOCUMENT_ROOT'] . '/images/madrasah/galeri';
 
             // Ensure directory exists
             if (!is_dir($galeriPath)) {
