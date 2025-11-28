@@ -1090,7 +1090,22 @@
 </section>
 
 <!-- Program Unggulan & Ekstrakurikuler -->
-@if($ppdb->program_unggulan || $ppdb->ekstrakurikuler)
+@php
+    $programUnggulanData = $ppdb->program_unggulan;
+    if (is_string($programUnggulanData)) {
+        $programUnggulanData = json_decode($programUnggulanData, true) ?? [];
+    } elseif (!is_array($programUnggulanData)) {
+        $programUnggulanData = [];
+    }
+
+    $ekstrakurikulerData = $ppdb->ekstrakurikuler;
+    if (is_string($ekstrakurikulerData)) {
+        $ekstrakurikulerData = json_decode($ekstrakurikulerData, true) ?? [];
+    } elseif (!is_array($ekstrakurikulerData)) {
+        $ekstrakurikulerData = [];
+    }
+@endphp
+@if($programUnggulanData || $ekstrakurikulerData)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1099,12 +1114,12 @@
             </div>
         </div>
         <div class="row">
-            @if($ppdb->program_unggulan)
+            @if($programUnggulanData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Program Unggulan</h4>
                     <div class="row">
-                        @foreach($ppdb->program_unggulan as $program)
+                        @foreach($programUnggulanData as $program)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-check-circle text-success me-2"></i>
@@ -1116,12 +1131,12 @@
                 </div>
             </div>
             @endif
-            @if($ppdb->ekstrakurikuler)
+            @if($ekstrakurikulerData)
             <div class="col-lg-6 mb-4">
                 <div class="card-custom p-4">
                     <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
                     <div class="row">
-                        @foreach($ppdb->ekstrakurikuler as $ekstra)
+                        @foreach($ekstrakurikulerData as $ekstra)
                         <div class="col-md-6 mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-run text-primary me-2"></i>
@@ -1172,7 +1187,15 @@
                     </div>
                     <h4 class="text-white mb-4">Misi</h4>
                     <ul class="list-unstyled text-start">
-                        @foreach($ppdb->misi as $misi)
+                        @php
+                            $misiData = $ppdb->misi;
+                            if (is_string($misiData)) {
+                                $misiData = json_decode($misiData, true) ?? [];
+                            } elseif (!is_array($misiData)) {
+                                $misiData = [];
+                            }
+                        @endphp
+                        @foreach($misiData as $misi)
                             <li class="mb-3">
                                 <i class="fas fa-check-circle text-warning me-2"></i>
                                 <span class="text-white">{{ $misi }}</span>
@@ -1231,7 +1254,7 @@
                     <i class="fas fa-trophy text-warning me-2"></i>Prestasi Sekolah
                 </h3>
             </div>
-            @foreach($ppdb->prestasi as $prestasi)
+            @foreach($prestasiData as $prestasi)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="achievement-badge">
                     <div class="mb-2">
@@ -1511,7 +1534,7 @@
                 </h4>
                 <p class="text-muted mb-3">Koleksi foto-foto kegiatan dan fasilitas sekolah dari pengaturan PPDB</p>
                 <div class="row">
-                    @foreach($ppdb->galeri_foto as $foto)
+                    @foreach($galeriFotoData as $foto)
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="gallery-item">
                             <img src="{{ asset('images/madrasah/galeri/' . $foto) }}" alt="Galeri Foto PPDB" class="gallery-img w-100">
@@ -1549,7 +1572,15 @@
 @endif
 
 <!-- FAQ -->
-@if($ppdb->faq)
+@php
+    $faqData = $ppdb->faq;
+    if (is_string($faqData)) {
+        $faqData = json_decode($faqData, true) ?? [];
+    } elseif (!is_array($faqData)) {
+        $faqData = [];
+    }
+@endphp
+@if($faqData)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1559,7 +1590,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                @foreach($ppdb->faq ?? [] as $faq)
+                @foreach($faqData as $faq)
                 <div class="faq-item">
                     <button class="faq-question">
                         <i class="fas fa-chevron-down me-2"></i>
