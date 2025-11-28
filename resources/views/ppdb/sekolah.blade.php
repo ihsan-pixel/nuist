@@ -1411,13 +1411,7 @@
 @endif --}}
 
 <!-- Kepala Sekolah -->
-@php
-    $kepalaSekolahNama = $ppdb->kepala_sekolah_nama ?? $madrasah->kepala_sekolah_nama;
-    $kepalaSekolahGelar = $ppdb->kepala_sekolah_gelar ?? $madrasah->kepala_sekolah_gelar;
-    $kepalaSekolahSambutan = $ppdb->kepala_sekolah_sambutan ?? $madrasah->kepala_sekolah_sambutan;
-    $kepalaSekolahFoto = $ppdb->kepala_sekolah_foto ?? $madrasah->kepala_sekolah_foto;
-@endphp
-@if($kepalaSekolahNama)
+@if($kepalaSekolah)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1427,21 +1421,21 @@
         </div>
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
-                @if($kepalaSekolahFoto)
-                    <img src="{{ asset('storage/madrasah/' . $kepalaSekolahFoto) }}" alt="{{ $kepalaSekolahNama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
+                @if($kepalaSekolah->avatar)
+                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="{{ $kepalaSekolah->name }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
                 @else
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
-                        <span class="text-white display-4">{{ substr($kepalaSekolahNama, 0, 1) }}</span>
+                        <span class="text-white display-4">{{ substr($kepalaSekolah->name, 0, 1) }}</span>
                     </div>
                 @endif
             </div>
             <div class="col-lg-8">
-                <h4 class="text-primary mb-2">{{ $kepalaSekolahNama }}</h4>
-                @if($kepalaSekolahGelar)
-                    <p class="text-muted mb-3">{{ $kepalaSekolahGelar }}</p>
+                <h4 class="text-primary mb-2">{{ $kepalaSekolah->name }}</h4>
+                @if($kepalaSekolah->jabatan)
+                    <p class="text-muted mb-3">{{ $kepalaSekolah->jabatan }}</p>
                 @endif
-                @if($kepalaSekolahSambutan)
-                    <p class="lead">{{ $kepalaSekolahSambutan }}</p>
+                @if($kepalaSekolah->alamat)
+                    <p class="lead">{{ $kepalaSekolah->alamat }}</p>
                 @endif
             </div>
         </div>
