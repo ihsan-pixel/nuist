@@ -698,6 +698,12 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="#program-ekstra">
+                        Program & Ekstra
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="#about">
                         About
                     </a>
@@ -1141,47 +1147,66 @@
     }
 @endphp
 @if($programUnggulanData || $ekstrakurikulerData)
-<section class="section-padding bg-light">
+<section id="program-ekstra" class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2 class="section-title">Program Unggulan & Ekstrakurikuler</h2>
+                <h2 class="section-title">
+                    <i class="fas fa-star text-primary me-3"></i>Program Unggulan & Ekstrakurikuler
+                </h2>
             </div>
         </div>
         <div class="row">
-            @if($programUnggulanData)
-            <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4">
-                    <h4 class="text-primary mb-4">Program Unggulan</h4>
-                    <div class="row">
-                        @foreach($programUnggulanData as $program)
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <span>{{ $program['name'] ?? $program }}</span>
-                            </div>
-                        </div>
-                        @endforeach
+            @if($programUnggulanData && count($programUnggulanData) > 0)
+                @foreach($programUnggulanData as $program)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="major-card">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-award me-2"></i>
+                            @if(is_array($program))
+                                {{ $program['name'] ?? $program['nama'] ?? '' }}
+                            @else
+                                {{ $program }}
+                            @endif
+                        </h5>
+                        @if(is_array($program) && isset($program['description']) && !empty($program['description']))
+                            <p class="text-muted mb-3">{{ $program['description'] }}</p>
+                        @else
+                            <p class="text-muted mb-3">Program unggulan yang menjadi keunggulan sekolah kami.</p>
+                        @endif
                     </div>
                 </div>
-            </div>
+                @endforeach
             @endif
-            @if($ekstrakurikulerData)
-            <div class="col-lg-6 mb-4">
-                <div class="card-custom p-4">
-                    <h4 class="text-primary mb-4">Ekstrakurikuler</h4>
-                    <div class="row">
-                        @foreach($ekstrakurikulerData as $ekstra)
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-run text-primary me-2"></i>
-                                <span>{{ $ekstra['name'] ?? $ekstra }}</span>
-                            </div>
-                        </div>
-                        @endforeach
+            @if($ekstrakurikulerData && count($ekstrakurikulerData) > 0)
+                @foreach($ekstrakurikulerData as $ekstra)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="major-card">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-futbol me-2"></i>
+                            @if(is_array($ekstra))
+                                {{ $ekstra['name'] ?? $ekstra['nama'] ?? '' }}
+                            @else
+                                {{ $ekstra }}
+                            @endif
+                        </h5>
+                        @if(is_array($ekstra) && isset($ekstra['description']) && !empty($ekstra['description']))
+                            <p class="text-muted mb-3">{{ $ekstra['description'] }}</p>
+                        @else
+                            <p class="text-muted mb-3">Kegiatan ekstrakurikuler untuk mengembangkan bakat siswa.</p>
+                        @endif
                     </div>
                 </div>
-            </div>
+                @endforeach
+            @endif
+            @if((!$programUnggulanData || count($programUnggulanData) == 0) && (!$ekstrakurikulerData || count($ekstrakurikulerData) == 0))
+                <div class="col-12 text-center">
+                    <div class="card-custom p-5">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Program Unggulan & Ekstrakurikuler Akan Segera Ditambahkan</h5>
+                        <p class="text-muted">Informasi program unggulan dan ekstrakurikuler sedang dalam proses penyusunan.</p>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -1730,6 +1755,7 @@
                     <li class="mb-2"><a href="{{ route('ppdb.index') }}" class="text-light text-decoration-none">Beranda PPDB</a></li>
                     <li class="mb-2"><a href="#jurusan" class="text-light text-decoration-none">Jurusan</a></li>
                     <li class="mb-2"><a href="#fasilitas" class="text-light text-decoration-none">Fasilitas</a></li>
+                    <li class="mb-2"><a href="#program-ekstra" class="text-light text-decoration-none">Program & Ekstra</a></li>
                     <li class="mb-2"><a href="#about" class="text-light text-decoration-none">Tentang</a></li>
                     <li class="mb-2"><a href="#sejarah" class="text-light text-decoration-none">Sejarah</a></li>
                     <li class="mb-2"><a href="#galeri" class="text-light text-decoration-none">Galeri</a></li>
