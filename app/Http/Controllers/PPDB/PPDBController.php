@@ -5,6 +5,7 @@ namespace App\Http\Controllers\PPDB;
 use App\Http\Controllers\Controller;
 use App\Models\PPDBSetting;
 use App\Models\Madrasah;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PPDBController extends Controller
