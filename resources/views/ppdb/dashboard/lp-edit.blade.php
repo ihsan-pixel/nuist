@@ -580,7 +580,7 @@
                                 </div>
                                 @if(isset($fasilitas['foto']) && $fasilitas['foto'])
                                     <div class="mt-2">
-                                        <small class="text-muted">Foto saat ini:</small>
+                                        {{-- <small class="text-muted">Foto saat ini:</small> --}}
                                         <img src="{{ asset('images/madrasah/galeri/' . $fasilitas['foto']) }}" alt="Foto Fasilitas" class="image-preview">
                                         <input type="hidden" name="fasilitas[{{ $index }}][foto]" value="{{ $fasilitas['foto'] }}">
                                     </div>
