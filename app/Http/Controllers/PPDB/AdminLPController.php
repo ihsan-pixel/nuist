@@ -222,6 +222,12 @@ class AdminLPController extends Controller
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
 
+        // Map 'name' to 'nama_sekolah' for ppdb_settings table
+        if (isset($data['name'])) {
+            $data['nama_sekolah'] = $data['name'];
+            unset($data['name']);
+        }
+
         // Handle deletion of brosur
         if ($request->input('delete_brosur') == '1') {
             if ($ppdbSetting->brosur_pdf) {
