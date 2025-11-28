@@ -234,7 +234,7 @@ class AdminLPController extends Controller
 
         // Set kepala sekolah nama from users table
         $kepalaSekolah = $madrasah->admins()
-            ->whereIn('ketugasan', ['kepala sekolah', 'kepala madrasah/sekolah'])
+            ->whereIn('ketugasan', ['kepala madrasah/sekolah'])
             ->first();
         $data['kepala_sekolah_nama'] = $kepalaSekolah ? $kepalaSekolah->name : null;
 
