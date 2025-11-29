@@ -59,29 +59,33 @@
                         <div class="status-indicator status-{{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
                         <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
                         @if(old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'buka')
-                            <div class="d-flex align-items-start gap-3 ms-2">
-                                <div>
-                                    <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
-                                    <div class="mt-2">
-                                        <button type="button"
-                                            class="btn btn-sm btn-outline-secondary me-2"
-                                            onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
-                                            <i class="mdi mdi-content-copy me-1"></i>Salin Link
+                            <div class="mt-3 p-3 bg-light rounded border">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-semibold mb-2">Link PPDB:</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
+                                                <i class="mdi mdi-content-copy me-1"></i>Salin Link
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <label class="form-label fw-semibold mb-2">QR Code:</label>
+                                        <div class="qr-code-container p-2 border rounded bg-white d-inline-block">
+                                            <img id="qr-code-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/ppdb/' . $madrasah->name)) }}"
+                                                 alt="QR Code untuk PPDB"
+                                                 style="width: 80px; height: 80px;"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                            <div id="qr-fallback" style="display: none; width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;"></div>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">Scan untuk akses PPDB</small>
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="downloadQRCode()">
+                                            <i class="mdi mdi-download me-1"></i>Download QR
                                         </button>
                                     </div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="qr-code-container p-2 border rounded bg-white d-inline-block">
-                                        <img id="qr-code-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/ppdb/' . $madrasah->name)) }}"
-                                             alt="QR Code untuk PPDB"
-                                             style="width: 80px; height: 80px;"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                        <div id="qr-fallback" style="display: none; width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;"></div>
-                                    </div>
-                                    <small class="text-muted d-block mt-1">Scan untuk akses PPDB</small>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="downloadQRCode()">
-                                        <i class="mdi mdi-download me-1"></i>Download QR
-                                    </button>
                                 </div>
                             </div>
                         @endif
