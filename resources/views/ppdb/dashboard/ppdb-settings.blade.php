@@ -66,6 +66,13 @@
                                     onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
                                     <i class="mdi mdi-content-copy me-1"></i>Salin Link
                                 </button>
+                                <div class="ms-2">
+                                    <img src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl={{ urlencode(url('/ppdb/' . $madrasah->name)) }}&choe=UTF-8"
+                                         alt="QR Code untuk PPDB"
+                                         style="width: 60px; height: 60px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                    <br>
+                                    <small class="text-muted">Scan QR</small>
+                                </div>
                             </div>
                         @endif
                     </div>
