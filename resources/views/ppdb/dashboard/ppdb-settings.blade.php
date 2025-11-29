@@ -394,6 +394,19 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Failed to copy: ', err);
         });
     }
+
+    // Download QR Code function
+    window.downloadQRCode = function() {
+        const qrImage = document.getElementById('qr-code-image');
+        if (qrImage && qrImage.src) {
+            const link = document.createElement('a');
+            link.href = qrImage.src;
+            link.download = 'qr-code-ppdb-{{ $madrasah->name }}.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
 });
 </script>
 @endpush
