@@ -441,7 +441,8 @@ class AdminLPController extends Controller
                 }
             }
             if (!empty($galeriFiles)) {
-                $currentGaleri = $ppdbSetting->galeri_foto ?? [];
+                // Use the already processed galeri_foto array (after deletions) or fallback to original
+                $currentGaleri = $data['galeri_foto'] ?? $ppdbSetting->galeri_foto ?? [];
                 $data['galeri_foto'] = array_merge($currentGaleri, $galeriFiles);
             }
         }
