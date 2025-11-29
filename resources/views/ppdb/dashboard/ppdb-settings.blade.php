@@ -63,10 +63,10 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
                                         <label class="form-label fw-semibold mb-2">Link PPDB:</label>
-                                        <div class="d-flex align-items-center gap-2">
+                                        <div class="d-flex align-items-center justify-content-center gap-2">
                                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
                                             <button type="button"
-                                                class="btn btn-sm btn-outline-secondary"
+                                                class="btn btn-sm btn-outline-primary"
                                                 onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
                                                 <i class="mdi mdi-content-copy me-1"></i>Salin Link
                                             </button>
