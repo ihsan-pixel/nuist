@@ -656,6 +656,29 @@
     .mobile-menu-overlay .nav-link:hover {
         background-color: #f8f9fa;
     }
+
+    /* Adjustments for contact section with about class */
+    .contact-section.about .contact-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .contact-section.about .contact-card h5 {
+        color: white;
+    }
+
+    .contact-section.about .contact-card p {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .contact-section.about .contact-card .fas {
+        color: #efaa0c;
+    }
+
+    .contact-section.about .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
 </style>
 @endsection
 
@@ -1341,7 +1364,7 @@
 </section>
 
 <!-- Lokasi & Kontak -->
-<section id="kontak" class="contact-section">
+<section id="kontak" class="contact-section about">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
