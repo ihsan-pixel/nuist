@@ -1526,7 +1526,7 @@
 
     $hasVideo = false;
     $videoUrl = '';
-    $linkVideoYoutube = $ppdb->link_video_youtube;
+    $linkVideoYoutube = $ppdb->video_profil;
     if ($linkVideoYoutube) {
         $videoUrl = $linkVideoYoutube;
         // Check if it's a YouTube URL and convert to embed format
