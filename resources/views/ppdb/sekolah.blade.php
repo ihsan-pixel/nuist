@@ -1562,9 +1562,9 @@
                     <div class="video-container">
                         <iframe src="{{ $videoUrl }}" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    @if(strpos($ppdb->link_video_youtube, 'youtube.com') !== false || strpos($ppdb->link_video_youtube, 'youtu.be') !== false)
+                    @if(strpos($ppdb->video_profile, 'youtube.com') !== false || strpos($ppdb->video_profile, 'youtu.be') !== false)
                         <div class="text-center mt-3">
-                            <a href="{{ $ppdb->link_video_youtube }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <a href="{{ $ppdb->video_profile }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                 <i class="fab fa-youtube me-2"></i>Tonton di YouTube
                             </a>
                         </div>
