@@ -70,6 +70,24 @@
         color: white;
     }
 
+    .btn-status {
+        background: linear-gradient(135deg, #004b4c 0%, #00695c 100%);
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 75, 76, 0.3);
+    }
+
+    .btn-status:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 75, 76, 0.4);
+        color: white;
+    }
+
     .section-padding {
         padding: 80px 0;
     }
@@ -917,7 +935,7 @@
                         <a href="{{ route('ppdb.daftar', $currentSlug) }}" class="btn btn-ppdb">
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang
                         </a>
-                        <a href="{{ route('ppdb.cek-status', $currentSlug) }}" class="btn btn-orange btn-lg px-4">
+                        <a href="{{ route('ppdb.cek-status', $currentSlug) }}" class="btn btn-status">
                             <i class="fas fa-edit me-2"></i>Lihat Status Pendaftaran
                         </a>
                         {{-- <a href="" class="btn btn-orange btn-lg px-4">
