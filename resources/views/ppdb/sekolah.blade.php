@@ -1464,7 +1464,7 @@
 
 <!-- Kepala Sekolah -->
 @if($kepalaSekolah)
-<section class="section-padding bg-light">
+<section class="section-padding">
     <div class="container">
         <div class="row">
             <div class="col-12">
