@@ -156,10 +156,10 @@
                             @foreach($jurusanArray as $index => $jurusan)
                                 <div class="row mb-2">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" value="{{ $jurusan }}" readonly>
+                                        <input type="text" class="form-control" value="{{ is_array($jurusan) ? $jurusan['nama'] : $jurusan }}" readonly>
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="number" class="form-control kuota-jurusan-input" name="ppdb_kuota_jurusan[{{ $jurusan }}]" value="{{ $kuotaJurusan[$jurusan] ?? '' }}" placeholder="Kuota" min="0" onchange="updateKuotaTotal()">
+                                        <input type="number" class="form-control kuota-jurusan-input" name="ppdb_kuota_jurusan[{{ is_array($jurusan) ? $jurusan['nama'] : $jurusan }}]" value="{{ $kuotaJurusan[ is_array($jurusan) ? $jurusan['nama'] : $jurusan ] ?? '' }}" placeholder="Kuota" min="0" onchange="updateKuotaTotal()">
                                     </div>
                                 </div>
                             @endforeach
