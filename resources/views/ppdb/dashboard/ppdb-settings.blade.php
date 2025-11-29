@@ -71,13 +71,15 @@
                                     </div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="qr-code-container p-2 border rounded bg-light">
+                                    <div class="qr-code-container p-2 border rounded bg-light position-relative d-inline-block">
                                         <img id="qr-code-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/ppdb/' . $madrasah->name)) }}"
                                              alt="QR Code untuk PPDB"
                                              style="width: 80px; height: 80px;"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                        <div id="qr-fallback" style="display: none; width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6c757d;">
-                                            QR Code
+                                        <div id="qr-fallback" style="display: none; width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;"></div>
+                                        <!-- Logo overlay in center -->
+                                        <div class="qr-logo-overlay position-absolute top-50 start-50 translate-middle">
+                                            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;">
                                         </div>
                                     </div>
                                     <small class="text-muted d-block mt-1">Scan QR Code</small>
