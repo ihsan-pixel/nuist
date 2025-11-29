@@ -1148,6 +1148,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update indices for all fasilitas items
                 updateJumlahFasilitas();
                 updateFasilitasIndices();
+            } else if (targetId === 'keunggulan-container') {
+                // Special handling for keunggulan container
+                const existingItems = container.querySelectorAll('.array-input-item');
+                const nextIndex = existingItems.length;
+
+                const newItem = document.createElement('div');
+                newItem.className = 'array-input-item mb-3 p-3 border rounded';
+                newItem.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" name="keunggulan[${nextIndex}][title]" placeholder="Judul Keunggulan">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="keunggulan[${nextIndex}][description]" placeholder="Deskripsi Keunggulan">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="keunggulan[${nextIndex}][icon]">
+                                <option value="">Pilih Icon</option>
+                                <option value="star">⭐ Star</option>
+                                <option value="graduation-cap">🎓 Graduation Cap</option>
+                                <option value="users">👥 Users</option>
+                                <option value="book">📚 Book</option>
+                                <option value="trophy">🏆 Trophy</option>
+                                <option value="lightbulb">💡 Lightbulb</option>
+                                <option value="heart">❤️ Heart</option>
+                                <option value="shield">🛡️ Shield</option>
+                                <option value="rocket">🚀 Rocket</option>
+                                <option value="thumbs-up">👍 Thumbs Up</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Always append to the end of the container
+                container.appendChild(newItem);
             } else if (targetId === 'jurusan-container') {
 
                 // Special handling for jurusan container - add only 1 empty row
