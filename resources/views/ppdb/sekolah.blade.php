@@ -584,6 +584,7 @@
 
     nav.custom-navbar .navbar-nav .nav-link:hover {
         color: #0f854a !important;
+        font-weight: 600 !important;
     }
 
     nav.custom-navbar .navbar-nav .nav-link.active {
@@ -702,50 +703,49 @@
             <ul class="navbar-nav gap-4">
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}"
-                        href="{{ route('ppdb.sekolah', request()->route('slug')) }}">
+                    <a class="nav-link" href="#hero" data-section="hero">
                         Home
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#profile">
+                    <a class="nav-link" href="#profile" data-section="profile">
                         Profile
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#jurusan">
+                    <a class="nav-link" href="#jurusan" data-section="jurusan">
                         Jurusan
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#fasilitas">
+                    <a class="nav-link" href="#fasilitas" data-section="fasilitas">
                         Fasilitas
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#program-ekstra">
+                    <a class="nav-link" href="#program-ekstra" data-section="program-ekstra">
                         Program & Extra
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#prestasi">
+                    <a class="nav-link" href="#prestasi" data-section="prestasi">
                         Prestasi
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">
+                    <a class="nav-link" href="#about" data-section="about">
                         About
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#kontak">
+                    <a class="nav-link" href="#kontak" data-section="kontak">
                         Kontak
                     </a>
                 </li>
@@ -781,7 +781,7 @@
         <div class="w-100">
             <ul class="navbar-nav flex-column text-center py-4">
                 <li class="nav-item mb-3">
-                    <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}" href="{{ route('ppdb.sekolah', request()->route('slug')) }}" onclick="closeMobileMenuSchool()">
+                    <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}" href="#hero" onclick="closeMobileMenuSchool()" data-section="hero">
                         <i class="fas fa-home me-1"></i>Home
                     </a>
                 </li>
@@ -876,7 +876,7 @@
 </script>
 
 <!-- Hero Section -->
-<section class="hero-section">
+<section id="hero" class="hero-section">
 
     <!-- Flayer di atas -->
     <div class="container hero-flayer animate-fade-in-up">
@@ -1943,6 +1943,31 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.animate-on-scroll, .animate-slide-left-on-scroll, .animate-slide-right-on-scroll, .animate-bounce-on-scroll').forEach(el => {
         observer.observe(el);
     });
+
+    // Active navigation on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link[data-section]');
+
+    function setActiveNav() {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            const sectionHeight = section.clientHeight;
+            if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === current) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', setActiveNav);
+    setActiveNav(); // Set active on page load
 });
 </script>
 @endsection
