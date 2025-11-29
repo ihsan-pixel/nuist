@@ -71,6 +71,8 @@
                                             <p></p>
                                             <p></p>
                                             <p></p>
+                                            <p></p>
+                                            <p></p>
                                             <div class="mt-2">
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline-primary"
