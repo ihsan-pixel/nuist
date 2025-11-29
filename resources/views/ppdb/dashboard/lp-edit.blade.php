@@ -1188,6 +1188,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Always append to the end of the container
                 container.appendChild(newItem);
+            } else if (targetId === 'prestasi-container') {
+                // Special handling for prestasi container
+                const existingItems = container.querySelectorAll('.array-input-item');
+                const nextIndex = existingItems.length;
+
+                const newItem = document.createElement('div');
+                newItem.className = 'array-input-item mb-3 p-3 border rounded';
+                newItem.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="prestasi[${nextIndex}][title]" placeholder="Jenis Prestasi">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="prestasi[${nextIndex}][description]" placeholder="Deskripsi Prestasi">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" class="form-control" name="prestasi[${nextIndex}][year]" placeholder="Tahun" min="1900" max="${new Date().getFullYear() + 1}">
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-remove-array remove-array-item">
+                                <i class="mdi mdi-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Always append to the end of the container
+                container.appendChild(newItem);
             } else if (targetId === 'jurusan-container') {
 
                 // Special handling for jurusan container - add only 1 empty row
