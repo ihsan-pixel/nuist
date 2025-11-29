@@ -60,19 +60,26 @@
                         <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
                         @if(old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'buka')
                             <div class="mt-3 p-3 bg-light rounded border">
-                                <div class="d-flex justify-content-end align-items-start gap-4">
-                                    <div class="text-center">
-                                        <label class="form-label fw-semibold mb-2">Link PPDB:</label>
-                                        <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
-                                        <div class="mt-2">
-                                            <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
-                                                <i class="mdi mdi-content-copy me-1"></i>Salin Link
-                                            </button>
+                                <div class="row align-items-center">
+                                    <div class="col-md-8 text-center">
+                                        <label class="form-label fw-semibold mb-2 text-center">Link PPDB:</label>
+                                        <p></p>
+                                        <p></p>
+                                        <p></p>
+                                        <div class="text-center">
+                                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
+                                            <p></p>
+                                            <p></p>
+                                            <div class="mt-2">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    onclick="window.copyToClipboard(event, {{ json_encode(url('/ppdb/' . $madrasah->name)) }})">
+                                                    <i class="mdi mdi-content-copy me-1"></i>Salin Link
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="text-center">
+                                    <div class="col-md-4 text-center">
                                         <label class="form-label fw-semibold mb-2">QR Code:</label>
                                         <div class="qr-code-container p-2 border rounded bg-white d-inline-block">
                                             <img id="qr-code-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(url('/ppdb/' . $madrasah->name)) }}"
