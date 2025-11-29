@@ -67,9 +67,13 @@
                                     <i class="mdi mdi-content-copy me-1"></i>Salin Link
                                 </button>
                                 <div class="ms-2">
-                                    <img src="https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl={{ urlencode(url('/ppdb/' . $madrasah->name)) }}&choe=UTF-8"
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(url('/ppdb/' . $madrasah->name)) }}"
                                          alt="QR Code untuk PPDB"
-                                         style="width: 60px; height: 60px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                         style="width: 60px; height: 60px; border: 1px solid #dee2e6; border-radius: 4px;"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div style="display: none; width: 60px; height: 60px; border: 1px solid #dee2e6; border-radius: 4px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6c757d;">
+                                        QR Code
+                                    </div>
                                     <br>
                                     <small class="text-muted">Scan QR</small>
                                 </div>
