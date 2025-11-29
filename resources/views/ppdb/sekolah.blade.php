@@ -1447,7 +1447,7 @@
 @endif --}}
 
 <!-- Kepala Sekolah -->
-@if($ppdb->kepala_sekolah_nama)
+@if($kepalaSekolah)
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1457,18 +1457,18 @@
         </div>
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
-                @if($ppdb->kepala_sekolah_foto)
-                    <img src="{{ asset('storage/' . $ppdb->kepala_sekolah_foto) }}" alt="{{ $ppdb->kepala_sekolah_nama }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
+                @if($kepalaSekolah->avatar)
+                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="{{ $kepalaSekolah->name }}" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 5px solid #efaa0c;">
                 @else
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
-                        <span class="text-white display-4">{{ substr($ppdb->kepala_sekolah_nama, 0, 1) }}</span>
+                        <span class="text-white display-4">{{ substr($kepalaSekolah->name, 0, 1) }}</span>
                     </div>
                 @endif
             </div>
             <div class="col-lg-8">
-                <h4 class="text-primary mb-2">{{ $ppdb->kepala_sekolah_nama }}</h4>
-                @if($ppdb->kepala_sekolah_gelar)
-                    <p class="text-muted mb-3">{{ $ppdb->kepala_sekolah_gelar }}</p>
+                <h4 class="text-primary mb-2">{{ $kepalaSekolah->name }}</h4>
+                @if($kepalaSekolah->jabatan)
+                    <p class="text-muted mb-3">{{ $kepalaSekolah->jabatan }}</p>
                 @endif
                 @if($ppdb->kepala_sekolah_sambutan)
                     <p class="lead">{{ $ppdb->kepala_sekolah_sambutan }}</p>

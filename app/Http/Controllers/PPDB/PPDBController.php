@@ -92,6 +92,11 @@ class PPDBController extends Controller
 
         $pendaftarCount = $ppdb->pendaftars()->count();
 
-        return view('ppdb.sekolah', compact('ppdb', 'pendaftarCount', 'madrasah'));
+        // Ambil kepala sekolah dari users
+        $kepalaSekolah = User::where('madrasah_id', $madrasah->id)
+            ->where('ketugasan', 'like', '%kepala%')
+            ->first();
+
+        return view('ppdb.sekolah', compact('ppdb', 'pendaftarCount', 'madrasah', 'kepalaSekolah'));
     }
 }
