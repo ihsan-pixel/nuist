@@ -203,34 +203,39 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label class="form-label">Jalur Pendaftaran</label>
-                    <div id="ppdb-jalur-container" class="array-input-container">
-                        @php $jalurArray = old('ppdb_jalur', $ppdbSetting->ppdb_jalur ?? []); @endphp
-                        @if(is_array($jalurArray) && count($jalurArray) > 0)
-                            @foreach($jalurArray as $index => $jalur)
-                                <div class="array-input-item mb-2">
-                                    <div class="d-flex gap-2">
-                                        <input type="text" class="form-control @error('ppdb_jalur.' . $index) is-invalid @enderror"
-                                               name="ppdb_jalur[]" value="{{ $jalur }}" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
-                                        <button type="button" class="btn btn-danger btn-remove-array remove-array-item">
-                                            <i class="mdi mdi-minus"></i>
-                                        </button>
-                                    </div>
+                    <label class="form-label">Pilih Jalur Pendaftaran yang Akan Diaktifkan</label>
+                    <small class="text-muted d-block mb-3">Centang jalur yang ingin diaktifkan untuk PPDB ini.</small>
+                    @php
+                        // Get unique jalur options from existing PPDB settings
+                        $jalurOptions = \App\Models\PPDBSetting::whereNotNull('ppdb_jalur')
+                            ->where('ppdb_jalur', '!=', '[]')
+                            ->pluck('ppdb_jalur')
+                            ->flatten()
+                            ->unique()
+                            ->filter()
+                            ->values()
+                            ->toArray();
+
+                        // If no existing jalur, provide default options
+                        if (empty($jalurOptions)) {
+                            $jalurOptions = ['Jalur Prestasi', 'Jalur Reguler', 'Jalur Afirmasi', 'Jalur Perpindahan', 'Jalur Khusus'];
+                        }
+
+                        $selectedJalur = old('ppdb_jalur', $ppdbSetting->ppdb_jalur ?? []);
+                    @endphp
+                    <div class="row">
+                        @foreach($jalurOptions as $jalur)
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="ppdb_jalur[]" value="{{ $jalur }}" id="jalur_{{ str_replace(' ', '_', $jalur) }}"
+                                           {{ in_array($jalur, $selectedJalur) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="jalur_{{ str_replace(' ', '_', $jalur) }}">
+                                        {{ $jalur }}
+                                    </label>
                                 </div>
-                            @endforeach
-                        @endif
-                        <div class="array-input-item">
-                            <div class="d-flex gap-2">
-                                <input type="text" class="form-control" name="ppdb_jalur[]" placeholder="Contoh: Jalur Prestasi, Jalur Reguler">
-                                <button type="button" class="btn btn-danger btn-remove-array remove-array-item">
-                                    <i class="mdi mdi-minus"></i>
-                                </button>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
-                    <button type="button" class="btn btn-sm btn-success add-array-item mt-2" data-target="ppdb-jalur-container">
-                        <i class="mdi mdi-plus me-1"></i>Tambah Jalur
-                    </button>
                     @error('ppdb_jalur.*')
                         <div class="text-danger mt-2">{{ $message }}</div>
                     @enderror
