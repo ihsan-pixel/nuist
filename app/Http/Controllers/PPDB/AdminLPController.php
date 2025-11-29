@@ -338,7 +338,7 @@ class AdminLPController extends Controller
             $data['prestasi'] = $processedPrestasi;
         }
 
-        // Special handling for fasilitas (allow multiple facilities per description)
+        // Special handling for fasilitas (keep as one facility even if description contains commas)
         if ($request->has('fasilitas')) {
             $fasilitasData = $request->input('fasilitas', []);
             $processedFasilitas = [];
@@ -367,38 +367,18 @@ class AdminLPController extends Controller
                     $name = trim($fasilitas['name']);
                     $description = trim($fasilitas['description'] ?? '');
 
-                    // If description contains commas, split into multiple facilities
-                    if (!empty($description) && strpos($description, ',') !== false) {
-                        $facilityNames = array_map('trim', explode(',', $description));
-                        foreach ($facilityNames as $facilityName) {
-                            if (!empty($facilityName)) {
-                                $facility = [
-                                    'name' => $name,
-                                    'description' => $facilityName
-                                ];
-                                // Assign photo: new upload takes precedence, otherwise keep existing
-                                if (isset($fasilitasFoto[$index])) {
-                                    $facility['foto'] = $fasilitasFoto[$index];
-                                } elseif (isset($fasilitas['foto'])) {
-                                    $facility['foto'] = $fasilitas['foto'];
-                                }
-                                $processedFasilitas[] = $facility;
-                            }
-                        }
-                    } else {
-                        // Single facility or no description
-                        $facility = [
-                            'name' => $name,
-                            'description' => $description
-                        ];
-                        // Assign photo: new upload takes precedence, otherwise keep existing
-                        if (isset($fasilitasFoto[$index])) {
-                            $facility['foto'] = $fasilitasFoto[$index];
-                        } elseif (isset($fasilitas['foto'])) {
-                            $facility['foto'] = $fasilitas['foto'];
-                        }
-                        $processedFasilitas[] = $facility;
+                    // Keep as one facility even if description contains commas
+                    $facility = [
+                        'name' => $name,
+                        'description' => $description
+                    ];
+                    // Assign photo: new upload takes precedence, otherwise keep existing
+                    if (isset($fasilitasFoto[$index])) {
+                        $facility['foto'] = $fasilitasFoto[$index];
+                    } elseif (isset($fasilitas['foto'])) {
+                        $facility['foto'] = $fasilitas['foto'];
                     }
+                    $processedFasilitas[] = $facility;
                 }
             }
 
