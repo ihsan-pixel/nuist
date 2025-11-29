@@ -39,6 +39,7 @@
                         @if(in_array($userRole, ['super_admin', 'pengurus']))
                         <li><a href="{{ route('status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
                         <li><a href="{{ route('tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
+                        <li><a href="{{ route('broadcast-numbers.index') }}">Data Broadcast</a></li>
                         @endif
                     </ul>
                 </li>
