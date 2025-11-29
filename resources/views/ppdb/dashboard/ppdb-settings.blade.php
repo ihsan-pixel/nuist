@@ -66,9 +66,11 @@
                                         <p></p>
                                         <p></p>
                                         <p></p>
-                                        <p></p>
                                         <div class="text-center">
                                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
+                                            <p></p>
+                                            <p></p>
+                                            <p></p>
                                             <div class="mt-2">
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline-primary"
