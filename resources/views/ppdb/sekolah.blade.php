@@ -709,6 +709,12 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link" href="#profile">
+                        Profile
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a class="nav-link" href="#jurusan">
                         Jurusan
                     </a>
@@ -722,7 +728,13 @@
 
                 <li class="nav-item">
                     <a class="nav-link" href="#program-ekstra">
-                        Program & Ekstra
+                        Program & Extra
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#prestasi">
+                        Prestasi
                     </a>
                 </li>
 
@@ -733,22 +745,10 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#sejarah">
-                        Sejarah
-                    </a>
-                </li>
-
-                <li class="nav-item">
                     <a class="nav-link" href="#kontak">
                         Kontak
                     </a>
                 </li>
-
-                {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{ route('ppdb.cek-status') }}">
-                        <i class="fas fa-search me-1"></i>Cek Status
-                    </a>
-                </li> --}}
 
             </ul>
         </div>
@@ -782,7 +782,12 @@
             <ul class="navbar-nav flex-column text-center py-4">
                 <li class="nav-item mb-3">
                     <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}" href="{{ route('ppdb.sekolah', request()->route('slug')) }}" onclick="closeMobileMenuSchool()">
-                        <i class="fas fa-home me-1"></i>Profil Sekolah
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#profile" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-user me-1"></i>Profile
                     </a>
                 </li>
                 <li class="nav-item mb-3">
@@ -796,32 +801,25 @@
                     </a>
                 </li>
                 <li class="nav-item mb-3">
+                    <a class="nav-link" href="#program-ekstra" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-star me-1"></i>Program & Extra
+                    </a>
+                </li>
+                <li class="nav-item mb-3">
+                    <a class="nav-link" href="#prestasi" onclick="closeMobileMenuSchool()">
+                        <i class="fas fa-trophy me-1"></i>Prestasi
+                    </a>
+                </li>
+                <li class="nav-item mb-3">
                     <a class="nav-link" href="#about" onclick="closeMobileMenuSchool()">
                         <i class="fas fa-info-circle me-1"></i>About
                     </a>
                 </li>
                 <li class="nav-item mb-3">
-                    <a class="nav-link" href="#galeri" onclick="closeMobileMenuSchool()">
-                        <i class="fas fa-images me-1"></i>Galeri
-                    </a>
-                </li>
-
-                <li class="nav-item mb-3">
-                    <a class="nav-link" href="#brosur" onclick="closeMobileMenuSchool()">
-                        <i class="fas fa-download me-1"></i>Brosur
-                    </a>
-                </li>
-
-                <li class="nav-item mb-3">
                     <a class="nav-link" href="#kontak" onclick="closeMobileMenuSchool()">
                         <i class="fas fa-phone me-1"></i>Kontak
                     </a>
                 </li>
-                {{-- <li class="nav-item mb-3">
-                    <a class="nav-link" href="{{ route('ppdb.cek-status') }}" onclick="closeMobileMenuSchool()">
-                        <i class="fas fa-search me-1"></i>Cek Status
-                    </a>
-                </li> --}}
             </ul>
         </div>
     </nav>
@@ -977,7 +975,7 @@
     $nilaiNilai = $ppdb->nilai_nilai;
 @endphp
 @if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai))
-<section id="sejarah" class="about-section">
+<section id="profile" class="about-section">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
