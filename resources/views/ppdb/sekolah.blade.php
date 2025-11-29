@@ -1541,7 +1541,7 @@
 @endphp
 
 {{-- @if($hasGallery) --}}
-<section id="galeri" class="section-padding" style="background: url('{{ asset('images/bg_ppdb4.png') }}'); background-size: cover; background-position: center; background-attachment: fixed;">
+<section id="galeri" class="section-padding" style="background: url('{{ asset('images/bg_ppdb4.png') }}'); background-size: cover; background-position: center; background-attachment: absolute;">
     <div class="container">
         <div class="row">
             <div class="col-12">
