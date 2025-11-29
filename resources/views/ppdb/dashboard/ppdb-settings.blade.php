@@ -102,7 +102,7 @@
                             <label for="ppdb_jadwal_tutup" class="form-label">Jadwal Tutup PPDB</label>
                             <input type="datetime-local" class="form-control @error('ppdb_jadwal_tutup') is-invalid @enderror"
                                    id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
-                                   value="{{ old('ppdb_jadwal_tutup', $madrasah->ppdb_jadwal_tutup ? $madrasah->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
+                                   value="{{ old('ppdb_jadwal_tutup', $ppdbSetting->ppdb_jadwal_tutup ? $ppdbSetting->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') }}">
                             @error('ppdb_jadwal_tutup')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
