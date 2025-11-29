@@ -1542,7 +1542,7 @@
 
 {{-- @if($hasGallery) --}}
 <section id="galeri" class="section-padding" style="background: url('{{ asset('images/bg_ppdb4.png') }}'); background-size: cover; background-position: center; background-attachment: absolute;">
-    <div class="container">
+    <div class="container" style="background: rgba(255, 255, 255, 0.9); padding: 40px; border-radius: 20px; margin-top: -20px; position: relative; z-index: 2;">
         <div class="row">
             <div class="col-12">
                 <h2 class="section-title">
