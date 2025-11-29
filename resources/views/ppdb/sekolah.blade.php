@@ -1371,7 +1371,7 @@
                 <h2 class="display-5 fw-bold">
                     <i class="fas fa-phone text-primary me-3"></i>Hubungi <span style="color: #efaa0c;">Kami</span>
                 </h2>
-                <p class="lead text-muted">Butuh bantuan? Tim kami siap membantu Anda</p>
+                <p class="lead">Butuh bantuan? Tim kami siap membantu Anda</p>
             </div>
         </div>
 
