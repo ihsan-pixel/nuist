@@ -1458,9 +1458,9 @@
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
                 @if($kepalaSekolah->avatar)
-                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="{{ $kepalaSekolah->name }}" class="rounded" style="width: 180px; height: 240px; object-fit: cover; border: 5px solid #efaa0c; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="{{ $kepalaSekolah->name }}" class="rounded-3" style="width: 180px; height: 240px; object-fit: cover; border: 5px solid #0f854a; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 @else
-                    <div class="rounded bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 180px; height: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <div class="rounded-3 bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 180px; height: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                         <span class="text-white display-4">{{ substr($kepalaSekolah->name, 0, 1) }}</span>
                     </div>
                 @endif
