@@ -259,6 +259,13 @@ Route::prefix('admin-masterdata')->middleware(['auth', 'role:super_admin,penguru
     Route::put('/tahun-pelajaran/update/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'update'])->name('admin_masterdata.tahun-pelajaran.update');
     Route::delete('/tahun-pelajaran/destroy/{id}', [App\Http\Controllers\TahunPelajaranController::class, 'destroy'])->name('admin_masterdata.tahun-pelajaran.destroy');
     Route::post('/tahun-pelajaran/import', [App\Http\Controllers\TahunPelajaranController::class, 'import'])->name('admin_masterdata.tahun-pelajaran.import');
+
+    Route::get('/broadcast-numbers', [App\Http\Controllers\BroadcastNumberController::class, 'index'])->name('admin_masterdata.broadcast-numbers.index');
+    Route::post('/broadcast-numbers/store', [App\Http\Controllers\BroadcastNumberController::class, 'store'])->name('admin_masterdata.broadcast-numbers.store');
+    Route::put('/broadcast-numbers/update/{id}', [App\Http\Controllers\BroadcastNumberController::class, 'update'])->name('admin_masterdata.broadcast-numbers.update');
+    Route::delete('/broadcast-numbers/destroy/{id}', [App\Http\Controllers\BroadcastNumberController::class, 'destroy'])->name('admin_masterdata.broadcast-numbers.destroy');
+    Route::post('/broadcast-numbers/send-broadcast', [App\Http\Controllers\BroadcastNumberController::class, 'sendBroadcast'])->name('admin_masterdata.broadcast-numbers.send-broadcast');
+    Route::post('/broadcast-numbers/test-connection', [App\Http\Controllers\BroadcastNumberController::class, 'testConnection'])->name('admin_masterdata.broadcast-numbers.test-connection');
 });
 
 Route::prefix('masterdata')->middleware(['auth', 'role:super_admin,admin,pengurus'])->group(function () {

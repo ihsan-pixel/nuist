@@ -97,6 +97,7 @@
                         <li><a href="{{ route('admin_masterdata.tenaga-pendidik.index') }}">Data Tenaga Pendidik</a></li>
                         <li><a href="{{ route('admin_masterdata.status-kepegawaian.index') }}">Data Status Kepegawaian</a></li>
                         <li><a href="{{ route('admin_masterdata.tahun-pelajaran.index') }}">Data Tahun Pelajaran</a></li>
+                        <li><a href="{{ route('admin_masterdata.broadcast-numbers.index') }}">Data Broadcast</a></li>
                     </ul>
                 </li>
                 @endif --}}

@@ -30,4 +30,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'openwa' => [
+        'base_url' => env('OPENWA_BASE_URL', env('APP_ENV') === 'production'
+            ? 'https://your-openwa-server.com'  // Ganti dengan URL server OpenWA production Anda
+            : 'http://localhost:3000'),
+        'api_key' => env('OPENWA_API_KEY'),
+        'session_id' => env('OPENWA_SESSION_ID', 'default'),
+        'timeout' => env('OPENWA_TIMEOUT', 30), // Timeout dalam detik
+        'retry_attempts' => env('OPENWA_RETRY_ATTEMPTS', 3),
+    ],
+
 ];
