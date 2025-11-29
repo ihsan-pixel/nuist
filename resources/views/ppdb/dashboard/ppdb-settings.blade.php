@@ -221,17 +221,28 @@
                             $jalurOptions = ['Jalur Prestasi', 'Jalur Reguler', 'Jalur Afirmasi', 'Jalur Perpindahan', 'Jalur Khusus'];
                         }
 
+                        // Define descriptions for each jalur
+                        $jalurDescriptions = [
+                            'Jalur Prestasi' => 'Untuk siswa yang memiliki prestasi akademik atau non-akademik yang luar biasa',
+                            'Jalur Reguler' => 'Jalur pendaftaran standar untuk semua calon siswa',
+                            'Jalur Afirmasi' => 'Jalur khusus untuk siswa dari keluarga kurang mampu atau daerah tertinggal',
+                            'Jalur Perpindahan' => 'Untuk siswa yang pindah dari sekolah lain',
+                            'Jalur Khusus' => 'Jalur untuk kategori siswa tertentu seperti atlet atau siswa berbakat'
+                        ];
+
                         $selectedJalur = old('ppdb_jalur', $ppdbSetting->ppdb_jalur ?? []);
                     @endphp
                     <div class="row">
                         @foreach($jalurOptions as $jalur)
-                            <div class="col-md-6 mb-2">
+                            <div class="col-md-6 mb-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="ppdb_jalur[]" value="{{ $jalur }}" id="jalur_{{ str_replace(' ', '_', $jalur) }}"
                                            {{ in_array($jalur, $selectedJalur) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="jalur_{{ str_replace(' ', '_', $jalur) }}">
                                         {{ $jalur }}
                                     </label>
+                                    <br>
+                                    <small class="text-muted">{{ $jalurDescriptions[$jalur] ?? '' }}</small>
                                 </div>
                             </div>
                         @endforeach
