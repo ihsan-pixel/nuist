@@ -1364,7 +1364,7 @@
 </section>
 
 <!-- Lokasi & Kontak -->
-<section id="kontak" class="contact-section about">
+<section id="kontak" class="about">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
