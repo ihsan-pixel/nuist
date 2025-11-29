@@ -67,10 +67,7 @@
                                         <p></p>
                                         <p></p>
                                         <div class="text-center">
-                                            <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
-                                            <p></p>
-                                            <p></p>
-                                            <p></p>
+                                            <span class="text-primary fw-bold mb-6">{{ url('/ppdb/' . $madrasah->name) }}</span>
                                             <p></p>
                                             <p></p>
                                             <div class="mt-2">
