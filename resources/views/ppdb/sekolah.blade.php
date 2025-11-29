@@ -704,7 +704,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('ppdb.sekolah') ? 'active' : '' }}"
                         href="{{ route('ppdb.sekolah', request()->route('slug')) }}">
-                        Profil Sekolah
+                        Home
                     </a>
                 </li>
 
@@ -757,7 +757,7 @@
         <div class="d-none d-lg-block">
             @if(isset($ppdb->id))
                 <a href="{{ route('ppdb.daftar', $ppdb->slug) }}" class="btn btn-orange px-4">
-                    <i class="fas fa-edit me-1"></i>Daftar Sekarang
+                    <i class="fas fa-edit me-1"></i>Daftar
                 </a>
             @else
                 <a href="{{ route('ppdb.index') }}" class="btn btn-outline-primary px-4">
