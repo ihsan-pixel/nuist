@@ -61,7 +61,7 @@
                         @if(old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'buka')
                             <div class="mt-3 p-3 bg-light rounded border">
                                 <div class="row align-items-center">
-                                    <div class="col-md-8">
+                                    <div class="col-md-8 text-center">
                                         <label class="form-label fw-semibold mb-2 text-center">Link PPDB:</label>
                                         <div class="text-center">
                                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
