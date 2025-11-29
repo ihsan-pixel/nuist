@@ -63,6 +63,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-8 text-center">
                                         <label class="form-label fw-semibold mb-2 text-center">Link PPDB:</label>
+                                        <p></p>
                                         <div class="text-center">
                                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
                                             <div class="mt-2">
