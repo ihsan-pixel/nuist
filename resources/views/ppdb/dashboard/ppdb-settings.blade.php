@@ -65,6 +65,8 @@
                                         <label class="form-label fw-semibold mb-2 text-center">Link PPDB:</label>
                                         <p></p>
                                         <p></p>
+                                        <p></p>
+                                        <p></p>
                                         <div class="text-center">
                                             <span class="text-primary fw-bold">{{ url('/ppdb/' . $madrasah->name) }}</span>
                                             <div class="mt-2">
@@ -75,8 +77,6 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <p></p>
-                                        <p></p>
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <label class="form-label fw-semibold mb-2">QR Code:</label>
