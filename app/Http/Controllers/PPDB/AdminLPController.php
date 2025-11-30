@@ -584,4 +584,39 @@ class AdminLPController extends Controller
         return redirect()->route('ppdb.lp.ppdb-settings', $madrasah->id)
             ->with('success', 'Pengaturan PPDB berhasil diperbarui');
     }
+
+    /**
+     * Show pendaftar dashboard for a specific school
+     */
+    public function pendaftar($slug)
+    {
+        $ppdbSetting = PPDBSetting::where('slug', $slug)
+            ->where('tahun', now()->year)
+            ->with('sekolah')
+            ->firstOrFail();
+
+        $pendaftars = $ppdbSetting->pendaftars()
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        $statistik = [
+            'total' => $ppdbSetting->pendaftars()->count(),
+            'lulus' => $ppdbSetting->pendaftars()->where('status', 'lulus')->count(),
+            'tidak_lulus' => $ppdbSetting->pendaftars()->where('status', 'tidak_lulus')->count(),
+            'pending' => $ppdbSetting->pendaftars()->where('status', 'pending')->count(),
+            'verifikasi' => $ppdbSetting->pendaftars()->where('status', 'verifikasi')->count(),
+        ];
+
+        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik'));
+    }
+
+    /**
+     * Show detail of a specific pendaftar
+     */
+    public function showPendaftarDetail($id)
+    {
+        $pendaftar = PPDBPendaftar::with('ppdbSetting.sekolah')->findOrFail($id);
+
+        return view('ppdb.dashboard.pendaftar-detail', compact('pendaftar'))->render();
+    }
 }

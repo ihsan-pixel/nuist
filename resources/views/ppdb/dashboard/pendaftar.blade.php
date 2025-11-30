@@ -1,0 +1,483 @@
+@extends('layouts.master')
+
+@section('title', 'Data Pendaftar - ' . $ppdbSetting->nama_sekolah)
+
+@push('css')
+<style>
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .status-verifikasi {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .status-lulus {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-tidak_lulus {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .table-responsive {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+        padding: 1rem 0.75rem;
+    }
+
+    .table tbody td {
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+
+    .action-buttons .btn {
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .pendaftar-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .pendaftar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.25rem;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+
+    .pendaftar-body {
+        padding: 1.25rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .document-links {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .document-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    .document-link:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pendaftar-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="mdi mdi-account-multiple me-2"></i>
+                Data Pendaftar PPDB
+            </h2>
+            <p class="text-muted mb-0">{{ $ppdbSetting->nama_sekolah }} - Tahun {{ $ppdbSetting->tahun }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="mdi mdi-arrow-left me-1"></i>Kembali
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-primary">
+                <i class="mdi mdi-printer me-1"></i>Cetak
+            </button>
+            <button onclick="exportToExcel()" class="btn btn-success">
+                <i class="mdi mdi-download me-1"></i>Export Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1">{{ number_format($statistik['total']) }}</h4>
+                        <p class="mb-0 opacity-75">Total Pendaftar</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                            <i class="mdi mdi-account-multiple fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1">{{ number_format($statistik['pending']) }}</h4>
+                        <p class="mb-0 opacity-75">Menunggu Verifikasi</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                            <i class="mdi mdi-clock-outline fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1">{{ number_format($statistik['verifikasi']) }}</h4>
+                        <p class="mb-0 opacity-75">Dalam Verifikasi</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                            <i class="mdi mdi-magnify fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stats-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1">{{ number_format($statistik['lulus']) }}</h4>
+                        <p class="mb-0 opacity-75">Lulus Seleksi</p>
+                    </div>
+                    <div class="avatar-sm">
+                        <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
+                            <i class="mdi mdi-check-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="status_filter" class="form-label">Filter Status</label>
+                <select id="status_filter" class="form-select">
+                    <option value="">Semua Status</option>
+                    <option value="pending">Menunggu Verifikasi</option>
+                    <option value="verifikasi">Dalam Verifikasi</option>
+                    <option value="lulus">Lulus</option>
+                    <option value="tidak_lulus">Tidak Lulus</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="jalur_filter" class="form-label">Filter Jalur</label>
+                <select id="jalur_filter" class="form-select">
+                    <option value="">Semua Jalur</option>
+                    <option value="Jalur Reguler">Jalur Reguler</option>
+                    <option value="Jalur Prestasi">Jalur Prestasi</option>
+                    <option value="Jalur Afirmasi">Jalur Afirmasi</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="search" class="form-label">Cari Nama/NISN</label>
+                <input type="text" id="search" class="form-control" placeholder="Ketik nama atau NISN...">
+            </div>
+            <div class="col-md-2">
+                <button onclick="resetFilters()" class="btn btn-outline-secondary w-100">
+                    <i class="mdi mdi-refresh me-1"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pendaftar List -->
+    @if($pendaftars->count() > 0)
+        <!-- Table View (Default) -->
+        <div id="table-view" class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Lengkap</th>
+                        <th>NISN</th>
+                        <th>Asal Sekolah</th>
+                        <th>Jurusan</th>
+                        <th>Jalur</th>
+                        <th>Status</th>
+                        <th>Tanggal Daftar</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($pendaftars as $index => $pendaftar)
+                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}">
+                        <td>{{ $pendaftars->firstItem() + $index }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ $pendaftar->nama_lengkap }}</div>
+                            <small class="text-muted">{{ $pendaftar->nomor_pendaftaran }}</small>
+                        </td>
+                        <td>{{ $pendaftar->nisn }}</td>
+                        <td>{{ $pendaftar->asal_sekolah }}</td>
+                        <td>{{ $pendaftar->jurusan_pilihan }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ $pendaftar->jalur }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ $pendaftar->status }}">
+                                @if($pendaftar->status == 'pending')
+                                    Menunggu Verifikasi
+                                @elseif($pendaftar->status == 'verifikasi')
+                                    Dalam Verifikasi
+                                @elseif($pendaftar->status == 'lulus')
+                                    Lulus
+                                @else
+                                    Tidak Lulus
+                                @endif
+                            </span>
+                        </td>
+                        <td>{{ $pendaftar->created_at->format('d/m/Y H:i') }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="showDetail({{ $pendaftar->id }})" class="btn btn-sm btn-outline-info" title="Lihat Detail">
+                                    <i class="mdi mdi-eye"></i>
+                                </button>
+                                @if($pendaftar->berkas_kk)
+                                    <a href="{{ asset('storage/' . $pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
+                                        <i class="mdi mdi-file-document"></i>
+                                    </a>
+                                @endif
+                                @if($pendaftar->berkas_ijazah)
+                                    <a href="{{ asset('storage/' . $pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
+                                        <i class="mdi mdi-file-document-outline"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            {{ $pendaftars->links() }}
+        </div>
+    @else
+        <div class="empty-state">
+            <i class="mdi mdi-account-multiple-outline"></i>
+            <h5>Belum ada pendaftar</h5>
+            <p class="mb-0">Belum ada siswa yang mendaftar di sekolah ini.</p>
+        </div>
+    @endif
+</div>
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Pendaftar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function showDetail(pendaftarId) {
+    // Load detail content via AJAX
+    fetch(`/ppdb/admin/detail/${pendaftarId}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('detailContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        })
+        .catch(error => {
+            console.error('Error loading detail:', error);
+            alert('Gagal memuat detail pendaftar');
+        });
+}
+
+function exportToExcel() {
+    const confirmed = confirm('Apakah Anda ingin mengexport data pendaftar ke Excel?');
+    if (confirmed) {
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("ppdb.sekolah.export") }}';
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+}
+
+function resetFilters() {
+    document.getElementById('status_filter').value = '';
+    document.getElementById('jalur_filter').value = '';
+    document.getElementById('search').value = '';
+    filterTable();
+}
+
+function filterTable() {
+    const statusFilter = document.getElementById('status_filter').value.toLowerCase();
+    const jalurFilter = document.getElementById('jalur_filter').value.toLowerCase();
+    const searchTerm = document.getElementById('search').value.toLowerCase();
+
+    const rows = document.querySelectorAll('#table-view tbody tr');
+
+    rows.forEach(row => {
+        const status = row.dataset.status.toLowerCase();
+        const jalur = row.dataset.jalur.toLowerCase();
+        const nama = row.dataset.nama.toLowerCase();
+        const nisn = row.dataset.nisn.toLowerCase();
+
+        const statusMatch = !statusFilter || status === statusFilter;
+        const jalurMatch = !jalurFilter || jalur.includes(jalurFilter);
+        const searchMatch = !searchTerm || nama.includes(searchTerm) || nisn.includes(searchTerm);
+
+        if (statusMatch && jalurMatch && searchMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Add event listeners for filters
+document.getElementById('status_filter').addEventListener('change', filterTable);
+document.getElementById('jalur_filter').addEventListener('change', filterTable);
+document.getElementById('search').addEventListener('input', filterTable);
+
+// Initialize filters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    filterTable();
+});
+</script>
+@endpush
+@endsection
