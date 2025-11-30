@@ -50,11 +50,11 @@ class PPDBPendaftar extends Model
     }
 
     /**
-     * Relasi ke PPDBJalur
+     * Accessor untuk jalur sebagai object
      */
-    public function jalur()
+    public function getJalurAttribute($value)
     {
-        return $this->belongsTo(PPDBJalur::class, 'ppdb_jalur_id');
+        return (object) ['nama_jalur' => $value, 'keterangan' => ''];
     }
 
     /**

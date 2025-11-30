@@ -92,11 +92,7 @@ class PPDBSetting extends Model
         return $this->belongsTo(Madrasah::class, 'sekolah_id');
     }
 
-    // Relasi ke PPDB Jalur
-    public function jalurs()
-    {
-        return $this->hasMany(PPDBJalur::class, 'ppdb_setting_id');
-    }
+
 
     // Relasi ke PPDB Pendaftar
     public function pendaftars()

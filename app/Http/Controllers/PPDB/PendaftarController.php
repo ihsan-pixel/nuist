@@ -20,7 +20,7 @@ class PendaftarController extends Controller
         // Coba cari berdasarkan slug PPDB setting
         $ppdbSetting = PPDBSetting::where('slug', $slug)
             ->where('tahun', now()->year)
-            ->with('sekolah', 'jalurs')
+            ->with('sekolah')
             ->first();
 
         // Jika tidak ditemukan berdasarkan slug, coba cari berdasarkan ID madrasah
@@ -55,7 +55,7 @@ class PendaftarController extends Controller
         // Jika PPDB setting ada tapi status tidak buka, tetap tampilkan form
         // tapi dengan peringatan
         try {
-            if (isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
+            if ($ppdbSetting && isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
                 $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
             } else {
                 $jalurs = PPDBJalur::orderBy('urutan')->get();
@@ -124,7 +124,7 @@ class PendaftarController extends Controller
             'rencana_lulus' => 'required|in:kuliah,kerja',
             'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'ppdb_jalur_id' => 'required|integer|min:1|max:3',
+            'jalur_id' => 'required|integer|min:1|max:3',
             // Optional second-option flag and conditional contact fields
             'use_opsi_ke_2' => 'nullable|in:0,1',
             'ppdb_opsi_pilihan_ke_2' => 'required_if:use_opsi_ke_2,1|nullable|integer|exists:madrasahs,id',
@@ -166,11 +166,15 @@ class PendaftarController extends Controller
             // Buat nomor pendaftaran unik
             $nomorPendaftaran = $this->generateNomorPendaftaran($ppdbSetting);
 
+            // Cari nama jalur berdasarkan jalur_id
+            $jalurDipilih = $jalurs->firstWhere('id', $validated['jalur_id']);
+            $namaJalur = $jalurDipilih ? $jalurDipilih->nama_jalur : 'Jalur Tidak Diketahui';
+
             // Simpan data pendaftar (sertakan kontak yang baru dipindah ke tabel ppdb_pendaftar)
             // Use null coalescing for optional fields when not provided
             $pendaftar = PPDBPendaftar::create([
                 'ppdb_setting_id' => $ppdbSetting->id,
-                'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
+                'jalur' => $namaJalur,
                 'nama_lengkap' => $validated['nama_lengkap'],
                 'tempat_lahir' => $validated['tempat_lahir'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
