@@ -29,7 +29,7 @@ class PendaftarController extends Controller
             if ($madrasah) {
                 $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasah->id)
                     ->where('tahun', now()->year)
-                    ->with('sekolah', 'jalurs')
+                    ->with('sekolah')
                     ->first();
             }
         }
@@ -52,17 +52,16 @@ class PendaftarController extends Controller
             ];
         }
 
-        // Jika PPDB setting ada tapi status tidak buka, tetap tampilkan form
-        // tapi dengan peringatan
-        try {
-            if ($ppdbSetting && isset($ppdbSetting->jalurs) && method_exists($ppdbSetting->jalurs, 'orderBy')) {
-                $jalurs = $ppdbSetting->jalurs()->orderBy('urutan')->get();
-            } else {
-                $jalurs = PPDBJalur::orderBy('urutan')->get();
+        // Ambil jalur dari ppdb_jalur di ppdb_setting
+        $jalurs = collect();
+        if ($ppdbSetting && $ppdbSetting->ppdb_jalur) {
+            foreach ($ppdbSetting->ppdb_jalur as $index => $jalur) {
+                $jalurs->push((object) [
+                    'id' => $index + 1,
+                    'nama_jalur' => $jalur['nama_jalur'] ?? $jalur,
+                    'keterangan' => $jalur['keterangan'] ?? '',
+                ]);
             }
-        } catch (\Exception $e) {
-            // Jika tabel tidak ada, gunakan jalur default
-            $jalurs = collect();
         }
 
         // Jika masih kosong, buat jalur default
@@ -158,6 +157,27 @@ class PendaftarController extends Controller
             'ppdb_email_siswa.required' => 'Email siswa harus diisi',
         ]);
 
+        // Ambil jalur dari ppdb_jalur di ppdb_setting
+        $jalurs = collect();
+        if ($ppdbSetting && $ppdbSetting->ppdb_jalur) {
+            foreach ($ppdbSetting->ppdb_jalur as $index => $jalur) {
+                $jalurs->push((object) [
+                    'id' => $index + 1,
+                    'nama_jalur' => $jalur['nama_jalur'] ?? $jalur,
+                    'keterangan' => $jalur['keterangan'] ?? '',
+                ]);
+            }
+        }
+
+        // Jika masih kosong, buat jalur default
+        if ($jalurs->isEmpty()) {
+            $jalurs = collect([
+                (object) ['id' => 1, 'nama_jalur' => 'Jalur Reguler', 'keterangan' => 'Jalur pendaftaran biasa'],
+                (object) ['id' => 2, 'nama_jalur' => 'Jalur Prestasi', 'keterangan' => 'Untuk siswa berprestasi'],
+                (object) ['id' => 3, 'nama_jalur' => 'Jalur Afirmasi', 'keterangan' => 'Untuk siswa dari keluarga kurang mampu'],
+            ]);
+        }
+
         try {
             // Upload file berkas
             $berkasKK = $request->file('berkas_kk')->store('ppdb/berkas_kk', 'public');
@@ -222,7 +242,7 @@ class PendaftarController extends Controller
             ]);
 
             $pendaftar = PPDBPendaftar::where('nisn', $request->nisn)
-                ->with(['ppdbSetting.sekolah', 'jalur'])
+                ->with(['ppdbSetting.sekolah'])
                 ->first();
 
             if (!$pendaftar) {
