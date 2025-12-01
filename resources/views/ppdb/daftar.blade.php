@@ -770,7 +770,7 @@
 
             <!-- Contact fields: wajib dan ditempatkan di atas opsi ke-2 -->
             <div class="row mt-3 mb-2">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
@@ -783,20 +783,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="ppdb_nomor_whatsapp_wali" class="form-label">Nomor WhatsApp Wali <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_wali') is-invalid @enderror"
-                               id="ppdb_nomor_whatsapp_wali" name="ppdb_nomor_whatsapp_wali"
-                               value="{{ old('ppdb_nomor_whatsapp_wali') }}"
-                               placeholder="081234567890" required>
-                        @error('ppdb_nomor_whatsapp_wali')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="ppdb_email_siswa" class="form-label">Email Siswa <span class="text-danger">*</span></label>
                         <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"

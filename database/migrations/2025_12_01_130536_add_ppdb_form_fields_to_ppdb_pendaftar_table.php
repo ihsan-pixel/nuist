@@ -76,7 +76,7 @@ return new class extends Migration
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
             $table->dropColumn([
                 'nik', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-                'ppdb_nomor_whatsapp_siswa', 'ppdb_nomor_whatsapp_wali', 'ppdb_email_siswa',
+                'ppdb_nomor_whatsapp_siswa', 'ppdb_email_siswa',
                 'use_opsi_ke_2', 'ppdb_opsi_pilihan_ke_2', 'ppdb_jurusan_pilihan_alt',
                 'ppdb_jalur_id', 'ranking', 'skor_total', 'rencana_lulus'
             ]);
