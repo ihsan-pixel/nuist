@@ -1140,9 +1140,26 @@
                             <label for="pekerjaan_ayah" class="form-label">
                                 <i class="fas fa-briefcase me-2"></i>Pekerjaan Ayah
                             </label>
-                            <input type="text" class="form-control @error('pekerjaan_ayah') is-invalid @enderror"
-                                   id="pekerjaan_ayah" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah') }}"
-                                   placeholder="Pekerjaan ayah">
+                            <select class="form-control @error('pekerjaan_ayah') is-invalid @enderror"
+                                    id="pekerjaan_ayah" name="pekerjaan_ayah">
+                                <option value="">-- Pilih Pekerjaan Ayah --</option>
+                                <option value="Tidak Bekerja" {{ old('pekerjaan_ayah') == 'Tidak Bekerja' ? 'selected' : '' }}>Tidak Bekerja</option>
+                                <option value="Pegawai Negeri Sipil (PNS)" {{ old('pekerjaan_ayah') == 'Pegawai Negeri Sipil (PNS)' ? 'selected' : '' }}>Pegawai Negeri Sipil (PNS)</option>
+                                <option value="Pegawai Swasta" {{ old('pekerjaan_ayah') == 'Pegawai Swasta' ? 'selected' : '' }}>Pegawai Swasta</option>
+                                <option value="Wiraswasta" {{ old('pekerjaan_ayah') == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
+                                <option value="Petani" {{ old('pekerjaan_ayah') == 'Petani' ? 'selected' : '' }}>Petani</option>
+                                <option value="Nelayan" {{ old('pekerjaan_ayah') == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                                <option value="Pedagang" {{ old('pekerjaan_ayah') == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                                <option value="Buruh" {{ old('pekerjaan_ayah') == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                                <option value="Guru/Dosen" {{ old('pekerjaan_ayah') == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                                <option value="Dokter" {{ old('pekerjaan_ayah') == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                                <option value="Perawat" {{ old('pekerjaan_ayah') == 'Perawat' ? 'selected' : '' }}>Perawat</option>
+                                <option value="Polisi" {{ old('pekerjaan_ayah') == 'Polisi' ? 'selected' : '' }}>Polisi</option>
+                                <option value="TNI" {{ old('pekerjaan_ayah') == 'TNI' ? 'selected' : '' }}>TNI</option>
+                                <option value="Sopir" {{ old('pekerjaan_ayah') == 'Sopir' ? 'selected' : '' }}>Sopir</option>
+                                <option value="Karyawan" {{ old('pekerjaan_ayah') == 'Karyawan' ? 'selected' : '' }}>Karyawan</option>
+                                <option value="Lainnya" {{ old('pekerjaan_ayah') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
                             @error('pekerjaan_ayah')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -1153,9 +1170,27 @@
                             <label for="pekerjaan_ibu" class="form-label">
                                 <i class="fas fa-briefcase me-2"></i>Pekerjaan Ibu
                             </label>
-                            <input type="text" class="form-control @error('pekerjaan_ibu') is-invalid @enderror"
-                                   id="pekerjaan_ibu" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu') }}"
-                                   placeholder="Pekerjaan ibu">
+                            <select class="form-control @error('pekerjaan_ibu') is-invalid @enderror"
+                                    id="pekerjaan_ibu" name="pekerjaan_ibu">
+                                <option value="">-- Pilih Pekerjaan Ibu --</option>
+                                <option value="Tidak Bekerja" {{ old('pekerjaan_ibu') == 'Tidak Bekerja' ? 'selected' : '' }}>Tidak Bekerja</option>
+                                <option value="Ibu Rumah Tangga" {{ old('pekerjaan_ibu') == 'Ibu Rumah Tangga' ? 'selected' : '' }}>Ibu Rumah Tangga</option>
+                                <option value="Pegawai Negeri Sipil (PNS)" {{ old('pekerjaan_ibu') == 'Pegawai Negeri Sipil (PNS)' ? 'selected' : '' }}>Pegawai Negeri Sipil (PNS)</option>
+                                <option value="Pegawai Swasta" {{ old('pekerjaan_ibu') == 'Pegawai Swasta' ? 'selected' : '' }}>Pegawai Swasta</option>
+                                <option value="Wiraswasta" {{ old('pekerjaan_ibu') == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
+                                <option value="Petani" {{ old('pekerjaan_ibu') == 'Petani' ? 'selected' : '' }}>Petani</option>
+                                <option value="Nelayan" {{ old('pekerjaan_ibu') == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                                <option value="Pedagang" {{ old('pekerjaan_ibu') == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                                <option value="Buruh" {{ old('pekerjaan_ibu') == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                                <option value="Guru/Dosen" {{ old('pekerjaan_ibu') == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                                <option value="Dokter" {{ old('pekerjaan_ibu') == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                                <option value="Perawat" {{ old('pekerjaan_ibu') == 'Perawat' ? 'selected' : '' }}>Perawat</option>
+                                <option value="Polisi" {{ old('pekerjaan_ibu') == 'Polisi' ? 'selected' : '' }}>Polisi</option>
+                                <option value="TNI" {{ old('pekerjaan_ibu') == 'TNI' ? 'selected' : '' }}>TNI</option>
+                                <option value="Sopir" {{ old('pekerjaan_ibu') == 'Sopir' ? 'selected' : '' }}>Sopir</option>
+                                <option value="Karyawan" {{ old('pekerjaan_ibu') == 'Karyawan' ? 'selected' : '' }}>Karyawan</option>
+                                <option value="Lainnya" {{ old('pekerjaan_ibu') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
                             @error('pekerjaan_ibu')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
