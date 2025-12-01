@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            $table->string('otp_code', 6)->nullable()->after('surat_keterangan_sementara');
-            $table->timestamp('otp_expires_at')->nullable()->after('otp_code');
-            $table->timestamp('otp_verified_at')->nullable()->after('otp_expires_at');
+            if (!Schema::hasColumn('ppdb_pendaftar', 'otp_code')) {
+                $table->string('otp_code', 6)->nullable()->after('ranking');
+            }
+            if (!Schema::hasColumn('ppdb_pendaftar', 'otp_expires_at')) {
+                $table->timestamp('otp_expires_at')->nullable()->after('otp_code');
+            }
+            if (!Schema::hasColumn('ppdb_pendaftar', 'otp_verified_at')) {
+                $table->timestamp('otp_verified_at')->nullable()->after('otp_expires_at');
+            }
         });
     }
 
