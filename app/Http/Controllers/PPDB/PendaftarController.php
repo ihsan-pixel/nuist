@@ -232,7 +232,7 @@ class PendaftarController extends Controller
     }
 
     /**
-     * Cek status pendaftaran berdasarkan NISN
+     * Cek status pendaftaran berdasarkan NISN dan kirim OTP
      */
     public function cekStatus(Request $request)
     {
@@ -246,13 +246,57 @@ class PendaftarController extends Controller
                 ->first();
 
             if (!$pendaftar) {
-                return view('ppdb.cek-status', compact('pendaftar'))->with('error', 'NISN tidak ditemukan dalam sistem.');
+                return view('ppdb.cek-status')->with('error', 'NISN tidak ditemukan dalam sistem.');
             }
 
-            return view('ppdb.cek-status', compact('pendaftar'));
+            // Generate OTP
+            $otp = $pendaftar->generateOTP();
+
+            // Send OTP via email (you can implement email sending here)
+            // For now, we'll just store it in session for testing
+            session(['pendaftar_id' => $pendaftar->id]);
+
+            // TODO: Send email with OTP
+            // Mail::to($pendaftar->ppdb_email_siswa)->send(new OTPNotification($otp));
+
+            return view('ppdb.cek-status')->with('otp_sent', true);
+        }
+
+        // Check if we have a verified pendaftar from OTP
+        if ($request->has('pendaftar_id')) {
+            $pendaftar = PPDBPendaftar::where('id', $request->pendaftar_id)
+                ->whereNotNull('otp_verified_at')
+                ->with(['ppdbSetting.sekolah'])
+                ->first();
+
+            if ($pendaftar) {
+                return view('ppdb.cek-status', compact('pendaftar'));
+            }
         }
 
         return view('ppdb.cek-status');
+    }
+
+    /**
+     * Verify OTP code
+     */
+    public function verifyOTP(Request $request, $pendaftarId)
+    {
+        $request->validate([
+            'otp' => 'required|string|size:6',
+        ]);
+
+        $pendaftar = PPDBPendaftar::find($pendaftarId);
+
+        if (!$pendaftar) {
+            return response()->json(['success' => false, 'message' => 'Data pendaftar tidak ditemukan']);
+        }
+
+        if ($pendaftar->verifyOTP($request->otp)) {
+            return response()->json(['success' => true, 'message' => 'OTP berhasil diverifikasi']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Kode OTP tidak valid atau sudah kadaluarsa']);
     }
 
     /**

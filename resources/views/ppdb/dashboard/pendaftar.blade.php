@@ -309,11 +309,13 @@
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Ranking</th>
                         <th>Nama Lengkap</th>
                         <th>NISN</th>
                         <th>Asal Sekolah</th>
                         <th>Jurusan</th>
                         <th>Jalur</th>
+                        <th>Skor Total</th>
                         <th>Status</th>
                         <th>Tanggal Daftar</th>
                         <th>Aksi</th>
@@ -332,6 +334,9 @@
                         <td>{{ $pendaftar->jurusan_pilihan }}</td>
                         <td>
                             <span class="badge bg-secondary">{{ $pendaftar->jalur }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ $pendaftar->skor_total ?? 0 }}</span>
                         </td>
                         <td>
                             <span class="status-badge status-{{ $pendaftar->status }}">
@@ -398,6 +403,97 @@
     </div>
 </div>
 
+<!-- Upload Berkas Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Berkas Tambahan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" id="upload_pendaftar_id" name="pendaftar_id">
+
+                    <div class="alert alert-info">
+                        <i class="mdi mdi-information-outline me-2"></i>
+                        Upload berkas tambahan yang belum lengkap untuk melengkapi data pendaftar.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Akta Kelahiran</label>
+                                <input type="file" class="form-control" name="berkas_akta_kelahiran" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">KTP Ayah</label>
+                                <input type="file" class="form-control" name="berkas_ktp_ayah" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">KTP Ibu</label>
+                                <input type="file" class="form-control" name="berkas_ktp_ibu" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Raport</label>
+                                <input type="file" class="form-control" name="berkas_raport" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sertifikat Prestasi</label>
+                                <input type="file" class="form-control" name="berkas_sertifikat_prestasi" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">KIP/PKH</label>
+                                <input type="file" class="form-control" name="berkas_kip_pkh" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Bukti Domisili</label>
+                                <input type="file" class="form-control" name="berkas_bukti_domisili" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Surat Mutasi</label>
+                                <input type="file" class="form-control" name="berkas_surat_mutasi" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Surat Keterangan Lulus</label>
+                                <input type="file" class="form-control" name="berkas_surat_keterangan_lulus" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">SKL (Surat Keterangan Lulus)</label>
+                                <input type="file" class="form-control" name="berkas_skl" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Upload Berkas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 function showDetail(pendaftarId) {
@@ -413,6 +509,41 @@ function showDetail(pendaftarId) {
             alert('Gagal memuat detail pendaftar');
         });
 }
+
+function showUploadModal(pendaftarId, namaPendaftar) {
+    document.getElementById('upload_pendaftar_id').value = pendaftarId;
+    document.querySelector('#uploadModal .modal-title').textContent = `Upload Berkas Tambahan - ${namaPendaftar}`;
+    new bootstrap.Modal(document.getElementById('uploadModal')).show();
+}
+
+// Handle upload form submission
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('/ppdb/admin/upload-berkas', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Berkas berhasil diupload!');
+            bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+            location.reload(); // Reload page to show updated data
+        } else {
+            alert('Gagal upload berkas: ' + (data.message || 'Terjadi kesalahan'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat upload berkas');
+    });
+});
 
 function exportToExcel() {
     const confirmed = confirm('Apakah Anda ingin mengexport data pendaftar ke Excel?');

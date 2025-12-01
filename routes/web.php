@@ -373,6 +373,7 @@ Route::prefix('ppdb')->group(function () {
     // Place explicit routes BEFORE the parameterized /{slug} route so they are matched correctly
     Route::get('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status');
     Route::post('/cek-status', [PendaftarController::class, 'cekStatus'])->name('ppdb.cek-status.post');
+    Route::post('/verify-otp/{pendaftarId}', [PendaftarController::class, 'verifyOTP'])->name('ppdb.verify-otp');
     Route::get('/{slug}', [PPDBController::class, 'showSekolah'])->name('ppdb.sekolah');
     Route::get('/{slug}/daftar', [PendaftarController::class, 'create'])->name('ppdb.daftar');
     Route::post('/{slug}/daftar', [PendaftarController::class, 'store'])->name('ppdb.store');
@@ -396,6 +397,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(functi
     Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings'])->name('ppdb.lp.update-ppdb-settings');
     Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar'])->name('ppdb.lp.pendaftar');
     Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail'])->name('ppdb.lp.pendaftar-detail');
+});
+
+// PPDB Admin routes for pendaftar management
+Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/admin')->group(function () {
+    Route::get('/detail/{pendaftar}', [AdminLPController::class, 'detail'])->name('ppdb.admin.detail');
+    Route::post('/upload-berkas', [AdminLPController::class, 'uploadBerkas'])->name('ppdb.admin.upload-berkas');
 });
 
 // PPDB SETTINGS

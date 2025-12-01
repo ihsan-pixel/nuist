@@ -307,7 +307,7 @@
                 <p class="section-description">NISN digunakan untuk mencari data pendaftaran Anda</p>
             </div>
 
-            <form action="{{ route('ppdb.cek-status.post') }}" method="POST">
+            <form action="{{ route('ppdb.cek-status.post') }}" method="POST" id="cekStatusForm">
                 @csrf
                 <div class="row justify-content-center">
                     <div class="col-md-6">
@@ -325,11 +325,48 @@
                         </div>
 
                         <button type="submit" class="btn btn-check-status">
-                            <i class="fas fa-search me-2"></i>Cek Status Pendaftaran
+                            <i class="fas fa-search me-2"></i>Kirim Kode OTP
                         </button>
                     </div>
                 </div>
             </form>
+
+            <!-- OTP Form (hidden by default) -->
+            <div id="otpForm" class="row justify-content-center" style="display: none;">
+                <div class="col-md-6">
+                    <div class="alert alert-info alert-custom">
+                        <h6><i class="fas fa-envelope me-2"></i>Kode OTP Dikirim</h6>
+                        <p class="mb-0">Kode OTP telah dikirim ke email Anda. Masukkan kode tersebut untuk melihat status pendaftaran.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="otp" class="form-label">
+                            <i class="fas fa-key me-2"></i>Kode OTP (6 digit)
+                        </label>
+                        <input type="text" class="form-control" id="otp" name="otp"
+                               placeholder="Masukkan kode OTP" maxlength="6" pattern="[0-9]{6}">
+                        <input type="hidden" id="pendaftar_id" value="{{ session('pendaftar_id') }}">
+                    </div>
+
+                    <button type="button" class="btn btn-check-status" onclick="verifyOTP()">
+                        <i class="fas fa-check me-2"></i>Verifikasi & Lihat Status
+                    </button>
+
+                    <button type="button" class="btn btn-outline-secondary mt-2" onclick="resetForm()">
+                        <i class="fas fa-arrow-left me-2"></i>Cek NISN Lain
+                    </button>
+                </div>
+            </div>
+
+            <!-- Show OTP form if OTP was sent -->
+            @if(session('otp_sent'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.getElementById('cekStatusForm').style.display = 'none';
+                    document.getElementById('otpForm').style.display = 'block';
+                });
+            </script>
+            @endif
         </div>
     @else
         <!-- Result Section -->
