@@ -74,19 +74,21 @@
         justify-content: center;
         align-items: center;
         margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 5px;
     }
 
     .step {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 50px;
-        height: 50px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         background: rgba(255,255,255,0.2);
         color: white;
         font-weight: bold;
-        margin: 0 10px;
+        font-size: 11px;
         position: relative;
         transition: all 0.3s ease;
     }
