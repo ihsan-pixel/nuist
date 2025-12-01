@@ -93,6 +93,13 @@
         transition: all 0.3s ease;
     }
 
+    .step-line {
+        height: 2px;
+        width: 40px;
+        background: rgba(255,255,255,0.3);
+        margin: 0 5px;
+    }
+
     .step.active {
         background: #efaa0c;
         color: #004b4c;
@@ -485,9 +492,13 @@
             <div class="step" data-step="3">
                 <i class="fas fa-file-upload"></i>
             </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">
+                <i class="fas fa-plus-circle"></i>
+            </div>
         </div>
         <h3 id="progress-title" class="mb-0">Data Pribadi</h3>
-        <p id="progress-description" class="mb-0 opacity-75">Langkah 1 dari 3</p>
+        <p id="progress-description" class="mb-0 opacity-75">Langkah 1 dari 4</p>
     </div>
 
     <!-- Alert Messages -->
@@ -616,6 +627,29 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="agama" class="form-label">
+                            <i class="fas fa-pray me-2"></i>Agama <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control @error('agama') is-invalid @enderror"
+                                id="agama" name="agama" required>
+                            <option value="">-- Pilih Agama --</option>
+                            <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                            <option value="Kristen Protestan" {{ old('agama') == 'Kristen Protestan' ? 'selected' : '' }}>Kristen Protestan</option>
+                            <option value="Kristen Katolik" {{ old('agama') == 'Kristen Katolik' ? 'selected' : '' }}>Kristen Katolik</option>
+                            <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                            <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                            <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                        </select>
+                        @error('agama')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label for="nisn" class="form-label">
                             <i class="fas fa-id-card me-2"></i>NISN <span class="text-danger">*</span>
                         </label>
@@ -628,18 +662,20 @@
                         @enderror
                     </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="asal_sekolah" class="form-label">
-                    <i class="fas fa-school me-2"></i>Asal Sekolah <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control @error('asal_sekolah') is-invalid @enderror"
-                       id="asal_sekolah" name="asal_sekolah" value="{{ old('asal_sekolah') }}"
-                       placeholder="Nama sekolah asal" required>
-                @error('asal_sekolah')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="asal_sekolah" class="form-label">
+                            <i class="fas fa-school me-2"></i>Asal Sekolah <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('asal_sekolah') is-invalid @enderror"
+                               id="asal_sekolah" name="asal_sekolah" value="{{ old('asal_sekolah') }}"
+                               placeholder="Nama sekolah asal" required>
+                        @error('asal_sekolah')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <div class="text-end">
@@ -974,6 +1010,508 @@
                 <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(2)">
                     <i class="fas fa-arrow-left me-2"></i> Sebelumnya
                 </button>
+                <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(4)">
+                    Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Data Tambahan -->
+        <div id="step4" class="form-section">
+            <div class="text-center mb-4">
+                <div class="section-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h4 class="section-title">Data Tambahan</h4>
+                <p class="section-description">Lengkapi informasi tambahan untuk kelengkapan data</p>
+            </div>
+
+            <!-- Data Orang Tua -->
+            <div class="info-box mb-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-users text-primary me-2"></i>Data Orang Tua
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nama_ayah" class="form-label">
+                                <i class="fas fa-user-tie me-2"></i>Nama Ayah
+                            </label>
+                            <input type="text" class="form-control @error('nama_ayah') is-invalid @enderror"
+                                   id="nama_ayah" name="nama_ayah" value="{{ old('nama_ayah') }}"
+                                   placeholder="Nama lengkap ayah">
+                            @error('nama_ayah')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nama_ibu" class="form-label">
+                                <i class="fas fa-female me-2"></i>Nama Ibu
+                            </label>
+                            <input type="text" class="form-control @error('nama_ibu') is-invalid @enderror"
+                                   id="nama_ibu" name="nama_ibu" value="{{ old('nama_ibu') }}"
+                                   placeholder="Nama lengkap ibu">
+                            @error('nama_ibu')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pekerjaan_ayah" class="form-label">
+                                <i class="fas fa-briefcase me-2"></i>Pekerjaan Ayah
+                            </label>
+                            <input type="text" class="form-control @error('pekerjaan_ayah') is-invalid @enderror"
+                                   id="pekerjaan_ayah" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah') }}"
+                                   placeholder="Pekerjaan ayah">
+                            @error('pekerjaan_ayah')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pekerjaan_ibu" class="form-label">
+                                <i class="fas fa-briefcase me-2"></i>Pekerjaan Ibu
+                            </label>
+                            <input type="text" class="form-control @error('pekerjaan_ibu') is-invalid @enderror"
+                                   id="pekerjaan_ibu" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu') }}"
+                                   placeholder="Pekerjaan ibu">
+                            @error('pekerjaan_ibu')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nomor_hp_ayah" class="form-label">
+                                <i class="fas fa-phone me-2"></i>No. HP Ayah
+                            </label>
+                            <input type="text" class="form-control @error('nomor_hp_ayah') is-invalid @enderror"
+                                   id="nomor_hp_ayah" name="nomor_hp_ayah" value="{{ old('nomor_hp_ayah') }}"
+                                   placeholder="081234567890">
+                            @error('nomor_hp_ayah')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nomor_hp_ibu" class="form-label">
+                                <i class="fas fa-phone me-2"></i>No. HP Ibu
+                            </label>
+                            <input type="text" class="form-control @error('nomor_hp_ibu') is-invalid @enderror"
+                                   id="nomor_hp_ibu" name="nomor_hp_ibu" value="{{ old('nomor_hp_ibu') }}"
+                                   placeholder="081234567890">
+                            @error('nomor_hp_ibu')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="alamat_lengkap" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
+                            </label>
+                            <textarea class="form-control @error('alamat_lengkap') is-invalid @enderror"
+                                      id="alamat_lengkap" name="alamat_lengkap" rows="3"
+                                      placeholder="Alamat lengkap sesuai KTP">{{ old('alamat_lengkap') }}</textarea>
+                            @error('alamat_lengkap')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="status_keluarga" class="form-label">
+                                <i class="fas fa-home me-2"></i>Status Keluarga
+                            </label>
+                            <select class="form-control @error('status_keluarga') is-invalid @enderror"
+                                    id="status_keluarga" name="status_keluarga">
+                                <option value="">-- Pilih Status Keluarga --</option>
+                                <option value="Keluarga Utuh" {{ old('status_keluarga') == 'Keluarga Utuh' ? 'selected' : '' }}>Keluarga Utuh</option>
+                                <option value="Yatim" {{ old('status_keluarga') == 'Yatim' ? 'selected' : '' }}>Yatim</option>
+                                <option value="Piatu" {{ old('status_keluarga') == 'Piatu' ? 'selected' : '' }}>Piatu</option>
+                                <option value="Yatim Piatu" {{ old('status_keluarga') == 'Yatim Piatu' ? 'selected' : '' }}>Yatim Piatu</option>
+                            </select>
+                            @error('status_keluarga')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Akademik -->
+            <div class="info-box mb-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-graduation-cap text-primary me-2"></i>Data Akademik
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="npsn_sekolah_asal" class="form-label">
+                                <i class="fas fa-hashtag me-2"></i>NPSN Sekolah Asal
+                            </label>
+                            <input type="text" class="form-control @error('npsn_sekolah_asal') is-invalid @enderror"
+                                   id="npsn_sekolah_asal" name="npsn_sekolah_asal" value="{{ old('npsn_sekolah_asal') }}"
+                                   placeholder="Nomor Pokok Sekolah Nasional">
+                            @error('npsn_sekolah_asal')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="tahun_lulus" class="form-label">
+                                <i class="fas fa-calendar-check me-2"></i>Tahun Lulus
+                            </label>
+                            <input type="number" class="form-control @error('tahun_lulus') is-invalid @enderror"
+                                   id="tahun_lulus" name="tahun_lulus" value="{{ old('tahun_lulus') }}"
+                                   placeholder="Tahun lulus" min="2000" max="{{ date('Y') }}">
+                            @error('tahun_lulus')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nilai_akhir_raport" class="form-label">
+                                <i class="fas fa-chart-line me-2"></i>Nilai Akhir Raport
+                            </label>
+                            <input type="number" class="form-control @error('nilai_akhir_raport') is-invalid @enderror"
+                                   id="nilai_akhir_raport" name="nilai_akhir_raport" value="{{ old('nilai_akhir_raport') }}"
+                                   placeholder="Nilai akhir raport" step="0.01" min="0" max="100">
+                            @error('nilai_akhir_raport')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="rata_rata_nilai_raport" class="form-label">
+                                <i class="fas fa-calculator me-2"></i>Rata-rata Nilai Raport
+                            </label>
+                            <input type="number" class="form-control @error('rata_rata_nilai_raport') is-invalid @enderror"
+                                   id="rata_rata_nilai_raport" name="rata_rata_nilai_raport" value="{{ old('rata_rata_nilai_raport') }}"
+                                   placeholder="Rata-rata nilai raport" step="0.01" min="0" max="100">
+                            @error('rata_rata_nilai_raport')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="nomor_ijazah" class="form-label">
+                                <i class="fas fa-certificate me-2"></i>Nomor Ijazah
+                            </label>
+                            <input type="text" class="form-control @error('nomor_ijazah') is-invalid @enderror"
+                                   id="nomor_ijazah" name="nomor_ijazah" value="{{ old('nomor_ijazah') }}"
+                                   placeholder="Nomor ijazah">
+                            @error('nomor_ijazah')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="nomor_skhun" class="form-label">
+                                <i class="fas fa-file-alt me-2"></i>Nomor SKHUN
+                            </label>
+                            <input type="text" class="form-control @error('nomor_skhun') is-invalid @enderror"
+                                   id="nomor_skhun" name="nomor_skhun" value="{{ old('nomor_skhun') }}"
+                                   placeholder="Nomor SKHUN">
+                            @error('nomor_skhun')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="nomor_peserta_un" class="form-label">
+                                <i class="fas fa-user-graduate me-2"></i>Nomor Peserta UN
+                            </label>
+                            <input type="text" class="form-control @error('nomor_peserta_un') is-invalid @enderror"
+                                   id="nomor_peserta_un" name="nomor_peserta_un" value="{{ old('nomor_peserta_un') }}"
+                                   placeholder="Nomor peserta UN">
+                            @error('nomor_peserta_un')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rencana Setelah Lulus -->
+            <div class="info-box mb-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-route text-primary me-2"></i>Rencana Setelah Lulus
+                </h6>
+                <div class="form-group">
+                    <label for="rencana_lulus" class="form-label">
+                        <i class="fas fa-compass me-2"></i>Rencana Setelah Lulus <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-control @error('rencana_lulus') is-invalid @enderror"
+                            id="rencana_lulus" name="rencana_lulus" required>
+                        <option value="">-- Pilih Rencana --</option>
+                        <option value="kuliah" {{ old('rencana_lulus') == 'kuliah' ? 'selected' : '' }}>Melanjutkan ke Perguruan Tinggi</option>
+                        <option value="kerja" {{ old('rencana_lulus') == 'kerja' ? 'selected' : '' }}>Bekerja</option>
+                    </select>
+                    @error('rencana_lulus')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Dokumen Tambahan -->
+            <div class="info-box mb-4">
+                <h6 class="mb-3">
+                    <i class="fas fa-folder-open text-primary me-2"></i>Dokumen Tambahan (Opsional)
+                </h6>
+                <p class="text-muted small mb-3">Unggah dokumen pendukung tambahan jika tersedia</p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-baby me-2"></i>Akta Kelahiran
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_akta_kelahiran').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-baby"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file Akta</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_akta_kelahiran" name="berkas_akta_kelahiran"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_akta_kelahiran')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_akta_kelahiran_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-file-invoice me-2"></i>Raport Terakhir
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_raport').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file Raport</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_raport" name="berkas_raport"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_raport')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_raport_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-trophy me-2"></i>Sertifikat Prestasi
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_sertifikat_prestasi').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file Sertifikat</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_sertifikat_prestasi" name="berkas_sertifikat_prestasi"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_sertifikat_prestasi')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_sertifikat_prestasi_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-money-bill-wave me-2"></i>KIP/PKH
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_kip_pkh').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file KIP/PKH</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_kip_pkh" name="berkas_kip_pkh"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_kip_pkh')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_kip_pkh_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-id-card me-2"></i>KTP Ayah
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_ktp_ayah').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file KTP Ayah</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_ktp_ayah" name="berkas_ktp_ayah"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_ktp_ayah')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_ktp_ayah_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-id-card me-2"></i>KTP Ibu
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_ktp_ibu').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file KTP Ibu</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_ktp_ibu" name="berkas_ktp_ibu"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_ktp_ibu')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_ktp_ibu_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-map-marked-alt me-2"></i>Bukti Domisili
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_bukti_domisili').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file Bukti Domisili</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_bukti_domisili" name="berkas_bukti_domisili"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_bukti_domisili')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_bukti_domisili_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-exchange-alt me-2"></i>Surat Mutasi
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_surat_mutasi').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file Surat Mutasi</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_surat_mutasi" name="berkas_surat_mutasi"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_surat_mutasi')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_surat_mutasi_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-graduation-cap me-2"></i>Surat Keterangan Lulus
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_surat_keterangan_lulus').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file SKL</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_surat_keterangan_lulus" name="berkas_surat_keterangan_lulus"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_surat_keterangan_lulus')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_surat_keterangan_lulus_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-file-contract me-2"></i>SKL (Surat Keterangan Lulus)
+                            </label>
+                            <div class="file-upload-area" onclick="document.getElementById('berkas_skl').click()">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <div class="file-upload-text">Klik untuk memilih file SKL</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            </div>
+                            <input type="file" id="berkas_skl" name="berkas_skl"
+                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            @error('berkas_skl')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_skl_preview" class="file-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-prev btn-navigation" onclick="prevStep(3)">
+                    <i class="fas fa-arrow-left me-2"></i> Sebelumnya
+                </button>
                 <button type="submit" class="btn btn-submit">
                     <i class="fas fa-paper-plane me-2"></i>Kirim Pendaftaran
                 </button>
@@ -1052,8 +1590,8 @@ function updateProgress() {
     });
 
     // Update progress text
-    const titles = ['Data Pribadi', 'Pilihan Program', 'Upload Berkas'];
-    const descriptions = ['Langkah 1 dari 3', 'Langkah 2 dari 3', 'Langkah 3 dari 3'];
+    const titles = ['Data Pribadi', 'Pilihan Program', 'Upload Berkas', 'Data Tambahan'];
+    const descriptions = ['Langkah 1 dari 4', 'Langkah 2 dari 4', 'Langkah 3 dari 4', 'Langkah 4 dari 4'];
 
     document.getElementById('progress-title').textContent = titles[currentStep - 1];
     document.getElementById('progress-description').textContent = descriptions[currentStep - 1];
@@ -1124,6 +1662,22 @@ function setupFileUploads() {
     // Ijazah file upload
     document.getElementById('berkas_ijazah').addEventListener('change', function(e) {
         handleFileSelect(e.target, 'berkas_ijazah_preview');
+    });
+
+    // Additional document uploads for step 4
+    const additionalFiles = [
+        'berkas_akta_kelahiran', 'berkas_raport', 'berkas_sertifikat_prestasi', 'berkas_kip_pkh',
+        'berkas_ktp_ayah', 'berkas_ktp_ibu', 'berkas_bukti_domisili', 'berkas_surat_mutasi',
+        'berkas_surat_keterangan_lulus', 'berkas_skl'
+    ];
+
+    additionalFiles.forEach(fileId => {
+        const element = document.getElementById(fileId);
+        if (element) {
+            element.addEventListener('change', function(e) {
+                handleFileSelect(e.target, fileId + '_preview');
+            });
+        }
     });
 
     // Drag and drop
