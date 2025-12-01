@@ -326,6 +326,9 @@
                     <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}">
                         <td>{{ $pendaftars->firstItem() + $index }}</td>
                         <td>
+                            <span class="badge bg-warning text-dark">{{ $pendaftar->ranking ?? ($pendaftars->firstItem() + $index) }}</span>
+                        </td>
+                        <td>
                             <div class="fw-semibold">{{ $pendaftar->nama_lengkap }}</div>
                             <small class="text-muted">{{ $pendaftar->nomor_pendaftaran }}</small>
                         </td>
