@@ -687,11 +687,23 @@
                 <select class="form-control @error('jurusan_pilihan') is-invalid @enderror"
                         id="jurusan_pilihan" name="jurusan_pilihan" required>
                     <option value="">-- Pilih Jurusan --</option>
-                    @if(isset($ppdbSetting->sekolah) && $ppdbSetting->sekolah->jurusan)
-                        @foreach($ppdbSetting->sekolah->jurusan as $jurusan)
-                            <option value="{{ $jurusan }}" {{ old('jurusan_pilihan') == $jurusan ? 'selected' : '' }}>
-                                {{ $jurusan }}
-                            </option>
+                    @php
+                        $jurusanList = $ppdbSetting->jurusan ?? [];
+                        if (is_string($jurusanList)) {
+                            $jurusanList = json_decode($jurusanList, true) ?? [];
+                        }
+                    @endphp
+                    @if(is_array($jurusanList) && count($jurusanList) > 0)
+                        @foreach($jurusanList as $jurusan)
+                            @if(is_array($jurusan) && isset($jurusan['nama']))
+                                <option value="{{ $jurusan['nama'] }}" {{ old('jurusan_pilihan') == $jurusan['nama'] ? 'selected' : '' }}>
+                                    {{ $jurusan['nama'] }}
+                                </option>
+                            @else
+                                <option value="{{ $jurusan }}" {{ old('jurusan_pilihan') == $jurusan ? 'selected' : '' }}>
+                                    {{ $jurusan }}
+                                </option>
+                            @endif
                         @endforeach
                     @endif
                 </select>
