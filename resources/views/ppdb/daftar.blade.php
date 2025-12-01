@@ -1079,26 +1079,79 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="nomor_hp_ayah" class="form-label">
-                                <i class="fas fa-phone me-2"></i>No. HP Ayah
+                            <label for="nomor_hp_orangtua" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Nomor HP Orangtua/Wali
                             </label>
-                            <input type="text" class="form-control @error('nomor_hp_ayah') is-invalid @enderror"
-                                   id="nomor_hp_ayah" name="nomor_hp_ayah" value="{{ old('nomor_hp_ayah') }}"
+                            <input type="text" class="form-control @error('nomor_hp_orangtua') is-invalid @enderror"
+                                   id="nomor_hp_orangtua" name="nomor_hp_orangtua" value="{{ old('nomor_hp_orangtua') }}"
                                    placeholder="081234567890">
-                            @error('nomor_hp_ayah')
+                            @error('nomor_hp_orangtua')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="provinsi" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Provinsi
+                            </label>
+                            <select class="form-control @error('provinsi') is-invalid @enderror"
+                                    id="provinsi" name="provinsi">
+                                <option value="">-- Pilih Provinsi --</option>
+                                <!-- Provinsi akan diisi melalui JavaScript -->
+                            </select>
+                            @error('provinsi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="nomor_hp_ibu" class="form-label">
-                                <i class="fas fa-phone me-2"></i>No. HP Ibu
+                            <label for="kabupaten" class="form-label">
+                                <i class="fas fa-city me-2"></i>Kabupaten/Kota
                             </label>
-                            <input type="text" class="form-control @error('nomor_hp_ibu') is-invalid @enderror"
-                                   id="nomor_hp_ibu" name="nomor_hp_ibu" value="{{ old('nomor_hp_ibu') }}"
-                                   placeholder="081234567890">
-                            @error('nomor_hp_ibu')
+                            <select class="form-control @error('kabupaten') is-invalid @enderror"
+                                    id="kabupaten" name="kabupaten" disabled>
+                                <option value="">-- Pilih Kabupaten/Kota --</option>
+                                <!-- Kabupaten akan diisi melalui JavaScript -->
+                            </select>
+                            @error('kabupaten')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="kecamatan" class="form-label">
+                                <i class="fas fa-building me-2"></i>Kecamatan
+                            </label>
+                            <select class="form-control @error('kecamatan') is-invalid @enderror"
+                                    id="kecamatan" name="kecamatan" disabled>
+                                <option value="">-- Pilih Kecamatan --</option>
+                                <!-- Kecamatan akan diisi melalui JavaScript -->
+                            </select>
+                            @error('kecamatan')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="desa" class="form-label">
+                                <i class="fas fa-home me-2"></i>Desa/Kelurahan
+                            </label>
+                            <select class="form-control @error('desa') is-invalid @enderror"
+                                    id="desa" name="desa" disabled>
+                                <option value="">-- Pilih Desa/Kelurahan --</option>
+                                <!-- Desa akan diisi melalui JavaScript -->
+                            </select>
+                            @error('desa')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -1204,7 +1257,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="nomor_ijazah" class="form-label">
                                 <i class="fas fa-certificate me-2"></i>Nomor Ijazah
@@ -1217,7 +1270,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label for="nomor_skhun" class="form-label">
                                 <i class="fas fa-file-alt me-2"></i>Nomor SKHUN
@@ -1226,19 +1279,6 @@
                                    id="nomor_skhun" name="nomor_skhun" value="{{ old('nomor_skhun') }}"
                                    placeholder="Nomor SKHUN">
                             @error('nomor_skhun')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="nomor_peserta_un" class="form-label">
-                                <i class="fas fa-user-graduate me-2"></i>Nomor Peserta UN
-                            </label>
-                            <input type="text" class="form-control @error('nomor_peserta_un') is-invalid @enderror"
-                                   id="nomor_peserta_un" name="nomor_peserta_un" value="{{ old('nomor_peserta_un') }}"
-                                   placeholder="Nomor peserta UN">
-                            @error('nomor_peserta_un')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -1406,93 +1446,7 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-map-marked-alt me-2"></i>Bukti Domisili
-                            </label>
-                            <div class="file-upload-area" onclick="document.getElementById('berkas_bukti_domisili').click()">
-                                <div class="file-upload-icon">
-                                    <i class="fas fa-map-marked-alt"></i>
-                                </div>
-                                <div class="file-upload-text">Klik untuk memilih file Bukti Domisili</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
-                            </div>
-                            <input type="file" id="berkas_bukti_domisili" name="berkas_bukti_domisili"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                            @error('berkas_bukti_domisili')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            <div id="berkas_bukti_domisili_preview" class="file-preview" style="display: none;"></div>
-                        </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-exchange-alt me-2"></i>Surat Mutasi
-                            </label>
-                            <div class="file-upload-area" onclick="document.getElementById('berkas_surat_mutasi').click()">
-                                <div class="file-upload-icon">
-                                    <i class="fas fa-exchange-alt"></i>
-                                </div>
-                                <div class="file-upload-text">Klik untuk memilih file Surat Mutasi</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
-                            </div>
-                            <input type="file" id="berkas_surat_mutasi" name="berkas_surat_mutasi"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                            @error('berkas_surat_mutasi')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            <div id="berkas_surat_mutasi_preview" class="file-preview" style="display: none;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-graduation-cap me-2"></i>Surat Keterangan Lulus
-                            </label>
-                            <div class="file-upload-area" onclick="document.getElementById('berkas_surat_keterangan_lulus').click()">
-                                <div class="file-upload-icon">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <div class="file-upload-text">Klik untuk memilih file SKL</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
-                            </div>
-                            <input type="file" id="berkas_surat_keterangan_lulus" name="berkas_surat_keterangan_lulus"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                            @error('berkas_surat_keterangan_lulus')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            <div id="berkas_surat_keterangan_lulus_preview" class="file-preview" style="display: none;"></div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-file-contract me-2"></i>SKL (Surat Keterangan Lulus)
-                            </label>
-                            <div class="file-upload-area" onclick="document.getElementById('berkas_skl').click()">
-                                <div class="file-upload-icon">
-                                    <i class="fas fa-file-contract"></i>
-                                </div>
-                                <div class="file-upload-text">Klik untuk memilih file SKL</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
-                            </div>
-                            <input type="file" id="berkas_skl" name="berkas_skl"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                            @error('berkas_skl')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            <div id="berkas_skl_preview" class="file-preview" style="display: none;"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="d-flex justify-content-between">
@@ -1654,8 +1608,7 @@ function setupFileUploads() {
     // Additional document uploads for step 4
     const additionalFiles = [
         'berkas_akta_kelahiran', 'berkas_raport', 'berkas_sertifikat_prestasi', 'berkas_kip_pkh',
-        'berkas_ktp_ayah', 'berkas_ktp_ibu', 'berkas_bukti_domisili', 'berkas_surat_mutasi',
-        'berkas_surat_keterangan_lulus', 'berkas_skl'
+        'berkas_ktp_ayah', 'berkas_ktp_ibu'
     ];
 
     additionalFiles.forEach(fileId => {
@@ -1852,6 +1805,113 @@ document.addEventListener('click', function(e) {
         const item = e.target.closest('.array-input-item');
         if (item) item.remove();
     }
+});
+
+// Address dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const provinsiSelect = document.getElementById('provinsi');
+    const kabupatenSelect = document.getElementById('kabupaten');
+    const kecamatanSelect = document.getElementById('kecamatan');
+    const desaSelect = document.getElementById('desa');
+
+    // Load provinces
+    fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
+        .then(response => response.json())
+        .then(provinces => {
+            provinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province.id;
+                option.textContent = province.name;
+                option.setAttribute('data-name', province.name);
+                provinsiSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error loading provinces:', error));
+
+    // Load regencies when province changes
+    provinsiSelect.addEventListener('change', function() {
+        const provinceId = this.value;
+        const provinceName = this.options[this.selectedIndex].getAttribute('data-name');
+
+        // Reset dependent selects
+        kabupatenSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
+        kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (provinceId) {
+            kabupatenSelect.disabled = false;
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+                .then(response => response.json())
+                .then(regencies => {
+                    regencies.forEach(regency => {
+                        const option = document.createElement('option');
+                        option.value = regency.id;
+                        option.textContent = regency.name;
+                        option.setAttribute('data-name', regency.name);
+                        kabupatenSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading regencies:', error));
+        } else {
+            kabupatenSelect.disabled = true;
+            kecamatanSelect.disabled = true;
+            desaSelect.disabled = true;
+        }
+    });
+
+    // Load districts when regency changes
+    kabupatenSelect.addEventListener('change', function() {
+        const regencyId = this.value;
+
+        // Reset dependent selects
+        kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (regencyId) {
+            kecamatanSelect.disabled = false;
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regencyId}.json`)
+                .then(response => response.json())
+                .then(districts => {
+                    districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.id;
+                        option.textContent = district.name;
+                        option.setAttribute('data-name', district.name);
+                        kecamatanSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading districts:', error));
+        } else {
+            kecamatanSelect.disabled = true;
+            desaSelect.disabled = true;
+        }
+    });
+
+    // Load villages when district changes
+    kecamatanSelect.addEventListener('change', function() {
+        const districtId = this.value;
+
+        // Reset dependent select
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (districtId) {
+            desaSelect.disabled = false;
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${districtId}.json`)
+                .then(response => response.json())
+                .then(villages => {
+                    villages.forEach(village => {
+                        const option = document.createElement('option');
+                        option.value = village.id;
+                        option.textContent = village.name;
+                        option.setAttribute('data-name', village.name);
+                        desaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error loading villages:', error));
+        } else {
+            desaSelect.disabled = true;
+        }
+    });
 });
 
 // Smooth scrolling for anchor links
