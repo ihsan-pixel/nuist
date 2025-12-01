@@ -687,10 +687,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="provinsi" class="form-label">
-                            <i class="fas fa-map-marker-alt me-2"></i>Provinsi
+                            <i class="fas fa-map-marker-alt me-2"></i>Provinsi <span class="text-danger">*</span>
                         </label>
                         <select class="form-control @error('provinsi') is-invalid @enderror"
-                                id="provinsi" name="provinsi">
+                                id="provinsi" name="provinsi" required>
                             <option value="">-- Pilih Provinsi --</option>
                             <!-- Provinsi akan diisi melalui JavaScript -->
                         </select>
@@ -702,10 +702,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="kabupaten" class="form-label">
-                            <i class="fas fa-city me-2"></i>Kabupaten/Kota
+                            <i class="fas fa-city me-2"></i>Kabupaten/Kota <span class="text-danger">*</span>
                         </label>
                         <select class="form-control @error('kabupaten') is-invalid @enderror"
-                                id="kabupaten" name="kabupaten" disabled>
+                                id="kabupaten" name="kabupaten" disabled required>
                             <option value="">-- Pilih Kabupaten/Kota --</option>
                             <!-- Kabupaten akan diisi melalui JavaScript -->
                         </select>
@@ -720,10 +720,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="kecamatan" class="form-label">
-                            <i class="fas fa-building me-2"></i>Kecamatan
+                            <i class="fas fa-building me-2"></i>Kecamatan <span class="text-danger">*</span>
                         </label>
                         <select class="form-control @error('kecamatan') is-invalid @enderror"
-                                id="kecamatan" name="kecamatan" disabled>
+                                id="kecamatan" name="kecamatan" disabled required>
                             <option value="">-- Pilih Kecamatan --</option>
                             <!-- Kecamatan akan diisi melalui JavaScript -->
                         </select>
@@ -735,10 +735,10 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="desa" class="form-label">
-                            <i class="fas fa-home me-2"></i>Desa/Kelurahan
+                            <i class="fas fa-home me-2"></i>Desa/Kelurahan <span class="text-danger">*</span>
                         </label>
                         <select class="form-control @error('desa') is-invalid @enderror"
-                                id="desa" name="desa" disabled>
+                                id="desa" name="desa" disabled required>
                             <option value="">-- Pilih Desa/Kelurahan --</option>
                             <!-- Desa akan diisi melalui JavaScript -->
                         </select>
@@ -753,11 +753,11 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="alamat_lengkap" class="form-label">
-                            <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
+                            <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap <span class="text-danger">*</span>
                         </label>
                         <textarea class="form-control @error('alamat_lengkap') is-invalid @enderror"
                                   id="alamat_lengkap" name="alamat_lengkap" rows="3"
-                                  placeholder="Alamat lengkap sesuai KTP">{{ old('alamat_lengkap') }}</textarea>
+                                  placeholder="Alamat lengkap sesuai KTP" required>{{ old('alamat_lengkap') }}</textarea>
                         @error('alamat_lengkap')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
