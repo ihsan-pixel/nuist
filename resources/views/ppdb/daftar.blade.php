@@ -214,6 +214,10 @@
         justify-content: space-between;
     }
 
+    .file-preview-container {
+        margin-top: 15px;
+    }
+
     .file-name {
         font-size: 14px;
         color: #004b4c;
@@ -1369,14 +1373,17 @@
                                     <i class="fas fa-trophy"></i>
                                 </div>
                                 <div class="file-upload-text">Klik untuk memilih file Sertifikat</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB per file)</div>
                             </div>
-                            <input type="file" id="berkas_sertifikat_prestasi" name="berkas_sertifikat_prestasi"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                            <input type="file" id="berkas_sertifikat_prestasi" name="berkas_sertifikat_prestasi[]"
+                                   accept=".pdf,.jpg,.jpeg,.png" multiple style="display: none;">
                             @error('berkas_sertifikat_prestasi')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-                            <div id="berkas_sertifikat_prestasi_preview" class="file-preview" style="display: none;"></div>
+                            @error('berkas_sertifikat_prestasi.*')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="berkas_sertifikat_prestasi_preview" class="file-preview-container"></div>
                         </div>
                     </div>
 
@@ -1615,7 +1622,11 @@ function setupFileUploads() {
         const element = document.getElementById(fileId);
         if (element) {
             element.addEventListener('change', function(e) {
-                handleFileSelect(e.target, fileId + '_preview');
+                if (fileId === 'berkas_sertifikat_prestasi') {
+                    handleMultipleFileSelect(e.target, fileId + '_preview');
+                } else {
+                    handleFileSelect(e.target, fileId + '_preview');
+                }
             });
         }
     });
@@ -1687,6 +1698,66 @@ function handleFileSelect(input, previewId) {
 function removeFile(inputId) {
     document.getElementById(inputId).value = '';
     document.getElementById(inputId + '_preview').style.display = 'none';
+}
+
+function handleMultipleFileSelect(input, previewId) {
+    const files = input.files;
+    const preview = document.getElementById(previewId);
+
+    if (files.length > 0) {
+        preview.innerHTML = '';
+
+        Array.from(files).forEach((file, index) => {
+            // Validate file size (2MB per file)
+            if (file.size > 2 * 1024 * 1024) {
+                alert(`File "${file.name}" terlalu besar. Maksimal 2MB per file.`);
+                input.value = '';
+                preview.innerHTML = '';
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert(`Format file "${file.name}" tidak didukung. Gunakan PDF, JPG, atau PNG.`);
+                input.value = '';
+                preview.innerHTML = '';
+                return;
+            }
+
+            // Create preview element
+            const filePreview = document.createElement('div');
+            filePreview.className = 'file-preview';
+            filePreview.innerHTML = `
+                <span class="file-name">
+                    <i class="fas fa-file me-2"></i>${file.name}
+                </span>
+                <span class="file-remove" onclick="removeMultipleFile('${input.id}', ${index})">
+                    <i class="fas fa-times"></i>
+                </span>
+            `;
+            preview.appendChild(filePreview);
+        });
+    } else {
+        preview.innerHTML = '';
+    }
+}
+
+function removeMultipleFile(inputId, fileIndex) {
+    const input = document.getElementById(inputId);
+    const files = Array.from(input.files);
+    const preview = document.getElementById(inputId + '_preview');
+
+    // Remove the file from the FileList (create new FileList without the removed file)
+    files.splice(fileIndex, 1);
+
+    // Create a new DataTransfer to update the input
+    const dt = new DataTransfer();
+    files.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+
+    // Update preview
+    handleMultipleFileSelect(input, inputId + '_preview');
 }
 
 // Form submission
