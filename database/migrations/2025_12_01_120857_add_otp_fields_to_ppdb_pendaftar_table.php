@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
             if (!Schema::hasColumn('ppdb_pendaftar', 'otp_code')) {
-                $table->string('otp_code', 6)->nullable()->after('ranking');
+                $table->string('otp_code', 6)->nullable();
             }
             if (!Schema::hasColumn('ppdb_pendaftar', 'otp_expires_at')) {
-                $table->timestamp('otp_expires_at')->nullable()->after('otp_code');
+                $table->timestamp('otp_expires_at')->nullable();
             }
             if (!Schema::hasColumn('ppdb_pendaftar', 'otp_verified_at')) {
-                $table->timestamp('otp_verified_at')->nullable()->after('otp_expires_at');
+                $table->timestamp('otp_verified_at')->nullable();
             }
         });
     }
