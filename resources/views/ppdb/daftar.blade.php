@@ -683,107 +683,102 @@
             </div>
 
             <!-- Data Alamat -->
-            <div class="info-box mb-4">
-                <h6 class="mb-3">
-                    <i class="fas fa-map-marker-alt text-primary me-2"></i>Data Alamat
-                </h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="provinsi" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2"></i>Provinsi
-                            </label>
-                            <select class="form-control @error('provinsi') is-invalid @enderror"
-                                    id="provinsi" name="provinsi">
-                                <option value="">-- Pilih Provinsi --</option>
-                                <!-- Provinsi akan diisi melalui JavaScript -->
-                            </select>
-                            @error('provinsi')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="kabupaten" class="form-label">
-                                <i class="fas fa-city me-2"></i>Kabupaten/Kota
-                            </label>
-                            <select class="form-control @error('kabupaten') is-invalid @enderror"
-                                    id="kabupaten" name="kabupaten" disabled>
-                                <option value="">-- Pilih Kabupaten/Kota --</option>
-                                <!-- Kabupaten akan diisi melalui JavaScript -->
-                            </select>
-                            @error('kabupaten')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="provinsi" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Provinsi
+                        </label>
+                        <select class="form-control @error('provinsi') is-invalid @enderror"
+                                id="provinsi" name="provinsi">
+                            <option value="">-- Pilih Provinsi --</option>
+                            <!-- Provinsi akan diisi melalui JavaScript -->
+                        </select>
+                        @error('provinsi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="kecamatan" class="form-label">
-                                <i class="fas fa-building me-2"></i>Kecamatan
-                            </label>
-                            <select class="form-control @error('kecamatan') is-invalid @enderror"
-                                    id="kecamatan" name="kecamatan" disabled>
-                                <option value="">-- Pilih Kecamatan --</option>
-                                <!-- Kecamatan akan diisi melalui JavaScript -->
-                            </select>
-                            @error('kecamatan')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="desa" class="form-label">
-                                <i class="fas fa-home me-2"></i>Desa/Kelurahan
-                            </label>
-                            <select class="form-control @error('desa') is-invalid @enderror"
-                                    id="desa" name="desa" disabled>
-                                <option value="">-- Pilih Desa/Kelurahan --</option>
-                                <!-- Desa akan diisi melalui JavaScript -->
-                            </select>
-                            @error('desa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="kabupaten" class="form-label">
+                            <i class="fas fa-city me-2"></i>Kabupaten/Kota
+                        </label>
+                        <select class="form-control @error('kabupaten') is-invalid @enderror"
+                                id="kabupaten" name="kabupaten" disabled>
+                            <option value="">-- Pilih Kabupaten/Kota --</option>
+                            <!-- Kabupaten akan diisi melalui JavaScript -->
+                        </select>
+                        @error('kabupaten')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="alamat_lengkap" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
-                            </label>
-                            <textarea class="form-control @error('alamat_lengkap') is-invalid @enderror"
-                                      id="alamat_lengkap" name="alamat_lengkap" rows="3"
-                                      placeholder="Alamat lengkap sesuai KTP">{{ old('alamat_lengkap') }}</textarea>
-                            @error('alamat_lengkap')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="kecamatan" class="form-label">
+                            <i class="fas fa-building me-2"></i>Kecamatan
+                        </label>
+                        <select class="form-control @error('kecamatan') is-invalid @enderror"
+                                id="kecamatan" name="kecamatan" disabled>
+                            <option value="">-- Pilih Kecamatan --</option>
+                            <!-- Kecamatan akan diisi melalui JavaScript -->
+                        </select>
+                        @error('kecamatan')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="status_keluarga" class="form-label">
-                                <i class="fas fa-home me-2"></i>Status Keluarga
-                            </label>
-                            <select class="form-control @error('status_keluarga') is-invalid @enderror"
-                                    id="status_keluarga" name="status_keluarga">
-                                <option value="">-- Pilih Status Keluarga --</option>
-                                <option value="Keluarga Utuh" {{ old('status_keluarga') == 'Keluarga Utuh' ? 'selected' : '' }}>Keluarga Utuh</option>
-                                <option value="Yatim" {{ old('status_keluarga') == 'Yatim' ? 'selected' : '' }}>Yatim</option>
-                                <option value="Piatu" {{ old('status_keluarga') == 'Piatu' ? 'selected' : '' }}>Piatu</option>
-                                <option value="Yatim Piatu" {{ old('status_keluarga') == 'Yatim Piatu' ? 'selected' : '' }}>Yatim Piatu</option>
-                            </select>
-                            @error('status_keluarga')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="desa" class="form-label">
+                            <i class="fas fa-home me-2"></i>Desa/Kelurahan
+                        </label>
+                        <select class="form-control @error('desa') is-invalid @enderror"
+                                id="desa" name="desa" disabled>
+                            <option value="">-- Pilih Desa/Kelurahan --</option>
+                            <!-- Desa akan diisi melalui JavaScript -->
+                        </select>
+                        @error('desa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="alamat_lengkap" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
+                        </label>
+                        <textarea class="form-control @error('alamat_lengkap') is-invalid @enderror"
+                                  id="alamat_lengkap" name="alamat_lengkap" rows="3"
+                                  placeholder="Alamat lengkap sesuai KTP">{{ old('alamat_lengkap') }}</textarea>
+                        @error('alamat_lengkap')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="status_keluarga" class="form-label">
+                            <i class="fas fa-home me-2"></i>Status Keluarga
+                        </label>
+                        <select class="form-control @error('status_keluarga') is-invalid @enderror"
+                                id="status_keluarga" name="status_keluarga">
+                            <option value="">-- Pilih Status Keluarga --</option>
+                            <option value="Keluarga Utuh" {{ old('status_keluarga') == 'Keluarga Utuh' ? 'selected' : '' }}>Keluarga Utuh</option>
+                            <option value="Yatim" {{ old('status_keluarga') == 'Yatim' ? 'selected' : '' }}>Yatim</option>
+                            <option value="Piatu" {{ old('status_keluarga') == 'Piatu' ? 'selected' : '' }}>Piatu</option>
+                            <option value="Yatim Piatu" {{ old('status_keluarga') == 'Yatim Piatu' ? 'selected' : '' }}>Yatim Piatu</option>
+                        </select>
+                        @error('status_keluarga')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
