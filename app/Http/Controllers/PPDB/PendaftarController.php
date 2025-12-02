@@ -239,6 +239,7 @@ class PendaftarController extends Controller
             // Buat array data dasar yang selalu ada
             $dataPendaftar = [
                 'ppdb_setting_id' => $ppdbSetting->id,
+                'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
                 'jalur' => $namaJalur,
                 'nama_lengkap' => $validated['nama_lengkap'],
                 'tempat_lahir' => $validated['tempat_lahir'],

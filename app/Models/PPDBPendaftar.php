@@ -12,7 +12,7 @@ class PPDBPendaftar extends Model
     protected $fillable = [
         'ppdb_setting_id',
         'ppdb_jalur_id',
-        // 'jalur', // Commented out until migration is run
+        'jalur',
         'nama_lengkap',
         'tempat_lahir',
         'jenis_kelamin',
