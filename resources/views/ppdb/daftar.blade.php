@@ -1086,13 +1086,13 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHUN
+                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHU
                         </label>
                         <div class="file-upload-area" onclick="document.getElementById('berkas_ijazah').click()">
                             <div class="file-upload-icon">
                                 <i class="fas fa-certificate"></i>
                             </div>
-                            <div class="file-upload-text">Klik untuk memilih file Ijazah/SKHUN</div>
+                            <div class="file-upload-text">Klik untuk memilih file Ijazah/SKHU</div>
                             <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB) - Opsional jika sudah memiliki</div>
                         </div>
                         <input type="file" id="berkas_ijazah" name="berkas_ijazah"

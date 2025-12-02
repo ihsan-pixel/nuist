@@ -135,7 +135,7 @@ class PendaftarController extends Controller
             'ppdb_jurusan_pilihan_alt' => 'required_if:use_opsi_ke_2,1|nullable|array',
             'ppdb_jurusan_pilihan_alt.*' => 'required_if:use_opsi_ke_2,1|nullable|string',
             'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_ijazah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             // Optional fields for step 4
             'nama_ayah' => 'nullable|string|max:100',
             'nama_ibu' => 'nullable|string|max:100',
@@ -211,7 +211,7 @@ class PendaftarController extends Controller
         try {
             // Upload file berkas
             $berkasKK = $request->file('berkas_kk')->store('ppdb/berkas_kk', 'public');
-            $berkasIjazah = $request->file('berkas_ijazah')->store('ppdb/berkas_ijazah', 'public');
+            $berkasIjazah = $request->hasFile('berkas_ijazah') ? $request->file('berkas_ijazah')->store('ppdb/berkas_ijazah', 'public') : null;
 
             // Buat nomor pendaftaran unik
             $nomorPendaftaran = $this->generateNomorPendaftaran($ppdbSetting);
