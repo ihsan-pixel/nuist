@@ -693,40 +693,40 @@
                                 id="provinsi" name="provinsi" required>
                             <option value="">-- Pilih Provinsi --</option>
                             <!-- Provinsi akan diisi melalui JavaScript -->
-                            <option value="11" data-name="ACEH">ACEH</option>
-                            <option value="12" data-name="SUMATERA UTARA">SUMATERA UTARA</option>
-                            <option value="13" data-name="SUMATERA BARAT">SUMATERA BARAT</option>
-                            <option value="14" data-name="RIAU">RIAU</option>
-                            <option value="15" data-name="JAMBI">JAMBI</option>
-                            <option value="16" data-name="SUMATERA SELATAN">SUMATERA SELATAN</option>
-                            <option value="17" data-name="BENGKULU">BENGKULU</option>
-                            <option value="18" data-name="LAMPUNG">LAMPUNG</option>
-                            <option value="19" data-name="KEPULAUAN BANGKA BELITUNG">KEPULAUAN BANGKA BELITUNG</option>
-                            <option value="21" data-name="KEPULAUAN RIAU">KEPULAUAN RIAU</option>
-                            <option value="31" data-name="DKI JAKARTA">DKI JAKARTA</option>
-                            <option value="32" data-name="JAWA BARAT">JAWA BARAT</option>
-                            <option value="33" data-name="JAWA TENGAH">JAWA TENGAH</option>
-                            <option value="34" data-name="DI YOGYAKARTA">DI YOGYAKARTA</option>
-                            <option value="35" data-name="JAWA TIMUR">JAWA TIMUR</option>
-                            <option value="36" data-name="BANTEN">BANTEN</option>
-                            <option value="51" data-name="BALI">BALI</option>
-                            <option value="52" data-name="NUSA TENGGARA BARAT">NUSA TENGGARA BARAT</option>
-                            <option value="53" data-name="NUSA TENGGARA TIMUR">NUSA TENGGARA TIMUR</option>
-                            <option value="61" data-name="KALIMANTAN BARAT">KALIMANTAN BARAT</option>
-                            <option value="62" data-name="KALIMANTAN TENGAH">KALIMANTAN TENGAH</option>
-                            <option value="63" data-name="KALIMANTAN SELATAN">KALIMANTAN SELATAN</option>
-                            <option value="64" data-name="KALIMANTAN TIMUR">KALIMANTAN TIMUR</option>
-                            <option value="65" data-name="KALIMANTAN UTARA">KALIMANTAN UTARA</option>
-                            <option value="71" data-name="SULAWESI UTARA">SULAWESI UTARA</option>
-                            <option value="72" data-name="SULAWESI TENGAH">SULAWESI TENGAH</option>
-                            <option value="73" data-name="SULAWESI SELATAN">SULAWESI SELATAN</option>
-                            <option value="74" data-name="SULAWESI TENGGARA">SULAWESI TENGGARA</option>
-                            <option value="75" data-name="GORONTALO">GORONTALO</option>
-                            <option value="76" data-name="SULAWESI BARAT">SULAWESI BARAT</option>
-                            <option value="81" data-name="MALUKU">MALUKU</option>
-                            <option value="82" data-name="MALUKU UTARA">MALUKU UTARA</option>
-                            <option value="91" data-name="PAPUA BARAT">PAPUA BARAT</option>
-                            <option value="92" data-name="PAPUA">PAPUA</option>
+                            <option value="ACEH" data-id="11">ACEH</option>
+                            <option value="SUMATERA UTARA" data-id="12">SUMATERA UTARA</option>
+                            <option value="SUMATERA BARAT" data-id="13">SUMATERA BARAT</option>
+                            <option value="RIAU" data-id="14">RIAU</option>
+                            <option value="JAMBI" data-id="15">JAMBI</option>
+                            <option value="SUMATERA SELATAN" data-id="16">SUMATERA SELATAN</option>
+                            <option value="BENGKULU" data-id="17">BENGKULU</option>
+                            <option value="LAMPUNG" data-id="18">LAMPUNG</option>
+                            <option value="KEPULAUAN BANGKA BELITUNG" data-id="19">KEPULAUAN BANGKA BELITUNG</option>
+                            <option value="KEPULAUAN RIAU" data-id="21">KEPULAUAN RIAU</option>
+                            <option value="DKI JAKARTA" data-id="31">DKI JAKARTA</option>
+                            <option value="JAWA BARAT" data-id="32">JAWA BARAT</option>
+                            <option value="JAWA TENGAH" data-id="33">JAWA TENGAH</option>
+                            <option value="DI YOGYAKARTA" data-id="34">DI YOGYAKARTA</option>
+                            <option value="JAWA TIMUR" data-id="35">JAWA TIMUR</option>
+                            <option value="BANTEN" data-id="36">BANTEN</option>
+                            <option value="BALI" data-id="51">BALI</option>
+                            <option value="NUSA TENGGARA BARAT" data-id="52">NUSA TENGGARA BARAT</option>
+                            <option value="NUSA TENGGARA TIMUR" data-id="53">NUSA TENGGARA TIMUR</option>
+                            <option value="KALIMANTAN BARAT" data-id="61">KALIMANTAN BARAT</option>
+                            <option value="KALIMANTAN TENGAH" data-id="62">KALIMANTAN TENGAH</option>
+                            <option value="KALIMANTAN SELATAN" data-id="63">KALIMANTAN SELATAN</option>
+                            <option value="KALIMANTAN TIMUR" data-id="64">KALIMANTAN TIMUR</option>
+                            <option value="KALIMANTAN UTARA" data-id="65">KALIMANTAN UTARA</option>
+                            <option value="SULAWESI UTARA" data-id="71">SULAWESI UTARA</option>
+                            <option value="SULAWESI TENGAH" data-id="72">SULAWESI TENGAH</option>
+                            <option value="SULAWESI SELATAN" data-id="73">SULAWESI SELATAN</option>
+                            <option value="SULAWESI TENGGARA" data-id="74">SULAWESI TENGGARA</option>
+                            <option value="GORONTALO" data-id="75">GORONTALO</option>
+                            <option value="SULAWESI BARAT" data-id="76">SULAWESI BARAT</option>
+                            <option value="MALUKU" data-id="81">MALUKU</option>
+                            <option value="MALUKU UTARA" data-id="82">MALUKU UTARA</option>
+                            <option value="PAPUA BARAT" data-id="91">PAPUA BARAT</option>
+                            <option value="PAPUA" data-id="92">PAPUA</option>
                         </select>
                         @error('provinsi')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -1966,8 +1966,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load regencies when province changes
     provinsiSelect.addEventListener('change', function() {
-        const provinceId = this.value;
-        const provinceName = this.options[this.selectedIndex]?.getAttribute('data-name') || this.options[this.selectedIndex]?.textContent;
+        const provinceId = this.options[this.selectedIndex]?.getAttribute('data-id');
 
         // Reset dependent selects
         kabupatenSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
@@ -1985,9 +1984,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     kabupatenSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
                     regencies.forEach(regency => {
                         const option = document.createElement('option');
-                        option.value = regency.id;
+                        option.value = regency.name; // Store name instead of ID
+                        option.setAttribute('data-id', regency.id);
                         option.textContent = regency.name;
-                        option.setAttribute('data-name', regency.name);
                         kabupatenSelect.appendChild(option);
                     });
                 })
@@ -2039,15 +2038,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load villages when district changes
     kecamatanSelect.addEventListener('change', function() {
-        const districtId = this.value;
+        const districtName = this.value;
 
         // Reset dependent select
         desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
 
-        if (districtId) {
+        if (districtName) {
             desaSelect.disabled = false;
             // Show loading
             desaSelect.innerHTML = '<option value="">Memuat Desa/Kelurahan...</option>';
+
+            // Find the district ID from the regency selection
+            const districtId = kecamatanSelect.options[kecamatanSelect.selectedIndex]?.getAttribute('data-id');
+
+            if (!districtId) return;
 
             fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${districtId}.json`)
                 .then(response => response.json())
@@ -2055,9 +2059,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
                     villages.forEach(village => {
                         const option = document.createElement('option');
-                        option.value = village.id;
+                        option.value = village.name; // Store name instead of ID
                         option.textContent = village.name;
-                        option.setAttribute('data-name', village.name);
                         desaSelect.appendChild(option);
                     });
                 })
