@@ -55,9 +55,7 @@ return new class extends Migration
             }
 
             // Data Akademik
-            if (!Schema::hasColumn('ppdb_pendaftar', 'nilai_akhir_raport')) {
-                $table->decimal('nilai_akhir_raport', 5, 2)->nullable();
-            }
+
             if (!Schema::hasColumn('ppdb_pendaftar', 'rata_rata_nilai_raport')) {
                 $table->decimal('rata_rata_nilai_raport', 5, 2)->nullable();
             }
@@ -139,7 +137,7 @@ return new class extends Migration
             $table->dropColumn([
                 'nik', 'agama', 'nama_ayah', 'nama_ibu', 'pekerjaan_ayah', 'pekerjaan_ibu',
                 'nomor_hp_ayah', 'nomor_hp_ibu', 'alamat_lengkap', 'status_keluarga',
-                'npsn_sekolah_asal', 'tahun_lulus', 'nilai_akhir_raport', 'rata_rata_nilai_raport',
+                'npsn_sekolah_asal', 'tahun_lulus', 'rata_rata_nilai_raport',
                 'nomor_ijazah', 'nomor_skhun', 'nomor_peserta_un',
                 'berkas_akta_kelahiran', 'berkas_ktp_ayah', 'berkas_ktp_ibu', 'berkas_raport',
                 'berkas_sertifikat_prestasi', 'berkas_kip_pkh', 'berkas_bukti_domisili',

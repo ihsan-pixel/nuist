@@ -144,7 +144,7 @@ class PendaftarController extends Controller
             'nomor_hp_orangtua' => 'nullable|string|max:25',
             'npsn_sekolah_asal' => 'nullable|string|max:20',
             'tahun_lulus' => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
-            'nilai_akhir_raport' => 'nullable|numeric|min:0|max:100',
+
             'rata_rata_nilai_raport' => 'nullable|numeric|min:0|max:100',
             'nomor_ijazah' => 'nullable|string|max:50',
             'nomor_skhun' => 'nullable|string|max:50',

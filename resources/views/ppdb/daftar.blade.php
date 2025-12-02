@@ -1248,27 +1248,14 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="nilai_akhir_raport" class="form-label">
-                                <i class="fas fa-chart-line me-2"></i>Nilai Akhir Raport
-                            </label>
-                            <input type="number" class="form-control @error('nilai_akhir_raport') is-invalid @enderror"
-                                   id="nilai_akhir_raport" name="nilai_akhir_raport" value="{{ old('nilai_akhir_raport') }}"
-                                   placeholder="Nilai akhir raport" step="0.01" min="0" max="100">
-                            @error('nilai_akhir_raport')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label class="form-label fw-bold">
                                 <i class="fas fa-calculator me-2"></i>Nilai Raport per Semester
                             </label>
                             <div class="row">
                                 @for($i = 1; $i <= 5; $i++)
-                                    <div class="col-6 col-md-12 mb-2">
+                                    <div class="col-6 col-md-2 mb-2">
                                         <label class="form-label small">Semester {{ $i }}</label>
                                         <input type="number"
                                                class="form-control form-control-sm semester-grade"

@@ -482,7 +482,6 @@
                     'nomor_hp_ayah' => 'No. HP Ayah',
                     'nomor_hp_ibu' => 'No. HP Ibu',
                     'tahun_lulus' => 'Tahun Lulus',
-                    'nilai_akhir_raport' => 'Nilai Akhir Raport',
                     'rata_rata_nilai_raport' => 'Rata-rata Nilai Raport',
                     'nomor_ijazah' => 'Nomor Ijazah',
                     'nomor_skhun' => 'Nomor SKHUN',
@@ -645,12 +644,7 @@
                                 </div>
                             @endif
 
-                            @if(empty($pendaftar->nilai_akhir_raport))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nilai Akhir Raport</label>
-                                    <input type="number" class="form-control" name="nilai_akhir_raport" step="0.01" min="0" max="100" placeholder="85.5">
-                                </div>
-                            @endif
+
 
                             <!-- Semester Grades -->
                             @if(empty($pendaftar->rata_rata_nilai_raport))
