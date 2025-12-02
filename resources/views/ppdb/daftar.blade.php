@@ -1052,17 +1052,17 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHUN <span class="text-danger">*</span>
+                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHUN
                         </label>
                         <div class="file-upload-area" onclick="document.getElementById('berkas_ijazah').click()">
                             <div class="file-upload-icon">
                                 <i class="fas fa-certificate"></i>
                             </div>
-                            <div class="file-upload-text">Klik untuk memilih file Ijazah</div>
-                            <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
+                            <div class="file-upload-text">Klik untuk memilih file Ijazah/SKHUN</div>
+                            <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB) - Opsional jika sudah memiliki</div>
                         </div>
                         <input type="file" id="berkas_ijazah" name="berkas_ijazah"
-                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
+                               accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                         @error('berkas_ijazah')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
