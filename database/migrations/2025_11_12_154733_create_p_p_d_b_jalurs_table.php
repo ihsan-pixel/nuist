@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('p_p_d_b_jalurs', function (Blueprint $table) {
+        Schema::create('ppdb_jalurs', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('p_p_d_b_jalurs');
+        Schema::dropIfExists('ppdb_jalurs');
     }
 };
