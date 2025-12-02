@@ -376,6 +376,26 @@
                 <p class="section-description">Berikut adalah detail status pendaftaran PPDB Anda</p>
             </div>
 
+            <!-- School Info - Highlighted -->
+            <div class="info-card mb-4" style="border-left-color: #004b4c; background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-school fa-3x text-success"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h5 class="info-title text-success mb-2">
+                            <i class="fas fa-university me-2"></i>Sekolah Tujuan Pendaftaran
+                        </h5>
+                        <h4 class="mb-1" style="color: #004b4c; font-weight: 700;">
+                            {{ $pendaftar->ppdbSetting->sekolah->name ?? 'N/A' }}
+                        </h4>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-calendar-alt me-2"></i>Tahun Akademik {{ $pendaftar->ppdbSetting->tahun ?? date('Y') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Info -->
             <div class="row mb-4">
                 <div class="col-md-6">
