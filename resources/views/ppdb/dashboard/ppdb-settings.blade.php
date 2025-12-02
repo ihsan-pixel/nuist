@@ -249,17 +249,28 @@
                         <div class="row">
                             @foreach($availableJalur as $jalur)
                                 <div class="col-md-6 mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox"
+                                    <div class="form-check d-flex align-items-start">
+                                        <input class="form-check-input me-2 mt-1" type="checkbox"
                                                name="ppdb_jalur_active[]" value="{{ $jalur->id }}"
                                                id="jalur_{{ $jalur->id }}"
                                                {{ in_array($jalur->id, $selectedJalurIds) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="jalur_{{ $jalur->id }}">
-                                            {{ $jalur->nama_jalur }}
-                                        </label>
-                                        @if($jalur->keterangan)
-                                            <br><small class="text-muted">{{ $jalur->keterangan }}</small>
-                                        @endif
+                                        <div class="flex-grow-1">
+                                            <label class="form-check-label d-flex align-items-center" for="jalur_{{ $jalur->id }}">
+                                                <span class="me-2">{{ $jalur->nama_jalur }}</span>
+                                                @if(in_array($jalur->id, $selectedJalurIds))
+                                                    <span class="badge bg-success">
+                                                        <i class="mdi mdi-check-circle me-1"></i>Aktif
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary">
+                                                        <i class="mdi mdi-close-circle me-1"></i>Tidak Aktif
+                                                    </span>
+                                                @endif
+                                            </label>
+                                            @if($jalur->keterangan)
+                                                <small class="text-muted d-block">{{ $jalur->keterangan }}</small>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
