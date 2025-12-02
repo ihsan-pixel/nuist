@@ -50,7 +50,6 @@ class PPDBPendaftar extends Model
         'status',
         'nomor_pendaftaran',
         'nilai',
-        'nilai_akhir_raport',
         'rata_rata_nilai_raport',
         'nomor_ijazah',
         'nomor_skhun',
