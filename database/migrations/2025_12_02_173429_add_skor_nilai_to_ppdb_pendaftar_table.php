@@ -24,8 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            if (Schema::hasColumn('ppdb_pendaftar', 'nilai')) {
-                $table->dropColumn('nilai');
+            if (Schema::hasColumn('ppdb_pendaftar', 'skor_nilai')) {
+                $table->dropColumn('skor_nilai');
             }
         });
     }

@@ -146,11 +146,11 @@ class AdminSekolahController extends Controller
         }
 
         $validated = $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
+            'skor_nilai' => 'required|numeric|min:0|max:100',
             'status' => 'required|in:lulus,tidak_lulus',
             'ranking' => 'nullable|numeric|min:1',
         ], [
-            'nilai.required' => 'Nilai harus diisi',
+            'skor_nilai.required' => 'Skor nilai harus diisi',
             'status.required' => 'Status seleksi harus dipilih',
         ]);
 

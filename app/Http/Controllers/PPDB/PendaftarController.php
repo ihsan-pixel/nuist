@@ -282,7 +282,7 @@ class PendaftarController extends Controller
                 'berkas_skl' => null, // Not in form
                 'status' => 'pending',
                 'nomor_pendaftaran' => $nomorPendaftaran,
-                'nilai' => null,
+                'skor_nilai' => null,
                 'nilai_akhir_raport' => $validated['nilai_akhir_raport'] ?? null,
                 'rata_rata_nilai_raport' => $validated['rata_rata_nilai_raport'] ?? null,
                 'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
