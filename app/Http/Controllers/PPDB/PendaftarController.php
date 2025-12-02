@@ -240,7 +240,6 @@ class PendaftarController extends Controller
             $dataPendaftar = [
                 'ppdb_setting_id' => $ppdbSetting->id,
                 'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
-                'jalur' => $namaJalur,
                 'nama_lengkap' => $validated['nama_lengkap'],
                 'tempat_lahir' => $validated['tempat_lahir'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
