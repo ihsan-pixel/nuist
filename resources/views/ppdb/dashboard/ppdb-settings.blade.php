@@ -238,8 +238,8 @@
                         // Get all available jalur from ppdb_jalur table
                         $availableJalur = \App\Models\PPDBJalur::orderBy('nama_jalur')->get();
 
-                        // Get currently selected jalur IDs (from ppdb_jalur_active field or similar)
-                        $selectedJalurIds = $ppdbSetting ? ($ppdbSetting->ppdb_jalur_active ?? []) : [];
+                        // Get currently selected jalur IDs from ppdb_settings table column ppdb_jalur
+                        $selectedJalurIds = $ppdbSetting ? ($ppdbSetting->ppdb_jalur ?? []) : [];
                         if (is_string($selectedJalurIds)) {
                             $selectedJalurIds = json_decode($selectedJalurIds, true) ?? [];
                         }
