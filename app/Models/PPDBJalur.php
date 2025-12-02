@@ -9,7 +9,7 @@ class PPDBJalur extends Model
 {
     use HasFactory;
 
-    protected $table = 'ppdb_jalurs';
+    protected $table = 'ppdb_jalur';
     protected $fillable = [
         'ppdb_setting_id',
         'nama_jalur',

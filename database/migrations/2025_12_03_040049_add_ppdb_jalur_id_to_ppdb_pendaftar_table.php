@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
             if (!Schema::hasColumn('ppdb_pendaftar', 'ppdb_jalur_id')) {
                 $table->unsignedBigInteger('ppdb_jalur_id')->nullable()->after('ppdb_setting_id');
-                $table->foreign('ppdb_jalur_id')->references('id')->on('ppdb_jalurs')->onDelete('set null');
+                $table->foreign('ppdb_jalur_id')->references('id')->on('ppdb_jalur')->onDelete('set null');
             }
         });
     }

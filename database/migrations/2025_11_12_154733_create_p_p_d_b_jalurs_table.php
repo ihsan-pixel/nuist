@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ppdb_jalurs', function (Blueprint $table) {
+        Schema::create('ppdb_jalur', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
