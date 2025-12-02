@@ -268,6 +268,10 @@ class PendaftarController extends Controller
             $optionalFields = [
                 'nik' => $validated['nik'] ?? null,
                 'agama' => $validated['agama'] ?? null,
+                'provinsi' => $validated['provinsi'] ?? null,
+                'kabupaten' => $validated['kabupaten'] ?? null,
+                'kecamatan' => $validated['kecamatan'] ?? null,
+                'desa' => $validated['desa'] ?? null,
                 'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
                 'nama_ayah' => $validated['nama_ayah'] ?? null,
                 'nama_ibu' => $validated['nama_ibu'] ?? null,
@@ -280,7 +284,6 @@ class PendaftarController extends Controller
                 'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
                 'nomor_skhun' => $validated['nomor_skhun'] ?? null,
                 'rencana_lulus' => $validated['rencana_lulus'] ?? null,
-                // Data wilayah sudah ditambahkan di atas
             ];
             // skor_nilai akan diisi nanti oleh admin saat seleksi
 

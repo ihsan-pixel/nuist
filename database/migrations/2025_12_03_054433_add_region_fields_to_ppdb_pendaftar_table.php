@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            // Data Wilayah - sesuai form daftar.blade.php
             if (!Schema::hasColumn('ppdb_pendaftar', 'provinsi')) {
                 $table->string('provinsi')->nullable();
             }
@@ -34,9 +33,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            $table->dropColumn([
-                'provinsi', 'kabupaten', 'kecamatan', 'desa'
-            ]);
+            //
         });
     }
 };
