@@ -768,8 +768,8 @@
                                         </a>
                                     </div>
                                 @endif
-                                <input type="file" class="form-control" name="berkas_sertifikat_prestasi" accept=".pdf,.jpg,.jpeg,.png">
-                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                                <input type="file" class="form-control" name="berkas_sertifikat_prestasi[]" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB per file. Pilih multiple file jika memiliki lebih dari 1 sertifikat</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
