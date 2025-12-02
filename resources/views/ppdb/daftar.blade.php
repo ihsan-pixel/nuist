@@ -692,41 +692,7 @@
                         <select class="form-control @error('provinsi') is-invalid @enderror"
                                 id="provinsi" name="provinsi" required>
                             <option value="">-- Pilih Provinsi --</option>
-                            <!-- Provinsi akan diisi melalui JavaScript -->
-                            <option value="ACEH" data-id="11">ACEH</option>
-                            <option value="SUMATERA UTARA" data-id="12">SUMATERA UTARA</option>
-                            <option value="SUMATERA BARAT" data-id="13">SUMATERA BARAT</option>
-                            <option value="RIAU" data-id="14">RIAU</option>
-                            <option value="JAMBI" data-id="15">JAMBI</option>
-                            <option value="SUMATERA SELATAN" data-id="16">SUMATERA SELATAN</option>
-                            <option value="BENGKULU" data-id="17">BENGKULU</option>
-                            <option value="LAMPUNG" data-id="18">LAMPUNG</option>
-                            <option value="KEPULAUAN BANGKA BELITUNG" data-id="19">KEPULAUAN BANGKA BELITUNG</option>
-                            <option value="KEPULAUAN RIAU" data-id="21">KEPULAUAN RIAU</option>
-                            <option value="DKI JAKARTA" data-id="31">DKI JAKARTA</option>
-                            <option value="JAWA BARAT" data-id="32">JAWA BARAT</option>
-                            <option value="JAWA TENGAH" data-id="33">JAWA TENGAH</option>
-                            <option value="DI YOGYAKARTA" data-id="34">DI YOGYAKARTA</option>
-                            <option value="JAWA TIMUR" data-id="35">JAWA TIMUR</option>
-                            <option value="BANTEN" data-id="36">BANTEN</option>
-                            <option value="BALI" data-id="51">BALI</option>
-                            <option value="NUSA TENGGARA BARAT" data-id="52">NUSA TENGGARA BARAT</option>
-                            <option value="NUSA TENGGARA TIMUR" data-id="53">NUSA TENGGARA TIMUR</option>
-                            <option value="KALIMANTAN BARAT" data-id="61">KALIMANTAN BARAT</option>
-                            <option value="KALIMANTAN TENGAH" data-id="62">KALIMANTAN TENGAH</option>
-                            <option value="KALIMANTAN SELATAN" data-id="63">KALIMANTAN SELATAN</option>
-                            <option value="KALIMANTAN TIMUR" data-id="64">KALIMANTAN TIMUR</option>
-                            <option value="KALIMANTAN UTARA" data-id="65">KALIMANTAN UTARA</option>
-                            <option value="SULAWESI UTARA" data-id="71">SULAWESI UTARA</option>
-                            <option value="SULAWESI TENGAH" data-id="72">SULAWESI TENGAH</option>
-                            <option value="SULAWESI SELATAN" data-id="73">SULAWESI SELATAN</option>
-                            <option value="SULAWESI TENGGARA" data-id="74">SULAWESI TENGGARA</option>
-                            <option value="GORONTALO" data-id="75">GORONTALO</option>
-                            <option value="SULAWESI BARAT" data-id="76">SULAWESI BARAT</option>
-                            <option value="MALUKU" data-id="81">MALUKU</option>
-                            <option value="MALUKU UTARA" data-id="82">MALUKU UTARA</option>
-                            <option value="PAPUA BARAT" data-id="91">PAPUA BARAT</option>
-                            <option value="PAPUA" data-id="92">PAPUA</option>
+                            <!-- Provinsi akan diisi otomatis melalui JavaScript -->
                         </select>
                         @error('provinsi')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -1953,6 +1919,187 @@ document.addEventListener('click', function(e) {
 });
 
 
+
+// Address dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const provinsiSelect = document.getElementById('provinsi');
+    const kabupatenSelect = document.getElementById('kabupaten');
+    const kecamatanSelect = document.getElementById('kecamatan');
+    const desaSelect = document.getElementById('desa');
+
+    // Initialize disabled state
+    kabupatenSelect.disabled = true;
+    kecamatanSelect.disabled = true;
+    desaSelect.disabled = true;
+
+    // Load provinces automatically
+    fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
+        .then(response => response.json())
+        .then(provinces => {
+            provinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province.name;
+                option.setAttribute('data-id', province.id);
+                option.textContent = province.name;
+                provinsiSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading provinces:', error);
+            provinsiSelect.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+        });
+
+    // Function to load districts with retry
+    function loadDistricts(regencyId, retryCount = 0) {
+        fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regencyId}.json`)
+            .then(response => response.json())
+            .then(districts => {
+                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.name; // Store name instead of ID
+                    option.setAttribute('data-id', district.id);
+                    option.textContent = district.name;
+                    kecamatanSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading districts:', error);
+                if (retryCount < 2) {
+                    setTimeout(() => loadDistricts(regencyId, retryCount + 1), 1000 * (retryCount + 1));
+                } else {
+                    kecamatanSelect.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+                }
+            });
+    }
+
+    // Load regencies when province changes
+    provinsiSelect.addEventListener('change', function() {
+        const provinceId = this.options[this.selectedIndex]?.getAttribute('data-id');
+
+        // Reset dependent selects
+        kabupatenSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
+        kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (provinceId) {
+            kabupatenSelect.disabled = false;
+            // Show loading
+            kabupatenSelect.innerHTML = '<option value="">Memuat Kabupaten/Kota...</option>';
+
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+                .then(response => response.json())
+                .then(regencies => {
+                    kabupatenSelect.innerHTML = '<option value="">-- Pilih Kabupaten/Kota --</option>';
+                    regencies.forEach(regency => {
+                        const option = document.createElement('option');
+                        option.value = regency.name; // Store name instead of ID
+                        option.setAttribute('data-id', regency.id);
+                        option.textContent = regency.name;
+                        kabupatenSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading regencies:', error);
+                    kabupatenSelect.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+                });
+        } else {
+            kabupatenSelect.disabled = true;
+            kecamatanSelect.disabled = true;
+            desaSelect.disabled = true;
+        }
+    });
+
+    // Load districts when regency changes
+    kabupatenSelect.addEventListener('change', function() {
+        const regencyId = this.options[this.selectedIndex]?.getAttribute('data-id');
+
+        // Reset dependent selects
+        kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (regencyId) {
+            kecamatanSelect.disabled = false;
+            // Show loading
+            kecamatanSelect.innerHTML = '<option value="">Memuat Kecamatan...</option>';
+
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regencyId}.json`)
+                .then(response => response.json())
+                .then(districts => {
+                    kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                    districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.name; // Store name instead of ID
+                        option.setAttribute('data-id', district.id);
+                        option.textContent = district.name;
+                        kecamatanSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading districts:', error);
+                    // Retry once after 1 second
+                    setTimeout(() => {
+                        fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regencyId}.json`)
+                            .then(response => response.json())
+                            .then(districts => {
+                                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                                districts.forEach(district => {
+                                    const option = document.createElement('option');
+                                    option.value = district.name; // Store name instead of ID
+                                    option.setAttribute('data-id', district.id);
+                                    option.textContent = district.name;
+                                    kecamatanSelect.appendChild(option);
+                                });
+                            })
+                            .catch(retryError => {
+                                console.error('Error loading districts on retry:', retryError);
+                                kecamatanSelect.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+                            });
+                    }, 1000);
+                });
+        } else {
+            kecamatanSelect.disabled = true;
+            desaSelect.disabled = true;
+        }
+    });
+
+    // Load villages when district changes
+    kecamatanSelect.addEventListener('change', function() {
+        const districtName = this.value;
+
+        // Reset dependent select
+        desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+
+        if (districtName) {
+            desaSelect.disabled = false;
+            // Show loading
+            desaSelect.innerHTML = '<option value="">Memuat Desa/Kelurahan...</option>';
+
+            // Find the district ID from the regency selection
+            const districtId = kecamatanSelect.options[kecamatanSelect.selectedIndex]?.getAttribute('data-id');
+
+            if (!districtId) return;
+
+            fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${districtId}.json`)
+                .then(response => response.json())
+                .then(villages => {
+                    desaSelect.innerHTML = '<option value="">-- Pilih Desa/Kelurahan --</option>';
+                    villages.forEach(village => {
+                        const option = document.createElement('option');
+                        option.value = village.name; // Store name instead of ID
+                        option.textContent = village.name;
+                        desaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading villages:', error);
+                    desaSelect.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+                });
+        } else {
+            desaSelect.disabled = true;
+        }
+    });
+});
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
