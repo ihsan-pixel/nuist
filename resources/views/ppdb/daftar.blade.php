@@ -1868,6 +1868,7 @@ window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.checkNISNAvailability = checkNISNAvailability;
 window.removeFile = removeFile;
+window.calculateAverage = calculateAverage;
 
 // Lightweight array add/remove support for jurusan alternatif (Opsi Pilihan Ke 2)
 document.addEventListener('click', function(e) {
