@@ -239,7 +239,7 @@ class PendaftarController extends Controller
             $pendaftar = PPDBPendaftar::create([
                 'ppdb_setting_id' => $ppdbSetting->id,
                 'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
-                'jalur' => $namaJalur,
+                // 'jalur' => $namaJalur, // Commented out until migration is run
                 'nama_lengkap' => $validated['nama_lengkap'],
                 'nik' => $validated['nik'],
                 'tempat_lahir' => $validated['tempat_lahir'],
