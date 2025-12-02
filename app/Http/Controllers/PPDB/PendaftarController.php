@@ -261,7 +261,7 @@ class PendaftarController extends Controller
                 'agama' => $validated['agama'] ?? null,
                 'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
                 'rencana_lulus' => $validated['rencana_lulus'] ?? null,
-                'nilai' => null, // skor_nilai akan dihitung nanti
+                'skor_nilai' => null, // akan dihitung nanti oleh admin
             ];
 
             // Cek dan tambahkan field yang ada di schema database
