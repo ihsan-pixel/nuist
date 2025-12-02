@@ -569,6 +569,13 @@ class AdminLPController extends Controller
             ]
         );
 
+        // Jika PPDB status diubah menjadi 'buka' dan belum ada jalur yang dipilih,
+        // maka aktifkan semua jalur yang tersedia secara otomatis
+        if ($request->input('ppdb_status') === 'buka' && empty($data['ppdb_jalur_active'])) {
+            $availableJalur = \App\Models\PPDBJalur::pluck('id')->toArray();
+            $data['ppdb_jalur_active'] = $availableJalur;
+        }
+
         $ppdbSetting->update($data);
 
         return redirect()->route('ppdb.lp.ppdb-settings', $madrasah->id)
