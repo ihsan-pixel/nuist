@@ -118,7 +118,7 @@ class PendaftarController extends Controller
             'tanggal_lahir' => 'required|date|before:today',
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
-            'nisn' => 'required|string|max:20|unique:ppdb_pendaftars,nisn',
+            'nisn' => 'required|string|max:20|unique:ppdb_pendaftar,nisn',
             'asal_sekolah' => 'required|string|max:100',
             'provinsi' => 'required|string|max:100',
             'kabupaten' => 'required|string|max:100',
