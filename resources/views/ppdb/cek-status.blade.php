@@ -755,14 +755,6 @@
                                 </div>
                             @endif
 
-                            @if(empty($pendaftar->berkas_skhun))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">SKHUN <span class="text-danger">*</span></label>
-                                    <input type="file" class="form-control" name="berkas_skhun" accept=".pdf,.jpg,.jpeg,.png">
-                                    <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
-                                </div>
-                            @endif
-
                             <!-- Additional Document Uploads -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Sertifikat Prestasi</label>
