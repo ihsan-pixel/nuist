@@ -248,6 +248,10 @@ class PendaftarController extends Controller
                 'agama' => $validated['agama'],
                 'nisn' => $validated['nisn'],
                 'asal_sekolah' => $validated['asal_sekolah'],
+                'provinsi' => $validated['provinsi'],
+                'kabupaten' => $validated['kabupaten'],
+                'kecamatan' => $validated['kecamatan'],
+                'desa' => $validated['desa'],
                 'npsn_sekolah_asal' => $validated['npsn_sekolah_asal'] ?? null,
                 'tahun_lulus' => $validated['tahun_lulus'] ?? null,
                 'nama_ayah' => $validated['nama_ayah'] ?? null,
@@ -256,6 +260,7 @@ class PendaftarController extends Controller
                 'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
                 'nomor_hp_ayah' => null, // Not in form
                 'nomor_hp_ibu' => null, // Not in form
+                'nomor_hp_orangtua' => $validated['nomor_hp_orangtua'] ?? null,
                 'alamat_lengkap' => $validated['alamat_lengkap'],
                 'status_keluarga' => null, // Not in form
                 'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'],
