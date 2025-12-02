@@ -497,6 +497,7 @@
                 $requiredFiles = [
                     'berkas_kk' => 'Kartu Keluarga',
                     'berkas_ijazah' => 'Ijazah',
+                    'berkas_skhun' => 'SKHUN',
                     'berkas_akta_kelahiran' => 'Akta Kelahiran',
                     'berkas_sertifikat_prestasi' => 'Sertifikat Prestasi/KIP/PKH',
                     'berkas_ktp_ayah' => 'KTP Ayah',
@@ -750,6 +751,14 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ijazah <span class="text-danger">*</span></label>
                                     <input type="file" class="form-control" name="berkas_ijazah" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->berkas_skhun))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">SKHUN <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" name="berkas_skhun" accept=".pdf,.jpg,.jpeg,.png">
                                     <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
                                 </div>
                             @endif
