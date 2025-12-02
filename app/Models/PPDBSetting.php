@@ -73,6 +73,7 @@ class PPDBSetting extends Model
         'ppdb_jadwal_pengumuman' => 'datetime',
         'ppdb_kuota_jurusan' => 'array',
         'ppdb_jalur' => 'array',
+        'ppdb_jalur_active' => 'array',
         'jurusan' => 'array',
         'galeri_foto' => 'array',
         'misi' => 'array',
@@ -136,11 +137,5 @@ class PPDBSetting extends Model
         return $this->pendaftars()->count();
     }
 
-    /**
-     * Relasi ke PPDB Jalur
-     */
-    public function jalurs()
-    {
-        return $this->hasMany(PPDBJalur::class, 'ppdb_setting_id');
-    }
+
 }

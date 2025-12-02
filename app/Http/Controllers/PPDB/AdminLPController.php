@@ -543,6 +543,8 @@ class AdminLPController extends Controller
             'ppdb_jadwal_pengumuman' => 'nullable|date',
             'ppdb_kuota_jurusan' => 'nullable|array',
             'ppdb_kuota_jurusan.*' => 'nullable|string',
+            'ppdb_jalur_active' => 'nullable|array',
+            'ppdb_jalur_active.*' => 'nullable|integer|exists:ppdb_jalur,id',
             'ppdb_biaya_pendaftaran' => 'nullable|string',
             'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
@@ -608,67 +610,5 @@ class AdminLPController extends Controller
         return view('ppdb.dashboard.pendaftar-detail', compact('pendaftar'))->render();
     }
 
-    /**
-     * Store new PPDB Jalur
-     */
-    public function storeJalur(Request $request, $madrasahId)
-    {
-        $request->validate([
-            'nama_jalur' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:500'
-        ]);
 
-        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
-        $tahun = now()->year;
-
-        $ppdbSetting = PPDBSetting::firstOrCreate(
-            [
-                'sekolah_id' => $madrasah->id,
-                'tahun' => $tahun
-            ],
-            [
-                'slug' => Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
-                'nama_sekolah' => $madrasah->name
-            ]
-        );
-
-        $jalur = PPDBJalur::create([
-            'ppdb_setting_id' => $ppdbSetting->id,
-            'nama_jalur' => $request->nama_jalur,
-            'keterangan' => $request->keterangan,
-            'urutan' => PPDBJalur::where('ppdb_setting_id', $ppdbSetting->id)->max('urutan') + 1
-        ]);
-
-        return response()->json(['success' => true, 'jalur' => $jalur]);
-    }
-
-    /**
-     * Update PPDB Jalur
-     */
-    public function updateJalur(Request $request, $jalurId)
-    {
-        $request->validate([
-            'nama_jalur' => 'required|string|max:255',
-            'keterangan' => 'nullable|string|max:500'
-        ]);
-
-        $jalur = PPDBJalur::findOrFail($jalurId);
-        $jalur->update([
-            'nama_jalur' => $request->nama_jalur,
-            'keterangan' => $request->keterangan
-        ]);
-
-        return response()->json(['success' => true, 'jalur' => $jalur]);
-    }
-
-    /**
-     * Delete PPDB Jalur
-     */
-    public function deleteJalur($jalurId)
-    {
-        $jalur = PPDBJalur::findOrFail($jalurId);
-        $jalur->delete();
-
-        return redirect()->back()->with('success', 'Jalur pendaftaran berhasil dihapus');
-    }
 }
