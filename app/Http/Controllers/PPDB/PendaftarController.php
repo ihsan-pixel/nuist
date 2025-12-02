@@ -117,22 +117,46 @@ class PendaftarController extends Controller
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'jenis_kelamin' => 'required|in:L,P',
+            'agama' => 'required|string|max:50',
             'nisn' => 'required|string|max:20|unique:ppdb_pendaftars,nisn',
             'asal_sekolah' => 'required|string|max:100',
+            'provinsi' => 'required|string|max:100',
+            'kabupaten' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'desa' => 'required|string|max:100',
+            'alamat_lengkap' => 'required|string|max:255',
+            'ppdb_jalur_id' => 'required|integer|min:1|max:3',
             'jurusan_pilihan' => 'required|string|max:50',
-            'rencana_lulus' => 'required|in:kuliah,kerja',
-            'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'jalur_id' => 'required|integer|min:1|max:3',
-            // Optional second-option flag and conditional contact fields
+            'ppdb_nomor_whatsapp_siswa' => 'required|string|max:25',
+            'ppdb_email_siswa' => 'required|email|max:100',
+            // Optional second-option flag and conditional fields
             'use_opsi_ke_2' => 'nullable|in:0,1',
             'ppdb_opsi_pilihan_ke_2' => 'required_if:use_opsi_ke_2,1|nullable|integer|exists:madrasahs,id',
-            'ppdb_jurusan_pilihan_alt' => 'required_if:use_opsi_ke_2,1|array',
-            'ppdb_jurusan_pilihan_alt.*' => 'required_if:use_opsi_ke_2,1|string',
-            // Contact fields now required unconditionally
-            'ppdb_nomor_whatsapp_siswa' => 'required|string|max:25',
-            'ppdb_nomor_whatsapp_wali' => 'required|string|max:25',
-            'ppdb_email_siswa' => 'required|email|max:100',
+            'ppdb_jurusan_pilihan_alt' => 'required_if:use_opsi_ke_2,1|nullable|array',
+            'ppdb_jurusan_pilihan_alt.*' => 'required_if:use_opsi_ke_2,1|nullable|string',
+            'berkas_kk' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_ijazah' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            // Optional fields for step 4
+            'nama_ayah' => 'nullable|string|max:100',
+            'nama_ibu' => 'nullable|string|max:100',
+            'pekerjaan_ayah' => 'nullable|string|max:100',
+            'pekerjaan_ibu' => 'nullable|string|max:100',
+            'nomor_hp_orangtua' => 'nullable|string|max:25',
+            'npsn_sekolah_asal' => 'nullable|string|max:20',
+            'tahun_lulus' => 'nullable|integer|min:2000|max:' . (date('Y') + 1),
+            'nilai_akhir_raport' => 'nullable|numeric|min:0|max:100',
+            'rata_rata_nilai_raport' => 'nullable|numeric|min:0|max:100',
+            'nomor_ijazah' => 'nullable|string|max:50',
+            'nomor_skhun' => 'nullable|string|max:50',
+            'rencana_lulus' => 'required|in:kuliah,kerja',
+            // Optional file uploads
+            'berkas_akta_kelahiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_raport' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_sertifikat_prestasi' => 'nullable|array',
+            'berkas_sertifikat_prestasi.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_kip_pkh' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_ktp_ayah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'berkas_ktp_ibu' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ], [
             'nama_lengkap.required' => 'Nama lengkap harus diisi',
             'nik.required' => 'NIK harus diisi',
@@ -144,17 +168,23 @@ class PendaftarController extends Controller
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini',
             'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
             'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
+            'agama.required' => 'Agama harus dipilih',
             'nisn.required' => 'NISN harus diisi',
             'nisn.unique' => 'NISN sudah terdaftar',
             'asal_sekolah.required' => 'Asal sekolah harus diisi',
+            'provinsi.required' => 'Provinsi harus dipilih',
+            'kabupaten.required' => 'Kabupaten/Kota harus dipilih',
+            'kecamatan.required' => 'Kecamatan harus dipilih',
+            'desa.required' => 'Desa/Kelurahan harus dipilih',
+            'alamat_lengkap.required' => 'Alamat lengkap harus diisi',
+            'ppdb_jalur_id.required' => 'Jalur pendaftaran harus dipilih',
             'jurusan_pilihan.required' => 'Pilihan jurusan harus diisi',
-            'rencana_lulus.required' => 'Rencana setelah lulus harus dipilih',
-            'rencana_lulus.in' => 'Rencana setelah lulus tidak valid',
+            'ppdb_nomor_whatsapp_siswa.required' => 'Nomor WhatsApp siswa harus diisi',
+            'ppdb_email_siswa.required' => 'Email siswa harus diisi',
             'berkas_kk.required' => 'Berkas Kartu Keluarga harus diunggah',
             'berkas_ijazah.required' => 'Berkas Ijazah harus diunggah',
-            'ppdb_nomor_whatsapp_siswa.required' => 'Nomor WhatsApp siswa harus diisi',
-            'ppdb_nomor_whatsapp_wali.required' => 'Nomor WhatsApp wali harus diisi',
-            'ppdb_email_siswa.required' => 'Email siswa harus diisi',
+            'rencana_lulus.required' => 'Rencana setelah lulus harus dipilih',
+            'rencana_lulus.in' => 'Rencana setelah lulus tidak valid',
         ]);
 
         // Ambil jalur dari ppdb_jalur di ppdb_setting
@@ -186,30 +216,89 @@ class PendaftarController extends Controller
             // Buat nomor pendaftaran unik
             $nomorPendaftaran = $this->generateNomorPendaftaran($ppdbSetting);
 
-            // Cari nama jalur berdasarkan jalur_id
-            $jalurDipilih = $jalurs->firstWhere('id', $validated['jalur_id']);
+            // Cari nama jalur berdasarkan ppdb_jalur_id
+            $jalurDipilih = $jalurs->firstWhere('id', $validated['ppdb_jalur_id']);
             $namaJalur = $jalurDipilih ? $jalurDipilih->nama_jalur : 'Jalur Tidak Diketahui';
 
-            // Simpan data pendaftar (sertakan kontak yang baru dipindah ke tabel ppdb_pendaftar)
-            // Use null coalescing for optional fields when not provided
+            // Upload optional files
+            $berkasAkta = $request->hasFile('berkas_akta_kelahiran') ? $request->file('berkas_akta_kelahiran')->store('ppdb/berkas_akta', 'public') : null;
+            $berkasRaport = $request->hasFile('berkas_raport') ? $request->file('berkas_raport')->store('ppdb/berkas_raport', 'public') : null;
+            $berkasKIP = $request->hasFile('berkas_kip_pkh') ? $request->file('berkas_kip_pkh')->store('ppdb/berkas_kip', 'public') : null;
+            $berkasKTPAyah = $request->hasFile('berkas_ktp_ayah') ? $request->file('berkas_ktp_ayah')->store('ppdb/berkas_ktp_ayah', 'public') : null;
+            $berkasKTPIbu = $request->hasFile('berkas_ktp_ibu') ? $request->file('berkas_ktp_ibu')->store('ppdb/berkas_ktp_ibu', 'public') : null;
+
+            // Handle multiple sertifikat prestasi files
+            $berkasSertifikat = [];
+            if ($request->hasFile('berkas_sertifikat_prestasi')) {
+                foreach ($request->file('berkas_sertifikat_prestasi') as $file) {
+                    $berkasSertifikat[] = $file->store('ppdb/berkas_sertifikat', 'public');
+                }
+            }
+
+            // Simpan data pendaftar dengan semua field baru
             $pendaftar = PPDBPendaftar::create([
                 'ppdb_setting_id' => $ppdbSetting->id,
+                'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
                 'jalur' => $namaJalur,
                 'nama_lengkap' => $validated['nama_lengkap'],
+                'nik' => $validated['nik'],
                 'tempat_lahir' => $validated['tempat_lahir'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
                 'jenis_kelamin' => $validated['jenis_kelamin'],
+                'agama' => $validated['agama'],
                 'nisn' => $validated['nisn'],
                 'asal_sekolah' => $validated['asal_sekolah'],
+                'npsn_sekolah_asal' => $validated['npsn_sekolah_asal'] ?? null,
+                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
+                'nama_ayah' => $validated['nama_ayah'] ?? null,
+                'nama_ibu' => $validated['nama_ibu'] ?? null,
+                'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
+                'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
+                'nomor_hp_ayah' => null, // Not in form
+                'nomor_hp_ibu' => null, // Not in form
+                'alamat_lengkap' => $validated['alamat_lengkap'],
+                'status_keluarga' => null, // Not in form
+                'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'],
+                'ppdb_nomor_whatsapp_wali' => null, // Not in form
+                'ppdb_email_siswa' => $validated['ppdb_email_siswa'],
                 'jurusan_pilihan' => $validated['jurusan_pilihan'],
                 'rencana_lulus' => $validated['rencana_lulus'],
                 'berkas_kk' => $berkasKK,
                 'berkas_ijazah' => $berkasIjazah,
-                'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'] ?? null,
-                'ppdb_nomor_whatsapp_wali' => $validated['ppdb_nomor_whatsapp_wali'] ?? null,
-                'ppdb_email_siswa' => $validated['ppdb_email_siswa'] ?? null,
+                'berkas_akta_kelahiran' => $berkasAkta,
+                'berkas_ktp_ayah' => $berkasKTPAyah,
+                'berkas_ktp_ibu' => $berkasKTPIbu,
+                'berkas_raport' => $berkasRaport,
+                'berkas_sertifikat_prestasi' => json_encode($berkasSertifikat),
+                'berkas_kip_pkh' => $berkasKIP,
+                'berkas_bukti_domisili' => null, // Not in form
+                'berkas_surat_mutasi' => null, // Not in form
+                'berkas_surat_keterangan_lulus' => null, // Not in form
+                'berkas_skl' => null, // Not in form
                 'status' => 'pending',
                 'nomor_pendaftaran' => $nomorPendaftaran,
+                'nilai' => null,
+                'nilai_akhir_raport' => $validated['nilai_akhir_raport'] ?? null,
+                'rata_rata_nilai_raport' => $validated['rata_rata_nilai_raport'] ?? null,
+                'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
+                'nomor_skhun' => $validated['nomor_skhun'] ?? null,
+                'nomor_peserta_un' => null,
+                'ranking' => null,
+                'skor_nilai' => null,
+                'skor_prestasi' => null,
+                'skor_domisili' => null,
+                'skor_dokumen' => null,
+                'skor_total' => null,
+                'is_inden' => false,
+                'surat_keterangan_sementara' => null,
+                'otp_code' => null,
+                'otp_expires_at' => null,
+                'otp_verified_at' => null,
+                'catatan_verifikasi' => null,
+                'diverifikasi_oleh' => null,
+                'diverifikasi_tanggal' => null,
+                'diseleksi_oleh' => null,
+                'diseleksi_tanggal' => null,
             ]);
 
             return redirect()->route('ppdb.sekolah', $slug)
