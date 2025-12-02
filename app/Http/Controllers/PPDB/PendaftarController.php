@@ -272,6 +272,7 @@ class PendaftarController extends Controller
                 'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
                 'nomor_skhun' => $validated['nomor_skhun'] ?? null,
                 'rencana_lulus' => $validated['rencana_lulus'] ?? null,
+                // Data wilayah sudah ditambahkan di atas
             ];
             // skor_nilai akan diisi nanti oleh admin saat seleksi
 
@@ -367,6 +368,18 @@ class PendaftarController extends Controller
         }
         if ($request->has('agama')) {
             $rules['agama'] = 'required|string|max:50';
+        }
+        if ($request->has('provinsi')) {
+            $rules['provinsi'] = 'required|string|max:100';
+        }
+        if ($request->has('kabupaten')) {
+            $rules['kabupaten'] = 'required|string|max:100';
+        }
+        if ($request->has('kecamatan')) {
+            $rules['kecamatan'] = 'required|string|max:100';
+        }
+        if ($request->has('desa')) {
+            $rules['desa'] = 'required|string|max:100';
         }
         if ($request->has('alamat_lengkap')) {
             $rules['alamat_lengkap'] = 'required|string|max:255';
