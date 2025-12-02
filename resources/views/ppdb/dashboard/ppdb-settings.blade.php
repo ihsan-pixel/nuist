@@ -251,7 +251,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-check d-flex align-items-start">
                                         <input class="form-check-input me-2 mt-1" type="checkbox"
-                                               name="ppdb_jalur_active[]" value="{{ $jalur->id }}"
+                                               name="ppdb_jalur[]" value="{{ $jalur->id }}"
                                                id="jalur_{{ $jalur->id }}"
                                                {{ in_array($jalur->id, $selectedJalurIds) ? 'checked' : '' }}>
                                         <div class="flex-grow-1">

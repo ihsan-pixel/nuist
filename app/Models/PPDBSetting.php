@@ -73,7 +73,7 @@ class PPDBSetting extends Model
         'ppdb_jadwal_pengumuman' => 'datetime',
         'ppdb_kuota_jurusan' => 'array',
         'ppdb_jalur' => 'array',
-        'ppdb_jalur_active' => 'array',
+        'ppdb_jalur' => 'array',
         'jurusan' => 'array',
         'galeri_foto' => 'array',
         'misi' => 'array',

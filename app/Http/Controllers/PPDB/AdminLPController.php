@@ -543,8 +543,8 @@ class AdminLPController extends Controller
             'ppdb_jadwal_pengumuman' => 'nullable|date',
             'ppdb_kuota_jurusan' => 'nullable|array',
             'ppdb_kuota_jurusan.*' => 'nullable|string',
-            'ppdb_jalur_active' => 'nullable|array',
-            'ppdb_jalur_active.*' => 'nullable|integer|exists:ppdb_jalur,id',
+            'ppdb_jalur' => 'nullable|array',
+            'ppdb_jalur.*' => 'nullable|integer|exists:ppdb_jalur,id',
             'ppdb_biaya_pendaftaran' => 'nullable|string',
             'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
