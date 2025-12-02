@@ -501,7 +501,7 @@
 <script>
 function showDetail(pendaftarId) {
     // Load detail content via AJAX
-    fetch(`/ppdb/admin/detail/${pendaftarId}`)
+    fetch(`/ppdb/lp/pendaftar-detail/${pendaftarId}`)
         .then(response => response.text())
         .then(html => {
             document.getElementById('detailContent').innerHTML = html;
