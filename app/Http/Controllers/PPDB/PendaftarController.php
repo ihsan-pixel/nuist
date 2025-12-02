@@ -235,76 +235,44 @@ class PendaftarController extends Controller
                 }
             }
 
-            // Simpan data pendaftar dengan semua field baru
-            $pendaftar = PPDBPendaftar::create([
+            // Simpan data pendaftar - hanya field yang sudah ada di database
+            // Buat array data dasar yang selalu ada
+            $dataPendaftar = [
                 'ppdb_setting_id' => $ppdbSetting->id,
-                'ppdb_jalur_id' => $validated['ppdb_jalur_id'],
-                // 'jalur' => $namaJalur, // Commented out until migration is run
+                'jalur' => $namaJalur,
                 'nama_lengkap' => $validated['nama_lengkap'],
-                'nik' => $validated['nik'],
                 'tempat_lahir' => $validated['tempat_lahir'],
                 'tanggal_lahir' => $validated['tanggal_lahir'],
                 'jenis_kelamin' => $validated['jenis_kelamin'],
-                'agama' => $validated['agama'],
                 'nisn' => $validated['nisn'],
                 'asal_sekolah' => $validated['asal_sekolah'],
-                'provinsi' => $validated['provinsi'],
-                'kabupaten' => $validated['kabupaten'],
-                'kecamatan' => $validated['kecamatan'],
-                'desa' => $validated['desa'],
-                'npsn_sekolah_asal' => $validated['npsn_sekolah_asal'] ?? null,
-                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
-                'nama_ayah' => $validated['nama_ayah'] ?? null,
-                'nama_ibu' => $validated['nama_ibu'] ?? null,
-                'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
-                'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
-                'nomor_hp_ayah' => null, // Not in form
-                'nomor_hp_ibu' => null, // Not in form
-                'nomor_hp_orangtua' => $validated['nomor_hp_orangtua'] ?? null,
-                'alamat_lengkap' => $validated['alamat_lengkap'],
-                'status_keluarga' => null, // Not in form
                 'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'],
-                // 'ppdb_nomor_whatsapp_wali' => null, // Column dropped
                 'ppdb_email_siswa' => $validated['ppdb_email_siswa'],
                 'jurusan_pilihan' => $validated['jurusan_pilihan'],
-                'rencana_lulus' => $validated['rencana_lulus'],
                 'berkas_kk' => $berkasKK,
                 'berkas_ijazah' => $berkasIjazah,
-                'berkas_akta_kelahiran' => $berkasAkta,
-                'berkas_ktp_ayah' => $berkasKTPAyah,
-                'berkas_ktp_ibu' => $berkasKTPIbu,
-                'berkas_raport' => $berkasRaport,
-                'berkas_sertifikat_prestasi' => json_encode($berkasSertifikat),
-                'berkas_kip_pkh' => $berkasKIP,
-                'berkas_bukti_domisili' => null, // Not in form
-                'berkas_surat_mutasi' => null, // Not in form
-                'berkas_surat_keterangan_lulus' => null, // Not in form
-                'berkas_skl' => null, // Not in form
                 'status' => 'pending',
                 'nomor_pendaftaran' => $nomorPendaftaran,
-                'skor_nilai' => null,
-                'nilai_akhir_raport' => $validated['nilai_akhir_raport'] ?? null,
-                'rata_rata_nilai_raport' => $validated['rata_rata_nilai_raport'] ?? null,
-                'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
-                'nomor_skhun' => $validated['nomor_skhun'] ?? null,
-                'nomor_peserta_un' => null,
-                'ranking' => null,
-                'skor_nilai' => null,
-                'skor_prestasi' => null,
-                'skor_domisili' => null,
-                'skor_dokumen' => null,
-                'skor_total' => null,
-                'is_inden' => false,
-                'surat_keterangan_sementara' => null,
-                'otp_code' => null,
-                'otp_expires_at' => null,
-                'otp_verified_at' => null,
-                'catatan_verifikasi' => null,
-                'diverifikasi_oleh' => null,
-                'diverifikasi_tanggal' => null,
-                'diseleksi_oleh' => null,
-                'diseleksi_tanggal' => null,
-            ]);
+            ];
+
+            // Tambahkan field opsional jika kolom ada di database
+            $optionalFields = [
+                'nik' => $validated['nik'] ?? null,
+                'agama' => $validated['agama'] ?? null,
+                'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
+                'rencana_lulus' => $validated['rencana_lulus'] ?? null,
+                'nilai' => null, // skor_nilai akan dihitung nanti
+            ];
+
+            // Cek dan tambahkan field yang ada di schema database
+            $tableColumns = \Schema::getColumnListing('ppdb_pendaftar');
+            foreach ($optionalFields as $field => $value) {
+                if (in_array($field, $tableColumns)) {
+                    $dataPendaftar[$field] = $value;
+                }
+            }
+
+            $pendaftar = PPDBPendaftar::create($dataPendaftar);
 
             return redirect()->route('ppdb.sekolah', $slug)
                 ->with('success', "✅ Pendaftaran berhasil! Nomor pendaftaran Anda: <strong>{$pendaftar->nomor_pendaftaran}</strong>");

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
             if (!Schema::hasColumn('ppdb_pendaftar', 'skor_nilai')) {
-                $table->integer('skor_nilai')->nullable();
+                $table->integer('skor_nilai')->nullable()->default(null);
             }
         });
     }
