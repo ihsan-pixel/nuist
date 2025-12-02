@@ -498,11 +498,32 @@
                 $requiredFiles = [
                     'berkas_kk' => 'Kartu Keluarga',
                     'berkas_ijazah' => 'Ijazah',
+                    'berkas_akta_kelahiran' => 'Akta Kelahiran',
+                    'berkas_sertifikat_prestasi' => 'Sertifikat Prestasi/KIP/PKH',
+                    'berkas_ktp_ayah' => 'KTP Ayah',
+                    'berkas_ktp_ibu' => 'KTP Ibu',
                 ];
 
                 foreach ($requiredFiles as $field => $label) {
                     if (empty($pendaftar->$field)) {
                         $incompleteFields[$field] = 'Berkas ' . $label;
+                    }
+                }
+
+                // Check for individual semester grades if rata_rata_nilai_raport is empty
+                if (empty($pendaftar->rata_rata_nilai_raport)) {
+                    $semesterFields = [
+                        'nilai_semester_1' => 'Nilai Semester 1',
+                        'nilai_semester_2' => 'Nilai Semester 2',
+                        'nilai_semester_3' => 'Nilai Semester 3',
+                        'nilai_semester_4' => 'Nilai Semester 4',
+                        'nilai_semester_5' => 'Nilai Semester 5',
+                    ];
+
+                    foreach ($semesterFields as $field => $label) {
+                        if (empty($pendaftar->$field)) {
+                            $incompleteFields[$field] = $label;
+                        }
                     }
                 }
             @endphp
@@ -631,10 +652,39 @@
                                 </div>
                             @endif
 
+                            <!-- Semester Grades -->
                             @if(empty($pendaftar->rata_rata_nilai_raport))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Rata-rata Nilai Raport</label>
-                                    <input type="number" class="form-control" name="rata_rata_nilai_raport" step="0.01" min="0" max="100" placeholder="85.5">
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-bold">Nilai Raport per Semester</label>
+                                    <div class="row">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <div class="col-md-2 col-sm-4 mb-2">
+                                                <label class="form-label small">Semester {{ $i }}</label>
+                                                <input type="number"
+                                                       class="form-control form-control-sm semester-grade"
+                                                       name="nilai_semester_{{ $i }}"
+                                                       step="0.01"
+                                                       min="0"
+                                                       max="100"
+                                                       placeholder="85.5"
+                                                       value="{{ old('nilai_semester_' . $i, $pendaftar->{'nilai_semester_' . $i} ?? '') }}"
+                                                       onchange="calculateAverage()">
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    <div class="mt-2">
+                                        <label class="form-label small fw-bold">Rata-rata Nilai Raport (Otomatis)</label>
+                                        <input type="number"
+                                               class="form-control"
+                                               name="rata_rata_nilai_raport"
+                                               id="rata_rata_nilai_raport"
+                                               step="0.01"
+                                               min="0"
+                                               max="100"
+                                               placeholder="Otomatis dihitung"
+                                               readonly>
+                                        <small class="text-muted">Rata-rata dihitung otomatis dari 5 semester</small>
+                                    </div>
                                 </div>
                             @endif
 
@@ -818,6 +868,28 @@ function toggleUpdateForm() {
         }
     }
 }
+
+function calculateAverage() {
+    const semesterInputs = document.querySelectorAll('.semester-grade');
+    let total = 0;
+    let count = 0;
+
+    semesterInputs.forEach(input => {
+        const value = parseFloat(input.value);
+        if (!isNaN(value) && value > 0) {
+            total += value;
+            count++;
+        }
+    });
+
+    const average = count > 0 ? (total / count).toFixed(2) : '';
+    document.getElementById('rata_rata_nilai_raport').value = average;
+}
+
+// Calculate average on page load if values exist
+document.addEventListener('DOMContentLoaded', function() {
+    calculateAverage();
+});
 </script>
 
 {{-- <!-- Back to PPDB Button -->
