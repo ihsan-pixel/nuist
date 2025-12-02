@@ -97,14 +97,14 @@ class PendaftarController extends Controller
         }
 
         // Jika PPDB setting tidak ditemukan atau tidak aktif, redirect dengan error
-        if (!$ppdbSetting || $ppdbSetting->status !== 'buka') {
+        if (!$ppdbSetting || $ppdbSetting->ppdb_status !== 'buka') {
             return redirect()->back()
                 ->with('error', 'Pendaftaran belum dibuka atau telah ditutup untuk sekolah ini.')
                 ->withInput();
         }
 
         // Cek waktu pendaftaran
-        if (now()->isAfter($ppdbSetting->jadwal_tutup)) {
+        if ($ppdbSetting->ppdb_jadwal_tutup && now()->isAfter($ppdbSetting->ppdb_jadwal_tutup)) {
             return redirect()->back()
                 ->with('error', 'Pendaftaran telah ditutup')
                 ->withInput();
