@@ -753,6 +753,92 @@
                                     <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
                                 </div>
                             @endif
+
+                            <!-- Additional Document Uploads -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sertifikat Prestasi</label>
+                                @if($pendaftar->berkas_sertifikat_prestasi)
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                        </small>
+                                        <br>
+                                        <a href="{{ asset('storage/' . $pendaftar->berkas_sertifikat_prestasi) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Lihat File
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="berkas_sertifikat_prestasi" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">KIP/PKH</label>
+                                @if($pendaftar->berkas_kip_pkh)
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                        </small>
+                                        <br>
+                                        <a href="{{ asset('storage/' . $pendaftar->berkas_kip_pkh) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Lihat File
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="berkas_kip_pkh" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Akta Kelahiran</label>
+                                @if($pendaftar->berkas_akta_kelahiran)
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                        </small>
+                                        <br>
+                                        <a href="{{ asset('storage/' . $pendaftar->berkas_akta_kelahiran) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Lihat File
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="berkas_akta_kelahiran" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">KTP Ayah</label>
+                                @if($pendaftar->berkas_ktp_ayah)
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                        </small>
+                                        <br>
+                                        <a href="{{ asset('storage/' . $pendaftar->berkas_ktp_ayah) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Lihat File
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="berkas_ktp_ayah" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">KTP Ibu</label>
+                                @if($pendaftar->berkas_ktp_ibu)
+                                    <div class="mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                        </small>
+                                        <br>
+                                        <a href="{{ asset('storage/' . $pendaftar->berkas_ktp_ibu) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Lihat File
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="berkas_ktp_ibu" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2 mt-3">
