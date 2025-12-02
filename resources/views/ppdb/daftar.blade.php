@@ -1894,6 +1894,19 @@ function checkNISNAvailability() {
         });
 }
 
+// Calculate average grade function
+function calculateAverage() {
+    const semesters = [];
+    for (let i = 1; i <= 5; i++) {
+        const input = document.querySelector(`input[name="nilai_semester_${i}"]`);
+        const value = parseFloat(input.value) || 0;
+        semesters.push(value);
+    }
+    const sum = semesters.reduce((a, b) => a + b, 0);
+    const average = sum / semesters.length;
+    document.getElementById('rata_rata_nilai_raport').value = average.toFixed(2);
+}
+
 // ====================================================
 //   REGISTER ALL FUNCTIONS TO GLOBAL SCOPE (FIX UTAMA)
 // ====================================================
