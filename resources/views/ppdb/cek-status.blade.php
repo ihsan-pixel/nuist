@@ -608,19 +608,52 @@
                                 </div>
                             @endif
 
-                            @if(empty($pendaftar->pekerjaan_ayah))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Pekerjaan Ayah</label>
-                                    <input type="text" class="form-control" name="pekerjaan_ayah" placeholder="Pekerjaan ayah">
-                                </div>
-                            @endif
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pekerjaan Ayah</label>
+                                <select class="form-control" name="pekerjaan_ayah">
+                                    <option value="">-- Pilih Pekerjaan Ayah --</option>
+                                    <option value="Tidak Bekerja" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Tidak Bekerja' ? 'selected' : '' }}>Tidak Bekerja</option>
+                                    <option value="Pegawai Negeri Sipil (PNS)" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Pegawai Negeri Sipil (PNS)' ? 'selected' : '' }}>Pegawai Negeri Sipil (PNS)</option>
+                                    <option value="Pegawai Swasta" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Pegawai Swasta' ? 'selected' : '' }}>Pegawai Swasta</option>
+                                    <option value="Wiraswasta" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
+                                    <option value="Petani" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Petani' ? 'selected' : '' }}>Petani</option>
+                                    <option value="Nelayan" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                                    <option value="Pedagang" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                                    <option value="Buruh" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                                    <option value="Guru/Dosen" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                                    <option value="Dokter" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                                    <option value="Perawat" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Perawat' ? 'selected' : '' }}>Perawat</option>
+                                    <option value="Polisi" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Polisi' ? 'selected' : '' }}>Polisi</option>
+                                    <option value="TNI" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'TNI' ? 'selected' : '' }}>TNI</option>
+                                    <option value="Sopir" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Sopir' ? 'selected' : '' }}>Sopir</option>
+                                    <option value="Karyawan" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Karyawan' ? 'selected' : '' }}>Karyawan</option>
+                                    <option value="Lainnya" {{ ($pendaftar->pekerjaan_ayah ?? old('pekerjaan_ayah')) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                </select>
+                            </div>
 
-                            @if(empty($pendaftar->pekerjaan_ibu))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Pekerjaan Ibu</label>
-                                    <input type="text" class="form-control" name="pekerjaan_ibu" placeholder="Pekerjaan ibu">
-                                </div>
-                            @endif
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pekerjaan Ibu</label>
+                                <select class="form-control" name="pekerjaan_ibu">
+                                    <option value="">-- Pilih Pekerjaan Ibu --</option>
+                                    <option value="Tidak Bekerja" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Tidak Bekerja' ? 'selected' : '' }}>Tidak Bekerja</option>
+                                    <option value="Ibu Rumah Tangga" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Ibu Rumah Tangga' ? 'selected' : '' }}>Ibu Rumah Tangga</option>
+                                    <option value="Pegawai Negeri Sipil (PNS)" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Pegawai Negeri Sipil (PNS)' ? 'selected' : '' }}>Pegawai Negeri Sipil (PNS)</option>
+                                    <option value="Pegawai Swasta" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Pegawai Swasta' ? 'selected' : '' }}>Pegawai Swasta</option>
+                                    <option value="Wiraswasta" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Wiraswasta' ? 'selected' : '' }}>Wiraswasta</option>
+                                    <option value="Petani" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Petani' ? 'selected' : '' }}>Petani</option>
+                                    <option value="Nelayan" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Nelayan' ? 'selected' : '' }}>Nelayan</option>
+                                    <option value="Pedagang" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Pedagang' ? 'selected' : '' }}>Pedagang</option>
+                                    <option value="Buruh" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Buruh' ? 'selected' : '' }}>Buruh</option>
+                                    <option value="Guru/Dosen" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Guru/Dosen' ? 'selected' : '' }}>Guru/Dosen</option>
+                                    <option value="Dokter" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Dokter' ? 'selected' : '' }}>Dokter</option>
+                                    <option value="Perawat" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Perawat' ? 'selected' : '' }}>Perawat</option>
+                                    <option value="Polisi" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Polisi' ? 'selected' : '' }}>Polisi</option>
+                                    <option value="TNI" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'TNI' ? 'selected' : '' }}>TNI</option>
+                                    <option value="Sopir" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Sopir' ? 'selected' : '' }}>Sopir</option>
+                                    <option value="Karyawan" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Karyawan' ? 'selected' : '' }}>Karyawan</option>
+                                    <option value="Lainnya" {{ ($pendaftar->pekerjaan_ibu ?? old('pekerjaan_ibu')) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                </select>
+                            </div>
 
                             @if(empty($pendaftar->nomor_hp_ayah))
                                 <div class="col-md-6 mb-3">
