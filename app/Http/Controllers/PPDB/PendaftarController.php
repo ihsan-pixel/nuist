@@ -351,6 +351,118 @@ class PendaftarController extends Controller
     }
 
     /**
+     * Update data pendaftar yang belum lengkap
+     */
+    public function updateData(Request $request, $pendaftarId)
+    {
+        $pendaftar = PPDBPendaftar::findOrFail($pendaftarId);
+
+        // Validasi input berdasarkan field yang dikirim
+        $rules = [];
+
+        // Personal data validation
+        if ($request->has('nik')) {
+            $rules['nik'] = 'required|string|max:16|min:16|regex:/^[0-9]+$/';
+        }
+        if ($request->has('agama')) {
+            $rules['agama'] = 'required|string|max:50';
+        }
+        if ($request->has('alamat_lengkap')) {
+            $rules['alamat_lengkap'] = 'required|string|max:255';
+        }
+
+        // Parent data validation
+        if ($request->has('nama_ayah')) {
+            $rules['nama_ayah'] = 'nullable|string|max:100';
+        }
+        if ($request->has('nama_ibu')) {
+            $rules['nama_ibu'] = 'nullable|string|max:100';
+        }
+        if ($request->has('pekerjaan_ayah')) {
+            $rules['pekerjaan_ayah'] = 'nullable|string|max:100';
+        }
+        if ($request->has('pekerjaan_ibu')) {
+            $rules['pekerjaan_ibu'] = 'nullable|string|max:100';
+        }
+        if ($request->has('nomor_hp_ayah')) {
+            $rules['nomor_hp_ayah'] = 'nullable|string|max:25';
+        }
+        if ($request->has('nomor_hp_ibu')) {
+            $rules['nomor_hp_ibu'] = 'nullable|string|max:25';
+        }
+
+        // Academic data validation
+        if ($request->has('tahun_lulus')) {
+            $rules['tahun_lulus'] = 'nullable|integer|min:2000|max:' . (date('Y') + 1);
+        }
+        if ($request->has('npsn_sekolah_asal')) {
+            $rules['npsn_sekolah_asal'] = 'nullable|string|max:20';
+        }
+        if ($request->has('rata_rata_nilai_raport')) {
+            $rules['rata_rata_nilai_raport'] = 'nullable|numeric|min:0|max:100';
+        }
+        if ($request->has('nomor_ijazah')) {
+            $rules['nomor_ijazah'] = 'nullable|string|max:50';
+        }
+        if ($request->has('nomor_skhun')) {
+            $rules['nomor_skhun'] = 'nullable|string|max:50';
+        }
+
+        // Semester grades validation
+        for ($i = 1; $i <= 5; $i++) {
+            if ($request->has("nilai_semester_{$i}")) {
+                $rules["nilai_semester_{$i}"] = 'nullable|numeric|min:0|max:100';
+            }
+        }
+
+        // File validation
+        if ($request->hasFile('berkas_kk')) {
+            $rules['berkas_kk'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
+        }
+        if ($request->hasFile('berkas_ijazah')) {
+            $rules['berkas_ijazah'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
+        }
+
+        $validated = $request->validate($rules);
+
+        try {
+            // Handle file uploads
+            if ($request->hasFile('berkas_kk')) {
+                $validated['berkas_kk'] = $request->file('berkas_kk')->store('ppdb/berkas_kk', 'public');
+            }
+            if ($request->hasFile('berkas_ijazah')) {
+                $validated['berkas_ijazah'] = $request->file('berkas_ijazah')->store('ppdb/berkas_ijazah', 'public');
+            }
+
+            // Calculate average if semester grades are provided
+            if ($request->hasAny(['nilai_semester_1', 'nilai_semester_2', 'nilai_semester_3', 'nilai_semester_4', 'nilai_semester_5'])) {
+                $semesterGrades = [];
+                for ($i = 1; $i <= 5; $i++) {
+                    $grade = $request->input("nilai_semester_{$i}");
+                    if ($grade !== null && $grade !== '') {
+                        $semesterGrades[] = (float) $grade;
+                        $validated["nilai_semester_{$i}"] = $grade;
+                    }
+                }
+
+                if (!empty($semesterGrades)) {
+                    $validated['rata_rata_nilai_raport'] = array_sum($semesterGrades) / count($semesterGrades);
+                }
+            }
+
+            // Update pendaftar data
+            $pendaftar->update($validated);
+
+            return redirect()->back()
+                ->with('success', 'Data pendaftaran berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
      * Generate nomor pendaftaran unik
      * Format: SMKM-2025-0001
      */

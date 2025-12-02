@@ -644,6 +644,14 @@
                                 </div>
                             @endif
 
+                            @if(empty($pendaftar->npsn_sekolah_asal))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">NPSN Sekolah Asal</label>
+                                    <input type="text" class="form-control" name="npsn_sekolah_asal" maxlength="20" placeholder="Masukkan NPSN sekolah asal">
+                                    <small class="text-muted">Nomor Pokok Sekolah Nasional (NPSN) sekolah asal</small>
+                                </div>
+                            @endif
+
 
 
                             <!-- Semester Grades -->
