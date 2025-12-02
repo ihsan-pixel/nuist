@@ -9,6 +9,7 @@ use App\Models\PPDBJalur;
 use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 class PendaftarController extends Controller
 {
@@ -52,15 +53,19 @@ class PendaftarController extends Controller
             ];
         }
 
-        // Ambil jalur dari ppdb_jalur di ppdb_setting
+        // Ambil jalur dari ppdb_jalur table berdasarkan ID yang tersimpan di ppdb_settings
         $jalurs = collect();
         if ($ppdbSetting && $ppdbSetting->ppdb_jalur) {
-            foreach ($ppdbSetting->ppdb_jalur as $index => $jalur) {
-                $jalurs->push((object) [
-                    'id' => $index + 1,
-                    'nama_jalur' => $jalur['nama_jalur'] ?? $jalur,
-                    'keterangan' => $jalur['keterangan'] ?? '',
-                ]);
+            $jalurIds = is_array($ppdbSetting->ppdb_jalur) ? $ppdbSetting->ppdb_jalur : json_decode($ppdbSetting->ppdb_jalur, true);
+            if (is_array($jalurIds)) {
+                $jalurRecords = PPDBJalur::whereIn('id', $jalurIds)->orderBy('nama_jalur')->get();
+                foreach ($jalurRecords as $jalur) {
+                    $jalurs->push((object) [
+                        'id' => $jalur->id,
+                        'nama_jalur' => $jalur->nama_jalur,
+                        'keterangan' => $jalur->keterangan ?? '',
+                    ]);
+                }
             }
         }
 
@@ -125,7 +130,7 @@ class PendaftarController extends Controller
             'kecamatan' => 'required|string|max:100',
             'desa' => 'required|string|max:100',
             'alamat_lengkap' => 'required|string|max:255',
-            'ppdb_jalur_id' => 'required|integer|min:1|max:3',
+            'ppdb_jalur_id' => 'required|integer|exists:ppdb_jalur,id',
             'jurusan_pilihan' => 'required|string|max:50',
             'ppdb_nomor_whatsapp_siswa' => 'required|string|max:25',
             'ppdb_email_siswa' => 'required|email|max:100',
@@ -187,15 +192,19 @@ class PendaftarController extends Controller
             'rencana_lulus.in' => 'Rencana setelah lulus tidak valid',
         ]);
 
-        // Ambil jalur dari ppdb_jalur di ppdb_setting
+        // Ambil jalur dari ppdb_jalur table berdasarkan ID yang tersimpan di ppdb_settings
         $jalurs = collect();
         if ($ppdbSetting && $ppdbSetting->ppdb_jalur) {
-            foreach ($ppdbSetting->ppdb_jalur as $index => $jalur) {
-                $jalurs->push((object) [
-                    'id' => $index + 1,
-                    'nama_jalur' => $jalur['nama_jalur'] ?? $jalur,
-                    'keterangan' => $jalur['keterangan'] ?? '',
-                ]);
+            $jalurIds = is_array($ppdbSetting->ppdb_jalur) ? $ppdbSetting->ppdb_jalur : json_decode($ppdbSetting->ppdb_jalur, true);
+            if (is_array($jalurIds)) {
+                $jalurRecords = PPDBJalur::whereIn('id', $jalurIds)->orderBy('nama_jalur')->get();
+                foreach ($jalurRecords as $jalur) {
+                    $jalurs->push((object) [
+                        'id' => $jalur->id,
+                        'nama_jalur' => $jalur->nama_jalur,
+                        'keterangan' => $jalur->keterangan ?? '',
+                    ]);
+                }
             }
         }
 
