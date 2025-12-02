@@ -980,7 +980,6 @@
                             document.getElementById('ppdb_opsi_pilihan_ke_2').setAttribute('required', 'required');
                             jurusanSelect.setAttribute('required', 'required');
                             document.getElementById('ppdb_nomor_whatsapp_siswa').setAttribute('required', 'required');
-                            document.getElementById('ppdb_nomor_whatsapp_wali').setAttribute('required', 'required');
                             document.getElementById('ppdb_email_siswa').setAttribute('required', 'required');
                         } else {
                             opsiSection.style.display = 'none';
@@ -988,7 +987,6 @@
                             document.getElementById('ppdb_opsi_pilihan_ke_2').removeAttribute('required');
                             jurusanSelect.removeAttribute('required');
                             document.getElementById('ppdb_nomor_whatsapp_siswa').removeAttribute('required');
-                            document.getElementById('ppdb_nomor_whatsapp_wali').removeAttribute('required');
                             document.getElementById('ppdb_email_siswa').removeAttribute('required');
                         }
                     }
