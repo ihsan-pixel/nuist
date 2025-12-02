@@ -292,8 +292,8 @@
     }
 
     .info-box {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        border: 1px solid #2196f3;
+        background: white;
+        border: 1px solid #e9ecef;
         border-radius: 15px;
         padding: 20px;
         margin: 20px 0;
