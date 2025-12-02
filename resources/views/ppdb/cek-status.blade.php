@@ -497,7 +497,7 @@
                 $requiredFiles = [
                     'berkas_kk' => 'Kartu Keluarga',
                     'berkas_ijazah' => 'Ijazah',
-                    'berkas_skhun' => 'SKHUN',
+                    // 'berkas_skhun' => 'SKHUN',
                     'berkas_akta_kelahiran' => 'Akta Kelahiran',
                     'berkas_sertifikat_prestasi' => 'Sertifikat Prestasi/KIP/PKH',
                     'berkas_ktp_ayah' => 'KTP Ayah',
