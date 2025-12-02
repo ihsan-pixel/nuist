@@ -82,6 +82,7 @@ class PPDBPendaftar extends Model
         'diseleksi_tanggal' => 'datetime',
         'otp_expires_at' => 'datetime',
         'otp_verified_at' => 'datetime',
+        'jalur' => 'string',
     ];
 
     /**
@@ -92,13 +93,7 @@ class PPDBPendaftar extends Model
         return $this->belongsTo(PPDBSetting::class, 'ppdb_setting_id');
     }
 
-    /**
-     * Accessor untuk jalur sebagai object
-     */
-    public function getJalurAttribute($value)
-    {
-        return (object) ['nama_jalur' => $value, 'keterangan' => ''];
-    }
+
 
     /**
      * Relasi ke User (verifikator)
