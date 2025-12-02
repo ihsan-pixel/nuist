@@ -113,6 +113,14 @@ class PPDBPendaftar extends Model
     }
 
     /**
+     * Relasi ke PPDBJalur
+     */
+    public function ppdbJalur()
+    {
+        return $this->belongsTo(PPDBJalur::class, 'ppdb_jalur_id');
+    }
+
+    /**
      * Relasi ke Verifikasi (jika ada tabel terpisah)
      */
     public function verifikasis()

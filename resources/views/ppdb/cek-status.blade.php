@@ -443,7 +443,7 @@
                         <h6 class="info-title">
                             <i class="fas fa-route me-2"></i>Jalur Pendaftaran
                         </h6>
-                        <p class="info-value">{{ $pendaftar->jalur->nama_jalur ?? 'N/A' }}</p>
+                        <p class="info-value">{{ $pendaftar->ppdbJalur->nama_jalur ?? $pendaftar->jalur ?? 'N/A' }}</p>
                     </div>
                 </div>
                 <div class="col-md-6">
