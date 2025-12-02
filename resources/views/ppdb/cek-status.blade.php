@@ -1,4 +1,5 @@
-@extends('layouts.master-without-nav')
+
+gi@extends('layouts.master-without-nav')
 
 @section('title', 'Cek Status PPDB - Ma\'arif NU IST')
 
@@ -274,10 +275,10 @@
 <section class="status-hero">
     <div class="container status-hero-content">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
                 <h1 class="display-4 fw-bold mb-3">
                     <i class="fas fa-search me-3"></i>Cek Status Pendaftaran
                 </h1>
+                <p class="lead mb-0">Masukkan NISN Anda untuk melihat status pendaftaran PPDB secara langsung</p>
                 <p class="lead mb-0">Masukkan NISN Anda untuk melihat status pendaftaran PPDB</p>
             </div>
         </div>
@@ -304,7 +305,7 @@
                     <i class="fas fa-id-card"></i>
                 </div>
                 <h4 class="section-title">Masukkan NISN Anda</h4>
-                <p class="section-description">NISN digunakan untuk mencari data pendaftaran Anda</p>
+                <p class="section-description">Status pendaftaran akan ditampilkan secara langsung setelah memasukkan NISN</p>
             </div>
 
             <form action="{{ route('ppdb.cek-status.post') }}" method="POST" id="cekStatusForm">
@@ -325,7 +326,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-check-status">
-                            <i class="fas fa-search me-2"></i>Kirim Kode OTP
+                            <i class="fas fa-search me-2"></i>Cek Status
                         </button>
                     </div>
                 </div>
