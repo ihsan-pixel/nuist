@@ -264,7 +264,7 @@ class PendaftarController extends Controller
                 'alamat_lengkap' => $validated['alamat_lengkap'],
                 'status_keluarga' => null, // Not in form
                 'ppdb_nomor_whatsapp_siswa' => $validated['ppdb_nomor_whatsapp_siswa'],
-                'ppdb_nomor_whatsapp_wali' => null, // Not in form
+                // 'ppdb_nomor_whatsapp_wali' => null, // Column dropped
                 'ppdb_email_siswa' => $validated['ppdb_email_siswa'],
                 'jurusan_pilihan' => $validated['jurusan_pilihan'],
                 'rencana_lulus' => $validated['rencana_lulus'],

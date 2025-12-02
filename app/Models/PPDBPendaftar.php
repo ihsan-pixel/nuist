@@ -31,7 +31,7 @@ class PPDBPendaftar extends Model
         'alamat_lengkap',
         'status_keluarga',
         'ppdb_nomor_whatsapp_siswa',
-        'ppdb_nomor_whatsapp_wali',
+        // 'ppdb_nomor_whatsapp_wali', // Column dropped
         'ppdb_email_siswa',
         'jurusan_pilihan',
         'rencana_lulus',
