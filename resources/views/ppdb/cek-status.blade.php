@@ -468,6 +468,220 @@
                 </div>
             </div>
 
+            <!-- Incomplete Data Section -->
+            @php
+                $incompleteFields = [];
+                $optionalFields = [
+                    'nik' => 'NIK',
+                    'agama' => 'Agama',
+                    'alamat_lengkap' => 'Alamat Lengkap',
+                    'nama_ayah' => 'Nama Ayah',
+                    'nama_ibu' => 'Nama Ibu',
+                    'pekerjaan_ayah' => 'Pekerjaan Ayah',
+                    'pekerjaan_ibu' => 'Pekerjaan Ibu',
+                    'nomor_hp_ayah' => 'No. HP Ayah',
+                    'nomor_hp_ibu' => 'No. HP Ibu',
+                    'tahun_lulus' => 'Tahun Lulus',
+                    'nilai_akhir_raport' => 'Nilai Akhir Raport',
+                    'rata_rata_nilai_raport' => 'Rata-rata Nilai Raport',
+                    'nomor_ijazah' => 'Nomor Ijazah',
+                    'nomor_skhun' => 'Nomor SKHUN',
+                ];
+
+                foreach ($optionalFields as $field => $label) {
+                    if (empty($pendaftar->$field)) {
+                        $incompleteFields[$field] = $label;
+                    }
+                }
+
+                // Check for missing required files
+                $requiredFiles = [
+                    'berkas_kk' => 'Kartu Keluarga',
+                    'berkas_ijazah' => 'Ijazah',
+                ];
+
+                foreach ($requiredFiles as $field => $label) {
+                    if (empty($pendaftar->$field)) {
+                        $incompleteFields[$field] = 'Berkas ' . $label;
+                    }
+                }
+            @endphp
+
+            @if(count($incompleteFields) > 0)
+                <div class="info-card border-warning mb-4" style="border-left-color: #ffc107; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="info-title text-warning mb-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Data yang Belum Lengkap
+                            </h6>
+                            <p class="mb-0 text-muted">Lengkapi data berikut untuk melengkapi pendaftaran Anda:</p>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="toggleUpdateForm()">
+                            <i class="fas fa-edit me-1"></i>Update Data
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        @foreach($incompleteFields as $field => $label)
+                            <div class="col-md-6 col-lg-4 mb-2">
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fas fa-times-circle text-danger me-1"></i>{{ $label }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Update Form (Hidden by default) -->
+                <div id="updateForm" class="info-card mb-4" style="display: none; border-left-color: #17a2b8; background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);">
+                    <h6 class="info-title text-info mb-3">
+                        <i class="fas fa-edit me-2"></i>Update Data Pendaftaran
+                    </h6>
+
+                    <form action="{{ route('ppdb.update-data', $pendaftar->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="row">
+                            <!-- Personal Data -->
+                            @if(empty($pendaftar->nik))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">NIK <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="nik" maxlength="16" pattern="[0-9]{16}" placeholder="16 digit NIK">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->agama))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Agama <span class="text-danger">*</span></label>
+                                    <select class="form-control" name="agama">
+                                        <option value="">Pilih Agama</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Kristen">Kristen</option>
+                                        <option value="Katolik">Katolik</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Budha">Budha</option>
+                                        <option value="Konghucu">Konghucu</option>
+                                    </select>
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->alamat_lengkap))
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Alamat Lengkap <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="alamat_lengkap" rows="2" placeholder="Alamat lengkap sesuai KTP"></textarea>
+                                </div>
+                            @endif
+
+                            <!-- Parent Data -->
+                            @if(empty($pendaftar->nama_ayah))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nama Ayah</label>
+                                    <input type="text" class="form-control" name="nama_ayah" placeholder="Nama lengkap ayah">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nama_ibu))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nama Ibu</label>
+                                    <input type="text" class="form-control" name="nama_ibu" placeholder="Nama lengkap ibu">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->pekerjaan_ayah))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Pekerjaan Ayah</label>
+                                    <input type="text" class="form-control" name="pekerjaan_ayah" placeholder="Pekerjaan ayah">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->pekerjaan_ibu))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Pekerjaan Ibu</label>
+                                    <input type="text" class="form-control" name="pekerjaan_ibu" placeholder="Pekerjaan ibu">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nomor_hp_ayah))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">No. HP Ayah</label>
+                                    <input type="text" class="form-control" name="nomor_hp_ayah" placeholder="081234567890">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nomor_hp_ibu))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">No. HP Ibu</label>
+                                    <input type="text" class="form-control" name="nomor_hp_ibu" placeholder="081234567890">
+                                </div>
+                            @endif
+
+                            <!-- Academic Data -->
+                            @if(empty($pendaftar->tahun_lulus))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tahun Lulus</label>
+                                    <input type="number" class="form-control" name="tahun_lulus" min="2000" max="{{ date('Y') + 1 }}" placeholder="2024">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nilai_akhir_raport))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nilai Akhir Raport</label>
+                                    <input type="number" class="form-control" name="nilai_akhir_raport" step="0.01" min="0" max="100" placeholder="85.5">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->rata_rata_nilai_raport))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Rata-rata Nilai Raport</label>
+                                    <input type="number" class="form-control" name="rata_rata_nilai_raport" step="0.01" min="0" max="100" placeholder="85.5">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nomor_ijazah))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nomor Ijazah</label>
+                                    <input type="text" class="form-control" name="nomor_ijazah" placeholder="DN-XX-XXXX-XXXX">
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->nomor_skhun))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nomor SKHUN</label>
+                                    <input type="text" class="form-control" name="nomor_skhun" placeholder="DN-XX-XXXX-XXXX">
+                                </div>
+                            @endif
+
+                            <!-- File Uploads -->
+                            @if(empty($pendaftar->berkas_kk))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Kartu Keluarga <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" name="berkas_kk" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
+                                </div>
+                            @endif
+
+                            @if(empty($pendaftar->berkas_ijazah))
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Ijazah <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" name="berkas_ijazah" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-save me-1"></i>Simpan Perubahan
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleUpdateForm()">
+                                <i class="fas fa-times me-1"></i>Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+
             <!-- Timeline -->
             <div class="info-card">
                 <h6 class="info-title mb-4">
@@ -581,6 +795,30 @@
         </div>
     @endif
 </div>
+
+<script>
+function toggleUpdateForm() {
+    const form = document.getElementById('updateForm');
+    const button = event.target.closest('button');
+
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (button) {
+            button.innerHTML = '<i class="fas fa-times me-1"></i>Tutup Form';
+            button.classList.remove('btn-warning');
+            button.classList.add('btn-danger');
+        }
+    } else {
+        form.style.display = 'none';
+        if (button) {
+            button.innerHTML = '<i class="fas fa-edit me-1"></i>Update Data';
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-warning');
+        }
+    }
+}
+</script>
 
 {{-- <!-- Back to PPDB Button -->
 <div class="text-center py-4">
