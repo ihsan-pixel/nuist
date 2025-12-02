@@ -260,9 +260,19 @@ class PendaftarController extends Controller
                 'nik' => $validated['nik'] ?? null,
                 'agama' => $validated['agama'] ?? null,
                 'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
+                'nama_ayah' => $validated['nama_ayah'] ?? null,
+                'nama_ibu' => $validated['nama_ibu'] ?? null,
+                'pekerjaan_ayah' => $validated['pekerjaan_ayah'] ?? null,
+                'pekerjaan_ibu' => $validated['pekerjaan_ibu'] ?? null,
+                'nomor_hp_orangtua' => $validated['nomor_hp_orangtua'] ?? null,
+                'npsn_sekolah_asal' => $validated['npsn_sekolah_asal'] ?? null,
+                'tahun_lulus' => $validated['tahun_lulus'] ?? null,
+                'rata_rata_nilai_raport' => $validated['rata_rata_nilai_raport'] ?? null,
+                'nomor_ijazah' => $validated['nomor_ijazah'] ?? null,
+                'nomor_skhun' => $validated['nomor_skhun'] ?? null,
                 'rencana_lulus' => $validated['rencana_lulus'] ?? null,
-                // skor_nilai akan diisi nanti oleh admin saat seleksi
             ];
+            // skor_nilai akan diisi nanti oleh admin saat seleksi
 
             // Cek dan tambahkan field yang ada di schema database, kecuali skor_nilai
             $tableColumns = \Schema::getColumnListing('ppdb_pendaftar');
