@@ -725,14 +725,14 @@
 
                             @if(empty($pendaftar->nomor_ijazah))
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nomor Ijazah</label>
+                                    <label class="form-label">Nomor Ijazah (Opsional jika sudah memiliki)</label>
                                     <input type="text" class="form-control" name="nomor_ijazah" placeholder="DN-XX-XXXX-XXXX">
                                 </div>
                             @endif
 
                             @if(empty($pendaftar->nomor_skhun))
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nomor SKHUN</label>
+                                    <label class="form-label">Nomor SKHUN (Opsional jika sudah memiliki)</label>
                                     <input type="text" class="form-control" name="nomor_skhun" placeholder="DN-XX-XXXX-XXXX">
                                 </div>
                             @endif

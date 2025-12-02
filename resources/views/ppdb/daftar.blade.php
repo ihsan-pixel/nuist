@@ -1290,7 +1290,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="nomor_ijazah" class="form-label">
-                                <i class="fas fa-certificate me-2"></i>Nomor Ijazah
+                                <i class="fas fa-certificate me-2"></i>Nomor Ijazah (Opsional jika sudah memiliki)
                             </label>
                             <input type="text" class="form-control @error('nomor_ijazah') is-invalid @enderror"
                                    id="nomor_ijazah" name="nomor_ijazah" value="{{ old('nomor_ijazah') }}"
