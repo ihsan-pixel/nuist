@@ -135,4 +135,12 @@ class PPDBSetting extends Model
     {
         return $this->pendaftars()->count();
     }
+
+    /**
+     * Relasi ke PPDB Jalur
+     */
+    public function jalurs()
+    {
+        return $this->hasMany(PPDBJalur::class, 'ppdb_setting_id');
+    }
 }

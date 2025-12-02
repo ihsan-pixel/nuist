@@ -396,6 +396,9 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(functi
     Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');
     Route::get('/ppdb-settings/{id}', [AdminLPController::class, 'ppdbSettings'])->name('ppdb.lp.ppdb-settings');
     Route::put('/ppdb-settings/{id}', [AdminLPController::class, 'updatePPDBSettings'])->name('ppdb.lp.update-ppdb-settings');
+    Route::post('/jalur/{id}', [AdminLPController::class, 'storeJalur'])->name('ppdb.lp.store-jalur');
+    Route::put('/jalur/{jalurId}', [AdminLPController::class, 'updateJalur'])->name('ppdb.lp.update-jalur');
+    Route::delete('/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur'])->name('ppdb.lp.delete-jalur');
     Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar'])->name('ppdb.lp.pendaftar');
     Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail'])->name('ppdb.lp.pendaftar-detail');
 });

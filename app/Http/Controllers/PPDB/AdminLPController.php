@@ -543,23 +543,11 @@ class AdminLPController extends Controller
             'ppdb_jadwal_pengumuman' => 'nullable|date',
             'ppdb_kuota_jurusan' => 'nullable|array',
             'ppdb_kuota_jurusan.*' => 'nullable|string',
-            'ppdb_jalur' => 'nullable|array',
-            'ppdb_jalur.*' => 'nullable|string',
             'ppdb_biaya_pendaftaran' => 'nullable|string',
             'ppdb_catatan_pengumuman' => 'nullable|string',
         ]);
 
         $data = $request->except(['galeri_foto', 'brosur_pdf']);
-
-        // Handle PPDB jalur
-        $ppdbArrayFields = ['ppdb_jalur'];
-        foreach ($ppdbArrayFields as $field) {
-            if ($request->has($field)) {
-                $data[$field] = array_filter($request->input($field, []), function($value) {
-                    return !empty(trim($value));
-                });
-            }
-        }
 
         // Handle PPDB kuota jurusan
         if ($request->filled('ppdb_kuota_jurusan')) {
@@ -618,5 +606,69 @@ class AdminLPController extends Controller
         $pendaftar = PPDBPendaftar::with('ppdbSetting.sekolah')->findOrFail($id);
 
         return view('ppdb.dashboard.pendaftar-detail', compact('pendaftar'))->render();
+    }
+
+    /**
+     * Store new PPDB Jalur
+     */
+    public function storeJalur(Request $request, $madrasahId)
+    {
+        $request->validate([
+            'nama_jalur' => 'required|string|max:255',
+            'keterangan' => 'nullable|string|max:500'
+        ]);
+
+        $madrasah = \App\Models\Madrasah::findOrFail($madrasahId);
+        $tahun = now()->year;
+
+        $ppdbSetting = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $madrasah->id,
+                'tahun' => $tahun
+            ],
+            [
+                'slug' => Str::slug($madrasah->name . '-' . $madrasah->id . '-' . $tahun),
+                'nama_sekolah' => $madrasah->name
+            ]
+        );
+
+        $jalur = PPDBJalur::create([
+            'ppdb_setting_id' => $ppdbSetting->id,
+            'nama_jalur' => $request->nama_jalur,
+            'keterangan' => $request->keterangan,
+            'urutan' => PPDBJalur::where('ppdb_setting_id', $ppdbSetting->id)->max('urutan') + 1
+        ]);
+
+        return response()->json(['success' => true, 'jalur' => $jalur]);
+    }
+
+    /**
+     * Update PPDB Jalur
+     */
+    public function updateJalur(Request $request, $jalurId)
+    {
+        $request->validate([
+            'nama_jalur' => 'required|string|max:255',
+            'keterangan' => 'nullable|string|max:500'
+        ]);
+
+        $jalur = PPDBJalur::findOrFail($jalurId);
+        $jalur->update([
+            'nama_jalur' => $request->nama_jalur,
+            'keterangan' => $request->keterangan
+        ]);
+
+        return response()->json(['success' => true, 'jalur' => $jalur]);
+    }
+
+    /**
+     * Delete PPDB Jalur
+     */
+    public function deleteJalur($jalurId)
+    {
+        $jalur = PPDBJalur::findOrFail($jalurId);
+        $jalur->delete();
+
+        return redirect()->back()->with('success', 'Jalur pendaftaran berhasil dihapus');
     }
 }

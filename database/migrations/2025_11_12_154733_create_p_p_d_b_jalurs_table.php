@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('ppdb_jalur', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('ppdb_setting_id');
+            $table->string('nama_jalur');
+            $table->text('keterangan')->nullable();
+            $table->integer('urutan')->default(0);
             $table->timestamps();
+
+            $table->foreign('ppdb_setting_id')->references('id')->on('ppdb_settings')->onDelete('cascade');
         });
     }
 
@@ -22,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ppdb_jalurs');
+        Schema::dropIfExists('ppdb_jalur');
     }
 };

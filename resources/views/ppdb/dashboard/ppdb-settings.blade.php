@@ -231,53 +231,80 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label class="form-label">Pilih Jalur Pendaftaran yang Akan Diaktifkan</label>
-                    <small class="text-muted d-block mb-3">Centang jalur yang ingin diaktifkan untuk PPDB ini.</small>
-                    @php
-                        // Get unique jalur options from existing PPDB settings
-                        $jalurOptions = \App\Models\PPDBSetting::whereNotNull('ppdb_jalur')
-                            ->where('ppdb_jalur', '!=', '[]')
-                            ->pluck('ppdb_jalur')
-                            ->flatten()
-                            ->unique()
-                            ->filter()
-                            ->values()
-                            ->toArray();
+                    <label class="form-label">Kelola Jalur Pendaftaran</label>
+                    <small class="text-muted d-block mb-3">Kelola jalur pendaftaran yang tersedia untuk PPDB ini.</small>
 
-                        // If no existing jalur, provide default options
-                        if (empty($jalurOptions)) {
-                            $jalurOptions = ['Jalur Prestasi', 'Jalur Reguler', 'Jalur Afirmasi', 'Jalur Perpindahan', 'Jalur Khusus'];
-                        }
-
-                        // Define descriptions for each jalur
-                        $jalurDescriptions = [
-                            'Jalur Prestasi' => 'Untuk siswa yang memiliki prestasi akademik atau non-akademik yang luar biasa',
-                            'Jalur Reguler' => 'Jalur pendaftaran standar untuk semua calon siswa',
-                            'Jalur Afirmasi' => 'Jalur khusus untuk siswa dari keluarga kurang mampu atau daerah tertinggal',
-                            'Jalur Perpindahan' => 'Untuk siswa yang pindah dari sekolah lain',
-                            'Jalur Khusus' => 'Jalur untuk kategori siswa tertentu seperti atlet atau siswa berbakat'
-                        ];
-
-                        $selectedJalur = old('ppdb_jalur', $ppdbSetting->ppdb_jalur ?? []);
-                    @endphp
-                    <div class="row">
-                        @foreach($jalurOptions as $jalur)
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="ppdb_jalur[]" value="{{ $jalur }}" id="jalur_{{ str_replace(' ', '_', $jalur) }}"
-                                           {{ in_array($jalur, $selectedJalur) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="jalur_{{ str_replace(' ', '_', $jalur) }}">
-                                        {{ $jalur }}
-                                    </label>
-                                    <br>
-                                    <small class="text-muted">{{ $jalurDescriptions[$jalur] ?? '' }}</small>
-                                </div>
+                    <!-- Existing Jalur -->
+                    @if($ppdbSetting && $ppdbSetting->jalurs->count() > 0)
+                        <div class="mb-4">
+                            <h6>Jalur yang Tersedia:</h6>
+                            <div class="row">
+                                @foreach($ppdbSetting->jalurs->sortBy('urutan') as $jalur)
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center justify-content-between p-3 border rounded">
+                                            <div>
+                                                <strong>{{ $jalur->nama_jalur }}</strong>
+                                                @if($jalur->keterangan)
+                                                    <br><small class="text-muted">{{ $jalur->keterangan }}</small>
+                                                @endif
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="editJalur({{ $jalur->id }}, '{{ $jalur->nama_jalur }}', '{{ $jalur->keterangan }}')">
+                                                    <i class="mdi mdi-pencil"></i>
+                                                </button>
+                                                <form action="{{ route('ppdb.lp.delete-jalur', $jalur->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jalur ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="mdi mdi-delete"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </div>
+                    @endif
+
+                    <!-- Add New Jalur -->
+                    <div class="border rounded p-3 bg-light">
+                        <h6>Tambah Jalur Baru:</h6>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="nama_jalur" placeholder="Nama Jalur" required>
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="keterangan_jalur" placeholder="Keterangan (opsional)">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-primary w-100" onclick="addJalur()">
+                                    <i class="mdi mdi-plus me-1"></i>Tambah
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    @error('ppdb_jalur.*')
-                        <div class="text-danger mt-2">{{ $message }}</div>
-                    @enderror
+
+                    <!-- Edit Jalur Modal (Hidden) -->
+                    <div id="editJalurModal" style="display: none;">
+                        <input type="hidden" id="edit_jalur_id">
+                        <div class="row mt-3">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="edit_nama_jalur" placeholder="Nama Jalur">
+                            </div>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="edit_keterangan_jalur" placeholder="Keterangan">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-success w-100" onclick="updateJalur()">
+                                    <i class="mdi mdi-check me-1"></i>Update
+                                </button>
+                                <button type="button" class="btn btn-secondary w-100 mt-1" onclick="cancelEdit()">
+                                    Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -413,6 +440,90 @@ document.addEventListener('DOMContentLoaded', function() {
             link.click();
             document.body.removeChild(link);
         }
+    }
+
+    // Jalur management functions
+    window.addJalur = function() {
+        const namaJalur = document.getElementById('nama_jalur').value.trim();
+        const keterangan = document.getElementById('keterangan_jalur').value.trim();
+
+        if (!namaJalur) {
+            alert('Nama jalur harus diisi!');
+            return;
+        }
+
+        fetch('{{ route("ppdb.lp.store-jalur", $madrasah->id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                nama_jalur: namaJalur,
+                keterangan: keterangan
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Gagal menambah jalur');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan');
+        });
+    }
+
+    window.editJalur = function(id, nama, keterangan) {
+        document.getElementById('edit_jalur_id').value = id;
+        document.getElementById('edit_nama_jalur').value = nama;
+        document.getElementById('edit_keterangan_jalur').value = keterangan || '';
+        document.getElementById('editJalurModal').style.display = 'block';
+    }
+
+    window.updateJalur = function() {
+        const id = document.getElementById('edit_jalur_id').value;
+        const namaJalur = document.getElementById('edit_nama_jalur').value.trim();
+        const keterangan = document.getElementById('edit_keterangan_jalur').value.trim();
+
+        if (!namaJalur) {
+            alert('Nama jalur harus diisi!');
+            return;
+        }
+
+        fetch('{{ route("ppdb.lp.update-jalur", ":id") }}'.replace(':id', id), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                nama_jalur: namaJalur,
+                keterangan: keterangan
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Gagal mengupdate jalur');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan');
+        });
+    }
+
+    window.cancelEdit = function() {
+        document.getElementById('editJalurModal').style.display = 'none';
+        document.getElementById('edit_jalur_id').value = '';
+        document.getElementById('edit_nama_jalur').value = '';
+        document.getElementById('edit_keterangan_jalur').value = '';
     }
 });
 </script>
