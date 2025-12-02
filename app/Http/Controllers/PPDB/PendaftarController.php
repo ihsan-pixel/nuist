@@ -261,13 +261,13 @@ class PendaftarController extends Controller
                 'agama' => $validated['agama'] ?? null,
                 'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
                 'rencana_lulus' => $validated['rencana_lulus'] ?? null,
-                'skor_nilai' => null, // akan dihitung nanti oleh admin
+                // skor_nilai akan diisi nanti oleh admin saat seleksi
             ];
 
-            // Cek dan tambahkan field yang ada di schema database
+            // Cek dan tambahkan field yang ada di schema database, kecuali skor_nilai
             $tableColumns = \Schema::getColumnListing('ppdb_pendaftar');
             foreach ($optionalFields as $field => $value) {
-                if (in_array($field, $tableColumns)) {
+                if (in_array($field, $tableColumns) && $field !== 'skor_nilai') {
                     $dataPendaftar[$field] = $value;
                 }
             }
