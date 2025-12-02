@@ -1,5 +1,4 @@
-
-gi@extends('layouts.master-without-nav')
+@extends('layouts.master-without-nav')
 
 @section('title', 'Cek Status PPDB - Ma\'arif NU IST')
 
