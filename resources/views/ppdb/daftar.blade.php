@@ -1263,15 +1263,38 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="rata_rata_nilai_raport" class="form-label">
-                                <i class="fas fa-calculator me-2"></i>Rata-rata Nilai Raport
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-calculator me-2"></i>Nilai Raport per Semester
                             </label>
-                            <input type="number" class="form-control @error('rata_rata_nilai_raport') is-invalid @enderror"
-                                   id="rata_rata_nilai_raport" name="rata_rata_nilai_raport" value="{{ old('rata_rata_nilai_raport') }}"
-                                   placeholder="Rata-rata nilai raport" step="0.01" min="0" max="100">
-                            @error('rata_rata_nilai_raport')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="row">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <div class="col-6 col-md-12 mb-2">
+                                        <label class="form-label small">Semester {{ $i }}</label>
+                                        <input type="number"
+                                               class="form-control form-control-sm semester-grade"
+                                               name="nilai_semester_{{ $i }}"
+                                               step="0.01"
+                                               min="0"
+                                               max="100"
+                                               placeholder="85.5"
+                                               value="{{ old('nilai_semester_' . $i) }}"
+                                               onchange="calculateAverage()">
+                                    </div>
+                                @endfor
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label small fw-bold">Rata-rata Nilai Raport (Otomatis)</label>
+                                <input type="number"
+                                       class="form-control"
+                                       name="rata_rata_nilai_raport"
+                                       id="rata_rata_nilai_raport"
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       placeholder="Otomatis dihitung"
+                                       readonly>
+                                <small class="text-muted">Rata-rata dihitung otomatis dari 5 semester</small>
+                            </div>
                         </div>
                     </div>
                 </div>
