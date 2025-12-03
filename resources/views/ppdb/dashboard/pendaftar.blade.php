@@ -336,7 +336,7 @@
                         <td>{{ $pendaftar->asal_sekolah }}</td>
                         <td>{{ $pendaftar->jurusan_pilihan }}</td>
                         <td>
-                            <span class="badge bg-secondary">{{ $pendaftar->jalur }}</span>
+                            <span class="badge bg-secondary">{{ $pendaftar->ppdbJalur->nama_jalur }}</span>
                         </td>
                         <td>
                             <span class="badge bg-primary">{{ $pendaftar->skor_total ?? 0 }}</span>
