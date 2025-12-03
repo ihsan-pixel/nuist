@@ -488,12 +488,14 @@ class PendaftarController extends Controller
     }
 
     /**
-     * Save file to public directory
+     * Save file to public directory using DOCUMENT_ROOT for production compatibility
      */
     private function saveFileToPublic($file, $directory)
     {
+        // Path to public_html/storage using DOCUMENT_ROOT for production compatibility
+        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/' . $directory;
+
         // Ensure directory exists
-        $fullPath = public_path($directory);
         if (!file_exists($fullPath)) {
             mkdir($fullPath, 0755, true);
         }
