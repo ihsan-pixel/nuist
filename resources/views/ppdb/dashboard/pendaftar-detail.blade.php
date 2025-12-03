@@ -325,17 +325,7 @@
                             </div>
                         @endif
 
-                        @if($pendaftar->berkas_raport)
-                            <div class="list-group-item d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <i class="mdi mdi-book-open-page-variant me-2 text-secondary"></i>
-                                    <span>Raport</span>
-                                </div>
-                                <a href="{{ asset($pendaftar->berkas_raport) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
-                                </a>
-                            </div>
-                        @endif
+
 
                         @if($pendaftar->berkas_sertifikat_prestasi)
                             <div class="list-group-item d-flex align-items-center justify-content-between">
@@ -353,7 +343,7 @@
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-hand-heart me-2 text-danger"></i>
-                                    <span>KIP/PKH</span>
+                                    <span>PIP/PKH</span>
                                 </div>
                                 <a href="{{ asset($pendaftar->berkas_kip_pkh) }}" target="_blank" class="btn btn-sm btn-outline-danger">
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen

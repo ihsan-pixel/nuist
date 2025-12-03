@@ -1395,7 +1395,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-money-bill-wave me-2"></i>KIP/PKH
+                                <i class="fas fa-money-bill-wave me-2"></i>PIP/PKH
                             </label>
                             <div class="file-upload-area" onclick="document.getElementById('berkas_kip_pkh').click()">
                                 <div class="file-upload-icon">
