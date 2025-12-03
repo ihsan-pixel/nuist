@@ -281,6 +281,14 @@
                 </select>
             </div>
             <div class="col-md-3">
+                <label for="berkas_filter" class="form-label">Filter Pengiriman Data</label>
+                <select id="berkas_filter" class="form-select">
+                    <option value="">Semua Data</option>
+                    <option value="sudah">Sudah Dikirim (Upload Berkas)</option>
+                    <option value="belum">Belum Dikirim</option>
+                </select>
+            </div>
+            <div class="col-md-3">
                 <label for="jalur_filter" class="form-label">Filter Jalur</label>
                 <select id="jalur_filter" class="form-select">
                     <option value="">Semua Jalur</option>
@@ -300,6 +308,22 @@
             </div>
         </div>
     </div>
+
+<script>
+// Filter pengiriman data (berkas)
+document.getElementById('berkas_filter').addEventListener('change', function() {
+    const value = this.value;
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const sudahBerkas = row.getAttribute('data-sudah-berkas');
+        if (value === '' || (value === 'sudah' && sudahBerkas === '1') || (value === 'belum' && sudahBerkas === '0')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
 
     <!-- Pendaftar List -->
     @if($pendaftars->count() > 0)
@@ -323,7 +347,7 @@
                 </thead>
                 <tbody>
                     @foreach($pendaftars as $index => $pendaftar)
-                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}">
+                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}" data-sudah-berkas="{{ ($pendaftar->berkas_kk || $pendaftar->berkas_ijazah || $pendaftar->berkas_akta_kelahiran || $pendaftar->berkas_ktp_ayah || $pendaftar->berkas_ktp_ibu || $pendaftar->berkas_raport || $pendaftar->berkas_sertifikat_prestasi || $pendaftar->berkas_kip_pkh || $pendaftar->berkas_bukti_domisili || $pendaftar->berkas_surat_mutasi || $pendaftar->berkas_surat_keterangan_lulus || $pendaftar->berkas_skl) ? '1' : '0' }}">
                         <td>{{ $pendaftars->firstItem() + $index }}</td>
                         <td>
                             <span class="badge bg-warning text-dark">{{ $pendaftar->ranking ?? ($pendaftars->firstItem() + $index) }}</span>

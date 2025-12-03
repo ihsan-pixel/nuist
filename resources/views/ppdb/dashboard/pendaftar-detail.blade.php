@@ -13,10 +13,41 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- Timeline Status -->
                     <div class="row g-3">
-                        <!-- Status Badge -->
                         <div class="col-12">
-                            <div class="text-center">
+                            <div class="timeline-status d-flex justify-content-center align-items-center flex-wrap mb-2">
+                                <!-- Step 1: Data Dikirim -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon bg-primary text-white mb-1"><i class="mdi mdi-upload"></i></div>
+                                    <div class="small">Data Dikirim</div>
+                                    <div class="timeline-dot {{ $pendaftar->created_at ? 'active' : '' }}"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 2: Diverifikasi -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon {{ $pendaftar->status == 'verifikasi' || $pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'bg-info text-white' : 'bg-light text-secondary' }} mb-1"><i class="mdi mdi-magnify"></i></div>
+                                    <div class="small">Diverifikasi</div>
+                                    <div class="timeline-dot {{ $pendaftar->status == 'verifikasi' || $pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'active' : '' }}"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 3: Hasil Seleksi -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon {{ $pendaftar->status == 'lulus' ? 'bg-success text-white' : ($pendaftar->status == 'tidak_lulus' ? 'bg-danger text-white' : 'bg-light text-secondary') }} mb-1">
+                                        <i class="mdi mdi-{{ $pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : 'clock-outline') }}"></i>
+                                    </div>
+                                    <div class="small">@if($pendaftar->status == 'lulus') Lulus @elseif($pendaftar->status == 'tidak_lulus') Tidak Lulus @else Seleksi @endif</div>
+                                    <div class="timeline-dot {{ $pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'active' : '' }}"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 4: Pengumuman Daftar Ulang -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon {{ $pendaftar->status == 'lulus' ? 'bg-warning text-dark' : 'bg-light text-secondary' }} mb-1"><i class="mdi mdi-bullhorn"></i></div>
+                                    <div class="small">Pengumuman Daftar Ulang</div>
+                                    <div class="timeline-dot {{ $pendaftar->status == 'lulus' ? 'active' : '' }}"></div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
                                 <span class="badge fs-6 px-3 py-2 bg-{{ $pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning')) }}">
                                     <i class="mdi mdi-{{ $pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : ($pendaftar->status == 'verifikasi' ? 'magnify' : 'clock-outline')) }} me-1"></i>
                                     @if($pendaftar->status == 'lulus')
@@ -576,6 +607,46 @@
         </div>
     </div>
 </div>
+
+<style>
+.timeline-status {
+    gap: 0.5rem;
+}
+.timeline-step {
+    min-width: 80px;
+}
+.timeline-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    margin: 0 auto;
+}
+.timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #dee2e6;
+    margin: 0.25rem auto 0 auto;
+}
+.timeline-dot.active {
+    background: #007bff;
+    box-shadow: 0 0 0 2px #007bff33;
+}
+.timeline-line {
+    width: 32px;
+    height: 2px;
+    background: #dee2e6;
+    margin-bottom: 24px;
+}
+@media (max-width: 600px) {
+    .timeline-status { flex-direction: column; align-items: flex-start; }
+    .timeline-line { width: 2px; height: 32px; margin: 0 0 0 16px; }
+}
+</style>
 
 <script>
 window.verifikasiData = function(pendaftarId) {
