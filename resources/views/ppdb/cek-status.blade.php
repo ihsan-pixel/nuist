@@ -609,7 +609,7 @@
                 // Dokumen Tambahan (Jika memiliki)
                 $additionalFiles = [
                     'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
-                    'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
+                    'berkas_kip_pkh' => ['label' => 'PIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
                 ];
 
                 $uploadedMainFiles = [];
@@ -742,7 +742,7 @@
                             <i class="fas fa-star me-2"></i>Dokumen Tambahan (Jika Memiliki)
                         </h6>
                         <p class="mb-3 text-muted">
-                            Jika Anda memiliki dokumen tambahan seperti Sertifikat Prestasi atau KIP/PKH, silakan upload dokumen ini:
+                            Jika Anda memiliki dokumen tambahan seperti Sertifikat Prestasi atau PIP/PKH, silakan upload dokumen ini:
                         </p>
 
                         @if(count($uploadedAdditionalFiles) > 0)
