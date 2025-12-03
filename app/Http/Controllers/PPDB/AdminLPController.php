@@ -617,5 +617,21 @@ class AdminLPController extends Controller
         return view('ppdb.dashboard.pendaftar-detail', compact('pendaftar'))->render();
     }
 
+    /**
+     * Update status of a pendaftar
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:pending,verifikasi,lulus,tidak_lulus'
+        ]);
 
+        $pendaftar = PPDBPendaftar::findOrFail($id);
+        $pendaftar->update(['status' => $request->status]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status berhasil diupdate'
+        ]);
+    }
 }
