@@ -594,7 +594,7 @@ class AdminLPController extends Controller
 
         $pendaftars = $ppdbSetting->pendaftars()
             ->with('ppdbJalur')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('skor_total', 'desc')
             ->paginate(20);
 
         // Hitung skor untuk setiap pendaftar dan simpan ke database
