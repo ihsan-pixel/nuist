@@ -758,15 +758,26 @@
                             <!-- Additional Document Uploads -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Sertifikat Prestasi</label>
-                                @if($pendaftar->berkas_sertifikat_prestasi)
+                                @php
+                                    $sertifikatFiles = $pendaftar->berkas_sertifikat_prestasi;
+                                    if (is_string($sertifikatFiles)) {
+                                        $sertifikatFiles = json_decode($sertifikatFiles, true) ?? [];
+                                    }
+                                    if (!is_array($sertifikatFiles)) {
+                                        $sertifikatFiles = [];
+                                    }
+                                @endphp
+                                @if(!empty($sertifikatFiles))
                                     <div class="mb-2">
                                         <small class="text-success">
-                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                            <i class="fas fa-check-circle me-1"></i>{{ count($sertifikatFiles) }} file sudah diupload
                                         </small>
                                         <br>
-                                        <a href="{{ asset('storage/' . $pendaftar->berkas_sertifikat_prestasi) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye me-1"></i>Lihat File
-                                        </a>
+                                        @foreach($sertifikatFiles as $index => $file)
+                                            <a href="{{ asset('storage/' . $file) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">
+                                                <i class="fas fa-eye me-1"></i>Lihat File {{ $index + 1 }}
+                                            </a>
+                                        @endforeach
                                     </div>
                                 @endif
                                 <input type="file" class="form-control" name="berkas_sertifikat_prestasi[]" accept=".pdf,.jpg,.jpeg,.png" multiple>
