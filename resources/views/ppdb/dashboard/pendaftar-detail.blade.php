@@ -266,99 +266,147 @@
                 <div class="card-body">
                     <div class="list-group list-group-flush">
                         @if($pendaftar->berkas_kk)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_kk) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-file-document-outline me-2 text-primary"></i>
-                                Kartu Keluarga
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-file-document-outline me-2 text-primary"></i>
+                                    <span>Kartu Keluarga</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_ijazah)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_ijazah) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-certificate me-2 text-success"></i>
-                                Ijazah
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-certificate me-2 text-success"></i>
+                                    <span>Ijazah</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_akta_kelahiran)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_akta_kelahiran) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-baby-face-outline me-2 text-info"></i>
-                                Akta Kelahiran
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-baby-face-outline me-2 text-info"></i>
+                                    <span>Akta Kelahiran</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_akta_kelahiran) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_ktp_ayah)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_ktp_ayah) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
-                                KTP Ayah
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
+                                    <span>KTP Ayah</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_ktp_ayah) }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_ktp_ibu)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_ktp_ibu) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
-                                KTP Ibu
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
+                                    <span>KTP Ibu</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_ktp_ibu) }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_raport)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_raport) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-book-open-page-variant me-2 text-secondary"></i>
-                                Raport
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-book-open-page-variant me-2 text-secondary"></i>
+                                    <span>Raport</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_raport) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_sertifikat_prestasi)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_sertifikat_prestasi) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-trophy-outline me-2 text-warning"></i>
-                                Sertifikat Prestasi
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-trophy-outline me-2 text-warning"></i>
+                                    <span>Sertifikat Prestasi</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_sertifikat_prestasi) }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_kip_pkh)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_kip_pkh) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-hand-heart me-2 text-danger"></i>
-                                KIP/PKH
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-hand-heart me-2 text-danger"></i>
+                                    <span>KIP/PKH</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_kip_pkh) }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_bukti_domisili)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_bukti_domisili) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-map-marker-outline me-2 text-info"></i>
-                                Bukti Domisili
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-map-marker-outline me-2 text-info"></i>
+                                    <span>Bukti Domisili</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_bukti_domisili) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_surat_mutasi)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_surat_mutasi) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-file-move-outline me-2 text-secondary"></i>
-                                Surat Mutasi
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-file-move-outline me-2 text-secondary"></i>
+                                    <span>Surat Mutasi</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_surat_mutasi) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_surat_keterangan_lulus)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_surat_keterangan_lulus) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-school-outline me-2 text-success"></i>
-                                Surat Keterangan Lulus
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-school-outline me-2 text-success"></i>
+                                    <span>Surat Keterangan Lulus</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_surat_keterangan_lulus) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if($pendaftar->berkas_skl)
-                            <a href="{{ asset('storage/' . $pendaftar->berkas_skl) }}" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="mdi mdi-certificate-outline me-2 text-success"></i>
-                                SKL
-                                <i class="mdi mdi-open-in-new ms-auto text-muted"></i>
-                            </a>
+                            <div class="list-group-item d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="mdi mdi-certificate-outline me-2 text-success"></i>
+                                    <span>SKL</span>
+                                </div>
+                                <a href="{{ asset($pendaftar->berkas_skl) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                </a>
+                            </div>
                         @endif
 
                         @if(empty(array_filter([
