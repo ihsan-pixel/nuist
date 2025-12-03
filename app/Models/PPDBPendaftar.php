@@ -83,6 +83,7 @@ class PPDBPendaftar extends Model
         'otp_expires_at' => 'datetime',
         'otp_verified_at' => 'datetime',
         'jalur' => 'string',
+        'berkas_sertifikat_prestasi' => 'array',
     ];
 
     /**

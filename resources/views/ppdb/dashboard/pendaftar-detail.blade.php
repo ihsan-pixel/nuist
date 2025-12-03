@@ -328,15 +328,23 @@
 
 
                         @if($pendaftar->berkas_sertifikat_prestasi)
-                            <div class="list-group-item d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <i class="mdi mdi-trophy-outline me-2 text-warning"></i>
-                                    <span>Sertifikat Prestasi</span>
+                            @php
+                                $sertifikatFiles = is_array($pendaftar->berkas_sertifikat_prestasi) ? $pendaftar->berkas_sertifikat_prestasi : json_decode($pendaftar->berkas_sertifikat_prestasi, true);
+                                if (!is_array($sertifikatFiles)) {
+                                    $sertifikatFiles = [$pendaftar->berkas_sertifikat_prestasi];
+                                }
+                            @endphp
+                            @foreach($sertifikatFiles as $index => $file)
+                                <div class="list-group-item d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <i class="mdi mdi-trophy-outline me-2 text-warning"></i>
+                                        <span>Sertifikat Prestasi {{ count($sertifikatFiles) > 1 ? ($index + 1) : '' }}</span>
+                                    </div>
+                                    <a href="{{ asset($file) }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                                        <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
+                                    </a>
                                 </div>
-                                <a href="{{ asset($pendaftar->berkas_sertifikat_prestasi) }}" target="_blank" class="btn btn-sm btn-outline-warning">
-                                    <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
-                                </a>
-                            </div>
+                            @endforeach
                         @endif
 
                         @if($pendaftar->berkas_kip_pkh)
