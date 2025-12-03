@@ -259,7 +259,6 @@ class PendaftarController extends Controller
                 'berkas_kk' => $berkasKK,
                 'berkas_ijazah' => $berkasIjazah,
                 'berkas_akta_kelahiran' => $berkasAkta,
-                'berkas_raport' => $berkasRaport,
                 'berkas_sertifikat_prestasi' => !empty($berkasSertifikat) ? json_encode($berkasSertifikat) : null,
                 'berkas_kip_pkh' => $berkasKIP,
                 'berkas_ktp_ayah' => $berkasKTPAyah,
