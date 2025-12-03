@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            $table->integer('skor_nilai')->default(0)->after('nilai');
+            $table->integer('skor_nilai')->default(0)->after('rata_rata_nilai_raport');
         });
     }
 
