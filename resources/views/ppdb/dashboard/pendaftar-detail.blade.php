@@ -99,7 +99,7 @@
                                 <div class="col-sm-8">: {{ $pendaftar->jurusan_pilihan ?? '-' }}</div>
 
                                 <div class="col-sm-4"><strong>Jalur PPDB</strong></div>
-                                <div class="col-sm-8">: <span class="badge bg-secondary">{{ $pendaftar->jalur ?? '-' }}</span></div>
+                                <div class="col-sm-8">: <span class="badge bg-secondary">{{ $pendaftar->ppdbJalur->nama_jalur ?? '-' }}</span></div>
                             </div>
                         </div>
                     </div>

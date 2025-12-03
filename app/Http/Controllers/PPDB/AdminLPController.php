@@ -613,7 +613,7 @@ class AdminLPController extends Controller
      */
     public function showPendaftarDetail($id)
     {
-        $pendaftar = PPDBPendaftar::with('ppdbSetting.sekolah')->findOrFail($id);
+        $pendaftar = PPDBPendaftar::with('ppdbSetting.sekolah', 'ppdbJalur')->findOrFail($id);
 
         return view('ppdb.dashboard.pendaftar-detail', compact('pendaftar'))->render();
     }
