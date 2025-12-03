@@ -404,7 +404,11 @@
             <div class="modal-body" id="detailContent" style="max-height: 70vh; overflow-y: auto;">
                 <!-- Content will be loaded here -->
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer d-flex justify-content-between">
+                <div>
+                    <!-- Verification buttons will be loaded here -->
+                    <div id="verificationButtons"></div>
+                </div>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="mdi mdi-close me-1"></i>Tutup
                 </button>

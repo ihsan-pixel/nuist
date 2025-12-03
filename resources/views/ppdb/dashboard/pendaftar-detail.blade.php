@@ -410,6 +410,44 @@
                 </div>
             </div>
             @endif
+
+            <!-- Action Buttons -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0 text-primary">
+                        <i class="mdi mdi-gavel me-1"></i>Aksi Verifikasi
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button onclick="window.print()" class="btn btn-secondary">
+                            <i class="mdi mdi-printer me-1"></i>Print
+                        </button>
+                        @if($pendaftar->status == 'pending')
+                            <button onclick="verifikasiData({{ $pendaftar->id }})" class="btn btn-info">
+                                <i class="mdi mdi-check-circle-outline me-1"></i>Verifikasi Data
+                            </button>
+                            <small class="text-muted">Tandai data telah diverifikasi</small>
+                        @elseif($pendaftar->status == 'verifikasi')
+                            <button onclick="setStatus({{ $pendaftar->id }}, 'lulus')" class="btn btn-success">
+                                <i class="mdi mdi-check-circle me-1"></i>Lulus Seleksi
+                            </button>
+                            <button onclick="setStatus({{ $pendaftar->id }}, 'tidak_lulus')" class="btn btn-danger">
+                                <i class="mdi mdi-close-circle me-1"></i>Tidak Lulus
+                            </button>
+                            <small class="text-muted">Tentukan status kelulusan</small>
+                        @elseif($pendaftar->status == 'lulus')
+                            <div class="alert alert-success mb-0">
+                                <i class="mdi mdi-check-circle me-1"></i>Siswa telah lulus seleksi
+                            </div>
+                        @elseif($pendaftar->status == 'tidak_lulus')
+                            <div class="alert alert-danger mb-0">
+                                <i class="mdi mdi-close-circle me-1"></i>Siswa tidak lulus seleksi
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
