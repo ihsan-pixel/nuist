@@ -330,7 +330,7 @@ class PendaftarController extends Controller
             ]);
 
             $pendaftar = PPDBPendaftar::where('nisn', $request->nisn)
-                ->with(['ppdbSetting.sekolah'])
+                ->with(['ppdbSetting.sekolah', 'ppdbJalur'])
                 ->first();
 
             if (!$pendaftar) {

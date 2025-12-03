@@ -601,12 +601,12 @@
                                 </div>
                             @endif
 
-                            @if(empty($pendaftar->alamat_lengkap))
+                            {{-- @if(empty($pendaftar->alamat_lengkap))
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Alamat Lengkap <span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="alamat_lengkap" rows="2" placeholder="Alamat lengkap sesuai KTP"></textarea>
                                 </div>
-                            @endif
+                            @endif --}}
 
                             <!-- Parent Data -->
                             @if(empty($pendaftar->nama_ayah))
@@ -787,7 +787,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">KIP/PKH</label>
+                                <label class="form-label">PIP/PKH</label>
                                 @if($pendaftar->berkas_kip_pkh)
                                     <div class="mb-2">
                                         <small class="text-success">
