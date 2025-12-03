@@ -74,6 +74,7 @@ class PPDBPendaftar extends Model
         'diverifikasi_tanggal',
         'diseleksi_oleh',
         'diseleksi_tanggal',
+        'status_verifikasi',
     ];
 
     protected $casts = [
