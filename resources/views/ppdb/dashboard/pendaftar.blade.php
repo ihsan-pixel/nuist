@@ -361,12 +361,12 @@
                                     <i class="mdi mdi-eye"></i>
                                 </button>
                                 @if($pendaftar->berkas_kk)
-                                    <a href="{{ asset('ppdb/' . $pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
+                                    <a href="{{ asset('/' . $pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
                                         <i class="mdi mdi-file-document"></i>
                                     </a>
                                 @endif
                                 @if($pendaftar->berkas_ijazah)
-                                    <a href="{{ asset('ppdb/' . $pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
+                                    <a href="{{ asset('/' . $pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
                                         <i class="mdi mdi-file-document-outline"></i>
                                     </a>
                                 @endif
