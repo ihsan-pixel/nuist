@@ -156,7 +156,6 @@ class PendaftarController extends Controller
             'rencana_lulus' => 'required|in:kuliah,kerja',
             // Optional file uploads
             'berkas_akta_kelahiran' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'berkas_raport' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'berkas_sertifikat_prestasi' => 'nullable|array',
             'berkas_sertifikat_prestasi.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'berkas_kip_pkh' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -231,7 +230,6 @@ class PendaftarController extends Controller
 
             // Upload all optional files to public_html
             $berkasAkta = $request->hasFile('berkas_akta_kelahiran') ? $this->saveFileToPublic($request->file('berkas_akta_kelahiran'), 'ppdb/berkas_akta') : null;
-            $berkasRaport = $request->hasFile('berkas_raport') ? $this->saveFileToPublic($request->file('berkas_raport'), 'ppdb/berkas_raport') : null;
             $berkasKIP = $request->hasFile('berkas_kip_pkh') ? $this->saveFileToPublic($request->file('berkas_kip_pkh'), 'ppdb/berkas_kip') : null;
             $berkasKTPAyah = $request->hasFile('berkas_ktp_ayah') ? $this->saveFileToPublic($request->file('berkas_ktp_ayah'), 'ppdb/berkas_ktp_ayah') : null;
             $berkasKTPIbu = $request->hasFile('berkas_ktp_ibu') ? $this->saveFileToPublic($request->file('berkas_ktp_ibu'), 'ppdb/berkas_ktp_ibu') : null;
@@ -468,9 +466,6 @@ class PendaftarController extends Controller
             // Handle additional file uploads for step 4
             if ($request->hasFile('berkas_akta_kelahiran')) {
                 $validated['berkas_akta_kelahiran'] = $this->saveFileToPublic($request->file('berkas_akta_kelahiran'), 'ppdb/berkas_akta');
-            }
-            if ($request->hasFile('berkas_raport')) {
-                $validated['berkas_raport'] = $this->saveFileToPublic($request->file('berkas_raport'), 'ppdb/berkas_raport');
             }
             if ($request->hasFile('berkas_sertifikat_prestasi')) {
                 $berkasSertifikat = [];

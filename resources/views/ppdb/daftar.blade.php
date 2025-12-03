@@ -1365,27 +1365,6 @@
                             <div id="berkas_akta_kelahiran_preview" class="file-preview" style="display: none;"></div>
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="fas fa-file-invoice me-2"></i>Raport Terakhir
-                            </label>
-                            <div class="file-upload-area" onclick="document.getElementById('berkas_raport').click()">
-                                <div class="file-upload-icon">
-                                    <i class="fas fa-file-invoice"></i>
-                                </div>
-                                <div class="file-upload-text">Klik untuk memilih file Raport</div>
-                                <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB)</div>
-                            </div>
-                            <input type="file" id="berkas_raport" name="berkas_raport"
-                                   accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-                            @error('berkas_raport')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            <div id="berkas_raport_preview" class="file-preview" style="display: none;"></div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="row">
