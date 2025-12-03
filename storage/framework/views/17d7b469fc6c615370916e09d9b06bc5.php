@@ -13,10 +13,41 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- Timeline Status -->
                     <div class="row g-3">
-                        <!-- Status Badge -->
                         <div class="col-12">
-                            <div class="text-center">
+                            <div class="timeline-status d-flex justify-content-center align-items-center flex-wrap mb-2">
+                                <!-- Step 1: Data Dikirim -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon bg-primary text-white mb-1"><i class="mdi mdi-upload"></i></div>
+                                    <div class="small">Data Dikirim</div>
+                                    <div class="timeline-dot <?php echo e($pendaftar->created_at ? 'active' : ''); ?>"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 2: Diverifikasi -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon <?php echo e($pendaftar->status == 'verifikasi' || $pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'bg-info text-white' : 'bg-light text-secondary'); ?> mb-1"><i class="mdi mdi-magnify"></i></div>
+                                    <div class="small">Diverifikasi</div>
+                                    <div class="timeline-dot <?php echo e($pendaftar->status == 'verifikasi' || $pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'active' : ''); ?>"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 3: Hasil Seleksi -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon <?php echo e($pendaftar->status == 'lulus' ? 'bg-success text-white' : ($pendaftar->status == 'tidak_lulus' ? 'bg-danger text-white' : 'bg-light text-secondary')); ?> mb-1">
+                                        <i class="mdi mdi-<?php echo e($pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : 'clock-outline')); ?>"></i>
+                                    </div>
+                                    <div class="small"><?php if($pendaftar->status == 'lulus'): ?> Lulus <?php elseif($pendaftar->status == 'tidak_lulus'): ?> Tidak Lulus <?php else: ?> Seleksi <?php endif; ?></div>
+                                    <div class="timeline-dot <?php echo e($pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'active' : ''); ?>"></div>
+                                </div>
+                                <div class="timeline-line"></div>
+                                <!-- Step 4: Pengumuman Daftar Ulang -->
+                                <div class="timeline-step text-center mx-2">
+                                    <div class="timeline-icon <?php echo e($pendaftar->status == 'lulus' ? 'bg-warning text-dark' : 'bg-light text-secondary'); ?> mb-1"><i class="mdi mdi-bullhorn"></i></div>
+                                    <div class="small">Pengumuman Daftar Ulang</div>
+                                    <div class="timeline-dot <?php echo e($pendaftar->status == 'lulus' ? 'active' : ''); ?>"></div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
                                 <span class="badge fs-6 px-3 py-2 bg-<?php echo e($pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning'))); ?>">
                                     <i class="mdi mdi-<?php echo e($pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : ($pendaftar->status == 'verifikasi' ? 'magnify' : 'clock-outline'))); ?> me-1"></i>
                                     <?php if($pendaftar->status == 'lulus'): ?>
@@ -99,7 +130,7 @@
                                 <div class="col-sm-8">: <?php echo e($pendaftar->jurusan_pilihan ?? '-'); ?></div>
 
                                 <div class="col-sm-4"><strong>Jalur PPDB</strong></div>
-                                <div class="col-sm-8">: <span class="badge bg-secondary"><?php echo e($pendaftar->jalur ?? '-'); ?></span></div>
+                                <div class="col-sm-8">: <span class="badge bg-secondary"><?php echo e($pendaftar->ppdbJalur->nama_jalur ?? '-'); ?></span></div>
                             </div>
                         </div>
                     </div>
@@ -226,27 +257,109 @@
                     <div class="card h-100">
                         <div class="card-header bg-light">
                             <h6 class="card-title mb-0 text-primary">
-                                <i class="mdi mdi-chart-line me-1"></i>Detail Skor
+                                <i class="mdi mdi-chart-line me-1"></i>Detail Skor (Otomatis)
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-2">
-                                <div class="col-sm-5"><strong>Skor Nilai</strong></div>
-                                <div class="col-sm-7">: <?php echo e($pendaftar->skor_nilai ?? 0); ?></div>
+                                <!-- Skor Nilai Akademik -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-book-outline"></i> <strong>Skor Nilai Akademik</strong>
+                                        </small>
+                                        <?php
+                                            $nilai = $pendaftar->rata_rata_nilai_raport ?? $pendaftar->nilai ?? 0;
+                                            $keterangan = '';
+                                            if ($nilai >= 90) {
+                                                $keterangan = '(≥ 90)';
+                                            } elseif ($nilai >= 80) {
+                                                $keterangan = '(80-89)';
+                                            } elseif ($nilai >= 70) {
+                                                $keterangan = '(70-79)';
+                                            } else {
+                                                $keterangan = '(< 70)';
+                                            }
+                                        ?>
+                                        <div class="mt-1">
+                                            <span class="badge bg-info"><?php echo e($pendaftar->skor_nilai ?? 0); ?> poin</span>
+                                            <small class="text-muted ms-2">Nilai <?php echo e($nilai); ?> <?php echo e($keterangan); ?></small>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <div class="col-sm-5"><strong>Skor Prestasi</strong></div>
-                                <div class="col-sm-7">: <?php echo e($pendaftar->skor_prestasi ?? 0); ?></div>
+                                <!-- Skor Prestasi -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-trophy-outline"></i> <strong>Skor Prestasi</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-<?php echo e($pendaftar->berkas_sertifikat_prestasi ? 'success' : 'secondary'); ?>">
+                                                <?php echo e($pendaftar->skor_prestasi ?? 0); ?> poin
+                                            </span>
+                                            <small class="text-muted ms-2">
+                                                <?php echo e($pendaftar->berkas_sertifikat_prestasi ? '✓ Ada Sertifikat' : '✗ Tidak Ada Sertifikat'); ?>
 
-                                <div class="col-sm-5"><strong>Skor Domisili</strong></div>
-                                <div class="col-sm-7">: <?php echo e($pendaftar->skor_domisili ?? 0); ?></div>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <div class="col-sm-5"><strong>Skor Dokumen</strong></div>
-                                <div class="col-sm-7">: <?php echo e($pendaftar->skor_dokumen ?? 0); ?></div>
+                                <!-- Skor Domisili -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-map-marker-outline"></i> <strong>Skor Domisili</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary"><?php echo e($pendaftar->skor_domisili ?? 0); ?> poin</span>
+                                            <small class="text-muted ms-2">(Belum diaktifkan)</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Skor Dokumen -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-file-document-outline"></i> <strong>Skor Dokumen</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary"><?php echo e($pendaftar->skor_dokumen ?? 0); ?> poin</span>
+                                            <small class="text-muted ms-2">(Belum diaktifkan)</small>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="col-12"><hr class="my-2"></div>
 
-                                <div class="col-sm-5"><strong class="text-primary">Skor Total</strong></div>
-                                <div class="col-sm-7">: <strong class="text-primary fs-5"><?php echo e($pendaftar->skor_total ?? 0); ?></strong></div>
+                                <!-- Skor Total -->
+                                <div class="col-12">
+                                    <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong class="text-primary">
+                                                <i class="mdi mdi-plus-circle me-1"></i>Skor Total
+                                            </strong>
+                                            <strong class="text-primary fs-5 badge bg-primary">
+                                                <?php echo e($pendaftar->skor_total ?? 0); ?>
+
+                                            </strong>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            Dihitung otomatis: <?php echo e($pendaftar->skor_nilai ?? 0); ?> + <?php echo e($pendaftar->skor_prestasi ?? 0); ?> + <?php echo e($pendaftar->skor_domisili ?? 0); ?> + <?php echo e($pendaftar->skor_dokumen ?? 0); ?>
+
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Info Update -->
+                                <div class="col-12">
+                                    <div class="alert alert-info alert-sm mb-0" style="font-size: 0.85rem;">
+                                        <i class="mdi mdi-information-outline"></i>
+                                        <strong>Catatan:</strong> Skor dihitung otomatis berdasarkan data pendaftar dan tersimpan di database.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -498,12 +611,52 @@
     </div>
 </div>
 
-<script>
-function verifikasiData(pendaftarId) {
-    setStatus(pendaftarId, 'verifikasi');
+<style>
+.timeline-status {
+    gap: 0.5rem;
 }
+.timeline-step {
+    min-width: 80px;
+}
+.timeline-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    margin: 0 auto;
+}
+.timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #dee2e6;
+    margin: 0.25rem auto 0 auto;
+}
+.timeline-dot.active {
+    background: #007bff;
+    box-shadow: 0 0 0 2px #007bff33;
+}
+.timeline-line {
+    width: 32px;
+    height: 2px;
+    background: #dee2e6;
+    margin-bottom: 24px;
+}
+@media (max-width: 600px) {
+    .timeline-status { flex-direction: column; align-items: flex-start; }
+    .timeline-line { width: 2px; height: 32px; margin: 0 0 0 16px; }
+}
+</style>
 
-function setStatus(pendaftarId, status) {
+<script>
+window.verifikasiData = function(pendaftarId) {
+    window.setStatus(pendaftarId, 'verifikasi');
+};
+
+window.setStatus = function(pendaftarId, status) {
     if (confirm('Apakah Anda yakin ingin mengubah status menjadi ' + (status === 'verifikasi' ? 'Dalam Verifikasi' : status === 'lulus' ? 'Lulus' : 'Tidak Lulus') + '?')) {
         fetch('/ppdb/lp/pendaftar/' + pendaftarId + '/update-status', {
             method: 'POST',
@@ -527,6 +680,6 @@ function setStatus(pendaftarId, status) {
             alert('Terjadi kesalahan saat update status');
         });
     }
-}
+};
 </script>
 <?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/ppdb/dashboard/pendaftar-detail.blade.php ENDPATH**/ ?>

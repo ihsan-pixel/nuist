@@ -279,12 +279,20 @@
                 </select>
             </div>
             <div class="col-md-3">
+                <label for="berkas_filter" class="form-label">Filter Pengiriman Data</label>
+                <select id="berkas_filter" class="form-select">
+                    <option value="">Semua Data</option>
+                    <option value="sudah">Sudah Dikirim (Upload Berkas)</option>
+                    <option value="belum">Belum Dikirim</option>
+                </select>
+            </div>
+            <div class="col-md-3">
                 <label for="jalur_filter" class="form-label">Filter Jalur</label>
                 <select id="jalur_filter" class="form-select">
                     <option value="">Semua Jalur</option>
-                    <option value="Jalur Reguler">Jalur Reguler</option>
-                    <option value="Jalur Prestasi">Jalur Prestasi</option>
-                    <option value="Jalur Afirmasi">Jalur Afirmasi</option>
+                    <?php $__currentLoopData = $jalarList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jalur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($jalur); ?>"><?php echo e($jalur); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
             <div class="col-md-4">
@@ -298,6 +306,22 @@
             </div>
         </div>
     </div>
+
+<script>
+// Filter pengiriman data (berkas)
+document.getElementById('berkas_filter').addEventListener('change', function() {
+    const value = this.value;
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const sudahBerkas = row.getAttribute('data-sudah-berkas');
+        if (value === '' || (value === 'sudah' && sudahBerkas === '1') || (value === 'belum' && sudahBerkas === '0')) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
 
     <!-- Pendaftar List -->
     <?php if($pendaftars->count() > 0): ?>
@@ -321,10 +345,10 @@
                 </thead>
                 <tbody>
                     <?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <tr data-status="<?php echo e($pendaftar->status); ?>" data-jalur="<?php echo e($pendaftar->jalur); ?>" data-nama="<?php echo e($pendaftar->nama_lengkap); ?>" data-nisn="<?php echo e($pendaftar->nisn); ?>">
-                        <td><?php echo e($pendaftars->firstItem() + $index); ?></td>
+                    <tr data-status="<?php echo e($pendaftar->status); ?>" data-jalur="<?php echo e($pendaftar->jalur); ?>" data-nama="<?php echo e($pendaftar->nama_lengkap); ?>" data-nisn="<?php echo e($pendaftar->nisn); ?>" data-sudah-berkas="<?php echo e(($pendaftar->berkas_kk || $pendaftar->berkas_ijazah || $pendaftar->berkas_akta_kelahiran || $pendaftar->berkas_ktp_ayah || $pendaftar->berkas_ktp_ibu || $pendaftar->berkas_raport || $pendaftar->berkas_sertifikat_prestasi || $pendaftar->berkas_kip_pkh || $pendaftar->berkas_bukti_domisili || $pendaftar->berkas_surat_mutasi || $pendaftar->berkas_surat_keterangan_lulus || $pendaftar->berkas_skl) ? '1' : '0'); ?>">
+                        <td><?php echo e($loop->iteration); ?></td>
                         <td>
-                            <span class="badge bg-warning text-dark"><?php echo e($pendaftar->ranking ?? ($pendaftars->firstItem() + $index)); ?></span>
+                            <span class="badge bg-warning text-dark"><?php echo e($loop->iteration); ?></span>
                         </td>
                         <td>
                             <div class="fw-semibold"><?php echo e($pendaftar->nama_lengkap); ?></div>
@@ -334,7 +358,7 @@
                         <td><?php echo e($pendaftar->asal_sekolah); ?></td>
                         <td><?php echo e($pendaftar->jurusan_pilihan); ?></td>
                         <td>
-                            <span class="badge bg-secondary"><?php echo e($pendaftar->jalur); ?></span>
+                            <span class="badge bg-secondary"><?php echo e($pendaftar->ppdbJalur->nama_jalur ?? 'N/A'); ?></span>
                         </td>
                         <td>
                             <span class="badge bg-primary"><?php echo e($pendaftar->skor_total ?? 0); ?></span>
@@ -469,12 +493,6 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Raport</label>
-                                <input type="file" class="form-control" name="berkas_raport" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label class="form-label">Sertifikat Prestasi</label>
                                 <input type="file" class="form-control" name="berkas_sertifikat_prestasi" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
@@ -483,30 +501,6 @@
                             <div class="mb-3">
                                 <label class="form-label">KIP/PKH</label>
                                 <input type="file" class="form-control" name="berkas_kip_pkh" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Bukti Domisili</label>
-                                <input type="file" class="form-control" name="berkas_bukti_domisili" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Surat Mutasi</label>
-                                <input type="file" class="form-control" name="berkas_surat_mutasi" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Surat Keterangan Lulus</label>
-                                <input type="file" class="form-control" name="berkas_surat_keterangan_lulus" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">SKL (Surat Keterangan Lulus)</label>
-                                <input type="file" class="form-control" name="berkas_skl" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
                         </div>
                     </div>
@@ -636,6 +630,36 @@ document.getElementById('search').addEventListener('input', filterTable);
 document.addEventListener('DOMContentLoaded', function() {
     filterTable();
 });
+
+function verifikasiData(pendaftarId) {
+    setStatus(pendaftarId, 'verifikasi');
+}
+
+function setStatus(pendaftarId, status) {
+    if (confirm('Apakah Anda yakin ingin mengubah status menjadi ' + (status === 'verifikasi' ? 'Dalam Verifikasi' : status === 'lulus' ? 'Lulus' : 'Tidak Lulus') + '?')) {
+        fetch('/ppdb/lp/pendaftar/' + pendaftarId + '/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Status berhasil diupdate');
+                location.reload();
+            } else {
+                alert('Gagal update status: ' + (data.message || 'Terjadi kesalahan'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat update status');
+        });
+    }
+}
 </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>

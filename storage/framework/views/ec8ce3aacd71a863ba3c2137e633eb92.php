@@ -410,6 +410,122 @@ unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
+            <!-- Timeline Status Horizontal -->
+            <div class="info-card mb-4">
+                <h6 class="info-title mb-4">
+                    <i class="fas fa-tasks me-2"></i>Tahapan Status Pendaftaran
+                </h6>
+
+                <!-- Horizontal Timeline -->
+                <div style="margin: 0 -25px; padding: 25px; background: #f8f9fa; border-radius: 10px; overflow-x: auto;">
+                    <div class="d-flex align-items-center" style="min-width: fit-content; gap: 20px;">
+                        <!-- Step 1: Data Dikirim -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; background: #004b4c; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Data Dikirim</div>
+                            <div style="font-size: 0.8rem; color: #666;"><?php echo e($pendaftar->created_at->format('d/m/Y')); ?></div>
+                            <div class="badge bg-success mt-2" style="font-size: 0.7rem;">✓ Selesai</div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6'); ?>; margin-bottom: 20px;"></div>
+
+                        <!-- Step 2: Diverifikasi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'background: #004b4c' : 'background: #dee2e6'); ?>; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Diverifikasi</div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                <?php if($pendaftar->diverifikasi_tanggal): ?>
+                                    <?php echo e($pendaftar->diverifikasi_tanggal->format('d/m/Y')); ?>
+
+                                <?php else: ?>
+                                    Dalam proses...
+                                <?php endif; ?>
+                            </div>
+                            <div class="badge <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'bg-success' : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
+                                <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...'); ?>
+
+                            </div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6'); ?>; margin-bottom: 20px;"></div>
+
+                        <!-- Step 3: Hasil Seleksi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'background: ' . ($pendaftar->status === 'lulus' ? '#28a745' : '#dc3545') : 'background: #dee2e6'); ?>; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas <?php echo e($pendaftar->status === 'lulus' ? 'fa-smile' : ($pendaftar->status === 'tidak_lulus' ? 'fa-frown' : 'fa-hourglass-half')); ?>"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">
+                                <?php if($pendaftar->status === 'lulus'): ?>
+                                    Lulus
+                                <?php elseif($pendaftar->status === 'tidak_lulus'): ?>
+                                    Tidak Lulus
+                                <?php else: ?>
+                                    Seleksi
+                                <?php endif; ?>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                <?php if($pendaftar->diseleksi_tanggal): ?>
+                                    <?php echo e($pendaftar->diseleksi_tanggal->format('d/m/Y')); ?>
+
+                                <?php else: ?>
+                                    Dalam proses...
+                                <?php endif; ?>
+                            </div>
+                            <div class="badge <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? ($pendaftar->status === 'lulus' ? 'bg-success' : 'bg-danger') : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
+                                <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...'); ?>
+
+                            </div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: <?php echo e($pendaftar->status === 'lulus' ? '#004b4c' : '#dee2e6'); ?>; margin-bottom: 20px;"></div>
+
+                        <!-- Step 4: Pengumuman Daftar Ulang -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; <?php echo e($pendaftar->status === 'lulus' ? 'background: #ffc107' : 'background: #dee2e6'); ?>; <?php echo e($pendaftar->status === 'lulus' ? 'color: #000' : 'color: #666'); ?>; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Daftar Ulang</div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                <?php if($pendaftar->status === 'lulus'): ?>
+                                    Segera
+                                <?php else: ?>
+                                    Menunggu
+                                <?php endif; ?>
+                            </div>
+                            <div class="badge <?php echo e($pendaftar->status === 'lulus' ? 'bg-warning' : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
+                                <?php echo e($pendaftar->status === 'lulus' ? 'Selanjutnya' : 'Pending'); ?>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Status Detail -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <strong class="text-primary">Status Saat Ini:</strong>
+                    <div class="mt-2">
+                        <span class="status-badge status-<?php echo e($pendaftar->status); ?>" style="font-size: 1rem; padding: 8px 16px;">
+                            <?php if($pendaftar->status === 'pending'): ?>
+                                <i class="fas fa-clock me-2"></i>Menunggu Verifikasi
+                            <?php elseif($pendaftar->status === 'verifikasi'): ?>
+                                <i class="fas fa-magnifying-glass me-2"></i>Dalam Verifikasi
+                            <?php elseif($pendaftar->status === 'lulus'): ?>
+                                <i class="fas fa-check-circle me-2"></i>Lulus Seleksi
+                            <?php else: ?>
+                                <i class="fas fa-times-circle me-2"></i>Tidak Lulus
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Info -->
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -481,21 +597,69 @@ unset($__errorArgs, $__bag); ?>
                         </p>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 class="info-title">
+                            <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
+                        </h6>
+                        <p class="info-value"><?php echo e($pendaftar->alamat_lengkap ?? 'N/A'); ?></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 class="info-title">
+                            <i class="fas fa-phone me-2"></i>No. HP Wali
+                        </h6>
+                        <p class="info-value"><?php echo e($pendaftar->nomor_hp_orang_tua ?? 'N/A'); ?></p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Incomplete Data Section -->
+            <!-- Checklist Pengiriman Data Section -->
             <?php
+                // Dokumen Pokok (Wajib)
+                $mainFiles = [
+                    'berkas_kk' => ['label' => 'Kartu Keluarga', 'icon' => 'fa-file', 'type' => 'dokumen'],
+                    'berkas_ijazah' => ['label' => 'Ijazah', 'icon' => 'fa-certificate', 'type' => 'dokumen'],
+                    'berkas_akta_kelahiran' => ['label' => 'Akta Kelahiran', 'icon' => 'fa-file', 'type' => 'dokumen'],
+                    'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
+                    'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
+                ];
+
+                // Dokumen Tambahan (Jika memiliki)
+                $additionalFiles = [
+                    'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
+                    'berkas_kip_pkh' => ['label' => 'PIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
+                ];
+
+                $uploadedMainFiles = [];
+                $missingMainFiles = [];
+                $uploadedAdditionalFiles = [];
+
+                // Proses dokumen pokok
+                foreach ($mainFiles as $field => $info) {
+                    if (!empty($pendaftar->$field)) {
+                        $uploadedMainFiles[$field] = $info;
+                    } else {
+                        $missingMainFiles[$field] = $info;
+                    }
+                }
+
+                // Proses dokumen tambahan
+                foreach ($additionalFiles as $field => $info) {
+                    if (!empty($pendaftar->$field)) {
+                        $uploadedAdditionalFiles[$field] = $info;
+                    }
+                }
+
                 $incompleteFields = [];
                 $optionalFields = [
                     'nik' => 'NIK',
                     'agama' => 'Agama',
-                    'alamat_lengkap' => 'Alamat Lengkap',
                     'nama_ayah' => 'Nama Ayah',
                     'nama_ibu' => 'Nama Ibu',
                     'pekerjaan_ayah' => 'Pekerjaan Ayah',
                     'pekerjaan_ibu' => 'Pekerjaan Ibu',
-                    'nomor_hp_ayah' => 'No. HP Ayah',
-                    'nomor_hp_ibu' => 'No. HP Ibu',
                     'tahun_lulus' => 'Tahun Lulus',
                     'rata_rata_nilai_raport' => 'Rata-rata Nilai Raport',
                     'nomor_ijazah' => 'Nomor Ijazah',
@@ -508,24 +672,6 @@ unset($__errorArgs, $__bag); ?>
                     }
                 }
 
-                // Check for missing required files
-                $requiredFiles = [
-                    'berkas_kk' => 'Kartu Keluarga',
-                    'berkas_ijazah' => 'Ijazah',
-                    // 'berkas_skhun' => 'SKHUN',
-                    'berkas_akta_kelahiran' => 'Akta Kelahiran',
-                    'berkas_sertifikat_prestasi' => 'Sertifikat Prestasi/KIP/PKH',
-                    'berkas_ktp_ayah' => 'KTP Ayah',
-                    'berkas_ktp_ibu' => 'KTP Ibu',
-                ];
-
-                foreach ($requiredFiles as $field => $label) {
-                    if (empty($pendaftar->$field)) {
-                        $incompleteFields[$field] = 'Berkas ' . $label;
-                    }
-                }
-
-                // Check for individual semester grades if rata_rata_nilai_raport is empty
                 if (empty($pendaftar->rata_rata_nilai_raport)) {
                     $semesterFields = [
                         'nilai_semester_1' => 'Nilai Semester 1',
@@ -542,6 +688,113 @@ unset($__errorArgs, $__bag); ?>
                     }
                 }
             ?>
+
+            <!-- Document Submission Status - Dokumen Pokok -->
+            <div class="info-card mb-4" style="border-left-color: #17a2b8; background: linear-gradient(135deg, #e8f5f9 0%, #e1f5fe 100%);">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="info-title text-info mb-2">
+                            <i class="fas fa-folder-check me-2"></i>Status Pengiriman Dokumen Wajib
+                        </h6>
+                        <p class="mb-0 text-muted">
+                            <strong><?php echo e(count($uploadedMainFiles)); ?></strong> dari <strong><?php echo e(count($mainFiles)); ?></strong> dokumen wajib sudah dikirim
+                        </p>
+                    </div>
+                    <div class="progress" style="width: 150px; height: 30px;">
+                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar"
+                             style="width: <?php echo e((count($uploadedMainFiles) / count($mainFiles) * 100)); ?>%"
+                             aria-valuenow="<?php echo e(count($uploadedMainFiles)); ?>" aria-valuemin="0" aria-valuemax="<?php echo e(count($mainFiles)); ?>">
+                            <?php echo e(round((count($uploadedMainFiles) / count($mainFiles) * 100))); ?>%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dokumen Pokok yang Sudah Dikirim -->
+                <?php if(count($uploadedMainFiles) > 0): ?>
+                    <div class="mb-3">
+                        <h6 class="text-success mb-2">
+                            <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
+                        </h6>
+                        <div class="row">
+                            <?php $__currentLoopData = $uploadedMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="badge bg-success text-white w-100 p-2 text-start">
+                                        <i class="fas <?php echo e($info['icon']); ?> me-1"></i><?php echo e($info['label']); ?>
+
+                                    </div>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Dokumen Pokok yang Belum Dikirim -->
+                <?php if(count($missingMainFiles) > 0): ?>
+                    <div>
+                        <h6 class="text-warning mb-2">
+                            <i class="fas fa-exclamation-circle me-1"></i>Dokumen Belum Dikirim
+                        </h6>
+                        <div class="row">
+                            <?php $__currentLoopData = $missingMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="badge bg-light text-dark border border-warning w-100 p-2 text-start">
+                                        <i class="fas <?php echo e($info['icon']); ?> me-1 text-warning"></i><?php echo e($info['label']); ?>
+
+                                    </div>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm mt-3" onclick="toggleUpdateForm()">
+                            <i class="fas fa-upload me-1"></i>Upload Dokumen Sekarang
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Sempurna!</strong> Semua dokumen wajib sudah dikirim.
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Document Submission Status - Dokumen Tambahan -->
+            <div class="info-card mb-4" style="border-left-color: #28a745; background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="info-title text-success mb-2">
+                            <i class="fas fa-star me-2"></i>Dokumen Tambahan (Jika Memiliki)
+                        </h6>
+                        <p class="mb-3 text-muted">
+                            Jika Anda memiliki dokumen tambahan seperti Sertifikat Prestasi atau PIP/PKH, silakan upload dokumen ini:
+                        </p>
+
+                        <?php if(count($uploadedAdditionalFiles) > 0): ?>
+                            <div class="mb-3">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
+                                </h6>
+                                <div class="row">
+                                    <?php $__currentLoopData = $uploadedAdditionalFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="col-md-6 col-lg-4 mb-2">
+                                            <div class="badge bg-success text-white w-100 p-2 text-start">
+                                                <i class="fas <?php echo e($info['icon']); ?> me-1"></i><?php echo e($info['label']); ?>
+
+                                            </div>
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Dokumen tambahan bersifat opsional. Upload dokumen tambahan Anda jika memiliki untuk meningkatkan peluang seleksi.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm" onclick="toggleUpdateForm()" style="white-space: nowrap; margin-left: 10px;">
+                        <i class="fas fa-upload me-1"></i>Upload Dokumen
+                    </button>
+                </div>
+            </div>
 
             <?php if(count($incompleteFields) > 0): ?>
                 <div class="info-card border-warning mb-4" style="border-left-color: #ffc107; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
@@ -603,12 +856,7 @@ unset($__errorArgs, $__bag); ?>
                                 </div>
                             <?php endif; ?>
 
-                            <?php if(empty($pendaftar->alamat_lengkap)): ?>
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Alamat Lengkap <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" name="alamat_lengkap" rows="2" placeholder="Alamat lengkap sesuai KTP"></textarea>
-                                </div>
-                            <?php endif; ?>
+                            
 
                             <!-- Parent Data -->
                             <?php if(empty($pendaftar->nama_ayah)): ?>
@@ -672,19 +920,7 @@ unset($__errorArgs, $__bag); ?>
                                 </select>
                             </div>
 
-                            <?php if(empty($pendaftar->nomor_hp_ayah)): ?>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">No. HP Ayah</label>
-                                    <input type="text" class="form-control" name="nomor_hp_ayah" placeholder="081234567890">
-                                </div>
-                            <?php endif; ?>
 
-                            <?php if(empty($pendaftar->nomor_hp_ibu)): ?>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">No. HP Ibu</label>
-                                    <input type="text" class="form-control" name="nomor_hp_ibu" placeholder="081234567890">
-                                </div>
-                            <?php endif; ?>
 
                             <!-- Academic Data -->
                             <?php if(empty($pendaftar->tahun_lulus)): ?>
@@ -774,15 +1010,27 @@ unset($__errorArgs, $__bag); ?>
                             <!-- Additional Document Uploads -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Sertifikat Prestasi</label>
-                                <?php if($pendaftar->berkas_sertifikat_prestasi): ?>
+                                <?php
+                                    $sertifikatFiles = $pendaftar->berkas_sertifikat_prestasi;
+                                    if (is_string($sertifikatFiles)) {
+                                        $sertifikatFiles = json_decode($sertifikatFiles, true) ?? [];
+                                    }
+                                    if (!is_array($sertifikatFiles)) {
+                                        $sertifikatFiles = [];
+                                    }
+                                ?>
+                                <?php if(!empty($sertifikatFiles)): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
-                                            <i class="fas fa-check-circle me-1"></i>File sudah diupload
+                                            <i class="fas fa-check-circle me-1"></i><?php echo e(count($sertifikatFiles)); ?> file sudah diupload
                                         </small>
                                         <br>
-                                        <a href="<?php echo e(asset('storage/' . $pendaftar->berkas_sertifikat_prestasi)); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye me-1"></i>Lihat File
-                                        </a>
+                                        <?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <a href="<?php echo e(asset('storage/' . $file)); ?>" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">
+                                                <i class="fas fa-eye me-1"></i>Lihat File <?php echo e($index + 1); ?>
+
+                                            </a>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </div>
                                 <?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_sertifikat_prestasi[]" accept=".pdf,.jpg,.jpeg,.png" multiple>
@@ -790,7 +1038,7 @@ unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">KIP/PKH</label>
+                                <label class="form-label">PIP/PKH</label>
                                 <?php if($pendaftar->berkas_kip_pkh): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
@@ -869,88 +1117,6 @@ unset($__errorArgs, $__bag); ?>
                     </form>
                 </div>
             <?php endif; ?>
-
-            <!-- Timeline -->
-            <div class="info-card">
-                <h6 class="info-title mb-4">
-                    <i class="fas fa-history me-2"></i>Timeline Pendaftaran
-                </h6>
-
-                <div class="status-timeline">
-                    <!-- Pendaftaran -->
-                    <div class="timeline-item completed">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Pendaftaran Diterima</div>
-                            <div class="timeline-date"><?php echo e($pendaftar->created_at->format('d M Y, H:i')); ?></div>
-                            <div class="timeline-description">
-                                Pendaftaran Anda telah berhasil diterima dengan nomor pendaftaran <strong><?php echo e($pendaftar->nomor_pendaftaran); ?></strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Verifikasi -->
-                    <div class="timeline-item <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'completed' : 'active'); ?>">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Verifikasi Berkas</div>
-                            <div class="timeline-date">
-                                <?php if($pendaftar->diverifikasi_tanggal): ?>
-                                    <?php echo e($pendaftar->diverifikasi_tanggal->format('d M Y, H:i')); ?>
-
-                                <?php else: ?>
-                                    Dalam Proses
-                                <?php endif; ?>
-                            </div>
-                            <div class="timeline-description">
-                                <?php if($pendaftar->status === 'pending'): ?>
-                                    Berkas Anda sedang dalam proses verifikasi oleh admin sekolah
-                                <?php elseif(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus'])): ?>
-                                    Berkas Anda telah diverifikasi
-                                    <?php if($pendaftar->catatan_verifikasi): ?>
-                                        <br><small><em>Catatan: <?php echo e($pendaftar->catatan_verifikasi); ?></em></small>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Seleksi -->
-                    <div class="timeline-item <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'completed' : ($pendaftar->status === 'verifikasi' ? 'active' : '')); ?>">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Seleksi Akhir</div>
-                            <div class="timeline-date">
-                                <?php if($pendaftar->diseleksi_tanggal): ?>
-                                    <?php echo e($pendaftar->diseleksi_tanggal->format('d M Y, H:i')); ?>
-
-                                <?php else: ?>
-                                    Dalam Proses
-                                <?php endif; ?>
-                            </div>
-                            <div class="timeline-description">
-                                <?php if(in_array($pendaftar->status, ['pending', 'verifikasi'])): ?>
-                                    Proses seleksi akhir sedang berlangsung
-                                <?php elseif($pendaftar->status === 'lulus'): ?>
-                                    <strong class="text-success">Selamat! Anda dinyatakan LULUS seleksi PPDB</strong>
-                                <?php elseif($pendaftar->status === 'tidak_lulus'): ?>
-                                    <strong class="text-danger">Maaf, Anda dinyatakan TIDAK LULUS seleksi PPDB</strong>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Daftar Ulang -->
-                    <?php if($pendaftar->status === 'lulus'): ?>
-                        <div class="timeline-item active">
-                            <div class="timeline-content">
-                                <div class="timeline-title">Daftar Ulang</div>
-                                <div class="timeline-date">Akan diinformasikan</div>
-                                <div class="timeline-description">
-                                    Informasi daftar ulang akan segera diumumkan. Pastikan untuk memantau pengumuman dari sekolah.
-                                </div>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
 
             <!-- Next Steps -->
             <?php if($pendaftar->status === 'lulus'): ?>
