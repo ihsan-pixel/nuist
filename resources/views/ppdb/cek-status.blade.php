@@ -466,6 +466,22 @@
                         </p>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 class="info-title">
+                            <i class="fas fa-map-marker-alt me-2"></i>Alamat Lengkap
+                        </h6>
+                        <p class="info-value">{{ $pendaftar->alamat_lengkap ?? 'N/A' }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 class="info-title">
+                            <i class="fas fa-phone me-2"></i>No. HP Wali
+                        </h6>
+                        <p class="info-value">{{ $pendaftar->nomor_hp_orang_tua ?? 'N/A' }}</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Incomplete Data Section -->
