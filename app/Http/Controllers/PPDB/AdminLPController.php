@@ -603,6 +603,15 @@ class AdminLPController extends Controller
             $pendaftar->save();
         }
 
+        // Ambil jalur-jalur yang unik dari data pendaftar
+        $jalarList = $ppdbSetting->pendaftars()
+            ->select('jalur')
+            ->distinct()
+            ->orderBy('jalur', 'asc')
+            ->pluck('jalur')
+            ->filter()
+            ->values();
+
         $statistik = [
             'total' => $ppdbSetting->pendaftars()->count(),
             'lulus' => $ppdbSetting->pendaftars()->where('status', 'lulus')->count(),
@@ -611,7 +620,7 @@ class AdminLPController extends Controller
             'verifikasi' => $ppdbSetting->pendaftars()->where('status', 'verifikasi')->count(),
         ];
 
-        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik'));
+        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik', 'jalarList'));
     }
 
     /**

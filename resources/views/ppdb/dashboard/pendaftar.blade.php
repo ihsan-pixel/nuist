@@ -292,9 +292,9 @@
                 <label for="jalur_filter" class="form-label">Filter Jalur</label>
                 <select id="jalur_filter" class="form-select">
                     <option value="">Semua Jalur</option>
-                    <option value="Jalur Reguler">Jalur Reguler</option>
-                    <option value="Jalur Prestasi">Jalur Prestasi</option>
-                    <option value="Jalur Afirmasi">Jalur Afirmasi</option>
+                    @foreach($jalarList as $jalur)
+                        <option value="{{ $jalur }}">{{ $jalur }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-4">
