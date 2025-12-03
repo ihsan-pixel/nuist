@@ -768,7 +768,7 @@
                         @endif
                     </div>
                     <button type="button" class="btn btn-success btn-sm" onclick="toggleUpdateForm()" style="white-space: nowrap; margin-left: 10px;">
-                        <i class="fas fa-upload me-1"></i>Upload KIP/PKH
+                        <i class="fas fa-upload me-1"></i>Upload PIP/PKH
                     </button>
                 </div>
             </div>
