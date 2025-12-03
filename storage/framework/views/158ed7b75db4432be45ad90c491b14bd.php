@@ -1,8 +1,6 @@
-@extends('layouts.master')
+<?php $__env->startSection('title', 'Data Pendaftar - ' . $ppdbSetting->nama_sekolah); ?>
 
-@section('title', 'Data Pendaftar - ' . $ppdbSetting->nama_sekolah)
-
-@push('css')
+<?php $__env->startPush('css'); ?>
 <style>
     .status-badge {
         padding: 0.375rem 0.75rem;
@@ -177,9 +175,9 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -188,10 +186,10 @@
                 <i class="mdi mdi-account-multiple me-2"></i>
                 Data Pendaftar PPDB
             </h2>
-            <p class="text-muted mb-0">{{ $ppdbSetting->nama_sekolah }} - Tahun {{ $ppdbSetting->tahun }}</p>
+            <p class="text-muted mb-0"><?php echo e($ppdbSetting->nama_sekolah); ?> - Tahun <?php echo e($ppdbSetting->tahun); ?></p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-outline-secondary">
+            <a href="<?php echo e(route('ppdb.lp.dashboard')); ?>" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left me-1"></i>Kembali
             </a>
             <button onclick="window.print()" class="btn btn-outline-primary">
@@ -209,7 +207,7 @@
             <div class="stats-card">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h4 class="mb-1">{{ number_format($statistik['total']) }}</h4>
+                        <h4 class="mb-1"><?php echo e(number_format($statistik['total'])); ?></h4>
                         <p class="mb-0 opacity-75">Total Pendaftar</p>
                     </div>
                     <div class="avatar-sm">
@@ -224,7 +222,7 @@
             <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h4 class="mb-1">{{ number_format($statistik['pending']) }}</h4>
+                        <h4 class="mb-1"><?php echo e(number_format($statistik['pending'])); ?></h4>
                         <p class="mb-0 opacity-75">Menunggu Verifikasi</p>
                     </div>
                     <div class="avatar-sm">
@@ -239,7 +237,7 @@
             <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h4 class="mb-1">{{ number_format($statistik['verifikasi']) }}</h4>
+                        <h4 class="mb-1"><?php echo e(number_format($statistik['verifikasi'])); ?></h4>
                         <p class="mb-0 opacity-75">Dalam Verifikasi</p>
                     </div>
                     <div class="avatar-sm">
@@ -254,7 +252,7 @@
             <div class="stats-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h4 class="mb-1">{{ number_format($statistik['lulus']) }}</h4>
+                        <h4 class="mb-1"><?php echo e(number_format($statistik['lulus'])); ?></h4>
                         <p class="mb-0 opacity-75">Lulus Seleksi</p>
                     </div>
                     <div class="avatar-sm">
@@ -302,7 +300,7 @@
     </div>
 
     <!-- Pendaftar List -->
-    @if($pendaftars->count() > 0)
+    <?php if($pendaftars->count() > 0): ?>
         <!-- Table View (Default) -->
         <div id="table-view" class="table-responsive">
             <table class="table table-hover mb-0">
@@ -322,86 +320,88 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($pendaftars as $index => $pendaftar)
-                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}">
-                        <td>{{ $pendaftars->firstItem() + $index }}</td>
+                    <?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr data-status="<?php echo e($pendaftar->status); ?>" data-jalur="<?php echo e($pendaftar->jalur); ?>" data-nama="<?php echo e($pendaftar->nama_lengkap); ?>" data-nisn="<?php echo e($pendaftar->nisn); ?>">
+                        <td><?php echo e($pendaftars->firstItem() + $index); ?></td>
                         <td>
-                            <span class="badge bg-warning text-dark">{{ $pendaftar->ranking ?? ($pendaftars->firstItem() + $index) }}</span>
+                            <span class="badge bg-warning text-dark"><?php echo e($pendaftar->ranking ?? ($pendaftars->firstItem() + $index)); ?></span>
                         </td>
                         <td>
-                            <div class="fw-semibold">{{ $pendaftar->nama_lengkap }}</div>
-                            <small class="text-muted">{{ $pendaftar->nomor_pendaftaran }}</small>
+                            <div class="fw-semibold"><?php echo e($pendaftar->nama_lengkap); ?></div>
+                            <small class="text-muted"><?php echo e($pendaftar->nomor_pendaftaran); ?></small>
                         </td>
-                        <td>{{ $pendaftar->nisn }}</td>
-                        <td>{{ $pendaftar->asal_sekolah }}</td>
-                        <td>{{ $pendaftar->jurusan_pilihan }}</td>
+                        <td><?php echo e($pendaftar->nisn); ?></td>
+                        <td><?php echo e($pendaftar->asal_sekolah); ?></td>
+                        <td><?php echo e($pendaftar->jurusan_pilihan); ?></td>
                         <td>
-                            <span class="badge bg-secondary">{{ $pendaftar->jalur }}</span>
-                        </td>
-                        <td>
-                            <span class="badge bg-primary">{{ $pendaftar->skor_total ?? 0 }}</span>
+                            <span class="badge bg-secondary"><?php echo e($pendaftar->jalur); ?></span>
                         </td>
                         <td>
-                            <span class="status-badge status-{{ $pendaftar->status }}">
-                                @if($pendaftar->status == 'pending')
+                            <span class="badge bg-primary"><?php echo e($pendaftar->skor_total ?? 0); ?></span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-<?php echo e($pendaftar->status); ?>">
+                                <?php if($pendaftar->status == 'pending'): ?>
                                     Menunggu Verifikasi
-                                @elseif($pendaftar->status == 'verifikasi')
+                                <?php elseif($pendaftar->status == 'verifikasi'): ?>
                                     Dalam Verifikasi
-                                @elseif($pendaftar->status == 'lulus')
+                                <?php elseif($pendaftar->status == 'lulus'): ?>
                                     Lulus
-                                @else
+                                <?php else: ?>
                                     Tidak Lulus
-                                @endif
+                                <?php endif; ?>
                             </span>
                         </td>
-                        <td>{{ $pendaftar->created_at->format('d/m/Y H:i') }}</td>
+                        <td><?php echo e($pendaftar->created_at->format('d/m/Y H:i')); ?></td>
                         <td>
                             <div class="action-buttons">
-                                <button onclick="showDetail({{ $pendaftar->id }})" class="btn btn-sm btn-outline-info" title="Lihat Detail">
+                                <button onclick="showDetail(<?php echo e($pendaftar->id); ?>)" class="btn btn-sm btn-outline-info" title="Lihat Detail">
                                     <i class="mdi mdi-eye"></i>
                                 </button>
-                                @if($pendaftar->berkas_kk)
-                                    <a href="{{ asset($pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
+                                <?php if($pendaftar->berkas_kk): ?>
+                                    <a href="<?php echo e(asset($pendaftar->berkas_kk)); ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
                                         <i class="mdi mdi-file-document"></i>
                                     </a>
-                                @endif
-                                @if($pendaftar->berkas_ijazah)
-                                    <a href="{{ asset($pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
+                                <?php endif; ?>
+                                <?php if($pendaftar->berkas_ijazah): ?>
+                                    <a href="<?php echo e(asset($pendaftar->berkas_ijazah)); ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
                                         <i class="mdi mdi-file-document-outline"></i>
                                     </a>
-                                @endif
-                                @if($pendaftar->berkas_sertifikat_prestasi)
-                                    @php
+                                <?php endif; ?>
+                                <?php if($pendaftar->berkas_sertifikat_prestasi): ?>
+                                    <?php
                                         $sertifikatFiles = is_array($pendaftar->berkas_sertifikat_prestasi) ? $pendaftar->berkas_sertifikat_prestasi : json_decode($pendaftar->berkas_sertifikat_prestasi, true);
                                         if (!is_array($sertifikatFiles)) {
                                             $sertifikatFiles = [$pendaftar->berkas_sertifikat_prestasi];
                                         }
-                                    @endphp
-                                    @foreach($sertifikatFiles as $index => $file)
-                                        <a href="{{ asset($file) }}" target="_blank" class="btn btn-sm btn-outline-warning" title="Lihat Sertifikat {{ count($sertifikatFiles) > 1 ? ($index + 1) : '' }}">
-                                            <i class="mdi mdi-trophy-outline"></i>{{ count($sertifikatFiles) > 1 ? ($index + 1) : '' }}
+                                    ?>
+                                    <?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <a href="<?php echo e(asset($file)); ?>" target="_blank" class="btn btn-sm btn-outline-warning" title="Lihat Sertifikat <?php echo e(count($sertifikatFiles) > 1 ? ($index + 1) : ''); ?>">
+                                            <i class="mdi mdi-trophy-outline"></i><?php echo e(count($sertifikatFiles) > 1 ? ($index + 1) : ''); ?>
+
                                         </a>
-                                    @endforeach
-                                @endif
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-center mt-4">
-            {{ $pendaftars->links() }}
+            <?php echo e($pendaftars->links()); ?>
+
         </div>
-    @else
+    <?php else: ?>
         <div class="empty-state">
             <i class="mdi mdi-account-multiple-outline"></i>
             <h5>Belum ada pendaftar</h5>
             <p class="mb-0">Belum ada siswa yang mendaftar di sekolah ini.</p>
         </div>
-    @endif
+    <?php endif; ?>
 </div>
 
 <!-- Detail Modal -->
@@ -440,7 +440,7 @@
             </div>
             <div class="modal-body">
                 <form id="uploadForm" enctype="multipart/form-data">
-                    @csrf
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" id="upload_pendaftar_id" name="pendaftar_id">
 
                     <div class="alert alert-info">
@@ -521,7 +521,7 @@
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 function showDetail(pendaftarId) {
     // Load detail content via AJAX
@@ -578,7 +578,7 @@ function exportToExcel() {
         // Create form and submit
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("ppdb.sekolah.export") }}';
+        form.action = '<?php echo e(route("ppdb.sekolah.export")); ?>';
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
         if (csrfToken) {
@@ -636,36 +636,8 @@ document.getElementById('search').addEventListener('input', filterTable);
 document.addEventListener('DOMContentLoaded', function() {
     filterTable();
 });
-
-function verifikasiData(pendaftarId) {
-    setStatus(pendaftarId, 'verifikasi');
-}
-
-function setStatus(pendaftarId, status) {
-    if (confirm('Apakah Anda yakin ingin mengubah status menjadi ' + (status === 'verifikasi' ? 'Dalam Verifikasi' : status === 'lulus' ? 'Lulus' : 'Tidak Lulus') + '?')) {
-        fetch('/ppdb/lp/pendaftar/' + pendaftarId + '/update-status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ status: status })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Status berhasil diupdate');
-                location.reload();
-            } else {
-                alert('Gagal update status: ' + (data.message || 'Terjadi kesalahan'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat update status');
-        });
-    }
-}
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/ppdb/dashboard/pendaftar.blade.php ENDPATH**/ ?>
