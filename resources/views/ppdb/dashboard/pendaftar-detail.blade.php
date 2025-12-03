@@ -226,27 +226,106 @@
                     <div class="card h-100">
                         <div class="card-header bg-light">
                             <h6 class="card-title mb-0 text-primary">
-                                <i class="mdi mdi-chart-line me-1"></i>Detail Skor
+                                <i class="mdi mdi-chart-line me-1"></i>Detail Skor (Otomatis)
                             </h6>
                         </div>
                         <div class="card-body">
                             <div class="row g-2">
-                                <div class="col-sm-5"><strong>Skor Nilai</strong></div>
-                                <div class="col-sm-7">: {{ $pendaftar->skor_nilai ?? 0 }}</div>
+                                <!-- Skor Nilai Akademik -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-book-outline"></i> <strong>Skor Nilai Akademik</strong>
+                                        </small>
+                                        @php
+                                            $nilai = $pendaftar->rata_rata_nilai_raport ?? $pendaftar->nilai ?? 0;
+                                            $keterangan = '';
+                                            if ($nilai >= 90) {
+                                                $keterangan = '(≥ 90)';
+                                            } elseif ($nilai >= 80) {
+                                                $keterangan = '(80-89)';
+                                            } elseif ($nilai >= 70) {
+                                                $keterangan = '(70-79)';
+                                            } else {
+                                                $keterangan = '(< 70)';
+                                            }
+                                        @endphp
+                                        <div class="mt-1">
+                                            <span class="badge bg-info">{{ $pendaftar->skor_nilai ?? 0 }} poin</span>
+                                            <small class="text-muted ms-2">Nilai {{ $nilai }} {{ $keterangan }}</small>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <div class="col-sm-5"><strong>Skor Prestasi</strong></div>
-                                <div class="col-sm-7">: {{ $pendaftar->skor_prestasi ?? 0 }}</div>
+                                <!-- Skor Prestasi -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-trophy-outline"></i> <strong>Skor Prestasi</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-{{ $pendaftar->berkas_sertifikat_prestasi ? 'success' : 'secondary' }}">
+                                                {{ $pendaftar->skor_prestasi ?? 0 }} poin
+                                            </span>
+                                            <small class="text-muted ms-2">
+                                                {{ $pendaftar->berkas_sertifikat_prestasi ? '✓ Ada Sertifikat' : '✗ Tidak Ada Sertifikat' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <div class="col-sm-5"><strong>Skor Domisili</strong></div>
-                                <div class="col-sm-7">: {{ $pendaftar->skor_domisili ?? 0 }}</div>
+                                <!-- Skor Domisili -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-map-marker-outline"></i> <strong>Skor Domisili</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary">{{ $pendaftar->skor_domisili ?? 0 }} poin</span>
+                                            <small class="text-muted ms-2">(Belum diaktifkan)</small>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <div class="col-sm-5"><strong>Skor Dokumen</strong></div>
-                                <div class="col-sm-7">: {{ $pendaftar->skor_dokumen ?? 0 }}</div>
+                                <!-- Skor Dokumen -->
+                                <div class="col-12">
+                                    <div class="p-2 bg-light rounded">
+                                        <small class="text-muted">
+                                            <i class="mdi mdi-file-document-outline"></i> <strong>Skor Dokumen</strong>
+                                        </small>
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary">{{ $pendaftar->skor_dokumen ?? 0 }} poin</span>
+                                            <small class="text-muted ms-2">(Belum diaktifkan)</small>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="col-12"><hr class="my-2"></div>
 
-                                <div class="col-sm-5"><strong class="text-primary">Skor Total</strong></div>
-                                <div class="col-sm-7">: <strong class="text-primary fs-5">{{ $pendaftar->skor_total ?? 0 }}</strong></div>
+                                <!-- Skor Total -->
+                                <div class="col-12">
+                                    <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong class="text-primary">
+                                                <i class="mdi mdi-plus-circle me-1"></i>Skor Total
+                                            </strong>
+                                            <strong class="text-primary fs-5 badge bg-primary">
+                                                {{ $pendaftar->skor_total ?? 0 }}
+                                            </strong>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            Dihitung otomatis: {{ $pendaftar->skor_nilai ?? 0 }} + {{ $pendaftar->skor_prestasi ?? 0 }} + {{ $pendaftar->skor_domisili ?? 0 }} + {{ $pendaftar->skor_dokumen ?? 0 }}
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Info Update -->
+                                <div class="col-12">
+                                    <div class="alert alert-info alert-sm mb-0" style="font-size: 0.85rem;">
+                                        <i class="mdi mdi-information-outline"></i>
+                                        <strong>Catatan:</strong> Skor dihitung otomatis berdasarkan data pendaftar dan tersimpan di database.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
