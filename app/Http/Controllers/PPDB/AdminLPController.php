@@ -593,6 +593,7 @@ class AdminLPController extends Controller
             ->firstOrFail();
 
         $pendaftars = $ppdbSetting->pendaftars()
+            ->with('ppdbJalur')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
