@@ -495,8 +495,6 @@
                     'nama_ibu' => 'Nama Ibu',
                     'pekerjaan_ayah' => 'Pekerjaan Ayah',
                     'pekerjaan_ibu' => 'Pekerjaan Ibu',
-                    'nomor_hp_ayah' => 'No. HP Ayah',
-                    'nomor_hp_ibu' => 'No. HP Ibu',
                     'tahun_lulus' => 'Tahun Lulus',
                     'rata_rata_nilai_raport' => 'Rata-rata Nilai Raport',
                     'nomor_ijazah' => 'Nomor Ijazah',
@@ -672,19 +670,7 @@
                                 </select>
                             </div>
 
-                            @if(empty($pendaftar->nomor_hp_ayah))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">No. HP Ayah</label>
-                                    <input type="text" class="form-control" name="nomor_hp_ayah" placeholder="081234567890">
-                                </div>
-                            @endif
 
-                            @if(empty($pendaftar->nomor_hp_ibu))
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">No. HP Ibu</label>
-                                    <input type="text" class="form-control" name="nomor_hp_ibu" placeholder="081234567890">
-                                </div>
-                            @endif
 
                             <!-- Academic Data -->
                             @if(empty($pendaftar->tahun_lulus))
