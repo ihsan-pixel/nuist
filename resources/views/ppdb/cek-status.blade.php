@@ -490,7 +490,7 @@
                 $optionalFields = [
                     'nik' => 'NIK',
                     'agama' => 'Agama',
-                    'alamat_lengkap' => 'Alamat Lengkap',
+                    // 'alamat_lengkap' => 'Alamat Lengkap',
                     'nama_ayah' => 'Nama Ayah',
                     'nama_ibu' => 'Nama Ibu',
                     'pekerjaan_ayah' => 'Pekerjaan Ayah',
