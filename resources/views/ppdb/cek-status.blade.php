@@ -492,13 +492,8 @@
                     'berkas_akta_kelahiran' => ['label' => 'Akta Kelahiran', 'icon' => 'fa-file', 'type' => 'dokumen'],
                     'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
-                    'berkas_raport' => ['label' => 'Raport', 'icon' => 'fa-book', 'type' => 'dokumen'],
                     'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
                     'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
-                    'berkas_bukti_domisili' => ['label' => 'Bukti Domisili', 'icon' => 'fa-home', 'type' => 'dokumen'],
-                    'berkas_surat_mutasi' => ['label' => 'Surat Mutasi', 'icon' => 'fa-file', 'type' => 'dokumen'],
-                    'berkas_surat_keterangan_lulus' => ['label' => 'Surat Keterangan Lulus', 'icon' => 'fa-file-alt', 'type' => 'dokumen'],
-                    'berkas_skl' => ['label' => 'SKL', 'icon' => 'fa-certificate', 'type' => 'dokumen'],
                 ];
 
                 $uploadedFiles = [];

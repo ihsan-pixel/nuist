@@ -493,12 +493,6 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Raport</label>
-                                <input type="file" class="form-control" name="berkas_raport" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label class="form-label">Sertifikat Prestasi</label>
                                 <input type="file" class="form-control" name="berkas_sertifikat_prestasi" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
@@ -507,30 +501,6 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                             <div class="mb-3">
                                 <label class="form-label">KIP/PKH</label>
                                 <input type="file" class="form-control" name="berkas_kip_pkh" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Bukti Domisili</label>
-                                <input type="file" class="form-control" name="berkas_bukti_domisili" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Surat Mutasi</label>
-                                <input type="file" class="form-control" name="berkas_surat_mutasi" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Surat Keterangan Lulus</label>
-                                <input type="file" class="form-control" name="berkas_surat_keterangan_lulus" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">SKL (Surat Keterangan Lulus)</label>
-                                <input type="file" class="form-control" name="berkas_skl" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
                         </div>
                     </div>
