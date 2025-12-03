@@ -604,11 +604,11 @@
                     'berkas_akta_kelahiran' => ['label' => 'Akta Kelahiran', 'icon' => 'fa-file', 'type' => 'dokumen'],
                     'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
-                    'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
                 ];
 
                 // Dokumen Tambahan (Jika memiliki)
                 $additionalFiles = [
+                    'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
                     'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
                 ];
 
@@ -739,10 +739,10 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
                         <h6 class="info-title text-success mb-2">
-                            <i class="fas fa-heart me-2"></i>Dokumen Tambahan (Jika Memiliki)
+                            <i class="fas fa-star me-2"></i>Dokumen Tambahan (Jika Memiliki)
                         </h6>
                         <p class="mb-3 text-muted">
-                            Jika Anda memiliki KIP/PKH, silakan upload dokumen ini:
+                            Jika Anda memiliki dokumen tambahan seperti Sertifikat Prestasi atau KIP/PKH, silakan upload dokumen ini:
                         </p>
 
                         @if(count($uploadedAdditionalFiles) > 0)
@@ -763,12 +763,12 @@
                         @else
                             <div class="alert alert-info mb-0">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Jika Anda memiliki KIP/PKH, silakan upload dokumen melalui tombol di bawah untuk mendapatkan prioritas lebih tinggi.
+                                Dokumen tambahan bersifat opsional. Upload dokumen tambahan Anda jika memiliki untuk meningkatkan peluang seleksi.
                             </div>
                         @endif
                     </div>
                     <button type="button" class="btn btn-success btn-sm" onclick="toggleUpdateForm()" style="white-space: nowrap; margin-left: 10px;">
-                        <i class="fas fa-upload me-1"></i>Upload PIP/PKH
+                        <i class="fas fa-upload me-1"></i>Upload Dokumen
                     </button>
                 </div>
             </div>
