@@ -1,219 +1,253 @@
 <div class="pendaftar-detail">
     <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="mdi mdi-account-card-details me-2"></i>
-                        Detail Pendaftar
-                    </h5>
+        <div class="col-lg-8">
+            <!-- Header Info -->
+            <div class="card border-primary mb-3">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="mdi mdi-account-card-details me-2 fs-5"></i>
+                        <div>
+                            <h5 class="card-title mb-0">{{ $pendaftar->nama_lengkap }}</h5>
+                            <small>NISN: {{ $pendaftar->nisn ?? '-' }} | No. Pendaftaran: {{ $pendaftar->nomor_pendaftaran ?? '-' }}</small>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <!-- Data Pribadi -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-account me-1"></i>Data Pribadi</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>Nama Lengkap</strong></td>
-                                    <td>: {{ $pendaftar->nama_lengkap }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>NIK</strong></td>
-                                    <td>: {{ $pendaftar->nik ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>NISN</strong></td>
-                                    <td>: {{ $pendaftar->nisn ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tempat Lahir</strong></td>
-                                    <td>: {{ $pendaftar->tempat_lahir ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tanggal Lahir</strong></td>
-                                    <td>: {{ $pendaftar->tanggal_lahir ? $pendaftar->tanggal_lahir->format('d/m/Y') : '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Jenis Kelamin</strong></td>
-                                    <td>: {{ $pendaftar->jenis_kelamin == 'L' ? 'Laki-laki' : ($pendaftar->jenis_kelamin == 'P' ? 'Perempuan' : '-') }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Agama</strong></td>
-                                    <td>: {{ $pendaftar->agama ?? '-' }}</td>
-                                </tr>
-                            </table>
+                        <!-- Status Badge -->
+                        <div class="col-12">
+                            <div class="text-center">
+                                <span class="badge fs-6 px-3 py-2 bg-{{ $pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning')) }}">
+                                    <i class="mdi mdi-{{ $pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : ($pendaftar->status == 'verifikasi' ? 'magnify' : 'clock-outline')) }} me-1"></i>
+                                    @if($pendaftar->status == 'lulus')
+                                        Lulus Seleksi
+                                    @elseif($pendaftar->status == 'tidak_lulus')
+                                        Tidak Lulus
+                                    @elseif($pendaftar->status == 'verifikasi')
+                                        Dalam Verifikasi
+                                    @else
+                                        Menunggu Verifikasi
+                                    @endif
+                                </span>
+                                @if($pendaftar->ranking)
+                                    <span class="badge bg-secondary ms-2">Ranking #{{ $pendaftar->ranking }}</span>
+                                @endif
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Data Sekolah -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-school me-1"></i>Data Sekolah</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>Asal Sekolah</strong></td>
-                                    <td>: {{ $pendaftar->asal_sekolah ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>NPSN Sekolah</strong></td>
-                                    <td>: {{ $pendaftar->npsn_sekolah_asal ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tahun Lulus</strong></td>
-                                    <td>: {{ $pendaftar->tahun_lulus ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Nilai Rata-rata</strong></td>
-                                    <td>: {{ $pendaftar->rata_rata_nilai_raport ?? $pendaftar->nilai ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Jurusan Pilihan</strong></td>
-                                    <td>: {{ $pendaftar->jurusan_pilihan ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Jalur PPDB</strong></td>
-                                    <td>: {{ $pendaftar->jalur ?? '-' }}</td>
-                                </tr>
-                            </table>
+            <!-- Data Pribadi & Sekolah -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-account me-1"></i>Data Pribadi
+                            </h6>
                         </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-4"><strong>Nama Lengkap</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nama_lengkap }}</div>
 
-                        <!-- Data Orang Tua -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-account-group me-1"></i>Data Orang Tua</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>Nama Ayah</strong></td>
-                                    <td>: {{ $pendaftar->nama_ayah ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Pekerjaan Ayah</strong></td>
-                                    <td>: {{ $pendaftar->pekerjaan_ayah ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>No. HP Ayah</strong></td>
-                                    <td>: {{ $pendaftar->nomor_hp_ayah ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Nama Ibu</strong></td>
-                                    <td>: {{ $pendaftar->nama_ibu ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Pekerjaan Ibu</strong></td>
-                                    <td>: {{ $pendaftar->pekerjaan_ibu ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>No. HP Ibu</strong></td>
-                                    <td>: {{ $pendaftar->nomor_hp_ibu ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Status Keluarga</strong></td>
-                                    <td>: {{ $pendaftar->status_keluarga ?? '-' }}</td>
-                                </tr>
-                            </table>
+                                <div class="col-sm-4"><strong>NIK</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nik ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>NISN</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nisn ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Tempat Lahir</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->tempat_lahir ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Tanggal Lahir</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->tanggal_lahir ? $pendaftar->tanggal_lahir->format('d/m/Y') : '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Jenis Kelamin</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->jenis_kelamin == 'L' ? 'Laki-laki' : ($pendaftar->jenis_kelamin == 'P' ? 'Perempuan' : '-') }}</div>
+
+                                <div class="col-sm-4"><strong>Agama</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->agama ?? '-' }}</div>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Data Kontak & Alamat -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-phone me-1"></i>Kontak & Alamat</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>No. WhatsApp Siswa</strong></td>
-                                    <td>: {{ $pendaftar->ppdb_nomor_whatsapp_siswa ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Email Siswa</strong></td>
-                                    <td>: {{ $pendaftar->ppdb_email_siswa ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Alamat Lengkap</strong></td>
-                                    <td>: {{ $pendaftar->alamat_lengkap ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Provinsi</strong></td>
-                                    <td>: {{ $pendaftar->provinsi ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Kabupaten</strong></td>
-                                    <td>: {{ $pendaftar->kabupaten ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Kecamatan</strong></td>
-                                    <td>: {{ $pendaftar->kecamatan ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Desa</strong></td>
-                                    <td>: {{ $pendaftar->desa ?? '-' }}</td>
-                                </tr>
-                            </table>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-school me-1"></i>Data Sekolah
+                            </h6>
                         </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-4"><strong>Asal Sekolah</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->asal_sekolah ?? '-' }}</div>
 
-                        <!-- Data PPDB -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-clipboard-check me-1"></i>Data PPDB</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>Nomor Pendaftaran</strong></td>
-                                    <td>: {{ $pendaftar->nomor_pendaftaran ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Status</strong></td>
-                                    <td>:
-                                        <span class="badge bg-{{ $pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning')) }}">
-                                            @if($pendaftar->status == 'lulus')
-                                                Lulus
-                                            @elseif($pendaftar->status == 'tidak_lulus')
-                                                Tidak Lulus
-                                            @elseif($pendaftar->status == 'verifikasi')
-                                                Dalam Verifikasi
-                                            @else
-                                                Menunggu Verifikasi
-                                            @endif
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Ranking</strong></td>
-                                    <td>: {{ $pendaftar->ranking ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Skor Total</strong></td>
-                                    <td>: {{ $pendaftar->skor_total ?? 0 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Rencana Lulus</strong></td>
-                                    <td>: {{ $pendaftar->rencana_lulus == 'kuliah' ? 'Kuliah' : ($pendaftar->rencana_lulus == 'kerja' ? 'Bekerja' : '-') }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tanggal Daftar</strong></td>
-                                    <td>: {{ $pendaftar->created_at->format('d/m/Y H:i') }}</td>
-                                </tr>
-                            </table>
+                                <div class="col-sm-4"><strong>NPSN</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->npsn_sekolah_asal ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Tahun Lulus</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->tahun_lulus ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Rata-rata Nilai</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->rata_rata_nilai_raport ?? $pendaftar->nilai ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Jurusan</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->jurusan_pilihan ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Jalur PPDB</strong></div>
+                                <div class="col-sm-8">: <span class="badge bg-secondary">{{ $pendaftar->jalur ?? '-' }}</span></div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Skor Detail -->
-                        <div class="col-md-6">
-                            <h6 class="text-primary mb-3"><i class="mdi mdi-chart-line me-1"></i>Detail Skor</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td width="40%"><strong>Skor Nilai</strong></td>
-                                    <td>: {{ $pendaftar->skor_nilai ?? 0 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Skor Prestasi</strong></td>
-                                    <td>: {{ $pendaftar->skor_prestasi ?? 0 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Skor Domisili</strong></td>
-                                    <td>: {{ $pendaftar->skor_domisili ?? 0 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Skor Dokumen</strong></td>
-                                    <td>: {{ $pendaftar->skor_dokumen ?? 0 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><strong>Skor Total</strong></strong></td>
-                                    <td>: <strong>{{ $pendaftar->skor_total ?? 0 }}</strong></td>
-                                </tr>
-                            </table>
+            <!-- Data Orang Tua & Kontak -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-account-group me-1"></i>Data Orang Tua
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-4"><strong>Nama Ayah</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nama_ayah ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Pekerjaan Ayah</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->pekerjaan_ayah ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>No. HP Ayah</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nomor_hp_ayah ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Nama Ibu</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nama_ibu ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Pekerjaan Ibu</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->pekerjaan_ibu ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>No. HP Ibu</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->nomor_hp_ibu ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Status Keluarga</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->status_keluarga ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-phone me-1"></i>Kontak & Alamat
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-4"><strong>WhatsApp</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->ppdb_nomor_whatsapp_siswa ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Email</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->ppdb_email_siswa ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Alamat</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->alamat_lengkap ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Provinsi</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->provinsi ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Kabupaten</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->kabupaten ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Kecamatan</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->kecamatan ?? '-' }}</div>
+
+                                <div class="col-sm-4"><strong>Desa</strong></div>
+                                <div class="col-sm-8">: {{ $pendaftar->desa ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data PPDB & Skor -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-clipboard-check me-1"></i>Data PPDB
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-5"><strong>No. Pendaftaran</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->nomor_pendaftaran ?? '-' }}</div>
+
+                                <div class="col-sm-5"><strong>Status</strong></div>
+                                <div class="col-sm-7">:
+                                    <span class="badge bg-{{ $pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning')) }}">
+                                        @if($pendaftar->status == 'lulus')
+                                            Lulus
+                                        @elseif($pendaftar->status == 'tidak_lulus')
+                                            Tidak Lulus
+                                        @elseif($pendaftar->status == 'verifikasi')
+                                            Dalam Verifikasi
+                                        @else
+                                            Menunggu Verifikasi
+                                        @endif
+                                    </span>
+                                </div>
+
+                                <div class="col-sm-5"><strong>Ranking</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->ranking ?? '-' }}</div>
+
+                                <div class="col-sm-5"><strong>Skor Total</strong></div>
+                                <div class="col-sm-7">: <strong class="text-primary">{{ $pendaftar->skor_total ?? 0 }}</strong></div>
+
+                                <div class="col-sm-5"><strong>Rencana Lulus</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->rencana_lulus == 'kuliah' ? 'Kuliah' : ($pendaftar->rencana_lulus == 'kerja' ? 'Bekerja' : '-') }}</div>
+
+                                <div class="col-sm-5"><strong>Tanggal Daftar</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->created_at->format('d/m/Y H:i') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="card-title mb-0 text-primary">
+                                <i class="mdi mdi-chart-line me-1"></i>Detail Skor
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-sm-5"><strong>Skor Nilai</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->skor_nilai ?? 0 }}</div>
+
+                                <div class="col-sm-5"><strong>Skor Prestasi</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->skor_prestasi ?? 0 }}</div>
+
+                                <div class="col-sm-5"><strong>Skor Domisili</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->skor_domisili ?? 0 }}</div>
+
+                                <div class="col-sm-5"><strong>Skor Dokumen</strong></div>
+                                <div class="col-sm-7">: {{ $pendaftar->skor_dokumen ?? 0 }}</div>
+
+                                <div class="col-12"><hr class="my-2"></div>
+
+                                <div class="col-sm-5"><strong class="text-primary">Skor Total</strong></div>
+                                <div class="col-sm-7">: <strong class="text-primary fs-5">{{ $pendaftar->skor_total ?? 0 }}</strong></div>
+                            </div>
                         </div>
                     </div>
                 </div>
