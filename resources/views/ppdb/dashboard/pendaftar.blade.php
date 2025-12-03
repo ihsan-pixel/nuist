@@ -347,7 +347,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                 </thead>
                 <tbody>
                     @foreach($pendaftars as $index => $pendaftar)
-                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->jalur }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}" data-sudah-berkas="{{ ($pendaftar->berkas_kk || $pendaftar->berkas_ijazah || $pendaftar->berkas_akta_kelahiran || $pendaftar->berkas_ktp_ayah || $pendaftar->berkas_ktp_ibu || $pendaftar->berkas_raport || $pendaftar->berkas_sertifikat_prestasi || $pendaftar->berkas_kip_pkh || $pendaftar->berkas_bukti_domisili || $pendaftar->berkas_surat_mutasi || $pendaftar->berkas_surat_keterangan_lulus || $pendaftar->berkas_skl) ? '1' : '0' }}">
+                    <tr data-status="{{ $pendaftar->status }}" data-jalur="{{ $pendaftar->ppdbJalur->nama_jalur ?? '' }}" data-nama="{{ $pendaftar->nama_lengkap }}" data-nisn="{{ $pendaftar->nisn }}" data-sudah-berkas="{{ ($pendaftar->berkas_kk || $pendaftar->berkas_ijazah || $pendaftar->berkas_akta_kelahiran || $pendaftar->berkas_ktp_ayah || $pendaftar->berkas_ktp_ibu || $pendaftar->berkas_raport || $pendaftar->berkas_sertifikat_prestasi || $pendaftar->berkas_kip_pkh || $pendaftar->berkas_bukti_domisili || $pendaftar->berkas_surat_mutasi || $pendaftar->berkas_surat_keterangan_lulus || $pendaftar->berkas_skl) ? '1' : '0' }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>
                             <span class="badge bg-warning text-dark">{{ $loop->iteration }}</span>

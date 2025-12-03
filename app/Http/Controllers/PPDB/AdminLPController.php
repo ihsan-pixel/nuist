@@ -603,13 +603,14 @@ class AdminLPController extends Controller
             $pendaftar->save();
         }
 
-        // Ambil jalur-jalur yang unik dari data pendaftar
+        // Ambil jalur-jalur yang unik dari data pendaftar melalui relasi ppdbJalur
         $jalarList = $ppdbSetting->pendaftars()
-            ->select('jalur')
-            ->distinct()
-            ->orderBy('jalur', 'asc')
-            ->pluck('jalur')
+            ->with('ppdbJalur')
+            ->get()
+            ->pluck('ppdbJalur.nama_jalur')
             ->filter()
+            ->unique()
+            ->sort()
             ->values();
 
         $statistik = [
