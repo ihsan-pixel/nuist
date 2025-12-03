@@ -597,11 +597,10 @@ class AdminLPController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        // Hitung skor untuk setiap pendaftar jika belum dihitung
+        // Hitung skor untuk setiap pendaftar dan simpan ke database
         foreach ($pendaftars as $pendaftar) {
-            if ($pendaftar->skor_total === null) {
-                $pendaftar->hitungSkor();
-            }
+            $pendaftar->hitungSkor();
+            $pendaftar->save();
         }
 
         $statistik = [

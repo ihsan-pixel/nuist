@@ -88,6 +88,42 @@ class PPDBPendaftar extends Model
     ];
 
     /**
+     * Boot method untuk automatically calculate skor when creating or updating
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            // Hitung skor saat membuat data baru
+            $model->hitungSkor();
+        });
+
+        static::updating(function ($model) {
+            // Hitung skor saat mengupdate data (jika ada field yang berkaitan dengan skor)
+            $fieldsRelatedToScore = [
+                'rata_rata_nilai_raport',
+                'nilai',
+                'berkas_sertifikat_prestasi',
+                'berkas_kip_pkh',
+            ];
+
+            $hasScoreRelatedChanges = false;
+            foreach ($fieldsRelatedToScore as $field) {
+                if ($model->isDirty($field)) {
+                    $hasScoreRelatedChanges = true;
+                    break;
+                }
+            }
+
+            // Hitung ulang skor jika ada field yang berubah
+            if ($hasScoreRelatedChanges) {
+                $model->hitungSkor();
+            }
+        });
+    }
+
+    /**
      * Relasi ke PPDBSetting
      */
     public function ppdbSetting()
@@ -186,7 +222,7 @@ class PPDBPendaftar extends Model
     }
 
     /**
-     * Hitung skor otomatis berdasarkan data yang ada
+     * Hitung skor otomatis berdasarkan data yang ada (tanpa save)
      */
     public function hitungSkor()
     {
@@ -217,8 +253,6 @@ class PPDBPendaftar extends Model
 
         // Total Skor
         $this->skor_total = $this->skor_nilai + $this->skor_prestasi + $this->skor_domisili + $this->skor_dokumen;
-
-        $this->save();
     }
 
     /**
