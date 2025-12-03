@@ -190,61 +190,30 @@ class PPDBPendaftar extends Model
      */
     public function hitungSkor()
     {
-        $skor = 0;
-
         // Skor Nilai Akademik
         $nilai = $this->rata_rata_nilai_raport ?? $this->nilai ?? 0;
         if ($nilai >= 90) {
-            $this->skor_nilai = 40;
-        } elseif ($nilai >= 85) {
-            $this->skor_nilai = 35;
+            $this->skor_nilai = 10;
         } elseif ($nilai >= 80) {
-            $this->skor_nilai = 30;
+            $this->skor_nilai = 7;
         } elseif ($nilai >= 70) {
-            $this->skor_nilai = 20;
+            $this->skor_nilai = 6;
         } else {
             $this->skor_nilai = 0;
         }
 
         // Skor Prestasi
         if ($this->berkas_sertifikat_prestasi) {
-            // Logika sederhana: jika ada sertifikat, berikan skor berdasarkan tingkat
-            // Dalam implementasi nyata, mungkin perlu OCR atau input manual
-            $this->skor_prestasi = 20; // Default kabupaten
+            $this->skor_prestasi = 10;
         } else {
             $this->skor_prestasi = 0;
         }
 
-        // Skor Afirmasi
+        // Skor Domisili (untuk afirmasi)
         $this->skor_domisili = 0;
-        if ($this->berkas_kip_pkh) {
-            $this->skor_domisili += 20; // KIP/PKH
-        }
-        if ($this->berkas_bukti_domisili) {
-            $this->skor_domisili += 15; // Domisili dalam radius
-        }
 
-        // Skor Dokumen Lengkap
-        $dokumenWajib = ['berkas_kk', 'berkas_ijazah', 'berkas_akta_kelahiran'];
-        $dokumenAda = 0;
-        foreach ($dokumenWajib as $dokumen) {
-            if ($this->$dokumen) {
-                $dokumenAda++;
-            }
-        }
-
-        if ($dokumenAda == count($dokumenWajib)) {
-            $this->skor_dokumen = 10;
-        } elseif ($dokumenAda >= 1) {
-            $this->skor_dokumen = 5;
-        } else {
-            $this->skor_dokumen = 0;
-        }
-
-        // Skor Inden
-        if ($this->is_inden && $this->berkas_raport) {
-            $this->skor_dokumen += 15;
-        }
+        // Skor Dokumen (untuk kelengkapan)
+        $this->skor_dokumen = 0;
 
         // Total Skor
         $this->skor_total = $this->skor_nilai + $this->skor_prestasi + $this->skor_domisili + $this->skor_dokumen;
