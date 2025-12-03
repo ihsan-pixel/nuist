@@ -401,6 +401,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(functi
     Route::delete('/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur'])->name('ppdb.lp.delete-jalur');
     Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar'])->name('ppdb.lp.pendaftar');
     Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail'])->name('ppdb.lp.pendaftar-detail');
+    Route::post('/pendaftar/{id}/update-status', [AdminLPController::class, 'updateStatus'])->name('ppdb.lp.update-status');
 });
 
 // PPDB Admin routes for pendaftar management

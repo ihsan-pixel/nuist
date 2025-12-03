@@ -1,8 +1,32 @@
 <script>
 function verifikasiData(pendaftarId) {
-    // Show the verification modal
-    const modal = new bootstrap.Modal(document.getElementById('verifikasiModal'));
-    modal.show();
+    setStatus(pendaftarId, 'verifikasi');
+}
+
+function setStatus(pendaftarId, status) {
+    if (confirm('Apakah Anda yakin ingin mengubah status menjadi ' + (status === 'verifikasi' ? 'Dalam Verifikasi' : status === 'lulus' ? 'Lulus' : 'Tidak Lulus') + '?')) {
+        fetch('/ppdb/lp/pendaftar/' + pendaftarId + '/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Status berhasil diupdate');
+                location.reload();
+            } else {
+                alert('Gagal update status: ' + (data.message || 'Terjadi kesalahan'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat update status');
+        });
+    }
 }
 </script>
 
