@@ -218,7 +218,7 @@ class PendaftarController extends Controller
         }
 
         try {
-            // Upload file berkas to public directory
+            // Upload all file berkas to public_html directory using DOCUMENT_ROOT
             $berkasKK = $this->saveFileToPublic($request->file('berkas_kk'), 'ppdb/berkas_kk');
             $berkasIjazah = $request->hasFile('berkas_ijazah') ? $this->saveFileToPublic($request->file('berkas_ijazah'), 'ppdb/berkas_ijazah') : null;
 
@@ -229,7 +229,7 @@ class PendaftarController extends Controller
             $jalurDipilih = $jalurs->firstWhere('id', $validated['ppdb_jalur_id']);
             $namaJalur = $jalurDipilih ? $jalurDipilih->nama_jalur : 'Jalur Tidak Diketahui';
 
-            // Upload optional files
+            // Upload all optional files to public_html
             $berkasAkta = $request->hasFile('berkas_akta_kelahiran') ? $this->saveFileToPublic($request->file('berkas_akta_kelahiran'), 'ppdb/berkas_akta') : null;
             $berkasRaport = $request->hasFile('berkas_raport') ? $this->saveFileToPublic($request->file('berkas_raport'), 'ppdb/berkas_raport') : null;
             $berkasKIP = $request->hasFile('berkas_kip_pkh') ? $this->saveFileToPublic($request->file('berkas_kip_pkh'), 'ppdb/berkas_kip') : null;
@@ -260,6 +260,12 @@ class PendaftarController extends Controller
                 'jurusan_pilihan' => $validated['jurusan_pilihan'],
                 'berkas_kk' => $berkasKK,
                 'berkas_ijazah' => $berkasIjazah,
+                'berkas_akta_kelahiran' => $berkasAkta,
+                'berkas_raport' => $berkasRaport,
+                'berkas_sertifikat_prestasi' => !empty($berkasSertifikat) ? json_encode($berkasSertifikat) : null,
+                'berkas_kip_pkh' => $berkasKIP,
+                'berkas_ktp_ayah' => $berkasKTPAyah,
+                'berkas_ktp_ibu' => $berkasKTPIbu,
                 'status' => 'pending',
                 'nomor_pendaftaran' => $nomorPendaftaran,
             ];
@@ -451,12 +457,36 @@ class PendaftarController extends Controller
         $validated = $request->validate($rules);
 
         try {
-            // Handle file uploads
+            // Handle file uploads using DOCUMENT_ROOT for public_html compatibility
             if ($request->hasFile('berkas_kk')) {
-                $validated['berkas_kk'] = $request->file('berkas_kk')->store('ppdb/berkas_kk', 'public');
+                $validated['berkas_kk'] = $this->saveFileToPublic($request->file('berkas_kk'), 'ppdb/berkas_kk');
             }
             if ($request->hasFile('berkas_ijazah')) {
-                $validated['berkas_ijazah'] = $request->file('berkas_ijazah')->store('ppdb/berkas_ijazah', 'public');
+                $validated['berkas_ijazah'] = $this->saveFileToPublic($request->file('berkas_ijazah'), 'ppdb/berkas_ijazah');
+            }
+
+            // Handle additional file uploads for step 4
+            if ($request->hasFile('berkas_akta_kelahiran')) {
+                $validated['berkas_akta_kelahiran'] = $this->saveFileToPublic($request->file('berkas_akta_kelahiran'), 'ppdb/berkas_akta');
+            }
+            if ($request->hasFile('berkas_raport')) {
+                $validated['berkas_raport'] = $this->saveFileToPublic($request->file('berkas_raport'), 'ppdb/berkas_raport');
+            }
+            if ($request->hasFile('berkas_sertifikat_prestasi')) {
+                $berkasSertifikat = [];
+                foreach ($request->file('berkas_sertifikat_prestasi') as $file) {
+                    $berkasSertifikat[] = $this->saveFileToPublic($file, 'ppdb/berkas_sertifikat');
+                }
+                $validated['berkas_sertifikat_prestasi'] = json_encode($berkasSertifikat);
+            }
+            if ($request->hasFile('berkas_kip_pkh')) {
+                $validated['berkas_kip_pkh'] = $this->saveFileToPublic($request->file('berkas_kip_pkh'), 'ppdb/berkas_kip');
+            }
+            if ($request->hasFile('berkas_ktp_ayah')) {
+                $validated['berkas_ktp_ayah'] = $this->saveFileToPublic($request->file('berkas_ktp_ayah'), 'ppdb/berkas_ktp_ayah');
+            }
+            if ($request->hasFile('berkas_ktp_ibu')) {
+                $validated['berkas_ktp_ibu'] = $this->saveFileToPublic($request->file('berkas_ktp_ibu'), 'ppdb/berkas_ktp_ibu');
             }
 
             // Calculate average if semester grades are provided
