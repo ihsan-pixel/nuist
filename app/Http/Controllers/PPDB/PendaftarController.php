@@ -218,9 +218,9 @@ class PendaftarController extends Controller
         }
 
         try {
-            // Upload file berkas
-            $berkasKK = $request->file('berkas_kk')->store('ppdb/berkas_kk', 'public');
-            $berkasIjazah = $request->hasFile('berkas_ijazah') ? $request->file('berkas_ijazah')->store('ppdb/berkas_ijazah', 'public') : null;
+            // Upload file berkas to public directory
+            $berkasKK = $this->saveFileToPublic($request->file('berkas_kk'), 'ppdb/berkas_kk');
+            $berkasIjazah = $request->hasFile('berkas_ijazah') ? $this->saveFileToPublic($request->file('berkas_ijazah'), 'ppdb/berkas_ijazah') : null;
 
             // Buat nomor pendaftaran unik
             $nomorPendaftaran = $this->generateNomorPendaftaran($ppdbSetting);
@@ -230,17 +230,17 @@ class PendaftarController extends Controller
             $namaJalur = $jalurDipilih ? $jalurDipilih->nama_jalur : 'Jalur Tidak Diketahui';
 
             // Upload optional files
-            $berkasAkta = $request->hasFile('berkas_akta_kelahiran') ? $request->file('berkas_akta_kelahiran')->store('ppdb/berkas_akta', 'public') : null;
-            $berkasRaport = $request->hasFile('berkas_raport') ? $request->file('berkas_raport')->store('ppdb/berkas_raport', 'public') : null;
-            $berkasKIP = $request->hasFile('berkas_kip_pkh') ? $request->file('berkas_kip_pkh')->store('ppdb/berkas_kip', 'public') : null;
-            $berkasKTPAyah = $request->hasFile('berkas_ktp_ayah') ? $request->file('berkas_ktp_ayah')->store('ppdb/berkas_ktp_ayah', 'public') : null;
-            $berkasKTPIbu = $request->hasFile('berkas_ktp_ibu') ? $request->file('berkas_ktp_ibu')->store('ppdb/berkas_ktp_ibu', 'public') : null;
+            $berkasAkta = $request->hasFile('berkas_akta_kelahiran') ? $this->saveFileToPublic($request->file('berkas_akta_kelahiran'), 'ppdb/berkas_akta') : null;
+            $berkasRaport = $request->hasFile('berkas_raport') ? $this->saveFileToPublic($request->file('berkas_raport'), 'ppdb/berkas_raport') : null;
+            $berkasKIP = $request->hasFile('berkas_kip_pkh') ? $this->saveFileToPublic($request->file('berkas_kip_pkh'), 'ppdb/berkas_kip') : null;
+            $berkasKTPAyah = $request->hasFile('berkas_ktp_ayah') ? $this->saveFileToPublic($request->file('berkas_ktp_ayah'), 'ppdb/berkas_ktp_ayah') : null;
+            $berkasKTPIbu = $request->hasFile('berkas_ktp_ibu') ? $this->saveFileToPublic($request->file('berkas_ktp_ibu'), 'ppdb/berkas_ktp_ibu') : null;
 
             // Handle multiple sertifikat prestasi files
             $berkasSertifikat = [];
             if ($request->hasFile('berkas_sertifikat_prestasi')) {
                 foreach ($request->file('berkas_sertifikat_prestasi') as $file) {
-                    $berkasSertifikat[] = $file->store('ppdb/berkas_sertifikat', 'public');
+                    $berkasSertifikat[] = $this->saveFileToPublic($file, 'ppdb/berkas_sertifikat');
                 }
             }
 
@@ -485,6 +485,24 @@ class PendaftarController extends Controller
                 ->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())
                 ->withInput();
         }
+    }
+
+    /**
+     * Save file to public directory
+     */
+    private function saveFileToPublic($file, $directory)
+    {
+        // Ensure directory exists
+        $fullPath = public_path($directory);
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        // Generate unique filename
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($fullPath, $filename);
+
+        return $directory . '/' . $filename;
     }
 
     /**
