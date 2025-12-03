@@ -396,6 +396,117 @@
                 </div>
             </div>
 
+            <!-- Timeline Status Horizontal -->
+            <div class="info-card mb-4">
+                <h6 class="info-title mb-4">
+                    <i class="fas fa-tasks me-2"></i>Tahapan Status Pendaftaran
+                </h6>
+
+                <!-- Horizontal Timeline -->
+                <div style="margin: 0 -25px; padding: 25px; background: #f8f9fa; border-radius: 10px; overflow-x: auto;">
+                    <div class="d-flex align-items-center" style="min-width: fit-content; gap: 20px;">
+                        <!-- Step 1: Data Dikirim -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; background: #004b4c; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Data Dikirim</div>
+                            <div style="font-size: 0.8rem; color: #666;">{{ $pendaftar->created_at->format('d/m/Y') }}</div>
+                            <div class="badge bg-success mt-2" style="font-size: 0.7rem;">✓ Selesai</div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 2: Diverifikasi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'background: #004b4c' : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Diverifikasi</div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                @if($pendaftar->diverifikasi_tanggal)
+                                    {{ $pendaftar->diverifikasi_tanggal->format('d/m/Y') }}
+                                @else
+                                    Dalam proses...
+                                @endif
+                            </div>
+                            <div class="badge {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'bg-success' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
+                            </div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 3: Hasil Seleksi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'background: ' . ($pendaftar->status === 'lulus' ? '#28a745' : '#dc3545') : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas {{ $pendaftar->status === 'lulus' ? 'fa-smile' : ($pendaftar->status === 'tidak_lulus' ? 'fa-frown' : 'fa-hourglass-half') }}"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">
+                                @if($pendaftar->status === 'lulus')
+                                    Lulus
+                                @elseif($pendaftar->status === 'tidak_lulus')
+                                    Tidak Lulus
+                                @else
+                                    Seleksi
+                                @endif
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                @if($pendaftar->diseleksi_tanggal)
+                                    {{ $pendaftar->diseleksi_tanggal->format('d/m/Y') }}
+                                @else
+                                    Dalam proses...
+                                @endif
+                            </div>
+                            <div class="badge {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? ($pendaftar->status === 'lulus' ? 'bg-success' : 'bg-danger') : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
+                            </div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ $pendaftar->status === 'lulus' ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 4: Pengumuman Daftar Ulang -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ $pendaftar->status === 'lulus' ? 'background: #ffc107' : 'background: #dee2e6' }}; {{ $pendaftar->status === 'lulus' ? 'color: #000' : 'color: #666' }}; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Daftar Ulang</div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                @if($pendaftar->status === 'lulus')
+                                    Segera
+                                @else
+                                    Menunggu
+                                @endif
+                            </div>
+                            <div class="badge {{ $pendaftar->status === 'lulus' ? 'bg-warning' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ $pendaftar->status === 'lulus' ? 'Selanjutnya' : 'Pending' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Status Detail -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <strong class="text-primary">Status Saat Ini:</strong>
+                    <div class="mt-2">
+                        <span class="status-badge status-{{ $pendaftar->status }}" style="font-size: 1rem; padding: 8px 16px;">
+                            @if($pendaftar->status === 'pending')
+                                <i class="fas fa-clock me-2"></i>Menunggu Verifikasi
+                            @elseif($pendaftar->status === 'verifikasi')
+                                <i class="fas fa-magnifying-glass me-2"></i>Dalam Verifikasi
+                            @elseif($pendaftar->status === 'lulus')
+                                <i class="fas fa-check-circle me-2"></i>Lulus Seleksi
+                            @else
+                                <i class="fas fa-times-circle me-2"></i>Tidak Lulus
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Info -->
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -493,12 +604,12 @@
                     'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
-                    'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
+                    'berkas_kip_pkh' => ['label' => 'PIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
                 ];
 
                 $uploadedFiles = [];
                 $missingFiles = [];
-                
+
                 foreach ($allFiles as $field => $info) {
                     if (!empty($pendaftar->$field)) {
                         $uploadedFiles[$field] = $info;
@@ -556,7 +667,7 @@
                         </p>
                     </div>
                     <div class="progress" style="width: 150px; height: 30px;">
-                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" 
+                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar"
                              style="width: {{ (count($uploadedFiles) / count($allFiles) * 100) }}%"
                              aria-valuenow="{{ count($uploadedFiles) }}" aria-valuemin="0" aria-valuemax="{{ count($allFiles) }}">
                             {{ round((count($uploadedFiles) / count($allFiles) * 100)) }}%
@@ -933,117 +1044,6 @@
                     </form>
                 </div>
             @endif
-
-            <!-- Timeline Status Horizontal -->
-            <div class="info-card mb-4">
-                <h6 class="info-title mb-4">
-                    <i class="fas fa-tasks me-2"></i>Tahapan Status Pendaftaran
-                </h6>
-
-                <!-- Horizontal Timeline -->
-                <div style="margin: 0 -25px; padding: 25px; background: #f8f9fa; border-radius: 10px; overflow-x: auto;">
-                    <div class="d-flex align-items-center" style="min-width: fit-content; gap: 20px;">
-                        <!-- Step 1: Data Dikirim -->
-                        <div class="text-center" style="min-width: 120px;">
-                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; background: #004b4c; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
-                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Data Dikirim</div>
-                            <div style="font-size: 0.8rem; color: #666;">{{ $pendaftar->created_at->format('d/m/Y') }}</div>
-                            <div class="badge bg-success mt-2" style="font-size: 0.7rem;">✓ Selesai</div>
-                        </div>
-
-                        <!-- Connector -->
-                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
-
-                        <!-- Step 2: Diverifikasi -->
-                        <div class="text-center" style="min-width: 120px;">
-                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'background: #004b4c' : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                                <i class="fas fa-check-double"></i>
-                            </div>
-                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Diverifikasi</div>
-                            <div style="font-size: 0.8rem; color: #666;">
-                                @if($pendaftar->diverifikasi_tanggal)
-                                    {{ $pendaftar->diverifikasi_tanggal->format('d/m/Y') }}
-                                @else
-                                    Dalam proses...
-                                @endif
-                            </div>
-                            <div class="badge {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'bg-success' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
-                                {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
-                            </div>
-                        </div>
-
-                        <!-- Connector -->
-                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
-
-                        <!-- Step 3: Hasil Seleksi -->
-                        <div class="text-center" style="min-width: 120px;">
-                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'background: ' . ($pendaftar->status === 'lulus' ? '#28a745' : '#dc3545') : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                                <i class="fas {{ $pendaftar->status === 'lulus' ? 'fa-smile' : ($pendaftar->status === 'tidak_lulus' ? 'fa-frown' : 'fa-hourglass-half') }}"></i>
-                            </div>
-                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">
-                                @if($pendaftar->status === 'lulus')
-                                    Lulus
-                                @elseif($pendaftar->status === 'tidak_lulus')
-                                    Tidak Lulus
-                                @else
-                                    Seleksi
-                                @endif
-                            </div>
-                            <div style="font-size: 0.8rem; color: #666;">
-                                @if($pendaftar->diseleksi_tanggal)
-                                    {{ $pendaftar->diseleksi_tanggal->format('d/m/Y') }}
-                                @else
-                                    Dalam proses...
-                                @endif
-                            </div>
-                            <div class="badge {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? ($pendaftar->status === 'lulus' ? 'bg-success' : 'bg-danger') : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
-                                {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
-                            </div>
-                        </div>
-
-                        <!-- Connector -->
-                        <div style="flex-grow: 1; height: 2px; background: {{ $pendaftar->status === 'lulus' ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
-
-                        <!-- Step 4: Pengumuman Daftar Ulang -->
-                        <div class="text-center" style="min-width: 120px;">
-                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ $pendaftar->status === 'lulus' ? 'background: #ffc107' : 'background: #dee2e6' }}; {{ $pendaftar->status === 'lulus' ? 'color: #000' : 'color: #666' }}; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                                <i class="fas fa-bullhorn"></i>
-                            </div>
-                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Daftar Ulang</div>
-                            <div style="font-size: 0.8rem; color: #666;">
-                                @if($pendaftar->status === 'lulus')
-                                    Segera
-                                @else
-                                    Menunggu
-                                @endif
-                            </div>
-                            <div class="badge {{ $pendaftar->status === 'lulus' ? 'bg-warning' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
-                                {{ $pendaftar->status === 'lulus' ? 'Selanjutnya' : 'Pending' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Current Status Detail -->
-                <div class="mt-4 p-3 bg-light rounded">
-                    <strong class="text-primary">Status Saat Ini:</strong>
-                    <div class="mt-2">
-                        <span class="status-badge status-{{ $pendaftar->status }}" style="font-size: 1rem; padding: 8px 16px;">
-                            @if($pendaftar->status === 'pending')
-                                <i class="fas fa-clock me-2"></i>Menunggu Verifikasi
-                            @elseif($pendaftar->status === 'verifikasi')
-                                <i class="fas fa-magnifying-glass me-2"></i>Dalam Verifikasi
-                            @elseif($pendaftar->status === 'lulus')
-                                <i class="fas fa-check-circle me-2"></i>Lulus Seleksi
-                            @else
-                                <i class="fas fa-times-circle me-2"></i>Tidak Lulus
-                            @endif
-                        </span>
-                    </div>
-                </div>
-            </div>
 
             <!-- Next Steps -->
             @if($pendaftar->status === 'lulus')
