@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('ppdb_pendaftar', function (Blueprint $table) {
-            //
+            $table->dropColumn(['skor_nilai', 'skor_prestasi', 'skor_domisili', 'skor_dokumen', 'skor_total']);
         });
     }
 };
