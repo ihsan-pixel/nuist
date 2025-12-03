@@ -484,13 +484,38 @@
                 </div>
             </div>
 
-            <!-- Incomplete Data Section -->
+            <!-- Checklist Pengiriman Data Section -->
             @php
+                $allFiles = [
+                    'berkas_kk' => ['label' => 'Kartu Keluarga', 'icon' => 'fa-file', 'type' => 'dokumen'],
+                    'berkas_ijazah' => ['label' => 'Ijazah', 'icon' => 'fa-certificate', 'type' => 'dokumen'],
+                    'berkas_akta_kelahiran' => ['label' => 'Akta Kelahiran', 'icon' => 'fa-file', 'type' => 'dokumen'],
+                    'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
+                    'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
+                    'berkas_raport' => ['label' => 'Raport', 'icon' => 'fa-book', 'type' => 'dokumen'],
+                    'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
+                    'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
+                    'berkas_bukti_domisili' => ['label' => 'Bukti Domisili', 'icon' => 'fa-home', 'type' => 'dokumen'],
+                    'berkas_surat_mutasi' => ['label' => 'Surat Mutasi', 'icon' => 'fa-file', 'type' => 'dokumen'],
+                    'berkas_surat_keterangan_lulus' => ['label' => 'Surat Keterangan Lulus', 'icon' => 'fa-file-alt', 'type' => 'dokumen'],
+                    'berkas_skl' => ['label' => 'SKL', 'icon' => 'fa-certificate', 'type' => 'dokumen'],
+                ];
+
+                $uploadedFiles = [];
+                $missingFiles = [];
+                
+                foreach ($allFiles as $field => $info) {
+                    if (!empty($pendaftar->$field)) {
+                        $uploadedFiles[$field] = $info;
+                    } else {
+                        $missingFiles[$field] = $info;
+                    }
+                }
+
                 $incompleteFields = [];
                 $optionalFields = [
                     'nik' => 'NIK',
                     'agama' => 'Agama',
-                    // 'alamat_lengkap' => 'Alamat Lengkap',
                     'nama_ayah' => 'Nama Ayah',
                     'nama_ibu' => 'Nama Ibu',
                     'pekerjaan_ayah' => 'Pekerjaan Ayah',
@@ -507,24 +532,6 @@
                     }
                 }
 
-                // Check for missing required files
-                $requiredFiles = [
-                    'berkas_kk' => 'Kartu Keluarga',
-                    'berkas_ijazah' => 'Ijazah',
-                    // 'berkas_skhun' => 'SKHUN',
-                    'berkas_akta_kelahiran' => 'Akta Kelahiran',
-                    'berkas_sertifikat_prestasi' => 'Sertifikat Prestasi/KIP/PKH',
-                    'berkas_ktp_ayah' => 'KTP Ayah',
-                    'berkas_ktp_ibu' => 'KTP Ibu',
-                ];
-
-                foreach ($requiredFiles as $field => $label) {
-                    if (empty($pendaftar->$field)) {
-                        $incompleteFields[$field] = 'Berkas ' . $label;
-                    }
-                }
-
-                // Check for individual semester grades if rata_rata_nilai_raport is empty
                 if (empty($pendaftar->rata_rata_nilai_raport)) {
                     $semesterFields = [
                         'nilai_semester_1' => 'Nilai Semester 1',
@@ -541,6 +548,71 @@
                     }
                 }
             @endphp
+
+            <!-- Document Submission Status -->
+            <div class="info-card mb-4" style="border-left-color: #17a2b8; background: linear-gradient(135deg, #e8f5f9 0%, #e1f5fe 100%);">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="info-title text-info mb-2">
+                            <i class="fas fa-folder-check me-2"></i>Status Pengiriman Dokumen
+                        </h6>
+                        <p class="mb-0 text-muted">
+                            <strong>{{ count($uploadedFiles) }}</strong> dari <strong>{{ count($allFiles) }}</strong> dokumen sudah dikirim
+                        </p>
+                    </div>
+                    <div class="progress" style="width: 150px; height: 30px;">
+                        <div class="progress-bar progress-bar-striped bg-info" role="progressbar" 
+                             style="width: {{ (count($uploadedFiles) / count($allFiles) * 100) }}%"
+                             aria-valuenow="{{ count($uploadedFiles) }}" aria-valuemin="0" aria-valuemax="{{ count($allFiles) }}">
+                            {{ round((count($uploadedFiles) / count($allFiles) * 100)) }}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dokumen yang Sudah Dikirim -->
+                @if(count($uploadedFiles) > 0)
+                    <div class="mb-3">
+                        <h6 class="text-success mb-2">
+                            <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
+                        </h6>
+                        <div class="row">
+                            @foreach($uploadedFiles as $field => $info)
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="badge bg-success text-white w-100 p-2 text-start">
+                                        <i class="fas {{ $info['icon'] }} me-1"></i>{{ $info['label'] }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Dokumen yang Belum Dikirim -->
+                @if(count($missingFiles) > 0)
+                    <div>
+                        <h6 class="text-warning mb-2">
+                            <i class="fas fa-exclamation-circle me-1"></i>Dokumen Belum Dikirim
+                        </h6>
+                        <div class="row">
+                            @foreach($missingFiles as $field => $info)
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="badge bg-light text-dark border border-warning w-100 p-2 text-start">
+                                        <i class="fas {{ $info['icon'] }} me-1 text-warning"></i>{{ $info['label'] }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm mt-3" onclick="toggleUpdateForm()">
+                            <i class="fas fa-upload me-1"></i>Upload Dokumen Sekarang
+                        </button>
+                    </div>
+                @else
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Sempurna!</strong> Semua dokumen sudah dikirim. Silakan menunggu verifikasi dari sekolah.
+                    </div>
+                @endif
+            </div>
 
             @if(count($incompleteFields) > 0)
                 <div class="info-card border-warning mb-4" style="border-left-color: #ffc107; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
@@ -867,83 +939,114 @@
                 </div>
             @endif
 
-            <!-- Timeline -->
-            <div class="info-card">
+            <!-- Timeline Status Horizontal -->
+            <div class="info-card mb-4">
                 <h6 class="info-title mb-4">
-                    <i class="fas fa-history me-2"></i>Timeline Pendaftaran
+                    <i class="fas fa-tasks me-2"></i>Tahapan Status Pendaftaran
                 </h6>
 
-                <div class="status-timeline">
-                    <!-- Pendaftaran -->
-                    <div class="timeline-item completed">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Pendaftaran Diterima</div>
-                            <div class="timeline-date">{{ $pendaftar->created_at->format('d M Y, H:i') }}</div>
-                            <div class="timeline-description">
-                                Pendaftaran Anda telah berhasil diterima dengan nomor pendaftaran <strong>{{ $pendaftar->nomor_pendaftaran }}</strong>
+                <!-- Horizontal Timeline -->
+                <div style="margin: 0 -25px; padding: 25px; background: #f8f9fa; border-radius: 10px; overflow-x: auto;">
+                    <div class="d-flex align-items-center" style="min-width: fit-content; gap: 20px;">
+                        <!-- Step 1: Data Dikirim -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; background: #004b4c; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-cloud-upload-alt"></i>
                             </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Data Dikirim</div>
+                            <div style="font-size: 0.8rem; color: #666;">{{ $pendaftar->created_at->format('d/m/Y') }}</div>
+                            <div class="badge bg-success mt-2" style="font-size: 0.7rem;">✓ Selesai</div>
                         </div>
-                    </div>
 
-                    <!-- Verifikasi -->
-                    <div class="timeline-item {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'completed' : 'active' }}">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Verifikasi Berkas</div>
-                            <div class="timeline-date">
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 2: Diverifikasi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'background: #004b4c' : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Diverifikasi</div>
+                            <div style="font-size: 0.8rem; color: #666;">
                                 @if($pendaftar->diverifikasi_tanggal)
-                                    {{ $pendaftar->diverifikasi_tanggal->format('d M Y, H:i') }}
+                                    {{ $pendaftar->diverifikasi_tanggal->format('d/m/Y') }}
                                 @else
-                                    Dalam Proses
+                                    Dalam proses...
                                 @endif
                             </div>
-                            <div class="timeline-description">
-                                @if($pendaftar->status === 'pending')
-                                    Berkas Anda sedang dalam proses verifikasi oleh admin sekolah
-                                @elseif(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']))
-                                    Berkas Anda telah diverifikasi
-                                    @if($pendaftar->catatan_verifikasi)
-                                        <br><small><em>Catatan: {{ $pendaftar->catatan_verifikasi }}</em></small>
-                                    @endif
-                                @endif
+                            <div class="badge {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'bg-success' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Seleksi -->
-                    <div class="timeline-item {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'completed' : ($pendaftar->status === 'verifikasi' ? 'active' : '') }}">
-                        <div class="timeline-content">
-                            <div class="timeline-title">Seleksi Akhir</div>
-                            <div class="timeline-date">
-                                @if($pendaftar->diseleksi_tanggal)
-                                    {{ $pendaftar->diseleksi_tanggal->format('d M Y, H:i') }}
-                                @else
-                                    Dalam Proses
-                                @endif
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 3: Hasil Seleksi -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? 'background: ' . ($pendaftar->status === 'lulus' ? '#28a745' : '#dc3545') : 'background: #dee2e6' }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas {{ $pendaftar->status === 'lulus' ? 'fa-smile' : ($pendaftar->status === 'tidak_lulus' ? 'fa-frown' : 'fa-hourglass-half') }}"></i>
                             </div>
-                            <div class="timeline-description">
-                                @if(in_array($pendaftar->status, ['pending', 'verifikasi']))
-                                    Proses seleksi akhir sedang berlangsung
-                                @elseif($pendaftar->status === 'lulus')
-                                    <strong class="text-success">Selamat! Anda dinyatakan LULUS seleksi PPDB</strong>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">
+                                @if($pendaftar->status === 'lulus')
+                                    Lulus
                                 @elseif($pendaftar->status === 'tidak_lulus')
-                                    <strong class="text-danger">Maaf, Anda dinyatakan TIDAK LULUS seleksi PPDB</strong>
+                                    Tidak Lulus
+                                @else
+                                    Seleksi
                                 @endif
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                @if($pendaftar->diseleksi_tanggal)
+                                    {{ $pendaftar->diseleksi_tanggal->format('d/m/Y') }}
+                                @else
+                                    Dalam proses...
+                                @endif
+                            </div>
+                            <div class="badge {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? ($pendaftar->status === 'lulus' ? 'bg-success' : 'bg-danger') : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...' }}
+                            </div>
+                        </div>
+
+                        <!-- Connector -->
+                        <div style="flex-grow: 1; height: 2px; background: {{ $pendaftar->status === 'lulus' ? '#004b4c' : '#dee2e6' }}; margin-bottom: 20px;"></div>
+
+                        <!-- Step 4: Pengumuman Daftar Ulang -->
+                        <div class="text-center" style="min-width: 120px;">
+                            <div class="mx-auto mb-2" style="width: 50px; height: 50px; border-radius: 50%; {{ $pendaftar->status === 'lulus' ? 'background: #ffc107' : 'background: #dee2e6' }}; {{ $pendaftar->status === 'lulus' ? 'color: #000' : 'color: #666' }}; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Daftar Ulang</div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                @if($pendaftar->status === 'lulus')
+                                    Segera
+                                @else
+                                    Menunggu
+                                @endif
+                            </div>
+                            <div class="badge {{ $pendaftar->status === 'lulus' ? 'bg-warning' : 'bg-secondary' }} mt-2" style="font-size: 0.7rem;">
+                                {{ $pendaftar->status === 'lulus' ? 'Selanjutnya' : 'Pending' }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Daftar Ulang -->
-                    @if($pendaftar->status === 'lulus')
-                        <div class="timeline-item active">
-                            <div class="timeline-content">
-                                <div class="timeline-title">Daftar Ulang</div>
-                                <div class="timeline-date">Akan diinformasikan</div>
-                                <div class="timeline-description">
-                                    Informasi daftar ulang akan segera diumumkan. Pastikan untuk memantau pengumuman dari sekolah.
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                <!-- Current Status Detail -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <strong class="text-primary">Status Saat Ini:</strong>
+                    <div class="mt-2">
+                        <span class="status-badge status-{{ $pendaftar->status }}" style="font-size: 1rem; padding: 8px 16px;">
+                            @if($pendaftar->status === 'pending')
+                                <i class="fas fa-clock me-2"></i>Menunggu Verifikasi
+                            @elseif($pendaftar->status === 'verifikasi')
+                                <i class="fas fa-magnifying-glass me-2"></i>Dalam Verifikasi
+                            @elseif($pendaftar->status === 'lulus')
+                                <i class="fas fa-check-circle me-2"></i>Lulus Seleksi
+                            @else
+                                <i class="fas fa-times-circle me-2"></i>Tidak Lulus
+                            @endif
+                        </span>
+                    </div>
                 </div>
             </div>
 
