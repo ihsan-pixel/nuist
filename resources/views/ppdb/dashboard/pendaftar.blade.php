@@ -361,14 +361,27 @@
                                     <i class="mdi mdi-eye"></i>
                                 </button>
                                 @if($pendaftar->berkas_kk)
-                                    <a href="{{ asset('/' . $pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
+                                    <a href="{{ asset($pendaftar->berkas_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
                                         <i class="mdi mdi-file-document"></i>
                                     </a>
                                 @endif
                                 @if($pendaftar->berkas_ijazah)
-                                    <a href="{{ asset('/' . $pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
+                                    <a href="{{ asset($pendaftar->berkas_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
                                         <i class="mdi mdi-file-document-outline"></i>
                                     </a>
+                                @endif
+                                @if($pendaftar->berkas_sertifikat_prestasi)
+                                    @php
+                                        $sertifikatFiles = is_array($pendaftar->berkas_sertifikat_prestasi) ? $pendaftar->berkas_sertifikat_prestasi : json_decode($pendaftar->berkas_sertifikat_prestasi, true);
+                                        if (!is_array($sertifikatFiles)) {
+                                            $sertifikatFiles = [$pendaftar->berkas_sertifikat_prestasi];
+                                        }
+                                    @endphp
+                                    @foreach($sertifikatFiles as $index => $file)
+                                        <a href="{{ asset($file) }}" target="_blank" class="btn btn-sm btn-outline-warning" title="Lihat Sertifikat {{ count($sertifikatFiles) > 1 ? ($index + 1) : '' }}">
+                                            <i class="mdi mdi-trophy-outline"></i>{{ count($sertifikatFiles) > 1 ? ($index + 1) : '' }}
+                                        </a>
+                                    @endforeach
                                 @endif
                             </div>
                         </td>
