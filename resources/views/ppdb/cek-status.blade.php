@@ -597,24 +597,38 @@
 
             <!-- Checklist Pengiriman Data Section -->
             @php
-                $allFiles = [
+                // Dokumen Pokok (Wajib)
+                $mainFiles = [
                     'berkas_kk' => ['label' => 'Kartu Keluarga', 'icon' => 'fa-file', 'type' => 'dokumen'],
                     'berkas_ijazah' => ['label' => 'Ijazah', 'icon' => 'fa-certificate', 'type' => 'dokumen'],
                     'berkas_akta_kelahiran' => ['label' => 'Akta Kelahiran', 'icon' => 'fa-file', 'type' => 'dokumen'],
                     'berkas_ktp_ayah' => ['label' => 'KTP Ayah', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_ktp_ibu' => ['label' => 'KTP Ibu', 'icon' => 'fa-id-card', 'type' => 'dokumen'],
                     'berkas_sertifikat_prestasi' => ['label' => 'Sertifikat Prestasi', 'icon' => 'fa-trophy', 'type' => 'dokumen'],
-                    'berkas_kip_pkh' => ['label' => 'PIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
                 ];
 
-                $uploadedFiles = [];
-                $missingFiles = [];
+                // Dokumen Tambahan (Jika memiliki)
+                $additionalFiles = [
+                    'berkas_kip_pkh' => ['label' => 'KIP/PKH', 'icon' => 'fa-heart', 'type' => 'dokumen'],
+                ];
 
-                foreach ($allFiles as $field => $info) {
+                $uploadedMainFiles = [];
+                $missingMainFiles = [];
+                $uploadedAdditionalFiles = [];
+
+                // Proses dokumen pokok
+                foreach ($mainFiles as $field => $info) {
                     if (!empty($pendaftar->$field)) {
-                        $uploadedFiles[$field] = $info;
+                        $uploadedMainFiles[$field] = $info;
                     } else {
-                        $missingFiles[$field] = $info;
+                        $missingMainFiles[$field] = $info;
+                    }
+                }
+
+                // Proses dokumen tambahan
+                foreach ($additionalFiles as $field => $info) {
+                    if (!empty($pendaftar->$field)) {
+                        $uploadedAdditionalFiles[$field] = $info;
                     }
                 }
 
@@ -655,34 +669,34 @@
                 }
             @endphp
 
-            <!-- Document Submission Status -->
+            <!-- Document Submission Status - Dokumen Pokok -->
             <div class="info-card mb-4" style="border-left-color: #17a2b8; background: linear-gradient(135deg, #e8f5f9 0%, #e1f5fe 100%);">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h6 class="info-title text-info mb-2">
-                            <i class="fas fa-folder-check me-2"></i>Status Pengiriman Dokumen
+                            <i class="fas fa-folder-check me-2"></i>Status Pengiriman Dokumen Wajib
                         </h6>
                         <p class="mb-0 text-muted">
-                            <strong>{{ count($uploadedFiles) }}</strong> dari <strong>{{ count($allFiles) }}</strong> dokumen sudah dikirim
+                            <strong>{{ count($uploadedMainFiles) }}</strong> dari <strong>{{ count($mainFiles) }}</strong> dokumen wajib sudah dikirim
                         </p>
                     </div>
                     <div class="progress" style="width: 150px; height: 30px;">
                         <div class="progress-bar progress-bar-striped bg-info" role="progressbar"
-                             style="width: {{ (count($uploadedFiles) / count($allFiles) * 100) }}%"
-                             aria-valuenow="{{ count($uploadedFiles) }}" aria-valuemin="0" aria-valuemax="{{ count($allFiles) }}">
-                            {{ round((count($uploadedFiles) / count($allFiles) * 100)) }}%
+                             style="width: {{ (count($uploadedMainFiles) / count($mainFiles) * 100) }}%"
+                             aria-valuenow="{{ count($uploadedMainFiles) }}" aria-valuemin="0" aria-valuemax="{{ count($mainFiles) }}">
+                            {{ round((count($uploadedMainFiles) / count($mainFiles) * 100)) }}%
                         </div>
                     </div>
                 </div>
 
-                <!-- Dokumen yang Sudah Dikirim -->
-                @if(count($uploadedFiles) > 0)
+                <!-- Dokumen Pokok yang Sudah Dikirim -->
+                @if(count($uploadedMainFiles) > 0)
                     <div class="mb-3">
                         <h6 class="text-success mb-2">
                             <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
                         </h6>
                         <div class="row">
-                            @foreach($uploadedFiles as $field => $info)
+                            @foreach($uploadedMainFiles as $field => $info)
                                 <div class="col-md-6 col-lg-4 mb-2">
                                     <div class="badge bg-success text-white w-100 p-2 text-start">
                                         <i class="fas {{ $info['icon'] }} me-1"></i>{{ $info['label'] }}
@@ -693,14 +707,14 @@
                     </div>
                 @endif
 
-                <!-- Dokumen yang Belum Dikirim -->
-                @if(count($missingFiles) > 0)
+                <!-- Dokumen Pokok yang Belum Dikirim -->
+                @if(count($missingMainFiles) > 0)
                     <div>
                         <h6 class="text-warning mb-2">
                             <i class="fas fa-exclamation-circle me-1"></i>Dokumen Belum Dikirim
                         </h6>
                         <div class="row">
-                            @foreach($missingFiles as $field => $info)
+                            @foreach($missingMainFiles as $field => $info)
                                 <div class="col-md-6 col-lg-4 mb-2">
                                     <div class="badge bg-light text-dark border border-warning w-100 p-2 text-start">
                                         <i class="fas {{ $info['icon'] }} me-1 text-warning"></i>{{ $info['label'] }}
@@ -715,9 +729,48 @@
                 @else
                     <div class="alert alert-success mb-0">
                         <i class="fas fa-check-circle me-2"></i>
-                        <strong>Sempurna!</strong> Semua dokumen sudah dikirim. Silakan menunggu verifikasi dari sekolah.
+                        <strong>Sempurna!</strong> Semua dokumen wajib sudah dikirim.
                     </div>
                 @endif
+            </div>
+
+            <!-- Document Submission Status - Dokumen Tambahan -->
+            <div class="info-card mb-4" style="border-left-color: #28a745; background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="info-title text-success mb-2">
+                            <i class="fas fa-heart me-2"></i>Dokumen Tambahan (Jika Memiliki)
+                        </h6>
+                        <p class="mb-3 text-muted">
+                            Jika Anda memiliki KIP/PKH, silakan upload dokumen ini:
+                        </p>
+
+                        @if(count($uploadedAdditionalFiles) > 0)
+                            <div class="mb-3">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
+                                </h6>
+                                <div class="row">
+                                    @foreach($uploadedAdditionalFiles as $field => $info)
+                                        <div class="col-md-6 col-lg-4 mb-2">
+                                            <div class="badge bg-success text-white w-100 p-2 text-start">
+                                                <i class="fas {{ $info['icon'] }} me-1"></i>{{ $info['label'] }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Jika Anda memiliki KIP/PKH, silakan upload dokumen melalui tombol di bawah untuk mendapatkan prioritas lebih tinggi.
+                            </div>
+                        @endif
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm" onclick="toggleUpdateForm()" style="white-space: nowrap; margin-left: 10px;">
+                        <i class="fas fa-upload me-1"></i>Upload KIP/PKH
+                    </button>
+                </div>
             </div>
 
             @if(count($incompleteFields) > 0)
