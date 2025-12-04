@@ -765,6 +765,39 @@
                 </div>
             </div>
 
+            <!-- Data Kontak -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_nomor_whatsapp_siswa" class="form-label">
+                            <i class="fas fa-phone me-2"></i>Nomor WhatsApp Siswa <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
+                               id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
+                               value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
+                               placeholder="081234567890" required>
+                        @error('ppdb_nomor_whatsapp_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="ppdb_email_siswa" class="form-label">
+                            <i class="fas fa-envelope me-2"></i>Email Siswa <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
+                               id="ppdb_email_siswa" name="ppdb_email_siswa"
+                               value="{{ old('ppdb_email_siswa') }}"
+                               placeholder="siswa@example.com" required>
+                        @error('ppdb_email_siswa')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <div class="text-end">
                 <button type="button" class="btn btn-next btn-navigation" onclick="nextStep(2)">
                     Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
@@ -854,35 +887,6 @@
                     $sekolahLainData[$s->id] = is_array($s->jurusan) ? $s->jurusan : (is_string($s->jurusan) ? json_decode($s->jurusan, true) ?? [] : []);
                 }
             @endphp
-
-            <!-- Contact fields: wajib dan ditempatkan di atas opsi ke-2 -->
-            <div class="row mt-3 mb-2">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_nomor_whatsapp_siswa" class="form-label">Nomor WhatsApp Siswa <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('ppdb_nomor_whatsapp_siswa') is-invalid @enderror"
-                               id="ppdb_nomor_whatsapp_siswa" name="ppdb_nomor_whatsapp_siswa"
-                               value="{{ old('ppdb_nomor_whatsapp_siswa') }}"
-                               placeholder="081234567890" required>
-                        @error('ppdb_nomor_whatsapp_siswa')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="ppdb_email_siswa" class="form-label">Email Siswa <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control @error('ppdb_email_siswa') is-invalid @enderror"
-                               id="ppdb_email_siswa" name="ppdb_email_siswa"
-                               value="{{ old('ppdb_email_siswa') }}"
-                               placeholder="siswa@example.com" required>
-                        @error('ppdb_email_siswa')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div>
 
             <div class="form-group mt-2">
                 <div class="form-check form-switch mb-2">
@@ -1052,13 +1056,13 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHU
+                            <i class="fas fa-certificate me-2"></i>Ijazah/SKHUN/Surat Keterangan Lulus
                         </label>
                         <div class="file-upload-area" onclick="document.getElementById('berkas_ijazah').click()">
                             <div class="file-upload-icon">
                                 <i class="fas fa-certificate"></i>
                             </div>
-                            <div class="file-upload-text">Klik untuk memilih file Ijazah/SKHU</div>
+                            <div class="file-upload-text">Klik untuk memilih file Ijazah/SKHUN/Surat Keterangan Lulus</div>
                             <div class="file-upload-hint">PDF, JPG, atau PNG (Maksimal 2MB) - Opsional jika sudah memiliki</div>
                         </div>
                         <input type="file" id="berkas_ijazah" name="berkas_ijazah"
