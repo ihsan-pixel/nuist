@@ -237,7 +237,7 @@
         }
 
         .step-indicator {
-            font-size: 12px;
+            font-size: 10px;
             color: #666;
             font-weight: 600;
         }
