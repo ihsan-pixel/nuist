@@ -72,7 +72,7 @@
 
         .section-title {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             color: #004b4c;
             margin: 0;
             text-transform: uppercase;
