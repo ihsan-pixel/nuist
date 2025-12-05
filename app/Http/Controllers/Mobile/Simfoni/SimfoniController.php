@@ -199,7 +199,7 @@ class SimfoniController extends Controller
         ];
 
         foreach ($proyeksi_fields as $field) {
-            if (isset($validated[$field]) && $validated[$field] === 'Ya') {
+            if (isset($validated[$field]) && in_array($validated[$field], ['iya', 'sudah'])) {
                 $skor_proyeksi++;
             }
         }
