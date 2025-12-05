@@ -467,12 +467,18 @@
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>TMT Pertama</label>
-                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" required>
+                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" required id="tmtInput">
                         </div>
                         <div class="form-group required">
                             <label>Strata Pendidikan</label>
                             <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" required>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Masa Kerja</label>
+                        <input type="text" id="masaKerja" readonly style="background: #f8f9fa; color: #666;">
+                        <div class="form-hint">Otomatis: Dari TMT Pertama sampai Juni 2025</div>
                     </div>
 
                     <div class="row-2col">
@@ -838,6 +844,51 @@
                     if (totalEl) totalEl.value = total.toFixed(2);
                 }
             });
+        }
+
+        // Calculate masa kerja from TMT to June 2025
+        function calculateMasaKerja() {
+            const tmtInput = document.getElementById('tmtInput');
+            const masaKerjaInput = document.getElementById('masaKerja');
+
+            if (!tmtInput || !masaKerjaInput) return;
+
+            const tmtDate = new Date(tmtInput.value);
+            if (!tmtInput.value || isNaN(tmtDate.getTime())) {
+                masaKerjaInput.value = '';
+                return;
+            }
+
+            // Target date: July 31, 2025
+            const targetDate = new Date(2025, 6, 31); // Month is 0-indexed, so 6 = July
+
+            // Calculate difference
+            let years = targetDate.getFullYear() - tmtDate.getFullYear();
+            let months = targetDate.getMonth() - tmtDate.getMonth();
+
+            // Adjust if months is negative
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            // Adjust if target day is before TMT day in the same month
+            if (targetDate.getDate() < tmtDate.getDate() && months === 0) {
+                years--;
+                months = 11;
+            }
+
+            masaKerjaInput.value = `${years} tahun ${months} bulan`;
+        }
+
+        // Add event listener to TMT input
+        const tmtInput = document.getElementById('tmtInput');
+        if (tmtInput) {
+            tmtInput.addEventListener('change', calculateMasaKerja);
+            // Calculate on page load if TMT has value
+            if (tmtInput.value) {
+                calculateMasaKerja();
+            }
         }
 
         // Initialize UI
