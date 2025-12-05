@@ -832,6 +832,7 @@
                                         <td>Akan kuliah S2</td>
                                         <td><input type="radio" name="proyeksi_1" value="Ya" {{ old('proyeksi_1', $simfoni->proyeksi_1 ?? '') == 'Ya' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="proyeksi_1" value="Tidak" {{ old('proyeksi_1', $simfoni->proyeksi_1 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                        <td><input type="text" name="skor_1" value="{{ old('skor_1', $simfoni->skor_1 ?? '') }}" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
                                     <tr>
                                         <td>2</td>

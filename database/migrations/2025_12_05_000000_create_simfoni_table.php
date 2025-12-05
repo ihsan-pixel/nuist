@@ -73,25 +73,46 @@ return new class extends Migration
             $table->integer('jumlah_anak')->nullable();
 
             // G. PROYEKSI KE DEPAN
-            $table->string('proyeksi_1')->nullable(); // Akan kuliah S2
-            $table->string('proyeksi_2')->nullable(); // Akan mendaftar PNS
-            $table->string('proyeksi_3')->nullable(); // Akan mendaftar PPPK
-            $table->string('proyeksi_4')->nullable(); // Akan mengikuti PPG
-            $table->string('proyeksi_5')->nullable(); // Akan menulis buku/modul/riset
-            $table->string('proyeksi_6')->nullable(); // Akan mengikuti Seleksi Diklat Cakep
-            $table->string('proyeksi_7')->nullable(); // Akan membimbing riset & prestasi siswa
-            $table->string('proyeksi_8')->nullable(); // Akan masuk tim unggulan sekolah/madrasah
-            $table->string('proyeksi_9')->nullable(); // Akan kompetisi Pimpinan Level II
-            $table->string('proyeksi_10')->nullable(); // Akan aktif mengikuti pelatihan-pelatihan
-            $table->string('proyeksi_11')->nullable(); // Akan aktif di MGMP dan MKKSM
-            $table->string('proyeksi_12')->nullable(); // Akan mengikuti Pendidikan Kader NU
-            $table->string('proyeksi_13')->nullable(); // Akan aktif membantu kegiatan lembaga
-            $table->string('proyeksi_14')->nullable(); // Akan aktif mengikuti kegiatan ke-NU-an
-            $table->string('proyeksi_15')->nullable(); // Akan aktif ikut ZIS & kegiatan sosial
-            $table->string('proyeksi_16')->nullable(); // Akan mengembangkan unit usaha satpen
-            $table->string('proyeksi_17')->nullable(); // Akan bekerja dengan disiplin & produktif
-            $table->string('proyeksi_18')->nullable(); // Akan loyal pada NU & aktif di masyarakat
-            $table->string('proyeksi_19')->nullable(); // Bersedia dipindah ke satpen lain
+            $table->string('akan_kuliah_s2')->nullable();
+            $table->integer('skor_akan_kuliah_s2')->nullable();
+            $table->string('akan_mendaftar_pns')->nullable();
+            $table->integer('skor_akan_mendaftar_pns')->nullable();
+            $table->string('akan_mendaftar_pppk')->nullable();
+            $table->integer('skor_akan_mendaftar_pppk')->nullable();
+            $table->string('akan_mengikuti_ppg')->nullable();
+            $table->integer('skor_akan_mengikuti_ppg')->nullable();
+            $table->string('akan_menulis_buku_modul_riset')->nullable();
+            $table->integer('skor_akan_menulis_buku_modul_riset')->nullable();
+            $table->string('akan_mengikuti_seleksi_diklat_cakep')->nullable();
+            $table->integer('skor_akan_mengikuti_seleksi_diklat_cakep')->nullable();
+            $table->string('akan_membimbing_riset_prestasi_siswa')->nullable();
+            $table->integer('skor_akan_membimbing_riset_prestasi_siswa')->nullable();
+            $table->string('akan_masuk_tim_unggulan_sekolah_madrasah')->nullable();
+            $table->integer('skor_akan_masuk_tim_unggulan_sekolah_madrasah')->nullable();
+            $table->string('akan_kompetisi_pimpinan_level_ii')->nullable();
+            $table->integer('skor_akan_kompetisi_pimpinan_level_ii')->nullable();
+            $table->string('akan_aktif_mengikuti_pelatihan')->nullable();
+            $table->integer('skor_akan_aktif_mengikuti_pelatihan')->nullable();
+            $table->string('akan_aktif_mgmp_mkk')->nullable();
+            $table->integer('skor_akan_aktif_mgmp_mkk')->nullable();
+            $table->string('akan_mengikuti_pendidikan_kader_nu')->nullable();
+            $table->integer('skor_akan_mengikuti_pendidikan_kader_nu')->nullable();
+            $table->string('akan_aktif_membantu_kegiatan_lembaga')->nullable();
+            $table->integer('skor_akan_aktif_membantu_kegiatan_lembaga')->nullable();
+            $table->string('akan_aktif_mengikuti_kegiatan_nu')->nullable();
+            $table->integer('skor_akan_aktif_mengikuti_kegiatan_nu')->nullable();
+            $table->string('akan_aktif_ikut_zis_kegiatan_sosial')->nullable();
+            $table->integer('skor_akan_aktif_ikut_zis_kegiatan_sosial')->nullable();
+            $table->string('akan_mengembangkan_unit_usaha_satpen')->nullable();
+            $table->integer('skor_akan_mengembangkan_unit_usaha_satpen')->nullable();
+            $table->string('akan_bekerja_disiplin_produktif')->nullable();
+            $table->integer('skor_akan_bekerja_disiplin_produktif')->nullable();
+            $table->string('akan_loyal_nu_aktif_masyarakat')->nullable();
+            $table->integer('skor_akan_loyal_nu_aktif_masyarakat')->nullable();
+            $table->string('bersedia_dipindah_satpen_lain')->nullable();
+            $table->integer('skor_bersedia_dipindah_satpen_lain')->nullable();
+            $table->integer('skor_proyeksi')->nullable(); // Skor total proyeksi (0-19)
+            $table->string('kategori_proyeksi')->nullable(); // Kategori proyeksi (optimal/baik/cukup/kurang/buruk)
 
             $table->timestamps();
 
