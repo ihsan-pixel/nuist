@@ -475,11 +475,11 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Masa Kerja</label>
-                        <input type="text" id="masaKerja" readonly style="background: #f8f9fa; color: #666;">
-                        <div class="form-hint">Otomatis: Dari TMT Pertama sampai Juni 2025</div>
-                    </div>
+                        <div class="form-group">
+                            <label>Masa Kerja</label>
+                            <input type="text" id="masaKerja" name="masa_kerja" readonly style="background: #f8f9fa; color: #666;">
+                            <div class="form-hint">Otomatis: Dari TMT Pertama sampai Juni 2025</div>
+                        </div>
 
                     <div class="row-2col">
                         <div class="form-group">
@@ -695,7 +695,7 @@
 
                         <div class="form-group">
                             <label>Kategori Penghasilan</label>
-                            <input type="text" id="kategoriPenghasilan" readonly style="background: #f8f9fa; color: #666; font-weight: bold;">
+                            <input type="text" id="kategoriPenghasilan" name="kategori_penghasilan" readonly style="background: #f8f9fa; color: #666; font-weight: bold;">
                             <div class="form-hint">
                                 A = Bagus (≥ 10 juta)<br>
                                 B = Baik (6,0 – 9,9 juta)<br>
@@ -873,6 +873,12 @@
 
                     const kategoriEl = document.getElementById('kategoriPenghasilan');
                     if (kategoriEl) kategoriEl.value = kategori;
+
+                    // Also update masa kerja calculation
+                    const masaKerjaEl = document.getElementById('masaKerja');
+                    if (masaKerjaEl && masaKerjaEl.value) {
+                        // Masa kerja is already calculated, no need to change
+                    }
                 }
             });
         }

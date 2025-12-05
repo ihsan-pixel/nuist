@@ -93,6 +93,8 @@ class SimfoniController extends Controller
             'penghasilan_lain' => 'nullable|numeric|min:0',
             'penghasilan_pasangan' => 'nullable|numeric|min:0',
             'total_penghasilan' => 'nullable|numeric|min:0',
+            'masa_kerja' => 'nullable|string|max:100',
+            'kategori_penghasilan' => 'nullable|string|max:100',
         ], [
             'required' => ':attribute wajib diisi',
             'date' => ':attribute harus berformat tanggal',
