@@ -57,6 +57,7 @@
             border-radius: 8px;
             padding: 16px;
             margin-bottom: 16px;
+            box-shadow: #666
             /* border-left: 4px solid #004b4c; */
         }
 
