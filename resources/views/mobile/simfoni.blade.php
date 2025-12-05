@@ -297,20 +297,7 @@
             flex: 1;
         }
 
-        .timeline-step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            width: calc(100% - 24px);
-            height: 2px;
-            background: #e9ecef;
-            z-index: 1;
-        }
-
-        .timeline-step.completed:not(:last-child)::after {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-        }
+        /* Lines removed as requested */
 
         .timeline-step-circle {
             width: 24px;
