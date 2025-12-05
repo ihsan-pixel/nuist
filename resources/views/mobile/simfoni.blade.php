@@ -285,7 +285,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 300px;
+            max-width: 400px;
             margin: 0 auto;
         }
 
@@ -335,7 +335,7 @@
         }
 
         .timeline-step-label {
-            font-size: 6px;
+            font-size: 5px;
             color: #666;
             margin-top: 4px;
             text-align: center;
@@ -368,24 +368,36 @@
     <div class="form-container">
         <!-- Step Timeline -->
         <div class="step-timeline">
-            <div class="timeline-steps">
-                <div class="timeline-step active" data-step="1">
-                    <div class="timeline-step-circle">1</div>
-                    <div class="timeline-step-label">Data SK</div>
-                </div>
-                <div class="timeline-step" data-step="2">
-                    <div class="timeline-step-circle">2</div>
-                    <div class="timeline-step-label">Riwayat Kerja</div>
-                </div>
-                <div class="timeline-step" data-step="3">
-                    <div class="timeline-step-circle">3</div>
-                    <div class="timeline-step-label">Keahlian</div>
-                </div>
-                <div class="timeline-step" data-step="4">
-                    <div class="timeline-step-circle">4</div>
-                    <div class="timeline-step-label">Keuangan</div>
-                </div>
+        <div class="timeline-steps">
+            <div class="timeline-step active" data-step="1">
+                <div class="timeline-step-circle">1</div>
+                <div class="timeline-step-label">Data SK</div>
             </div>
+            <div class="timeline-step" data-step="2">
+                <div class="timeline-step-circle">2</div>
+                <div class="timeline-step-label">Riwayat Kerja</div>
+            </div>
+            <div class="timeline-step" data-step="3">
+                <div class="timeline-step-circle">3</div>
+                <div class="timeline-step-label">Keahlian</div>
+            </div>
+            <div class="timeline-step" data-step="4">
+                <div class="timeline-step-circle">4</div>
+                <div class="timeline-step-label">Keuangan</div>
+            </div>
+            <div class="timeline-step" data-step="5">
+                <div class="timeline-step-circle">5</div>
+                <div class="timeline-step-label">Kekaderan</div>
+            </div>
+            <div class="timeline-step" data-step="6">
+                <div class="timeline-step-circle">6</div>
+                <div class="timeline-step-label">Keluarga</div>
+            </div>
+            <div class="timeline-step" data-step="7">
+                <div class="timeline-step-circle">7</div>
+                <div class="timeline-step-label">Proyeksi</div>
+            </div>
+        </div>
         </div>
 
         <!-- Success Alert -->
@@ -709,6 +721,242 @@
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
 
+            <!-- Step 5: E. STATUS KEKADERAN -->
+            <div class="step-content" data-step="5" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-group"></i>
+                        </div>
+                        <h6 class="section-title">E. STATUS KEKADERAN</h6>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label>Status Kader Diri</label>
+                            <input type="text" name="status_kader_diri" value="{{ old('status_kader_diri', $simfoni->status_kader_diri ?? '') }}" placeholder="Status kader diri">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pendidikan Kader yang Diikuti</label>
+                            <input type="text" name="pendidikan_kader" value="{{ old('pendidikan_kader', $simfoni->pendidikan_kader ?? '') }}" placeholder="Pendidikan kader yang diikuti">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Status Kader Ayah</label>
+                            <input type="text" name="status_kader_ayah" value="{{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') }}" placeholder="Status kader ayah">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Status Kader Ibu</label>
+                            <input type="text" name="status_kader_ibu" value="{{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') }}" placeholder="Status kader ibu">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Status Kader Suami/Istri</label>
+                            <input type="text" name="status_kader_pasangan" value="{{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') }}" placeholder="Status kader suami/istri">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pilihan Status Kader</label>
+                            <select name="pilihan_status_kader">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="4" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '4' ? 'selected' : '' }}>4 = Militan</option>
+                                <option value="3" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '3' ? 'selected' : '' }}>3 = Aktif</option>
+                                <option value="2" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '2' ? 'selected' : '' }}>2 = Baru</option>
+                                <option value="0" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '0' ? 'selected' : '' }}>0 = Non-NU</option>
+                            </select>
+                        </div>
+                    </div> <!-- /.section-content -->
+                </div> <!-- /.section-card -->
+            </div> <!-- /.step-content -->
+
+            <!-- Step 6: F. DATA KELUARGA -->
+            <div class="step-content" data-step="6" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-family"></i>
+                        </div>
+                        <h6 class="section-title">F. DATA KELUARGA</h6>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label>Nama Ayah</label>
+                            <input type="text" name="nama_ayah" value="{{ old('nama_ayah', $simfoni->nama_ayah ?? '') }}" placeholder="Nama lengkap ayah">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nama Ibu</label>
+                            <input type="text" name="nama_ibu" value="{{ old('nama_ibu', $simfoni->nama_ibu ?? '') }}" placeholder="Nama lengkap ibu">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nama Suami/Istri</label>
+                            <input type="text" name="nama_pasangan" value="{{ old('nama_pasangan', $simfoni->nama_pasangan ?? '') }}" placeholder="Nama lengkap suami/istri">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Jumlah Anak Tanggungan</label>
+                            <input type="number" name="jumlah_anak" value="{{ old('jumlah_anak', $simfoni->jumlah_anak ?? '') }}" min="0" placeholder="0">
+                        </div>
+                    </div> <!-- /.section-content -->
+                </div> <!-- /.section-card -->
+            </div> <!-- /.step-content -->
+
+            <!-- Step 7: G. PROYEKSI KE DEPAN -->
+            <div class="step-content" data-step="7" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-trending-up"></i>
+                        </div>
+                        <h6 class="section-title">G. PROYEKSI KE DEPAN</h6>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">No</th>
+                                        <th>Pernyataan</th>
+                                        <th style="width: 60px;">Ya/Sudah</th>
+                                        <th style="width: 60px;">Tidak</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Akan kuliah S2</td>
+                                        <td><input type="radio" name="proyeksi_1" value="Ya" {{ old('proyeksi_1', $simfoni->proyeksi_1 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_1" value="Tidak" {{ old('proyeksi_1', $simfoni->proyeksi_1 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Akan mendaftar PNS</td>
+                                        <td><input type="radio" name="proyeksi_2" value="Ya" {{ old('proyeksi_2', $simfoni->proyeksi_2 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_2" value="Tidak" {{ old('proyeksi_2', $simfoni->proyeksi_2 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Akan mendaftar PPPK</td>
+                                        <td><input type="radio" name="proyeksi_3" value="Ya" {{ old('proyeksi_3', $simfoni->proyeksi_3 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_3" value="Tidak" {{ old('proyeksi_3', $simfoni->proyeksi_3 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>Akan mengikuti PPG</td>
+                                        <td><input type="radio" name="proyeksi_4" value="Ya" {{ old('proyeksi_4', $simfoni->proyeksi_4 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_4" value="Tidak" {{ old('proyeksi_4', $simfoni->proyeksi_4 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>Akan menulis buku/modul/riset</td>
+                                        <td><input type="radio" name="proyeksi_5" value="Ya" {{ old('proyeksi_5', $simfoni->proyeksi_5 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_5" value="Tidak" {{ old('proyeksi_5', $simfoni->proyeksi_5 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>6</td>
+                                        <td>Akan mengikuti Seleksi Diklat Cakep</td>
+                                        <td><input type="radio" name="proyeksi_6" value="Ya" {{ old('proyeksi_6', $simfoni->proyeksi_6 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_6" value="Tidak" {{ old('proyeksi_6', $simfoni->proyeksi_6 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>7</td>
+                                        <td>Akan membimbing riset & prestasi siswa</td>
+                                        <td><input type="radio" name="proyeksi_7" value="Ya" {{ old('proyeksi_7', $simfoni->proyeksi_7 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_7" value="Tidak" {{ old('proyeksi_7', $simfoni->proyeksi_7 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>8</td>
+                                        <td>Akan masuk tim unggulan sekolah/madrasah</td>
+                                        <td><input type="radio" name="proyeksi_8" value="Ya" {{ old('proyeksi_8', $simfoni->proyeksi_8 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_8" value="Tidak" {{ old('proyeksi_8', $simfoni->proyeksi_8 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>9</td>
+                                        <td>Akan kompetisi Pimpinan Level II</td>
+                                        <td><input type="radio" name="proyeksi_9" value="Ya" {{ old('proyeksi_9', $simfoni->proyeksi_9 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_9" value="Tidak" {{ old('proyeksi_9', $simfoni->proyeksi_9 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10</td>
+                                        <td>Akan aktif mengikuti pelatihan-pelatihan</td>
+                                        <td><input type="radio" name="proyeksi_10" value="Ya" {{ old('proyeksi_10', $simfoni->proyeksi_10 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_10" value="Tidak" {{ old('proyeksi_10', $simfoni->proyeksi_10 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>11</td>
+                                        <td>Akan aktif di MGMP dan MKKSM</td>
+                                        <td><input type="radio" name="proyeksi_11" value="Ya" {{ old('proyeksi_11', $simfoni->proyeksi_11 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_11" value="Tidak" {{ old('proyeksi_11', $simfoni->proyeksi_11 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>12</td>
+                                        <td>Akan mengikuti Pendidikan Kader NU</td>
+                                        <td><input type="radio" name="proyeksi_12" value="Ya" {{ old('proyeksi_12', $simfoni->proyeksi_12 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_12" value="Tidak" {{ old('proyeksi_12', $simfoni->proyeksi_12 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>13</td>
+                                        <td>Akan aktif membantu kegiatan lembaga</td>
+                                        <td><input type="radio" name="proyeksi_13" value="Ya" {{ old('proyeksi_13', $simfoni->proyeksi_13 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_13" value="Tidak" {{ old('proyeksi_13', $simfoni->proyeksi_13 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>14</td>
+                                        <td>Akan aktif mengikuti kegiatan ke-NU-an</td>
+                                        <td><input type="radio" name="proyeksi_14" value="Ya" {{ old('proyeksi_14', $simfoni->proyeksi_14 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_14" value="Tidak" {{ old('proyeksi_14', $simfoni->proyeksi_14 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>15</td>
+                                        <td>Akan aktif ikut ZIS & kegiatan sosial</td>
+                                        <td><input type="radio" name="proyeksi_15" value="Ya" {{ old('proyeksi_15', $simfoni->proyeksi_15 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_15" value="Tidak" {{ old('proyeksi_15', $simfoni->proyeksi_15 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>16</td>
+                                        <td>Akan mengembangkan unit usaha satpen</td>
+                                        <td><input type="radio" name="proyeksi_16" value="Ya" {{ old('proyeksi_16', $simfoni->proyeksi_16 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_16" value="Tidak" {{ old('proyeksi_16', $simfoni->proyeksi_16 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>17</td>
+                                        <td>Akan bekerja dengan disiplin & produktif</td>
+                                        <td><input type="radio" name="proyeksi_17" value="Ya" {{ old('proyeksi_17', $simfoni->proyeksi_17 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_17" value="Tidak" {{ old('proyeksi_17', $simfoni->proyeksi_17 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>18</td>
+                                        <td>Akan loyal pada NU & aktif di masyarakat</td>
+                                        <td><input type="radio" name="proyeksi_18" value="Ya" {{ old('proyeksi_18', $simfoni->proyeksi_18 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_18" value="Tidak" {{ old('proyeksi_18', $simfoni->proyeksi_18 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                    <tr>
+                                        <td>19</td>
+                                        <td>Bersedia dipindah ke satpen lain</td>
+                                        <td><input type="radio" name="proyeksi_19" value="Ya" {{ old('proyeksi_19', $simfoni->proyeksi_19 ?? '') == 'Ya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="proyeksi_19" value="Tidak" {{ old('proyeksi_19', $simfoni->proyeksi_19 ?? '') == 'Tidak' ? 'checked' : '' }}></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #dc3545;">PERNYATAAN</label>
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef; font-size: 11px; line-height: 1.4;">
+                                Dengan ini saya menyatakan bahwa semua data yang saya tulis di atas adalah BENAR dan DAPAT DIPERTANGGUNGJAWABKAN. Apabila di kemudian hari ditemukan ketidaksesuaian, saya bersedia menerima konsekuensi dan sanksi yang berlaku.
+                            </div>
+                        </div>
+                    </div> <!-- /.section-content -->
+                </div> <!-- /.section-card -->
+            </div> <!-- /.step-content -->
+
             <!-- Navigation Buttons -->
             <div class="navigation-container">
                 <div class="nav-buttons">
@@ -760,7 +1008,7 @@
 
         // Multi-step form navigation
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 7;
 
         function showStep(step) {
             // Hide all steps

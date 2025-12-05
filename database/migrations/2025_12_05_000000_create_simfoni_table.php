@@ -55,6 +55,43 @@ return new class extends Migration
             $table->decimal('penghasilan_lain', 15, 2)->nullable();
             $table->decimal('penghasilan_pasangan', 15, 2)->nullable();
             $table->decimal('total_penghasilan', 15, 2)->nullable();
+            $table->string('masa_kerja')->nullable();
+            $table->string('kategori_penghasilan')->nullable();
+
+            // E. STATUS KEKADERAN
+            $table->string('status_kader_diri')->nullable();
+            $table->string('pendidikan_kader')->nullable();
+            $table->string('status_kader_ayah')->nullable();
+            $table->string('status_kader_ibu')->nullable();
+            $table->string('status_kader_pasangan')->nullable();
+            $table->string('pilihan_status_kader')->nullable();
+
+            // F. DATA KELUARGA
+            $table->string('nama_ayah')->nullable();
+            $table->string('nama_ibu')->nullable();
+            $table->string('nama_pasangan')->nullable();
+            $table->integer('jumlah_anak')->nullable();
+
+            // G. PROYEKSI KE DEPAN
+            $table->string('proyeksi_1')->nullable(); // Akan kuliah S2
+            $table->string('proyeksi_2')->nullable(); // Akan mendaftar PNS
+            $table->string('proyeksi_3')->nullable(); // Akan mendaftar PPPK
+            $table->string('proyeksi_4')->nullable(); // Akan mengikuti PPG
+            $table->string('proyeksi_5')->nullable(); // Akan menulis buku/modul/riset
+            $table->string('proyeksi_6')->nullable(); // Akan mengikuti Seleksi Diklat Cakep
+            $table->string('proyeksi_7')->nullable(); // Akan membimbing riset & prestasi siswa
+            $table->string('proyeksi_8')->nullable(); // Akan masuk tim unggulan sekolah/madrasah
+            $table->string('proyeksi_9')->nullable(); // Akan kompetisi Pimpinan Level II
+            $table->string('proyeksi_10')->nullable(); // Akan aktif mengikuti pelatihan-pelatihan
+            $table->string('proyeksi_11')->nullable(); // Akan aktif di MGMP dan MKKSM
+            $table->string('proyeksi_12')->nullable(); // Akan mengikuti Pendidikan Kader NU
+            $table->string('proyeksi_13')->nullable(); // Akan aktif membantu kegiatan lembaga
+            $table->string('proyeksi_14')->nullable(); // Akan aktif mengikuti kegiatan ke-NU-an
+            $table->string('proyeksi_15')->nullable(); // Akan aktif ikut ZIS & kegiatan sosial
+            $table->string('proyeksi_16')->nullable(); // Akan mengembangkan unit usaha satpen
+            $table->string('proyeksi_17')->nullable(); // Akan bekerja dengan disiplin & produktif
+            $table->string('proyeksi_18')->nullable(); // Akan loyal pada NU & aktif di masyarakat
+            $table->string('proyeksi_19')->nullable(); // Bersedia dipindah ke satpen lain
 
             $table->timestamps();
 
