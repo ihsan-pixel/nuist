@@ -1221,7 +1221,7 @@
                 'mengembangkan_unit_usaha_satpen',
                 'bekerja_disiplin_produktif',
                 'loyal_nu_aktif_masyarakat',
-                'akan_bersedia_dipindah_satpen_lain'
+                'bersedia_dipindah_satpen_lain'
             ];
             return fieldNames[index - 1];
         }
