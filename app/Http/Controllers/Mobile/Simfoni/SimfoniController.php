@@ -128,7 +128,6 @@ class SimfoniController extends Controller
             'status_kader_ayah' => 'nullable|string|max:255',
             'status_kader_ibu' => 'nullable|string|max:255',
             'status_kader_pasangan' => 'nullable|string|max:255',
-            'pilihan_status_kader' => 'nullable|string|max:10',
 
             // F. DATA KELUARGA
             'nama_ayah' => 'nullable|string|max:255',
@@ -155,7 +154,9 @@ class SimfoniController extends Controller
             'akan_mengembangkan_unit_usaha_satpen' => 'nullable|in:iya,tidak',
             'akan_bekerja_disiplin_produktif' => 'nullable|in:iya,tidak',
             'akan_loyal_nu_aktif_masyarakat' => 'nullable|in:iya,tidak',
-            'bersedia_dipindah_satpen_lain' => 'nullable|in:iya,tidak',
+            'akan_bersedia_dipindah_satpen_lain' => 'nullable|in:iya,tidak',
+            'skor_proyeksi' => 'nullable|integer|min:0',
+            'pernyataan_setuju' => 'required|accepted',
         ], [
             'required' => ':attribute wajib diisi',
             'date' => ':attribute harus berformat tanggal',
@@ -204,7 +205,7 @@ class SimfoniController extends Controller
         ];
 
         foreach ($proyeksi_fields as $field) {
-            if (isset($validated[$field]) && in_array($validated[$field], ['iya', 'sudah'])) {
+            if (isset($validated[$field]) && $validated[$field] === 'iya') {
                 $skor_proyeksi++;
             }
         }
