@@ -125,7 +125,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
+            margin-bottom: 60px;
         }
 
         .settings-header {
@@ -317,21 +317,6 @@
         </div>
     </div>
 
-    <!-- Simfoni Data SK -->
-    <div class="settings-section">
-        <div class="settings-header">
-            <h6><i class="bx bx-file-blank me-2"></i>SIMFONI Guru & Tenaga Pendidik</h6>
-        </div>
-        <div class="settings-content">
-            <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
-                Kelola dan perbarui data Surat Keterangan (SK) Anda beserta informasi lengkap identitas diri.
-            </p>
-            <a href="{{ route('mobile.simfoni.show') }}" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
-                <i class="bx bx-edit"></i>
-                Update Data Simfoni
-            </a>
-        </div>
-    </div>
     <!-- Account Settings -->
     <div class="settings-section">
         <div class="settings-header">
@@ -358,6 +343,21 @@
         </div>
     </div>
 
+    <!-- Simfoni Data SK -->
+    <div class="settings-section">
+        <div class="settings-header">
+            <h6><i class="bx bx-file-blank me-2"></i>Data SK Tenaga Pendidik</h6>
+        </div>
+        <div class="settings-content">
+            <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
+                Kelola dan perbarui data Surat Kepangkatan (SK) Anda beserta informasi lengkap identitas diri.
+            </p>
+            <a href="{{ route('mobile.simfoni.show') }}" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
+                <i class="bx bx-edit"></i>
+                Update Data Simfoni
+            </a>
+        </div>
+    </div>
 
 
 

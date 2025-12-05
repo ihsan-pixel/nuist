@@ -4,370 +4,274 @@
 @section('subtitle', 'Data SK Tenaga Pendidik')
 
 @section('content')
-<div class="container-fluid p-0" style="max-width: 420px; margin: auto;">
+<div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --accent-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.18);
-        }
-
         body {
-            background: var(--primary-gradient);
-            background-attachment: fixed;
+            background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center fixed;
+            background-size: cover;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
         }
 
-        .hero-section {
-            background: var(--secondary-gradient);
+        .simfoni-header {
+            /* background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); */
             color: white;
-            padding: 30px 20px;
+            padding: 20px 16px;
             text-align: center;
             position: relative;
+            /* margin-bottom: 16px; */
+        }
+
+        .simfoni-header .back-button {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .simfoni-header h4 {
+            margin: 0 0 4px 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .simfoni-header p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             overflow: hidden;
         }
 
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
-            animation: float 20s infinite linear;
+        .form-body {
+            padding: 0;
         }
 
-        @keyframes float {
-            0% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
-            100% { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
+        .section-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid #004b4c;
         }
 
-        .hero-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 2;
+        .section-card:last-child {
+            margin-bottom: 0;
         }
 
-        .hero-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .progress-container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 15px;
-            margin: 0 20px 20px 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .progress-header {
+        .section-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
 
-        .progress-title {
-            font-size: 12px;
-            font-weight: 600;
+        .section-icon {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
-        }
-
-        .progress-step {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-gradient);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-            width: 25%;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px 20px 0 0;
-            margin-top: -15px;
-            padding: 25px 20px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
-            min-height: calc(100vh - 200px);
-        }
-
-        .form-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            border: 1px solid rgba(255,255,255,0.8);
-            transition: all 0.3s ease;
-        }
-
-        .form-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f8f9fa;
-        }
-
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
             margin-right: 12px;
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            font-size: 14px;
         }
 
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2d3748;
+        .section-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #004b4c;
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .form-group:last-child {
             margin-bottom: 0;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
             font-weight: 600;
-            color: #4a5568;
+            color: #004b4c;
             margin-bottom: 6px;
-            font-size: 13px;
-        }
-
-        .form-group.required .form-label::after {
-            content: ' *';
-            color: #e53e3e;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            box-sizing: border-box;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-control.readonly {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%);
-            color: white;
-            font-weight: 600;
-            border: none;
-            cursor: not-allowed;
-        }
-
-        .form-control.readonly:focus {
-            box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.2);
-        }
-
-        .form-hint {
-            font-size: 11px;
-            color: #a0aec0;
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        .form-error {
-            color: #e53e3e;
-            font-size: 11px;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .form-error::before {
-            content: '⚠';
             font-size: 12px;
         }
 
-        .grid-2col {
+        .form-group.required label::after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="tel"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="date"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #004b4c;
+            box-shadow: 0 0 0 3px rgba(0, 75, 76, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .form-hint {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .form-error {
+            color: #dc3545;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .error-container {
+            background: #fff5f5;
+            border-left: 4px solid #dc3545;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .error-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .error-list li {
+            color: #dc3545;
+            font-size: 11px;
+            padding: 2px 0;
+        }
+
+        .success-alert {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .row-2col {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .alert {
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
+        .submit-container {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 0 0 12px 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            font-size: 13px;
-            font-weight: 500;
         }
 
-        .alert-success {
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            border: 1px solid rgba(72, 187, 120, 0.3);
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 75, 76, 0.4);
         }
 
-        .alert-error {
-            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-            color: white;
-            border: 1px solid rgba(245, 101, 101, 0.3);
+        .submit-btn i {
+            font-size: 16px;
         }
 
-        .currency-input {
-            position: relative;
-        }
-
-        .currency-input::before {
-            content: 'Rp';
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 13px;
-            color: #a0aec0;
-            font-weight: 600;
-            z-index: 2;
-        }
-
-        .currency-input .form-control {
-            padding-left: 40px;
-        }
-
-        .navigation-section {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-top: 20px;
+        .navigation-container {
+            background: #f8f9fa;
+            padding: 16px;
+            border-top: 1px solid #e9ecef;
         }
 
         .nav-buttons {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
         }
 
         .nav-btn {
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 6px;
-            min-width: 100px;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            transform: translateY(-1px);
         }
 
         .nav-btn:disabled {
-            background: #cbd5e0;
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        .submit-section {
-            background: var(--accent-gradient);
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(67, 233, 123, 0.3);
-            margin-top: 20px;
-        }
-
-        .submit-btn {
-            background: white;
-            color: #38f9d7;
-            border: 2px solid white;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
-            width: 100%;
-            justify-content: center;
-        }
-
-        .submit-btn:hover {
-            background: transparent;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255,255,255,0.4);
+        .step-indicator {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
         }
 
         .step-content {
@@ -376,72 +280,153 @@
 
         .step-content.active {
             display: block;
-            animation: fadeIn 0.5s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
+        .back-button {
+            display: inline-flex;
+            align-items: center;
             color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .back-button:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .back-button i {
+            font-size: 16px;
+            margin-right: 6px;
+        }
+
+        .currency-prefix {
+            position: relative;
+        }
+
+        .currency-prefix::before {
+            content: 'Rp ';
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .currency-prefix input {
+            padding-left: 35px !important;
+        }
+
+        .auto-fill {
+            background: #f0ebf5;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .auto-fill:focus {
+            background: #fff;
+        }
+
+        .step-timeline {
+            background: #f8f9fa;
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            width: calc(100% - 24px);
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .timeline-step.completed:not(:last-child)::after {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        }
+
+        .timeline-step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #666;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
             transition: all 0.3s ease;
-            z-index: 10;
         }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
+        .timeline-step.active .timeline-step-circle {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            transform: scale(1.1);
         }
 
-        @media (max-width: 480px) {
-            .hero-section {
-                padding: 25px 15px;
-            }
+        .timeline-step.completed .timeline-step-circle {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+        }
 
-            .form-container {
-                padding: 20px 15px;
-            }
+        .timeline-step-label {
+            font-size: 9px;
+            color: #666;
+            margin-top: 4px;
+            text-align: center;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
 
-            .form-card {
-                padding: 16px;
-            }
+        .timeline-step.active .timeline-step-label {
+            color: #004b4c;
+            font-weight: 600;
+        }
+
+        .timeline-step.completed .timeline-step-label {
+            color: #004b4c;
         }
     </style>
 
-    <!-- Hero Section with Timeline -->
-    <div class="hero-section">
-        <button onclick="history.back()" class="back-btn">
-            <i class="bx bx-arrow-back" style="font-size: 18px;"></i>
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
+            <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
         </button>
-
-        <div class="hero-title">SIMFONI MINI GTK LPMNU DIY</div>
-        <div class="hero-subtitle">Tahun 2025</div>
-
-        <!-- Progress Timeline -->
-        <div class="progress-container">
-            <div class="progress-header">
-                <div class="progress-title">Progress Pengisian Form</div>
-                <div class="progress-step" id="currentStepDisplay">Langkah 1 dari 4</div>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 25%;"></div>
-            </div>
-        </div>
+        <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
+    </div>
+    <div class="simfoni-header" style="margin-top: -10px;">
+        <h4>SIMFONI MINI GTK LPMNU DIY</h4>
+        <p>Tahun 2025</p>
     </div>
 
     <!-- Form Container -->
@@ -469,281 +454,287 @@
 
                 <!-- Step 1: A. DATA SK -->
                 <div class="step-content active" data-step="1">
-                    <div class="form-card">
-                        <div class="card-header">
-                            <div class="card-icon">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
                                 <i class="bx bx-id-card"></i>
                             </div>
-                            <h6 class="card-title">A. DATA SK</h6>
+                            <h6 class="section-title">A. DATA SK</h6>
                         </div>
+                        <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Lengkap dengan Gelar</label>
+                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="auto-fill" readonly>
+                        <div class="form-hint">Otomatis dari data user</div>
+                    </div>
 
+                    <div class="row-2col">
                         <div class="form-group required">
-                            <label class="form-label">Nama Lengkap dengan Gelar</label>
-                            <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="form-control readonly" readonly>
-                            <div class="form-hint">Otomatis dari data user</div>
+                            <label>Tempat Lahir</label>
+                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" class="auto-fill" readonly>
                         </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group required">
-                                <label class="form-label">Tempat Lahir</label>
-                                <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">Tanggal Lahir</label>
-                                <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $simfoni->tanggal_lahir ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                        </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group">
-                                <label class="form-label">NUPTK</label>
-                                <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Karta-NU</label>
-                                <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                        </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group">
-                                <label class="form-label">NIP Ma'arif Baru</label>
-                                <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">NIK</label>
-                                <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" class="form-control" required>
-                                @error('nik')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group required">
-                                <label class="form-label">TMT Pertama</label>
-                                <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">Strata Pendidikan</label>
-                                <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                        </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group">
-                                <label class="form-label">PT Asal</label>
-                                <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" class="form-control" placeholder="Nama Perguruan Tinggi">
-                                @error('pt_asal')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">Tahun Lulus</label>
-                                <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" class="form-control" required>
-                                @error('tahun_lulus')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
                         <div class="form-group required">
-                            <label class="form-label">Nama Program Studi</label>
-                            <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="form-control readonly" readonly>
+                            <label>Tanggal Lahir</label>
+                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $simfoni->tanggal_lahir ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NUPTK</label>
+                            <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Karta-NU</label>
+                            <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NIP Ma'arif Baru</label>
+                            <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>NIK</label>
+                            <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
+                            @error('nik')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>TMT Pertama</label>
+                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>Strata Pendidikan</label>
+                            <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>PT Asal</label>
+                            <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
+                            @error('pt_asal')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>Tahun Lulus</label>
+                            <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" required>
+                            @error('tahun_lulus')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama Program Studi</label>
+                        <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="auto-fill" readonly>
+                    </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 2: B. RIWAYAT KERJA -->
                 <div class="step-content" data-step="2" style="display: none;">
-                    <div class="form-card">
-                        <div class="card-header">
-                            <div class="card-icon">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
                                 <i class="bx bx-briefcase"></i>
                             </div>
-                            <h6 class="card-title">B. RIWAYAT KERJA</h6>
+                            <h6 class="section-title">B. RIWAYAT KERJA</h6>
                         </div>
+                        <div class="section-content">
+                    <div class="form-group required">
+                        <label>Status Kerja Saat Ini</label>
+                        <select name="status_kerja" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="PNS" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PNS' ? 'selected' : '' }}>PNS</option>
+                            <option value="PPPK" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                            <option value="Honorer" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Honorer' ? 'selected' : '' }}>Honorer</option>
+                            <option value="Yayasan" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Yayasan' ? 'selected' : '' }}>Yayasan</option>
+                        </select>
+                        @error('status_kerja')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
 
+                    <div class="row-2col">
                         <div class="form-group required">
-                            <label class="form-label">Status Kerja Saat Ini</label>
-                            <select name="status_kerja" class="form-control" required>
-                                <option value="">-- Pilih Status --</option>
-                                <option value="PNS" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PNS' ? 'selected' : '' }}>PNS</option>
-                                <option value="PPPK" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
-                                <option value="Honorer" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Honorer' ? 'selected' : '' }}>Honorer</option>
-                                <option value="Yayasan" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Yayasan' ? 'selected' : '' }}>Yayasan</option>
-                            </select>
-                            @error('status_kerja')
+                            <label>Tanggal SK Pertama</label>
+                            <input type="date" name="tanggal_sk_pertama" value="{{ old('tanggal_sk_pertama', $simfoni->tanggal_sk_pertama ?? '') }}" required>
+                            @error('tanggal_sk_pertama')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group required">
-                                <label class="form-label">Tanggal SK Pertama</label>
-                                <input type="date" name="tanggal_sk_pertama" value="{{ old('tanggal_sk_pertama', $simfoni->tanggal_sk_pertama ?? '') }}" class="form-control" required>
-                                @error('tanggal_sk_pertama')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">Nomor SK Pertama</label>
-                                <input type="text" name="nomor_sk_pertama" value="{{ old('nomor_sk_pertama', $simfoni->nomor_sk_pertama ?? '') }}" class="form-control" required>
-                                @error('nomor_sk_pertama')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="form-group required">
+                            <label>Nomor SK Pertama</label>
+                            <input type="text" name="nomor_sk_pertama" value="{{ old('nomor_sk_pertama', $simfoni->nomor_sk_pertama ?? '') }}" required>
+                            @error('nomor_sk_pertama')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Nomor Sertifikasi Pendidik</label>
-                            <input type="text" name="nomor_sertifikasi_pendidik" value="{{ old('nomor_sertifikasi_pendidik', $simfoni->nomor_sertifikasi_pendidik ?? '') }}" class="form-control" placeholder="Nomor sertifikat pendidik (jika ada)">
-                        </div>
+                    <div class="form-group">
+                        <label>Nomor Sertifikasi Pendidik</label>
+                        <input type="text" name="nomor_sertifikasi_pendidik" value="{{ old('nomor_sertifikasi_pendidik', $simfoni->nomor_sertifikasi_pendidik ?? '') }}" placeholder="Nomor sertifikat pendidik (jika ada)">
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Riwayat Kerja Sebelumnya</label>
-                            <textarea name="riwayat_kerja_sebelumnya" class="form-control" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
+                    <div class="form-group">
+                        <label>Riwayat Kerja Sebelumnya</label>
+                        <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
+                    </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 3: C. KEAHLIAN DAN DATA LAIN -->
                 <div class="step-content" data-step="3" style="display: none;">
-                    <div class="form-card">
-                        <div class="card-header">
-                            <div class="card-icon">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
                                 <i class="bx bx-star"></i>
                             </div>
-                            <h6 class="card-title">C. KEAHLIAN DAN DATA LAIN</h6>
+                            <h6 class="section-title">C. KEAHLIAN DAN DATA LAIN</h6>
                         </div>
+                        <div class="section-content">
+                    <div class="form-group">
+                        <label>Keahlian</label>
+                        <textarea name="keahlian" placeholder="Sebutkan keahlian khusus Anda...">{{ old('keahlian', $simfoni->keahlian ?? '') }}</textarea>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Keahlian</label>
-                            <textarea name="keahlian" class="form-control" placeholder="Sebutkan keahlian khusus Anda...">{{ old('keahlian', $simfoni->keahlian ?? '') }}</textarea>
-                        </div>
+                    <div class="form-group">
+                        <label>Kedudukan di LPM</label>
+                        <input type="text" name="kedudukan_lpm" value="{{ old('kedudukan_lpm', $simfoni->kedudukan_lpm ?? '') }}" placeholder="Posisi di Lembaga Pendidikan Masyarakat">
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Kedudukan di LPM</label>
-                            <input type="text" name="kedudukan_lpm" value="{{ old('kedudukan_lpm', $simfoni->kedudukan_lpm ?? '') }}" class="form-control" placeholder="Posisi di Lembaga Pendidikan Masyarakat">
-                        </div>
+                    <div class="form-group">
+                        <label>Prestasi</label>
+                        <textarea name="prestasi" placeholder="Pencapaian atau prestasi yang diraih...">{{ old('prestasi', $simfoni->prestasi ?? '') }}</textarea>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Prestasi</label>
-                            <textarea name="prestasi" class="form-control" placeholder="Pencapaian atau prestasi yang diraih...">{{ old('prestasi', $simfoni->prestasi ?? '') }}</textarea>
-                        </div>
+                    <div class="form-group">
+                        <label>Tahun Sertifikasi & Impassing</label>
+                        <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018">
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Tahun Sertifikasi & Impassing</label>
-                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" class="form-control" placeholder="Contoh: 2015 & 2018">
-                        </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group required">
-                                <label class="form-label">Nomor HP/WA</label>
-                                <input type="tel" name="no_hp" value="{{ old('no_hp', $simfoni->no_hp ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label class="form-label">E-mail Aktif</label>
-                                <input type="email" name="email" value="{{ old('email', $simfoni->email ?? '') }}" class="form-control readonly" readonly>
-                            </div>
-                        </div>
-
+                    <div class="row-2col">
                         <div class="form-group required">
-                            <label class="form-label">Status Pernikahan</label>
-                            <select name="status_pernikahan" class="form-control" required>
-                                <option value="">-- Pilih Status --</option>
-                                <option value="Belum Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Belum Kawin' ? 'selected' : '' }}>Belum Kawin</option>
-                                <option value="Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Kawin' ? 'selected' : '' }}>Kawin</option>
-                                <option value="Cerai Hidup" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Hidup' ? 'selected' : '' }}>Cerai Hidup</option>
-                                <option value="Cerai Mati" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Mati' ? 'selected' : '' }}>Cerai Mati</option>
-                            </select>
-                            @error('status_pernikahan')
-                                <div class="form-error">{{ $message }}</div>
-                            @enderror
+                            <label>Nomor HP/WA</label>
+                            <input type="tel" name="no_hp" value="{{ old('no_hp', $simfoni->no_hp ?? '') }}" class="auto-fill" readonly>
                         </div>
-
                         <div class="form-group required">
-                            <label class="form-label">Alamat Lengkap</label>
-                            <textarea name="alamat_lengkap" class="form-control" required>{{ old('alamat_lengkap', $simfoni->alamat_lengkap ?? '') }}</textarea>
-                            @error('alamat_lengkap')
-                                <div class="form-error">{{ $message }}</div>
-                            @enderror
+                            <label>E-mail Aktif</label>
+                            <input type="email" name="email" value="{{ old('email', $simfoni->email ?? '') }}" class="auto-fill" readonly>
                         </div>
                     </div>
 
+                    <div class="form-group required">
+                        <label>Status Pernikahan</label>
+                        <select name="status_pernikahan" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="Belum Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Belum Kawin' ? 'selected' : '' }}>Belum Kawin</option>
+                            <option value="Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Kawin' ? 'selected' : '' }}>Kawin</option>
+                            <option value="Cerai Hidup" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Hidup' ? 'selected' : '' }}>Cerai Hidup</option>
+                            <option value="Cerai Mati" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Mati' ? 'selected' : '' }}>Cerai Mati</option>
+                        </select>
+                        @error('status_pernikahan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Alamat Lengkap</label>
+                        <textarea name="alamat_lengkap" required>{{ old('alamat_lengkap', $simfoni->alamat_lengkap ?? '') }}</textarea>
+                        @error('alamat_lengkap')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                {{-- </div> --}}
+
                 <!-- Step 4: D. DATA KEUANGAN/KESEJAHTERAAN -->
                 <div class="step-content" data-step="4" style="display: none;">
-                    <div class="form-card">
-                        <div class="card-header">
-                            <div class="card-icon">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
                                 <i class="bx bx-money"></i>
                             </div>
-                            <h6 class="card-title">D. DATA KEUANGAN/KESEJAHTERAAN</h6>
+                            <h6 class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</h6>
                         </div>
-
-                        <div class="grid-2col">
-                            <div class="form-group">
-                                <label class="form-label">Bank</label>
-                                <input type="text" name="bank" value="{{ old('bank', $simfoni->bank ?? '') }}" class="form-control" placeholder="Nama Bank">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nomor Rekening</label>
-                                <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening', $simfoni->nomor_rekening ?? '') }}" class="form-control" placeholder="No Rekening">
-                            </div>
-                        </div>
-
+                        <div class="section-content">
+                    <div class="row-2col">
                         <div class="form-group">
-                            <label class="form-label">Gaji Sertifikasi</label>
-                            <div class="currency-input">
-                                <input type="number" name="gaji_sertifikasi" value="{{ old('gaji_sertifikasi', $simfoni->gaji_sertifikasi ?? '') }}" min="0" step="0.01" placeholder="0" class="form-control">
-                            </div>
+                            <label>Bank</label>
+                            <input type="text" name="bank" value="{{ old('bank', $simfoni->bank ?? '') }}" placeholder="Nama Bank">
                         </div>
-
                         <div class="form-group">
-                            <label class="form-label">Gaji Pokok Perbulan dari Satpen</label>
-                            <div class="currency-input">
-                                <input type="number" name="gaji_pokok" value="{{ old('gaji_pokok', $simfoni->gaji_pokok ?? '') }}" min="0" step="0.01" placeholder="0" class="form-control">
-                            </div>
+                            <label>Nomor Rekening</label>
+                            <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening', $simfoni->nomor_rekening ?? '') }}" placeholder="No Rekening">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Honor Lain</label>
-                            <div class="currency-input">
-                                <input type="number" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" min="0" step="0.01" placeholder="0" class="form-control">
-                            </div>
+                    <div class="form-group">
+                        <label>Gaji Sertifikasi</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="gaji_sertifikasi" value="{{ old('gaji_sertifikasi', $simfoni->gaji_sertifikasi ?? '') }}" min="0" step="0.01" placeholder="0">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Penghasilan Lain</label>
-                            <div class="currency-input">
-                                <input type="number" name="penghasilan_lain" value="{{ old('penghasilan_lain', $simfoni->penghasilan_lain ?? '') }}" min="0" step="0.01" placeholder="0" class="form-control">
-                            </div>
+                    <div class="form-group">
+                        <label>Gaji Pokok Perbulan dari Satpen</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="gaji_pokok" value="{{ old('gaji_pokok', $simfoni->gaji_pokok ?? '') }}" min="0" step="0.01" placeholder="0">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Penghasilan Pasangan (tidak dihitung)</label>
-                            <div class="currency-input">
-                                <input type="number" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" min="0" step="0.01" placeholder="0" class="form-control">
-                            </div>
-                            <div class="form-hint">Informasi ini tidak masuk dalam perhitungan total</div>
+                    <div class="form-group">
+                        <label>Honor Lain</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" min="0" step="0.01" placeholder="0">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Jumlah Total Penghasilan Diri</label>
-                            <div class="currency-input">
-                                <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan" class="form-control">
-                            </div>
-                            <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
+                    <div class="form-group">
+                        <label>Penghasilan Lain</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="penghasilan_lain" value="{{ old('penghasilan_lain', $simfoni->penghasilan_lain ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Penghasilan Pasangan (tidak dihitung)</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                        <div class="form-hint">Informasi ini tidak masuk dalam perhitungan total</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jumlah Total Penghasilan Diri</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan">
+                        </div>
+                        <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
+                    </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation Buttons -->
-                <div class="navigation-section">
+                <div class="navigation-container">
                     <div class="nav-buttons">
                         <button type="button" class="nav-btn nav-prev" id="prevBtn" style="display: none;">
                             <i class="bx bx-chevron-left"></i> Sebelumnya
                         </button>
+                        <div class="step-indicator">
+                            Langkah <span id="currentStep">1</span> dari 4
+                        </div>
                         <button type="button" class="nav-btn nav-next" id="nextBtn">
                             Selanjutnya <i class="bx bx-chevron-right"></i>
                         </button>
@@ -751,7 +742,7 @@
                 </div>
 
                 <!-- Submit Button (Hidden initially) -->
-                <div class="submit-section" id="submitContainer" style="display: none;">
+                <div class="submit-container" id="submitContainer" style="display: none;">
                     <button type="submit" class="submit-btn">
                         <i class="bx bx-save"></i> SIMPAN DATA
                     </button>
