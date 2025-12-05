@@ -335,7 +335,7 @@
         }
 
         .timeline-step-label {
-            font-size: 9px;
+            font-size: 6px;
             color: #666;
             margin-top: 4px;
             text-align: center;
