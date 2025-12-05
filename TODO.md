@@ -1,14 +1,16 @@
-# TODO: Add Prospek Karir and Skill yang Dipelajari to Jurusan
+# TODO: Perbaiki Tampilan Blade Simfoni Mobile
 
-## Tasks
-- [x] Update AdminLPController validation for jurusan objects
-- [x] Modify lp-edit.blade.php form to include nested inputs
-- [x] Update sekolah.blade.php to display new fields
-- [x] Update AdminLPController to properly process jurusan data
-- [x] Test form submission and data saving
-- [x] Verify display on school page
+## Tugas Utama
+- Ubah warna dari ungu menjadi hijau seperti menu mobile lainnya
+- Pastikan tampilan rapi dan profesional
 
-## Files to Edit
-- app/Http/Controllers/PPDB/AdminLPController.php
-- resources/views/ppdb/dashboard/lp-edit.blade.php
-- resources/views/ppdb/sekolah.blade.php
+## Langkah-langkah Implementasi
+- [ ] Ubah warna header form dari ungu ke hijau di simfoni.blade.php
+- [ ] Ubah warna section title dari ungu ke hijau di simfoni.blade.php
+- [ ] Ubah warna tombol submit dari ungu ke hijau di simfoni.blade.php
+- [ ] Ubah warna link Simfoni di profile.blade.php dari ungu ke hijau
+- [x] Verifikasi tampilan rapi dan profesional
+
+## File yang Akan Diedit
+- resources/views/mobile/simfoni.blade.php
+- resources/views/mobile/profile.blade.php

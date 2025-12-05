@@ -352,7 +352,7 @@
             <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
                 Kelola dan perbarui data Surat Kepangkatan (SK) Anda beserta informasi lengkap identitas diri.
             </p>
-            <a href="{{ route('mobile.simfoni.show') }}" class="settings-button" style="background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%); color: white;">
+            <a href="{{ route('mobile.simfoni.show') }}" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
                 <i class="bx bx-edit"></i>
                 Update Data Simfoni
             </a>

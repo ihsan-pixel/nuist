@@ -46,7 +46,7 @@
         }
 
         .section-title {
-            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
             padding: 10px 14px;
             margin: 0 -16px 14px -16px;
@@ -110,8 +110,8 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #6b4c9a;
-            box-shadow: 0 0 0 3px rgba(107, 76, 154, 0.1);
+            border-color: #004b4c;
+            box-shadow: 0 0 0 3px rgba(0, 75, 76, 0.1);
         }
 
         .form-group textarea {
@@ -168,7 +168,7 @@
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
             border: none;
             padding: 12px;
@@ -182,9 +182,9 @@
         }
 
         .submit-btn:hover {
-            background: linear-gradient(135deg, #5a4080 0%, #4a3070 100%);
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107, 76, 154, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 75, 76, 0.3);
         }
 
         .back-button {
