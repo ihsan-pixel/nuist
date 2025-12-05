@@ -965,7 +965,7 @@
                     </button>
 
                     <div class="step-indicator">
-                        Langkah <span id="currentStep">1</span> dari 4
+                        Langkah <span id="currentStep">1</span> dari 7
                     </div>
 
                     <button type="button" class="nav-btn nav-next" id="nextBtn">
