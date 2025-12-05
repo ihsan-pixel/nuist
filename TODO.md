@@ -18,8 +18,11 @@
 - [x] Buat setiap section sebagai step terpisah
 - [x] Tambahkan tombol Sebelumnya/Selanjutnya
 - [x] Update JavaScript untuk navigasi step
-- [ ] Perbaiki struktur step agar setiap section terpisah dengan benar
-- [ ] Verifikasi tampilan akhir
+- [x] Perbaiki struktur step agar setiap section terpisah dengan benar
+- [x] Tambahkan timeline visual di header
+- [x] Update JavaScript untuk mengontrol timeline
+- [x] Update semua step dengan desain baru
+- [x] Verifikasi tampilan akhir
 
 ## File yang Akan Diedit
 - resources/views/mobile/simfoni.blade.php
