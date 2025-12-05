@@ -693,7 +693,7 @@
             <div class="navigation-container">
                 <div class="nav-buttons">
                     <button type="button" class="nav-btn nav-prev" id="prevBtn" style="display: none;">
-                        <i class="bx bx-chevron-left"></i> <
+                        <i class="bx bx-chevron-left"></i>
                     </button>
 
                     <div class="step-indicator">
@@ -701,7 +701,7 @@
                     </div>
 
                     <button type="button" class="nav-btn nav-next" id="nextBtn">
-                        > <i class="bx bx-chevron-right"></i>
+                        <i class="bx bx-chevron-right"></i>
                     </button>
                 </div>
             </div>
