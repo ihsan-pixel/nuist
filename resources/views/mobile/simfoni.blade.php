@@ -429,6 +429,28 @@
         <p>Tahun 2025</p>
     </div>
 
+    <!-- Step Timeline -->
+    <div class="step-timeline">
+        <div class="timeline-steps">
+            <div class="timeline-step active" data-step="1">
+                <div class="timeline-step-circle">1</div>
+                <div class="timeline-step-label">Data SK</div>
+            </div>
+            <div class="timeline-step" data-step="2">
+                <div class="timeline-step-circle">2</div>
+                <div class="timeline-step-label">Riwayat Kerja</div>
+            </div>
+            <div class="timeline-step" data-step="3">
+                <div class="timeline-step-circle">3</div>
+                <div class="timeline-step-label">Keahlian</div>
+            </div>
+            <div class="timeline-step" data-step="4">
+                <div class="timeline-step-circle">4</div>
+                <div class="timeline-step-label">Keuangan</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Form Container -->
     <div class="form-container">
             <!-- Success Alert -->
