@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mobile;
+namespace App\Http\Controllers\Mobile\Simfoni;
 
 use App\Http\Controllers\Controller;
 use App\Models\Simfoni;
