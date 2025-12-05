@@ -283,11 +283,13 @@
     </style>
 
     <!-- Header -->
-    <div class="simfoni-header">
-        <button onclick="history.back()" class="back-button">
-            <i class="bx bx-arrow-back"></i>
-            <span>Kembali</span>
+    <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+            <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
         </button>
+        <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
+    </div>
+    <div class="simfoni-header">
         <h4>Data SK Tenaga Pendidik</h4>
         <p>Sumber Kepangkatan dan Identitas Diri</p>
     </div>
