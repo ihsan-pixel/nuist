@@ -346,11 +346,11 @@
     <!-- Simfoni Data SK -->
     <div class="settings-section">
         <div class="settings-header">
-            <h6><i class="bx bx-file-blank me-2"></i>Data SK Tenaga Pendidik</h6>
+            <h6><i class="bx bx-file-blank me-2"></i>Data SIMFONI Guru & Tenaga Pendidik</h6>
         </div>
         <div class="settings-content">
             <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
-                Kelola dan perbarui data Surat Kepangkatan (SK) Anda beserta informasi lengkap identitas diri.
+                Kelola dan perbarui data Surat Keterangan (SK) Anda beserta informasi lengkap identitas diri.
             </p>
             <a href="{{ route('mobile.simfoni.show') }}" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
                 <i class="bx bx-edit"></i>
