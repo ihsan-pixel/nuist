@@ -371,31 +371,31 @@
         <div class="timeline-steps">
             <div class="timeline-step active" data-step="1">
                 <div class="timeline-step-circle">1</div>
-                <div class="timeline-step-label">Data SK</div>
+                {{-- <div class="timeline-step-label">Data SK</div> --}}
             </div>
             <div class="timeline-step" data-step="2">
                 <div class="timeline-step-circle">2</div>
-                <div class="timeline-step-label">Riwayat Kerja</div>
+                {{-- <div class="timeline-step-label">Riwayat Kerja</div> --}}
             </div>
             <div class="timeline-step" data-step="3">
                 <div class="timeline-step-circle">3</div>
-                <div class="timeline-step-label">Keahlian</div>
+                {{-- <div class="timeline-step-label">Keahlian</div> --}}
             </div>
             <div class="timeline-step" data-step="4">
                 <div class="timeline-step-circle">4</div>
-                <div class="timeline-step-label">Keuangan</div>
+                {{-- <div class="timeline-step-label">Keuangan</div> --}}
             </div>
             <div class="timeline-step" data-step="5">
                 <div class="timeline-step-circle">5</div>
-                <div class="timeline-step-label">Kekaderan</div>
+                {{-- <div class="timeline-step-label">Kekaderan</div> --}}
             </div>
             <div class="timeline-step" data-step="6">
                 <div class="timeline-step-circle">6</div>
-                <div class="timeline-step-label">Keluarga</div>
+                {{-- <div class="timeline-step-label">Keluarga</div> --}}
             </div>
             <div class="timeline-step" data-step="7">
                 <div class="timeline-step-circle">7</div>
-                <div class="timeline-step-label">Proyeksi</div>
+                {{-- <div class="timeline-step-label">Proyeksi</div> --}}
             </div>
         </div>
         </div>
