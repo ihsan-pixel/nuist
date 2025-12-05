@@ -316,7 +316,7 @@
                 @csrf
 
                 <!-- A. DATA SK -->
-                {{-- <div class="section-card"> --}}
+                <div class="section-card">
                     <div class="section-header">
                         <div class="section-icon">
                             <i class="bx bx-id-card"></i>
@@ -579,7 +579,7 @@
                         <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                     </div>
                 {{-- </div> --}}
-                {{-- </div> --}}
+                </div>
 
                 <!-- Submit Button -->
                 <div class="submit-container">
