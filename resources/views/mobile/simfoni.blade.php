@@ -57,7 +57,7 @@
             border-radius: 8px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: #666
+            box-shadow: #666 0px 2px 4px -1px;
             /* border-left: 4px solid #004b4c; */
         }
 
