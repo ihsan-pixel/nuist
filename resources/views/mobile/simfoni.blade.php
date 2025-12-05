@@ -817,7 +817,7 @@
 
                     <div class="section-content">
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm" style="font-size: 10px;">
                                 <thead>
                                     <tr>
                                         <th style="width: 40px;">No</th>
