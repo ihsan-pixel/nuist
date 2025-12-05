@@ -7,7 +7,7 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center absolute;
+            background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center;
             background-size: cover;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
