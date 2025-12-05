@@ -823,7 +823,6 @@
                                         <th style="width: 40px;">No</th>
                                         <th>Pernyataan</th>
                                         <th style="width: 50px;">iya</th>
-                                        <th style="width: 50px;">sudah</th>
                                         <th style="width: 50px;">tidak</th>
                                         <th style="width: 40px;">Skor</th>
                                     </tr>
@@ -833,7 +832,6 @@
                                         <td>1</td>
                                         <td>Akan kuliah S2</td>
                                         <td><input type="radio" name="akan_kuliah_s2" value="iya" {{ old('akan_kuliah_s2', $simfoni->akan_kuliah_s2 ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_kuliah_s2" value="sudah" {{ old('akan_kuliah_s2', $simfoni->akan_kuliah_s2 ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_kuliah_s2" value="tidak" {{ old('akan_kuliah_s2', $simfoni->akan_kuliah_s2 ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_1" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -841,7 +839,6 @@
                                         <td>2</td>
                                         <td>Akan mendaftar PNS</td>
                                         <td><input type="radio" name="akan_mendaftar_pns" value="iya" {{ old('akan_mendaftar_pns', $simfoni->akan_mendaftar_pns ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mendaftar_pns" value="sudah" {{ old('akan_mendaftar_pns', $simfoni->akan_mendaftar_pns ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mendaftar_pns" value="tidak" {{ old('akan_mendaftar_pns', $simfoni->akan_mendaftar_pns ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_2" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -849,7 +846,6 @@
                                         <td>3</td>
                                         <td>Akan mendaftar PPPK</td>
                                         <td><input type="radio" name="akan_mendaftar_pppk" value="iya" {{ old('akan_mendaftar_pppk', $simfoni->akan_mendaftar_pppk ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mendaftar_pppk" value="sudah" {{ old('akan_mendaftar_pppk', $simfoni->akan_mendaftar_pppk ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mendaftar_pppk" value="tidak" {{ old('akan_mendaftar_pppk', $simfoni->akan_mendaftar_pppk ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_3" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -857,7 +853,6 @@
                                         <td>4</td>
                                         <td>Akan mengikuti PPG</td>
                                         <td><input type="radio" name="akan_mengikuti_ppg" value="iya" {{ old('akan_mengikuti_ppg', $simfoni->akan_mengikuti_ppg ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mengikuti_ppg" value="sudah" {{ old('akan_mengikuti_ppg', $simfoni->akan_mengikuti_ppg ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mengikuti_ppg" value="tidak" {{ old('akan_mengikuti_ppg', $simfoni->akan_mengikuti_ppg ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_4" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -865,7 +860,6 @@
                                         <td>5</td>
                                         <td>Akan menulis buku/modul/riset</td>
                                         <td><input type="radio" name="akan_menulis_buku_modul_riset" value="iya" {{ old('akan_menulis_buku_modul_riset', $simfoni->akan_menulis_buku_modul_riset ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_menulis_buku_modul_riset" value="sudah" {{ old('akan_menulis_buku_modul_riset', $simfoni->akan_menulis_buku_modul_riset ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_menulis_buku_modul_riset" value="tidak" {{ old('akan_menulis_buku_modul_riset', $simfoni->akan_menulis_buku_modul_riset ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_5" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -873,7 +867,6 @@
                                         <td>6</td>
                                         <td>Akan mengikuti seleksi diklat CAKEP</td>
                                         <td><input type="radio" name="akan_mengikuti_seleksi_diklat_cakep" value="iya" {{ old('akan_mengikuti_seleksi_diklat_cakep', $simfoni->akan_mengikuti_seleksi_diklat_cakep ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mengikuti_seleksi_diklat_cakep" value="sudah" {{ old('akan_mengikuti_seleksi_diklat_cakep', $simfoni->akan_mengikuti_seleksi_diklat_cakep ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mengikuti_seleksi_diklat_cakep" value="tidak" {{ old('akan_mengikuti_seleksi_diklat_cakep', $simfoni->akan_mengikuti_seleksi_diklat_cakep ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_6" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -881,7 +874,6 @@
                                         <td>7</td>
                                         <td>Akan membimbing riset prestasi siswa</td>
                                         <td><input type="radio" name="akan_membimbing_riset_prestasi_siswa" value="iya" {{ old('akan_membimbing_riset_prestasi_siswa', $simfoni->akan_membimbing_riset_prestasi_siswa ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_membimbing_riset_prestasi_siswa" value="sudah" {{ old('akan_membimbing_riset_prestasi_siswa', $simfoni->akan_membimbing_riset_prestasi_siswa ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_membimbing_riset_prestasi_siswa" value="tidak" {{ old('akan_membimbing_riset_prestasi_siswa', $simfoni->akan_membimbing_riset_prestasi_siswa ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_7" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -889,7 +881,6 @@
                                         <td>8</td>
                                         <td>Akan masuk tim unggulan sekolah/madrasah</td>
                                         <td><input type="radio" name="akan_masuk_tim_unggulan_sekolah_madrasah" value="iya" {{ old('akan_masuk_tim_unggulan_sekolah_madrasah', $simfoni->akan_masuk_tim_unggulan_sekolah_madrasah ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_masuk_tim_unggulan_sekolah_madrasah" value="sudah" {{ old('akan_masuk_tim_unggulan_sekolah_madrasah', $simfoni->akan_masuk_tim_unggulan_sekolah_madrasah ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_masuk_tim_unggulan_sekolah_madrasah" value="tidak" {{ old('akan_masuk_tim_unggulan_sekolah_madrasah', $simfoni->akan_masuk_tim_unggulan_sekolah_madrasah ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_8" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -897,7 +888,6 @@
                                         <td>9</td>
                                         <td>Akan kompetisi pimpinan level II</td>
                                         <td><input type="radio" name="akan_kompetisi_pimpinan_level_ii" value="iya" {{ old('akan_kompetisi_pimpinan_level_ii', $simfoni->akan_kompetisi_pimpinan_level_ii ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_kompetisi_pimpinan_level_ii" value="sudah" {{ old('akan_kompetisi_pimpinan_level_ii', $simfoni->akan_kompetisi_pimpinan_level_ii ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_kompetisi_pimpinan_level_ii" value="tidak" {{ old('akan_kompetisi_pimpinan_level_ii', $simfoni->akan_kompetisi_pimpinan_level_ii ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_9" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -905,7 +895,6 @@
                                         <td>10</td>
                                         <td>Akan aktif mengikuti pelatihan</td>
                                         <td><input type="radio" name="akan_aktif_mengikuti_pelatihan" value="iya" {{ old('akan_aktif_mengikuti_pelatihan', $simfoni->akan_aktif_mengikuti_pelatihan ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_aktif_mengikuti_pelatihan" value="sudah" {{ old('akan_aktif_mengikuti_pelatihan', $simfoni->akan_aktif_mengikuti_pelatihan ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_aktif_mengikuti_pelatihan" value="tidak" {{ old('akan_aktif_mengikuti_pelatihan', $simfoni->akan_aktif_mengikuti_pelatihan ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_10" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -913,7 +902,6 @@
                                         <td>11</td>
                                         <td>Akan aktif MGMP/MKK</td>
                                         <td><input type="radio" name="akan_aktif_mgmp_mkk" value="iya" {{ old('akan_aktif_mgmp_mkk', $simfoni->akan_aktif_mgmp_mkk ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_aktif_mgmp_mkk" value="sudah" {{ old('akan_aktif_mgmp_mkk', $simfoni->akan_aktif_mgmp_mkk ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_aktif_mgmp_mkk" value="tidak" {{ old('akan_aktif_mgmp_mkk', $simfoni->akan_aktif_mgmp_mkk ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_11" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -921,7 +909,6 @@
                                         <td>12</td>
                                         <td>Akan mengikuti pendidikan kader NU</td>
                                         <td><input type="radio" name="akan_mengikuti_pendidikan_kader_nu" value="iya" {{ old('akan_mengikuti_pendidikan_kader_nu', $simfoni->akan_mengikuti_pendidikan_kader_nu ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mengikuti_pendidikan_kader_nu" value="sudah" {{ old('akan_mengikuti_pendidikan_kader_nu', $simfoni->akan_mengikuti_pendidikan_kader_nu ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mengikuti_pendidikan_kader_nu" value="tidak" {{ old('akan_mengikuti_pendidikan_kader_nu', $simfoni->akan_mengikuti_pendidikan_kader_nu ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_12" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -929,7 +916,6 @@
                                         <td>13</td>
                                         <td>Akan aktif membantu kegiatan lembaga</td>
                                         <td><input type="radio" name="akan_aktif_membantu_kegiatan_lembaga" value="iya" {{ old('akan_aktif_membantu_kegiatan_lembaga', $simfoni->akan_aktif_membantu_kegiatan_lembaga ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_aktif_membantu_kegiatan_lembaga" value="sudah" {{ old('akan_aktif_membantu_kegiatan_lembaga', $simfoni->akan_aktif_membantu_kegiatan_lembaga ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_aktif_membantu_kegiatan_lembaga" value="tidak" {{ old('akan_aktif_membantu_kegiatan_lembaga', $simfoni->akan_aktif_membantu_kegiatan_lembaga ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_13" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -937,7 +923,6 @@
                                         <td>14</td>
                                         <td>Akan aktif mengikuti kegiatan NU</td>
                                         <td><input type="radio" name="akan_aktif_mengikuti_kegiatan_nu" value="iya" {{ old('akan_aktif_mengikuti_kegiatan_nu', $simfoni->akan_aktif_mengikuti_kegiatan_nu ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_aktif_mengikuti_kegiatan_nu" value="sudah" {{ old('akan_aktif_mengikuti_kegiatan_nu', $simfoni->akan_aktif_mengikuti_kegiatan_nu ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_aktif_mengikuti_kegiatan_nu" value="tidak" {{ old('akan_aktif_mengikuti_kegiatan_nu', $simfoni->akan_aktif_mengikuti_kegiatan_nu ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_14" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -945,7 +930,6 @@
                                         <td>15</td>
                                         <td>Akan aktif ikut ZIS & kegiatan sosial</td>
                                         <td><input type="radio" name="akan_aktif_ikut_zis_kegiatan_sosial" value="iya" {{ old('akan_aktif_ikut_zis_kegiatan_sosial', $simfoni->akan_aktif_ikut_zis_kegiatan_sosial ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_aktif_ikut_zis_kegiatan_sosial" value="sudah" {{ old('akan_aktif_ikut_zis_kegiatan_sosial', $simfoni->akan_aktif_ikut_zis_kegiatan_sosial ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_aktif_ikut_zis_kegiatan_sosial" value="tidak" {{ old('akan_aktif_ikut_zis_kegiatan_sosial', $simfoni->akan_aktif_ikut_zis_kegiatan_sosial ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_15" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -953,7 +937,6 @@
                                         <td>16</td>
                                         <td>Akan mengembangkan unit usaha satpen</td>
                                         <td><input type="radio" name="akan_mengembangkan_unit_usaha_satpen" value="iya" {{ old('akan_mengembangkan_unit_usaha_satpen', $simfoni->akan_mengembangkan_unit_usaha_satpen ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_mengembangkan_unit_usaha_satpen" value="sudah" {{ old('akan_mengembangkan_unit_usaha_satpen', $simfoni->akan_mengembangkan_unit_usaha_satpen ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_mengembangkan_unit_usaha_satpen" value="tidak" {{ old('akan_mengembangkan_unit_usaha_satpen', $simfoni->akan_mengembangkan_unit_usaha_satpen ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_16" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -961,7 +944,6 @@
                                         <td>17</td>
                                         <td>Akan bekerja dengan disiplin & produktif</td>
                                         <td><input type="radio" name="akan_bekerja_disiplin_produktif" value="iya" {{ old('akan_bekerja_disiplin_produktif', $simfoni->akan_bekerja_disiplin_produktif ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_bekerja_disiplin_produktif" value="sudah" {{ old('akan_bekerja_disiplin_produktif', $simfoni->akan_bekerja_disiplin_produktif ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_bekerja_disiplin_produktif" value="tidak" {{ old('akan_bekerja_disiplin_produktif', $simfoni->akan_bekerja_disiplin_produktif ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_17" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -969,7 +951,6 @@
                                         <td>18</td>
                                         <td>Akan loyal pada NU & aktif di masyarakat</td>
                                         <td><input type="radio" name="akan_loyal_nu_aktif_masyarakat" value="iya" {{ old('akan_loyal_nu_aktif_masyarakat', $simfoni->akan_loyal_nu_aktif_masyarakat ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="akan_loyal_nu_aktif_masyarakat" value="sudah" {{ old('akan_loyal_nu_aktif_masyarakat', $simfoni->akan_loyal_nu_aktif_masyarakat ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="akan_loyal_nu_aktif_masyarakat" value="tidak" {{ old('akan_loyal_nu_aktif_masyarakat', $simfoni->akan_loyal_nu_aktif_masyarakat ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_18" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
@@ -977,7 +958,6 @@
                                         <td>19</td>
                                         <td>Bersedia dipindah ke satpen lain</td>
                                         <td><input type="radio" name="bersedia_dipindah_satpen_lain" value="iya" {{ old('bersedia_dipindah_satpen_lain', $simfoni->bersedia_dipindah_satpen_lain ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="bersedia_dipindah_satpen_lain" value="sudah" {{ old('bersedia_dipindah_satpen_lain', $simfoni->bersedia_dipindah_satpen_lain ?? '') == 'sudah' ? 'checked' : '' }}></td>
                                         <td><input type="radio" name="bersedia_dipindah_satpen_lain" value="tidak" {{ old('bersedia_dipindah_satpen_lain', $simfoni->bersedia_dipindah_satpen_lain ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                         <td><input type="text" id="skor_19" class="form-control form-control-sm" style="width: 40px; text-align: center;" readonly></td>
                                     </tr>
