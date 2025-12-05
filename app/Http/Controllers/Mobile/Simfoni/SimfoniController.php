@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mobile\Simfoni;
 
 use App\Http\Controllers\Controller;
 use App\Models\Simfoni;
+use App\Models\StatusKepegawaian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -38,7 +39,10 @@ class SimfoniController extends Controller
             ]);
         }
 
-        return view('mobile.simfoni', compact('simfoni', 'user'));
+        // Get status kepegawaian options from database
+        $statusKepegawaian = StatusKepegawaian::all();
+
+        return view('mobile.simfoni', compact('simfoni', 'user', 'statusKepegawaian'));
     }
 
     /**

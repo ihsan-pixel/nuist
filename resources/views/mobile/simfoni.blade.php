@@ -521,10 +521,9 @@
                             <label>Status Kerja Saat Ini</label>
                             <select name="status_kerja" required>
                                 <option value="">-- Pilih Status --</option>
-                                <option value="PNS" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PNS' ? 'selected' : '' }}>PNS</option>
-                                <option value="PPPK" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
-                                <option value="Honorer" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Honorer' ? 'selected' : '' }}>Honorer</option>
-                                <option value="Yayasan" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Yayasan' ? 'selected' : '' }}>Yayasan</option>
+                                @foreach($statusKepegawaian as $status)
+                                    <option value="{{ $status->name }}" {{ old('status_kerja', $simfoni->status_kerja ?? '') == $status->name ? 'selected' : '' }}>{{ $status->name }}</option>
+                                @endforeach
                             </select>
                             @error('status_kerja')
                                 <div class="form-error">{{ $message }}</div>
