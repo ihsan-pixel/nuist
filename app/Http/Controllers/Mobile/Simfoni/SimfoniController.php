@@ -39,8 +39,34 @@ class SimfoniController extends Controller
             ]);
         }
 
+        // Calculate masa kerja to determine status kepegawaian options
+        $masaKerjaYears = 0;
+        $tmtDate = $simfoni->tmt ?? $user->tmt ?? null;
+
+        if ($tmtDate) {
+            $tmt = Carbon::parse($tmtDate);
+            $targetDate = Carbon::create(2025, 7, 31); // July 31, 2025
+
+            $years = $targetDate->diffInYears($tmt);
+            $months = $targetDate->diffInMonths($tmt) % 12;
+
+            // Adjust if target day is before TMT day in the same month
+            if ($targetDate->day < $tmt->day && $months == 0) {
+                $years--;
+                $months = 11;
+            }
+
+            $masaKerjaYears = $years + ($months / 12);
+        }
+
         // Get status kepegawaian options from database
-        $statusKepegawaian = StatusKepegawaian::all();
+        if ($masaKerjaYears < 2 && $masaKerjaYears > 0) {
+            // Show only GTT (id 6) and PTT (id 8) for masa kerja < 2 years
+            $statusKepegawaian = StatusKepegawaian::whereIn('id', [6, 8])->get();
+        } else {
+            // Show all options for masa kerja >= 2 years
+            $statusKepegawaian = StatusKepegawaian::all();
+        }
 
         return view('mobile.simfoni', compact('simfoni', 'user', 'statusKepegawaian'));
     }

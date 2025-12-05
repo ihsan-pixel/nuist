@@ -1199,7 +1199,7 @@
             options.forEach(option => {
                 const value = option.value.toLowerCase();
                 if (totalYears < 2 && totalYears > 0) {
-                    // Show only GTT and PTT
+                    // Show only GTT and PTT (assuming these are the values for id 6 and 8)
                     if (value.includes('gtt') || value.includes('ptt')) {
                         option.style.display = 'block';
                     } else {
