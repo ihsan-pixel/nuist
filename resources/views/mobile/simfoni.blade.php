@@ -355,6 +355,7 @@
     <div class="form-container">
         <!-- Step Timeline -->
         <div class="step-timeline">
+            <div class="step-title" id="currentStepTitle" style="text-align: center; font-weight: 600; color: #004b4c; margin-bottom: 16px; font-size: 14px;">Step 1: Data SK</div>
         <div class="timeline-steps">
             <div class="timeline-step active" data-step="1">
                 <div class="timeline-step-circle">1</div>
@@ -1028,6 +1029,21 @@
                     timelineStep.classList.add('completed');
                 }
             });
+
+            // Update step title
+            const stepTitles = {
+                1: 'Step 1: Data SK',
+                2: 'Step 2: Riwayat Kerja',
+                3: 'Step 3: Keahlian',
+                4: 'Step 4: Keuangan',
+                5: 'Step 5: Kekaderan',
+                6: 'Step 6: Keluarga',
+                7: 'Step 7: Proyeksi'
+            };
+            const stepTitleEl = document.getElementById('currentStepTitle');
+            if (stepTitleEl && stepTitles[step]) {
+                stepTitleEl.textContent = stepTitles[step];
+            }
 
             // Update step indicator
             const currentStepElText = document.getElementById('currentStep');
