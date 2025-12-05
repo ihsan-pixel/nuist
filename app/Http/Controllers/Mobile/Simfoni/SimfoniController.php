@@ -31,7 +31,7 @@ class SimfoniController extends Controller
                 'nipm' => $user->nipm ?? '',
                 'tmt' => $user->tmt ?? null,
                 'program_studi' => $user->program_studi ?? '',
-                'no_hp' => $user->phone ?? '',
+                'no_hp' => $user->no_hp ?? '',
                 'email' => $user->email ?? '',
                 'alamat_lengkap' => $user->alamat ?? '',
                 'strata_pendidikan' => $user->pendidikan_terakhir ?? '',
