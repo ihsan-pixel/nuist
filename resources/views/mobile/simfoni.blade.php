@@ -284,7 +284,7 @@
 
     <!-- Header -->
     <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+        <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
             <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
         </button>
         <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
