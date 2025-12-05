@@ -732,17 +732,35 @@
 
                         <div class="form-group">
                             <label>Status Kader Ayah</label>
-                            <input type="text" name="status_kader_ayah" value="{{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') }}" placeholder="Status kader ayah">
+                            <select name="status_kader_ayah">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Militan" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Militan' ? 'selected' : '' }}>Militan</option>
+                                <option value="Aktif" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Baru" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="Non-NU" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Non-NU' ? 'selected' : '' }}>Non-NU</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label>Status Kader Ibu</label>
-                            <input type="text" name="status_kader_ibu" value="{{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') }}" placeholder="Status kader ibu">
+                            <select name="status_kader_ibu">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Militan" {{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') == 'Militan' ? 'selected' : '' }}>Militan</option>
+                                <option value="Aktif" {{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Baru" {{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="Non-NU" {{ old('status_kader_ibu', $simfoni->status_kader_ibu ?? '') == 'Non-NU' ? 'selected' : '' }}>Non-NU</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label>Status Kader Suami/Istri</label>
-                            <input type="text" name="status_kader_pasangan" value="{{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') }}" placeholder="Status kader suami/istri">
+                            <select name="status_kader_pasangan">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Militan" {{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') == 'Militan' ? 'selected' : '' }}>Militan</option>
+                                <option value="Aktif" {{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Baru" {{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="Non-NU" {{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') == 'Non-NU' ? 'selected' : '' }}>Non-NU</option>
+                            </select>
                         </div>
 
                     </div> <!-- /.section-content -->
