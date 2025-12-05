@@ -519,12 +519,13 @@
                     <div class="section-content">
                         <div class="form-group required">
                             <label>Status Kerja Saat Ini</label>
-                            <select name="status_kerja" required>
+                            <select name="status_kerja" id="statusKerjaSelect" required>
                                 <option value="">-- Pilih Status --</option>
                                 @foreach($statusKepegawaian as $status)
                                     <option value="{{ $status->name }}" {{ old('status_kerja', $simfoni->status_kerja ?? '') == $status->name ? 'selected' : '' }}>{{ $status->name }}</option>
                                 @endforeach
                             </select>
+                            <div class="form-hint">Jika masa kerja belum ada 2 tahun maka hanya tersedia sebagai GTT dan PTT</div>
                             @error('status_kerja')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -1192,7 +1193,7 @@
 
         // Filter status kerja options based on masa kerja
         function filterStatusKerja() {
-            const statusKerjaSelect = document.querySelector('select[name="status_kerja"]');
+            const statusKerjaSelect = document.getElementById('statusKerjaSelect');
             if (!statusKerjaSelect) return;
 
             const options = statusKerjaSelect.querySelectorAll('option');
@@ -1214,6 +1215,14 @@
             // Reset selection if current selection is hidden
             if (statusKerjaSelect.selectedOptions[0] && statusKerjaSelect.selectedOptions[0].style.display === 'none') {
                 statusKerjaSelect.selectedIndex = 0;
+            }
+
+            // Disable select if masa kerja is empty
+            if (totalYears === 0) {
+                statusKerjaSelect.disabled = true;
+                statusKerjaSelect.selectedIndex = 0;
+            } else {
+                statusKerjaSelect.disabled = false;
             }
         }
 
