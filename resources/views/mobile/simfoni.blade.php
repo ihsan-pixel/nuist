@@ -692,6 +692,19 @@
                             </div>
                             <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                         </div>
+
+                        <div class="form-group">
+                            <label>Kategori Penghasilan</label>
+                            <input type="text" id="kategoriPenghasilan" readonly style="background: #f8f9fa; color: #666; font-weight: bold;">
+                            <div class="form-hint">
+                                A = Bagus (≥ 10 juta)<br>
+                                B = Baik (6,0 – 9,9 juta)<br>
+                                C = Cukup (4,0 – 5,9 juta)<br>
+                                D = Hampir Cukup (2,5 – 3,9 juta)<br>
+                                E = Kurang (1,5 – 2,4 juta)<br>
+                                F = Sangat Kurang (< 1,5 juta)
+                            </div>
+                        </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
@@ -823,7 +836,7 @@
             });
         }
 
-        // Auto calculate total penghasilan
+        // Auto calculate total penghasilan and kategori
         const form = document.getElementById('simfoniForm');
         if (form) {
             form.addEventListener('change', function (e) {
@@ -841,6 +854,25 @@
 
                     const totalEl = document.getElementById('totalPenghasilan');
                     if (totalEl) totalEl.value = total.toFixed(2);
+
+                    // Calculate kategori penghasilan
+                    let kategori = '';
+                    if (total >= 10000000) {
+                        kategori = 'A = Bagus (≥ 10 juta)';
+                    } else if (total >= 6000000) {
+                        kategori = 'B = Baik (6,0 – 9,9 juta)';
+                    } else if (total >= 4000000) {
+                        kategori = 'C = Cukup (4,0 – 5,9 juta)';
+                    } else if (total >= 2500000) {
+                        kategori = 'D = Hampir Cukup (2,5 – 3,9 juta)';
+                    } else if (total >= 1500000) {
+                        kategori = 'E = Kurang (1,5 – 2,4 juta)';
+                    } else {
+                        kategori = 'F = Sangat Kurang (< 1,5 juta)';
+                    }
+
+                    const kategoriEl = document.getElementById('kategoriPenghasilan');
+                    if (kategoriEl) kategoriEl.value = kategori;
                 }
             });
         }
