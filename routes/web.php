@@ -199,6 +199,10 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::get('/notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+
+    // Simfoni (Data SK Tenaga Pendidik)
+    Route::get('/simfoni', [App\Http\Controllers\Mobile\SimfoniController::class, 'show'])->name('simfoni.show');
+    Route::post('/simfoni', [App\Http\Controllers\Mobile\SimfoniController::class, 'store'])->name('simfoni.store');
 });
 
 // panduan route - accessible by super_admin and pengurus

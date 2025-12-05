@@ -1,7 +1,7 @@
 @extends('layouts.mobile')
 
 @section('title', 'Simfoni')
-@section('subtitle', 'Submit Request')
+@section('subtitle', 'Data SK Tenaga Pendidik')
 
 @section('content')
 <div class="container py-3" style="max-width: 420px; margin: auto;">
@@ -16,62 +16,119 @@
         .simfoni-container {
             background: #fff;
             border-radius: 12px;
-            padding: 16px;
+            padding: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
+            color: white;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .form-header h4 {
+            margin: 0 0 4px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-header p {
+            margin: 0;
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .form-body {
+            padding: 16px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
+            color: white;
+            padding: 10px 14px;
+            margin: 0 -16px 14px -16px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-content {
             margin-bottom: 16px;
         }
 
-        .simfoni-form-group {
-            margin-bottom: 14px;
+        .section-content:last-child {
+            margin-bottom: 0;
         }
 
-        .simfoni-form-group label {
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
             display: block;
             font-weight: 600;
-            color: #6b4c9a;
-            margin-bottom: 6px;
+            color: #333;
+            margin-bottom: 5px;
             font-size: 12px;
         }
 
-        .simfoni-form-group input[type="text"],
-        .simfoni-form-group input[type="email"],
-        .simfoni-form-group input[type="tel"],
-        .simfoni-form-group textarea,
-        .simfoni-form-group input[type="file"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-            transition: border-color 0.3s ease;
+        .form-group.required label::after {
+            content: ' *';
+            color: #dc3545;
         }
 
-        .simfoni-form-group input[type="text"]:focus,
-        .simfoni-form-group input[type="email"]:focus,
-        .simfoni-form-group input[type="tel"]:focus,
-        .simfoni-form-group textarea:focus,
-        .simfoni-form-group input[type="file"]:focus {
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="tel"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="date"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: #6b4c9a;
             box-shadow: 0 0 0 3px rgba(107, 76, 154, 0.1);
         }
 
-        .simfoni-form-group textarea {
+        .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 70px;
         }
 
         .form-hint {
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
         .form-error {
             color: #dc3545;
-            font-size: 11px;
-            margin-top: 4px;
+            font-size: 10px;
+            margin-top: 3px;
         }
 
         .error-container {
@@ -90,8 +147,24 @@
 
         .error-list li {
             color: #dc3545;
-            font-size: 12px;
+            font-size: 11px;
             padding: 2px 0;
+        }
+
+        .success-alert {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .row-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         .submit-btn {
@@ -101,57 +174,17 @@
             padding: 12px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             width: 100%;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-top: 16px;
         }
 
         .submit-btn:hover {
             background: linear-gradient(135deg, #5a4080 0%, #4a3070 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(107, 76, 154, 0.3);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .file-upload-wrapper {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .file-upload-label {
-            display: block;
-            padding: 10px 12px;
-            background: #f8f9fa;
-            border: 2px dashed #6b4c9a;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-upload-label:hover {
-            background: #f0ebf5;
-            border-color: #5a4080;
-        }
-
-        .file-upload-label i {
-            font-size: 16px;
-            color: #6b4c9a;
-            margin-right: 6px;
-        }
-
-        .file-upload-wrapper input[type="file"] {
-            display: none;
-        }
-
-        .file-selected {
-            font-size: 12px;
-            color: #6b4c9a;
-            margin-top: 4px;
         }
 
         .back-button {
@@ -177,25 +210,33 @@
             margin-right: 6px;
         }
 
-        .form-header {
-            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
-            color: white;
-            padding: 16px;
-            border-radius: 12px 12px 0 0;
-            margin: -16px -16px 16px -16px;
-            text-align: center;
+        .currency-prefix {
+            position: relative;
         }
 
-        .form-header h4 {
-            margin: 0;
+        .currency-prefix::before {
+            content: 'Rp ';
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #999;
             font-weight: 600;
-            font-size: 14px;
         }
 
-        .form-header p {
-            margin: 4px 0 0 0;
+        .currency-prefix input {
+            padding-left: 35px !important;
+        }
+
+        .auto-fill {
+            background: #f0ebf5;
             font-size: 11px;
-            opacity: 0.9;
+            color: #666;
+        }
+
+        .auto-fill:focus {
+            background: #fff;
         }
     </style>
 
@@ -208,194 +249,319 @@
     <!-- Form Container -->
     <div class="simfoni-container">
         <div class="form-header">
-            <h4>Formulir Permintaan</h4>
-            <p>Kami siap membantu Anda</p>
+            <h4>Data SK Tenaga Pendidik</h4>
+            <p>Sumber Kepangkatan dan Identitas Diri</p>
         </div>
 
-        <!-- Error Messages -->
-        @if ($errors->any())
-            <div class="error-container">
-                <ul class="error-list">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <!-- Form Start -->
-        <form action="{{ route('mobile.simfoni.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <!-- First Name -->
-            <div class="simfoni-form-group">
-                <label for="first_name">Nama Depan *</label>
-                <input 
-                    type="text" 
-                    id="first_name" 
-                    name="first_name" 
-                    placeholder="Masukkan nama depan Anda"
-                    value="{{ old('first_name', $user->first_name ?? '') }}"
-                    required
-                >
-                @error('first_name')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Last Name -->
-            <div class="simfoni-form-group">
-                <label for="last_name">Nama Belakang *</label>
-                <input 
-                    type="text" 
-                    id="last_name" 
-                    name="last_name" 
-                    placeholder="Masukkan nama belakang Anda"
-                    value="{{ old('last_name', $user->last_name ?? '') }}"
-                    required
-                >
-                @error('last_name')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Email -->
-            <div class="simfoni-form-group">
-                <label for="email">Email *</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    placeholder="Masukkan email Anda"
-                    value="{{ old('email', $user->email ?? '') }}"
-                    required
-                >
-                @error('email')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Mobile Number -->
-            <div class="simfoni-form-group">
-                <label for="mobile_number">Nomor Telepon *</label>
-                <input 
-                    type="tel" 
-                    id="mobile_number" 
-                    name="mobile_number" 
-                    placeholder="Masukkan nomor telepon (10 digit)"
-                    value="{{ old('mobile_number', $user->phone ?? '') }}"
-                    required
-                >
-                @error('mobile_number')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Subject -->
-            <div class="simfoni-form-group">
-                <label for="subject">Subjek *</label>
-                <input 
-                    type="text" 
-                    id="subject" 
-                    name="subject" 
-                    placeholder="Masukkan subjek"
-                    value="{{ old('subject') }}"
-                    required
-                >
-                @error('subject')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Message -->
-            <div class="simfoni-form-group">
-                <label for="message">Pesan *</label>
-                <textarea 
-                    id="message" 
-                    name="message" 
-                    placeholder="Masukkan pesan Anda di sini (minimal 10 karakter)"
-                    required
-                >{{ old('message') }}</textarea>
-                <div class="form-hint">Maksimal 5000 karakter</div>
-                @error('message')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Attachments -->
-            <div class="simfoni-form-group">
-                <label>Lampiran</label>
-                <div class="file-upload-wrapper">
-                    <label for="attachments" class="file-upload-label">
-                        <i class="bx bx-cloud-upload"></i>
-                        <span>Pilih atau Drag & Drop file</span>
-                    </label>
-                    <input 
-                        type="file" 
-                        id="attachments" 
-                        name="attachments"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    >
-                    <div class="form-hint">
-                        Format: PDF, DOC, DOCX, JPG, JPEG, PNG | Maksimal: 5MB
-                    </div>
-                    <div class="file-selected" id="fileSelected"></div>
+        <div class="form-body">
+            <!-- Success Alert -->
+            @if (session('success'))
+                <div class="success-alert">
+                    ✓ {{ session('success') }}
                 </div>
-                @error('attachments')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
+            @endif
 
-            <!-- Submit Button -->
-            <div class="simfoni-form-group">
-                <button type="submit" class="submit-btn">SUBMIT</button>
-            </div>
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="error-container">
+                    <ul class="error-list">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            <!-- Info Text -->
-            <div style="text-align: center; font-size: 11px; color: #999; margin-top: 12px;">
-                <p style="margin: 0;">Silakan isi semua field yang bertanda *</p>
-            </div>
-        </form>
+            <form action="{{ route('mobile.simfoni.store') }}" method="POST" id="simfoniForm">
+                @csrf
+
+                <!-- A. DATA SK -->
+                <div class="section-title">A. DATA SK</div>
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Lengkap dengan Gelar</label>
+                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="auto-fill" readonly>
+                        <div class="form-hint">Otomatis dari data user</div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>Tempat Lahir</label>
+                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>Tanggal Lahir</label>
+                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $simfoni->tanggal_lahir ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NUPTK</label>
+                            <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Karta-NU</label>
+                            <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NIP Ma'arif Baru</label>
+                            <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>Nomor Induk Kependudukan (NIK)</label>
+                            <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
+                            @error('nik')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>TMT Pertama</label>
+                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>Strata Pendidikan</label>
+                            <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>PT Asal</label>
+                            <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
+                            @error('pt_asal')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>Tahun Lulus</label>
+                            <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" required>
+                            @error('tahun_lulus')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama Program Studi</label>
+                        <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="auto-fill" readonly>
+                    </div>
+                </div>
+
+                <!-- B. RIWAYAT KERJA -->
+                <div class="section-title">B. RIWAYAT KERJA</div>
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Status Kerja Saat Ini</label>
+                        <select name="status_kerja" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="PNS" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PNS' ? 'selected' : '' }}>PNS</option>
+                            <option value="PPPK" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                            <option value="Honorer" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Honorer' ? 'selected' : '' }}>Honorer</option>
+                            <option value="Yayasan" {{ old('status_kerja', $simfoni->status_kerja ?? '') == 'Yayasan' ? 'selected' : '' }}>Yayasan</option>
+                        </select>
+                        @error('status_kerja')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>Tanggal SK Pertama</label>
+                            <input type="date" name="tanggal_sk_pertama" value="{{ old('tanggal_sk_pertama', $simfoni->tanggal_sk_pertama ?? '') }}" required>
+                            @error('tanggal_sk_pertama')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>Nomor SK Pertama</label>
+                            <input type="text" name="nomor_sk_pertama" value="{{ old('nomor_sk_pertama', $simfoni->nomor_sk_pertama ?? '') }}" required>
+                            @error('nomor_sk_pertama')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nomor Sertifikasi Pendidik</label>
+                        <input type="text" name="nomor_sertifikasi_pendidik" value="{{ old('nomor_sertifikasi_pendidik', $simfoni->nomor_sertifikasi_pendidik ?? '') }}" placeholder="Nomor sertifikat pendidik (jika ada)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Riwayat Kerja Sebelumnya</label>
+                        <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
+                    </div>
+                </div>
+
+                <!-- C. KEAHLIAN DAN DATA LAIN -->
+                <div class="section-title">C. KEAHLIAN DAN DATA LAIN</div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Keahlian</label>
+                        <textarea name="keahlian" placeholder="Sebutkan keahlian khusus Anda...">{{ old('keahlian', $simfoni->keahlian ?? '') }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kedudukan di LPM</label>
+                        <input type="text" name="kedudukan_lpm" value="{{ old('kedudukan_lpm', $simfoni->kedudukan_lpm ?? '') }}" placeholder="Posisi di Lembaga Pendidikan Masyarakat">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Prestasi</label>
+                        <textarea name="prestasi" placeholder="Pencapaian atau prestasi yang diraih...">{{ old('prestasi', $simfoni->prestasi ?? '') }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tahun Sertifikasi & Impassing</label>
+                        <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018">
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>Nomor HP/WA</label>
+                            <input type="tel" name="no_hp" value="{{ old('no_hp', $simfoni->no_hp ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                        <div class="form-group required">
+                            <label>E-mail Aktif</label>
+                            <input type="email" name="email" value="{{ old('email', $simfoni->email ?? '') }}" class="auto-fill" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Status Pernikahan</label>
+                        <select name="status_pernikahan" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="Belum Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Belum Kawin' ? 'selected' : '' }}>Belum Kawin</option>
+                            <option value="Kawin" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Kawin' ? 'selected' : '' }}>Kawin</option>
+                            <option value="Cerai Hidup" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Hidup' ? 'selected' : '' }}>Cerai Hidup</option>
+                            <option value="Cerai Mati" {{ old('status_pernikahan', $simfoni->status_pernikahan ?? '') == 'Cerai Mati' ? 'selected' : '' }}>Cerai Mati</option>
+                        </select>
+                        @error('status_pernikahan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Alamat Lengkap</label>
+                        <textarea name="alamat_lengkap" required>{{ old('alamat_lengkap', $simfoni->alamat_lengkap ?? '') }}</textarea>
+                        @error('alamat_lengkap')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- D. DATA KEUANGAN/KESEJAHTERAAN -->
+                <div class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</div>
+                <div class="section-content">
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Bank</label>
+                            <input type="text" name="bank" value="{{ old('bank', $simfoni->bank ?? '') }}" placeholder="Nama Bank">
+                        </div>
+                        <div class="form-group">
+                            <label>Nomor Rekening</label>
+                            <input type="text" name="nomor_rekening" value="{{ old('nomor_rekening', $simfoni->nomor_rekening ?? '') }}" placeholder="No Rekening">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gaji Sertifikasi</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="gaji_sertifikasi" value="{{ old('gaji_sertifikasi', $simfoni->gaji_sertifikasi ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gaji Pokok Perbulan dari Satpen</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="gaji_pokok" value="{{ old('gaji_pokok', $simfoni->gaji_pokok ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Honor Lain</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Penghasilan Lain</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="penghasilan_lain" value="{{ old('penghasilan_lain', $simfoni->penghasilan_lain ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Penghasilan Pasangan (tidak dihitung)</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" min="0" step="0.01" placeholder="0">
+                        </div>
+                        <div class="form-hint">Informasi ini tidak masuk dalam perhitungan total</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jumlah Total Penghasilan Diri</label>
+                        <div class="currency-prefix">
+                            <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan">
+                        </div>
+                        <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn">
+                    <i class="bx bx-save"></i> SIMPAN DATA
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
-        // Handle file upload
-        document.getElementById('attachments').addEventListener('change', function(e) {
-            const fileSelected = document.getElementById('fileSelected');
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                const fileName = file.name;
-                const fileSize = (file.size / 1024 / 1024).toFixed(2);
-                fileSelected.innerHTML = `✓ ${fileName} (${fileSize} MB)`;
-            } else {
-                fileSelected.innerHTML = '';
-            }
+        // Auto-fill readonly fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const nama = document.querySelector('input[name="nama_lengkap_gelar"]');
+            const tempat = document.querySelector('input[name="tempat_lahir"]');
+            const tanggal = document.querySelector('input[name="tanggal_lahir"]');
+            const nuptk = document.querySelector('input[name="nuptk"]');
+            const kartanu = document.querySelector('input[name="kartanu"]');
+            const nipm = document.querySelector('input[name="nipm"]');
+            const tmt = document.querySelector('input[name="tmt"]');
+            const strata = document.querySelector('input[name="strata_pendidikan"]');
+            const prodi = document.querySelector('input[name="program_studi"]');
+            const noHp = document.querySelector('input[name="no_hp"]');
+            const email = document.querySelector('input[name="email"]');
+
+            // Set default values from user data if empty
+            if (!nama.value) nama.value = '{{ $user->name ?? "" }}';
+            if (!tempat.value) tempat.value = '{{ $user->tempat_lahir ?? "" }}';
+            if (!tanggal.value) tanggal.value = '{{ $user->tanggal_lahir ?? "" }}';
+            if (!nuptk.value) nuptk.value = '{{ $user->nuptk ?? "" }}';
+            if (!kartanu.value) kartanu.value = '{{ $user->kartanu ?? "" }}';
+            if (!nipm.value) nipm.value = '{{ $user->nipm ?? "" }}';
+            if (!tmt.value) tmt.value = '{{ $user->tmt ?? "" }}';
+            if (!strata.value) strata.value = '{{ $user->pendidikan_terakhir ?? "" }}';
+            if (!prodi.value) prodi.value = '{{ $user->program_studi ?? "" }}';
+            if (!noHp.value) noHp.value = '{{ $user->phone ?? "" }}';
+            if (!email.value) email.value = '{{ $user->email ?? "" }}';
         });
 
-        // Drag and drop functionality
-        const fileInput = document.getElementById('attachments');
-        const fileLabel = fileInput.parentElement.querySelector('.file-upload-label');
-
-        fileLabel.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.style.background = '#f0ebf5';
-            this.style.borderColor = '#5a4080';
-        });
-
-        fileLabel.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.style.background = '#f8f9fa';
-            this.style.borderColor = '#6b4c9a';
-        });
-
-        fileLabel.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.style.background = '#f8f9fa';
-            this.style.borderColor = '#6b4c9a';
-            if (e.dataTransfer.files) {
-                fileInput.files = e.dataTransfer.files;
-                // Trigger change event
-                fileInput.dispatchEvent(new Event('change'));
+        // Auto calculate total penghasilan
+        document.getElementById('simfoniForm').addEventListener('change', function(e) {
+            if (['gaji_sertifikasi', 'gaji_pokok', 'honor_lain', 'penghasilan_lain'].includes(e.target.name)) {
+                const gaji_sertifikasi = parseFloat(document.querySelector('input[name="gaji_sertifikasi"]').value) || 0;
+                const gaji_pokok = parseFloat(document.querySelector('input[name="gaji_pokok"]').value) || 0;
+                const honor_lain = parseFloat(document.querySelector('input[name="honor_lain"]').value) || 0;
+                const penghasilan_lain = parseFloat(document.querySelector('input[name="penghasilan_lain"]').value) || 0;
+                
+                const total = gaji_sertifikasi + gaji_pokok + honor_lain + penghasilan_lain;
+                document.getElementById('totalPenghasilan').value = total.toFixed(2);
             }
         });
     </script>
