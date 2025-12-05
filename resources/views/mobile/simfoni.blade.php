@@ -230,6 +230,58 @@
             font-size: 16px;
         }
 
+        .navigation-container {
+            background: #f8f9fa;
+            padding: 16px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .step-indicator {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -317,15 +369,16 @@
             <form action="{{ route('mobile.simfoni.store') }}" method="POST" id="simfoniForm">
                 @csrf
 
-                <!-- A. DATA SK -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <div class="section-icon">
-                            <i class="bx bx-id-card"></i>
+                <!-- Step 1: A. DATA SK -->
+                <div class="step-content active" data-step="1">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="bx bx-id-card"></i>
+                            </div>
+                            <h6 class="section-title">A. DATA SK</h6>
                         </div>
-                        <h6 class="section-title">A. DATA SK</h6>
-                    </div>
-                    <div class="section-content">
+                        <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Lengkap dengan Gelar</label>
                         <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="auto-fill" readonly>
@@ -400,17 +453,20 @@
                         <label>Nama Program Studi</label>
                         <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="auto-fill" readonly>
                     </div>
-                {{-- </div> --}}
-
-                <!-- B. RIWAYAT KERJA -->
-                {{-- <div class="section-card"> --}}
-                    <div class="section-header">
-                        <div class="section-icon">
-                            <i class="bx bx-briefcase"></i>
                         </div>
-                        <h6 class="section-title">B. RIWAYAT KERJA</h6>
                     </div>
-                    <div class="section-content">
+                </div>
+
+                <!-- Step 2: B. RIWAYAT KERJA -->
+                <div class="step-content" data-step="2" style="display: none;">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="bx bx-briefcase"></i>
+                            </div>
+                            <h6 class="section-title">B. RIWAYAT KERJA</h6>
+                        </div>
+                        <div class="section-content">
                     <div class="form-group required">
                         <label>Status Kerja Saat Ini</label>
                         <select name="status_kerja" required>
@@ -451,18 +507,20 @@
                         <label>Riwayat Kerja Sebelumnya</label>
                         <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
                     </div>
-                {{-- </div> --}}
-                {{-- </div> --}}
-
-                <!-- C. KEAHLIAN DAN DATA LAIN -->
-                {{-- <div class="section-card"> --}}
-                    <div class="section-header">
-                        <div class="section-icon">
-                            <i class="bx bx-star"></i>
                         </div>
-                        <h6 class="section-title">C. KEAHLIAN DAN DATA LAIN</h6>
                     </div>
-                    <div class="section-content">
+                </div>
+
+                <!-- Step 3: C. KEAHLIAN DAN DATA LAIN -->
+                <div class="step-content" data-step="3" style="display: none;">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="bx bx-star"></i>
+                            </div>
+                            <h6 class="section-title">C. KEAHLIAN DAN DATA LAIN</h6>
+                        </div>
+                        <div class="section-content">
                     <div class="form-group">
                         <label>Keahlian</label>
                         <textarea name="keahlian" placeholder="Sebutkan keahlian khusus Anda...">{{ old('keahlian', $simfoni->keahlian ?? '') }}</textarea>
@@ -517,15 +575,16 @@
                     </div>
                 {{-- </div> --}}
 
-                <!-- D. DATA KEUANGAN/KESEJAHTERAAN -->
-                {{-- <div class="section-card"> --}}
-                    <div class="section-header">
-                        <div class="section-icon">
-                            <i class="bx bx-money"></i>
+                <!-- Step 4: D. DATA KEUANGAN/KESEJAHTERAAN -->
+                <div class="step-content" data-step="4" style="display: none;">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="bx bx-money"></i>
+                            </div>
+                            <h6 class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</h6>
                         </div>
-                        <h6 class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</h6>
-                    </div>
-                    <div class="section-content">
+                        <div class="section-content">
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Bank</label>
@@ -580,11 +639,27 @@
                         </div>
                         <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                     </div>
-                {{-- </div> --}}
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="submit-container">
+                <!-- Navigation Buttons -->
+                <div class="navigation-container">
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-btn nav-prev" id="prevBtn" style="display: none;">
+                            <i class="bx bx-chevron-left"></i> Sebelumnya
+                        </button>
+                        <div class="step-indicator">
+                            <span id="currentStep">1</span> dari 4
+                        </div>
+                        <button type="button" class="nav-btn nav-next" id="nextBtn">
+                            Selanjutnya <i class="bx bx-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button (Hidden initially) -->
+                <div class="submit-container" id="submitContainer" style="display: none;">
                     <button type="submit" class="submit-btn">
                         <i class="bx bx-save"></i> SIMPAN DATA
                     </button>
@@ -620,6 +695,61 @@
             if (!prodi.value) prodi.value = '{{ $user->program_studi ?? "" }}';
             if (!noHp.value) noHp.value = '{{ $user->phone ?? "" }}';
             if (!email.value) email.value = '{{ $user->email ?? "" }}';
+        });
+
+        // Multi-step form navigation
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(stepEl => {
+                stepEl.classList.remove('active');
+                stepEl.style.display = 'none';
+            });
+
+            // Show current step
+            const currentStepEl = document.querySelector(`.step-content[data-step="${step}"]`);
+            if (currentStepEl) {
+                currentStepEl.classList.add('active');
+                currentStepEl.style.display = 'block';
+            }
+
+            // Update step indicator
+            document.getElementById('currentStep').textContent = step;
+
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitContainer = document.getElementById('submitContainer');
+
+            if (step === 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'block';
+                submitContainer.style.display = 'none';
+            } else if (step === totalSteps) {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'none';
+                submitContainer.style.display = 'block';
+            } else {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+                submitContainer.style.display = 'none';
+            }
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
         });
 
         // Auto calculate total penghasilan
