@@ -14,12 +14,12 @@
         }
 
         .simfoni-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            /* background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); */
             color: white;
             padding: 20px 16px;
             text-align: center;
             position: relative;
-            margin-bottom: 16px;
+            /* margin-bottom: 16px; */
         }
 
         .simfoni-header .back-button {
