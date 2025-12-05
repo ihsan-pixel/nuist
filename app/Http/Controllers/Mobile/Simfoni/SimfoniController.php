@@ -98,6 +98,20 @@ class SimfoniController extends Controller
             'min' => ':attribute minimal :min',
         ]);
 
+        // Update user data with editable fields from step 1
+        $user->update([
+            'name' => $validated['nama_lengkap_gelar'],
+            'tempat_lahir' => $validated['tempat_lahir'],
+            'tanggal_lahir' => $validated['tanggal_lahir'],
+            'nuptk' => $validated['nuptk'],
+            'kartanu' => $validated['kartanu'],
+            'nipm' => $validated['nipm'],
+            'tmt' => $validated['tmt'],
+            'pendidikan_terakhir' => $validated['strata_pendidikan'],
+            'tahun_lulus' => $validated['tahun_lulus'],
+            'program_studi' => $validated['program_studi'],
+        ]);
+
         // Get or create simfoni record
         $simfoni = Simfoni::where('user_id', $user->id)->first();
 

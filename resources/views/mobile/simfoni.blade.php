@@ -420,80 +420,82 @@
                     </div>
 
                     <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Lengkap dengan Gelar</label>
+                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" required>
+                        @error('nama_lengkap_gelar')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row-2col">
                         <div class="form-group required">
-                            <label>Nama Lengkap dengan Gelar</label>
-                            <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="auto-fill" readonly>
-                            <div class="form-hint">Otomatis dari data user</div>
+                            <label>Tempat Lahir</label>
+                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" required>
                         </div>
-
-                        <div class="row-2col">
-                            <div class="form-group required">
-                                <label>Tempat Lahir</label>
-                                <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label>Tanggal Lahir</label>
-                                <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $simfoni->tanggal_lahir ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                        </div>
-
-                        <div class="row-2col">
-                            <div class="form-group">
-                                <label>NUPTK</label>
-                                <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>Karta-NU</label>
-                                <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                        </div>
-
-                        <div class="row-2col">
-                            <div class="form-group">
-                                <label>NIP Ma'arif Baru</label>
-                                <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label>NIK</label>
-                                <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
-                                @error('nik')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row-2col">
-                            <div class="form-group required">
-                                <label>TMT Pertama</label>
-                                <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                            <div class="form-group required">
-                                <label>Strata Pendidikan</label>
-                                <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" class="auto-fill" readonly>
-                            </div>
-                        </div>
-
-                        <div class="row-2col">
-                            <div class="form-group">
-                                <label>PT Asal</label>
-                                <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
-                                @error('pt_asal')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="form-group required">
-                                <label>Tahun Lulus</label>
-                                <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" required>
-                                @error('tahun_lulus')
-                                    <div class="form-error">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
                         <div class="form-group required">
-                            <label>Nama Program Studi</label>
-                            <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="auto-fill" readonly>
+                            <label>Tanggal Lahir</label>
+                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $simfoni->tanggal_lahir ?? '') }}" required>
                         </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NUPTK</label>
+                            <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Karta-NU</label>
+                            <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}">
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NIP Ma'arif Baru</label>
+                            <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}">
+                        </div>
+                        <div class="form-group required">
+                            <label>NIK</label>
+                            <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
+                            @error('nik')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>TMT Pertama</label>
+                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" required>
+                        </div>
+                        <div class="form-group required">
+                            <label>Strata Pendidikan</label>
+                            <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>PT Asal</label>
+                            <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
+                            @error('pt_asal')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>Tahun Lulus</label>
+                            <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" required>
+                            @error('tahun_lulus')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama Program Studi</label>
+                        <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" required>
+                    </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
