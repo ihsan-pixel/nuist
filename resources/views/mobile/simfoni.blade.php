@@ -1150,6 +1150,8 @@
         }
 
         // Calculate masa kerja from TMT to June 2025
+        let totalYears = 0; // Global variable to store total years
+
         function calculateMasaKerja() {
             const tmtInput = document.getElementById('tmtInput');
             const masaKerjaInput = document.getElementById('masaKerja');
@@ -1159,6 +1161,8 @@
             const tmtDate = new Date(tmtInput.value);
             if (!tmtInput.value || isNaN(tmtDate.getTime())) {
                 masaKerjaInput.value = '';
+                totalYears = 0;
+                filterStatusKerja();
                 return;
             }
 
@@ -1181,7 +1185,36 @@
                 months = 11;
             }
 
+            totalYears = years + (months / 12); // Store as decimal for comparison
             masaKerjaInput.value = `${years} tahun ${months} bulan`;
+            filterStatusKerja();
+        }
+
+        // Filter status kerja options based on masa kerja
+        function filterStatusKerja() {
+            const statusKerjaSelect = document.querySelector('select[name="status_kerja"]');
+            if (!statusKerjaSelect) return;
+
+            const options = statusKerjaSelect.querySelectorAll('option');
+            options.forEach(option => {
+                const value = option.value.toLowerCase();
+                if (totalYears < 2 && totalYears > 0) {
+                    // Show only GTT and PTT
+                    if (value.includes('gtt') || value.includes('ptt')) {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                } else {
+                    // Show all options
+                    option.style.display = 'block';
+                }
+            });
+
+            // Reset selection if current selection is hidden
+            if (statusKerjaSelect.selectedOptions[0] && statusKerjaSelect.selectedOptions[0].style.display === 'none') {
+                statusKerjaSelect.selectedIndex = 0;
+            }
         }
 
         // Add event listener to TMT input

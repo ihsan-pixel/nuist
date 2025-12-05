@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('simfoni', function (Blueprint $table) {
-            //
+            $table->boolean('pernyataan_setuju')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('simfoni', function (Blueprint $table) {
-            //
+            $table->dropColumn('pernyataan_setuju');
         });
     }
 };
