@@ -125,7 +125,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
+            margin-bottom: 20px;
         }
 
         .settings-header {
@@ -346,7 +346,7 @@
     <!-- Simfoni Data SK -->
     <div class="settings-section">
         <div class="settings-header">
-            <h6><i class="bx bx-file-blank me-2"></i>Data SIMFONI Guru & Tenaga Pendidik</h6>
+            <h6><i class="bx bx-file-blank me-2"></i>SIMFONI Guru & Tenaga Pendidik</h6>
         </div>
         <div class="settings-content">
             <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
