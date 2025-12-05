@@ -745,16 +745,6 @@
                             <input type="text" name="status_kader_pasangan" value="{{ old('status_kader_pasangan', $simfoni->status_kader_pasangan ?? '') }}" placeholder="Status kader suami/istri">
                         </div>
 
-                        <div class="form-group">
-                            <label>Pilihan Status Kader</label>
-                            <select name="pilihan_status_kader">
-                                <option value="">-- Pilih Status --</option>
-                                <option value="4" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '4' ? 'selected' : '' }}>4 = Militan</option>
-                                <option value="3" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '3' ? 'selected' : '' }}>3 = Aktif</option>
-                                <option value="2" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '2' ? 'selected' : '' }}>2 = Baru</option>
-                                <option value="0" {{ old('pilihan_status_kader', $simfoni->pilihan_status_kader ?? '') == '0' ? 'selected' : '' }}>0 = Non-NU</option>
-                            </select>
-                        </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
