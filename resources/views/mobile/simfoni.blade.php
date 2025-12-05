@@ -316,7 +316,7 @@
                 @csrf
 
                 <!-- A. DATA SK -->
-                <div class="section-card">
+                {{-- <div class="section-card"> --}}
                     <div class="section-header">
                         <div class="section-icon">
                             <i class="bx bx-id-card"></i>
@@ -398,10 +398,10 @@
                         <label>Nama Program Studi</label>
                         <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" class="auto-fill" readonly>
                     </div>
-                </div>
+                {{-- </div> --}}
 
                 <!-- B. RIWAYAT KERJA -->
-                <div class="section-card">
+                {{-- <div class="section-card"> --}}
                     <div class="section-header">
                         <div class="section-icon">
                             <i class="bx bx-briefcase"></i>
@@ -449,11 +449,11 @@
                         <label>Riwayat Kerja Sebelumnya</label>
                         <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
                     </div>
-                </div>
-                </div>
+                {{-- </div> --}}
+                {{-- </div> --}}
 
                 <!-- C. KEAHLIAN DAN DATA LAIN -->
-                <div class="section-card">
+                {{-- <div class="section-card"> --}}
                     <div class="section-header">
                         <div class="section-icon">
                             <i class="bx bx-star"></i>
@@ -513,10 +513,10 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
+                {{-- </div> --}}
 
                 <!-- D. DATA KEUANGAN/KESEJAHTERAAN -->
-                <div class="section-card">
+                {{-- <div class="section-card"> --}}
                     <div class="section-header">
                         <div class="section-icon">
                             <i class="bx bx-money"></i>
@@ -578,8 +578,8 @@
                         </div>
                         <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                     </div>
-                </div>
-                </div>
+                {{-- </div> --}}
+                {{-- </div> --}}
 
                 <!-- Submit Button -->
                 <div class="submit-container">
