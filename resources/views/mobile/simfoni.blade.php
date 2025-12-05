@@ -13,55 +13,83 @@
             font-size: 13px;
         }
 
-        .simfoni-container {
-            background: #fff;
-            border-radius: 12px;
-            padding: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-
-        .form-header {
-            background: linear-gradient(135deg, #6b4c9a 0%, #5a4080 100%);
+        .simfoni-header {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
-            padding: 16px;
+            padding: 20px 16px;
             text-align: center;
+            position: relative;
+            margin-bottom: 16px;
         }
 
-        .form-header h4 {
+        .simfoni-header .back-button {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .simfoni-header h4 {
             margin: 0 0 4px 0;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 16px;
         }
 
-        .form-header p {
+        .simfoni-header p {
             margin: 0;
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.9;
         }
 
+        .form-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
         .form-body {
+            padding: 0;
+        }
+
+        .section-card {
+            background: #f8f9fa;
+            border-radius: 8px;
             padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid #004b4c;
+        }
+
+        .section-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-icon {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
         }
 
         .section-title {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: white;
-            padding: 10px 14px;
-            margin: 0 -16px 14px -16px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 14px;
+            color: #004b4c;
+            margin: 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .section-content {
-            margin-bottom: 16px;
-        }
-
-        .section-content:last-child {
-            margin-bottom: 0;
         }
 
         .form-group {
@@ -75,8 +103,8 @@
         .form-group label {
             display: block;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
+            color: #004b4c;
+            margin-bottom: 6px;
             font-size: 12px;
         }
 
@@ -93,13 +121,14 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 9px 11px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
             font-family: 'Poppins', sans-serif;
             font-size: 12px;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
             box-sizing: border-box;
+            background: #fff;
         }
 
         .form-group input[type="text"]:focus,
@@ -167,34 +196,47 @@
             gap: 10px;
         }
 
+        .submit-container {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 0 0 12px 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
         .submit-btn {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px 20px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 14px;
             width: 100%;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .submit-btn:hover {
             background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 75, 76, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 75, 76, 0.4);
+        }
+
+        .submit-btn i {
+            font-size: 16px;
         }
 
         .back-button {
             display: inline-flex;
             align-items: center;
-            color: #6b4c9a;
+            color: white;
             text-decoration: none;
             font-weight: 600;
             font-size: 12px;
-            margin-bottom: 12px;
             cursor: pointer;
             background: none;
             border: none;
@@ -202,11 +244,11 @@
         }
 
         .back-button:hover {
-            color: #5a4080;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .back-button i {
-            font-size: 18px;
+            font-size: 16px;
             margin-right: 6px;
         }
 
@@ -240,20 +282,18 @@
         }
     </style>
 
-    <!-- Back Button -->
-    <button onclick="history.back()" class="back-button" style="margin-top: -10px;">
-        <i class="bx bx-arrow-back"></i>
-        <span>Kembali</span>
-    </button>
+    <!-- Header -->
+    <div class="simfoni-header">
+        <button onclick="history.back()" class="back-button">
+            <i class="bx bx-arrow-back"></i>
+            <span>Kembali</span>
+        </button>
+        <h4>Data SK Tenaga Pendidik</h4>
+        <p>Sumber Kepangkatan dan Identitas Diri</p>
+    </div>
 
     <!-- Form Container -->
-    <div class="simfoni-container">
-        <div class="form-header">
-            <h4>Data SK Tenaga Pendidik</h4>
-            <p>Sumber Kepangkatan dan Identitas Diri</p>
-        </div>
-
-        <div class="form-body">
+    <div class="form-container">
             <!-- Success Alert -->
             @if (session('success'))
                 <div class="success-alert">
@@ -276,8 +316,14 @@
                 @csrf
 
                 <!-- A. DATA SK -->
-                <div class="section-title">A. DATA SK</div>
-                <div class="section-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-id-card"></i>
+                        </div>
+                        <h6 class="section-title">A. DATA SK</h6>
+                    </div>
+                    <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Lengkap dengan Gelar</label>
                         <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" class="auto-fill" readonly>
@@ -355,8 +401,14 @@
                 </div>
 
                 <!-- B. RIWAYAT KERJA -->
-                <div class="section-title">B. RIWAYAT KERJA</div>
-                <div class="section-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-briefcase"></i>
+                        </div>
+                        <h6 class="section-title">B. RIWAYAT KERJA</h6>
+                    </div>
+                    <div class="section-content">
                     <div class="form-group required">
                         <label>Status Kerja Saat Ini</label>
                         <select name="status_kerja" required>
@@ -398,10 +450,17 @@
                         <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
                     </div>
                 </div>
+                </div>
 
                 <!-- C. KEAHLIAN DAN DATA LAIN -->
-                <div class="section-title">C. KEAHLIAN DAN DATA LAIN</div>
-                <div class="section-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-star"></i>
+                        </div>
+                        <h6 class="section-title">C. KEAHLIAN DAN DATA LAIN</h6>
+                    </div>
+                    <div class="section-content">
                     <div class="form-group">
                         <label>Keahlian</label>
                         <textarea name="keahlian" placeholder="Sebutkan keahlian khusus Anda...">{{ old('keahlian', $simfoni->keahlian ?? '') }}</textarea>
@@ -457,8 +516,14 @@
                 </div>
 
                 <!-- D. DATA KEUANGAN/KESEJAHTERAAN -->
-                <div class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</div>
-                <div class="section-content">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="bx bx-money"></i>
+                        </div>
+                        <h6 class="section-title">D. DATA KEUANGAN/KESEJAHTERAAN</h6>
+                    </div>
+                    <div class="section-content">
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Bank</label>
@@ -514,11 +579,14 @@
                         <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                     </div>
                 </div>
+                </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="submit-btn">
-                    <i class="bx bx-save"></i> SIMPAN DATA
-                </button>
+                <div class="submit-container">
+                    <button type="submit" class="submit-btn">
+                        <i class="bx bx-save"></i> SIMPAN DATA
+                    </button>
+                </div>
             </form>
         </div>
     </div>

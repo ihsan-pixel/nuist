@@ -1,16 +1,19 @@
-# TODO: Perbaiki Tampilan Blade Simfoni Mobile
+# TODO: Redesain Tampilan Blade Simfoni Mobile
 
 ## Tugas Utama
-- Ubah warna dari ungu menjadi hijau seperti menu mobile lainnya
-- Pastikan tampilan rapi dan profesional
+- Buat ulang tampilan Simfoni blade yang lebih menarik dan rapi
+- Gunakan warna hijau sebagai tema utama
+- Pastikan tampilan profesional dan modern
 
 ## Langkah-langkah Implementasi
-- [ ] Ubah warna header form dari ungu ke hijau di simfoni.blade.php
-- [ ] Ubah warna section title dari ungu ke hijau di simfoni.blade.php
-- [ ] Ubah warna tombol submit dari ungu ke hijau di simfoni.blade.php
-- [ ] Ubah warna link Simfoni di profile.blade.php dari ungu ke hijau
-- [x] Verifikasi tampilan rapi dan profesional
+- [ ] Buat desain header yang lebih modern dengan gradient hijau
+- [ ] Redesain form sections dengan card-based layout
+- [ ] Tambahkan ikon untuk setiap section
+- [ ] Perbaiki spacing dan typography
+- [ ] Update tombol submit dengan desain baru
+- [ ] Tambahkan efek hover dan animasi halus
+- [ ] Pastikan responsivitas mobile
+- [ ] Verifikasi tampilan akhir
 
 ## File yang Akan Diedit
 - resources/views/mobile/simfoni.blade.php
-- resources/views/mobile/profile.blade.php
