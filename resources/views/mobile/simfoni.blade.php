@@ -559,7 +559,7 @@
                 const gaji_pokok = parseFloat(document.querySelector('input[name="gaji_pokok"]').value) || 0;
                 const honor_lain = parseFloat(document.querySelector('input[name="honor_lain"]').value) || 0;
                 const penghasilan_lain = parseFloat(document.querySelector('input[name="penghasilan_lain"]').value) || 0;
-                
+
                 const total = gaji_sertifikasi + gaji_pokok + honor_lain + penghasilan_lain;
                 document.getElementById('totalPenghasilan').value = total.toFixed(2);
             }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('simfoni', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            
+
             // A. DATA SK
             $table->string('nama_lengkap_gelar')->nullable();
             $table->string('tempat_lahir')->nullable();
@@ -28,14 +28,14 @@ return new class extends Migration
             $table->string('pt_asal')->nullable();
             $table->integer('tahun_lulus')->nullable();
             $table->string('program_studi')->nullable();
-            
+
             // B. RIWAYAT KERJA
             $table->string('status_kerja')->nullable();
             $table->date('tanggal_sk_pertama')->nullable();
             $table->string('nomor_sk_pertama')->nullable();
             $table->string('nomor_sertifikasi_pendidik')->nullable();
             $table->longText('riwayat_kerja_sebelumnya')->nullable();
-            
+
             // C. KEAHLIAN DAN DATA LAIN
             $table->longText('keahlian')->nullable();
             $table->string('kedudukan_lpm')->nullable();
@@ -45,7 +45,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('status_pernikahan')->nullable();
             $table->longText('alamat_lengkap')->nullable();
-            
+
             // D. DATA KEUANGAN/KESEJAHTERAAN
             $table->string('bank')->nullable();
             $table->string('nomor_rekening')->nullable();
@@ -55,9 +55,9 @@ return new class extends Migration
             $table->decimal('penghasilan_lain', 15, 2)->nullable();
             $table->decimal('penghasilan_pasangan', 15, 2)->nullable();
             $table->decimal('total_penghasilan', 15, 2)->nullable();
-            
+
             $table->timestamps();
-            
+
             // Indexes
             $table->index('user_id');
             $table->index('created_at');

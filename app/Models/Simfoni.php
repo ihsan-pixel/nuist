@@ -26,14 +26,14 @@ class Simfoni extends Model
         'pt_asal',
         'tahun_lulus',
         'program_studi',
-        
+
         // B. RIWAYAT KERJA
         'status_kerja',
         'tanggal_sk_pertama',
         'nomor_sk_pertama',
         'nomor_sertifikasi_pendidik',
         'riwayat_kerja_sebelumnya',
-        
+
         // C. KEAHLIAN DAN DATA LAIN
         'keahlian',
         'kedudukan_lpm',
@@ -43,7 +43,7 @@ class Simfoni extends Model
         'email',
         'status_pernikahan',
         'alamat_lengkap',
-        
+
         // D. DATA KEUANGAN/KESEJAHTERAAN
         'bank',
         'nomor_rekening',

@@ -16,10 +16,10 @@ class SimfoniController extends Controller
     public function show()
     {
         $user = Auth::user();
-        
+
         // Get existing simfoni record or create new
         $simfoni = Simfoni::where('user_id', $user->id)->first();
-        
+
         if (!$simfoni) {
             $simfoni = new Simfoni([
                 'user_id' => $user->id,
@@ -37,7 +37,7 @@ class SimfoniController extends Controller
                 'strata_pendidikan' => $user->pendidikan_terakhir ?? '',
             ]);
         }
-        
+
         return view('mobile.simfoni', compact('simfoni', 'user'));
     }
 
@@ -62,14 +62,14 @@ class SimfoniController extends Controller
             'pt_asal' => 'nullable|string|max:255',
             'tahun_lulus' => 'required|integer|min:1900|max:2100',
             'program_studi' => 'required|string|max:255',
-            
+
             // B. RIWAYAT KERJA
             'status_kerja' => 'required|string|max:100',
             'tanggal_sk_pertama' => 'required|date',
             'nomor_sk_pertama' => 'required|string|max:100',
             'nomor_sertifikasi_pendidik' => 'nullable|string|max:100',
             'riwayat_kerja_sebelumnya' => 'nullable|string',
-            
+
             // C. KEAHLIAN DAN DATA LAIN
             'keahlian' => 'nullable|string',
             'kedudukan_lpm' => 'nullable|string|max:100',
@@ -79,7 +79,7 @@ class SimfoniController extends Controller
             'email' => 'required|email|max:255',
             'status_pernikahan' => 'required|string|max:50',
             'alamat_lengkap' => 'required|string',
-            
+
             // D. DATA KEUANGAN/KESEJAHTERAAN
             'bank' => 'nullable|string|max:100',
             'nomor_rekening' => 'nullable|string|max:50',
@@ -100,7 +100,7 @@ class SimfoniController extends Controller
 
         // Get or create simfoni record
         $simfoni = Simfoni::where('user_id', $user->id)->first();
-        
+
         if ($simfoni) {
             $simfoni->update($validated);
         } else {
