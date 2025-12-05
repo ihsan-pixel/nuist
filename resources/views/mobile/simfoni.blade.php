@@ -821,7 +821,7 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 40px;">No</th>
-                                        <th>Pernyataan</th>
+                                        <th style="width: 40px;">Pernyataan</th>
                                         <th style="width: 50px;">iya</th>
                                         <th style="width: 50px;">tidak</th>
                                         {{-- <th style="width: 40px;">Skor</th> --}}
