@@ -174,6 +174,38 @@ class SimfoniController extends Controller
             'program_studi' => $validated['program_studi'],
         ]);
 
+        // Hitung skor proyeksi otomatis berdasarkan pilihan "Ya"
+        $skor_proyeksi = 0;
+        $proyeksi_fields = [
+            'akan_kuliah_s2',
+            'akan_mendaftar_pns',
+            'akan_mendaftar_pppk',
+            'akan_mengikuti_ppg',
+            'akan_menulis_buku_modul_riset',
+            'akan_mengikuti_seleksi_diklat_cakep',
+            'akan_membimbing_riset_prestasi_siswa',
+            'akan_masuk_tim_unggulan_sekolah_madrasah',
+            'akan_kompetisi_pimpinan_level_ii',
+            'akan_aktif_mengikuti_pelatihan',
+            'akan_aktif_mgmp_mkk',
+            'akan_mengikuti_pendidikan_kader_nu',
+            'akan_aktif_membantu_kegiatan_lembaga',
+            'akan_aktif_mengikuti_kegiatan_nu',
+            'akan_aktif_ikut_zis_kegiatan_sosial',
+            'akan_mengembangkan_unit_usaha_satpen',
+            'akan_bekerja_disiplin_produktif',
+            'akan_loyal_nu_aktif_masyarakat',
+            'bersedia_dipindah_satpen_lain'
+        ];
+
+        foreach ($proyeksi_fields as $field) {
+            if (isset($validated[$field]) && $validated[$field] === 'Ya') {
+                $skor_proyeksi++;
+            }
+        }
+
+        $validated['skor_proyeksi'] = $skor_proyeksi;
+
         // Get or create simfoni record
         $simfoni = Simfoni::where('user_id', $user->id)->first();
 

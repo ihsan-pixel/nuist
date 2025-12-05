@@ -46,6 +46,7 @@ return new class extends Migration
             $table->string('akan_bekerja_disiplin_produktif')->nullable();
             $table->string('akan_loyal_nu_aktif_masyarakat')->nullable();
             $table->string('bersedia_dipindah_satpen_lain')->nullable();
+            $table->integer('skor_proyeksi')->nullable(); // Skor total proyeksi (0-19) - dihitung otomatis dari pilihan "Ya"
         });
     }
 
