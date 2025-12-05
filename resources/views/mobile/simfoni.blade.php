@@ -926,8 +926,8 @@
                                     <tr>
                                         <td>19</td>
                                         <td>Bersedia dipindah ke satpen lain</td>
-                                        <td><input type="radio" name="bersedia_dipindah_satpen_lain" value="iya" {{ old('bersedia_dipindah_satpen_lain', $simfoni->bersedia_dipindah_satpen_lain ?? '') == 'iya' ? 'checked' : '' }}></td>
-                                        <td><input type="radio" name="bersedia_dipindah_satpen_lain" value="tidak" {{ old('bersedia_dipindah_satpen_lain', $simfoni->bersedia_dipindah_satpen_lain ?? '') == 'tidak' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="akan_bersedia_dipindah_satpen_lain" value="iya" {{ old('akan_bersedia_dipindah_satpen_lain', $simfoni->akan_bersedia_dipindah_satpen_lain ?? '') == 'iya' ? 'checked' : '' }}></td>
+                                        <td><input type="radio" name="akan_bersedia_dipindah_satpen_lain" value="tidak" {{ old('akan_bersedia_dipindah_satpen_lain', $simfoni->akan_bersedia_dipindah_satpen_lain ?? '') == 'tidak' ? 'checked' : '' }}></td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
@@ -1221,7 +1221,7 @@
                 'mengembangkan_unit_usaha_satpen',
                 'bekerja_disiplin_produktif',
                 'loyal_nu_aktif_masyarakat',
-                'bersedia_dipindah_satpen_lain'
+                'akan_bersedia_dipindah_satpen_lain'
             ];
             return fieldNames[index - 1];
         }
