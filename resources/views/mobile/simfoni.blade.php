@@ -355,7 +355,7 @@
     <div class="form-container">
         <!-- Step Timeline -->
         <div class="step-timeline">
-            <div class="step-title" id="currentStepTitle" style="text-align: center; font-weight: 600; color: #004b4c; margin-bottom: 16px; font-size: 14px;">Step 1: Data SK</div>
+            {{-- <div class="step-title" id="currentStepTitle" style="text-align: center; font-weight: 600; color: #004b4c; margin-bottom: 16px; font-size: 14px;">Step 1: Data SK</div> --}}
         <div class="timeline-steps">
             <div class="timeline-step active" data-step="1">
                 <div class="timeline-step-circle">1</div>
