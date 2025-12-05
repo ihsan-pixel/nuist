@@ -289,7 +289,7 @@
         </button>
         <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
     </div>
-    <div class="simfoni-header">
+    <div class="simfoni-header" style="margin-top: -10px;">
         <h4>Data SK Tenaga Pendidik</h4>
         <p>Sumber Kepangkatan dan Identitas Diri</p>
     </div>
