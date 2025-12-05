@@ -290,8 +290,8 @@
         <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
     </div>
     <div class="simfoni-header" style="margin-top: -10px;">
-        <h4>Data SK Tenaga Pendidik</h4>
-        <p>Sumber Kepangkatan dan Identitas Diri</p>
+        <h4>SIMFONI MINI GTK LPMNU DIY</h4>
+        <p>Tahun 2025</p>
     </div>
 
     <!-- Form Container -->
@@ -360,7 +360,7 @@
                             <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" class="auto-fill" readonly>
                         </div>
                         <div class="form-group required">
-                            <label>Nomor Induk Kependudukan (NIK)</label>
+                            <label>NIK</label>
                             <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
                             @error('nik')
                                 <div class="form-error">{{ $message }}</div>
