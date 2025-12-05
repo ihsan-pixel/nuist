@@ -722,7 +722,13 @@
                     <div class="section-content">
                         <div class="form-group">
                             <label>Status Kader Diri</label>
-                            <input type="text" name="status_kader_diri" value="{{ old('status_kader_diri', $simfoni->status_kader_diri ?? '') }}" placeholder="Status kader diri">
+                            <select name="status_kader_ayah">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Militan" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Militan' ? 'selected' : '' }}>Militan</option>
+                                <option value="Aktif" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="Baru" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="Non-NU" {{ old('status_kader_ayah', $simfoni->status_kader_ayah ?? '') == 'Non-NU' ? 'selected' : '' }}>Non-NU</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
