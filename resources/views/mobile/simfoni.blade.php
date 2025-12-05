@@ -287,7 +287,7 @@
         <button onclick="history.back()" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
             <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
         </button>
-        <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
+        <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
     </div>
     <div class="simfoni-header">
         <h4>Data SK Tenaga Pendidik</h4>
