@@ -92,7 +92,7 @@
             font-weight: 600;
             color: #004b4c;
             margin-bottom: 6px;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .form-group.required label::after {
