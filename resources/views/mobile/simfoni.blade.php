@@ -961,6 +961,16 @@
                                 Dengan ini saya menyatakan bahwa semua data yang saya tulis di atas adalah BENAR dan DAPAT DIPERTANGGUNGJAWABKAN. Apabila di kemudian hari ditemukan ketidaksesuaian, saya bersedia menerima konsekuensi dan sanksi yang berlaku.
                             </div>
                         </div>
+
+                        <div class="form-group required">
+                            <div class="d-flex align-items-center">
+                                <input type="checkbox" id="pernyataan_setuju" name="pernyataan_setuju" value="1" {{ old('pernyataan_setuju', $simfoni->pernyataan_setuju ?? '') ? 'checked' : '' }} required style="margin-right: 8px;">
+                                <label for="pernyataan_setuju" style="margin: 0; font-size: 11px; color: #004b4c;">Saya menyetujui dan bertanggung jawab atas kebenaran data yang saya isi</label>
+                            </div>
+                            @error('pernyataan_setuju')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
