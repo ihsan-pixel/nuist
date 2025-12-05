@@ -678,7 +678,7 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                {{-- </div> --}}
+                </div>
 
                 <!-- Step 4: D. DATA KEUANGAN/KESEJAHTERAAN -->
                 <div class="step-content" data-step="4" style="display: none;">
