@@ -822,7 +822,7 @@
                                     <tr>
                                         <th style="width: 40px;">No</th>
                                         <th>Pernyataan</th>
-                                        <th style="width: 50px;">iya</th>
+                                        <th style="width: 50px;">iya/sudah</th>
                                         <th style="width: 50px;">tidak</th>
                                     </tr>
                                 </thead>
