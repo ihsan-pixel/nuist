@@ -1030,21 +1030,6 @@
                 }
             });
 
-            // Update step title
-            const stepTitles = {
-                1: 'Step 1: Data SK',
-                2: 'Step 2: Riwayat Kerja',
-                3: 'Step 3: Keahlian',
-                4: 'Step 4: Keuangan',
-                5: 'Step 5: Kekaderan',
-                6: 'Step 6: Keluarga',
-                7: 'Step 7: Proyeksi'
-            };
-            const stepTitleEl = document.getElementById('currentStepTitle');
-            if (stepTitleEl && stepTitles[step]) {
-                stepTitleEl.textContent = stepTitles[step];
-            }
-
             // Update step indicator
             const currentStepElText = document.getElementById('currentStep');
             if (currentStepElText) currentStepElText.textContent = step;
