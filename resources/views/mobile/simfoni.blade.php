@@ -663,35 +663,35 @@
                         <div class="form-group">
                             <label>Gaji Sertifikasi</label>
                             <div class="currency-prefix">
-                                <input type="number" name="gaji_sertifikasi" value="{{ old('gaji_sertifikasi', $simfoni->gaji_sertifikasi ?? '') }}" min="0" step="0.01" placeholder="0" id="gajiSertifikasiInput">
+                                <input type="text" name="gaji_sertifikasi" value="{{ old('gaji_sertifikasi', $simfoni->gaji_sertifikasi ?? '') }}" placeholder="0" id="gajiSertifikasiInput">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Gaji Pokok Perbulan dari Satpen</label>
                             <div class="currency-prefix">
-                                <input type="number" name="gaji_pokok" value="{{ old('gaji_pokok', $simfoni->gaji_pokok ?? '') }}" min="0" step="0.01" placeholder="0" id="gajiPokokInput">
+                                <input type="text" name="gaji_pokok" value="{{ old('gaji_pokok', $simfoni->gaji_pokok ?? '') }}" placeholder="0" id="gajiPokokInput">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Honor Lain</label>
                             <div class="currency-prefix">
-                                <input type="number" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" min="0" step="0.01" placeholder="0" id="honorLainInput">
+                                <input type="text" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" placeholder="0" id="honorLainInput">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Penghasilan Lain</label>
                             <div class="currency-prefix">
-                                <input type="number" name="penghasilan_lain" value="{{ old('penghasilan_lain', $simfoni->penghasilan_lain ?? '') }}" min="0" step="0.01" placeholder="0" id="penghasilanLainInput">
+                                <input type="text" name="penghasilan_lain" value="{{ old('penghasilan_lain', $simfoni->penghasilan_lain ?? '') }}" placeholder="0" id="penghasilanLainInput">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Penghasilan Pasangan (tidak dihitung)</label>
                             <div class="currency-prefix">
-                                <input type="number" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" min="0" step="0.01" placeholder="0" id="penghasilanPasanganInput">
+                                <input type="text" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" placeholder="0" id="penghasilanPasanganInput">
                             </div>
                             <div class="form-hint">Informasi ini tidak masuk dalam perhitungan total</div>
                         </div>
@@ -699,7 +699,7 @@
                         <div class="form-group">
                             <label>Jumlah Total Penghasilan Diri</label>
                             <div class="currency-prefix">
-                                <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan" readonly style="background: #f8f9fa; color: #666;">
+                                <input type="text" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" placeholder="0" id="totalPenghasilan" readonly style="background: #f8f9fa; color: #666;">
                             </div>
                             <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                         </div>
@@ -1368,6 +1368,37 @@
                 this.value = formatTahunSertifikasi(this.value);
             });
         }
+
+        // Format currency with dots as thousand separators
+        function formatCurrency(value) {
+            // Remove all non-digit characters
+            let num = value.replace(/\D/g, '');
+            // Add dots every 3 digits from the right
+            return num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Function to parse formatted currency (remove dots)
+        function parseCurrency(value) {
+            return parseFloat(value.replace(/\./g, '')) || 0;
+        }
+
+        // Add event listeners for currency formatting
+        const currencyInputs = [
+            'gajiSertifikasiInput',
+            'gajiPokokInput',
+            'honorLainInput',
+            'penghasilanLainInput',
+            'penghasilanPasanganInput'
+        ];
+
+        currencyInputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', function() {
+                    this.value = formatCurrency(this.value);
+                });
+            }
+        });
     });
 </script>
 @endsection
