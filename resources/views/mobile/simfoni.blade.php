@@ -347,7 +347,7 @@
     </div>
 
     <div class="simfoni-header" style="margin-top: -10px;">
-        <h4>SIMFONI MINI GTK LPMNU DIY</h4>
+        <h4>SIMFONI <span style="color: #efaa0c;">GTK LPMNU DIY</span></h4>
         <p>Tahun 2025</p>
     </div>
 
