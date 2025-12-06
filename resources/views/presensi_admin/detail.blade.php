@@ -777,9 +777,9 @@
                         <button class="btn btn-warning btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#exportModal">
                             Excel
                         </button>
-                        <a href="{{ route('presensi.pdf_rekap', [$madrasah->id, $selectedDate->format('Y-m')]) }}" class="btn btn-danger btn-sm rounded-pill px-3" target="_blank">
+                        <button class="btn btn-danger btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#pdfExportModal">
                             PDF
-                        </a>
+                        </button>
                         <input type="date" wire:model.live="selectedDate" class="form-control form-control-sm rounded-pill"
                                value="{{ $selectedDate->format('Y-m-d') }}" style="min-width: 140px;">
                         <a href="{{ route('presensi_admin.index') }}" class="btn btn-success btn-sm rounded-pill px-3">
@@ -1232,6 +1232,44 @@
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">
                         <i class="mdi mdi-download"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- PDF Export Modal -->
+<div class="modal fade" id="pdfExportModal" tabindex="-1" aria-labelledby="pdfExportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('presensi.pdf_rekap', $madrasah->id) }}" method="GET" target="_blank">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="pdfExportModalLabel">
+                        <i class="mdi mdi-file-pdf"></i> Export PDF Data Presensi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
+
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Bulan</label>
+                        <select class="form-select" name="bulan" required>
+                            <option value="">-- Pilih Bulan --</option>
+                            @foreach($bulanTersedia as $b)
+                                <option value="{{ $b->bulan }}">{{ $b->nama_bulan }}</option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Pilih bulan yang tersedia berdasarkan data presensi</small>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="mdi mdi-download"></i> Download PDF
                     </button>
                 </div>
             </div>
