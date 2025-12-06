@@ -96,7 +96,7 @@ class SimfoniController extends Controller
             }
         }
 
-        $validated = $request->validate([
+        $validated = Validator::make($parsedData, [
             // A. DATA SK
             'nama_lengkap_gelar' => 'required|string|max:255',
             'gelar' => 'nullable|string|max:100',
@@ -183,7 +183,7 @@ class SimfoniController extends Controller
             'numeric' => ':attribute harus berupa angka',
             'max' => ':attribute maksimal :max karakter',
             'min' => ':attribute minimal :min',
-        ]);
+        ])->validate();
 
         // Update user data with editable fields from step 1
         $user->update([
