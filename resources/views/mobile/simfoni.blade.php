@@ -422,7 +422,7 @@
                     <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Lengkap dengan Gelar</label>
-                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" required>
+                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" placeholder="" required>
                         @error('nama_lengkap_gelar')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -1301,6 +1301,20 @@
 
         // Calculate on page load if values are set
         calculateSkorProyeksi();
+
+        // Title case for Tempat Lahir
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function(txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        const tempatLahirInput = document.querySelector('input[name="tempat_lahir"]');
+        if (tempatLahirInput) {
+            tempatLahirInput.addEventListener('input', function() {
+                this.value = toTitleCase(this.value);
+            });
+        }
     });
 </script>
 @endsection
