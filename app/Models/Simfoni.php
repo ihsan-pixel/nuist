@@ -88,7 +88,7 @@ class Simfoni extends Model
         'akan_mengembangkan_unit_usaha_satpen',
         'akan_bekerja_disiplin_produktif',
         'akan_loyal_nu_aktif_masyarakat',
-        'akan_bersedia_dipindah_satpen_lain',
+        'bersedia_dipindah_satpen_lain',
         'skor_proyeksi',
         'pernyataan_setuju',
     ];
