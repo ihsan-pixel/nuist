@@ -699,7 +699,7 @@
                         <div class="form-group">
                             <label>Jumlah Total Penghasilan Diri</label>
                             <div class="currency-prefix">
-                                <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan">
+                                <input type="number" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" min="0" step="0.01" placeholder="0" id="totalPenghasilan" readonly style="background: #f8f9fa; color: #666;">
                             </div>
                             <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                         </div>
