@@ -1457,7 +1457,7 @@ $('#pdf-bulan-select').on('change', function() {
 $('#download-pdf-btn').on('click', function() {
     var selectedBulan = $('#pdf-bulan-select').val();
     if (selectedBulan) {
-        var url = '{{ route("presensi.pdf_rekap", ":madrasahId") }}'.replace(':madrasahId', '{{ $madrasah->id }}') + '/' + selectedBulan;
+        var url = '/presensi/rekap/pdf/{{ $madrasah->id }}/' + selectedBulan;
         window.open(url, '_blank');
         $('#pdfExportModal').modal('hide');
     }
