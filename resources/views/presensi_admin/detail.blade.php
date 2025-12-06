@@ -1443,6 +1443,25 @@ $('#jenis-export').on('change', function() {
         $('#bulan-wrapper').hide();
     }
 });
+
+// PDF Export Modal functionality
+$('#pdf-bulan-select').on('change', function() {
+    var selectedBulan = $(this).val();
+    if (selectedBulan) {
+        $('#download-pdf-btn').prop('disabled', false);
+    } else {
+        $('#download-pdf-btn').prop('disabled', true);
+    }
+});
+
+$('#download-pdf-btn').on('click', function() {
+    var selectedBulan = $('#pdf-bulan-select').val();
+    if (selectedBulan) {
+        var url = '{{ route("presensi.pdf_rekap", ":madrasahId") }}'.replace(':madrasahId', '{{ $madrasah->id }}') + '/' + selectedBulan;
+        window.open(url, '_blank');
+        $('#pdfExportModal').modal('hide');
+    }
+});
 </script>
 
 <style>
