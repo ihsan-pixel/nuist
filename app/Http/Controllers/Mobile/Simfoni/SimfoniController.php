@@ -69,6 +69,24 @@ class SimfoniController extends Controller
                 }
                 $simfoni->tahun_sertifikasi_impassing = implode(' & ', $formattedYears);
             }
+
+            // Ensure kategori penghasilan is set if not already
+            if (!$simfoni->kategori_penghasilan && $simfoni->total_penghasilan) {
+                $total = $simfoni->total_penghasilan;
+                if ($total >= 10000000) {
+                    $simfoni->kategori_penghasilan = 'A = Bagus (≥ 10 juta)';
+                } elseif ($total >= 6000000) {
+                    $simfoni->kategori_penghasilan = 'B = Baik (6,0 – 9,9 juta)';
+                } elseif ($total >= 4000000) {
+                    $simfoni->kategori_penghasilan = 'C = Cukup (4,0 – 5,9 juta)';
+                } elseif ($total >= 2500000) {
+                    $simfoni->kategori_penghasilan = 'D = Hampir Cukup (2,5 – 3,9 juta)';
+                } elseif ($total >= 1500000) {
+                    $simfoni->kategori_penghasilan = 'E = Kurang (1,5 – 2,4 juta)';
+                } else {
+                    $simfoni->kategori_penghasilan = 'F = Sangat Kurang (< 1,5 juta)';
+                }
+            }
         }
 
         // Calculate masa kerja to determine status kepegawaian options
