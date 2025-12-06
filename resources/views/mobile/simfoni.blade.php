@@ -599,7 +599,7 @@
 
                         <div class="form-group">
                             <label>Tahun Sertifikasi & Impassing</label>
-                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018" id="tahunSertifikasiInput">
+                            <input type="number" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018" id="tahunSertifikasiInput">
                         </div>
 
                         <div class="row-2col">
