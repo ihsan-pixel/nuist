@@ -1404,6 +1404,4 @@
                 });
             }
         });
-    });
-</script>
 @endsection
