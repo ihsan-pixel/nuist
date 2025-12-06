@@ -421,7 +421,7 @@
 
                     <div class="section-content">
                     <div class="form-group required">
-                        <label>Nama Lengkap dengan Gelar</label>
+                        <label>Nama Lengkap</label>
                         <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" placeholder="" required>
                         @error('nama_lengkap_gelar')
                             <div class="form-error">{{ $message }}</div>
@@ -429,7 +429,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Gelar</label>
+                        <label>Gelar (Jika Memiliki)</label>
                         <input type="text" name="gelar" value="{{ old('gelar', $simfoni->gelar ?? '') }}" placeholder="Contoh: S.Pd., M.Pd., dll">
                         @error('gelar')
                             <div class="form-error">{{ $message }}</div>
