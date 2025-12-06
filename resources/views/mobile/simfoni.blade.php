@@ -1130,7 +1130,7 @@
                                   parseNumber('penghasilan_lain');
 
                     const totalEl = document.getElementById('totalPenghasilan');
-                    if (totalEl) totalEl.value = formatCurrency(total.toString());
+                    if (totalEl) totalEl.value = total.toFixed(2);
 
                     // Calculate kategori penghasilan
                     let kategori = '';
@@ -1369,12 +1369,17 @@
             });
         }
 
-        // Format currency with dots as thousand separators
+        // Format currency with dots as thousand separators and ,00 decimals
         function formatCurrency(value) {
             // Remove all non-digit characters
             let num = value.replace(/\D/g, '');
             // Add dots every 3 digits from the right
-            return num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            let formatted = num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            // Add ,00 if no decimals
+            if (formatted && !formatted.includes(',')) {
+                formatted += ',00';
+            }
+            return formatted;
         }
 
         // Function to parse formatted currency (remove dots and commas)
@@ -1394,15 +1399,8 @@
         currencyInputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
-                input.addEventListener('blur', function() {
-                    if (this.value) {
-                        this.value = formatCurrency(this.value);
-                    }
-                });
-                input.addEventListener('focus', function() {
-                    if (this.value) {
-                        this.value = parseCurrency(this.value);
-                    }
+                input.addEventListener('input', function() {
+                    this.value = formatCurrency(this.value);
                 });
             }
         });
