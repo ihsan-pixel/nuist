@@ -268,13 +268,13 @@
     @endif
 
     <!-- Profile Avatar Section -->
-    <div class="profile-avatar">
+    {{-- <div class="profile-avatar">
        <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/avatar-1.jpg') }}"
            alt="Profile Picture">
         <h5>{{ $user->name }}</h5>
         <p>{{ $user->email }}</p>
         <span class="role-badge">{{ ucfirst($user->role) }}</span>
-    </div>
+    </div> --}}
 
     <!-- Personal Information -->
     <div class="info-section">
