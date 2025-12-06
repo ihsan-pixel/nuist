@@ -1369,17 +1369,12 @@
             });
         }
 
-        // Format currency with dots as thousand separators and ,00 decimals
+        // Format currency with dots as thousand separators
         function formatCurrency(value) {
             // Remove all non-digit characters
             let num = value.replace(/\D/g, '');
             // Add dots every 3 digits from the right
-            let formatted = num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            // Add ,00 if no decimals
-            if (formatted && !formatted.includes(',')) {
-                formatted += ',00';
-            }
-            return formatted;
+            return num.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
         // Function to parse formatted currency (remove dots and commas)
