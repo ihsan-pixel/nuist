@@ -7,6 +7,7 @@ use App\Models\Simfoni;
 use App\Models\StatusKepegawaian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 class SimfoniController extends Controller
@@ -77,6 +78,23 @@ class SimfoniController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+
+        // Parse currency fields (remove dots) before validation
+        $currencyFields = [
+            'gaji_sertifikasi',
+            'gaji_pokok',
+            'honor_lain',
+            'penghasilan_lain',
+            'penghasilan_pasangan',
+            'total_penghasilan'
+        ];
+
+        $parsedData = $request->all();
+        foreach ($currencyFields as $field) {
+            if (isset($parsedData[$field]) && $parsedData[$field] !== null && $parsedData[$field] !== '') {
+                $parsedData[$field] = str_replace('.', '', $parsedData[$field]);
+            }
+        }
 
         $validated = $request->validate([
             // A. DATA SK
