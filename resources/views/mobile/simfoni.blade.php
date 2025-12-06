@@ -486,14 +486,14 @@
                         <div class="form-group">
                             <label>Masa Kerja</label>
                             <input type="text" id="masaKerja" name="masa_kerja" readonly style="background: #f8f9fa; color: #666;">
-                            <div class="form-hint">Otomatis: Dari TMT Pertama sampai Juni 2025</div>
+                            <div class="form-hint" style="font-style: italic">Otomatis: Dari TMT Pertama sampai Juni 2025</div>
                         </div>
 
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Perguruan Tinggi Asal</label>
                             <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
-                            <div class="form-hint">Bukan Inisal</div>
+                            <div class="form-hint" style="font-style: italic">Bukan Inisal</div>
                             @error('pt_asal')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -510,7 +510,7 @@
                     <div class="form-group required">
                         <label>Program Studi</label>
                         <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" placeholder="Program Studi" required>
-                        <div class="form-hint">Bukan Inisal</div>
+                        <div class="form-hint" style="font-style: italic">Bukan Inisal</div>
                     </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
