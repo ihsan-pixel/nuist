@@ -707,7 +707,7 @@
                         <div class="form-group">
                             <label>Kategori Penghasilan</label>
                             <input type="text" id="kategoriPenghasilan" name="kategori_penghasilan" readonly style="background: #f8f9fa; color: #666; font-weight: bold;" value="{{ old('kategori_penghasilan', $simfoni->kategori_penghasilan ?? '') }}">
-                            <div class="form-hint">
+                            <div class="form-hint" style="font-style: italic">
                                 A = Bagus (≥ 10 juta)<br>
                                 B = Baik (6,0 – 9,9 juta)<br>
                                 C = Cukup (4,0 – 5,9 juta)<br>
