@@ -1015,6 +1015,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // ===== FORMAT RUPIAH (INDONESIA, TANPA DESIMAL) =====
+        function formatRupiah(angka) {
+            const number = parseInt(angka, 10);
+            if (isNaN(number)) return '';
+            return number.toLocaleString('id-ID');
+        }
+
+        function unformatRupiah(str) {
+            return parseInt(str.replace(/\./g, ''), 10) || 0;
+        }
+
         // Auto-fill readonly fields (if present)
         const mappings = {
             'nama_lengkap_gelar': '{{ $user->name ?? "" }}',
@@ -1113,26 +1124,34 @@
             });
         }
 
-        // Auto calculate total penghasilan and kategori
+        // ===== AUTO FORMAT & HITUNG PENGHASILAN =====
         const form = document.getElementById('simfoniForm');
         if (form) {
-            form.addEventListener('change', function (e) {
+            form.addEventListener('input', function (e) {
                 const watched = ['gaji_sertifikasi', 'gaji_pokok', 'honor_lain', 'penghasilan_lain'];
+
                 if (watched.includes(e.target.name)) {
-                    const parseNumber = (name) => {
+                    // Format angka saat diketik
+                    e.target.value = formatRupiah(unformatRupiah(e.target.value));
+
+                    const getValue = (name) => {
                         const el = document.querySelector(`input[name="${name}"]`);
-                        return el ? parseFloat(el.value) || 0 : 0;
+                        return el ? unformatRupiah(el.value) : 0;
                     };
 
-                    const total = parseNumber('gaji_sertifikasi') +
-                                  parseNumber('gaji_pokok') +
-                                  parseNumber('honor_lain') +
-                                  parseNumber('penghasilan_lain');
+                    const total =
+                        getValue('gaji_sertifikasi') +
+                        getValue('gaji_pokok') +
+                        getValue('honor_lain') +
+                        getValue('penghasilan_lain');
 
+                    // Total penghasilan
                     const totalEl = document.getElementById('totalPenghasilan');
-                    if (totalEl) totalEl.value = formatCurrency(Math.round(total).toString());
+                    if (totalEl) {
+                        totalEl.value = formatRupiah(total);
+                    }
 
-                    // Calculate kategori penghasilan
+                    // Kategori penghasilan
                     let kategori = '';
                     if (total >= 10000000) {
                         kategori = 'A = Bagus (≥ 10 juta)';
@@ -1150,12 +1169,6 @@
 
                     const kategoriEl = document.getElementById('kategoriPenghasilan');
                     if (kategoriEl) kategoriEl.value = kategori;
-
-                    // Also update masa kerja calculation
-                    const masaKerjaEl = document.getElementById('masaKerja');
-                    if (masaKerjaEl && masaKerjaEl.value) {
-                        // Masa kerja is already calculated, no need to change
-                    }
                 }
             });
         }
