@@ -1242,38 +1242,34 @@
 <!-- PDF Export Modal -->
 <div class="modal fade" id="pdfExportModal" tabindex="-1" aria-labelledby="pdfExportModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="{{ route('presensi.pdf_rekap', $madrasah->id) }}" method="GET" target="_blank">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="pdfExportModalLabel">
-                        <i class="mdi mdi-file-pdf"></i> Export PDF Data Presensi
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="pdfExportModalLabel">
+                    <i class="mdi mdi-file-pdf"></i> Export PDF Data Presensi
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
 
-                <div class="modal-body">
-                    <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
-
-                    <div class="mb-3">
-                        <label class="form-label">Pilih Bulan</label>
-                        <select class="form-select" name="bulan" required>
-                            <option value="">-- Pilih Bulan --</option>
-                            @foreach($bulanTersedia as $b)
-                                <option value="{{ $b->bulan }}">{{ $b->nama_bulan }}</option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">Pilih bulan yang tersedia berdasarkan data presensi</small>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="mdi mdi-download"></i> Download PDF
-                    </button>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Pilih Bulan</label>
+                    <select class="form-select" id="pdf-bulan-select" required>
+                        <option value="">-- Pilih Bulan --</option>
+                        @foreach($bulanTersedia as $b)
+                            <option value="{{ $b->bulan }}">{{ $b->nama_bulan }}</option>
+                        @endforeach
+                    </select>
+                    <small class="form-text text-muted">Pilih bulan yang tersedia berdasarkan data presensi</small>
                 </div>
             </div>
-        </form>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="download-pdf-btn" disabled>
+                    <i class="mdi mdi-download"></i> Download PDF
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
