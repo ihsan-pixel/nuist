@@ -428,6 +428,14 @@
                         @enderror
                     </div>
 
+                    <div class="form-group">
+                        <label>Gelar</label>
+                        <input type="text" name="gelar" value="{{ old('gelar', $simfoni->gelar ?? '') }}" placeholder="Contoh: S.Pd., M.Pd., dll">
+                        @error('gelar')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>Tempat Lahir</label>

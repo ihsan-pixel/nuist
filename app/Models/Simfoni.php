@@ -15,6 +15,7 @@ class Simfoni extends Model
         // A. DATA SK
         'user_id',
         'nama_lengkap_gelar',
+        'gelar',
         'tempat_lahir',
         'tanggal_lahir',
         'nuptk',

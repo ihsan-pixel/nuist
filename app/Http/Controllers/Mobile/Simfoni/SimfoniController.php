@@ -81,6 +81,7 @@ class SimfoniController extends Controller
         $validated = $request->validate([
             // A. DATA SK
             'nama_lengkap_gelar' => 'required|string|max:255',
+            'gelar' => 'nullable|string|max:100',
             'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'nuptk' => 'nullable|string|max:20',
