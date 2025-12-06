@@ -1130,7 +1130,7 @@
                                   parseNumber('penghasilan_lain');
 
                     const totalEl = document.getElementById('totalPenghasilan');
-                    if (totalEl) totalEl.value = total.toFixed(2);
+                    if (totalEl) totalEl.value = formatCurrency(total.toString());
 
                     // Calculate kategori penghasilan
                     let kategori = '';
