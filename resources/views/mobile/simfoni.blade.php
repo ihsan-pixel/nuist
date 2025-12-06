@@ -535,7 +535,7 @@
                                     <option value="{{ $status->name }}" {{ old('status_kerja', $simfoni->status_kerja ?? '') == $status->name ? 'selected' : '' }}>{{ $status->name }}</option>
                                 @endforeach
                             </select>
-                            <div class="form-hint">Jika masa kerja belum ada 2 tahun maka hanya tersedia sebagai GTT dan PTT</div>
+                            <div class="form-hint" style="font-style: italic">Jika masa kerja belum ada 2 tahun maka hanya tersedia sebagai GTT dan PTT</div>
                             @error('status_kerja')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
