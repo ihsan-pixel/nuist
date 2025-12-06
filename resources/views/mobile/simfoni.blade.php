@@ -605,7 +605,7 @@
                         <div class="row-2col">
                             <div class="form-group required">
                                 <label>Nomor HP/WA</label>
-                                <input type="tel" name="no_hp" value="{{ old('no_hp', $simfoni->no_hp ?? '') }}" class="auto-fill" readonly>
+                                <input type="tel" name="no_hp" value="{{ old('no_hp', $simfoni->no_hp ?? '') }}">
                             </div>
                             <div class="form-group required">
                                 <label>E-mail Aktif</label>
