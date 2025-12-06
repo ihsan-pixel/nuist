@@ -1302,7 +1302,7 @@
         // Calculate on page load if values are set
         calculateSkorProyeksi();
 
-        // Title case for Tempat Lahir
+        // Title case for Tempat Lahir and Nama Lengkap dengan Gelar
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, function(txt) {
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -1312,6 +1312,13 @@
         const tempatLahirInput = document.querySelector('input[name="tempat_lahir"]');
         if (tempatLahirInput) {
             tempatLahirInput.addEventListener('input', function() {
+                this.value = toTitleCase(this.value);
+            });
+        }
+
+        const namaLengkapInput = document.querySelector('input[name="nama_lengkap_gelar"]');
+        if (namaLengkapInput) {
+            namaLengkapInput.addEventListener('input', function() {
                 this.value = toTitleCase(this.value);
             });
         }
