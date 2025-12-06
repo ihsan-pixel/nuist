@@ -599,7 +599,7 @@
 
                         <div class="form-group">
                             <label>Tahun Sertifikasi & Impassing</label>
-                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018">
+                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018" id="tahunSertifikasiInput">
                         </div>
 
                         <div class="row-2col">
@@ -1344,6 +1344,28 @@
         if (programStudiInput) {
             programStudiInput.addEventListener('input', function() {
                 this.value = toTitleCase(this.value);
+            });
+        }
+
+        // Format Tahun Sertifikasi & Impassing as years
+        function formatTahunSertifikasi(value) {
+            // Remove all non-digit and non-& characters
+            let cleaned = value.replace(/[^0-9&]/g, '');
+            // Split by & and take up to 2 parts
+            let parts = cleaned.split('&').slice(0, 2);
+            // Format each part as 4-digit year if possible
+            let formatted = parts.map(part => {
+                let year = part.replace(/\D/g, '').slice(0, 4);
+                return year;
+            }).filter(year => year.length > 0);
+            // Join with ' & '
+            return formatted.join(' & ');
+        }
+
+        const tahunSertifikasiInput = document.getElementById('tahunSertifikasiInput');
+        if (tahunSertifikasiInput) {
+            tahunSertifikasiInput.addEventListener('input', function() {
+                this.value = formatTahunSertifikasi(this.value);
             });
         }
     });
