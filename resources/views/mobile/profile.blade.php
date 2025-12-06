@@ -125,7 +125,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
+            margin-bottom: 10px;
         }
 
         .settings-header {
