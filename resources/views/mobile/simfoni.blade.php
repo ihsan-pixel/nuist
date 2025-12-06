@@ -422,7 +422,7 @@
                     <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Lengkap</label>
-                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" placeholder="" required>
+                        <input type="text" name="nama_lengkap_gelar" value="{{ old('nama_lengkap_gelar', $simfoni->nama_lengkap_gelar ?? '') }}" placeholder="Nama Lengkap" required>
                         @error('nama_lengkap_gelar')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -439,7 +439,7 @@
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>Tempat Lahir</label>
-                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" required>
+                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $simfoni->tempat_lahir ?? '') }}" placeholder="Tempat Lahir" required>
                         </div>
                         <div class="form-group required">
                             <label>Tanggal Lahir</label>
@@ -450,22 +450,22 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>NUPTK</label>
-                            <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}">
+                            <input type="text" name="nuptk" value="{{ old('nuptk', $simfoni->nuptk ?? '') }}" placeholder="NUPTK (jika ada)">
                         </div>
                         <div class="form-group">
                             <label>Karta-NU</label>
-                            <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}">
+                            <input type="text" name="kartanu" value="{{ old('kartanu', $simfoni->kartanu ?? '') }}" placeholder="Nomor Karta-NU (jika ada)">
                         </div>
                     </div>
 
                     <div class="row-2col">
                         <div class="form-group">
                             <label>NIP Ma'arif Baru</label>
-                            <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}">
+                            <input type="text" name="nipm" value="{{ old('nipm', $simfoni->nipm ?? '') }}" placeholder="NIP Ma'arif Baru">
                         </div>
                         <div class="form-group required">
                             <label>NIK</label>
-                            <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" required>
+                            <input type="text" name="nik" value="{{ old('nik', $simfoni->nik ?? '') }}" placeholder="Nomor Induk Keluarga" required>
                             @error('nik')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -475,11 +475,11 @@
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>TMT Pertama</label>
-                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" required id="tmtInput">
+                            <input type="date" name="tmt" value="{{ old('tmt', $simfoni->tmt ?? '') }}" placeholder="Terhitung Malai Tanggal" required id="tmtInput">
                         </div>
                         <div class="form-group required">
                             <label>Strata Pendidikan</label>
-                            <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" required>
+                            <input type="text" name="strata_pendidikan" value="{{ old('strata_pendidikan', $simfoni->strata_pendidikan ?? '') }}" placeholder="SMK, SMA, S1, S2, S3" required>
                         </div>
                     </div>
 
@@ -491,7 +491,7 @@
 
                     <div class="row-2col">
                         <div class="form-group">
-                            <label>PT Asal</label>
+                            <label>Perguruan Tinggi Asal</label>
                             <input type="text" name="pt_asal" value="{{ old('pt_asal', $simfoni->pt_asal ?? '') }}" placeholder="Nama Perguruan Tinggi">
                             @error('pt_asal')
                                 <div class="form-error">{{ $message }}</div>
@@ -499,7 +499,7 @@
                         </div>
                         <div class="form-group required">
                             <label>Tahun Lulus</label>
-                            <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="YYYY" required>
+                            <input type="number" name="tahun_lulus" value="{{ old('tahun_lulus', $simfoni->tahun_lulus ?? '') }}" min="1900" max="2100" placeholder="2024" required>
                             @error('tahun_lulus')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -508,7 +508,7 @@
 
                     <div class="form-group required">
                         <label>Nama Program Studi</label>
-                        <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" required>
+                        <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" placeholder="Program Studi" required>
                     </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
