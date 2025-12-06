@@ -1399,8 +1399,15 @@
         currencyInputs.forEach(id => {
             const input = document.getElementById(id);
             if (input) {
-                input.addEventListener('input', function() {
-                    this.value = formatCurrency(this.value);
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        this.value = formatCurrency(this.value);
+                    }
+                });
+                input.addEventListener('focus', function() {
+                    if (this.value) {
+                        this.value = parseCurrency(this.value);
+                    }
                 });
             }
         });
