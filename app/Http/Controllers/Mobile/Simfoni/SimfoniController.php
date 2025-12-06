@@ -38,6 +38,37 @@ class SimfoniController extends Controller
                 'alamat_lengkap' => $user->alamat ?? '',
                 'strata_pendidikan' => $user->pendidikan_terakhir ?? '',
             ]);
+        } else {
+            // Format currency fields for display with dots
+            $currencyFields = [
+                'gaji_sertifikasi',
+                'gaji_pokok',
+                'honor_lain',
+                'penghasilan_lain',
+                'penghasilan_pasangan',
+                'total_penghasilan'
+            ];
+
+            foreach ($currencyFields as $field) {
+                if ($simfoni->$field) {
+                    $simfoni->$field = number_format($simfoni->$field, 0, ',', '.');
+                }
+            }
+
+            // Format tahun sertifikasi & impassing as years
+            if ($simfoni->tahun_sertifikasi_impassing) {
+                $years = explode('&', $simfoni->tahun_sertifikasi_impassing);
+                $formattedYears = [];
+                foreach ($years as $year) {
+                    $year = trim($year);
+                    if (is_numeric($year) && strlen($year) >= 4) {
+                        $formattedYears[] = substr($year, 0, 4);
+                    } else {
+                        $formattedYears[] = $year;
+                    }
+                }
+                $simfoni->tahun_sertifikasi_impassing = implode(' & ', $formattedYears);
+            }
         }
 
         // Calculate masa kerja to determine status kepegawaian options
