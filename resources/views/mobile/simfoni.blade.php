@@ -675,7 +675,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Honor Lain</label>
+                            <label>Honor Lain (dari satpen)</label>
                             <div class="currency-prefix">
                                 <input type="text" name="honor_lain" value="{{ old('honor_lain', $simfoni->honor_lain ?? '') }}" placeholder="0" id="honorLainInput">
                             </div>
