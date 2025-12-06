@@ -693,7 +693,7 @@
                             <div class="currency-prefix">
                                 <input type="text" name="penghasilan_pasangan" value="{{ old('penghasilan_pasangan', $simfoni->penghasilan_pasangan ?? '') }}" placeholder="0" id="penghasilanPasanganInput">
                             </div>
-                            <div class="form-hint">Informasi ini tidak masuk dalam perhitungan total</div>
+                            <div class="form-hint" style="font-style: italic">Informasi ini tidak masuk dalam perhitungan total</div>
                         </div>
 
                         <div class="form-group">
@@ -701,7 +701,7 @@
                             <div class="currency-prefix">
                                 <input type="text" name="total_penghasilan" value="{{ old('total_penghasilan', $simfoni->total_penghasilan ?? '') }}" placeholder="0" id="totalPenghasilan" readonly style="background: #f8f9fa; color: #666;">
                             </div>
-                            <div class="form-hint">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
+                            <div class="form-hint" style="font-style: italic">Otomatis: Gaji Sertifikasi + Gaji Pokok + Honor Lain + Penghasilan Lain</div>
                         </div>
 
                         <div class="form-group">
