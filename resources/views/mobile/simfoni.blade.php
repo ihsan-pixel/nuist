@@ -1404,4 +1404,12 @@
                 });
             }
         });
+
+        // Update notification badge on page load
+        updateNotificationBadge();
+
+        // Update badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+    });
+</script>
 @endsection
