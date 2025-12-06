@@ -507,7 +507,7 @@
                     </div>
 
                     <div class="form-group required">
-                        <label>Nama Program Studi</label>
+                        <label>Program Studi</label>
                         <input type="text" name="program_studi" value="{{ old('program_studi', $simfoni->program_studi ?? '') }}" placeholder="Program Studi" required>
                     </div>
                     </div> <!-- /.section-content -->
@@ -1310,7 +1310,7 @@
         // Calculate on page load if values are set
         calculateSkorProyeksi();
 
-        // Title case for Tempat Lahir and Nama Lengkap dengan Gelar
+        // Title case for Tempat Lahir, Nama Lengkap dengan Gelar, PT Asal, and Nama Program Studi
         function toTitleCase(str) {
             return str.replace(/\w\S*/g, function(txt) {
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -1327,6 +1327,20 @@
         const namaLengkapInput = document.querySelector('input[name="nama_lengkap_gelar"]');
         if (namaLengkapInput) {
             namaLengkapInput.addEventListener('input', function() {
+                this.value = toTitleCase(this.value);
+            });
+        }
+
+        const ptAsalInput = document.querySelector('input[name="pt_asal"]');
+        if (ptAsalInput) {
+            ptAsalInput.addEventListener('input', function() {
+                this.value = toTitleCase(this.value);
+            });
+        }
+
+        const programStudiInput = document.querySelector('input[name="program_studi"]');
+        if (programStudiInput) {
+            programStudiInput.addEventListener('input', function() {
                 this.value = toTitleCase(this.value);
             });
         }
