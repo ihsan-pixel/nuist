@@ -589,7 +589,7 @@
 
                         <div class="form-group">
                             <label>Kedudukan di LPM</label>
-                            <input type="text" name="kedudukan_lpm" value="{{ old('kedudukan_lpm', $simfoni->kedudukan_lpm ?? '') }}" placeholder="Posisi di Lembaga Pendidikan Masyarakat">
+                            <input type="text" name="kedudukan_lpm" value="{{ old('kedudukan_lpm', $simfoni->kedudukan_lpm ?? '') }}" placeholder="Posisi di Lembaga Pendidikan">
                         </div>
 
                         <div class="form-group">
