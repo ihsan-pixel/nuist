@@ -262,6 +262,23 @@ class SimfoniController extends Controller
 
         $validated['skor_proyeksi'] = $skor_proyeksi;
 
+        // Calculate kategori penghasilan based on total_penghasilan
+        $totalPenghasilan = $validated['total_penghasilan'] ?? 0;
+        if ($totalPenghasilan >= 10000000) {
+            $kategori = 'A = Bagus (≥ 10 juta)';
+        } elseif ($totalPenghasilan >= 6000000) {
+            $kategori = 'B = Baik (6,0 – 9,9 juta)';
+        } elseif ($totalPenghasilan >= 4000000) {
+            $kategori = 'C = Cukup (4,0 – 5,9 juta)';
+        } elseif ($totalPenghasilan >= 2500000) {
+            $kategori = 'D = Hampir Cukup (2,5 – 3,9 juta)';
+        } elseif ($totalPenghasilan >= 1500000) {
+            $kategori = 'E = Kurang (1,5 – 2,4 juta)';
+        } else {
+            $kategori = 'F = Sangat Kurang (< 1,5 juta)';
+        }
+        $validated['kategori_penghasilan'] = $kategori;
+
         // Get or create simfoni record
         $simfoni = Simfoni::where('user_id', $user->id)->first();
 
