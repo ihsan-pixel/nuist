@@ -269,7 +269,7 @@ class SimfoniController extends Controller
             'akan_mengembangkan_unit_usaha_satpen',
             'akan_bekerja_disiplin_produktif',
             'akan_loyal_nu_aktif_masyarakat',
-            'bersedia_dipindah_satpen_lain'
+            'akan_bersedia_dipindah_satpen_lain'
         ];
 
         foreach ($proyeksi_fields as $field) {
