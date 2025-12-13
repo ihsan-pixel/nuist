@@ -854,22 +854,25 @@ class PresensiAdminController extends Controller
     {
         $user = Auth::user();
 
-        // Only super_admin can access this
         if ($user->role !== 'super_admin') {
             abort(403, 'Unauthorized');
         }
 
-        // Get week parameter or default to current week
-        $week = $request->input('week', now()->format('Y-W'));
-        $startOfWeek = \Carbon\Carbon::createFromFormat('Y-W', $week)->startOfWeek(\Carbon\Carbon::MONDAY);
-        $endOfWeek = $startOfWeek->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
+        // Format input week: YYYY-Www (contoh: 2025-W49)
+        $week = $request->input('week', now()->format('Y-\WW'));
 
-        // Handle export
-        if ($request->has('export') && $request->export === 'excel') {
+        $startOfWeek = Carbon::createFromFormat('Y-\WW', $week)
+            ->startOfWeek(Carbon::MONDAY);
+
+        $endOfWeek = $startOfWeek->copy()
+            ->endOfWeek(Carbon::SATURDAY);
+
+        // Export Excel
+        if ($request->filled('export') && $request->export === 'excel') {
             return $this->exportLaporanMingguan($startOfWeek, $endOfWeek);
         }
 
-        // Get all madrasah ordered by kabupaten
+        // ===== lanjut kode Boss TANPA DIUBAH =====
         $kabupatenOrder = [
             'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
@@ -877,23 +880,6 @@ class PresensiAdminController extends Controller
             'Kabupaten Sleman',
             'Kota Yogyakarta'
         ];
-
-        $laporanData = [];
-
-        foreach ($kabupatenOrder as $kabupaten) {
-            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
-                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
-                ->get();
-
-            $kabupatenData = [
-                'kabupaten' => $kabupaten,
-                'madrasahs' => [],
-                'total_hadir' => 0,
-                'total_izin' => 0,
-                'total_alpha' => 0,
-                'total_presensi' => 0,
-                'persentase_kehadiran' => 0
-            ];
 
             foreach ($madrasahs as $madrasah) {
                 $tenagaPendidik = User::where('role', 'tenaga_pendidik')
