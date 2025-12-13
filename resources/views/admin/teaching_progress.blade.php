@@ -56,7 +56,6 @@
                                 <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
                                 @foreach($madrasah['presensi'] as $presensi)
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
-                                <td class="text-center">{{ $presensi['izin'] }}</td>
                                 <td class="text-center">{{ $presensi['alpha'] }}</td>
                                 @endforeach
                                 <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
