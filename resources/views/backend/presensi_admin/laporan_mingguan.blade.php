@@ -53,7 +53,7 @@
                             <tr class="bg-info">
                                 <td colspan="21" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
-                            @foreach($kabupaten['madrasahs']->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
+                            @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
                                 <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
                                 <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
