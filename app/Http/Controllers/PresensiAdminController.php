@@ -919,8 +919,9 @@ class PresensiAdminController extends Controller
                 $totalPresensi = 0;
 
                 $currentDate = $startOfWeek->copy();
+                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
 
-                for ($i = 0; $i < 6; $i++) {
+                for ($i = 0; $i < $daysToCount; $i++) {
                     $hadir = 0;
                     $izin = 0;
                     $alpha = 0;
@@ -945,6 +946,11 @@ class PresensiAdminController extends Controller
                     $totalPresensi += ($hadir + $izin + $alpha);
 
                     $currentDate->addDay();
+                }
+
+                // Jika 5 hari kerja, tambahkan data kosong untuk Sabtu agar tetap 6 kolom
+                if ($madrasah->hari_kbm == 5) {
+                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
                 }
 
                 $persentase = $totalPresensi > 0
@@ -1019,7 +1025,9 @@ class PresensiAdminController extends Controller
                 $totalPresensi = 0;
 
                 $currentDate = $startOfWeek->copy();
-                for ($i = 0; $i < 6; $i++) {
+                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
+
+                for ($i = 0; $i < $daysToCount; $i++) {
                     $hadir = 0;
                     $izin = 0;
                     $alpha = 0;
@@ -1050,6 +1058,13 @@ class PresensiAdminController extends Controller
                     $totalPresensi += $hadir + $izin + $alpha;
 
                     $currentDate->addDay();
+                }
+
+                // Jika 5 hari kerja, tambahkan kolom kosong untuk Sabtu
+                if ($madrasah->hari_kbm == 5) {
+                    $row[] = '-';
+                    $row[] = '-';
+                    $row[] = '-';
                 }
 
                 $persentase = $totalPresensi > 0 ? ($totalHadir / $totalPresensi) * 100 : 0;
