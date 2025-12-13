@@ -12,7 +12,7 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
-                                <input type="week" name="week" value="{{ $startOfWeek->format('Y-\WW') }}" class="form-control" onchange="this.form.submit()">
+                                <input type="week" name="week" value="{{ $startOfWeek->format('Y-W') }}" class="form-control" onchange="this.form.submit()">
                                 <div class="input-group-append">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-search"></i>
