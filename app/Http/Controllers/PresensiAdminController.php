@@ -859,9 +859,19 @@ class PresensiAdminController extends Controller
         }
 
         // Format input week: YYYY-Www (contoh: 2025-W49)
-        $week = $request->input('week', now()->format('Y-\WW'));
+        $weekInput = trim($request->input('week', now()->format('Y-\WW')));
 
-        $startOfWeek = Carbon::createFromFormat('Y-\WW', $week)
+        // Pecah format: 2025-W49
+        if (!preg_match('/^(\d{4})-W(\d{2})$/', $weekInput, $matches)) {
+            abort(400, 'Format minggu tidak valid');
+        }
+
+        $year = (int) $matches[1];
+        $week = (int) $matches[2];
+
+        // ISO Week → AMAN, TANPA Trailing Data
+        $startOfWeek = Carbon::now()
+            ->setISODate($year, $week)
             ->startOfWeek(Carbon::MONDAY);
 
         $endOfWeek = $startOfWeek->copy()
