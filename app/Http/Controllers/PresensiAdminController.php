@@ -872,7 +872,6 @@ class PresensiAdminController extends Controller
             return $this->exportLaporanMingguan($startOfWeek, $endOfWeek);
         }
 
-        // ===== lanjut kode Boss TANPA DIUBAH =====
         $kabupatenOrder = [
             'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
@@ -881,19 +880,36 @@ class PresensiAdminController extends Controller
             'Kota Yogyakarta'
         ];
 
+        $laporanData = [];
+
+        foreach ($kabupatenOrder as $kabupaten) {
+
+            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
+
+            $kabupatenData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
+
             foreach ($madrasahs as $madrasah) {
+
                 $tenagaPendidik = User::where('role', 'tenaga_pendidik')
                     ->where('madrasah_id', $madrasah->id)
                     ->get();
 
                 $presensiMingguan = [];
-                $totalHadirMadrasah = 0;
-                $totalIzinMadrasah = 0;
-                $totalAlphaMadrasah = 0;
-                $totalPresensiMadrasah = 0;
+                $totalHadir = 0;
+                $totalPresensi = 0;
 
-                // Loop through each day of the week (Monday to Saturday)
                 $currentDate = $startOfWeek->copy();
+
                 for ($i = 0; $i < 6; $i++) {
                     $hadir = 0;
                     $izin = 0;
@@ -905,56 +921,50 @@ class PresensiAdminController extends Controller
                             ->first();
 
                         if ($presensi) {
-                            if ($presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($presensi->status === 'izin') {
-                                $izin++;
-                            } else {
-                                $alpha++;
-                            }
+                            if ($presensi->status === 'hadir') $hadir++;
+                            elseif ($presensi->status === 'izin') $izin++;
+                            else $alpha++;
                         } else {
                             $alpha++;
                         }
                     }
 
-                    $presensiMingguan[] = [
-                        'hadir' => $hadir,
-                        'izin' => $izin,
-                        'alpha' => $alpha
-                    ];
+                    $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
 
-                    $totalHadirMadrasah += $hadir;
-                    $totalIzinMadrasah += $izin;
-                    $totalAlphaMadrasah += $alpha;
-                    $totalPresensiMadrasah += $hadir + $izin + $alpha;
+                    $totalHadir += $hadir;
+                    $totalPresensi += ($hadir + $izin + $alpha);
 
                     $currentDate->addDay();
                 }
 
-                $persentaseKehadiran = $totalPresensiMadrasah > 0 ? ($totalHadirMadrasah / $totalPresensiMadrasah) * 100 : 0;
+                $persentase = $totalPresensi > 0
+                    ? ($totalHadir / $totalPresensi) * 100
+                    : 0;
 
                 $kabupatenData['madrasahs'][] = [
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
                     'presensi' => $presensiMingguan,
-                    'persentase_kehadiran' => $persentaseKehadiran
+                    'persentase_kehadiran' => $persentase
                 ];
 
-                $kabupatenData['total_hadir'] += $totalHadirMadrasah;
-                $kabupatenData['total_izin'] += $totalIzinMadrasah;
-                $kabupatenData['total_alpha'] += $totalAlphaMadrasah;
-                $kabupatenData['total_presensi'] += $totalPresensiMadrasah;
+                $kabupatenData['total_hadir'] += $totalHadir;
+                $kabupatenData['total_presensi'] += $totalPresensi;
             }
 
-            $kabupatenData['persentase_kehadiran'] = $kabupatenData['total_presensi'] > 0
-                ? ($kabupatenData['total_hadir'] / $kabupatenData['total_presensi']) * 100
-                : 0;
+            $kabupatenData['persentase_kehadiran'] =
+                $kabupatenData['total_presensi'] > 0
+                    ? ($kabupatenData['total_hadir'] / $kabupatenData['total_presensi']) * 100
+                    : 0;
 
             $laporanData[] = $kabupatenData;
         }
 
-        return view('backend.presensi_admin.laporan_mingguan', compact('laporanData', 'startOfWeek'));
+        return view('backend.presensi_admin.laporan_mingguan', compact(
+            'laporanData',
+            'startOfWeek'
+        ));
     }
 
     // Export Laporan Presensi Mingguan to Excel
