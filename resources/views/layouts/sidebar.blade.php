@@ -136,7 +136,7 @@
                     <ul class="sub-menu collapse" id="presensiAdminSubmenu">
                         <li><a href="{{ route('presensi_admin.settings') }}">Pengaturan Presensi</a></li>
                         <li><a href="{{ route('presensi_admin.index') }}">Data Presensi</a></li>
-                        <li><a href="{{ route('presensi_admin.laporan-mingguan') }}">Laporan</a></li>
+                        <li><a href="{{ route('presensi_admin.laporan_mingguan') }}">Laporan</a></li>
                     </ul>
                 </li>
                 @elseif($userRole === 'admin')
