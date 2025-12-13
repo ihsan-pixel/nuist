@@ -860,8 +860,8 @@ class PresensiAdminController extends Controller
         }
 
         // Get week parameter or default to current week
-        $week = $request->input('week', now()->format('Y-\WW'));
-        $startOfWeek = \Carbon\Carbon::createFromFormat('Y-\WW', $week)->startOfWeek(\Carbon\Carbon::MONDAY);
+        $week = $request->input('week', now()->format('Y-W'));
+        $startOfWeek = \Carbon\Carbon::createFromFormat('Y-W', $week)->startOfWeek(\Carbon\Carbon::MONDAY);
         $endOfWeek = $startOfWeek->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
 
         // Handle export
