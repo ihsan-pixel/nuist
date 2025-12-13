@@ -12,75 +12,74 @@
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
-                                <input type="week"
-                                       name="week"
-                                       value="{{ $startOfWeek->format('Y-\WW') }}"
-                                       class="form-control"
-                                       onchange="this.form.submit()">
+                                <input type="week" name="week" value="{{ $startOfWeek->format('Y-W') }}" class="form-control" onchange="this.form.submit()">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
                         </form>
-
-                        <a href="{{ route('presensi_admin.laporan_mingguan', [
-                            'week' => $startOfWeek->format('Y-\WW'),
-                            'export' => 'excel'
-                        ]) }}"
-                           class="btn btn-success btn-sm ml-2">
+                        <a href="{{ route('presensi_admin.laporan_mingguan', ['week' => $startOfWeek->format('Y-W'), 'export' => 'excel']) }}" class="btn btn-success btn-sm ml-2">
                             <i class="fas fa-download"></i> Export Excel
                         </a>
                     </div>
                 </div>
-
                 <div class="card-body table-responsive p-0">
                     <table class="table table-bordered table-striped">
                         <thead class="bg-light">
                             <tr>
-                                <th rowspan="2">SCOD</th>
-                                <th rowspan="2">Nama Sekolah / Madrasah</th>
-                                <th rowspan="2">Hari KBM</th>
-                                @foreach(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'] as $hari)
-                                    <th colspan="3" class="text-center">{{ $hari }}</th>
-                                @endforeach
-                                <th rowspan="2">Persentase (%)</th>
+                                <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
+                                <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
+                                <th rowspan="2" class="text-center align-middle">Hari KBM</th>
+                                <th colspan="3" class="text-center">Senin</th>
+                                <th colspan="3" class="text-center">Selasa</th>
+                                <th colspan="3" class="text-center">Rabu</th>
+                                <th colspan="3" class="text-center">Kamis</th>
+                                <th colspan="3" class="text-center">Jumat</th>
+                                <th colspan="3" class="text-center">Sabtu</th>
+                                <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
                             <tr>
-                                @for($i=0;$i<6;$i++)
-                                    <th>Hadir</th>
-                                    <th>Izin</th>
-                                    <th>Alpha</th>
+                                @for($i = 0; $i < 6; $i++)
+                                <th class="text-center">Hadir</th>
+                                <th class="text-center">Izin</th>
+                                <th class="text-center">Alpha</th>
                                 @endfor
                             </tr>
                         </thead>
-
                         <tbody>
-                        @foreach($laporanData as $kabupaten)
+                            @foreach($laporanData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="21" class="text-center font-weight-bold">
-                                    {{ $kabupaten['kabupaten'] }}
-                                </td>
+                                <td colspan="21" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
-
-                            @foreach($kabupaten['madrasahs'] as $madrasah)
-                                <tr>
-                                    <td>{{ $madrasah['scod'] }}</td>
-                                    <td>{{ $madrasah['nama'] }}</td>
-                                    <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
-
-                                    @foreach($madrasah['presensi'] as $p)
-                                        <td class="text-center">{{ $p['hadir'] }}</td>
-                                        <td class="text-center">{{ $p['izin'] }}</td>
-                                        <td class="text-center">{{ $p['alpha'] }}</td>
-                                    @endforeach
-
-                                    <td class="text-center font-weight-bold">
-                                        {{ number_format($madrasah['persentase_kehadiran'], 2) }}%
-                                    </td>
-                                </tr>
+                            @foreach($kabupaten['madrasahs']->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
+                            <tr>
+                                <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
+                                <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
+                                <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
+                                @foreach($madrasah['presensi'] as $presensi)
+                                <td class="text-center">{{ $presensi['hadir'] }}</td>
+                                <td class="text-center">{{ $presensi['izin'] }}</td>
+                                <td class="text-center">{{ $presensi['alpha'] }}</td>
+                                @endforeach
+                                <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase_kehadiran'], 2) }}%</td>
+                            </tr>
                             @endforeach
-                        @endforeach
+                            <tr class="bg-warning font-weight-bold">
+                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
+                                <td></td>
+                                @for($i = 0; $i < 6; $i++)
+                                <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
+                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
+                                <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
+                                @endfor
+                                <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>
@@ -93,6 +92,28 @@
     max-height: 70vh;
     overflow-y: auto;
 }
-.bg-info { background: #d1ecf1; }
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 5;
+}
+
+.table thead th[rowspan="2"] {
+    z-index: 10;
+}
+
+.table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.bg-info {
+    background-color: #d1ecf1 !important;
+}
+
+.bg-warning {
+    background-color: #fff3cd !important;
+}
 </style>
 @endpush
