@@ -93,6 +93,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:super_admin,admin'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     });
+
+    // Laporan Presensi Mingguan - Super Admin Only
+    Route::middleware(['role:super_admin'])->group(function () {
+        Route::get('/admin/presensi_admin/laporan-mingguan', [PresensiAdminController::class, 'laporanMingguan'])->name('presensi_admin.laporan_mingguan');
+    });
 });
 
 // Admin face enrollment management (only admin and super_admin)

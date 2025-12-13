@@ -849,6 +849,235 @@ class PresensiAdminController extends Controller
             "Presensi_Madrasah_Semua.xlsx");
     }
 
+    // Laporan Presensi Mingguan - Super Admin Only
+    public function laporanMingguan(Request $request)
+    {
+        $user = Auth::user();
+
+        // Only super_admin can access this
+        if ($user->role !== 'super_admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Get week parameter or default to current week
+        $week = $request->input('week', now()->format('Y-\WW'));
+        $startOfWeek = \Carbon\Carbon::createFromFormat('Y-\WW', $week)->startOfWeek(\Carbon\Carbon::MONDAY);
+        $endOfWeek = $startOfWeek->copy()->endOfWeek(\Carbon\Carbon::SATURDAY);
+
+        // Handle export
+        if ($request->has('export') && $request->export === 'excel') {
+            return $this->exportLaporanMingguan($startOfWeek, $endOfWeek);
+        }
+
+        // Get all madrasah ordered by kabupaten
+        $kabupatenOrder = [
+            'Kabupaten Gunungkidul',
+            'Kabupaten Bantul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta'
+        ];
+
+        $laporanData = [];
+
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
+
+            $kabupatenData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
+
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->get();
+
+                $presensiMingguan = [];
+                $totalHadirMadrasah = 0;
+                $totalIzinMadrasah = 0;
+                $totalAlphaMadrasah = 0;
+                $totalPresensiMadrasah = 0;
+
+                // Loop through each day of the week (Monday to Saturday)
+                $currentDate = $startOfWeek->copy();
+                for ($i = 0; $i < 6; $i++) {
+                    $hadir = 0;
+                    $izin = 0;
+                    $alpha = 0;
+
+                    foreach ($tenagaPendidik as $guru) {
+                        $presensi = Presensi::where('user_id', $guru->id)
+                            ->whereDate('tanggal', $currentDate)
+                            ->first();
+
+                        if ($presensi) {
+                            if ($presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($presensi->status === 'izin') {
+                                $izin++;
+                            } else {
+                                $alpha++;
+                            }
+                        } else {
+                            $alpha++;
+                        }
+                    }
+
+                    $presensiMingguan[] = [
+                        'hadir' => $hadir,
+                        'izin' => $izin,
+                        'alpha' => $alpha
+                    ];
+
+                    $totalHadirMadrasah += $hadir;
+                    $totalIzinMadrasah += $izin;
+                    $totalAlphaMadrasah += $alpha;
+                    $totalPresensiMadrasah += $hadir + $izin + $alpha;
+
+                    $currentDate->addDay();
+                }
+
+                $persentaseKehadiran = $totalPresensiMadrasah > 0 ? ($totalHadirMadrasah / $totalPresensiMadrasah) * 100 : 0;
+
+                $kabupatenData['madrasahs'][] = [
+                    'scod' => $madrasah->scod,
+                    'nama' => $madrasah->name,
+                    'hari_kbm' => $madrasah->hari_kbm,
+                    'presensi' => $presensiMingguan,
+                    'persentase_kehadiran' => $persentaseKehadiran
+                ];
+
+                $kabupatenData['total_hadir'] += $totalHadirMadrasah;
+                $kabupatenData['total_izin'] += $totalIzinMadrasah;
+                $kabupatenData['total_alpha'] += $totalAlphaMadrasah;
+                $kabupatenData['total_presensi'] += $totalPresensiMadrasah;
+            }
+
+            $kabupatenData['persentase_kehadiran'] = $kabupatenData['total_presensi'] > 0
+                ? ($kabupatenData['total_hadir'] / $kabupatenData['total_presensi']) * 100
+                : 0;
+
+            $laporanData[] = $kabupatenData;
+        }
+
+        return view('backend.presensi_admin.laporan_mingguan', compact('laporanData', 'startOfWeek'));
+    }
+
+    // Export Laporan Presensi Mingguan to Excel
+    private function exportLaporanMingguan($startOfWeek, $endOfWeek)
+    {
+        $kabupatenOrder = [
+            'Kabupaten Gunungkidul',
+            'Kabupaten Bantul',
+            'Kabupaten Kulon Progo',
+            'Kabupaten Sleman',
+            'Kota Yogyakarta'
+        ];
+
+        $data = [];
+
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = \App\Models\Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
+
+            // Add kabupaten header
+            $data[] = [$kabupaten];
+
+            // Add column headers
+            $headers = ['SCOD', 'Nama Sekolah / Madrasah', 'Hari KBM'];
+            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            foreach ($days as $day) {
+                $headers[] = $day . ' - Hadir';
+                $headers[] = $day . ' - Izin';
+                $headers[] = $day . ' - Alpha';
+            }
+            $headers[] = 'Persentase Kehadiran (%)';
+            $data[] = $headers;
+
+            foreach ($madrasahs as $madrasah) {
+                $tenagaPendidik = User::where('role', 'tenaga_pendidik')
+                    ->where('madrasah_id', $madrasah->id)
+                    ->get();
+
+                $row = [$madrasah->scod, $madrasah->name, $madrasah->hari_kbm];
+                $totalHadir = 0;
+                $totalPresensi = 0;
+
+                $currentDate = $startOfWeek->copy();
+                for ($i = 0; $i < 6; $i++) {
+                    $hadir = 0;
+                    $izin = 0;
+                    $alpha = 0;
+
+                    foreach ($tenagaPendidik as $guru) {
+                        $presensi = Presensi::where('user_id', $guru->id)
+                            ->whereDate('tanggal', $currentDate)
+                            ->first();
+
+                        if ($presensi) {
+                            if ($presensi->status === 'hadir') {
+                                $hadir++;
+                            } elseif ($presensi->status === 'izin') {
+                                $izin++;
+                            } else {
+                                $alpha++;
+                            }
+                        } else {
+                            $alpha++;
+                        }
+                    }
+
+                    $row[] = $hadir;
+                    $row[] = $izin;
+                    $row[] = $alpha;
+
+                    $totalHadir += $hadir;
+                    $totalPresensi += $hadir + $izin + $alpha;
+
+                    $currentDate->addDay();
+                }
+
+                $persentase = $totalPresensi > 0 ? ($totalHadir / $totalPresensi) * 100 : 0;
+                $row[] = number_format($persentase, 2) . '%';
+
+                $data[] = $row;
+            }
+
+            // Add empty row for separation
+            $data[] = [];
+        }
+
+        $filename = 'laporan-presensi-mingguan-' . $startOfWeek->format('Y-m-d') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+
+            public function array(): array
+            {
+                return $this->data;
+            }
+
+            public function headings(): array
+            {
+                return [];
+            }
+        }, $filename);
+    }
+
     /**
      * Calculate presensi summary metrics based on user role and selected date.
      */
