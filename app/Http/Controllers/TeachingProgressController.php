@@ -54,7 +54,6 @@ class TeachingProgressController extends Controller
                 'kabupaten' => $kabupaten,
                 'madrasahs' => [],
                 'total_hadir' => 0,
-                'total_izin' => 0,
                 'total_alpha' => 0,
                 'total_presensi' => 0,
                 'persentase_kehadiran' => 0
@@ -89,7 +88,6 @@ class TeachingProgressController extends Controller
 
                 for ($i = 0; $i < $daysToCount; $i++) {
                     $hadir = 0;
-                    $izin = 0;
                     $alpha = 0;
 
                     foreach ($teachers as $guru) {
@@ -101,24 +99,23 @@ class TeachingProgressController extends Controller
 
                         if ($attendance) {
                             if ($attendance->status === 'hadir') $hadir++;
-                            elseif ($attendance->status === 'izin') $izin++;
                             else $alpha++;
                         } else {
                             $alpha++;
                         }
                     }
 
-                    $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
+                    $presensiMingguan[] = compact('hadir', 'alpha');
 
                     $totalHadir += $hadir;
-                    $totalPresensi += ($hadir + $izin + $alpha);
+                    $totalPresensi += ($hadir + $alpha);
 
                     $currentDate->addDay();
                 }
 
                 // Jika 5 hari kerja, tambahkan data kosong untuk Sabtu agar tetap 6 kolom
                 if ($madrasah->hari_kbm == 5) {
-                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                    $presensiMingguan[] = ['hadir' => '-', 'alpha' => '-'];
                 }
 
                 $persentase = $totalPresensi > 0
@@ -133,11 +130,9 @@ class TeachingProgressController extends Controller
                     'persentase_kehadiran' => $persentase
                 ];
 
-                $totalIzin = $totalPresensi - $totalHadir - ($totalTeachers * $daysToCount - $totalPresensi); // Izin = total presensi - hadir - alpha
                 $totalAlpha = $totalTeachers * $daysToCount - $totalPresensi; // Alpha = total possible - actual presensi
 
                 $kabupatenData['total_hadir'] += $totalHadir;
-                $kabupatenData['total_izin'] += $totalIzin;
                 $kabupatenData['total_alpha'] += $totalAlpha;
                 $kabupatenData['total_presensi'] += $totalPresensi;
             }

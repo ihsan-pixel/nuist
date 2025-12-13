@@ -29,18 +29,17 @@
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
-                                <th colspan="3" class="text-center">Senin</th>
-                                <th colspan="3" class="text-center">Selasa</th>
-                                <th colspan="3" class="text-center">Rabu</th>
-                                <th colspan="3" class="text-center">Kamis</th>
-                                <th colspan="3" class="text-center">Jumat</th>
-                                <th colspan="3" class="text-center">Sabtu</th>
+                                <th colspan="2" class="text-center">Senin</th>
+                                <th colspan="2" class="text-center">Selasa</th>
+                                <th colspan="2" class="text-center">Rabu</th>
+                                <th colspan="2" class="text-center">Kamis</th>
+                                <th colspan="2" class="text-center">Jumat</th>
+                                <th colspan="2" class="text-center">Sabtu</th>
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
                             <tr>
                                 @for($i = 0; $i < 6; $i++)
                                 <th class="text-center">Hadir</th>
-                                <th class="text-center">Izin</th>
                                 <th class="text-center">Alpha</th>
                                 @endfor
                             </tr>
@@ -68,7 +67,6 @@
                                 <td></td>
                                 @for($i = 0; $i < 6; $i++)
                                 <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
-                                <td class="text-center">{{ $kabupaten['total_izin'] }}</td>
                                 <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
                                 @endfor
                                 <td class="text-center">{{ number_format($kabupaten['persentase_kehadiran'], 2) }}%</td>
