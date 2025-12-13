@@ -14,8 +14,27 @@ class TeachingProgressController extends Controller
     /**
      * Display the teaching progress for all madrasahs
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Format input week: YYYY-Www (contoh: 2025-W49)
+        $weekInput = trim($request->input('week', now()->format('Y-\WW')));
+
+        // Pecah format: 2025-W49
+        if (!preg_match('/^(\d{4})-W(\d{2})$/', $weekInput, $matches)) {
+            abort(400, 'Format minggu tidak valid');
+        }
+
+        $year = (int) $matches[1];
+        $week = (int) $matches[2];
+
+        // ISO Week → AMAN, TANPA Trailing Data
+        $startOfWeek = Carbon::now()
+            ->setISODate($year, $week)
+            ->startOfWeek(Carbon::MONDAY);
+
+        $endOfWeek = $startOfWeek->copy()
+            ->endOfWeek(Carbon::SATURDAY);
+
         $kabupatenOrder = [
             'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
@@ -24,107 +43,163 @@ class TeachingProgressController extends Controller
             'Kota Yogyakarta'
         ];
 
-        $madrasahs = Madrasah::orderByRaw("FIELD(kabupaten, '" . implode("','", $kabupatenOrder) . "')")
-            ->get()
-            ->groupBy('kabupaten')
-            ->map(function ($group) use ($kabupatenOrder) {
-                return $group->sortBy(function ($madrasah) {
-                    return $madrasah->scod ?? PHP_INT_MAX;
-                })->map(function ($madrasah) {
-                    // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8
-                    $teachers = User::where('madrasah_id', $madrasah->id)
-                        ->where('role', 'tenaga_pendidik')
-                        ->whereNotIn('status_kepegawaian_id', [7, 8])
-                        ->get();
+        $laporanData = [];
 
-                    $totalTeachers = $teachers->count();
+        foreach ($kabupatenOrder as $kabupaten) {
+            $madrasahs = Madrasah::where('kabupaten', $kabupaten)
+                ->orderByRaw("CAST(scod AS UNSIGNED) ASC")
+                ->get();
 
-                    if ($totalTeachers == 0) {
-                        $madrasah->schedule_input_percentage = 0;
-                        $madrasah->attendance_percentage = 0;
-                        $madrasah->attendance_done_percentage = 0;
-                        $madrasah->attendance_pending_percentage = 100;
-                        return $madrasah;
+            $kabupatenData = [
+                'kabupaten' => $kabupaten,
+                'madrasahs' => [],
+                'total_hadir' => 0,
+                'total_izin' => 0,
+                'total_alpha' => 0,
+                'total_presensi' => 0,
+                'persentase_kehadiran' => 0
+            ];
+
+            foreach ($madrasahs as $madrasah) {
+                // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8
+                $teachers = User::where('madrasah_id', $madrasah->id)
+                    ->where('role', 'tenaga_pendidik')
+                    ->whereNotIn('status_kepegawaian_id', [7, 8])
+                    ->get();
+
+                $totalTeachers = $teachers->count();
+
+                if ($totalTeachers == 0) {
+                    $kabupatenData['madrasahs'][] = [
+                        'scod' => $madrasah->scod,
+                        'nama' => $madrasah->name,
+                        'hari_kbm' => $madrasah->hari_kbm,
+                        'presensi' => array_fill(0, 6, ['hadir' => 0, 'izin' => 0, 'alpha' => $totalTeachers]),
+                        'persentase_kehadiran' => 0
+                    ];
+                    continue;
+                }
+
+                $presensiMingguan = [];
+                $totalHadir = 0;
+                $totalPresensi = 0;
+
+                $currentDate = $startOfWeek->copy();
+                $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
+
+                for ($i = 0; $i < $daysToCount; $i++) {
+                    $hadir = 0;
+                    $izin = 0;
+                    $alpha = 0;
+
+                    foreach ($teachers as $guru) {
+                        $attendance = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($guru) {
+                            $q->where('teacher_id', $guru->id);
+                        })
+                        ->whereDate('tanggal', $currentDate)
+                        ->first();
+
+                        if ($attendance) {
+                            if ($attendance->status === 'hadir') $hadir++;
+                            elseif ($attendance->status === 'izin') $izin++;
+                            else $alpha++;
+                        } else {
+                            $alpha++;
+                        }
                     }
 
-                    // Count teachers with schedules
-                    $teachersWithSchedules = TeachingSchedule::where('school_id', $madrasah->id)
-                        ->distinct('teacher_id')
-                        ->count('teacher_id');
+                    $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
 
-                    $scheduleInputPercentage = round(($teachersWithSchedules / $totalTeachers) * 100);
+                    $totalHadir += $hadir;
+                    $totalPresensi += ($hadir + $izin + $alpha);
 
-                    // Get current month and year for attendance calculation
-                    $currentMonth = Carbon::now()->month;
-                    $currentYear = Carbon::now()->year;
+                    $currentDate->addDay();
+                }
 
-                    // Count teachers who have done attendance this month
-                    $teachersWithAttendance = TeachingAttendance::whereHas('teachingSchedule', function($query) use ($madrasah) {
-                        $query->where('school_id', $madrasah->id);
-                    })
-                    ->whereMonth('tanggal', $currentMonth)
-                    ->whereYear('tanggal', $currentYear)
-                    ->distinct('user_id')
-                    ->count('user_id');
+                // Jika 5 hari kerja, tambahkan data kosong untuk Sabtu agar tetap 6 kolom
+                if ($madrasah->hari_kbm == 5) {
+                    $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                }
 
-                    $attendancePercentage = round(($teachersWithAttendance / $totalTeachers) * 100);
-                    $attendancePendingPercentage = 100 - $attendancePercentage;
+                $persentase = $totalPresensi > 0
+                    ? ($totalHadir / $totalPresensi) * 100
+                    : 0;
 
-                    // Calculate details
-                    $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedules;
-                    $teachersWithoutAttendance = $totalTeachers - $teachersWithAttendance;
+                $kabupatenData['madrasahs'][] = [
+                    'scod' => $madrasah->scod,
+                    'nama' => $madrasah->name,
+                    'hari_kbm' => $madrasah->hari_kbm,
+                    'presensi' => $presensiMingguan,
+                    'persentase_kehadiran' => $persentase
+                ];
 
-                    $madrasah->schedule_input_percentage = $scheduleInputPercentage;
-                    $madrasah->attendance_percentage = $attendancePercentage;
-                    $madrasah->attendance_pending_percentage = $attendancePendingPercentage;
+                $totalIzin = $totalPresensi - $totalHadir - ($totalTeachers * $daysToCount - $totalPresensi); // Izin = total presensi - hadir - alpha
+                $totalAlpha = $totalTeachers * $daysToCount - $totalPresensi; // Alpha = total possible - actual presensi
 
-                    // Add details for tooltips/rich display
-                    $madrasah->total_teachers = $totalTeachers;
-                    $madrasah->teachers_with_schedule = $teachersWithSchedules;
-                    $madrasah->teachers_without_schedule = $teachersWithoutSchedule;
-                    $madrasah->teachers_with_attendance = $teachersWithAttendance;
-                    $madrasah->teachers_without_attendance = $teachersWithoutAttendance;
+                $kabupatenData['total_hadir'] += $totalHadir;
+                $kabupatenData['total_izin'] += $totalIzin;
+                $kabupatenData['total_alpha'] += $totalAlpha;
+                $kabupatenData['total_presensi'] += $totalPresensi;
+            }
 
-                    return $madrasah;
-                });
-            });
+            $kabupatenData['persentase_kehadiran'] =
+                $kabupatenData['total_presensi'] > 0
+                    ? ($kabupatenData['total_hadir'] / $kabupatenData['total_presensi']) * 100
+                    : 0;
 
-        return view('admin.teaching_progress', compact('madrasahs', 'kabupatenOrder'));
+            $laporanData[] = $kabupatenData;
+        }
+
+        return view('admin.teaching_progress', compact('laporanData', 'startOfWeek'));
     }
 
     /**
      * Get teacher detail data for a madrasah.
      * Includes users with status_kepegawaian 7 and 8 only if they have presensi.
      */
-    public function getMadrasahTeachers($madrasahId)
+    public function getMadrasahTeachers(Request $request, $madrasahId)
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        // Format input week: YYYY-Www (contoh: 2025-W49)
+        $weekInput = trim($request->input('week', now()->format('Y-\WW')));
+
+        // Pecah format: 2025-W49
+        if (!preg_match('/^(\d{4})-W(\d{2})$/', $weekInput, $matches)) {
+            abort(400, 'Format minggu tidak valid');
+        }
+
+        $year = (int) $matches[1];
+        $week = (int) $matches[2];
+
+        // ISO Week → AMAN, TANPA Trailing Data
+        $startOfWeek = Carbon::now()
+            ->setISODate($year, $week)
+            ->startOfWeek(Carbon::MONDAY);
+
+        $endOfWeek = $startOfWeek->copy()
+            ->endOfWeek(Carbon::SATURDAY);
 
         // Get all teachers
         $allTeachers = User::where('madrasah_id', $madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->get();
 
-        $teachersFiltered = $allTeachers->filter(function ($teacher) use ($currentMonth, $currentYear) {
+        $teachersFiltered = $allTeachers->filter(function ($teacher) use ($startOfWeek, $endOfWeek) {
             if (in_array($teacher->status_kepegawaian_id, [7, 8])) {
                 $hasPresensi = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
                         $q->where('teacher_id', $teacher->id);
                     })
-                    ->whereMonth('tanggal', $currentMonth)
-                    ->whereYear('tanggal', $currentYear)
+                    ->whereBetween('tanggal', [$startOfWeek, $endOfWeek])
                     ->exists();
                 return $hasPresensi;
             }
             return true;
         });
 
-        $teachersWithPresensi = $teachersFiltered->map(function ($teacher) use ($currentMonth, $currentYear) {
+        $teachersWithPresensi = $teachersFiltered->map(function ($teacher) use ($startOfWeek, $endOfWeek) {
             $hasPresensi = TeachingAttendance::whereHas('teachingSchedule', function ($q) use ($teacher) {
                     $q->where('teacher_id', $teacher->id);
                 })
-                ->whereMonth('tanggal', $currentMonth)
-                ->whereYear('tanggal', $currentYear)
+                ->whereBetween('tanggal', [$startOfWeek, $endOfWeek])
                 ->exists();
 
             return [
