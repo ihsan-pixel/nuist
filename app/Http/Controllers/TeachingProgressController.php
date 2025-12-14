@@ -36,8 +36,8 @@ class TeachingProgressController extends Controller
             ->endOfWeek(Carbon::SATURDAY);
 
         $kabupatenOrder = [
-            'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
+            'Kabupaten Gunungkidul',
             'Kabupaten Kulon Progo',
             'Kabupaten Sleman',
             'Kota Yogyakarta'
