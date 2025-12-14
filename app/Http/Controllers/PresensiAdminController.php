@@ -883,8 +883,8 @@ class PresensiAdminController extends Controller
         }
 
         $kabupatenOrder = [
-            'Kabupaten Gunungkidul',
             'Kabupaten Bantul',
+            'Kabupaten Gunungkidul',
             'Kabupaten Kulon Progo',
             'Kabupaten Sleman',
             'Kota Yogyakarta'
