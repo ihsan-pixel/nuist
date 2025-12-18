@@ -8,7 +8,7 @@
     <div class="container-fluid px-0 py-3" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
-            <div class="avatar-sm me-3">
+            <div class="avatar-sm me-3 ms-3">
                 <img
                     src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                     class="avatar-img rounded-circle"
