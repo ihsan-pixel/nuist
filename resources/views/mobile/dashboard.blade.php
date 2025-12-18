@@ -4,7 +4,7 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
-<header class="mobile-header bg-white border-bottom d-md-none shadow-sm">
+<header class="mobile-header border-bottom d-md-none shadow-sm">
     <div class="container-fluid px-3 py-2">
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
