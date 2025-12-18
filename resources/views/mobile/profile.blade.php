@@ -354,6 +354,10 @@
                 <i class="bx bx-download"></i>
                 Install Aplikasi PWA
             </a>
+            <div id="pwa-status" class="alert-custom" style="display: none;">
+                <i class="bx bx-check-circle"></i>
+                Aplikasi PWA sudah terinstall.
+            </div>
 
         </div>
     </div>
@@ -365,6 +369,30 @@
 
 @section('script')
 <script>
+    // Fungsi untuk mengecek apakah PWA sudah terinstall
+    function isPWAInstalled() {
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true ||
+               document.referrer.includes('android-app://');
+    }
+
+    // Fungsi untuk menampilkan status PWA
+    function updatePWAStatus() {
+        const statusDiv = document.getElementById('pwa-status');
+        const installBtn = document.getElementById('install-pwa-btn');
+
+        if (isPWAInstalled()) {
+            statusDiv.style.display = 'block';
+            installBtn.style.display = 'none';
+        } else {
+            statusDiv.style.display = 'none';
+            installBtn.style.display = 'block';
+        }
+    }
+
+    // Jalankan pengecekan saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', updatePWAStatus);
+
     document.getElementById('install-pwa-btn').addEventListener('click', (e) => {
         e.preventDefault();
         if (deferredPrompt) {
@@ -373,6 +401,7 @@
                 if (choiceResult.outcome === 'accepted') {
                     console.log('User accepted the install prompt');
                     localStorage.setItem('pwa-install-dismissed', 'true');
+                    updatePWAStatus(); // Update status setelah install
                 }
                 deferredPrompt = null;
             });
