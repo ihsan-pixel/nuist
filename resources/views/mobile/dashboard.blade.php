@@ -116,8 +116,8 @@
         }
 
         .row-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 70px 10px 1fr;
             align-items: center;
             font-size: 10px;
             line-height: 1.4;
@@ -130,13 +130,17 @@
 
         .label {
             color: rgba(255,255,255,0.75);
-            min-width: 70px;
+            text-align: left;
+        }
+
+        .colon {
+            color: rgba(255,255,255,0.75);
+            text-align: center;
         }
 
         .value {
             font-weight: 600;
-            text-align: right;
-            max-width: 160px;
+            text-align: left;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
