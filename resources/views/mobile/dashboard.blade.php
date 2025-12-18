@@ -86,9 +86,20 @@
             color: #fff !important;
         }
 
-        .mobile-header {
-            color: transparent;
+        .mobile-header,
+        .mobile-header .container-fluid {
+            background: transparent !important;
         }
+
+        .mobile-header {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        body {
+            background-color: transparent !important;
+        }
+
         .stats-form {
             background: #fff;
             border-radius: 12px;
