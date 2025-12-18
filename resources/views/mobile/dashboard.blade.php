@@ -90,13 +90,11 @@
             padding: 12px 10px;
             /* box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3); */
             margin-bottom: 10px;
-            border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .dashboard-header img {
-            border: 2px solid #fff;
-            border-radius: 50%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
         }
 
         .dashboard-header h6 {
@@ -124,22 +122,25 @@
 
         .id-card-details {
             flex-grow: 1;
+            text-align: right;
         }
 
         .id-card-details .detail-row {
-            display: flex;
-            justify-content: space-between;
             margin-bottom: 2px;
         }
 
         .id-card-details .label {
             font-size: 10px;
             color: rgba(255, 255, 255, 0.8);
+            display: inline-block;
+            width: 80px;
+            text-align: right;
         }
 
         .id-card-details .value {
             font-size: 11px;
             font-weight: 600;
+            margin-left: 5px;
         }
 
         .mobile-header,
@@ -471,7 +472,7 @@
         <div class="dashboard-header">
             <div class="id-card-layout">
                 <div class="id-card-photo">
-                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="avatar-img rounded-circle" alt="User" width="50" height="50">
+                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="User" width="50" height="38">
                 </div>
                 <div class="id-card-details">
                     <div class="detail-row">
