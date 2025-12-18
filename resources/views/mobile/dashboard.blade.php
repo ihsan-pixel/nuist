@@ -161,6 +161,8 @@
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 4px;
         }
 
         .mobile-header,
