@@ -98,7 +98,7 @@
 
         .id-card-photo {
             width: 56px;
-            height: 56px;
+            height: 76px;
             border-radius: 10px;
             overflow: hidden;
             flex-shrink: 0;
@@ -474,46 +474,46 @@
     @endif
 
     <!-- Stats Form -->
-    <div class="stats-form">
-        <div class="dashboard-header">
-            <div class="id-card">
-                <!-- Foto -->
-                <div class="id-card-photo">
-                    <img
-                        src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                        alt="User"
-                    >
-                </div>
+    <div class="dashboard-header">
+        <div class="id-card">
+            <!-- Foto -->
+            <div class="id-card-photo">
+                <img
+                    src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                    alt="User"
+                >
+            </div>
 
-                <!-- Detail -->
-                <div class="id-card-details">
-                    <div class="row-item">
-                        <span class="label">Nama</span>
-                        <span class="value">{{ Auth::user()->name }}</span>
-                    </div>
-                    <div class="row-item">
-                        <span class="label">TTL</span>
-                        <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
-                    </div>
-                    <div class="row-item">
-                        <span class="label">NUIST ID</span>
-                        <span class="value">{{ $userInfo['nuist_id'] }}</span>
-                    </div>
-                    <div class="row-item">
-                        <span class="label">Sekolah</span>
-                        <span class="value text-truncate">
-                            {{ Auth::user()->madrasah?->name ?? 'Belum diatur' }}
-                        </span>
-                    </div>
-                    <div class="row-item">
-                        <span class="label">Status</span>
-                        <span class="value badge-status">
-                            {{ $userInfo['status_kepegawaian'] }}
-                        </span>
-                    </div>
+            <!-- Detail -->
+            <div class="id-card-details">
+                <div class="row-item">
+                    <span class="label">Nama</span>
+                    <span class="value">{{ Auth::user()->name }}</span>
+                </div>
+                <div class="row-item">
+                    <span class="label">TTL</span>
+                    <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
+                </div>
+                <div class="row-item">
+                    <span class="label">NUIST ID</span>
+                    <span class="value">{{ $userInfo['nuist_id'] }}</span>
+                </div>
+                <div class="row-item">
+                    <span class="label">Sekolah</span>
+                    <span class="value text-truncate">
+                        {{ Auth::user()->madrasah?->name ?? 'Belum diatur' }}
+                    </span>
+                </div>
+                <div class="row-item">
+                    <span class="label">Status</span>
+                    <span class="value badge-status">
+                        {{ $userInfo['status_kepegawaian'] }}
+                    </span>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="stats-form">
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="icon-container">
