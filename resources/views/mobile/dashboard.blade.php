@@ -13,8 +13,8 @@
                 class="rounded-circle border border-light" width="40" height="40" alt="User" style="border-width: 2px !important;">
             </div>
 
-            <!-- Welcome Text (Center) -->
-            <div class="text-center flex-grow-1">
+            <!-- Welcome Text (Right-aligned) -->
+            <div class="text-end flex-grow-1">
                 <small class="text-muted fw-medium" style="font-size: 11px;">Selamat Datang</small>
                 <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
             </div>
