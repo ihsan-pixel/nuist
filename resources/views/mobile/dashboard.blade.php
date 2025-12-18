@@ -102,7 +102,7 @@
             border-radius: 10px;
             overflow: hidden;
             flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.4);
+            /* border: 2px solid rgba(255,255,255,0.4); */
         }
 
         .id-card-photo img {
