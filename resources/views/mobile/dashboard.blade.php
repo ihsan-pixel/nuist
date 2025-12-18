@@ -88,7 +88,8 @@
             background-size: cover;
             border-radius: 14px;
             padding: 12px;
-            color: #fff;
+            color: #004b4c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
         }
 
         .id-card {
