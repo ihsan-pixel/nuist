@@ -57,10 +57,20 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center fixed;
-            background-size: cover;
+            background-color: #f8f9fb;
+            background-image: url('{{ asset("images/bg.png") }}');
+            background-repeat: no-repeat;
+            background-position: top center;
+            background-size: 100% auto; /* 🔥 lebar layar, tinggi mengikuti gambar */
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background-size: 100% auto;
+                background-attachment: scroll; /* 🔥 hindari bug mobile */
+            }
         }
 
         .dashboard-header {
