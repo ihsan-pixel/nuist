@@ -369,52 +369,48 @@
 
 @section('script')
 <script>
-let deferredPrompt;
+let deferredPrompt = null;
+const installBtn = document.getElementById('install-pwa-btn');
 
-function isPWAInstalled() {
+function isInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true;
 }
 
-function updatePWAStatus() {
-    const statusDiv = document.getElementById('pwa-status');
-    const installBtn = document.getElementById('install-pwa-btn');
-
-    if (isPWAInstalled()) {
-        statusDiv.style.display = 'block';
-        installBtn.style.display = 'none';
-    } else {
-        statusDiv.style.display = 'none';
-        installBtn.style.display = 'block';
+function updateUI() {
+    if (isInstalled()) {
+        installBtn.innerHTML = '<i class="bx bx-check"></i> Aplikasi Terpasang';
+        installBtn.style.pointerEvents = 'none';
+        installBtn.style.opacity = '0.6';
     }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    updatePWAStatus();
 });
 
-window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    updatePWAStatus();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    updatePWAStatus();
-});
-
-document.getElementById('install-pwa-btn').addEventListener('click', async (e) => {
+installBtn.addEventListener('click', async (e) => {
     e.preventDefault();
 
-    if (!deferredPrompt) {
-        alert('Install belum tersedia. Coba buka lewat Chrome dan refresh halaman.');
+    // Jika prompt tersedia
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
         return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
+    // 🔥 Fallback SELALU ADA
+    alert(
+        'Install manual:\n\n' +
+        '1. Klik menu ⋮ di Chrome\n' +
+        '2. Pilih "Tambahkan ke layar utama"\n' +
+        '3. Konfirmasi install'
+    );
 });
+
+window.addEventListener('appinstalled', updateUI);
+document.addEventListener('DOMContentLoaded', updateUI);
 </script>
 @endsection
