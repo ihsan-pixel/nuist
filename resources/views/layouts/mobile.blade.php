@@ -333,7 +333,7 @@
     </div>
 
     <!-- PWA Install Prompt -->
-    <div id="pwa-install-prompt" class="pwa-install-prompt">
+    {{-- <div id="pwa-install-prompt" class="pwa-install-prompt">
         <div class="d-flex align-items-center">
             <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
             <div class="flex-grow-1">
@@ -345,7 +345,7 @@
                 <button id="dismiss-pwa" class="btn btn-outline-secondary btn-sm">Nanti</button>
             </div>
         </div>
-    </div>
+    </div> --}}
 
 
 
