@@ -87,7 +87,7 @@
         }
 
         .mobile-header {
-            color: transparent
+            color: transparent;
         }
         .stats-form {
             background: #fff;
