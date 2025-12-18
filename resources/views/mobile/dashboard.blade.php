@@ -51,7 +51,7 @@
         </div>
     </div>
 </header>
-<div class="container py-3" style="max-width: 500px; margin: auto;">
+<div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
             background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center fixed;
