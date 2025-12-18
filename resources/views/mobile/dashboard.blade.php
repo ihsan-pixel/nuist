@@ -90,10 +90,13 @@
             padding: 12px 10px;
             /* box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3); */
             margin-bottom: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .dashboard-header img {
             border: 2px solid #fff;
+            border-radius: 50%;
         }
 
         .dashboard-header h6 {
@@ -107,6 +110,36 @@
 
         .dashboard-header .welcome-text {
             color: #fff !important;
+        }
+
+        .id-card-layout {
+            display: flex;
+            align-items: center;
+        }
+
+        .id-card-photo {
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .id-card-details {
+            flex-grow: 1;
+        }
+
+        .id-card-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .id-card-details .label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .id-card-details .value {
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .mobile-header,
@@ -434,15 +467,36 @@
     @endif
 
     <!-- Stats Form -->
-    <div class="dashboard-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <small class="welcome-text mb-1">Asal Madrasah/Sekolah</small>
-                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
+    <div class="stats-form">
+        <div class="dashboard-header">
+            <div class="id-card-layout">
+                <div class="id-card-photo">
+                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" class="avatar-img rounded-circle" alt="User" width="50" height="50">
+                </div>
+                <div class="id-card-details">
+                    <div class="detail-row">
+                        <span class="label">Nama:</span>
+                        <span class="value">{{ Auth::user()->name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">TTL:</span>
+                        <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">NUIST ID:</span>
+                        <span class="value">{{ $userInfo['nuist_id'] }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Asal Sekolah:</span>
+                        <span class="value">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Status:</span>
+                        <span class="value">{{ $userInfo['status_kepegawaian'] }}</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="stats-form">
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="icon-container">
