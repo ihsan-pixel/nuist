@@ -424,4 +424,4 @@ window.addEventListener('appinstalled', () => {
 });
 </script>
 @endsection
-@endsection
+
