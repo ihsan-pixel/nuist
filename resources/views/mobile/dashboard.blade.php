@@ -434,15 +434,15 @@
     @endif
 
     <!-- Stats Form -->
-    <div class="stats-form">
-        <div class="dashboard-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <small class="welcome-text mb-1">Asal Madrasah/Sekolah</small>
-                    <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
-                </div>
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <small class="welcome-text mb-1">Asal Madrasah/Sekolah</small>
+                <h5 class="fw-bold mb-0">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</h5>
             </div>
         </div>
+    </div>
+    <div class="stats-form">
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="icon-container">
