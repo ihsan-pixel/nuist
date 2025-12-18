@@ -294,7 +294,7 @@
             });
             welcomeModal.show();
 
-            // Auto hide after 5 seconds
+            // Auto hide after 3 seconds
             setTimeout(function() {
                 welcomeModal.hide();
             }, 3000);
