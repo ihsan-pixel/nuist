@@ -501,12 +501,17 @@
                     <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
                 </div>
                 <div class="row-item">
+                    <span class="label">NIPM</span>
+                    <span class="colon">:</span>
+                    <span class="value">{{ $userInfo['nip'] }}</span>
+                </div>
+                <div class="row-item">
                     <span class="label">NUIST ID</span>
                     <span class="colon">:</span>
                     <span class="value">{{ $userInfo['nuist_id'] }}</span>
                 </div>
                 <div class="row-item">
-                    <span class="label">Sekolah</span>
+                    <span class="label">Asal Sekolah</span>
                     <span class="colon">:</span>
                     <span class="value text-truncate">
                         {{ Auth::user()->madrasah?->name ?? 'Belum diatur' }}
