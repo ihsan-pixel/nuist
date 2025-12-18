@@ -9,8 +9,11 @@
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
             <div class="avatar-sm">
-                <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                class="rounded-circle" width="40" height="40" alt="User" style="border-width: 2px !important;">
+                <img
+                    src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                    class="avatar-img rounded-circle"
+                    alt="User"
+                >
             </div>
 
             <!-- Welcome Text (Right-aligned) -->
@@ -341,6 +344,21 @@
 
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .avatar-sm .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;      /* 🔥 kunci anti gepeng */
+            object-position: center;
+            display: block;
         }
 
     </style>
