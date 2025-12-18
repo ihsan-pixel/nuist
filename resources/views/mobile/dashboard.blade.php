@@ -297,7 +297,7 @@
             // Auto hide after 5 seconds
             setTimeout(function() {
                 welcomeModal.hide();
-            }, 5000);
+            }, 3000);
         });
     </script>
     @endif
