@@ -119,7 +119,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 8px;
+            font-size: 10px;
             line-height: 1.4;
             margin-bottom: 2px;
         }
