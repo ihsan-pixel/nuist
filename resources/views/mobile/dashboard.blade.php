@@ -57,13 +57,23 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background-color: #f8f9fb;
-            background-image: url('{{ asset("images/bg.png") }}');
-            background-repeat: no-repeat;
-            background-position: top center;
-            background-size: 100% auto; /* 🔥 lebar layar, tinggi mengikuti gambar */
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
+            background-color: #f8f9fb;
+            position: relative;
+            min-height: 100vh; /* 🔥 minimal tinggi layar */
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(248,249,251,0), #f8f9fb);
+            z-index: -1;
         }
 
         @media (max-width: 768px) {
