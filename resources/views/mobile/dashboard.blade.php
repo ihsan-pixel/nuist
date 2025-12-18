@@ -16,21 +16,21 @@
             <!-- Welcome Text (Right-aligned) -->
             <div class="text-start flex-grow-1">
                 <small class="text-muted fw-medium" style="font-size: 11px;">Selamat Datang</small>
-                <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
+                <h6 class="mb-0 fw-semibold text-light" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
             </div>
 
             <!-- Notification and Menu Buttons (Right) -->
             <div class="d-flex align-items-center">
                 <!-- Notification Bell -->
                 <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
-                    <i class="bx bx-bell" style="font-size: 22px; color: #0e8549;"></i>
+                    <i class="bx bx-bell" style="font-size: 22px; color: #ffffff;"></i>
                     <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 9px; padding: 2px 5px; top: -4px; right: -4px; display: none;">0</span>
                 </a>
 
                 <!-- Dropdown Menu -->
                 <div class="dropdown">
                     <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-dots-vertical-rounded" style="font-size: 22px; color: #6c757d;"></i>
+                        <i class="bx bx-dots-vertical-rounded" style="font-size: 22px; color: #ffffff;"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                         <li><a class="dropdown-item py-2" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
