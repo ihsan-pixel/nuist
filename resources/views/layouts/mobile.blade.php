@@ -9,7 +9,7 @@
     <meta name="description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta name="keywords" content="nuist, ma'arif, nu, pwnu diy, sistem informasi, mobile, pwa" />
     <meta name="author" content="LP. Ma'arif NU PWNU DIY" />
-    <meta name="theme-color" content="#556ee6">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="NUIST Mobile">
