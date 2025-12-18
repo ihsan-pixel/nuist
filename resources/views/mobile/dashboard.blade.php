@@ -84,7 +84,8 @@
         }
 
         .dashboard-header {
-            background: linear-gradient(135deg, #004b4c, #0e8549);
+            background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
+            background-size: cover;
             border-radius: 14px;
             padding: 12px;
             color: #fff;
