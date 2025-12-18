@@ -384,7 +384,7 @@
     </style>
 
     <!-- Show banner modal on page load -->
-    @if($bannerImage)
+    @if($showBanner)
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeBannerModal'), {

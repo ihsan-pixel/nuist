@@ -26,6 +26,13 @@ class DashboardController extends \App\Http\Controllers\Controller
         $appSettings = AppSetting::getSettings();
         $bannerImage = $appSettings->banner_image_url;
 
+        // Check if banner should be shown (only once per session)
+        $showBanner = false;
+        if ($bannerImage && !session('banner_shown')) {
+            $showBanner = true;
+            session(['banner_shown' => true]);
+        }
+
         // Determine start date for attendance calculation (first presensi or account creation)
         $firstPresensiDate = Presensi::where('user_id', $user->id)
             ->orderBy('tanggal', 'asc')
@@ -79,6 +86,6 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->orderBy('start_time')
             ->get();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedules', 'bannerImage'));
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedules', 'bannerImage', 'showBanner'));
     }
 }
