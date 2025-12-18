@@ -351,7 +351,7 @@
 
     <!-- Main Content -->
     <main class="mobile-content">
-        <div class="container-fluid px-3 py-3">
+        <div class="container-fluid px-1 py-3">
             @yield('content')
         </div>
     </main>
