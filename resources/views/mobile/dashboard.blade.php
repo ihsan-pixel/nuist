@@ -130,12 +130,12 @@
         }
 
         .label {
-            color: rgba(255,255,255,0.75);
+            color: #004b4c;
             text-align: left;
         }
 
         .colon {
-            color: rgba(255,255,255,0.75);
+            color: #004b4c;
             text-align: center;
         }
 
@@ -145,13 +145,16 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            color: #004b4c;
         }
 
         .badge-status {
-            background: rgba(255,255,255,0.2);
+            background: rgba(0,75,76,0.1);
             padding: 2px 6px;
             border-radius: 6px;
             font-size: 10px;
+            color: #004b4c;
+            border: 1px solid rgba(0,75,76,0.2);
         }
 
         .id-card-title {
@@ -159,10 +162,10 @@
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #fff;
+            color: #004b4c;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(0,75,76,0.3);
             padding-bottom: 4px;
         }
 
