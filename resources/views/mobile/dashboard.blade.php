@@ -4,7 +4,7 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
-<header class="mobile-header d-md-none">
+<header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
     <div class="container-fluid px-1 py-3" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
