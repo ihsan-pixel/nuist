@@ -10,7 +10,7 @@
             <!-- User Avatar (Left) -->
             <div class="avatar-sm">
                 <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                class="rounded-circle" width="40" height="60" alt="User" style="border-width: 2px !important;">
+                class="rounded-circle" width="40" height="40" alt="User" style="border-width: 2px !important;">
             </div>
 
             <!-- Welcome Text (Right-aligned) -->
