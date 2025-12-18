@@ -15,7 +15,7 @@
 
             <!-- Welcome Text (Right-aligned) -->
             <div class="text-start flex-grow-1">
-                <small class="text-muted fw-medium" style="font-size: 11px;">Selamat Datang</small>
+                <small class="text-light fw-medium" style="font-size: 11px;">Selamat Datang</small>
                 <h6 class="mb-0 fw-semibold text-light" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
             </div>
 
