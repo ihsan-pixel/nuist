@@ -58,7 +58,7 @@
     <style>
         body {
             background: #f8f9fb url('{{ asset("images/bg.png") }}') no-repeat center center fixed;
-            background-size: cover;
+            background-size: auto;
             font-family: 'Poppins', sans-serif;
             font-size: 13px;
         }
