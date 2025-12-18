@@ -84,63 +84,69 @@
         }
 
         .dashboard-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #004b4c, #0e8549);
+            border-radius: 14px;
+            padding: 12px;
             color: #fff;
-            border-radius: 12px;
-            padding: 12px 10px;
-            /* box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3); */
-            margin-bottom: 10px;
         }
 
-        .dashboard-header img {
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-        }
-
-        .dashboard-header h6 {
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .dashboard-header h5 {
-            font-size: 14px;
-        }
-
-        .dashboard-header .welcome-text {
-            color: #fff !important;
-        }
-
-        .id-card-layout {
+        .id-card {
             display: flex;
             align-items: center;
+            gap: 12px;
         }
 
         .id-card-photo {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            overflow: hidden;
             flex-shrink: 0;
-            margin-right: 12px;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .id-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .id-card-details {
-            flex-grow: 1;
-            text-align: right;
+            flex: 1;
         }
 
-        .id-card-details .detail-row {
+        .row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            line-height: 1.4;
             margin-bottom: 2px;
         }
 
-        .id-card-details .label {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            display: inline-block;
-            width: 80px;
-            text-align: right;
+        .row-item:last-child {
+            margin-bottom: 0;
         }
 
-        .id-card-details .value {
-            font-size: 11px;
+        .label {
+            color: rgba(255,255,255,0.75);
+            min-width: 70px;
+        }
+
+        .value {
             font-weight: 600;
-            margin-left: 5px;
+            text-align: right;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .badge-status {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
         }
 
         .mobile-header,
@@ -470,30 +476,40 @@
     <!-- Stats Form -->
     <div class="stats-form">
         <div class="dashboard-header">
-            <div class="id-card-layout">
+            <div class="id-card">
+                <!-- Foto -->
                 <div class="id-card-photo">
-                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}" alt="User" width="50" height="38">
+                    <img
+                        src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
+                        alt="User"
+                    >
                 </div>
+
+                <!-- Detail -->
                 <div class="id-card-details">
-                    <div class="detail-row">
-                        <span class="label">Nama:</span>
+                    <div class="row-item">
+                        <span class="label">Nama</span>
                         <span class="value">{{ Auth::user()->name }}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="label">TTL:</span>
+                    <div class="row-item">
+                        <span class="label">TTL</span>
                         <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="label">NUIST ID:</span>
+                    <div class="row-item">
+                        <span class="label">NUIST ID</span>
                         <span class="value">{{ $userInfo['nuist_id'] }}</span>
                     </div>
-                    <div class="detail-row">
-                        <span class="label">Asal Sekolah:</span>
-                        <span class="value">{{ Auth::user()->madrasah?->name ?? 'Madrasah belum diatur' }}</span>
+                    <div class="row-item">
+                        <span class="label">Sekolah</span>
+                        <span class="value text-truncate">
+                            {{ Auth::user()->madrasah?->name ?? 'Belum diatur' }}
+                        </span>
                     </div>
-                    <div class="detail-row">
-                        <span class="label">Status:</span>
-                        <span class="value">{{ $userInfo['status_kepegawaian'] }}</span>
+                    <div class="row-item">
+                        <span class="label">Status</span>
+                        <span class="value badge-status">
+                            {{ $userInfo['status_kepegawaian'] }}
+                        </span>
                     </div>
                 </div>
             </div>
