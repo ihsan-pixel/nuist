@@ -4,21 +4,21 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
-<header class="mobile-header border-bottom d-md-none shadow-sm">
-    <div class="container-fluid px-3 py-2">
+<header class="mobile-header d-md-none">
+    <div class="container-fluid px-3 py-3">
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-                <img src="{{ asset('images/logo-light.png') }}" alt="NUIST" height="32" class="me-2">
+                <img src="{{ asset('images/logo-light.png') }}" alt="NUIST" height="28" class="me-2">
                 <div>
-                    <small class="text-muted">Selamat Datang</small>
-                    <h6 class="mb-0 fw-bold">{{ Auth::user()->name }}</h6>
+                    <small class="text-muted fw-medium" style="font-size: 11px;">Selamat Datang</small>
+                    <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
                 </div>
             </div>
             <div class="d-flex align-items-center">
                 <!-- Notification Bell -->
-                <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-3 position-relative">
-                    <i class="bx bx-bell" style="font-size: 24px; color: #0e8549;"></i>
-                    <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 10px; padding: 2px 6px; top: -5px; right: -5px; display: none;">0</span>
+                <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
+                    <i class="bx bx-bell" style="font-size: 22px; color: #0e8549;"></i>
+                    <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 9px; padding: 2px 5px; top: -4px; right: -4px; display: none;">0</span>
                 </a>
 
                 <!-- User Avatar Dropdown -->
@@ -26,16 +26,16 @@
                     <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
                         <div class="avatar-sm">
                             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                            class="rounded-circle border border-white" width="44" height="44" alt="User">
+                            class="rounded-circle border border-light" width="40" height="40" alt="User" style="border-width: 2px !important;">
                         </div>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item py-2" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
                         <li>
-                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <a class="dropdown-item py-2 text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="bx bx-log-out me-2"></i>Logout
                             </a>
                         </li>
