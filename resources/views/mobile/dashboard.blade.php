@@ -4,7 +4,7 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
-<header class="mobile-header d-md-none" style="background: transparant;">
+<header class="mobile-header d-md-none">
     <div class="container-fluid px-3 py-3" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
@@ -86,6 +86,9 @@
             color: #fff !important;
         }
 
+        .mobile-header {
+            color: transparent
+        }
         .stats-form {
             background: #fff;
             border-radius: 12px;
