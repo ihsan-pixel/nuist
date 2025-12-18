@@ -371,7 +371,6 @@
 let deferredPrompt = null;
 const installBtn = document.getElementById('install-pwa-btn');
 
-// Default: tombol nonaktif
 installBtn.style.opacity = '0.6';
 installBtn.style.pointerEvents = 'none';
 
@@ -386,39 +385,34 @@ function updateInstalledUI() {
     installBtn.style.opacity = '0.6';
 }
 
-// Jika sudah terinstall
 document.addEventListener('DOMContentLoaded', () => {
     if (isInstalled()) {
         updateInstalledUI();
     }
 });
 
-// Event PWA siap diinstall
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 
-    // Aktifkan tombol
     installBtn.style.opacity = '1';
     installBtn.style.pointerEvents = 'auto';
 });
 
-// Klik tombol install
 installBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    const choice = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
+    if (choice.outcome === 'accepted') {
         updateInstalledUI();
     }
 
     deferredPrompt = null;
 });
 
-// Setelah sukses install
 window.addEventListener('appinstalled', () => {
     updateInstalledUI();
 });

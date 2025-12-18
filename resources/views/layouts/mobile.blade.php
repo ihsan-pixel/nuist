@@ -451,32 +451,32 @@
     <!-- Mobile-specific scripts -->
     <script>
         // PWA Install Prompt
-        let deferredPrompt;
-        const installPrompt = document.getElementById('pwa-install-prompt');
+        // let deferredPrompt;
+        // const installPrompt = document.getElementById('pwa-install-prompt');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
+        // window.addEventListener('beforeinstallprompt', (e) => {
+        //     e.preventDefault();
+        //     deferredPrompt = e;
+        // });
 
-        document.getElementById('install-pwa').addEventListener('click', () => {
-            installPrompt.style.display = 'none';
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                        localStorage.setItem('pwa-install-dismissed', 'true');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        });
+        // document.getElementById('install-pwa').addEventListener('click', () => {
+        //     installPrompt.style.display = 'none';
+        //     if (deferredPrompt) {
+        //         deferredPrompt.prompt();
+        //         deferredPrompt.userChoice.then((choiceResult) => {
+        //             if (choiceResult.outcome === 'accepted') {
+        //                 console.log('User accepted the install prompt');
+        //                 localStorage.setItem('pwa-install-dismissed', 'true');
+        //             }
+        //             deferredPrompt = null;
+        //         });
+        //     }
+        // });
 
-        document.getElementById('dismiss-pwa').addEventListener('click', () => {
-            installPrompt.style.display = 'none';
-            localStorage.setItem('pwa-install-dismissed', 'true');
-        });
+        // document.getElementById('dismiss-pwa').addEventListener('click', () => {
+        //     installPrompt.style.display = 'none';
+        //     localStorage.setItem('pwa-install-dismissed', 'true');
+        // });
 
         // Show install prompt if not dismissed before
         if (!localStorage.getItem('pwa-install-dismissed')) {
