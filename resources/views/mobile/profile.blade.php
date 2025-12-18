@@ -369,11 +369,21 @@
 
 @section('script')
 <script>
+    let deferredPrompt;
+
     // Fungsi untuk mengecek apakah PWA sudah terinstall
     function isPWAInstalled() {
-        return window.matchMedia('(display-mode: standalone)').matches ||
-               window.navigator.standalone === true ||
-               document.referrer.includes('android-app://');
+        // Cek multiple kondisi untuk deteksi PWA
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        const isIOSStandalone = window.navigator.standalone === true;
+        const isAndroidApp = document.referrer.includes('android-app://');
+
+        // Jika ada deferredPrompt, berarti belum terinstall
+        if (deferredPrompt) {
+            return false;
+        }
+
+        return isStandalone || isIOSStandalone || isAndroidApp;
     }
 
     // Fungsi untuk menampilkan status PWA
@@ -390,8 +400,35 @@
         }
     }
 
+    // Event listener untuk beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('beforeinstallprompt event fired');
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Hapus flag dismissed jika ada prompt baru
+        localStorage.removeItem('pwa-install-dismissed');
+
+        updatePWAStatus();
+    });
+
+    // Event listener untuk appinstalled
+    window.addEventListener('appinstalled', (evt) => {
+        console.log('PWA was installed successfully');
+        deferredPrompt = null;
+        localStorage.setItem('pwa-installed', 'true');
+        updatePWAStatus();
+    });
+
     // Jalankan pengecekan saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', updatePWAStatus);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Reset deferredPrompt jika sudah pernah dismissed
+        if (localStorage.getItem('pwa-install-dismissed')) {
+            deferredPrompt = null;
+        }
+
+        updatePWAStatus();
+    });
 
     document.getElementById('install-pwa-btn').addEventListener('click', (e) => {
         e.preventDefault();
@@ -400,13 +437,21 @@
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('User accepted the install prompt');
+                    localStorage.setItem('pwa-installed', 'true');
+                    updatePWAStatus();
+                } else {
+                    console.log('User dismissed the install prompt');
                     localStorage.setItem('pwa-install-dismissed', 'true');
-                    updatePWAStatus(); // Update status setelah install
                 }
                 deferredPrompt = null;
             });
         } else {
-            alert('Aplikasi PWA sudah terinstall atau tidak tersedia untuk diinstall.');
+            // Jika tidak ada deferredPrompt, coba cek ulang
+            if (!isPWAInstalled()) {
+                alert('Prompt install tidak tersedia. Coba refresh halaman atau akses dari browser lain.');
+            } else {
+                alert('Aplikasi PWA sudah terinstall.');
+            }
         }
     });
 </script>
