@@ -5,7 +5,7 @@
 
 @section('content')
 <header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
-    <div class="container-fluid px-0 py-3" style="background: transparent;">
+    <div class="container-fluid px-0 py-0" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
             <div class="avatar-sm me-3 ms-3">
