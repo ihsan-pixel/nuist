@@ -492,24 +492,29 @@
             <div class="id-card-details">
                 <div class="row-item">
                     <span class="label">Nama</span>
+                    <span class="colon">:</span>
                     <span class="value">{{ Auth::user()->name }}</span>
                 </div>
                 <div class="row-item">
                     <span class="label">TTL</span>
+                    <span class="colon">:</span>
                     <span class="value">{{ $userInfo['tempat_lahir'] }}, {{ $userInfo['tanggal_lahir'] }}</span>
                 </div>
                 <div class="row-item">
                     <span class="label">NUIST ID</span>
+                    <span class="colon">:</span>
                     <span class="value">{{ $userInfo['nuist_id'] }}</span>
                 </div>
                 <div class="row-item">
                     <span class="label">Sekolah</span>
+                    <span class="colon">:</span>
                     <span class="value text-truncate">
                         {{ Auth::user()->madrasah?->name ?? 'Belum diatur' }}
                     </span>
                 </div>
                 <div class="row-item">
                     <span class="label">Status</span>
+                    <span class="colon">:</span>
                     <span class="value badge-status">
                         {{ $userInfo['status_kepegawaian'] }}
                     </span>
