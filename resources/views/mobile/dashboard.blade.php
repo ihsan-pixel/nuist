@@ -153,6 +153,16 @@
             font-size: 10px;
         }
 
+        .id-card-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .mobile-header,
         .mobile-header .container-fluid {
             background: transparent !important;
@@ -480,6 +490,7 @@
     <!-- Stats Form -->
     <div class="dashboard-header">
         <div class="id-card">
+            <div class="id-card-title">Kartu Identitas Tenaga Pendidik</div>
             <!-- Foto -->
             <div class="id-card-photo">
                 <img
