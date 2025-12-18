@@ -366,51 +366,62 @@
 
 
 @endsection
-
 @section('script')
 <script>
 let deferredPrompt = null;
 const installBtn = document.getElementById('install-pwa-btn');
+
+// Default: tombol nonaktif
+installBtn.style.opacity = '0.6';
+installBtn.style.pointerEvents = 'none';
 
 function isInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches
         || window.navigator.standalone === true;
 }
 
-function updateUI() {
-    if (isInstalled()) {
-        installBtn.innerHTML = '<i class="bx bx-check"></i> Aplikasi Terpasang';
-        installBtn.style.pointerEvents = 'none';
-        installBtn.style.opacity = '0.6';
-    }
+function updateInstalledUI() {
+    installBtn.innerHTML = '<i class="bx bx-check"></i> Aplikasi Terpasang';
+    installBtn.style.pointerEvents = 'none';
+    installBtn.style.opacity = '0.6';
 }
 
+// Jika sudah terinstall
+document.addEventListener('DOMContentLoaded', () => {
+    if (isInstalled()) {
+        updateInstalledUI();
+    }
+});
+
+// Event PWA siap diinstall
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
+
+    // Aktifkan tombol
+    installBtn.style.opacity = '1';
+    installBtn.style.pointerEvents = 'auto';
 });
 
+// Klik tombol install
 installBtn.addEventListener('click', async (e) => {
     e.preventDefault();
+    if (!deferredPrompt) return;
 
-    // Jika prompt tersedia
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+
+    if (outcome === 'accepted') {
+        updateInstalledUI();
     }
 
-    // 🔥 Fallback SELALU ADA
-    alert(
-        'Install manual:\n\n' +
-        '1. Klik menu ⋮ di Chrome\n' +
-        '2. Pilih "Tambahkan ke layar utama"\n' +
-        '3. Konfirmasi install'
-    );
+    deferredPrompt = null;
 });
 
-window.addEventListener('appinstalled', updateUI);
-document.addEventListener('DOMContentLoaded', updateUI);
+// Setelah sukses install
+window.addEventListener('appinstalled', () => {
+    updateInstalledUI();
+});
 </script>
+@endsection
 @endsection
