@@ -86,10 +86,12 @@
         .dashboard-header {
             background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
             background-size: cover;
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 12px;
             color: #004b4c;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
+            aspect-ratio: 4/3;
+            max-width: 400px;
         }
 
         .id-card {
@@ -121,7 +123,7 @@
             display: grid;
             grid-template-columns: 70px 10px 1fr;
             align-items: center;
-            font-size: 10px;
+            font-size: 12px;
             line-height: 1.4;
             margin-bottom: 2px;
         }
@@ -153,14 +155,14 @@
             background: rgba(0,75,76,0.1);
             padding: 2px 6px;
             border-radius: 6px;
-            font-size: 10px;
+            font-size: 12px;
             color: #004b4c;
             border: 1px solid rgba(0,75,76,0.2);
         }
 
         .id-card-title {
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
             margin-bottom: 8px;
             color: #004b4c;
