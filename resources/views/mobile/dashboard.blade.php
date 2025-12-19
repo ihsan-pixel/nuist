@@ -644,7 +644,8 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
-                    <i class="bx bx-calendar-star"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-calendar-star" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Cuti</div>
             </div>
@@ -677,19 +678,22 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div id="viewAllBtn" class="service-wrapper">
                 <a href="#" class="service-item" onclick="return toggleServices(event)">
-                    <i class="bx bx-plus"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-plus" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Lihat Semua</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
-                    <i class="bx bx-user"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-user" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Profile</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
-                    <i class="bx bx-cog"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-cog" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Pengaturan</div>
             </div>
@@ -697,19 +701,22 @@ if ($hour >= 0 && $hour <= 11) {
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
-                    <i class="bx bx-edit"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-edit" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
-                    <i class="bx bx-calendar-check"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-calendar-check" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Data Presensi</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.laporan') }}" class="service-item">
-                    <i class="bx bx-file"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-file" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Laporan</div>
             </div>
