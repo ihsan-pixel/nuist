@@ -678,7 +678,7 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div id="viewAllBtn" class="service-wrapper">
                 <a href="#" class="service-item" onclick="return toggleServices(event)">
-                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/12.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-plus" style="position: relative; z-index: 1;"></i> --}}
                 </a>
                 <div class="service-label">Lihat Semua</div>
@@ -692,7 +692,7 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/9.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-cog" style="position: relative; z-index: 1;"></i> --}}
                 </a>
                 <div class="service-label">Pengaturan</div>
@@ -701,14 +701,14 @@ if ($hour >= 0 && $hour <= 11) {
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/9.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/10.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-edit" style="position: relative; z-index: 1;"></i> --}}
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/10.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/13.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-calendar-check" style="position: relative; z-index: 1;"></i> --}}
                 </a>
                 <div class="service-label">Data Presensi</div>
