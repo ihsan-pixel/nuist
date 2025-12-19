@@ -264,7 +264,8 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
+            background-size: cover;
             border-radius: 8px;
             padding: 8px;
             display: flex;
@@ -274,6 +275,7 @@ if ($hour >= 0 && $hour <= 11) {
             height: 64px;
             width: 100%;
             box-sizing: border-box;
+            border: 1px solid rgba(0,75,76,0.2);
         }
 
         .extra-service {
@@ -294,7 +296,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         .service-item i {
             font-size: 20px;
-            color: #fff;
+            color: #004b4c;
         }
 
         .service-label {
