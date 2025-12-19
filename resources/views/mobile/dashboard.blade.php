@@ -630,7 +630,7 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="services-grid" id="servicesGrid">
             <div class="service-wrapper">
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
-                    <i class="bx bx-fingerprint"></i>
+                    <i class="bx bx-scan"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
