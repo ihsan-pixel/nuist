@@ -751,7 +751,7 @@ if ($hour >= 0 && $hour <= 11) {
                 const firstExtra = extraServices[0];
                 servicesGrid.insertBefore(viewAllBtn, firstExtra);
                 icon.className = 'bx bx-plus';
-                label.textContent = 'Lihat Lainnya';
+                label.textContent = 'Lihat Semua';
             }
         }
     </script>
