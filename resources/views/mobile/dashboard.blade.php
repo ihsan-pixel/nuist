@@ -264,7 +264,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item {
-            background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
+            background: linear-gradient(rgba(248,249,251,0.8), rgba(248,249,251,0.8)), url('{{ asset("images/qwe1.png") }}') no-repeat center center;
             background-size: cover;
             border-radius: 8px;
             padding: 8px;
