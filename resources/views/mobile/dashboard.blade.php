@@ -695,14 +695,14 @@ if ($hour >= 0 && $hour <= 11) {
             const icon = viewAllBtn.querySelector('i');
             const label = viewAllBtn.querySelector('.service-label');
 
-            if (extraServices[0].style.visibility === 'hidden') {
+            if (extraServices[0].style.display === 'none') {
                 // Show all
-                extraServices.forEach(service => service.style.visibility = 'visible');
+                extraServices.forEach(service => service.style.display = 'block');
                 icon.className = 'bx bx-minus';
                 label.textContent = 'Sembunyikan';
             } else {
                 // Hide
-                extraServices.forEach(service => service.style.visibility = 'hidden');
+                extraServices.forEach(service => service.style.display = 'none');
                 icon.className = 'bx bx-plus';
                 label.textContent = 'Lihat Semua';
             }
