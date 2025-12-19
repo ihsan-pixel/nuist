@@ -264,8 +264,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item {
-            background: url('{{ asset("images/qwe1.png") }}') no-repeat center center;
-            background-size: cover;
+            position: relative;
             border-radius: 8px;
             padding: 8px;
             display: flex;
@@ -631,13 +630,15 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="services-grid" id="servicesGrid">
             <div class="service-wrapper">
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
-                    <i class="bx bx-scan"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-scan" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
-                    <i class="bx bx-chalkboard"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-chalkboard" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
@@ -649,13 +650,15 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
-                    <i class="bx bx-time-five"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-time-five" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Terlambat</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
-                    <i class="bx bx-plus-medical"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-plus-medical" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Sakit</div>
             </div>
@@ -667,7 +670,8 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.jadwal') }}" class="service-item">
-                    <i class="bx bx-calendar"></i>
+                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <i class="bx bx-calendar" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
