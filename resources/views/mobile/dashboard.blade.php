@@ -453,25 +453,23 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .carousel-indicators button {
-            width: 8px;
-            height: 8px;
-            min-width: 8px;
-            min-height: 8px;
+            width: 10px;
+            height: 10px;
+            aspect-ratio: 1 / 1;   /* 🔥 kunci bulat */
             border-radius: 50%;
             background-color: #ddd;
             border: none;
             opacity: 0.5;
             padding: 0;
             margin: 0;
-            flex-shrink: 0;
-            box-sizing: border-box;
+            flex: 0 0 auto;
             transition: all 0.3s ease;
         }
 
         .carousel-indicators button.active {
             opacity: 1;
             background-color: #004b4c;
-            transform: scale(1.2);
+            transform: scale(1.15);
         }
 
         .quick-actions {
