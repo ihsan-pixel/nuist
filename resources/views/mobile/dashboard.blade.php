@@ -717,6 +717,7 @@ if ($hour >= 0 && $hour <= 11) {
 
             const extraServices = document.querySelectorAll('.extra-service');
             const viewAllBtn = document.getElementById('viewAllBtn');
+            const servicesGrid = document.getElementById('servicesGrid');
             const icon = viewAllBtn.querySelector('i');
             const label = viewAllBtn.querySelector('.service-label');
 
@@ -727,11 +728,14 @@ if ($hour >= 0 && $hour <= 11) {
             });
 
             if (isHidden) {
-                viewAllBtn.classList.add('hide');
+                // Move button to the end
+                servicesGrid.appendChild(viewAllBtn);
                 icon.className = 'bx bx-minus';
                 label.textContent = 'Sembunyikan';
             } else {
-                viewAllBtn.classList.remove('hide');
+                // Move button back to original position (before first extra-service)
+                const firstExtra = extraServices[0];
+                servicesGrid.insertBefore(viewAllBtn, firstExtra);
                 icon.className = 'bx bx-plus';
                 label.textContent = 'Lihat Semua';
             }
