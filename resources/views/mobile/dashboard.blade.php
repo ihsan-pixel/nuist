@@ -691,6 +691,13 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="service-label">Profile</div>
             </div>
             <div class="extra-service service-wrapper">
+                <a href="{{ route('mobile.laporan') }}" class="service-item">
+                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    {{-- <i class="bx bx-file" style="position: relative; z-index: 1;"></i> --}}
+                </a>
+                <div class="service-label">Laporan</div>
+            </div>
+            <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
                     <img src="{{ asset('images/menu_icon/9.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-cog" style="position: relative; z-index: 1;"></i> --}}
@@ -712,13 +719,6 @@ if ($hour >= 0 && $hour <= 11) {
                     {{-- <i class="bx bx-calendar-check" style="position: relative; z-index: 1;"></i> --}}
                 </a>
                 <div class="service-label">Data Presensi</div>
-            </div>
-            <div class="extra-service service-wrapper">
-                <a href="{{ route('mobile.laporan') }}" class="service-item">
-                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                    {{-- <i class="bx bx-file" style="position: relative; z-index: 1;"></i> --}}
-                </a>
-                <div class="service-label">Laporan</div>
             </div>
 
             @endif
