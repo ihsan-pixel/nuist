@@ -255,14 +255,14 @@ if ($hour >= 0 && $hour <= 11) {
         .services-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
             text-align: center;
         }
 
         .service-item {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
