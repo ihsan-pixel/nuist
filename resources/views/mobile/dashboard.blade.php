@@ -259,6 +259,10 @@ if ($hour >= 0 && $hour <= 11) {
             text-align: center;
         }
 
+        .service-wrapper {
+            text-align: center;
+        }
+
         .service-item {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 8px;
@@ -267,7 +271,20 @@ if ($hour >= 0 && $hour <= 11) {
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease-in-out;
-            aspect-ratio: 1;
+            height: 64px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .extra-service {
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .extra-service.show {
+            visibility: visible;
+            height: auto;
         }
 
         .service-item:hover {
@@ -690,22 +707,20 @@ if ($hour >= 0 && $hour <= 11) {
     <script>
         function toggleServices(event) {
             event.preventDefault();
+
             const extraServices = document.querySelectorAll('.extra-service');
             const viewAllBtn = document.getElementById('viewAllBtn');
             const icon = viewAllBtn.querySelector('i');
             const label = viewAllBtn.querySelector('.service-label');
 
-            if (extraServices[0].style.display === 'none') {
-                // Show all
-                extraServices.forEach(service => service.style.display = 'block');
-                icon.className = 'bx bx-minus';
-                label.textContent = 'Sembunyikan';
-            } else {
-                // Hide
-                extraServices.forEach(service => service.style.display = 'none');
-                icon.className = 'bx bx-plus';
-                label.textContent = 'Lihat Semua';
-            }
+            const isHidden = !extraServices[0].classList.contains('show');
+
+            extraServices.forEach(service => {
+                service.classList.toggle('show', isHidden);
+            });
+
+            icon.className = isHidden ? 'bx bx-minus' : 'bx bx-plus';
+            label.textContent = isHidden ? 'Sembunyikan' : 'Lihat Semua';
         }
     </script>
 
