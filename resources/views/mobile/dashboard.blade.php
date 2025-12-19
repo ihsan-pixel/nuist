@@ -903,7 +903,7 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="schedule-section">
         {{-- <h6 class="section-title">Jadwal Hari Ini</h6> --}}
         @if($todaySchedulesWithAttendance->count() > 0)
-            <div id="scheduleCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+            <div id="scheduleCarousel" class="carousel slide">
                 <div class="carousel-inner">
                     @foreach($todaySchedulesWithAttendance as $index => $schedule)
                         <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
