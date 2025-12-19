@@ -264,8 +264,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item {
-            background: url('{{ asset("images/qwe1.png") }}') no-repeat center center;
-            background-size: cover;
+            position: relative;
             border-radius: 8px;
             padding: 8px;
             display: flex;
