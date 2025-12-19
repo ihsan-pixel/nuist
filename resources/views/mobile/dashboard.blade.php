@@ -4,6 +4,26 @@
 @section('subtitle', 'Ringkasan Aktivitas')
 
 @section('content')
+<?php
+
+date_default_timezone_set('Asia/Jakarta');
+
+$b = time();
+$hour = date('G', $b);
+
+if ($hour >= 0 && $hour <= 11) {
+    $congrat = 'Selamat Pagi';
+} elseif ($hour >= 12 && $hour <= 14) {
+    $congrat = 'Selamat Siang ';
+} elseif ($hour >= 15 && $hour <= 17) {
+    $congrat = 'Selamat Sore ';
+} elseif ($hour >= 17 && $hour <= 18) {
+    $congrat = 'Selamat Petang ';
+} elseif ($hour >= 19 && $hour <= 23) {
+    $congrat = 'Selamat Malam ';
+}
+
+?>
 <header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
     <div class="container-fluid px-0 py-0" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
@@ -18,7 +38,7 @@
 
             <!-- Welcome Text (Right-aligned) -->
             <div class="text-start flex-grow-1">
-                <small class="text-dark fw-medium" style="font-size: 11px;">Selamat Datang</small>
+                <small class="text-dark fw-medium" style="font-size: 11px;">{{ $congrat }}</small>
                 <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
             </div>
 
