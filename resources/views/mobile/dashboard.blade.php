@@ -495,7 +495,7 @@
     @endif
 
     <!-- Stats Form -->
-    <div class="dashboard-header">
+    <div class="dashboard-header mb-4">
         <div class="id-card-title">Kartu Identitas Tenaga Pendidik</div>
         <div class="id-card">
             <!-- Foto -->
