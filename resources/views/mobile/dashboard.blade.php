@@ -681,7 +681,7 @@ if ($hour >= 0 && $hour <= 11) {
                     <img src="{{ asset('images/menu_icon/12.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-plus" style="position: relative; z-index: 1;"></i> --}}
                 </a>
-                <div class="service-label" id="serviceLabel"></div>
+                <div class="service-label" id="serviceLabel">Lihat Semua</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
@@ -732,8 +732,7 @@ if ($hour >= 0 && $hour <= 11) {
             const extraServices = document.querySelectorAll('.extra-service');
             const viewAllBtn = document.getElementById('viewAllBtn');
             const servicesGrid = document.getElementById('servicesGrid');
-            const icon = viewAllBtn.querySelector('i');
-            const label = viewAllBtn.querySelector('.service-label');
+            const label = document.getElementById('serviceLabel');
 
             const isHidden = !extraServices[0].classList.contains('show');
 
@@ -744,13 +743,11 @@ if ($hour >= 0 && $hour <= 11) {
             if (isHidden) {
                 // Move button to the end
                 servicesGrid.appendChild(viewAllBtn);
-                icon.className = 'bx bx-minus';
                 label.textContent = 'Tutup';
             } else {
                 // Move button back to original position (before first extra-service)
                 const firstExtra = extraServices[0];
                 servicesGrid.insertBefore(viewAllBtn, firstExtra);
-                icon.className = 'bx bx-plus';
                 label.textContent = 'Lihat Semua';
             }
         }
