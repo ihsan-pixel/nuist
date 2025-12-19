@@ -242,11 +242,12 @@
         .service-item {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 10px;
-            padding: 14px 0;
+            padding: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease-in-out;
+            aspect-ratio: 1;
         }
 
         .service-item:hover {
