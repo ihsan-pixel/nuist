@@ -720,7 +720,7 @@ if ($hour >= 0 && $hour <= 11) {
             });
 
             icon.className = isHidden ? 'bx bx-minus' : 'bx bx-plus';
-            label.textContent = isHidden ? 'Sembunyikan' : 'Lihat Semua';
+            label.textContent = isHidden ? 'Hide' : 'Lihat Semua';
         }
     </script>
 
