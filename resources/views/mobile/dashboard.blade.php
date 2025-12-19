@@ -459,11 +459,16 @@ if ($hour >= 0 && $hour <= 11) {
             background-color: #ddd;
             border: none;
             opacity: 0.5;
+            margin: 0 2px;
+            padding: 0;
+            border-radius: 50% !important;
+            transition: all 0.3s ease;
         }
 
         .carousel-indicators button.active {
             opacity: 1;
             background-color: #004b4c;
+            transform: scale(1.2);
         }
 
         .quick-actions {
