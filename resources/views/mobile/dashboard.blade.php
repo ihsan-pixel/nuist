@@ -731,13 +731,13 @@ if ($hour >= 0 && $hour <= 11) {
                 // Move button to the end
                 servicesGrid.appendChild(viewAllBtn);
                 icon.className = 'bx bx-minus';
-                label.textContent = 'Sembunyikan';
+                label.textContent = 'Tutup';
             } else {
                 // Move button back to original position (before first extra-service)
                 const firstExtra = extraServices[0];
                 servicesGrid.insertBefore(viewAllBtn, firstExtra);
                 icon.className = 'bx bx-plus';
-                label.textContent = 'Lihat Semua';
+                label.textContent = 'Lihat Lainnya';
             }
         }
     </script>
