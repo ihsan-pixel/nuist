@@ -608,7 +608,7 @@ if ($hour >= 0 && $hour <= 11) {
 
     <!-- Services Form -->
     <div class="services-form">
-        <div class="services-grid">
+        <div class="services-grid" id="servicesGrid">
             <div>
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
                     <i class="bx bx-fingerprint"></i>
@@ -651,19 +651,19 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
-            <div>
-                <a href="{{ route('mobile.laporan') }}" class="service-item">
-                    <i class="bx bx-file"></i>
+            <div id="viewAllBtn">
+                <a href="#" class="service-item" onclick="toggleServices()">
+                    <i class="bx bx-plus"></i>
                 </a>
-                <div class="service-label">Laporan</div>
+                <div class="service-label">Lihat Semua</div>
             </div>
-            <div>
+            <div class="extra-service" style="display: none;">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
                     <i class="bx bx-user"></i>
                 </a>
                 <div class="service-label">Profile</div>
             </div>
-            <div>
+            <div class="extra-service" style="display: none;">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
                     <i class="bx bx-cog"></i>
                 </a>
@@ -671,13 +671,13 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
 
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-            <div>
+            <div class="extra-service" style="display: none;">
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
                     <i class="bx bx-edit"></i>
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
-            <div>
+            <div class="extra-service" style="display: none;">
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
                     <i class="bx bx-calendar-check"></i>
                 </a>
@@ -686,6 +686,27 @@ if ($hour >= 0 && $hour <= 11) {
             @endif
         </div>
     </div>
+
+    <script>
+        function toggleServices() {
+            const extraServices = document.querySelectorAll('.extra-service');
+            const viewAllBtn = document.getElementById('viewAllBtn');
+            const icon = viewAllBtn.querySelector('i');
+            const label = viewAllBtn.querySelector('.service-label');
+
+            if (extraServices[0].style.display === 'none') {
+                // Show all
+                extraServices.forEach(service => service.style.display = 'block');
+                icon.className = 'bx bx-minus';
+                label.textContent = 'Sembunyikan';
+            } else {
+                // Hide
+                extraServices.forEach(service => service.style.display = 'none');
+                icon.className = 'bx bx-plus';
+                label.textContent = 'Lihat Semua';
+            }
+        }
+    </script>
 
 
     <!-- Teacher Info -->
