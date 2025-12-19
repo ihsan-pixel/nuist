@@ -276,6 +276,7 @@ if ($hour >= 0 && $hour <= 11) {
             width: 100%;
             box-sizing: border-box;
             border: 0px solid rgba(0,75,76,0.2);
+            box-shadow: #000000
         }
 
         .extra-service {
@@ -307,7 +308,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item i {
-            font-size: 24px;
+            font-size: 28px;
             color: #003d3d;
         }
 
