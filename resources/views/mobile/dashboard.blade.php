@@ -652,7 +652,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
             <div id="viewAllBtn">
-                <a href="#" class="service-item" onclick="toggleServices()">
+                <a href="#" class="service-item" onclick="return toggleServices(event)">
                     <i class="bx bx-plus"></i>
                 </a>
                 <div class="service-label">Lihat Semua</div>
