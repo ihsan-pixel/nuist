@@ -106,12 +106,10 @@ if ($hour >= 0 && $hour <= 11) {
         .dashboard-header {
             background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
             background-size: cover;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px;
             color: #004b4c;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
-            aspect-ratio: 4/3;
-            max-width: 400px;
         }
 
         .id-card {
@@ -143,7 +141,7 @@ if ($hour >= 0 && $hour <= 11) {
             display: grid;
             grid-template-columns: 70px 10px 1fr;
             align-items: center;
-            font-size: 12px;
+            font-size: 10px;
             line-height: 1.4;
             margin-bottom: 2px;
         }
@@ -175,14 +173,14 @@ if ($hour >= 0 && $hour <= 11) {
             background: rgba(0,75,76,0.1);
             padding: 2px 6px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 10px;
             color: #004b4c;
             border: 1px solid rgba(0,75,76,0.2);
         }
 
         .id-card-title {
             text-align: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             margin-bottom: 8px;
             color: #004b4c;
@@ -257,212 +255,10 @@ if ($hour >= 0 && $hour <= 11) {
         .services-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            text-align: center;
-        }
-
-        .service-item {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease-in-out;
-            aspect-ratio: 1;
-            max-width: 40px;
-        }
-
-        .service-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-
-        .service-item i {
-            font-size: 24px;
-            color: #ffffff;
-        }
-
-        .service-item h6 {
-            font-size: 10px;
-            margin-bottom: 0;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .service-label {
-            font-size: 10px;
-            font-weight: 600;
-            margin-top: 6px;
-            color: #333;
-        }
-
-        .info-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .info-item {
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .info-item small {
-            color: #6c757d;
-            font-size: 10px;
-        }
-
-        .info-item strong {
-            font-size: 11px;
-            color: #333;
-        }
-
-        .schedule-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
-            margin-bottom: 12px;
-        }
-
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .schedule-item {
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .schedule-item strong {
-            font-size: 11px;
-            color: #333;
-        }
-
-        .schedule-item small {
-            color: #6c757d;
-            font-size: 10px;
-        }
-
-        .quick-actions {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
-        }
-
-        .quick-actions-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .quick-actions-header h6 {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-            margin: 0;
-        }
-
-        .quick-actions-content {
-            padding: 12px;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 8px;
-        }
-
-        .action-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: white;
-            border-radius: 8px;
-            padding: 12px 8px;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 500;
             text-align: center;
-            transition: all 0.2s;
         }
 
-        .action-button:hover {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .action-button i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .no-schedule {
-            text-align: center;
-            padding: 16px;
-            color: #999;
-        }
-
-        .no-schedule i {
-            font-size: 24px;
-            margin-bottom: 6px;
-        }
-
-        .no-schedule p {
-            font-size: 12px;
-            margin: 0;
-        }
-
-        /* Banner Modal Styles */
-        .modal-content {
-            border-radius: 15px;
-        }
-
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .avatar-sm {
-            width: 40px;
-            height: 40px;
-            overflow: hidden;
-            border-radius: 50%;
-        }
-
-        .avatar-sm .avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;      /* 🔥 kunci anti gepeng */
-            object-position: center;
-            display: block;
-        }
-
-    </style>
-=======
         .service-item {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 10px;
@@ -472,214 +268,6 @@ if ($hour >= 0 && $hour <= 11) {
             justify-content: center;
             transition: all 0.2s ease-in-out;
             aspect-ratio: 1;
-            max-width: 40px;
-        }
-
-        .service-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-
-        .service-item i {
-            font-size: 20px;
-            color: #fff;
-        }
-
-        .service-label {
-            font-size: 10px;
-            font-weight: 600;
-            margin-top: 6px;
-            color: #333;
-        }
-
-        .service-item i {
-            font-size: 24px;
-            color: #ffffff;
-        }
-
-        .service-item h6 {
-            font-size: 10px;
-            margin-bottom: 0;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .info-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 12px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .info-item {
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .info-item small {
-            color: #6c757d;
-            font-size: 10px;
-        }
-
-        .info-item strong {
-            font-size: 11px;
-            color: #333;
-        }
-
-        .schedule-section {
-            background: #fff;
-            border-radius: 12px;
-            padding: 12px;
-            /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
-            margin-bottom: 12px;
-        }
-
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .schedule-item {
-            padding: 6px;
-            background: #f8f9fa;
-            border-radius: 6px;
-        }
-
-        .schedule-item strong {
-            font-size: 11px;
-            color: #333;
-        }
-
-        .schedule-item small {
-            color: #6c757d;
-            font-size: 10px;
-        }
-
-        .quick-actions {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 60px;
-        }
-
-        .quick-actions-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .quick-actions-header h6 {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-            margin: 0;
-        }
-
-        .quick-actions-content {
-            padding: 12px;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .action-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            color: white;
-            border-radius: 8px;
-            padding: 12px 8px;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 500;
-            text-align: center;
-            transition: all 0.2s;
-        }
-
-        .action-button:hover {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .action-button i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .no-schedule {
-            text-align: center;
-            padding: 16px;
-            color: #999;
-        }
-
-        .no-schedule i {
-            font-size: 24px;
-            margin-bottom: 6px;
-        }
-
-        .no-schedule p {
-            font-size: 12px;
-            margin: 0;
-        }
-
-        /* Banner Modal Styles */
-        .modal-content {
-            border-radius: 15px;
-        }
-
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .avatar-sm {
-            width: 40px;
-            height: 40px;
-            overflow: hidden;
-            border-radius: 50%;
-        }
-
-        .avatar-sm .avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;      /* 🔥 kunci anti gepeng */
-            object-position: center;
-            display: block;
-        }
-
-    </style>
-=======
-        .service-item {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease-in-out;
-            aspect-ratio: 1;
-            max-width: 40px;
         }
 
         .service-item:hover {
