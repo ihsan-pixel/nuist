@@ -255,7 +255,7 @@ if ($hour >= 0 && $hour <= 11) {
         .services-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 16px;
             text-align: center;
         }
 
