@@ -455,11 +455,10 @@ if ($hour >= 0 && $hour <= 11) {
         .carousel-indicators button {
             width: 10px;
             height: 10px;
-            aspect-ratio: 1 / 1;   /* 🔥 kunci bulat */
+            aspect-ratio: 1 / 1;   /* 🔥 PALING PENTING */
             border-radius: 50%;
-            background-color: #ddd;
+            background-color: #cfd8dc;
             border: none;
-            opacity: 0.5;
             padding: 0;
             margin: 0;
             flex: 0 0 auto;
@@ -467,9 +466,8 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .carousel-indicators button.active {
-            opacity: 1;
             background-color: #004b4c;
-            transform: scale(1.15);
+            transform: scale(1.15); /* aman sekarang */
         }
 
         .quick-actions {
