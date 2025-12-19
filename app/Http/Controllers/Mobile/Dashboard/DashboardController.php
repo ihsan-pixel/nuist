@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
 use App\Models\TeachingSchedule;
+use App\Models\TeachingAttendance;
 use App\Models\AppSetting;
 
 class DashboardController extends \App\Http\Controllers\Controller
@@ -86,6 +87,15 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->orderBy('start_time')
             ->get();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedules', 'bannerImage', 'showBanner'));
+        // Add attendance status to each schedule
+        $todaySchedulesWithAttendance = $todaySchedules->map(function ($schedule) use ($today) {
+            $attendance = TeachingAttendance::where('teaching_schedule_id', $schedule->id)
+                ->where('tanggal', $today->toDateString())
+                ->first();
+            $schedule->attendance_status = $attendance ? 'sudah' : 'belum';
+            return $schedule;
+        });
+
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner'));
     }
 }

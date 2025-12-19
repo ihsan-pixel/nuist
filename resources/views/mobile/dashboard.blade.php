@@ -378,6 +378,94 @@ if ($hour >= 0 && $hour <= 11) {
             font-size: 10px;
         }
 
+        /* Carousel Styles */
+        .carousel {
+            position: relative;
+        }
+
+        .carousel-inner {
+            overflow: hidden;
+        }
+
+        .carousel-item {
+            display: none;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .carousel-item.active {
+            display: block;
+        }
+
+        .schedule-card {
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .schedule-header strong {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .schedule-header small {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .schedule-time {
+            margin: 8px 0;
+        }
+
+        .schedule-time small {
+            font-size: 11px;
+            color: #6c757d;
+        }
+
+        .schedule-status .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+            opacity: 0.8;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .carousel-indicators {
+            position: static;
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .carousel-indicators button {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ddd;
+            border: none;
+            opacity: 0.5;
+        }
+
+        .carousel-indicators button.active {
+            opacity: 1;
+            background-color: #004b4c;
+        }
+
         .quick-actions {
             background: #fff;
             border-radius: 12px;
@@ -814,15 +902,46 @@ if ($hour >= 0 && $hour <= 11) {
     <!-- Schedule Section -->
     <div class="schedule-section">
         {{-- <h6 class="section-title">Jadwal Hari Ini</h6> --}}
-        @if($todaySchedules->count() > 0)
-            <div class="schedule-grid">
-                @foreach($todaySchedules as $schedule)
-                    <div class="schedule-item">
-                        <strong class="d-block">{{ $schedule->subject }}</strong>
-                        <small class="d-block text-muted">{{ $schedule->class_name }}</small>
-                        <small class="d-block text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
+        @if($todaySchedulesWithAttendance->count() > 0)
+            <div id="scheduleCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+                <div class="carousel-inner">
+                    @foreach($todaySchedulesWithAttendance as $index => $schedule)
+                        <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                            <div class="schedule-card">
+                                <div class="schedule-header">
+                                    <strong class="d-block">{{ $schedule->subject }}</strong>
+                                    <small class="d-block text-muted">{{ $schedule->class_name }}</small>
+                                </div>
+                                <div class="schedule-time">
+                                    <small class="d-block text-muted"><i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}</small>
+                                </div>
+                                <div class="schedule-status">
+                                    <span class="badge {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-warning' }}">
+                                        <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : 'bx-time' }}"></i>
+                                        Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if($todaySchedulesWithAttendance->count() > 1)
+                    <button class="carousel-control-prev" type="button" data-bs-target="#scheduleCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#scheduleCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+
+                    <div class="carousel-indicators">
+                        @foreach($todaySchedulesWithAttendance as $index => $schedule)
+                            <button type="button" data-bs-target="#scheduleCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
                     </div>
-                @endforeach
+                @endif
             </div>
         @else
             <div class="no-schedule">
