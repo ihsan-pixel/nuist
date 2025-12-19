@@ -496,7 +496,7 @@
 
     <!-- Stats Form -->
     <div class="dashboard-header mb-4">
-        <div class="id-card-title">Kartu Identitas Tenaga Pendidik</div>
+        <div class="id-card-title">Kartu Identitas Digital</div>
         <div class="id-card">
             <!-- Foto -->
             <div class="id-card-photo">
