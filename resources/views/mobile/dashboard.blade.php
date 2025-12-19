@@ -259,6 +259,10 @@ if ($hour >= 0 && $hour <= 11) {
             text-align: center;
         }
 
+        .service-wrapper {
+            text-align: center;
+        }
+
         .service-item {
             background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 8px;
@@ -267,7 +271,20 @@ if ($hour >= 0 && $hour <= 11) {
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease-in-out;
-            aspect-ratio: 1;
+            height: 64px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .extra-service {
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .extra-service.show {
+            visibility: visible;
+            height: auto;
         }
 
         .service-item:hover {
@@ -609,61 +626,61 @@ if ($hour >= 0 && $hour <= 11) {
     <!-- Services Form -->
     <div class="services-form">
         <div class="services-grid" id="servicesGrid">
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
                     <i class="bx bx-fingerprint"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
                     <i class="bx bx-chalkboard"></i>
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
                     <i class="bx bx-calendar-star"></i>
                 </a>
                 <div class="service-label">Izin Cuti</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
                     <i class="bx bx-time-five"></i>
                 </a>
                 <div class="service-label">Izin Terlambat</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
                     <i class="bx bx-plus-medical"></i>
                 </a>
                 <div class="service-label">Izin Sakit</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
                     <i class="bx bx-briefcase"></i>
                 </a>
                 <div class="service-label">Izin Dinas Luar</div>
             </div>
-            <div>
+            <div class="service-wrapper">
                 <a href="{{ route('mobile.jadwal') }}" class="service-item">
                     <i class="bx bx-calendar"></i>
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
-            <div id="viewAllBtn">
+            <div id="viewAllBtn" class="service-wrapper">
                 <a href="#" class="service-item" onclick="return toggleServices(event)">
                     <i class="bx bx-plus"></i>
                 </a>
                 <div class="service-label">Lihat Semua</div>
             </div>
-            <div class="extra-service" style="display: none;">
+            <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
                     <i class="bx bx-user"></i>
                 </a>
                 <div class="service-label">Profile</div>
             </div>
-            <div class="extra-service" style="display: none;">
+            <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
                     <i class="bx bx-cog"></i>
                 </a>
@@ -671,13 +688,13 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
 
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
-            <div class="extra-service" style="display: none;">
+            <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
                     <i class="bx bx-edit"></i>
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
-            <div class="extra-service" style="display: none;">
+            <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
                     <i class="bx bx-calendar-check"></i>
                 </a>
@@ -690,22 +707,20 @@ if ($hour >= 0 && $hour <= 11) {
     <script>
         function toggleServices(event) {
             event.preventDefault();
+
             const extraServices = document.querySelectorAll('.extra-service');
             const viewAllBtn = document.getElementById('viewAllBtn');
             const icon = viewAllBtn.querySelector('i');
             const label = viewAllBtn.querySelector('.service-label');
 
-            if (extraServices[0].style.display === 'none') {
-                // Show all
-                extraServices.forEach(service => service.style.display = 'block');
-                icon.className = 'bx bx-minus';
-                label.textContent = 'Sembunyikan';
-            } else {
-                // Hide
-                extraServices.forEach(service => service.style.display = 'none');
-                icon.className = 'bx bx-plus';
-                label.textContent = 'Lihat Semua';
-            }
+            const isHidden = !extraServices[0].classList.contains('show');
+
+            extraServices.forEach(service => {
+                service.classList.toggle('show', isHidden);
+            });
+
+            icon.className = isHidden ? 'bx bx-minus' : 'bx bx-plus';
+            label.textContent = isHidden ? 'Sembunyikan' : 'Lihat Semua';
         }
     </script>
 
