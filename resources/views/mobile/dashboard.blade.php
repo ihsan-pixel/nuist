@@ -287,17 +287,6 @@ if ($hour >= 0 && $hour <= 11) {
             height: auto;
         }
 
-        #viewAllBtn {
-            visibility: visible;
-            height: auto;
-        }
-
-        #viewAllBtn.hide {
-            visibility: hidden;
-            height: 0;
-            overflow: hidden;
-        }
-
         .service-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 3px 8px rgba(0,0,0,0.1);
@@ -679,6 +668,12 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
+            <div id="viewAllBtn" class="service-wrapper">
+                <a href="#" class="service-item" onclick="return toggleServices(event)">
+                    <i class="bx bx-plus"></i>
+                </a>
+                <div class="service-label">Lihat Semua</div>
+            </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
                     <i class="bx bx-user"></i>
@@ -711,13 +706,8 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Laporan</div>
             </div>
+
             @endif
-            <div id="viewAllBtn" class="service-wrapper">
-                <a href="#" class="service-item" onclick="return toggleServices(event)">
-                    <i class="bx bx-plus"></i>
-                </a>
-                <div class="service-label">Lihat Semua</div>
-            </div>
         </div>
     </div>
 
@@ -736,8 +726,15 @@ if ($hour >= 0 && $hour <= 11) {
                 service.classList.toggle('show', isHidden);
             });
 
-            icon.className = isHidden ? 'bx bx-minus' : 'bx bx-plus';
-            label.textContent = isHidden ? 'Hide' : 'Lihat Semua';
+            if (isHidden) {
+                viewAllBtn.classList.add('hide');
+                icon.className = 'bx bx-minus';
+                label.textContent = 'Sembunyikan';
+            } else {
+                viewAllBtn.classList.remove('hide');
+                icon.className = 'bx bx-plus';
+                label.textContent = 'Lihat Semua';
+            }
         }
     </script>
 
