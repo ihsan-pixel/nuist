@@ -455,13 +455,16 @@ if ($hour >= 0 && $hour <= 11) {
         .carousel-indicators button {
             width: 8px;
             height: 8px;
+            min-width: 8px;
+            min-height: 8px;
             border-radius: 50%;
             background-color: #ddd;
             border: none;
             opacity: 0.5;
-            margin: 0 2px;
             padding: 0;
-            border-radius: 50% !important;
+            margin: 0;
+            flex-shrink: 0;
+            box-sizing: border-box;
             transition: all 0.3s ease;
         }
 
