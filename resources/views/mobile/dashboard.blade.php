@@ -630,69 +630,70 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="services-grid" id="servicesGrid">
             <div class="service-wrapper">
                 <a href="{{ route('mobile.presensi') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-scan" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Presensi</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.teaching-attendances') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/2.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-chalkboard" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Presensi Mengajar</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'cuti']) }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/3.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-calendar-star" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Cuti</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'terlambat']) }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/4.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-time-five" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Terlambat</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'sakit']) }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/5.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-plus-medical" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Izin Sakit</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.izin', ['type' => 'tugas_luar']) }}" class="service-item">
+                    <img src="{{ asset('images/menu_icon/6.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-briefcase"></i>
                 </a>
                 <div class="service-label">Izin Dinas Luar</div>
             </div>
             <div class="service-wrapper">
                 <a href="{{ route('mobile.jadwal') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/7.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-calendar" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Jadwal Mengajar</div>
             </div>
             <div id="viewAllBtn" class="service-wrapper">
                 <a href="#" class="service-item" onclick="return toggleServices(event)">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-plus" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Lihat Semua</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-user" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Profile</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.ubah-akun') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/8.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-cog" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Pengaturan</div>
@@ -701,21 +702,21 @@ if ($hour >= 0 && $hour <= 11) {
             @if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah')
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.kelola-izin') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/9.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-edit" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Kelola Izin</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.monitor-presensi') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/10.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-calendar-check" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Data Presensi</div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.laporan') }}" class="service-item">
-                    <img src="{{ asset('images/qwe1.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                    <img src="{{ asset('images/menu_icon/11.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     <i class="bx bx-file" style="position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Laporan</div>
