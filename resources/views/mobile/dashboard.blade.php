@@ -688,7 +688,8 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 
     <script>
-        function toggleServices() {
+        function toggleServices(event) {
+            event.preventDefault();
             const extraServices = document.querySelectorAll('.extra-service');
             const viewAllBtn = document.getElementById('viewAllBtn');
             const icon = viewAllBtn.querySelector('i');
