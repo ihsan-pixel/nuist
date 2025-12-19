@@ -449,25 +449,30 @@ if ($hour >= 0 && $hour <= 11) {
             margin-top: 12px;
             display: flex;
             justify-content: center;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
         }
 
+        /* 🔥 RESET TOTAL STYLE BOOTSTRAP */
         .carousel-indicators button {
+            all: unset;                 /* ← PALU GODAM */
             width: 10px;
             height: 10px;
-            aspect-ratio: 1 / 1;   /* 🔥 PALING PENTING */
+            aspect-ratio: 1 / 1;
             border-radius: 50%;
             background-color: #cfd8dc;
-            border: none;
-            padding: 0;
-            margin: 0;
-            flex: 0 0 auto;
-            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
+        /* 🔥 MATIKAN PSEUDO ELEMENT */
+        .carousel-indicators button::before {
+            content: none !important;
+        }
+
+        /* ACTIVE */
         .carousel-indicators button.active {
             background-color: #004b4c;
-            transform: scale(1.15); /* aman sekarang */
+            transform: scale(1.15);
         }
 
         .quick-actions {
