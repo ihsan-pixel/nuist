@@ -308,7 +308,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         .service-item i {
             font-size: 24px;
-            color: #ffffff;
+            color: #003d3d;
         }
 
         .service-item h6 {
