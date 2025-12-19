@@ -295,8 +295,8 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .service-item i {
-            font-size: 20px;
-            color: #004b4c;
+            font-size: 30px;
+            color: #003d3d;
         }
 
         .service-label {
