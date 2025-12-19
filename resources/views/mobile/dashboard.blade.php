@@ -681,7 +681,7 @@ if ($hour >= 0 && $hour <= 11) {
                     <img src="{{ asset('images/menu_icon/12.png') }}" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
                     {{-- <i class="bx bx-plus" style="position: relative; z-index: 1;"></i> --}}
                 </a>
-                <div class="service-label" id="serviceLabel">Lihat Semua</div>
+                <div class="service-label" id="serviceLabel"></div>
             </div>
             <div class="extra-service service-wrapper">
                 <a href="{{ route('mobile.profile') }}" class="service-item">
