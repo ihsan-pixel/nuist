@@ -794,7 +794,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .performance-level strong {
-            font-size: 12px;
+            font-size: 11px;
             color: #004b4c;
         }
 
@@ -815,7 +815,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .timeline-item i {
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 2px;
         }
 
