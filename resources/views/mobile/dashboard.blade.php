@@ -1082,7 +1082,9 @@ if ($hour >= 0 && $hour <= 11) {
 
                         // Cek apakah hari ini adalah hari kerja berdasarkan hari KBM madrasah
                         $isWorkingDay = true;
-                        if ($hariKbm == 5 && $dayOfWeek == 6) { // Jika KBM 5 hari dan hari Sabtu
+                        if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) { // Jika KBM 5 hari, exclude Sabtu (6) dan Minggu (0)
+                            $isWorkingDay = false;
+                        } elseif ($hariKbm == 6 && $dayOfWeek == 0) { // Jika KBM 6 hari, exclude hanya Minggu (0)
                             $isWorkingDay = false;
                         }
 
