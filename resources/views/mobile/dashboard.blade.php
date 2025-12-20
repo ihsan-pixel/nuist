@@ -880,9 +880,11 @@ if ($hour >= 0 && $hour <= 11) {
                             <span class="badge {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-warning' }}">
                                 <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : 'bx-time' }}"></i>
                                 Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum' }}
-                                <i class="bx bx-chalkboard" style="font-size: 24px; color: white; margin-left: 8px;"></i>
                             </span>
                         </div>
+                    </div>
+                    <div>
+                        <i class="bx bx-chalkboard" style="font-size: 24px; color: white; margin-left: 8px;"></i>
                     </div>
                 @endforeach
             </div>
