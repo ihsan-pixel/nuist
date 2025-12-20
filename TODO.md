@@ -33,4 +33,5 @@ Tambahkan bagian baru di bawah "Layanan" pada dashboard mobile yang menampilkan 
 - [x] Update DashboardController.php - Tambahkan logika perhitungan aktivitas kinerja harian
 - [x] Update dashboard.blade.php - Tambahkan section "Aktivitas Kinerja Hari Ini" dengan desain satu baris horizontal
 - [x] Perbaikan tampilan - Layout horizontal: Masuk → Mengajar → Keluar → Persentase
+- [x] Perbaikan bug - Fix undefined variable $teachingSteps
 - [ ] Testing - Perlu verifikasi tampilan dan fungsionalitas

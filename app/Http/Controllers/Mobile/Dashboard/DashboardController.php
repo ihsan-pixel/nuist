@@ -24,6 +24,9 @@ class DashboardController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
+        // Initialize variables
+        $teachingSteps = [];
+
         // Get banner image from app settings
         $appSettings = AppSetting::getSettings();
         $bannerImage = $appSettings->banner_image_url;
