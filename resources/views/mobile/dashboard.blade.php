@@ -521,6 +521,140 @@ if ($hour >= 0 && $hour <= 11) {
             margin: 0;
         }
 
+        /* Calendar Styles */
+        .calendar-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+        }
+
+        .calendar-container {
+            width: 100%;
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .calendar-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
+
+        .calendar-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 0 4px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .calendar-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        .calendar-day {
+            flex: 0 0 48px;
+            min-width: 48px;
+            height: 64px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border-color: #004b4c;
+        }
+
+        .calendar-day.has-presensi {
+            border-width: 2px;
+        }
+
+        .calendar-day.status-hadir {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .calendar-day.status-izin {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .calendar-day.status-alpha {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .calendar-day.today.status-hadir,
+        .calendar-day.today.status-izin,
+        .calendar-day.today.status-alpha {
+            color: white;
+        }
+
+        .day-number {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .day-name {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            line-height: 1;
+        }
+
+        .presensi-indicator {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .calendar-day.status-hadir .presensi-indicator {
+            background: #28a745;
+            color: white;
+        }
+
+        .calendar-day.status-izin .presensi-indicator {
+            background: #ffc107;
+            color: #856404;
+        }
+
+        .calendar-day.status-alpha .presensi-indicator {
+            background: #dc3545;
+            color: white;
+        }
+
+        .calendar-day.today .presensi-indicator {
+            background: rgba(255, 255, 255, 0.9);
+            color: #004b4c;
+        }
+
         /* Banner Modal Styles */
         .modal-content {
             border-radius: 15px;
@@ -904,6 +1038,51 @@ if ($hour >= 0 && $hour <= 11) {
                 <p>Tidak ada jadwal mengajar hari ini</p>
             </div>
         @endif
+    </div>
+
+    <small>Kalender Presensi Bulan Ini</small>
+
+    <!-- Calendar Section -->
+    <div class="calendar-section">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h6 class="calendar-title">{{ \Carbon\Carbon::now()->locale('id')->monthName }} {{ $currentYear }}</h6>
+            </div>
+            <div class="calendar-grid">
+                @php
+                    $daysInMonth = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
+                    $today = \Carbon\Carbon::now()->day;
+                    $currentMonthCheck = \Carbon\Carbon::now()->month;
+                    $currentYearCheck = \Carbon\Carbon::now()->year;
+                @endphp
+
+                @for ($day = 1; $day <= $daysInMonth; $day++)
+                    @php
+                        $dateKey = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->toDateString();
+                        $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+                        $isToday = ($currentMonth == $currentMonthCheck && $currentYear == $currentYearCheck && $day == $today);
+                        $dayName = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->locale('id')->dayName;
+                        $shortDayName = substr($dayName, 0, 3);
+                    @endphp
+
+                    <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }}">
+                        <div class="day-number">{{ $day }}</div>
+                        <div class="day-name">{{ $shortDayName }}</div>
+                        @if($presensiStatus)
+                            <div class="presensi-indicator">
+                                @if($presensiStatus == 'hadir')
+                                    <i class="bx bx-check"></i>
+                                @elseif($presensiStatus == 'izin')
+                                    <i class="bx bx-time-five"></i>
+                                @elseif($presensiStatus == 'alpha')
+                                    <i class="bx bx-x"></i>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endfor
+            </div>
+        </div>
     </div>
 </div>
 @endsection

@@ -96,6 +96,15 @@ class DashboardController extends \App\Http\Controllers\Controller
             return $schedule;
         });
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner'));
+        // Get presensi data for current month for calendar
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $monthlyPresensi = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->pluck('status', 'tanggal')
+            ->toArray();
+
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear'));
     }
 }
