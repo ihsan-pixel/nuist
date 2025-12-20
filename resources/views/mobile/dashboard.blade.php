@@ -588,7 +588,8 @@ if ($hour >= 0 && $hour <= 11) {
             position: relative;
             border: 1px solid #e9ecef;
             transition: all 0.2s ease;
-            min-height: 40px;
+            min-height: 30px;
+            max-height: 30px;
         }
 
         .calendar-day.empty {
