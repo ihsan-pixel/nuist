@@ -24,8 +24,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
-        // Initialize variables
-        $teachingSteps = [];
+
 
         // Get banner image from app settings
         $appSettings = AppSetting::getSettings();
@@ -114,7 +113,7 @@ class DashboardController extends \App\Http\Controllers\Controller
 
         // Today's schedules for the teacher
         $todayName = Carbon::parse($today)->locale('id')->dayName; // e.g., 'Senin'
-        $todaySchedules = TeachingSchedule::where('teacher_id', $user->id)
+        $todaySchedules = TeachingSchedule::where('user_id', $user->id)
             ->whereRaw('LOWER(day) = ?', [strtolower($todayName)])
             ->orderBy('start_time')
             ->get();
@@ -128,6 +127,17 @@ class DashboardController extends \App\Http\Controllers\Controller
             return $schedule;
         });
 
+        // Create teaching steps for timeline
+        $teachingSteps = [];
+        foreach ($todaySchedulesWithAttendance as $index => $schedule) {
+            $stepNumber = $index + 1;
+            $status = $schedule->attendance_status === 'sudah' ? 'completed' : 'pending';
+            $teachingSteps[] = [
+                'label' => 'Mengajar ' . $stepNumber,
+                'status' => $status
+            ];
+        }
+
         // Calculate daily performance activities
         $todayDate = $today->toDateString();
 
@@ -138,14 +148,6 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->first();
         $presensiMasukStatus = $presensiMasuk ? 'sudah' : 'belum';
 
-        // Check presensi mengajar (berdasarkan jadwal dan attendance)
-        $presensiMengajarStatus = 'tidak_ada_jadwal';
-        if ($todaySchedulesWithAttendance->count() > 0) {
-            $totalSchedules = $todaySchedulesWithAttendance->count();
-            $completedSchedules = $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count();
-            $presensiMengajarStatus = $completedSchedules === $totalSchedules ? 'sudah' : 'belum';
-        }
-
         // Check presensi keluar (ada waktu_keluar)
         $presensiKeluar = Presensi::where('user_id', $user->id)
             ->where('tanggal', $todayDate)
@@ -153,12 +155,22 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->first();
         $presensiKeluarStatus = $presensiKeluar ? 'sudah' : 'belum';
 
-        // Calculate percentage (33.33% per activity, max 100%)
+        // Calculate percentage based on completed activities
+        $totalActivities = 2; // masuk + keluar
         $completedActivities = 0;
         if ($presensiMasukStatus === 'sudah') $completedActivities++;
-        if ($presensiMengajarStatus === 'sudah') $completedActivities++;
         if ($presensiKeluarStatus === 'sudah') $completedActivities++;
-        $kinerjaPercent = round(($completedActivities / 3) * 100);
+
+        // Add teaching activities to total
+        if (count($teachingSteps) > 0) {
+            $totalActivities += count($teachingSteps);
+            $completedTeachingSteps = count(array_filter($teachingSteps, function($step) {
+                return $step['status'] === 'completed';
+            }));
+            $completedActivities += $completedTeachingSteps;
+        }
+
+        $kinerjaPercent = $totalActivities > 0 ? round(($completedActivities / $totalActivities) * 100) : 0;
 
         // Get selected month and year for calendar (default to current)
         $currentMonth = $request->get('month', Carbon::now()->month);
@@ -204,7 +216,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             'kehadiranPercent', 'hadir', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
             'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear',
             'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear',
-            'presensiMasukStatus', 'presensiMengajarStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps'
+            'presensiMasukStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps'
         ));
     }
 
