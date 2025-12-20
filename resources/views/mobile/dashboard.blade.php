@@ -794,7 +794,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .performance-level strong {
-            font-size: 11px;
+            font-size: 10px;
             color: #004b4c;
         }
 
