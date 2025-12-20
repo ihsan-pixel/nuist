@@ -668,6 +668,43 @@ if ($hour >= 0 && $hour <= 11) {
             color: #004b4c;
         }
 
+        .calendar-day.holiday {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #d63031;
+            border-color: #fdcb6e;
+        }
+
+        .calendar-day.holiday.today {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+        }
+
+        .holiday-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 14px;
+            height: 14px;
+            background: #e17055;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: white;
+            border: 1px solid #d63031;
+        }
+
+        .calendar-day.holiday .holiday-indicator {
+            background: #e17055;
+        }
+
+        .calendar-day.holiday.today .holiday-indicator {
+            background: rgba(255, 255, 255, 0.9);
+            color: #004b4c;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
         /* Banner Modal Styles */
         .modal-content {
             border-radius: 15px;
