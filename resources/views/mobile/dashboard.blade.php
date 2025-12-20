@@ -1074,8 +1074,14 @@ if ($hour >= 0 && $hour <= 11) {
                         $dateKey = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->toDateString();
                         $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
                         $isToday = ($currentMonth == $currentMonthCheck && $currentYear == $currentYearCheck && $day == $today);
+                        $isPastDay = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->isBefore(\Carbon\Carbon::now()->startOfDay());
                         $dayName = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->locale('id')->dayName;
                         $shortDayName = substr($dayName, 0, 3);
+
+                        // Jika hari sebelum hari ini dan tidak ada presensi, tandai sebagai alpha
+                        if ($isPastDay && !$presensiStatus) {
+                            $presensiStatus = 'alpha';
+                        }
                     @endphp
 
                     <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }}">
