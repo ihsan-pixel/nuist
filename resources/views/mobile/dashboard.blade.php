@@ -648,14 +648,14 @@ if ($hour >= 0 && $hour <= 11) {
         .presensi-indicator {
             position: absolute;
             bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
+            left: 2px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
         }
 
         .calendar-day.status-hadir .presensi-indicator {
@@ -692,15 +692,15 @@ if ($hour >= 0 && $hour <= 11) {
         .holiday-indicator {
             position: absolute;
             top: 2px;
-            right: 2px;
-            width: 14px;
-            height: 14px;
+            left: 2px;
+            width: 10px;
+            height: 10px;
             background: #e17055;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
             color: white;
             border: 1px solid #d63031;
         }
