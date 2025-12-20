@@ -43,21 +43,7 @@ class DashboardController extends \App\Http\Controllers\Controller
         $currentMonth = max(1, min(12, (int)$currentMonth));
         $currentYear = max(2020, min(2030, (int)$currentYear));
 
-        // Aggregate presensi counts for the user for the selected month
-        $presensiCounts = Presensi::where('user_id', $user->id)
-            ->whereYear('tanggal', $currentYear)
-            ->whereMonth('tanggal', $currentMonth)
-            ->selectRaw("status, COUNT(*) as count")
-            ->groupBy('status')
-            ->pluck('count', 'status')
-            ->toArray();
-
-        $hadir = $presensiCounts['hadir'] ?? 0;
-        $izin = $presensiCounts['izin'] ?? 0;
-        $sakit = $presensiCounts['sakit'] ?? 0;
-        $explicitAlpha = $presensiCounts['alpha'] ?? 0;
-
-        // Calculate total working days for the month
+        // Calculate stats based on calendar logic
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
@@ -65,10 +51,23 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->pluck('date')
             ->toArray();
 
+        // Get all presensi for the month
+        $monthlyPresensi = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->pluck('status', 'tanggal')
+            ->toArray();
+
+        $hadir = 0;
+        $izin = 0;
+        $alpha = 0;
         $workingDays = 0;
         $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
+        $today = Carbon::now();
+
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day);
+            $dateKey = $date->toDateString();
             $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
             $isWorkingDay = true;
             if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
@@ -76,19 +75,23 @@ class DashboardController extends \App\Http\Controllers\Controller
             } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
                 $isWorkingDay = false;
             }
-            if ($isWorkingDay && !in_array($date->toDateString(), $monthlyHolidays)) {
+            $isHoliday = in_array($dateKey, $monthlyHolidays);
+            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            if ($isWorkingDay && !$isHoliday) {
                 $workingDays++;
+                if ($presensiStatus === 'hadir') {
+                    $hadir++;
+                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
+                    $izin++;
+                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
+                    $alpha++;
+                }
             }
         }
 
-        $totalPresensiRecords = array_sum($presensiCounts);
-        $additionalAlpha = $workingDays - $totalPresensiRecords;
-        $alpha = $explicitAlpha + $additionalAlpha;
         $totalBasis = $workingDays;
-
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
-
-        $today = Carbon::now();
 
         // Prepare user info array expected by the view
         $userInfo = [
@@ -240,21 +243,7 @@ class DashboardController extends \App\Http\Controllers\Controller
         $currentMonth = max(1, min(12, (int)$currentMonth));
         $currentYear = max(2020, min(2030, (int)$currentYear));
 
-        // Aggregate presensi counts for the user for the selected month
-        $presensiCounts = Presensi::where('user_id', $user->id)
-            ->whereYear('tanggal', $currentYear)
-            ->whereMonth('tanggal', $currentMonth)
-            ->selectRaw("status, COUNT(*) as count")
-            ->groupBy('status')
-            ->pluck('count', 'status')
-            ->toArray();
-
-        $hadir = $presensiCounts['hadir'] ?? 0;
-        $izin = $presensiCounts['izin'] ?? 0;
-        $sakit = $presensiCounts['sakit'] ?? 0;
-        $explicitAlpha = $presensiCounts['alpha'] ?? 0;
-
-        // Calculate total working days for the month
+        // Calculate stats based on calendar logic
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
@@ -262,10 +251,23 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->pluck('date')
             ->toArray();
 
+        // Get all presensi for the month
+        $monthlyPresensi = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->pluck('status', 'tanggal')
+            ->toArray();
+
+        $hadir = 0;
+        $izin = 0;
+        $alpha = 0;
         $workingDays = 0;
         $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
+        $today = Carbon::now();
+
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day);
+            $dateKey = $date->toDateString();
             $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
             $isWorkingDay = true;
             if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
@@ -273,16 +275,22 @@ class DashboardController extends \App\Http\Controllers\Controller
             } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
                 $isWorkingDay = false;
             }
-            if ($isWorkingDay && !in_array($date->toDateString(), $monthlyHolidays)) {
+            $isHoliday = in_array($dateKey, $monthlyHolidays);
+            $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
+
+            if ($isWorkingDay && !$isHoliday) {
                 $workingDays++;
+                if ($presensiStatus === 'hadir') {
+                    $hadir++;
+                } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
+                    $izin++;
+                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
+                    $alpha++;
+                }
             }
         }
 
-        $totalPresensiRecords = array_sum($presensiCounts);
-        $additionalAlpha = $workingDays - $totalPresensiRecords;
-        $alpha = $explicitAlpha + $additionalAlpha;
         $totalBasis = $workingDays;
-
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
         return response()->json([
