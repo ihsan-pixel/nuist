@@ -393,7 +393,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .schedule-card {
-            flex: 0 0 calc(100vw / 3); /* 1/3 of viewport width */
+            flex: 0 0 40vw; /* 40% of viewport width */
             padding: 16px;
             background: #f8f9fa;
             border-radius: 8px;
