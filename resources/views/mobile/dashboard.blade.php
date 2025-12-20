@@ -1045,53 +1045,50 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
         </div>
 
-        <div class="performance-activities">
+        <div class="timeline-activities">
             <!-- Presensi Masuk -->
-            <div class="activity-item {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
-                <div class="activity-icon">
+            <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
+                <div class="timeline-marker">
                     <i class="bx bx-log-in"></i>
                 </div>
-                <div class="activity-content">
-                    <div class="activity-title">Presensi Masuk</div>
-                    <div class="activity-status">
+                <div class="timeline-content">
+                    <div class="timeline-title">Presensi Masuk</div>
+                    <div class="timeline-status">
                         <span class="status-text">{{ $presensiMasukStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
-                        <span class="status-indicator {{ $presensiMasukStatus }}"></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Presensi Mengajar -->
-            <div class="activity-item {{ $presensiMengajarStatus === 'sudah' ? 'completed' : ($presensiMengajarStatus === 'tidak_ada_jadwal' ? 'no-schedule' : 'pending') }}">
-                <div class="activity-icon">
+            <!-- Presensi Mengajar - hanya tampil jika ada jadwal -->
+            @if($presensiMengajarStatus !== 'tidak_ada_jadwal')
+            <div class="timeline-item {{ $presensiMengajarStatus === 'sudah' ? 'completed' : 'pending' }}">
+                <div class="timeline-marker">
                     <i class="bx bx-chalkboard"></i>
                 </div>
-                <div class="activity-content">
-                    <div class="activity-title">Presensi Mengajar</div>
-                    <div class="activity-status">
+                <div class="timeline-content">
+                    <div class="timeline-title">Presensi Mengajar</div>
+                    <div class="timeline-status">
                         <span class="status-text">
-                            @if($presensiMengajarStatus === 'tidak_ada_jadwal')
-                                Tidak Ada Jadwal
-                            @elseif($presensiMengajarStatus === 'sudah')
+                            @if($presensiMengajarStatus === 'sudah')
                                 Sudah ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
                             @else
                                 Belum ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
                             @endif
                         </span>
-                        <span class="status-indicator {{ $presensiMengajarStatus }}"></span>
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Presensi Keluar -->
-            <div class="activity-item {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
-                <div class="activity-icon">
+            <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
+                <div class="timeline-marker">
                     <i class="bx bx-log-out"></i>
                 </div>
-                <div class="activity-content">
-                    <div class="activity-title">Presensi Keluar</div>
-                    <div class="activity-status">
+                <div class="timeline-content">
+                    <div class="timeline-title">Presensi Keluar</div>
+                    <div class="timeline-status">
                         <span class="status-text">{{ $presensiKeluarStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
-                        <span class="status-indicator {{ $presensiKeluarStatus }}"></span>
                     </div>
                 </div>
             </div>

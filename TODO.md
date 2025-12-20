@@ -31,5 +31,6 @@ Tambahkan bagian baru di bawah "Layanan" pada dashboard mobile yang menampilkan 
 
 ## Status
 - [x] Update DashboardController.php - Tambahkan logika perhitungan aktivitas kinerja harian
-- [x] Update dashboard.blade.php - Tambahkan section "Aktivitas Kinerja Hari Ini"
-- [x] Testing - Perlu verifikasi tampilan dan fungsionalitas
+- [x] Update dashboard.blade.php - Tambahkan section "Aktivitas Kinerja Hari Ini" dengan desain timeline yang simple
+- [x] Perbaikan tampilan - Buat lebih simple dan rapi, hanya tampilkan presensi mengajar jika ada jadwal
+- [ ] Testing - Perlu verifikasi tampilan dan fungsionalitas
