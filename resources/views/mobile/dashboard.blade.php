@@ -1274,7 +1274,7 @@ function renderCalendar(data) {
         const dayOfWeek = new Date(data.currentYear, data.currentMonth - 1, day).getDay();
         const isSunday = dayOfWeek === 0;
         const isSaturday = dayOfWeek === 6;
-        const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm === 5);
+        const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm == 5);
 
         // If presensi status is 'alpha' but not a working day, don't display as alpha
         if (presensiStatus === 'alpha' && !isWorkingDay) {
