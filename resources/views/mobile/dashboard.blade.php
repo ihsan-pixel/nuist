@@ -1133,6 +1133,11 @@ if ($hour >= 0 && $hour <= 11) {
                             $isWorkingDay = false;
                         }
 
+                        // Jika presensi status adalah 'alpha' tapi bukan hari kerja, jangan tampilkan sebagai alpha
+                        if ($presensiStatus === 'alpha' && !$isWorkingDay) {
+                            $presensiStatus = null;
+                        }
+
                         // Jika hari sebelum hari ini, hari kerja, dan bukan hari libur tapi tidak ada presensi, tandai sebagai alpha
                         if ($isPastDay && $isWorkingDay && !$isHoliday && !$presensiStatus) {
                             $presensiStatus = 'alpha';
@@ -1270,6 +1275,11 @@ function renderCalendar(data) {
         const isSunday = dayOfWeek === 0;
         const isSaturday = dayOfWeek === 6;
         const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm === 5);
+
+        // If presensi status is 'alpha' but not a working day, don't display as alpha
+        if (presensiStatus === 'alpha' && !isWorkingDay) {
+            presensiStatus = null;
+        }
 
         // If no presensi data and it's a past working day and not holiday, mark as alpha
         if (!presensiStatus && !isHoliday && isWorkingDay) {
