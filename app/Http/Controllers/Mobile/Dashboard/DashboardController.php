@@ -125,6 +125,38 @@ class DashboardController extends \App\Http\Controllers\Controller
             return $schedule;
         });
 
+        // Calculate daily performance activities
+        $todayDate = $today->toDateString();
+
+        // Check presensi masuk (ada waktu_masuk)
+        $presensiMasuk = Presensi::where('user_id', $user->id)
+            ->where('tanggal', $todayDate)
+            ->whereNotNull('waktu_masuk')
+            ->first();
+        $presensiMasukStatus = $presensiMasuk ? 'sudah' : 'belum';
+
+        // Check presensi mengajar (berdasarkan jadwal dan attendance)
+        $presensiMengajarStatus = 'tidak_ada_jadwal';
+        if ($todaySchedulesWithAttendance->count() > 0) {
+            $totalSchedules = $todaySchedulesWithAttendance->count();
+            $completedSchedules = $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count();
+            $presensiMengajarStatus = $completedSchedules === $totalSchedules ? 'sudah' : 'belum';
+        }
+
+        // Check presensi keluar (ada waktu_keluar)
+        $presensiKeluar = Presensi::where('user_id', $user->id)
+            ->where('tanggal', $todayDate)
+            ->whereNotNull('waktu_keluar')
+            ->first();
+        $presensiKeluarStatus = $presensiKeluar ? 'sudah' : 'belum';
+
+        // Calculate percentage (33.33% per activity, max 100%)
+        $completedActivities = 0;
+        if ($presensiMasukStatus === 'sudah') $completedActivities++;
+        if ($presensiMengajarStatus === 'sudah') $completedActivities++;
+        if ($presensiKeluarStatus === 'sudah') $completedActivities++;
+        $kinerjaPercent = round(($completedActivities / 3) * 100);
+
         // Get selected month and year for calendar (default to current)
         $currentMonth = $request->get('month', Carbon::now()->month);
         $currentYear = $request->get('year', Carbon::now()->year);
@@ -168,7 +200,8 @@ class DashboardController extends \App\Http\Controllers\Controller
         return view('mobile.dashboard', compact(
             'kehadiranPercent', 'hadir', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
             'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear',
-            'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear'
+            'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear',
+            'presensiMasukStatus', 'presensiMengajarStatus', 'presensiKeluarStatus', 'kinerjaPercent'
         ));
     }
 

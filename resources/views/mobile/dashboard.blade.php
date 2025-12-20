@@ -1031,6 +1031,72 @@ if ($hour >= 0 && $hour <= 11) {
         }
     </script>
 
+    <small>Aktivitas Kinerja Hari Ini</small>
+
+    <!-- Performance Activities Section -->
+    <div class="performance-section">
+        <div class="performance-header">
+            <div class="performance-title">
+                <i class="bx bx-bar-chart-alt-2"></i>
+                <span>Progress Harian</span>
+            </div>
+            <div class="performance-percent">
+                <span class="percent-value">{{ $kinerjaPercent }}%</span>
+            </div>
+        </div>
+
+        <div class="performance-activities">
+            <!-- Presensi Masuk -->
+            <div class="activity-item {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
+                <div class="activity-icon">
+                    <i class="bx bx-log-in"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Presensi Masuk</div>
+                    <div class="activity-status">
+                        <span class="status-text">{{ $presensiMasukStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
+                        <span class="status-indicator {{ $presensiMasukStatus }}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presensi Mengajar -->
+            <div class="activity-item {{ $presensiMengajarStatus === 'sudah' ? 'completed' : ($presensiMengajarStatus === 'tidak_ada_jadwal' ? 'no-schedule' : 'pending') }}">
+                <div class="activity-icon">
+                    <i class="bx bx-chalkboard"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Presensi Mengajar</div>
+                    <div class="activity-status">
+                        <span class="status-text">
+                            @if($presensiMengajarStatus === 'tidak_ada_jadwal')
+                                Tidak Ada Jadwal
+                            @elseif($presensiMengajarStatus === 'sudah')
+                                Sudah ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
+                            @else
+                                Belum ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
+                            @endif
+                        </span>
+                        <span class="status-indicator {{ $presensiMengajarStatus }}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presensi Keluar -->
+            <div class="activity-item {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
+                <div class="activity-icon">
+                    <i class="bx bx-log-out"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Presensi Keluar</div>
+                    <div class="activity-status">
+                        <span class="status-text">{{ $presensiKeluarStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
+                        <span class="status-indicator {{ $presensiKeluarStatus }}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Teacher Info -->
     {{-- <div class="info-section">
