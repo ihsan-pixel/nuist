@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\TeachingSchedule;
 use App\Models\TeachingAttendance;
 use App\Models\AppSetting;
+use App\Models\Holiday;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
