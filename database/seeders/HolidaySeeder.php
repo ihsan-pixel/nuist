@@ -55,6 +55,25 @@ class HolidaySeeder extends Seeder
             ['date' => '2025-08-17', 'name' => 'Hari Kemerdekaan Republik Indonesia', 'type' => 'national'],
             ['date' => '2025-09-04', 'name' => 'Maulid Nabi Muhammad SAW', 'type' => 'national'],
             ['date' => '2025-12-25', 'name' => 'Natal', 'type' => 'national'],
+
+            // 2026 Indonesian National Holidays
+            ['date' => '2026-01-01', 'name' => 'Tahun Baru 2026 Masehi', 'type' => 'national'],
+            ['date' => '2026-02-17', 'name' => 'Tahun Baru Imlek 2577 Kongzili', 'type' => 'national'],
+            ['date' => '2026-03-14', 'name' => 'Hari Suci Nyepi Tahun Baru Saka 1948', 'type' => 'national'],
+            ['date' => '2026-04-03', 'name' => 'Jumat Agung', 'type' => 'national'],
+            ['date' => '2026-04-05', 'name' => 'Hari Paskah', 'type' => 'national'],
+            ['date' => '2026-04-13', 'name' => 'Idul Fitri 1447 Hijriah (Cuti Bersama)', 'type' => 'national'],
+            ['date' => '2026-04-14', 'name' => 'Idul Fitri 1447 Hijriah', 'type' => 'national'],
+            ['date' => '2026-04-15', 'name' => 'Idul Fitri 1447 Hijriah (Cuti Bersama)', 'type' => 'national'],
+            ['date' => '2026-05-01', 'name' => 'Hari Buruh Internasional', 'type' => 'national'],
+            ['date' => '2026-05-14', 'name' => 'Kenaikan Isa Almasih', 'type' => 'national'],
+            ['date' => '2026-05-22', 'name' => 'Hari Raya Waisak 2570 BE', 'type' => 'national'],
+            ['date' => '2026-06-01', 'name' => 'Hari Lahir Pancasila', 'type' => 'national'],
+            ['date' => '2026-06-17', 'name' => 'Idul Adha 1447 Hijriah', 'type' => 'national'],
+            ['date' => '2026-07-06', 'name' => 'Tahun Baru Islam 1448 Hijriah', 'type' => 'national'],
+            ['date' => '2026-08-17', 'name' => 'Hari Kemerdekaan Republik Indonesia', 'type' => 'national'],
+            ['date' => '2026-09-25', 'name' => 'Maulid Nabi Muhammad SAW', 'type' => 'national'],
+            ['date' => '2026-12-25', 'name' => 'Natal', 'type' => 'national'],
         ];
 
         foreach ($holidays as $holiday) {
