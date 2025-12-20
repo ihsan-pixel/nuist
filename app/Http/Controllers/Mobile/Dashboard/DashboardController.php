@@ -97,9 +97,15 @@ class DashboardController extends \App\Http\Controllers\Controller
             return $schedule;
         });
 
-        // Get presensi data for current month for calendar
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        // Get selected month and year for calendar (default to current)
+        $currentMonth = $request->get('month', Carbon::now()->month);
+        $currentYear = $request->get('year', Carbon::now()->year);
+
+        // Validate month and year
+        $currentMonth = max(1, min(12, (int)$currentMonth));
+        $currentYear = max(2020, min(2030, (int)$currentYear));
+
+        // Get presensi data for selected month for calendar
         $monthlyPresensi = Presensi::where('user_id', $user->id)
             ->whereYear('tanggal', $currentYear)
             ->whereMonth('tanggal', $currentMonth)
@@ -109,13 +115,32 @@ class DashboardController extends \App\Http\Controllers\Controller
         // Get hari KBM setting from user's madrasah
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
 
-        // Get holidays for current month
+        // Get holidays for selected month
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
             ->where('is_active', true)
             ->pluck('name', 'date')
             ->toArray();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear', 'hariKbm', 'monthlyHolidays'));
+        // Calculate previous and next month
+        $prevMonth = $currentMonth - 1;
+        $prevYear = $currentYear;
+        if ($prevMonth < 1) {
+            $prevMonth = 12;
+            $prevYear = $currentYear - 1;
+        }
+
+        $nextMonth = $currentMonth + 1;
+        $nextYear = $currentYear;
+        if ($nextMonth > 12) {
+            $nextMonth = 1;
+            $nextYear = $currentYear + 1;
+        }
+
+        return view('mobile.dashboard', compact(
+            'kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
+            'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear',
+            'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear'
+        ));
     }
 }

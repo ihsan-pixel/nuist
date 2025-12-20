@@ -1096,7 +1096,15 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="calendar-section">
         <div class="calendar-container">
             <div class="calendar-header">
-                <h6 class="calendar-title">{{ \Carbon\Carbon::now()->locale('id')->monthName }} {{ $currentYear }}</h6>
+                <div class="calendar-title">
+                    <button class="month-nav-btn" onclick="navigateMonth({{ $prevYear }}, {{ $prevMonth }})">
+                        <i class="bx bx-chevron-left"></i>
+                    </button>
+                    <span>{{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</span>
+                    <button class="month-nav-btn" onclick="navigateMonth({{ $nextYear }}, {{ $nextMonth }})">
+                        <i class="bx bx-chevron-right"></i>
+                    </button>
+                </div>
             </div>
             <div class="calendar-grid">
                 @php
@@ -1169,3 +1177,12 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
 </div>
 @endsection
+
+<script>
+function navigateMonth(year, month) {
+    const url = new URL(window.location);
+    url.searchParams.set('year', year);
+    url.searchParams.set('month', month);
+    window.location.href = url.toString();
+}
+</script>
