@@ -402,6 +402,16 @@ if ($hour >= 0 && $hour <= 11) {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+        }
+
+        .attendance-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
 
         .schedule-header strong {
