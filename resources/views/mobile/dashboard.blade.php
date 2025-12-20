@@ -1230,12 +1230,37 @@ function navigateMonth(year, month) {
 
         // Re-render calendar with new data
         renderCalendar(data);
+
+        // Update stats data for the new month
+        updateStatsData(year, month);
     })
     .catch(error => {
         console.error('Error loading calendar data:', error);
         // Restore original content on error
         calendarContainer.innerHTML = originalContent;
         alert('Gagal memuat data kalender. Silakan coba lagi.');
+    });
+}
+
+function updateStatsData(year, month) {
+    // Fetch new stats data via AJAX
+    fetch(`{{ route('mobile.dashboard.stats-data') }}?year=${year}&month=${month}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update stats display
+        document.querySelector('.stat-item:nth-child(1) h6').textContent = data.kehadiranPercent + '%';
+        document.querySelector('.stat-item:nth-child(2) h6').textContent = data.totalBasis;
+        document.querySelector('.stat-item:nth-child(3) h6').textContent = data.izin;
+        document.querySelector('.stat-item:nth-child(4) h6').textContent = data.alpha;
+    })
+    .catch(error => {
+        console.error('Error loading stats data:', error);
     });
 }
 

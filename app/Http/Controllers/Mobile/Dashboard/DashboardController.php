@@ -35,22 +35,18 @@ class DashboardController extends \App\Http\Controllers\Controller
             session(['banner_shown' => true]);
         }
 
-        // Determine start date for attendance calculation (first presensi or account creation)
-        $firstPresensiDate = Presensi::where('user_id', $user->id)
-            ->orderBy('tanggal', 'asc')
-            ->value('tanggal');
+        // Get selected month and year for stats and calendar (default to current)
+        $currentMonth = $request->get('month', Carbon::now()->month);
+        $currentYear = $request->get('year', Carbon::now()->year);
 
-        if ($firstPresensiDate) {
-            $startDate = Carbon::parse($firstPresensiDate);
-        } else {
-            $startDate = Carbon::parse($user->created_at);
-        }
+        // Validate month and year
+        $currentMonth = max(1, min(12, (int)$currentMonth));
+        $currentYear = max(2020, min(2030, (int)$currentYear));
 
-        $today = Carbon::now();
-
-        // Aggregate presensi counts for the user between startDate and today
+        // Aggregate presensi counts for the user for the selected month
         $presensiCounts = Presensi::where('user_id', $user->id)
-            ->whereBetween('tanggal', [$startDate, $today])
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
             ->selectRaw("status, COUNT(*) as count")
             ->groupBy('status')
             ->pluck('count', 'status')
@@ -199,6 +195,45 @@ class DashboardController extends \App\Http\Controllers\Controller
             'prevYear' => $prevYear,
             'nextMonth' => $nextMonth,
             'nextYear' => $nextYear,
+        ]);
+    }
+
+    // AJAX endpoint for stats data
+    public function getStatsData(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get selected month and year for stats (default to current)
+        $currentMonth = $request->get('month', Carbon::now()->month);
+        $currentYear = $request->get('year', Carbon::now()->year);
+
+        // Validate month and year
+        $currentMonth = max(1, min(12, (int)$currentMonth));
+        $currentYear = max(2020, min(2030, (int)$currentYear));
+
+        // Aggregate presensi counts for the user for the selected month
+        $presensiCounts = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->selectRaw("status, COUNT(*) as count")
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $hadir = $presensiCounts['hadir'] ?? 0;
+        $izin = $presensiCounts['izin'] ?? 0;
+        $sakit = $presensiCounts['sakit'] ?? 0;
+        $alpha = $presensiCounts['alpha'] ?? 0;
+
+        $totalBasis = array_sum($presensiCounts);
+
+        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
+
+        return response()->json([
+            'kehadiranPercent' => $kehadiranPercent,
+            'totalBasis' => $totalBasis,
+            'izin' => $izin,
+            'alpha' => $alpha,
         ]);
     }
 }

@@ -155,6 +155,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
+    Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
 
     // Presensi
     Route::get('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('presensi');
