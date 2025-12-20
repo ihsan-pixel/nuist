@@ -204,6 +204,14 @@ if ($hour >= 0 && $hour <= 11) {
             background-color: transparent !important;
         }
 
+        .name-form {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
+            margin-bottom: 24px;
+        }
+
         .stats-form {
             background: #fff;
             border-radius: 12px;
@@ -855,7 +863,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 
-    <small class="stats-form mb-4">Aktivitas Presensi Bulan Ini</small>
+    <small class="name-form">Aktivitas Presensi Bulan Ini</small>
 
     <div class="stats-form">
         <div class="stats-grid">
