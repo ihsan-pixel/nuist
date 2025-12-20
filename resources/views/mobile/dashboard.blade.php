@@ -1162,14 +1162,18 @@ if ($hour >= 0 && $hour <= 11) {
                     <span class="label">Masuk</span>
                 </div>
 
-                @if($presensiMengajarStatus !== 'tidak_ada_jadwal')
-                <div class="timeline-item {{ $presensiMengajarStatus === 'sudah' ? 'done' : '' }}">
-                    <span class="dot"></span>
-                    <i class="bx bx-chalkboard"></i>
-                    <span class="label">Mengajar</span>
-                </div>
+                <!-- Presensi Mengajar - tampilkan per jadwal -->
+                @if(count($teachingSteps) > 0)
+                    @foreach($teachingSteps as $step)
+                    <div class="timeline-item {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                        <span class="dot"></span>
+                        <i class="bx bx-chalkboard"></i>
+                        <span class="label">{{ $step['label'] }}</span>
+                    </div>
+                    @endforeach
                 @endif
 
+                <!-- Presensi Keluar -->
                 <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
                     <span class="dot"></span>
                     <i class="bx bx-log-out"></i>
