@@ -882,9 +882,9 @@ if ($hour >= 0 && $hour <= 11) {
                                 Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum' }}
                             </span>
                         </div>
-                    </div>
-                    <div>
-                        <i class="bx bx-chalkboard" style="font-size: 24px; color: white; margin-left: 8px;"></i>
+                        <div>
+                            <i class="bx bx-chalkboard" style="font-size: 24px; color: white; margin-left: 8px;"></i>
+                        </div>
                     </div>
                 @endforeach
             </div>
