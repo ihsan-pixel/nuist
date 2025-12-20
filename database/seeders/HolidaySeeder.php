@@ -74,6 +74,40 @@ class HolidaySeeder extends Seeder
             ['date' => '2026-08-17', 'name' => 'Hari Proklamasi Kemerdekaan RI', 'type' => 'national'],
             ['date' => '2026-08-25', 'name' => 'Maulid Nabi Muhammad SAW', 'type' => 'national'],
             ['date' => '2026-12-25', 'name' => 'Hari Natal', 'type' => 'national'],
+
+            // 2027 Indonesian National Holidays
+            ['date' => '2027-01-01', 'name' => 'Tahun Baru Masehi', 'type' => 'national'],
+            ['date' => '2027-01-05', 'name' => 'Isra Mi’raj Nabi Muhammad SAW', 'type' => 'national'],
+            ['date' => '2027-02-06', 'name' => 'Tahun Baru Imlek 2578 Kongzili', 'type' => 'national'],
+            ['date' => '2027-03-09', 'name' => 'Hari Suci Nyepi (Tahun Baru Saka)', 'type' => 'national'],
+            ['date' => '2027-03-10', 'name' => 'Hari Raya Idul Fitri', 'type' => 'national'],
+            ['date' => '2027-03-26', 'name' => 'Wafat Yesus Kristus (Jumat Agung)', 'type' => 'national'],
+            ['date' => '2027-05-01', 'name' => 'Hari Buruh Internasional', 'type' => 'national'],
+            ['date' => '2027-05-06', 'name' => 'Kenaikan Yesus Kristus', 'type' => 'national'],
+            ['date' => '2027-05-17', 'name' => 'Hari Raya Idul Adha', 'type' => 'national'],
+            ['date' => '2027-05-20', 'name' => 'Hari Raya Waisak', 'type' => 'national'],
+            ['date' => '2027-06-01', 'name' => 'Hari Lahir Pancasila', 'type' => 'national'],
+            ['date' => '2027-06-06', 'name' => 'Tahun Baru Islam', 'type' => 'national'],
+            ['date' => '2027-08-15', 'name' => 'Maulid Nabi Muhammad SAW', 'type' => 'national'],
+            ['date' => '2027-08-17', 'name' => 'Hari Kemerdekaan RI', 'type' => 'national'],
+            ['date' => '2027-12-25', 'name' => 'Hari Raya Natal', 'type' => 'national'],
+            ['date' => '2027-12-26', 'name' => 'Isra Mi’raj Nabi Muhammad SAW', 'type' => 'national'],
+
+            // 2028 Indonesian National Holidays
+            ['date' => '2028-01-01', 'name' => 'Tahun Baru Masehi', 'type' => 'national'],
+            ['date' => '2028-01-26', 'name' => 'Tahun Baru Imlek', 'type' => 'national'],
+            ['date' => '2028-02-26', 'name' => 'Hari Raya Idul Fitri (mulai)', 'type' => 'national'],
+            ['date' => '2028-02-27', 'name' => 'Hari Raya Idul Fitri (lanjutan)', 'type' => 'national'],
+            ['date' => '2028-03-26', 'name' => 'Jumat Agung / Wafat Yesus Kristus', 'type' => 'national'],
+            ['date' => '2028-05-01', 'name' => 'Hari Buruh Internasional', 'type' => 'national'],
+            ['date' => '2028-05-05', 'name' => 'Hari Raya Idul Adha', 'type' => 'national'],
+            ['date' => '2028-05-25', 'name' => 'Tahun Baru Islam (1 Muharram)', 'type' => 'national'],
+            ['date' => '2028-06-01', 'name' => 'Hari Lahir Pancasila', 'type' => 'national'],
+            ['date' => '2028-08-03', 'name' => 'Maulid Nabi Muhammad SAW', 'type' => 'national'],
+            ['date' => '2028-08-17', 'name' => 'Hari Kemerdekaan RI', 'type' => 'national'],
+            ['date' => '2028-12-14', 'name' => 'Isra Mi’raj Nabi Muhammad SAW', 'type' => 'national'],
+            ['date' => '2028-12-25', 'name' => 'Hari Raya Natal', 'type' => 'national'],
+            ['date' => '2028-12-26', 'name' => 'Cuti bersama Natal (opsional)', 'type' => 'national'],
         ];
 
         foreach ($holidays as $holiday) {
