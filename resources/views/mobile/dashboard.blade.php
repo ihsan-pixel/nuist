@@ -705,6 +705,28 @@ if ($hour >= 0 && $hour <= 11) {
             border-color: rgba(255, 255, 255, 0.5);
         }
 
+        /* Month Navigation Button Styles */
+        .month-nav-btn {
+            background: transparent;
+            border: none;
+            color: #004b4c;
+            font-size: 18px;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-nav-btn:hover {
+            color: #0e8549;
+        }
+
+        .month-nav-btn:focus {
+            outline: none;
+        }
+
         /* Banner Modal Styles */
         .modal-content {
             border-radius: 15px;
@@ -1337,6 +1359,8 @@ function renderCalendar(data) {
 
         html += `</div></div>`;
     }
+
+    html += `</div>`;
 
     calendarContainer.innerHTML = html;
 }
