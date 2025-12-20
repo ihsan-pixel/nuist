@@ -397,7 +397,7 @@ if ($hour >= 0 && $hour <= 11) {
             padding: 16px;
             background: linear-gradient(to bottom, #fdbd57, #f89a3c);
             border-radius: 8px;
-            text-align: center;
+            text-align: left;
             min-height: 120px;
             display: flex;
             flex-direction: column;
@@ -881,9 +881,6 @@ if ($hour >= 0 && $hour <= 11) {
                                 <i class="bx {{ $schedule->attendance_status == 'sudah' ? 'bx-check-circle' : 'bx-time' }}"></i>
                                 Presensi {{ $schedule->attendance_status == 'sudah' ? 'Sudah' : 'Belum' }}
                             </span>
-                        </div>
-                        <div>
-                            <i class="bx bx-chalkboard" style="font-size: 24px; color: white; margin-left: 8px;"></i>
                         </div>
                     </div>
                 @endforeach
