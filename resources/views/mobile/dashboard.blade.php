@@ -815,7 +815,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .timeline-item i {
-            font-size: 16px;
+            font-size: 10px;
             margin-bottom: 2px;
         }
 
