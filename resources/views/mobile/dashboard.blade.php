@@ -1180,9 +1180,154 @@ if ($hour >= 0 && $hour <= 11) {
 
 <script>
 function navigateMonth(year, month) {
-    const url = new URL(window.location);
-    url.searchParams.set('year', year);
-    url.searchParams.set('month', month);
-    window.location.href = url.toString();
+    // Show loading state
+    const calendarContainer = document.querySelector('.calendar-container');
+    const originalContent = calendarContainer.innerHTML;
+    calendarContainer.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="bx bx-loader-alt bx-spin" style="font-size: 24px;"></i><br><small>Loading...</small></div>';
+
+    // Fetch new calendar data via AJAX
+    fetch(`/mobile/dashboard/calendar-data?year=${year}&month=${month}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update URL without reload
+        const url = new URL(window.location);
+        url.searchParams.set('year', year);
+        url.searchParams.set('month', month);
+        window.history.pushState({}, '', url);
+
+        // Re-render calendar with new data
+        renderCalendar(data);
+    })
+    .catch(error => {
+        console.error('Error loading calendar data:', error);
+        // Restore original content on error
+        calendarContainer.innerHTML = originalContent;
+        alert('Gagal memuat data kalender. Silakan coba lagi.');
+    });
+}
+
+function renderCalendar(data) {
+    const calendarContainer = document.querySelector('.calendar-container');
+
+    // Calculate calendar grid
+    const daysInMonth = new Date(data.currentYear, data.currentMonth, 0).getDate();
+    const firstDayOfMonth = new Date(data.currentYear, data.currentMonth - 1, 1).getDay();
+    const today = new Date();
+    const isCurrentMonth = today.getMonth() + 1 === data.currentMonth && today.getFullYear() === data.currentYear;
+    const currentDay = today.getDate();
+
+    // Indonesian month names
+    const monthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    // Day names
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+    let html = `
+        <div class="calendar-header">
+            <div class="calendar-title">
+                <button class="month-nav-btn" onclick="navigateMonth(${data.prevYear}, ${data.prevMonth})">
+                    <i class="bx bx-chevron-left"></i>
+                </button>
+                <span>${monthNames[data.currentMonth - 1]} ${data.currentYear}</span>
+                <button class="month-nav-btn" onclick="navigateMonth(${data.nextYear}, ${data.nextMonth})">
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="calendar-weekdays">
+    `;
+
+    // Weekday headers
+    dayNames.forEach(day => {
+        html += `<div class="weekday-label">${day}</div>`;
+    });
+
+    html += `</div><div class="calendar-grid">`;
+
+    // Empty cells for days before first day of month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+        html += `<div class="calendar-day empty"></div>`;
+    }
+
+    // Calendar days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const presensiStatus = data.monthlyPresensi[dateKey] || null;
+        const isHoliday = data.monthlyHolidays[dateKey] !== undefined;
+        const isToday = isCurrentMonth && day === currentDay;
+
+        // Check if it's a working day
+        const dayOfWeek = new Date(data.currentYear, data.currentMonth - 1, day).getDay();
+        const isSunday = dayOfWeek === 0;
+        const isSaturday = dayOfWeek === 6;
+        const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm === 5);
+
+        let statusClass = '';
+        if (presensiStatus) {
+            statusClass = `status-${presensiStatus}`;
+        } else if (isHoliday) {
+            statusClass = 'holiday';
+        } else if (!isWorkingDay) {
+            // Not marked as red for non-working days
+        } else {
+            // Check if past working day without attendance
+            const currentDate = new Date();
+            const checkDate = new Date(data.currentYear, data.currentMonth - 1, day);
+            if (checkDate < currentDate && !isHoliday) {
+                statusClass = 'status-alpha';
+            }
+        }
+
+        const hasPresensi = presensiStatus ? 'has-presensi' : '';
+
+        html += `
+            <div class="calendar-day ${isToday ? 'today' : ''} ${statusClass} ${hasPresensi} ${isHoliday ? 'holiday' : ''}">
+                <div class="day-number">${day}</div>
+                <div class="day-name">${dayNames[dayOfWeek]}</div>
+        `;
+
+        if (isHoliday) {
+            html += `<div class="holiday-indicator"><i class="bx bx-star"></i></div>`;
+        } else if (presensiStatus) {
+            let icon = '';
+            if (presensiStatus === 'hadir') icon = 'bx-check';
+            else if (presensiStatus === 'izin') icon = 'bx-time-five';
+            else if (presensiStatus === 'alpha') icon = 'bx-x';
+
+            html += `<div class="presensi-indicator"><i class="bx ${icon}"></i></div>`;
+        }
+
+        html += `</div>`;
+    }
+
+    html += `</div>`;
+
+    // Holiday list
+    if (Object.keys(data.monthlyHolidays).length > 0) {
+        html += `<div class="holiday-list"><small style="color: #666; font-weight: 500;">Hari Libur Nasional:</small><div style="margin-top: 4px;">`;
+
+        Object.entries(data.monthlyHolidays).forEach(([date, name]) => {
+            const dateObj = new Date(date);
+            const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            html += `<small style="display: block; color: #d63031; margin-bottom: 2px;">• ${formattedDate} - ${name}</small>`;
+        });
+
+        html += `</div></div>`;
+    }
+
+    calendarContainer.innerHTML = html;
 }
 </script>

@@ -143,4 +143,62 @@ class DashboardController extends \App\Http\Controllers\Controller
             'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear'
         ));
     }
+
+    // AJAX endpoint for calendar navigation
+    public function getCalendarData(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get selected month and year for calendar
+        $currentMonth = $request->get('month', Carbon::now()->month);
+        $currentYear = $request->get('year', Carbon::now()->year);
+
+        // Validate month and year
+        $currentMonth = max(1, min(12, (int)$currentMonth));
+        $currentYear = max(2020, min(2030, (int)$currentYear));
+
+        // Get presensi data for selected month for calendar
+        $monthlyPresensi = Presensi::where('user_id', $user->id)
+            ->whereYear('tanggal', $currentYear)
+            ->whereMonth('tanggal', $currentMonth)
+            ->pluck('status', 'tanggal')
+            ->toArray();
+
+        // Get hari KBM setting from user's madrasah
+        $hariKbm = $user->madrasah->hari_kbm ?? 6;
+
+        // Get holidays for selected month
+        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
+            ->whereMonth('date', $currentMonth)
+            ->where('is_active', true)
+            ->pluck('name', 'date')
+            ->toArray();
+
+        // Calculate previous and next month
+        $prevMonth = $currentMonth - 1;
+        $prevYear = $currentYear;
+        if ($prevMonth < 1) {
+            $prevMonth = 12;
+            $prevYear = $currentYear - 1;
+        }
+
+        $nextMonth = $currentMonth + 1;
+        $nextYear = $currentYear;
+        if ($nextMonth > 12) {
+            $nextMonth = 1;
+            $nextYear = $currentYear + 1;
+        }
+
+        return response()->json([
+            'monthlyPresensi' => $monthlyPresensi,
+            'currentMonth' => $currentMonth,
+            'currentYear' => $currentYear,
+            'hariKbm' => $hariKbm,
+            'monthlyHolidays' => $monthlyHolidays,
+            'prevMonth' => $prevMonth,
+            'prevYear' => $prevYear,
+            'nextMonth' => $nextMonth,
+            'nextYear' => $nextYear,
+        ]);
+    }
 }
