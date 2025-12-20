@@ -150,6 +150,12 @@ if ($hour >= 0 && $hour <= 11) {
             margin-bottom: 0;
         }
 
+        .label_text {
+            color: #004b4c;
+            text-align: left;
+            font-size: 10px;
+        }
+
         .label {
             color: #004b4c;
             text-align: left;
@@ -1159,7 +1165,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
                     <span class="dot"></span>
                     <i class="bx bx-log-in"></i>
-                    <span class="label" style="font-size: 10px">Masuk</span>
+                    <span class="label_text">Masuk</span>
                 </div>
 
                 <!-- Presensi Mengajar - tampilkan per jadwal -->
@@ -1168,7 +1174,7 @@ if ($hour >= 0 && $hour <= 11) {
                     <div class="timeline-item {{ $step['status'] === 'completed' ? 'done' : '' }}">
                         <span class="dot"></span>
                         <i class="bx bx-chalkboard"></i>
-                        <span class="label">{{ $step['label'] }}</span>
+                        <span class="label_text">{{ $step['label'] }}</span>
                     </div>
                     @endforeach
                 @endif
@@ -1177,7 +1183,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
                     <span class="dot"></span>
                     <i class="bx bx-log-out"></i>
-                    <span class="label">Pulang</span>
+                    <span class="label_text">Pulang</span>
                 </div>
             </div>
         </div>
