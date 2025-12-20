@@ -1149,10 +1149,15 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="calendar-grid">
                 @php
                     $daysInMonth = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
+                    $firstDayOfMonth = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->dayOfWeek; // 0=Sunday, 6=Saturday
                     $today = \Carbon\Carbon::now()->day;
                     $currentMonthCheck = \Carbon\Carbon::now()->month;
                     $currentYearCheck = \Carbon\Carbon::now()->year;
                 @endphp
+
+                @for ($i = 0; $i < $firstDayOfMonth; $i++)
+                    <div class="calendar-day empty"></div>
+                @endfor
 
                 @for ($day = 1; $day <= $daysInMonth; $day++)
                     @php
@@ -1208,6 +1213,15 @@ if ($hour >= 0 && $hour <= 11) {
                             </div>
                         @endif
                     </div>
+                @endfor
+
+                @php
+                    $totalCells = $firstDayOfMonth + $daysInMonth;
+                    $emptyAtEnd = (7 - ($totalCells % 7)) % 7;
+                @endphp
+
+                @for ($i = 0; $i < $emptyAtEnd; $i++)
+                    <div class="calendar-day empty"></div>
                 @endfor
             </div>
 
