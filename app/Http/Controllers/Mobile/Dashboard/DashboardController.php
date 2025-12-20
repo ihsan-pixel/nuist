@@ -105,6 +105,6 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->pluck('status', 'tanggal')
             ->toArray();
 
-        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear'));
+        return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear', 'hariKbm', 'monthlyHolidays'));
     }
 }

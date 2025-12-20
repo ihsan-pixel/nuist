@@ -1077,9 +1077,17 @@ if ($hour >= 0 && $hour <= 11) {
                         $isPastDay = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->isBefore(\Carbon\Carbon::now()->startOfDay());
                         $dayName = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->locale('id')->dayName;
                         $shortDayName = substr($dayName, 0, 3);
+                        $dayOfWeek = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->dayOfWeek; // 0 = Sunday, 6 = Saturday
+                        $isHoliday = isset($monthlyHolidays[$dateKey]);
 
-                        // Jika hari sebelum hari ini dan tidak ada presensi, tandai sebagai alpha
-                        if ($isPastDay && !$presensiStatus) {
+                        // Cek apakah hari ini adalah hari kerja berdasarkan hari KBM madrasah
+                        $isWorkingDay = true;
+                        if ($hariKbm == 5 && $dayOfWeek == 6) { // Jika KBM 5 hari dan hari Sabtu
+                            $isWorkingDay = false;
+                        }
+
+                        // Jika hari sebelum hari ini, hari kerja, dan bukan hari libur tapi tidak ada presensi, tandai sebagai alpha
+                        if ($isPastDay && $isWorkingDay && !$isHoliday && !$presensiStatus) {
                             $presensiStatus = 'alpha';
                         }
                     @endphp
