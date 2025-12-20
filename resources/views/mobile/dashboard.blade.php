@@ -879,7 +879,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="icon-container">
                     <i class="bx bx-calendar text-primary"></i>
                 </div>
-                <h6>{{ $totalBasis }}</h6>
+                <h6>{{ $hadir }}</h6>
                 <small>Presensi</small>
             </div>
             <div class="stat-item">
