@@ -105,6 +105,16 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->pluck('status', 'tanggal')
             ->toArray();
 
+        // Get hari KBM setting from user's madrasah
+        $hariKbm = $user->madrasah->hari_kbm ?? 6;
+
+        // Get holidays for current month
+        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
+            ->whereMonth('date', $currentMonth)
+            ->where('is_active', true)
+            ->pluck('name', 'date')
+            ->toArray();
+
         return view('mobile.dashboard', compact('kehadiranPercent', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance', 'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear', 'hariKbm', 'monthlyHolidays'));
     }
 }
