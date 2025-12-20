@@ -1392,7 +1392,6 @@ function renderCalendar(data) {
         html += `
             <div class="calendar-day ${isToday ? 'today' : ''} ${statusClass} ${hasPresensi} ${isHoliday ? 'holiday' : ''}">
                 <div class="day-number">${day}</div>
-                <div class="day-name">${dayNames[dayOfWeek]}</div>
         `;
 
         if (isHoliday) {
