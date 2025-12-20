@@ -1150,6 +1150,72 @@ if ($hour >= 0 && $hour <= 11) {
         }
     </script>
 
+    <small>Aktivitas Kinerja Hari Ini</small>
+
+    <div class="performance-card">
+        <!-- LEFT -->
+        <div class="performance-left">
+            <div class="performance-level">
+                <span class="level-badge">LEVEL</span>
+                <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
+            </div>
+
+            <div class="timeline">
+                <!-- Presensi Masuk -->
+                <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+                    <span class="dot"></span>
+                    <i class="bx bx-log-in"></i>
+                    <span class="label_text">Masuk</span>
+                </div>
+
+                <!-- Presensi Mengajar - tampilkan per jadwal -->
+                @if(count($teachingSteps) > 0)
+                    @foreach($teachingSteps as $step)
+                    <div class="timeline-item {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                        <span class="dot"></span>
+                        <i class="bx bx-chalkboard"></i>
+                        <span class="label_text">{{ $step['label'] }}</span>
+                    </div>
+                    @endforeach
+                @endif
+
+                <!-- Presensi Keluar -->
+                <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                    <span class="dot"></span>
+                    <i class="bx bx-log-out"></i>
+                    <span class="label_text">Pulang</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="performance-right">
+            <div class="progress-circle">
+                <svg viewBox="0 0 36 36">
+                    <path
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#e9ecef"
+                        stroke-width="3"
+                    />
+                    <path
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831"
+                        fill="none"
+                        stroke="#0e8549"
+                        stroke-width="3"
+                        stroke-dasharray="{{ $kinerjaPercent }}, 100"
+                    />
+                </svg>
+                <div class="progress-text">
+                    <strong>{{ $kinerjaPercent }}%</strong>
+                    <small>Hari ini</small>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Teacher Info -->
     {{-- <div class="info-section">
