@@ -1186,7 +1186,7 @@ function navigateMonth(year, month) {
     calendarContainer.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="bx bx-loader-alt bx-spin" style="font-size: 24px;"></i><br><small>Loading...</small></div>';
 
     // Fetch new calendar data via AJAX
-    fetch(`/mobile/dashboard/calendar-data?year=${year}&month=${month}`, {
+    fetch(`{{ route('mobile.dashboard.calendar-data') }}?year=${year}&month=${month}`, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
