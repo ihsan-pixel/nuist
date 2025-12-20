@@ -250,7 +250,7 @@ if ($hour >= 0 && $hour <= 11) {
             padding: 12px;
             /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
             margin-bottom: 12px;
-            min-height: 328px;
+            min-height: 128px;
         }
 
         .services-grid {
