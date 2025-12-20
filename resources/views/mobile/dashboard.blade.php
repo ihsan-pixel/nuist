@@ -760,6 +760,119 @@ if ($hour >= 0 && $hour <= 11) {
             display: block;
         }
 
+        .performance-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            margin-bottom: 12px;
+        }
+
+        /* LEFT */
+        .performance-left {
+            flex: 1;
+        }
+
+        .performance-level {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .level-badge {
+            font-size: 9px;
+            background: #e6f4f1;
+            color: #004b4c;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .performance-level strong {
+            font-size: 12px;
+            color: #004b4c;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            color: #adb5bd;
+            font-size: 9px;
+        }
+
+        .timeline-item i {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dee2e6;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item.done {
+            color: #0e8549;
+        }
+
+        .timeline-item.done .dot {
+            background: #0e8549;
+        }
+
+        /* RIGHT */
+        .performance-right {
+            width: 90px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 72px;
+            height: 72px;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-text strong {
+            font-size: 14px;
+            color: #004b4c;
+        }
+
+        .progress-text small {
+            font-size: 9px;
+            color: #6c757d;
+        }
+
     </style>
 
     <!-- Show banner modal on page load -->
@@ -1033,43 +1146,63 @@ if ($hour >= 0 && $hour <= 11) {
 
     <small>Aktivitas Kinerja Hari Ini</small>
 
-    <!-- Performance Activities Section -->
-    <div class="performance-section">
-        <div class="performance-compact">
-            <div class="performance-label">
-                <i class="bx bx-bar-chart-alt-2"></i>
-                <span>Progress Harian</span>
+    <div class="performance-card">
+        <!-- LEFT -->
+        <div class="performance-left">
+            <div class="performance-level">
+                <span class="level-badge">LEVEL</span>
+                <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
             </div>
 
-            <div class="timeline-progress">
+            <div class="timeline">
                 <!-- Presensi Masuk -->
-                <div class="timeline-step {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
-                    <div class="step-marker">
-                        <i class="bx bx-log-in"></i>
-                    </div>
-                    <div class="step-line"></div>
+                <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+                    <span class="dot"></span>
+                    <i class="bx bx-log-in"></i>
+                    <span class="label">Masuk</span>
                 </div>
 
-                <!-- Presensi Mengajar - hanya tampil jika ada jadwal -->
                 @if($presensiMengajarStatus !== 'tidak_ada_jadwal')
-                <div class="timeline-step {{ $presensiMengajarStatus === 'sudah' ? 'completed' : 'pending' }}">
-                    <div class="step-marker">
-                        <i class="bx bx-chalkboard"></i>
-                    </div>
-                    <div class="step-line"></div>
+                <div class="timeline-item {{ $presensiMengajarStatus === 'sudah' ? 'done' : '' }}">
+                    <span class="dot"></span>
+                    <i class="bx bx-chalkboard"></i>
+                    <span class="label">Mengajar</span>
                 </div>
                 @endif
 
-                <!-- Presensi Keluar -->
-                <div class="timeline-step {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
-                    <div class="step-marker">
-                        <i class="bx bx-log-out"></i>
-                    </div>
+                <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                    <span class="dot"></span>
+                    <i class="bx bx-log-out"></i>
+                    <span class="label">Pulang</span>
                 </div>
             </div>
+        </div>
 
-            <div class="performance-percentage">
-                <span class="percent-value">{{ $kinerjaPercent }}%</span>
+        <!-- RIGHT -->
+        <div class="performance-right">
+            <div class="progress-circle">
+                <svg viewBox="0 0 36 36">
+                    <path
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="#e9ecef"
+                        stroke-width="3"
+                    />
+                    <path
+                        d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831"
+                        fill="none"
+                        stroke="#0e8549"
+                        stroke-width="3"
+                        stroke-dasharray="{{ $kinerjaPercent }}, 100"
+                    />
+                </svg>
+                <div class="progress-text">
+                    <strong>{{ $kinerjaPercent }}%</strong>
+                    <small>Hari ini</small>
+                </div>
             </div>
         </div>
     </div>
