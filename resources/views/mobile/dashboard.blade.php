@@ -1035,62 +1035,41 @@ if ($hour >= 0 && $hour <= 11) {
 
     <!-- Performance Activities Section -->
     <div class="performance-section">
-        <div class="performance-header">
-            <div class="performance-title">
+        <div class="performance-compact">
+            <div class="performance-label">
                 <i class="bx bx-bar-chart-alt-2"></i>
                 <span>Progress Harian</span>
             </div>
-            <div class="performance-percent">
+
+            <div class="timeline-progress">
+                <!-- Presensi Masuk -->
+                <div class="timeline-step {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
+                    <div class="step-marker">
+                        <i class="bx bx-log-in"></i>
+                    </div>
+                    <div class="step-line"></div>
+                </div>
+
+                <!-- Presensi Mengajar - hanya tampil jika ada jadwal -->
+                @if($presensiMengajarStatus !== 'tidak_ada_jadwal')
+                <div class="timeline-step {{ $presensiMengajarStatus === 'sudah' ? 'completed' : 'pending' }}">
+                    <div class="step-marker">
+                        <i class="bx bx-chalkboard"></i>
+                    </div>
+                    <div class="step-line"></div>
+                </div>
+                @endif
+
+                <!-- Presensi Keluar -->
+                <div class="timeline-step {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
+                    <div class="step-marker">
+                        <i class="bx bx-log-out"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="performance-percentage">
                 <span class="percent-value">{{ $kinerjaPercent }}%</span>
-            </div>
-        </div>
-
-        <div class="timeline-activities">
-            <!-- Presensi Masuk -->
-            <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'completed' : 'pending' }}">
-                <div class="timeline-marker">
-                    <i class="bx bx-log-in"></i>
-                </div>
-                <div class="timeline-content">
-                    <div class="timeline-title">Presensi Masuk</div>
-                    <div class="timeline-status">
-                        <span class="status-text">{{ $presensiMasukStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Presensi Mengajar - hanya tampil jika ada jadwal -->
-            @if($presensiMengajarStatus !== 'tidak_ada_jadwal')
-            <div class="timeline-item {{ $presensiMengajarStatus === 'sudah' ? 'completed' : 'pending' }}">
-                <div class="timeline-marker">
-                    <i class="bx bx-chalkboard"></i>
-                </div>
-                <div class="timeline-content">
-                    <div class="timeline-title">Presensi Mengajar</div>
-                    <div class="timeline-status">
-                        <span class="status-text">
-                            @if($presensiMengajarStatus === 'sudah')
-                                Sudah ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
-                            @else
-                                Belum ({{ $todaySchedulesWithAttendance->where('attendance_status', 'sudah')->count() }}/{{ $todaySchedulesWithAttendance->count() }})
-                            @endif
-                        </span>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            <!-- Presensi Keluar -->
-            <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'completed' : 'pending' }}">
-                <div class="timeline-marker">
-                    <i class="bx bx-log-out"></i>
-                </div>
-                <div class="timeline-content">
-                    <div class="timeline-title">Presensi Keluar</div>
-                    <div class="timeline-status">
-                        <span class="status-text">{{ $presensiKeluarStatus === 'sudah' ? 'Sudah' : 'Belum' }}</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
