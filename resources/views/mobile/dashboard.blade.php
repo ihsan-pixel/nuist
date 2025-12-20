@@ -815,7 +815,7 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .timeline-item i {
-            font-size: 10px;
+            font-size: 16px;
             margin-bottom: 2px;
         }
 
@@ -1159,7 +1159,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
                     <span class="dot"></span>
                     <i class="bx bx-log-in"></i>
-                    <span class="label">Masuk</span>
+                    <span class="label" style="font-size: 10px">Masuk</span>
                 </div>
 
                 <!-- Presensi Mengajar - tampilkan per jadwal -->
