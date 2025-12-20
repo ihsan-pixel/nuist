@@ -295,6 +295,7 @@ class DashboardController extends \App\Http\Controllers\Controller
 
         return response()->json([
             'kehadiranPercent' => $kehadiranPercent,
+            'hadir' => $hadir,
             'totalBasis' => $totalBasis,
             'izin' => $izin,
             'alpha' => $alpha,
