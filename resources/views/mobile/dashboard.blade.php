@@ -1153,6 +1153,19 @@ if ($hour >= 0 && $hour <= 11) {
                 @endfor
             </div>
         </div>
+
+        @if(count($monthlyHolidays) > 0)
+        <div class="holiday-list">
+            <small style="color: #666; font-weight: 500;">Hari Libur Nasional:</small>
+            <div style="margin-top: 4px;">
+                @foreach($monthlyHolidays as $date => $name)
+                    <small style="display: block; color: #d63031; margin-bottom: 2px;">
+                        • {{ \Carbon\Carbon::parse($date)->format('d/m') }} - {{ $name }}
+                    </small>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
