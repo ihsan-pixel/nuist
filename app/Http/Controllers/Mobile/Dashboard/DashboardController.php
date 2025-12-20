@@ -201,7 +201,7 @@ class DashboardController extends \App\Http\Controllers\Controller
             'kehadiranPercent', 'hadir', 'totalBasis', 'izin', 'alpha', 'userInfo', 'todaySchedulesWithAttendance',
             'bannerImage', 'showBanner', 'monthlyPresensi', 'currentMonth', 'currentYear',
             'hariKbm', 'monthlyHolidays', 'prevMonth', 'prevYear', 'nextMonth', 'nextYear',
-            'presensiMasukStatus', 'presensiMengajarStatus', 'presensiKeluarStatus', 'kinerjaPercent'
+            'presensiMasukStatus', 'presensiMengajarStatus', 'presensiKeluarStatus', 'kinerjaPercent', 'teachingSteps'
         ));
     }
 
