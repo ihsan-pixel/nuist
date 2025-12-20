@@ -864,7 +864,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 
-    <small class="name-form" style="font-style: italic">Aktivitas Presensi Bulan Ini</small>
+    <small class="name-form" style="font-style: italic">Aktivitas Presensi Bulan {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</small>
 
     <div class="stats-form">
         <div class="stats-grid">
@@ -1172,6 +1172,11 @@ if ($hour >= 0 && $hour <= 11) {
                         // Jika hari sebelum hari ini, hari kerja, dan bukan hari libur tapi tidak ada presensi, tandai sebagai alpha
                         if ($isPastDay && $isWorkingDay && !$isHoliday && !$presensiStatus) {
                             $presensiStatus = 'alpha';
+                        }
+
+                        // Treat 'sakit' as 'izin' for display consistency
+                        if ($presensiStatus === 'sakit') {
+                            $presensiStatus = 'izin';
                         }
                     @endphp
 
