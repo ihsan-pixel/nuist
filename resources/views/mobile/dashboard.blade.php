@@ -395,7 +395,7 @@ if ($hour >= 0 && $hour <= 11) {
         .schedule-card {
             flex: 0 0 60vw; /* 60% of viewport width */
             padding: 16px;
-            background: #f8f9fa;
+            background: linear-gradient(to bottom, #fdbd57, #f89a3c);
             border-radius: 8px;
             text-align: center;
             min-height: 120px;
@@ -406,13 +406,13 @@ if ($hour >= 0 && $hour <= 11) {
 
         .schedule-header strong {
             font-size: 14px;
-            color: #333;
+            color: white;
             margin-bottom: 4px;
         }
 
         .schedule-header small {
             font-size: 12px;
-            color: #6c757d;
+            color: white;
         }
 
         .schedule-time {
@@ -421,7 +421,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         .schedule-time small {
             font-size: 11px;
-            color: #6c757d;
+            color: white;
         }
 
         .schedule-status .badge {
