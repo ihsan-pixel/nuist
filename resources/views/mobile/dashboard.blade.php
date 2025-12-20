@@ -1269,7 +1269,7 @@ function updateStatsData(year, month) {
     .then(data => {
         // Update stats display
         document.querySelector('.stat-item:nth-child(1) h6').textContent = data.kehadiranPercent + '%';
-        document.querySelector('.stat-item:nth-child(2) h6').textContent = data.totalBasis;
+        document.querySelector('.stat-item:nth-child(2) h6').textContent = data.hadir;
         document.querySelector('.stat-item:nth-child(3) h6').textContent = data.izin;
         document.querySelector('.stat-item:nth-child(4) h6').textContent = data.alpha;
     })
