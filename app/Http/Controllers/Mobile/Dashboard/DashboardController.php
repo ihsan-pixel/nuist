@@ -61,6 +61,8 @@ class DashboardController extends \App\Http\Controllers\Controller
 
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
+        $today = Carbon::now();
+
         // Prepare user info array expected by the view
         $userInfo = [
             'nuist_id' => $user->nuist_id ?? '-',
