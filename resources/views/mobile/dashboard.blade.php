@@ -864,7 +864,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 
-    <small class="name-form">Aktivitas Presensi Bulan Ini</small>
+    <small class="name-form" style="font-style: italic">Aktivitas Presensi Bulan Ini</small>
 
     <div class="stats-form">
         <div class="stats-grid">
