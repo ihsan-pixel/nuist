@@ -1247,6 +1247,13 @@ function navigateMonth(year, month) {
 
         // Update stats data for the new month
         updateStatsData(year, month);
+
+        // Update month name in the stats header
+        const monthNames = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        document.querySelector('.name-form').textContent = `Aktivitas Presensi Bulan ${monthNames[month - 1]} ${year}`;
     })
     .catch(error => {
         console.error('Error loading calendar data:', error);
