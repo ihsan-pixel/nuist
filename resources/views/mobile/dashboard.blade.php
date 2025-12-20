@@ -1131,10 +1131,14 @@ if ($hour >= 0 && $hour <= 11) {
                         }
                     @endphp
 
-                    <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }}">
+                    <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }} {{ $isHoliday ? 'holiday' : '' }}">
                         <div class="day-number">{{ $day }}</div>
                         <div class="day-name">{{ $shortDayName }}</div>
-                        @if($presensiStatus)
+                        @if($isHoliday)
+                            <div class="holiday-indicator">
+                                <i class="bx bx-star"></i>
+                            </div>
+                        @elseif($presensiStatus)
                             <div class="presensi-indicator">
                                 @if($presensiStatus == 'hadir')
                                     <i class="bx bx-check"></i>
