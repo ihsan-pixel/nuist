@@ -1160,7 +1160,7 @@ if ($hour >= 0 && $hour <= 11) {
             <div style="margin-top: 4px;">
                 @foreach($monthlyHolidays as $date => $name)
                     <small style="display: block; color: #d63031; margin-bottom: 2px;">
-                        • {{ \Carbon\Carbon::parse($date)->format('d/m') }} - {{ $name }}
+                        • {{ \Carbon\Carbon::parse($date)->locale('id')->format('d F Y') }} - {{ $name }}
                     </small>
                 @endforeach
             </div>
