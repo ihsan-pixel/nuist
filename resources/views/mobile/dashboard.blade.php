@@ -412,6 +412,7 @@ if ($hour >= 0 && $hour <= 11) {
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            border: 2px solid white;
         }
 
         .schedule-header strong {
@@ -879,6 +880,7 @@ if ($hour >= 0 && $hour <= 11) {
             <div class="schedule-carousel">
                 @foreach($todaySchedulesWithAttendance as $schedule)
                     <div class="schedule-card">
+                        <div class="attendance-indicator {{ $schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-danger' }}"></div>
                         <div class="schedule-header">
                             <strong class="d-block">{{ $schedule->subject }}</strong>
                             <small class="d-block text-muted">{{ $schedule->class_name }}</small>
