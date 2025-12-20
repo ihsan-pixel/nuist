@@ -1196,7 +1196,6 @@ if ($hour >= 0 && $hour <= 11) {
 
                     <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }} {{ $isHoliday ? 'holiday' : '' }}">
                         <div class="day-number">{{ $day }}</div>
-                        <div class="day-name">{{ $shortDayName }}</div>
                         @if($isHoliday)
                             <div class="holiday-indicator">
                                 <i class="bx bx-star"></i>
