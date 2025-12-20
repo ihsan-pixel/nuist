@@ -209,7 +209,7 @@ if ($hour >= 0 && $hour <= 11) {
             border-radius: 12px;
             padding: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
-            margin-bottom: 4px;
+            margin-bottom: 0px;
             display: inline-block;
         }
 
