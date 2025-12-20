@@ -1,17 +1,11 @@
-# TODO: Improve Schedule Section on Mobile Dashboard
+# TODO: Update Teaching Schedule Carousel on Mobile Dashboard
 
-## Tasks
-- [x] Modify DashboardController to fetch teaching attendance data for each schedule
-- [x] Update dashboard.blade.php to display schedules in a carousel format
-- [x] Add indicators for presensi mengajar status (sudah/belum) in the carousel
-- [x] Test carousel functionality on mobile
-- [x] Ensure presensi status is accurately displayed
+## Task Overview
+Update the teaching schedule section on the mobile dashboard to display a horizontal card carousel where each card takes 1/3 of the mobile display width. Allow multiple schedules to be visible and scrollable without disappearing animations. Remove the indicators.
 
-## Information Gathered
-- Schedule section currently displays today's schedules in a simple grid
-- Controller fetches schedules from TeachingSchedule model
-- Need to check TeachingAttendance model for presensi status
-
-## Dependent Files
-- app/Http/Controllers/Mobile/Dashboard/DashboardController.php
-- resources/views/mobile/dashboard.blade.php
+## Steps to Complete
+- [ ] Modify the HTML structure of the schedule section to use a custom horizontal scrollable container instead of Bootstrap carousel
+- [ ] Update CSS styles for the schedule carousel to enable horizontal scrolling with cards at 1/3 width
+- [ ] Remove carousel indicators and controls from the HTML
+- [ ] Ensure the layout is responsive and works on mobile devices
+- [ ] Test the changes to verify multiple cards are visible and scrollable
