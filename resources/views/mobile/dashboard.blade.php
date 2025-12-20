@@ -541,29 +541,36 @@ if ($hour >= 0 && $hour <= 11) {
 
         .calendar-title {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             color: #333;
             margin: 0;
         }
 
-        .calendar-grid {
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            padding: 0 4px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 8px;
         }
 
-        .calendar-grid::-webkit-scrollbar {
-            display: none;
+        .weekday-label {
+            text-align: center;
+            font-size: 9px;
+            font-weight: 600;
+            color: #666;
+            padding: 4px 0;
+            text-transform: uppercase;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
         }
 
         .calendar-day {
-            flex: 0 0 48px;
-            min-width: 48px;
-            height: 64px;
-            border-radius: 8px;
+            aspect-ratio: 1;
+            border-radius: 6px;
             background: #f8f9fa;
             display: flex;
             flex-direction: column;
@@ -572,6 +579,12 @@ if ($hour >= 0 && $hour <= 11) {
             position: relative;
             border: 1px solid #e9ecef;
             transition: all 0.2s ease;
+            min-height: 40px;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
         }
 
         .calendar-day.today {
@@ -609,14 +622,14 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .day-number {
-            font-size: 16px;
+            font-size: 11px;
             font-weight: 600;
             line-height: 1;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         .day-name {
-            font-size: 10px;
+            font-size: 8px;
             text-transform: uppercase;
             opacity: 0.8;
             line-height: 1;
@@ -624,15 +637,15 @@ if ($hour >= 0 && $hour <= 11) {
 
         .presensi-indicator {
             position: absolute;
-            bottom: 4px;
-            right: 4px;
-            width: 16px;
-            height: 16px;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 8px;
         }
 
         .calendar-day.status-hadir .presensi-indicator {
