@@ -57,7 +57,33 @@ class DashboardController extends \App\Http\Controllers\Controller
         $sakit = $presensiCounts['sakit'] ?? 0;
         $alpha = $presensiCounts['alpha'] ?? 0;
 
-        $totalBasis = array_sum($presensiCounts);
+        // Calculate total working days for the month (matching calendar logic)
+        $hariKbm = $user->madrasah->hari_kbm ?? 6;
+        $monthlyHolidays = Holiday::whereYear('date', $currentYear)
+            ->whereMonth('date', $currentMonth)
+            ->where('is_active', true)
+            ->pluck('date')
+            ->toArray();
+
+        $workingDays = 0;
+        $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($currentYear, $currentMonth, $day);
+            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
+            $isWorkingDay = true;
+            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
+                $isWorkingDay = false;
+            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
+                $isWorkingDay = false;
+            }
+            if ($isWorkingDay && !in_array($date->toDateString(), $monthlyHolidays)) {
+                $workingDays++;
+            }
+        }
+
+        $totalPresensiRecords = array_sum($presensiCounts);
+        $totalBasis = $workingDays;
+        $alpha = $workingDays - $totalPresensiRecords;
 
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
@@ -227,51 +253,34 @@ class DashboardController extends \App\Http\Controllers\Controller
         $sakit = $presensiCounts['sakit'] ?? 0;
         $alpha = $presensiCounts['alpha'] ?? 0;
 
-        $totalBasis = array_sum($presensiCounts);
-
-        $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
-
-        // Get presensi data for selected month for calendar
-        $monthlyPresensi = Presensi::where('user_id', $user->id)
-            ->whereYear('tanggal', $currentYear)
-            ->whereMonth('tanggal', $currentMonth)
-            ->pluck('status', 'tanggal')
-            ->toArray();
-
-        // Get hari KBM setting from user's madrasah
+        // Calculate total working days for the month (matching calendar logic)
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
-
-        // Get holidays for selected month
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
             ->where('is_active', true)
-            ->pluck('name', 'date')
+            ->pluck('date')
             ->toArray();
 
-        // Calculate additional alpha for past working days without presensi
-        $additionalAlpha = 0;
+        $workingDays = 0;
         $daysInMonth = Carbon::create($currentYear, $currentMonth)->daysInMonth;
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($currentYear, $currentMonth, $day);
-            if ($date->isPast() && !isset($monthlyHolidays[$date->toDateString()]) && !isset($monthlyPresensi[$date->toDateString()])) {
-                $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
-                $isWorkingDay = true;
-                if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
-                    $isWorkingDay = false;
-                } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
-                    $isWorkingDay = false;
-                }
-                if ($isWorkingDay) {
-                    $additionalAlpha++;
-                }
+            $dayOfWeek = $date->dayOfWeek; // 0=Sunday, 6=Saturday
+            $isWorkingDay = true;
+            if ($hariKbm == 5 && ($dayOfWeek == 6 || $dayOfWeek == 0)) {
+                $isWorkingDay = false;
+            } elseif ($hariKbm == 6 && $dayOfWeek == 0) {
+                $isWorkingDay = false;
+            }
+            if ($isWorkingDay && !in_array($date->toDateString(), $monthlyHolidays)) {
+                $workingDays++;
             }
         }
 
-        // Update alpha and totalBasis with additional alpha
-        $alpha += $additionalAlpha;
-        $totalBasis += $additionalAlpha;
+        $totalPresensiRecords = array_sum($presensiCounts);
+        $totalBasis = $workingDays;
+        $alpha = $workingDays - $totalPresensiRecords;
 
-        // Recalculate kehadiranPercent
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
         return response()->json([
