@@ -55,9 +55,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         $hadir = $presensiCounts['hadir'] ?? 0;
         $izin = $presensiCounts['izin'] ?? 0;
         $sakit = $presensiCounts['sakit'] ?? 0;
-        $alpha = $presensiCounts['alpha'] ?? 0;
+        $explicitAlpha = $presensiCounts['alpha'] ?? 0;
 
-        // Calculate total working days for the month (matching calendar logic)
+        // Calculate total working days for the month
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
@@ -82,8 +82,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         }
 
         $totalPresensiRecords = array_sum($presensiCounts);
+        $additionalAlpha = $workingDays - $totalPresensiRecords;
+        $alpha = $explicitAlpha + $additionalAlpha;
         $totalBasis = $workingDays;
-        $alpha = $workingDays - $totalPresensiRecords;
 
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
@@ -251,9 +252,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         $hadir = $presensiCounts['hadir'] ?? 0;
         $izin = $presensiCounts['izin'] ?? 0;
         $sakit = $presensiCounts['sakit'] ?? 0;
-        $alpha = $presensiCounts['alpha'] ?? 0;
+        $explicitAlpha = $presensiCounts['alpha'] ?? 0;
 
-        // Calculate total working days for the month (matching calendar logic)
+        // Calculate total working days for the month
         $hariKbm = $user->madrasah->hari_kbm ?? 6;
         $monthlyHolidays = Holiday::whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
@@ -278,8 +279,9 @@ class DashboardController extends \App\Http\Controllers\Controller
         }
 
         $totalPresensiRecords = array_sum($presensiCounts);
+        $additionalAlpha = $workingDays - $totalPresensiRecords;
+        $alpha = $explicitAlpha + $additionalAlpha;
         $totalBasis = $workingDays;
-        $alpha = $workingDays - $totalPresensiRecords;
 
         $kehadiranPercent = $totalBasis > 0 ? round(($hadir / $totalBasis) * 100, 2) : 0;
 
