@@ -15,7 +15,7 @@ use App\Models\Holiday;
 class DashboardController extends \App\Http\Controllers\Controller
 {
     // Mobile dashboard for tenaga_pendidik
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = Auth::user();
 
