@@ -1261,7 +1261,7 @@ function renderCalendar(data) {
     // Calendar days
     for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${data.currentYear}-${String(data.currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const presensiStatus = data.monthlyPresensi[dateKey] || null;
+        let presensiStatus = data.monthlyPresensi[dateKey] || null;
         const isHoliday = data.monthlyHolidays[dateKey] !== undefined;
         const isToday = isCurrentMonth && day === currentDay;
 
@@ -1271,20 +1271,20 @@ function renderCalendar(data) {
         const isSaturday = dayOfWeek === 6;
         const isWorkingDay = !isSunday && !(isSaturday && data.hariKbm === 5);
 
+        // If no presensi data and it's a past working day and not holiday, mark as alpha
+        if (!presensiStatus && !isHoliday && isWorkingDay) {
+            const currentDate = new Date();
+            const checkDate = new Date(data.currentYear, data.currentMonth - 1, day);
+            if (checkDate < currentDate) {
+                presensiStatus = 'alpha';
+            }
+        }
+
         let statusClass = '';
         if (presensiStatus) {
             statusClass = `status-${presensiStatus}`;
         } else if (isHoliday) {
             statusClass = 'holiday';
-        } else if (!isWorkingDay) {
-            // Not marked as red for non-working days
-        } else {
-            // Check if past working day without attendance
-            const currentDate = new Date();
-            const checkDate = new Date(data.currentYear, data.currentMonth - 1, day);
-            if (checkDate < currentDate && !isHoliday) {
-                statusClass = 'status-alpha';
-            }
         }
 
         const hasPresensi = presensiStatus ? 'has-presensi' : '';
