@@ -1126,18 +1126,27 @@ if ($hour >= 0 && $hour <= 11) {
     <!-- Calendar Section -->
     <div class="calendar-section">
         <div class="calendar-container">
-            <div class="calendar-header">
-                <div class="calendar-title">
-                    <button class="month-nav-btn" onclick="navigateMonth({{ $prevYear }}, {{ $prevMonth }})">
-                        <i class="bx bx-chevron-left"></i>
-                    </button>
-                    <span>{{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</span>
-                    <button class="month-nav-btn" onclick="navigateMonth({{ $nextYear }}, {{ $nextMonth }})">
-                        <i class="bx bx-chevron-right"></i>
-                    </button>
-                </div>
+        <div class="calendar-header">
+            <div class="calendar-title">
+                <button class="month-nav-btn" onclick="navigateMonth({{ $prevYear }}, {{ $prevMonth }})">
+                    <i class="bx bx-chevron-left"></i>
+                </button>
+                <span>{{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</span>
+                <button class="month-nav-btn" onclick="navigateMonth({{ $nextYear }}, {{ $nextMonth }})">
+                    <i class="bx bx-chevron-right"></i>
+                </button>
             </div>
-            <div class="calendar-grid">
+        </div>
+        <div class="calendar-weekdays">
+            <div class="weekday-label">Min</div>
+            <div class="weekday-label">Sen</div>
+            <div class="weekday-label">Sel</div>
+            <div class="weekday-label">Rab</div>
+            <div class="weekday-label">Kam</div>
+            <div class="weekday-label">Jum</div>
+            <div class="weekday-label">Sab</div>
+        </div>
+        <div class="calendar-grid">
                 @php
                     $daysInMonth = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->daysInMonth;
                     $today = \Carbon\Carbon::now()->day;
