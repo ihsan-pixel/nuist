@@ -772,7 +772,7 @@ if ($hour >= 0 && $hour <= 11) {
             padding: 14px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,.08);
             margin-bottom: 12px;
@@ -856,19 +856,18 @@ if ($hour >= 0 && $hour <= 11) {
 
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(0,0,0,.08);
+            border-radius: 999px;
             overflow: hidden;
-            margin-bottom: 8px;
-            flex: 1;
         }
 
         .progress-fill {
             height: 100%;
-            background: #0e8549;
             width: {{ $kinerjaPercent }}%;
-            transition: width 0.3s ease;
+            background: #0e8549;
+            border-radius: 999px;
+            transition: width .4s ease;
         }
 
         .progress-text {
@@ -883,6 +882,13 @@ if ($hour >= 0 && $hour <= 11) {
         .progress-text small {
             font-size: 9px;
             color: #6c757d;
+        }
+
+        .performance-progress {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
     </style>
