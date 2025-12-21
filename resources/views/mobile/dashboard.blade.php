@@ -776,6 +776,13 @@ if ($hour >= 0 && $hour <= 11) {
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,.08);
             margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .performance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
         }
 
         /* LEFT */
@@ -809,6 +816,7 @@ if ($hour >= 0 && $hour <= 11) {
             display: flex;
             gap: 12px;
             align-items: center;
+            max-width: 50%;
         }
 
         .timeline-item {
@@ -818,6 +826,7 @@ if ($hour >= 0 && $hour <= 11) {
             position: relative;
             color: #adb5bd;
             font-size: 9px;
+            flex: 1;
         }
 
         .timeline-item i {
@@ -848,25 +857,24 @@ if ($hour >= 0 && $hour <= 11) {
             justify-content: center;
         }
 
-        .progress-circle {
-            position: relative;
-            width: 72px;
-            height: 72px;
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
         }
 
-        .progress-circle svg {
-            transform: rotate(-90deg);
-            width: 100%;
+        .progress-fill {
             height: 100%;
+            background: #0e8549;
+            width: {{ $kinerjaPercent }}%;
+            transition: width 0.3s ease;
         }
 
         .progress-text {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
         }
 
         .progress-text strong {
@@ -1148,6 +1156,11 @@ if ($hour >= 0 && $hour <= 11) {
                 label.textContent = 'Lihat Semua';
             }
         }
+
+        function togglePerformanceDetails() {
+            const modal = new bootstrap.Modal(document.getElementById('performanceModal'));
+            modal.show();
+        }
     </script>
 
     <small>Aktivitas Kinerja Hari Ini</small>
@@ -1190,29 +1203,12 @@ if ($hour >= 0 && $hour <= 11) {
 
         <!-- RIGHT -->
         <div class="performance-right">
-            <div class="progress-circle">
-                <svg viewBox="0 0 36 36">
-                    <path
-                        d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="#e9ecef"
-                        stroke-width="3"
-                    />
-                    <path
-                        d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831"
-                        fill="none"
-                        stroke="#0e8549"
-                        stroke-width="3"
-                        stroke-dasharray="{{ $kinerjaPercent }}, 100"
-                    />
-                </svg>
-                <div class="progress-text">
-                    <strong>{{ $kinerjaPercent }}%</strong>
-                    <small>Hari ini</small>
-                </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <strong>{{ $kinerjaPercent }}%</strong>
+                <small>Hari ini</small>
             </div>
         </div>
     </div>
@@ -1423,6 +1419,127 @@ if ($hour >= 0 && $hour <= 11) {
             @endif
         </div>
     </div>
+
+    <!-- Performance Details Modal -->
+    <div class="modal fade" id="performanceModal" tabindex="-1" aria-labelledby="performanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 14px; border: none;">
+                <div class="modal-header" style="border-bottom: 1px solid #e9ecef;">
+                    <h5 class="modal-title" id="performanceModalLabel" style="font-weight: 600; color: #004b4c;">Detail Aktivitas Kinerja Hari Ini</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <div class="performance-level mb-4">
+                        <span class="level-badge">LEVEL</span>
+                        <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
+                    </div>
+
+                    <div class="progress-bar mb-3">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-text mb-4">
+                        <strong>{{ $kinerjaPercent }}%</strong>
+                        <small>Hari ini</small>
+                    </div>
+
+                    <div class="timeline-modal">
+                        <!-- Presensi Masuk -->
+                        <div class="timeline-item-modal {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bx bx-log-in"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Presensi Masuk</strong>
+                                <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Presensi Mengajar - tampilkan per jadwal -->
+                        @if(count($teachingSteps) > 0)
+                            @foreach($teachingSteps as $step)
+                            <div class="timeline-item-modal {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                                <div class="timeline-icon">
+                                    <i class="bx bx-chalkboard"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>{{ $step['label'] }}</strong>
+                                    <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                                </div>
+                            </div>
+                            @endforeach
+                        @endif
+
+                        <!-- Presensi Keluar -->
+                        <div class="timeline-item-modal {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bx bx-log-out"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Presensi Keluar</strong>
+                                <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .timeline-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .timeline-item-modal {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-item-modal.done {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+
+        .timeline-item-modal.done .timeline-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        .timeline-content strong {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .timeline-content small {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .timeline-item-modal.done .timeline-content strong,
+        .timeline-item-modal.done .timeline-content small {
+            color: #155724;
+        }
+    </style>
 </div>
 @endsection
 
