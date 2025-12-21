@@ -861,6 +861,7 @@ if ($hour >= 0 && $hour <= 11) {
             border-radius: 4px;
             overflow: hidden;
             margin-bottom: 8px;
+            flex: 1;
         }
 
         .progress-fill {
