@@ -1197,7 +1197,8 @@ if ($hour >= 0 && $hour <= 11) {
                 </div>
             </div>
         </div>
-
+    </div>
+    <div>
         <!-- RIGHT -->
         <div class="performance-right">
             <div class="progress-bar">
