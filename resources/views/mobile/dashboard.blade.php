@@ -771,7 +771,7 @@ if ($hour >= 0 && $hour <= 11) {
             border-radius: 14px;
             padding: 14px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,.08);
@@ -1163,50 +1163,18 @@ if ($hour >= 0 && $hour <= 11) {
     <small>Aktivitas Kinerja Hari Ini</small>
 
     <div class="performance-card">
-        <!-- LEFT -->
-        <div class="performance-left">
-            <div class="performance-level">
-                <span class="level-badge">LEVEL</span>
-                <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
-            </div>
-
-            <div class="timeline">
-                <!-- Presensi Masuk -->
-                <div class="timeline-item {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
-                    <span class="dot"></span>
-                    <i class="bx bx-log-in"></i>
-                    <span class="label_text">Masuk</span>
-                </div>
-
-                <!-- Presensi Mengajar - tampilkan per jadwal -->
-                @if(count($teachingSteps) > 0)
-                    @foreach($teachingSteps as $step)
-                    <div class="timeline-item {{ $step['status'] === 'completed' ? 'done' : '' }}">
-                        <span class="dot"></span>
-                        <i class="bx bx-chalkboard"></i>
-                        <span class="label_text">{{ $step['label'] }}</span>
-                    </div>
-                    @endforeach
-                @endif
-
-                <!-- Presensi Keluar -->
-                <div class="timeline-item {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
-                    <span class="dot"></span>
-                    <i class="bx bx-log-out"></i>
-                    <span class="label_text">Pulang</span>
-                </div>
-            </div>
+        <div class="performance-level">
+            <span class="level-badge">LEVEL</span>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
         </div>
-        <div>
-            <!-- RIGHT -->
-            <div class="performance-right">
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-                <div class="progress-text">
-                    <strong>{{ $kinerjaPercent }}%</strong>
-                    <small>Hari ini</small>
-                </div>
+
+        <div class="performance-progress">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <strong>{{ $kinerjaPercent }}%</strong>
+                <small>Hari ini</small>
             </div>
         </div>
     </div>
