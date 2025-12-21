@@ -849,7 +849,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         /* RIGHT */
         .performance-right {
-            width: 120px;
+            width: 460px;
             display: flex;
             justify-content: center;
         }
