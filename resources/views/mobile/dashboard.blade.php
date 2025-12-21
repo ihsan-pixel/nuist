@@ -887,8 +887,13 @@ if ($hour >= 0 && $hour <= 11) {
         .performance-progress {
             width: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar {
+            flex: 1;
         }
 
     </style>
