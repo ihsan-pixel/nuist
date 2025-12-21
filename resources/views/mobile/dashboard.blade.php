@@ -1172,7 +1172,7 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="performance-card">
         <div class="performance-level">
             <span class="level-badge">LEVEL</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik' : ($kinerjaPercent >= 66 ? 'Cukup' : 'Belum Ada Progres')) }}</strong>
         </div>
 
         <div class="performance-progress">
@@ -1404,7 +1404,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="modal-body" style="padding: 20px;">
                     <div class="performance-level mb-4">
                         <span class="level-badge">LEVEL</span>
-                        <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
+                        <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik' : ($kinerjaPercent >= 66 ? 'Cukup' : 'Belum Ada Progres')) }}</strong>
                     </div>
 
                     <div class="progress-bar mb-3">
