@@ -813,10 +813,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         /* TIMELINE */
         .timeline {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            max-width: 50%;
+            display: none;
         }
 
         .timeline-item {
@@ -852,7 +849,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         /* RIGHT */
         .performance-right {
-            width: 90px;
+            width: 120px;
             display: flex;
             justify-content: center;
         }
