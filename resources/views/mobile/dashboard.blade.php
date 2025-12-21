@@ -1197,16 +1197,16 @@ if ($hour >= 0 && $hour <= 11) {
                 </div>
             </div>
         </div>
-    </div>
-    <div>
-        <!-- RIGHT -->
-        <div class="performance-right">
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-            <div class="progress-text">
-                <strong>{{ $kinerjaPercent }}%</strong>
-                <small>Hari ini</small>
+        <div>
+            <!-- RIGHT -->
+            <div class="performance-right">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <strong>{{ $kinerjaPercent }}%</strong>
+                    <small>Hari ini</small>
+                </div>
             </div>
         </div>
     </div>
