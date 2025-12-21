@@ -74,7 +74,7 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 </header>
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3" style="max-width: 520px; margin: auto;">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -1166,7 +1166,7 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="performance-card">
         <div class="performance-level">
             <span class="level-badge">LEVEL</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
         </div>
 
         <div class="performance-progress">
@@ -1398,7 +1398,7 @@ if ($hour >= 0 && $hour <= 11) {
                 <div class="modal-body" style="padding: 20px;">
                     <div class="performance-level mb-4">
                         <span class="level-badge">LEVEL</span>
-                        <strong>{{ $kinerjaPercent >= 100 ? 'Master' : ($kinerjaPercent >= 66 ? 'Pro' : 'Beginner') }}</strong>
+                        <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
                     </div>
 
                     <div class="progress-bar mb-3">
