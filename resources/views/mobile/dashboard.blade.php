@@ -1512,7 +1512,7 @@ $progressColor = "rgb($red, $green, 0)";
     </div>
 
     <!-- Performance Details Modal -->
-    <div class="modal fade" id="performanceModal" tabindex="-1" aria-labelledby="performanceModalLabel" aria-hidden="true">
+    {{-- <div class="modal fade" id="performanceModal" tabindex="-1" aria-labelledby="performanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 14px; border: none;">
                 <div class="modal-header" style="border-bottom: 1px solid #e9ecef;">
@@ -1574,7 +1574,7 @@ $progressColor = "rgb($red, $green, 0)";
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <style>
         .timeline-modal {
