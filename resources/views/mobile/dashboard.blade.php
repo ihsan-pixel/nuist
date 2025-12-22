@@ -1565,6 +1565,41 @@ $progressColor = "rgb($red, $green, 0)";
         </div>
     </div>
 
+    <small>Informasi Aplikasi</small>
+
+    <!-- Information Section -->
+    <div class="schedule-section">
+        {{-- <h6 class="section-title">Informasi Aplikasi</h6> --}}
+        @php
+            // Placeholder data for designs - will be replaced with actual data later
+            $designs = [
+                ['image' => 'design1.png', 'title' => 'Desain 1', 'description' => 'Deskripsi desain pertama'],
+                ['image' => 'design2.png', 'title' => 'Desain 2', 'description' => 'Deskripsi desain kedua'],
+                ['image' => 'design3.png', 'title' => 'Desain 3', 'description' => 'Deskripsi desain ketiga'],
+            ];
+        @endphp
+        @if(count($designs) > 0)
+            <div class="schedule-carousel">
+                @foreach($designs as $design)
+                    <div class="schedule-card">
+                        <div class="design-image">
+                            <img src="{{ asset('images/designs/' . $design['image']) }}" alt="{{ $design['title'] }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        </div>
+                        <div class="schedule-header">
+                            <strong class="d-block">{{ $design['title'] }}</strong>
+                            <small class="d-block text-dark">{{ $design['description'] }}</small>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="no-schedule">
+                <i class="bx bx-image-alt"></i>
+                <p>Tidak ada desain tersedia</p>
+            </div>
+        @endif
+    </div>
+
     <!-- Performance Details Modal -->
     {{-- <div class="modal fade" id="performanceModal" tabindex="-1" aria-labelledby="performanceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
