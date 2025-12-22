@@ -385,7 +385,7 @@
             <div class="schedule-list">
                 @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
                     @foreach($schedules[$day] as $schedule)
-                        <div class="schedule-item">
+                        <div class="day-card">
                             <div class="schedule-icon">
                                 <i class="bx bx-book"></i>
                             </div>
