@@ -376,7 +376,7 @@
             @endphp
             @foreach($days as $index => $day)
                 <div class="day-indicator-item {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
-                    <span data-full-name="{{ $day }}" data-short-name="{{ substr($day, 0, 1) }}">{{ substr($day, 0, 6) }}</span>
+                    <span data-full-name="{{ $day }}" data-short-name="{{ substr($day, 0, 1) }}"></span>
                 </div>
             @endforeach
         </div>
