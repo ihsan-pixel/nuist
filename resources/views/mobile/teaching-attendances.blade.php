@@ -206,17 +206,16 @@
             font-size: 10px !important;
         }
 
-        .map-container {
-            height: 150px;
-            border-radius: 8px;
+        .user-location-map-container {
+            position: relative;
             overflow: hidden;
-            margin-bottom: 15px;
-            border: 1px solid #e9ecef;
+            border-radius: 12px;
         }
 
-        .map-container #locationMap {
-            height: 100%;
-            width: 100%;
+        .user-location-map-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
         }
 
         .map-placeholder {
@@ -390,16 +389,23 @@
                         </div>
                     </div>
 
-                    <div class="map-container">
+                    <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
                         <div id="map-placeholder" class="map-placeholder">
                             <i class="bx bx-map"></i>
                             <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
                         </div>
-                        <div id="locationMap"></div>
+                        <div id="locationMap" style="height: 100%; width: 100%;"></div>
                     </div>
 
                     <div id="locationStatus" class="alert alert-info mb-3">
                         <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
+                    </div>
+
+                    <div class="mt-2 text-center">
+                        <small class="text-muted" style="font-size: 10px;">
+                            <i class="bx bx-info-circle me-1"></i>
+                            Titik hijau menunjukkan lokasi Anda saat ini
+                        </small>
                     </div>
 
                     <div class="alert alert-warning">
@@ -489,6 +495,9 @@ function updateMapLocation(lat, lng) {
     marker = L.marker(location).addTo(map)
         .bindPopup('Lokasi Anda saat ini')
         .openPopup();
+
+    // Hide placeholder when map is ready
+    $('#map-placeholder').hide();
 
     // Center map on location
     map.setView(location, 16);
