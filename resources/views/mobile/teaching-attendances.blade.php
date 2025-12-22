@@ -471,7 +471,7 @@
                         <i class="bx bx-x me-1"></i>Batal
                     </button>
                     <button type="button" class="btn btn-primary px-4" id="confirmAttendanceBtn" disabled>
-                        <i class="bx bx-check-circle me-1"></i>Ya, Lakukan Presensi
+                        <i class="bx bx-check-circle me-1"></i>Lakukan Presensi
                     </button>
                 </div>
             </div>
