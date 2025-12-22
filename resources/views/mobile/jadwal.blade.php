@@ -86,21 +86,43 @@
             padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .day-indicator::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-indicator-container {
+            display: flex;
+            justify-content: center;
+            min-width: max-content;
         }
 
         .day-indicator-item {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 4px;
+            margin: 0 3px;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
             position: relative;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 576px) {
+            .day-indicator-item {
+                width: 32px;
+                height: 32px;
+                margin: 0 2px;
+            }
         }
 
         .day-indicator-item::after {
@@ -141,11 +163,11 @@
             width: 100vw;
             background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             border-radius: 0;
-            min-height: 100vh;
+            min-height: calc(100vh - 120px);
             display: flex;
             flex-direction: column;
             position: relative;
-            padding: 20px;
+            padding: 16px;
             box-shadow: none;
             border: none;
             margin: 0;
@@ -156,22 +178,36 @@
             display: flex;
         }
 
+        @media (max-width: 576px) {
+            .day-card {
+                min-height: calc(100vh - 100px);
+                padding: 12px;
+            }
+        }
+
         .day-header {
             text-align: center;
             margin-bottom: 12px;
         }
 
         .day-header strong {
-            font-size: 16px;
+            font-size: 18px;
             color: white;
             margin-bottom: 4px;
             display: block;
+            font-weight: 700;
         }
 
         .day-header small {
             font-size: 12px;
             color: white;
             opacity: 0.9;
+        }
+
+        @media (max-width: 576px) {
+            .day-header strong {
+                font-size: 16px;
+            }
         }
 
         .schedule-list {
