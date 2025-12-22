@@ -447,14 +447,14 @@
                         <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
                     </div>
 
-                    <div class="mt-2 text-center">
+                    {{-- <div class="mt-2 text-center">
                         <small class="text-muted" style="font-size: 10px;">
                             <i class="bx bx-info-circle me-1"></i>
                             Titik hijau menunjukkan lokasi Anda saat ini
                         </small>
-                    </div>
+                    </div> --}}
 
-                    <div class="alert alert-warning">
+                    {{-- <div class="alert alert-warning">
                         <i class="bx bx-info-circle me-2"></i>
                         <strong>Pastikan:</strong>
                         <ul class="mb-0 mt-2">
@@ -462,7 +462,7 @@
                             <li>Presensi dilakukan sesuai jam mengajar</li>
                             <li>Lokasi GPS aktif dan akurat</li>
                         </ul>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
@@ -536,7 +536,7 @@ function updateMapLocation(lat, lng) {
 
     // Add new marker
     marker = L.marker(location).addTo(map)
-        .bindPopup('Lokasi Anda saat ini')
+        .bindPopup('Lokasi saat ini')
         .openPopup();
 
     // Hide placeholder when map is ready
