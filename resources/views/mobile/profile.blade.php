@@ -279,6 +279,98 @@
         .alert-custom i {
             margin-right: 6px;
         }
+
+        .dashboard-header {
+            background: #f8f9fb url('{{ asset("images/qwe1.png") }}') no-repeat center center;
+            background-size: cover;
+            border-radius: 14px;
+            padding: 12px;
+            color: #004b4c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.176);
+        }
+
+        .id-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .id-card-photo {
+            width: 56px;
+            height: 76px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .id-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .id-card-details {
+            flex: 1;
+        }
+
+        .row-item {
+            display: grid;
+            grid-template-columns: 70px 10px 1fr;
+            align-items: center;
+            font-size: 10px;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+
+        .row-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .label_text {
+            color: #004b4c;
+            text-align: left;
+            font-size: 10px;
+        }
+
+        .label {
+            color: #004b4c;
+            text-align: left;
+        }
+
+        .colon {
+            color: #004b4c;
+            text-align: center;
+        }
+
+        .value {
+            font-weight: 600;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #004b4c;
+        }
+
+        .badge-status {
+            background: rgba(0,75,76,0.1);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            color: #004b4c;
+            border: 1px solid rgba(0,75,76,0.2);
+        }
+
+        .id-card-title {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #004b4c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(0,75,76,0.3);
+            padding-bottom: 4px;
+        }
     </style>
 
     <!-- Header -->
