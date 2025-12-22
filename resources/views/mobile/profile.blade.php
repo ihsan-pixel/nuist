@@ -281,7 +281,25 @@
         }
     </style>
 
-     <!-- Stats Form -->
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Profil</h5>
+        <small class="text-muted" style="font-size: 12px;">Informasi Personal</small>
+    </div>
+
+    @if(session('success'))
+    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
+        <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border-radius: 12px; padding: 10px;">
+        <i class="bx bx-error-circle me-1"></i>{{ session('error') }}
+    </div>
+    @endif
+
+    <!-- Kartu Identitas Digital -->
     <div class="dashboard-header mb-4">
         <div class="id-card-title">Kartu Identitas Digital</div>
         <div class="id-card">
@@ -331,26 +349,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="sticky-header">
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Profil</h5>
-            <small class="text-muted" style="font-size: 12px;">Informasi Personal</small>
-        </div>
-
-        @if(session('success'))
-        <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
-            <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border-radius: 12px; padding: 10px;">
-            <i class="bx bx-error-circle me-1"></i>{{ session('error') }}
-        </div>
-        @endif
     </div>
 
     <!-- Profile Avatar Section -->

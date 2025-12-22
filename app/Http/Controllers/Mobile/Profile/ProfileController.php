@@ -18,8 +18,24 @@ class ProfileController extends \App\Http\Controllers\Controller
             abort(403, 'Unauthorized.');
         }
 
-        // pass the authenticated user to the view so blade can reference $user
-        return view('mobile.profile', compact('user'));
+        // Prepare user info array expected by the view (same as dashboard)
+        $userInfo = [
+            'nuist_id' => $user->nuist_id ?? '-',
+            'status_kepegawaian' => $user->statusKepegawaian?->name ?? '-',
+            'ketugasan' => $user->ketugasan ?? '-',
+            'tempat_lahir' => $user->tempat_lahir ?? '-',
+            'tanggal_lahir' => $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('d-m-Y') : '-',
+            'tmt' => $user->tmt ? \Carbon\Carbon::parse($user->tmt)->format('d-m-Y') : '-',
+            'nuptk' => $user->nuptk ?? '-',
+            'npk' => $user->npk ?? '-',
+            'kartanu' => $user->kartanu ?? '-',
+            'nip' => $user->nip ?? '-',
+            'pendidikan_terakhir' => $user->pendidikan_terakhir ?? '-',
+            'program_studi' => $user->program_studi ?? '-',
+        ];
+
+        // pass the authenticated user and userInfo to the view
+        return view('mobile.profile', compact('user', 'userInfo'));
     }
 
     public function updateProfile(Request $request)
