@@ -416,9 +416,9 @@
                                 <div class="schedule-time">
                                     <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                 </div>
-                            </div>
-                            <div class="school-badge">
-                                {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
+                                <div class="school-badge">
+                                    {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
+                                </div>
                             </div>
                         </div>
                     @endforeach
