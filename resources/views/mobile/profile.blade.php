@@ -374,7 +374,7 @@
     </style>
 
     <!-- Header -->
-    <div class="text-center mb-4">
+    <div class="sticky-header text-center mb-4">
         <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Profil</h5>
         <small class="text-muted" style="font-size: 12px;">Informasi Personal</small>
     </div>
