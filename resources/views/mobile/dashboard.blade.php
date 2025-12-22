@@ -1116,7 +1116,7 @@ $progressColor = "rgb($red, $green, 0)";
             </a>
         </div>
         <div class="collapse" id="performanceAccordion">
-            <div class="accordion-content" style="background: rgba(255,255,255,0.15); border-radius: 0 0 14px 14px; padding: 16px 14px 12px 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <div class="accordion-content" style="background: rgba(255, 255, 255, 0); border-radius: 0 0 14px 14px; padding: 16px 14px 12px 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
                 <h6 class="accordion-title" style="font-size: 10px; font-weight: 600; color: white; margin-bottom: 12px; text-align: center;">Detail Aktivitas Hari Ini</h6>
                 <div class="timeline-accordion">
                     <!-- Presensi Masuk -->
