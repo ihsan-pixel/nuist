@@ -164,9 +164,9 @@
     </div> --}}
 
     <!-- Date below header (smaller font) -->
-    <div class="text-center mt-2">
+    {{-- <div class="text-center mt-2">
         <small class="small-muted presensi-date">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
-    </div>
+    </div> --}}
 
     @if($schedules->isEmpty())
         <div class="no-schedule">
