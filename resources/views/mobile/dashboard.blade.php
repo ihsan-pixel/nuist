@@ -1098,7 +1098,7 @@ $progressColor = "rgb($red, $green, 0)";
     <div class="performance-card">
         <div class="performance-level">
             <span class="level-badge">LEVEL HARI INI</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 50 ? 'Baik' : ($kinerjaPercent >= 20 ? 'Cukup' : 'Belum Ada Progress')) }}</strong>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik Sekali' : ($kinerjaPercent >= 50 ? 'Baik' : ($kinerjaPercent >= 20 ? 'Cukup Baik' : 'Belum Ada Progress'))) }}</strong>
         </div>
 
         <div class="performance-progress">
