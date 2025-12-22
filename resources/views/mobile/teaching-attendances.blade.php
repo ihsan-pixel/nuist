@@ -243,6 +243,21 @@
             color: #6c757d;
             text-align: center;
         }
+
+        #map-placeholder {
+            pointer-events: none;
+        }
+
+        @media (max-width: 576px) {
+            .modal-footer {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .modal-footer button {
+                width: 100%;
+            }
+        }
     </style>
 
     <!-- Header -->
@@ -352,7 +367,7 @@
 
     <!-- Modal -->
     <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="mb-0 fw-bold">
@@ -389,7 +404,7 @@
                         </div>
                     </div>
 
-                    <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
+                    <div class="user-location-map-container" style="box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
                         <div id="map-placeholder" class="map-placeholder">
                             <i class="bx bx-map"></i>
                             <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
@@ -497,7 +512,7 @@ function updateMapLocation(lat, lng) {
         .openPopup();
 
     // Hide placeholder when map is ready
-    $('#map-placeholder').hide();
+    $('#map-placeholder').fadeOut(200);
 
     // Center map on location
     map.setView(location, 16);
@@ -619,12 +634,22 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     document.getElementById('modal-school').innerText = schoolName;
     document.getElementById('modal-time').innerText = startTime + ' - ' + endTime;
 
-    const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+    const modalEl = document.getElementById('attendanceModal');
+    const modal = new bootstrap.Modal(modalEl);
+
+    // Initialize map when modal is fully shown
+    modalEl.addEventListener('shown.bs.modal', function onModalShown() {
+        initializeMap();
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 300);
+        modalEl.removeEventListener('shown.bs.modal', onModalShown);
+    });
+
     modal.show();
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
-
-    // Initialize map
-    initializeMap();
 
     // Show placeholder initially
     $('#map-placeholder').show();
