@@ -159,6 +159,14 @@
             color: white;
         }
 
+        .day-indicator-item.active span::after {
+            content: attr(data-full-name);
+        }
+
+        .day-indicator-item:not(.active) span::after {
+            content: attr(data-short-name);
+        }
+
         .day-card {
             max-width: 520px;
             margin: 0 auto;
@@ -368,7 +376,7 @@
             @endphp
             @foreach($days as $index => $day)
                 <div class="day-indicator-item {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
-                    <span>{{ substr($day, 0, 6) }}</span>
+                    <span data-full-name="{{ $day }}" data-short-name="{{ substr($day, 0, 1) }}">{{ substr($day, 0, 6) }}</span>
                 </div>
             @endforeach
         </div>
