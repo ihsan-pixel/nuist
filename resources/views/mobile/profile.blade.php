@@ -7,17 +7,45 @@
 <div class="container py-3" style="max-width: 420px; margin: auto;">
     <style>
         body {
-            background: #f8f9fb;
             font-family: 'Poppins', sans-serif;
-            font-size: 12px;
+            font-size: 13px;
+            background-color: #f8f9fb;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(248,249,251,0), #f8f9fb);
+            z-index: -1;
+        }
+
+        .mobile-header,
+        .mobile-header .container-fluid {
+            background: transparent !important;
+        }
+
+        .mobile-header {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        body {
+            background-color: transparent !important;
         }
 
         .profile-header {
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             color: #fff;
             border-radius: 12px;
             padding: 12px 10px;
-            box-shadow: 0 4px 10px rgba(0, 75, 76, 0.3);
+            box-shadow: 0 4px 10px rgba(253, 189, 87, 0.3);
             margin-bottom: 10px;
         }
 
@@ -72,15 +100,15 @@
         .info-section {
             background: #fff;
             border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 10px;
-            overflow: hidden;
         }
 
         .info-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
+            padding: 0 0 10px 0;
             border-bottom: 1px solid #e9ecef;
+            margin-bottom: 12px;
         }
 
         .info-header h6 {
@@ -91,7 +119,7 @@
         }
 
         .info-content {
-            padding: 12px;
+            padding: 0;
         }
 
         .info-item {
@@ -174,14 +202,15 @@
         .quick-actions {
             background: #fff;
             border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 60px;
         }
 
         .quick-actions-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
+            padding: 0 0 10px 0;
             border-bottom: 1px solid #e9ecef;
+            margin-bottom: 12px;
         }
 
         .quick-actions-header h6 {
@@ -192,7 +221,7 @@
         }
 
         .quick-actions-content {
-            padding: 12px;
+            padding: 0;
         }
 
         .action-grid {
@@ -206,7 +235,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             color: white;
             border-radius: 8px;
             padding: 12px 8px;
@@ -218,7 +247,7 @@
         }
 
         .action-button:hover {
-            background: linear-gradient(135deg, #0e8549 0%, #004b4c 100%);
+            background: linear-gradient(135deg, #e67e22 0%, #f89a3c 50%, #fdbd57 100%);
             color: white;
             transform: translateY(-1px);
         }
@@ -350,7 +379,7 @@
                 Pengaturan Akun
             </a>
 
-            <a href="#" id="install-pwa-btn" class="settings-button" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white;">
+            <a href="#" id="install-pwa-btn" class="settings-button" style="background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%); color: white;">
                 <i class="bx bx-download"></i>
                 Install Aplikasi PWA
             </a>
