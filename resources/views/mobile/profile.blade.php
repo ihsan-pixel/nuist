@@ -152,14 +152,15 @@
         .settings-section {
             background: #fff;
             border-radius: 12px;
+            padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 10px;
         }
 
         .settings-header {
-            background: #f8f9fa;
-            padding: 10px 12px;
+            padding: 0 0 10px 0;
             border-bottom: 1px solid #e9ecef;
+            margin-bottom: 12px;
         }
 
         .settings-header h6 {
@@ -170,7 +171,7 @@
         }
 
         .settings-content {
-            padding: 12px;
+            padding: 0;
         }
 
         .settings-button {
@@ -273,15 +274,9 @@
     </style>
 
     <!-- Header -->
-    <div class="profile-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1">Profil</h6>
-                <h5 class="fw-bold mb-0">{{ $user->name }}</h5>
-            </div>
-            <img src="{{ isset($user->avatar) ? asset('storage/' . $user->avatar) : asset('build/images/avatar-1.jpg') }}"
-                 class="rounded-circle border border-white" width="32" height="32" alt="User">
-        </div>
+    <div class="text-center mb-4">
+        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Profil</h5>
+        <small class="text-muted" style="font-size: 12px;">Informasi Personal</small>
     </div>
 
     @if(session('success'))
