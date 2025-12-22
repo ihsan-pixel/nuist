@@ -767,14 +767,14 @@ if ($hour >= 0 && $hour <= 11) {
         }
 
         .performance-card {
-            background: #fff;
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
             border-radius: 14px;
             padding: 14px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
             gap: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            box-shadow: 0 4px 16px rgba(0,0,0,.15);
             margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -782,7 +782,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         .performance-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+            box-shadow: 0 6px 16px rgba(0,0,0,.2);
         }
 
         /* LEFT */
@@ -799,8 +799,8 @@ if ($hour >= 0 && $hour <= 11) {
 
         .level-badge {
             font-size: 9px;
-            background: #e6f4f1;
-            color: #004b4c;
+            background: rgba(255,255,255,0.2);
+            color: white;
             padding: 2px 6px;
             border-radius: 6px;
             font-weight: 600;
@@ -808,7 +808,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         .performance-level strong {
             font-size: 10px;
-            color: #004b4c;
+            color: white;
         }
 
         /* TIMELINE */
@@ -1000,6 +1000,25 @@ if ($hour >= 0 && $hour <= 11) {
         </div>
     </div>
 
+    <small>Aktivitas Kinerja Hari Ini</small>
+
+    <div class="performance-card">
+        <div class="performance-level">
+            <span class="level-badge">LEVEL</span>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
+        </div>
+
+        <div class="performance-progress">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">
+                <strong>{{ $kinerjaPercent }}%</strong>
+                <small>Hari ini</small>
+            </div>
+        </div>
+    </div>
+
     <small class="name-form" style="font-style: italic">Aktivitas Presensi Bulan {{ \Carbon\Carbon::create($currentYear, $currentMonth, 1)->locale('id')->monthName }} {{ $currentYear }}</small>
 
     <div class="stats-form">
@@ -1170,6 +1189,14 @@ if ($hour >= 0 && $hour <= 11) {
             const modal = new bootstrap.Modal(document.getElementById('performanceModal'));
             modal.show();
         }
+
+        // Add click event listener to performance card
+        document.addEventListener('DOMContentLoaded', function() {
+            const performanceCard = document.querySelector('.performance-card');
+            if (performanceCard) {
+                performanceCard.addEventListener('click', togglePerformanceDetails);
+            }
+        });
     </script>
 
     <small>Aktivitas Kinerja Hari Ini</small>
