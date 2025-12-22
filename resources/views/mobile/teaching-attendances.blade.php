@@ -678,8 +678,18 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     // get two readings like presensi page
     getReadingAndVerify().then(() => {
         // Location obtained successfully - hide loading, show map
-        $('#map-loading').fadeOut(200);
-        $('#locationMap').fadeIn(200);
+        $('#map-loading').fadeOut(200, function() {
+            $('#locationMap').fadeIn(200, function() {
+                // Initialize map after it's visible
+                initializeMap();
+                // Force map to resize properly
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 100);
+            });
+        });
     }).catch(err => {
         // Error getting location - hide loading, show placeholder
         $('#map-loading').fadeOut(200);
