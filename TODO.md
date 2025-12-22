@@ -1,37 +1,11 @@
-# TODO: Tambahkan Bagian Aktivitas Kinerja di Dashboard Mobile
+# TODO: Update Mobile Teaching Attendance Display
 
-## Tugas Utama
-Tambahkan bagian baru di bawah "Layanan" pada dashboard mobile yang menampilkan aktivitas kinerja harian dengan progress per hari: presensi masuk, presensi mengajar sesuai jadwal, presensi keluar, dengan akumulasi persentase jika lengkap semua maka 100%.
-
-## Langkah-langkah Implementasi
-
-### 1. Update DashboardController.php
-- [ ] Tambahkan logika perhitungan aktivitas kinerja harian
-- [ ] Hitung status presensi masuk (sudah/belum)
-- [ ] Hitung status presensi mengajar (berdasarkan jadwal dan TeachingAttendance)
-- [ ] Hitung status presensi keluar (sudah/belum)
-- [ ] Hitung persentase kumulatif (33.33% per aktivitas, 100% jika semua lengkap)
-- [ ] Pass data ke view
-
-### 2. Update dashboard.blade.php
-- [ ] Tambahkan section baru "Aktivitas Kinerja Hari Ini" di bawah "Layanan"
-- [ ] Buat layout dengan progress indicators untuk setiap aktivitas
-- [ ] Tampilkan progress bar atau status untuk presensi masuk, mengajar, keluar
-- [ ] Tampilkan persentase kumulatif
-- [ ] Style sesuai dengan desain mobile yang ada
-
-### 3. Testing
-- [ ] Test tampilan pada mobile view
-- [ ] Verifikasi perhitungan persentase akurat
-- [ ] Test dengan data presensi yang berbeda (hadir, belum, dll)
-
-## File yang Akan Diedit
-- app/Http/Controllers/Mobile/Dashboard/DashboardController.php
-- resources/views/mobile/dashboard.blade.php
-
-## Status
-- [x] Update DashboardController.php - Tambahkan logika perhitungan aktivitas kinerja harian
-- [x] Update dashboard.blade.php - Tambahkan section "Aktivitas Kinerja Hari Ini" dengan desain satu baris horizontal
-- [x] Perbaikan tampilan - Layout horizontal: Masuk → Mengajar → Keluar → Persentase
-- [x] Perbaikan bug - Fix undefined variable $teachingSteps
-- [ ] Testing - Perlu verifikasi tampilan dan fungsionalitas
+## Tasks
+- [x] Update container max-width to 600px for consistency with jadwal
+- [x] Add body/background styles from jadwal for clean look
+- [x] Redesign schedule cards to match schedule-item style from jadwal
+- [x] Update icons and info layout to match jadwal structure
+- [x] Keep attendance-specific elements (buttons, status badges)
+- [x] Update empty state styling
+- [x] Preserve all functionality (modal, scripts, location checks)
+- [x] Update schedule item layout to match jadwal design

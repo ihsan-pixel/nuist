@@ -4,18 +4,145 @@
 @section('subtitle', 'Presensi Mengajar Hari Ini')
 
 @section('content')
-<div class="container py-3" style="max-width: 420px; margin: auto;">
+<div class="container py-3" style="max-width: 600px; margin: auto;">
     <style>
-        /* reuse mobile presensi styles for consistency */
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background-color: #f8f9fb;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(248,249,251,0), #f8f9fb);
+            z-index: -1;
+        }
+
+        .mobile-header,
+        .mobile-header .container-fluid {
+            background: transparent !important;
+        }
+
+        .mobile-header {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        body {
+            background-color: transparent !important;
+        }
+
         .presensi-header { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; border-radius: 12px; padding: 12px 10px; box-shadow: 0 4px 10px rgba(0,75,76,0.3); margin-bottom: 10px; }
         .presensi-header h6 { font-weight: 600; font-size: 12px; }
         .presensi-header h5 { font-size: 14px; }
         .presensi-date { font-size: 11px; color: #6c757d; }
-        .schedule-card { background: #fff; border-radius: 12px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; }
-        .status-icon { width: 36px; height: 36px; border-radius: 50%; display:flex; align-items:center; justify-content:center; margin-right:10px; }
+
+        .schedule-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .schedule-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #0e8549, #0f9d58);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(14, 133, 73, 0.3);
+        }
+
+        .schedule-icon i {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .schedule-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .schedule-info strong {
+            font-size: 14px;
+            color: #2d3748;
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .schedule-info small {
+            font-size: 12px;
+            color: #718096;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .schedule-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 0;
+            font-weight: 500;
+        }
+
+        .school-badge {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
         .presensi-btn { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border: none; border-radius: 8px; padding: 10px; color: #fff; font-weight: 600; font-size: 14px; width: 100%; }
         .presensi-btn.outline { background: transparent; border:1px solid #e9ecef; color:#333; }
         .small-muted { font-size: 12px; color: #6c757d; }
+
+        .empty-state {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            margin: 0;
+        }
     </style>
 
     <!-- Header -->
@@ -35,28 +162,27 @@
     </div>
 
     @if($schedules->isEmpty())
-        <div class="card empty-state shadow-sm border-0">
-            <div class="card-body text-center py-5">
-                <div class="avatar-xl mx-auto mb-4">
-                    <div class="avatar-title bg-light rounded-circle">
-                        <i class="bx bx-calendar-x fs-1 text-muted"></i>
-                    </div>
-                </div>
-                <h5 class="text-muted mb-2">Tidak ada jadwal mengajar hari ini</h5>
-                <p class="text-muted mb-0">Anda tidak memiliki jadwal mengajar yang terjadwal untuk hari ini.</p>
-            </div>
+        <div class="empty-state">
+            <i class="bx bx-calendar-x"></i>
+            <p>Tidak ada jadwal mengajar hari ini</p>
         </div>
     @else
         @foreach($schedules as $schedule)
-            <div class="schedule-card d-flex align-items-start">
-                <div class="status-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="bx bx-book-open"></i>
+            <div class="schedule-item">
+                <div class="schedule-icon">
+                    <i class="bx bx-book"></i>
                 </div>
-                <div class="flex-grow-1">
+                <div class="schedule-info">
                     <div class="d-flex align-items-start justify-content-between">
                         <div>
-                            <div class="fw-semibold">{{ $schedule->subject }}</div>
-                            <div class="small-muted">{{ $schedule->school->name ?? 'N/A' }}</div>
+                            <strong>{{ $schedule->subject }}</strong>
+                            <small>{{ $schedule->class_name }}</small>
+                            <div class="schedule-time">
+                                <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                            </div>
+                            <div class="school-badge">
+                                {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
+                            </div>
                         </div>
                         <div class="text-end">
                             @if($schedule->attendance)
@@ -64,16 +190,6 @@
                             @else
                                 <div class="badge bg-warning text-dark">Belum</div>
                             @endif
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between mt-2">
-                        <div>
-                            <small class="small-muted">Kelas</small>
-                            <div class="fw-medium">{{ $schedule->class_name }}</div>
-                        </div>
-                        <div class="text-end">
-                            <small class="small-muted">Waktu</small>
-                            <div class="fw-medium">{{ $schedule->start_time }} - {{ $schedule->end_time }}</div>
                         </div>
                     </div>
 
