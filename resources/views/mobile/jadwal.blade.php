@@ -227,6 +227,8 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.2s ease;
+            max-width: 320px;
+            margin: 0 auto;
         }
 
         .schedule-item:hover {
