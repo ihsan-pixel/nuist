@@ -275,16 +275,18 @@
             pointer-events: none;
         }
 
-        @media (max-width: 576px) {
-            .modal-footer {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .modal-footer button {
-                width: 100%;
-            }
+        .modal-footer {
+            display: flex !important;
+            justify-content: space-between !important;
+            flex-direction: row !important;
         }
+
+        .modal-footer button {
+            flex: 0 0 auto !important;
+            width: auto !important;
+        }
+
+
     </style>
 
     <!-- Header -->
