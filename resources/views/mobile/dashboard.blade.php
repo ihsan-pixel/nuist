@@ -953,7 +953,7 @@ $progressColor = "rgb($red, $green, 0)";
     </div>
     @endif
 
-    <!-- Stats Form -->
+    {{-- <!-- Stats Form -->
     <div class="dashboard-header mb-4">
         <div class="id-card-title">Kartu Identitas Digital</div>
         <div class="id-card">
@@ -1003,7 +1003,7 @@ $progressColor = "rgb($red, $green, 0)";
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="performance-card">
         <div class="performance-level">
