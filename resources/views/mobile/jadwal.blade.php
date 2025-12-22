@@ -119,9 +119,10 @@
 
         @media (max-width: 576px) {
             .day-indicator-item {
-                width: 32px;
+                min-width: 32px;
                 height: 32px;
                 margin: 0 2px;
+                padding: 0 6px;
             }
         }
 
