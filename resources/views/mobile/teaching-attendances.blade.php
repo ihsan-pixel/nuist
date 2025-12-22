@@ -184,6 +184,40 @@
             background: #ffffff;
             padding-bottom: 16px;
         }
+
+        /* Modal font sizes */
+        .modal-body .fw-bold {
+            font-size: 14px !important;
+        }
+
+        .modal-body .text-muted {
+            font-size: 11px !important;
+        }
+
+        .modal-body .fw-medium {
+            font-size: 11px !important;
+        }
+
+        .modal-body .alert {
+            font-size: 11px !important;
+        }
+
+        .modal-body .alert ul li {
+            font-size: 10px !important;
+        }
+
+        .map-container {
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .map-container #locationMap {
+            height: 100%;
+            width: 100%;
+        }
     </style>
 
     <!-- Header -->
@@ -330,6 +364,10 @@
                         </div>
                     </div>
 
+                    <div class="map-container">
+                        <div id="locationMap"></div>
+                    </div>
+
                     <div id="locationStatus" class="alert alert-info mb-3">
                         <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
                     </div>
@@ -361,10 +399,70 @@
 
 @section('script')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // Real-time time-based attendance functionality
 let timeCheckInterval;
 let scheduleData = {};
+let map;
+let marker;
+
+// Initialize Leaflet Map
+function initializeMap() {
+    const mapElement = document.getElementById('locationMap');
+    if (!mapElement) return;
+
+    // Defensive: avoid initializing the same Leaflet container more than once.
+    if (mapElement._leaflet_id) {
+        // Remove existing map instance if it exists
+        if (map) {
+            map.remove();
+            map = null;
+        }
+    }
+    if (map) return; // Already initialized
+
+    // Default location (Indonesia center)
+    const defaultLocation = [-6.2088, 106.8456];
+
+    map = L.map('locationMap').setView(defaultLocation, 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add marker
+    marker = L.marker(defaultLocation).addTo(map)
+        .bindPopup('Lokasi Anda saat ini')
+        .openPopup();
+}
+
+// Update map with user location
+function updateMapLocation(lat, lng) {
+    if (!map) {
+        initializeMap();
+    }
+
+    if (!map) return; // Still not initialized
+
+    const location = [lat, lng];
+
+    // Remove existing marker
+    if (marker) {
+        map.removeLayer(marker);
+    }
+
+    // Add new marker
+    marker = L.marker(location).addTo(map)
+        .bindPopup('Lokasi Anda saat ini')
+        .openPopup();
+
+    // Center map on location
+    map.setView(location, 16);
+}
 
 // Initialize schedule data from DOM
 function initializeScheduleData() {
@@ -485,6 +583,9 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
     modal.show();
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
+
+    // Initialize map
+    initializeMap();
 
     // get two readings like presensi page
     getReadingAndVerify().then(() => {
