@@ -675,14 +675,15 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     $('#map-placeholder').hide();
     $('#locationMap').hide();
 
+    // Initialize map first, then get location
+    initializeMap();
+
     // get two readings like presensi page
     getReadingAndVerify().then(() => {
         // Location obtained successfully - hide loading, show map
         $('#map-loading').fadeOut(200, function() {
             $('#locationMap').fadeIn(200, function() {
-                // Initialize map after it's visible
-                initializeMap();
-                // Force map to resize properly
+                // Force map to resize properly after it's visible
                 setTimeout(() => {
                     if (map) {
                         map.invalidateSize();
