@@ -464,7 +464,7 @@
                         </ul>
                     </div> --}}
                 </div>
-                <div class="modal-footer justify-content-between">
+                <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
                         <i class="bx bx-x me-1"></i>Batal
                     </button>
