@@ -383,23 +383,25 @@
         }
     </style>
 
-    @if(session('success'))
-    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
-        <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
-    </div>
-    @endif
+    <div class="sticky-header">
+        @if(session('success'))
+        <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
+        </div>
+        @endif
 
-    <!-- Day Indicator -->
-    <div class="day-indicator">
-        <div class="day-indicator-container">
-            @php
-            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            @endphp
-            @foreach($days as $index => $day)
-                <div class="day-indicator-item {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
-                    <span data-full-name="{{ $day }}" data-short-name="{{ substr($day, 0, 1) }}"></span>
-                </div>
-            @endforeach
+        <!-- Day Indicator -->
+        <div class="day-indicator">
+            <div class="day-indicator-container">
+                @php
+                $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                @endphp
+                @foreach($days as $index => $day)
+                    <div class="day-indicator-item {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
+                        <span data-full-name="{{ $day }}" data-short-name="{{ substr($day, 0, 1) }}"></span>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
