@@ -293,32 +293,64 @@
 
     <!-- Modal -->
     <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0">
-                <div class="modal-header bg-primary text-white">
-                    <h6 class="mb-0">Konfirmasi Presensi Mengajar</h6>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bx bx-check-circle me-2"></i>Konfirmasi Presensi Mengajar
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <div class="fw-semibold" id="modal-subject"></div>
-                        <div class="text-muted small" id="modal-class"></div>
-                        <div class="text-muted small" id="modal-school"></div>
-                        <div class="text-muted small" id="modal-time"></div>
+                    <div class="card border-0 bg-white shadow-sm mb-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="schedule-icon me-3">
+                                    <i class="bx bx-book"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-6" id="modal-subject"></div>
+                                    <div class="text-muted small" id="modal-class"></div>
+                                </div>
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-6">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bx bx-building me-1"></i>Sekolah
+                                    </div>
+                                    <div class="fw-medium small" id="modal-school"></div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bx bx-time-five me-1"></i>Waktu
+                                    </div>
+                                    <div class="fw-medium small" id="modal-time"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="locationStatus" class="alert alert-info">
+                    <div id="locationStatus" class="alert alert-info mb-3">
                         <i class="bx bx-loader-alt bx-spin me-2"></i> Mendapatkan lokasi Anda...
                     </div>
 
                     <div class="alert alert-warning">
-                        <i class="bx bx-error-circle me-2"></i>
-                        Pastikan Anda berada di dalam area sekolah yang ditentukan. Presensi hanya bisa dilakukan sesuai jam mengajar.
+                        <i class="bx bx-info-circle me-2"></i>
+                        <strong>Pastikan:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Anda berada di dalam area sekolah yang ditentukan</li>
+                            <li>Presensi dilakukan sesuai jam mengajar</li>
+                            <li>Lokasi GPS aktif dan akurat</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="confirmAttendanceBtn" disabled>Ya, Lakukan Presensi</button>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                        <i class="bx bx-x me-1"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-primary px-4" id="confirmAttendanceBtn" disabled>
+                        <i class="bx bx-check-circle me-1"></i>Ya, Lakukan Presensi
+                    </button>
                 </div>
             </div>
         </div>

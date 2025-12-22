@@ -9,3 +9,4 @@
 - [x] Update empty state styling
 - [x] Preserve all functionality (modal, scripts, location checks)
 - [x] Update schedule item layout to match jadwal design
+- [ ] Update modal styling to be neat, professional, and match theme
