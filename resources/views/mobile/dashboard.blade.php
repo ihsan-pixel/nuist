@@ -1007,7 +1007,7 @@ $progressColor = "rgb($red, $green, 0)";
 
     <div class="performance-card">
         <div class="performance-level">
-            <span class="level-badge">LEVEL</span>
+            <span class="level-badge">LEVEL HARI INI</span>
             <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik' : ($kinerjaPercent >= 66 ? 'Cukup' : 'Belum Ada Progress')) }}</strong>
         </div>
 
@@ -1017,7 +1017,6 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
             <div class="progress-text">
                 <strong>{{ $kinerjaPercent }}%</strong>
-                <small>Hari ini</small>
             </div>
         </div>
     </div>
