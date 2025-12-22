@@ -81,14 +81,16 @@
         }
 
         .day-card {
-            flex: 0 0 70vw;
-            background: linear-gradient(to bottom, #fdbd57, #f89a3c);
-            border-radius: 8px;
-            min-height: 200px;
+            flex: 0 0 75vw;
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            border-radius: 12px;
+            min-height: 220px;
             display: flex;
             flex-direction: column;
             position: relative;
-            padding: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 12px rgba(253, 189, 87, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .day-header {
@@ -117,28 +119,37 @@
         }
 
         .schedule-item {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 6px;
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
         .schedule-icon {
-            width: 28px;
-            height: 28px;
-            background: rgba(14, 133, 73, 0.2);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #0e8549, #0f9d58);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(14, 133, 73, 0.3);
         }
 
         .schedule-icon i {
-            color: #0e8549;
-            font-size: 12px;
+            color: #fff;
+            font-size: 14px;
         }
 
         .schedule-info {
@@ -147,23 +158,27 @@
         }
 
         .schedule-info strong {
-            font-size: 13px;
-            color: #333;
+            font-size: 14px;
+            color: #2d3748;
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
             font-weight: 600;
+            line-height: 1.2;
         }
 
         .schedule-info small {
-            font-size: 11px;
-            color: #666;
+            font-size: 12px;
+            color: #718096;
             display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
         }
 
         .schedule-time {
-            font-size: 10px;
-            color: #999;
-            margin-top: 2px;
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 0;
+            font-weight: 500;
         }
 
         .school-badge {
@@ -272,7 +287,7 @@
                                         </div>
                                     </div>
                                     <div class="school-badge">
-                                        {{ $schedule->school->name ?? 'N/A' }}
+                                        {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
                                     </div>
                                 </div>
                             @endforeach
