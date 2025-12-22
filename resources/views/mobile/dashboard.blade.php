@@ -1569,9 +1569,8 @@ $progressColor = "rgb($red, $green, 0)";
 
     <!-- Information Section -->
     <div class="schedule-section">
-        <h6 class="section-title">Informasi Aplikasi</h6>
+        {{-- <h6 class="section-title">Informasi Aplikasi</h6> --}}
         <!-- Content will be added here -->
-        <div class="schedule-carousel"></div>
     </div>
 
     <!-- Performance Details Modal -->
