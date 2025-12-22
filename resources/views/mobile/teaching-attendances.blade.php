@@ -218,6 +218,32 @@
             height: 100%;
             width: 100%;
         }
+
+        .map-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1;
+        }
+
+        .map-placeholder i {
+            font-size: 32px;
+            color: #adb5bd;
+            margin-bottom: 8px;
+        }
+
+        .map-placeholder span {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+        }
     </style>
 
     <!-- Header -->
@@ -365,6 +391,10 @@
                     </div>
 
                     <div class="map-container">
+                        <div id="map-placeholder" class="map-placeholder">
+                            <i class="bx bx-map"></i>
+                            <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
+                        </div>
                         <div id="locationMap"></div>
                     </div>
 
@@ -436,7 +466,7 @@ function initializeMap() {
 
     // Add marker
     marker = L.marker(defaultLocation).addTo(map)
-        .bindPopup('Lokasi Anda saat ini')
+        .bindPopup('Lokasi default')
         .openPopup();
 }
 
@@ -587,6 +617,9 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     // Initialize map
     initializeMap();
 
+    // Show placeholder initially
+    $('#map-placeholder').show();
+
     // get two readings like presensi page
     getReadingAndVerify().then(() => {
         // nothing
@@ -612,6 +645,8 @@ function getReadingAndVerify() {
             // second reading for verification
             navigator.geolocation.getCurrentPosition((pos2) => {
                 userLocation = { latitude: pos2.coords.latitude, longitude: pos2.coords.longitude };
+                // Update map with user location immediately
+                updateMapLocation(userLocation.latitude, userLocation.longitude);
                 // check location in polygon
                 checkLocationInPolygon(userLocation.latitude, userLocation.longitude, currentScheduleId).then(isValid => {
                     if (isValid) {
