@@ -80,17 +80,80 @@
             display: none;
         }
 
-        .day-card {
-            flex: 0 0 75vw;
-            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+        .day-indicator {
+            background: #fff;
             border-radius: 12px;
-            min-height: 220px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+
+        .day-indicator-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .day-indicator-item::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #fdbd57, #f89a3c);
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .day-indicator-item.active::after {
+            width: 20px;
+        }
+
+        .day-indicator-item.active {
+            background: linear-gradient(135deg, #fdbd57, #f89a3c);
+            color: white;
+            border-color: rgba(253, 189, 87, 0.5);
+            box-shadow: 0 2px 8px rgba(253, 189, 87, 0.4);
+        }
+
+        .day-indicator-item span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .day-indicator-item.active span {
+            color: white;
+        }
+
+        .day-card {
+            width: 100vw;
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            border-radius: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             position: relative;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(253, 189, 87, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            box-shadow: none;
+            border: none;
+            margin: 0;
+            display: none;
+        }
+
+        .day-card.active {
+            display: flex;
         }
 
         .day-header {
