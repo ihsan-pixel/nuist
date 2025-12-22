@@ -905,7 +905,7 @@ $progressColor = "rgb($red, $green, 0)";
             position: relative;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 8px;
             padding-left: 20px;
         }
 
@@ -924,9 +924,9 @@ $progressColor = "rgb($red, $green, 0)";
             position: relative;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 8px;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
             background: #f8f9fa;
             border: 1px solid #e9ecef;
             transition: all 0.3s ease;
@@ -946,18 +946,19 @@ $progressColor = "rgb($red, $green, 0)";
 
         .timeline-item-accordion .timeline-icon {
             position: absolute;
-            left: -24px;
-            width: 32px;
-            height: 32px;
+            left: -20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #6c757d;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            border: 3px solid white;
+            border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 1;
+            font-size: 12px;
         }
 
         .timeline-item-accordion.done .timeline-icon {
@@ -1118,8 +1119,8 @@ $progressColor = "rgb($red, $green, 0)";
 
     <div class="collapse" id="performanceAccordion">
         <div class="card mt-3" style="background: rgba(255,255,255,0.95); border: 1px solid rgba(0,75,76,0.1); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div class="card-body p-3">
-                <h6 class="card-title mb-3" style="font-size: 12px; font-weight: 600; color: #004b4c;">Detail Aktivitas Hari Ini</h6>
+            <div class="card-body p-2">
+                <h6 class="card-title mb-2" style="font-size: 10px; font-weight: 600; color: #004b4c;">Detail Aktivitas Hari Ini</h6>
                 <div class="timeline-accordion">
                     <!-- Presensi Masuk -->
                     <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
