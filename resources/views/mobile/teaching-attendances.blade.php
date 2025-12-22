@@ -181,7 +181,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: #f8f9fb;
+            background: #ffffff;
             padding-bottom: 16px;
         }
     </style>
