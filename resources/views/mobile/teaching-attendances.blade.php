@@ -5,16 +5,18 @@
 
 @section('content')
     <div class="container py-3" style="max-width: 600px; margin: auto;">
-    <div class="text-center mb-4">
-        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Presensi Mengajar</h5>
-        <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
-    </div>
+    <div class="sticky-header">
+        <div class="text-center mb-4">
+            <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Presensi Mengajar</h5>
+            <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
+        </div>
 
-    @if(session('success'))
-    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
-        <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
+        @if(session('success'))
+        <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
+        </div>
+        @endif
     </div>
-    @endif
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -173,6 +175,14 @@
         .no-schedule p {
             font-size: 12px;
             margin: 0;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fb;
+            padding-bottom: 16px;
         }
     </style>
 
