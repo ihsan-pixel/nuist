@@ -286,7 +286,7 @@
                                             <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
                                         </div>
                                         <div class="school-badge">
-                                            {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
+                                            {{ Str::limit($schedule->school->name ?? 'N/A', 21) }}
                                         </div>
                                     </div>
                                 </div>
