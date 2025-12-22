@@ -215,6 +215,9 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .schedule-item {
