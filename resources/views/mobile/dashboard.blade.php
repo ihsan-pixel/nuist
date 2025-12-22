@@ -1074,7 +1074,7 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
         </div>
 
-        <div class="text-center mt-2">
+        <div class="text-center mt-2" style="font-size: 10px">
             <a href="#" class="text-light text-decoration-none" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion" style="font-size: 12px; font-weight: 500;">
                 Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>
             </a>
