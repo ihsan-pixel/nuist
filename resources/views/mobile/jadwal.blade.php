@@ -80,12 +80,19 @@
             display: none;
         }
 
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fb;
+            padding-bottom: 16px;
+        }
+
         .day-indicator {
             background: #fff;
             border-radius: 12px;
             padding: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-bottom: 16px;
             overflow-x: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
