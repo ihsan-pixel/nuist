@@ -239,6 +239,38 @@
             text-align: center;
         }
 
+        .map-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 2;
+        }
+
+        .map-loading i {
+            font-size: 32px;
+            color: #adb5bd;
+            margin-bottom: 8px;
+            animation: spin 1s linear infinite;
+        }
+
+        .map-loading span {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         #map-placeholder {
             pointer-events: none;
         }
@@ -629,27 +661,29 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     const modalEl = document.getElementById('attendanceModal');
     const modal = new bootstrap.Modal(modalEl);
 
-    // Initialize map when modal is fully shown
+    // Initialize map when modal is fully shown - but only show placeholder initially
     modalEl.addEventListener('shown.bs.modal', function onModalShown() {
-        initializeMap();
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            }
-        }, 300);
+        // Don't initialize map yet - wait for location
         modalEl.removeEventListener('shown.bs.modal', onModalShown);
     });
 
     modal.show();
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
-    // Show placeholder initially
-    $('#map-placeholder').show();
+    // Show loading initially - map will be initialized when location is obtained
+    $('#map-loading').show();
+    $('#map-placeholder').hide();
+    $('#locationMap').hide();
 
     // get two readings like presensi page
     getReadingAndVerify().then(() => {
-        // nothing
+        // Location obtained successfully - hide loading, show map
+        $('#map-loading').fadeOut(200);
+        $('#locationMap').fadeIn(200);
     }).catch(err => {
+        // Error getting location - hide loading, show placeholder
+        $('#map-loading').fadeOut(200);
+        $('#map-placeholder').fadeIn(200);
         updateLocationStatus('error', err);
     });
 }
