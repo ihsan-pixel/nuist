@@ -916,7 +916,7 @@ $progressColor = "rgb($red, $green, 0)";
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(to bottom, #004b4c, #0e8549);
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
             border-radius: 1px;
         }
 
@@ -1118,45 +1118,43 @@ $progressColor = "rgb($red, $green, 0)";
     </div>
 
     <div class="collapse" id="performanceAccordion">
-        <div class="card mt-3" style="background: rgba(255,255,255,0.95); border: 1px solid rgba(0,75,76,0.1); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div class="card-body p-2">
-                <h6 class="card-title mb-2" style="font-size: 10px; font-weight: 600; color: #004b4c;">Detail Aktivitas Hari Ini</h6>
-                <div class="timeline-accordion">
-                    <!-- Presensi Masuk -->
-                    <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+        <div class="accordion-content" style="background: rgba(255,255,255,0.15); border-radius: 0 0 14px 14px; padding: 16px 14px 12px 14px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <h6 class="accordion-title" style="font-size: 10px; font-weight: 600; color: white; margin-bottom: 12px; text-align: center;">Detail Aktivitas Hari Ini</h6>
+            <div class="timeline-accordion">
+                <!-- Presensi Masuk -->
+                <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+                    <div class="timeline-icon">
+                        <i class="bx bx-log-in"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Presensi Masuk</strong>
+                        <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                    </div>
+                </div>
+
+                <!-- Presensi Mengajar - tampilkan per jadwal -->
+                @if(count($teachingSteps) > 0)
+                    @foreach($teachingSteps as $step)
+                    <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
                         <div class="timeline-icon">
-                            <i class="bx bx-log-in"></i>
+                            <i class="bx bx-chalkboard"></i>
                         </div>
                         <div class="timeline-content">
-                            <strong>Presensi Masuk</strong>
-                            <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            <strong>{{ $step['label'] }}</strong>
+                            <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
                         </div>
                     </div>
+                    @endforeach
+                @endif
 
-                    <!-- Presensi Mengajar - tampilkan per jadwal -->
-                    @if(count($teachingSteps) > 0)
-                        @foreach($teachingSteps as $step)
-                        <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
-                            <div class="timeline-icon">
-                                <i class="bx bx-chalkboard"></i>
-                            </div>
-                            <div class="timeline-content">
-                                <strong>{{ $step['label'] }}</strong>
-                                <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
-                            </div>
-                        </div>
-                        @endforeach
-                    @endif
-
-                    <!-- Presensi Keluar -->
-                    <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
-                        <div class="timeline-icon">
-                            <i class="bx bx-log-out"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <strong>Presensi Keluar</strong>
-                            <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
-                        </div>
+                <!-- Presensi Keluar -->
+                <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                    <div class="timeline-icon">
+                        <i class="bx bx-log-out"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Presensi Keluar</strong>
+                        <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
                     </div>
                 </div>
             </div>
