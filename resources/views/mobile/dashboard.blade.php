@@ -1332,6 +1332,23 @@ $progressColor = "rgb($red, $green, 0)";
             modal.show();
         }
 
+        // Handle accordion toggle text change and icon rotation
+        document.addEventListener('DOMContentLoaded', function() {
+            const accordion = document.getElementById('performanceAccordion');
+            const detailLink = document.querySelector('.performance-card a[data-bs-toggle="collapse"]');
+            const detailIcon = document.getElementById('detailArrow');
+
+            if (accordion && detailLink && detailIcon) {
+                accordion.addEventListener('show.bs.collapse', function() {
+                    detailLink.innerHTML = 'Tutup Detail <i class="bx bx-chevron-up" id="detailArrow"></i>';
+                });
+
+                accordion.addEventListener('hide.bs.collapse', function() {
+                    detailLink.innerHTML = 'Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>';
+                });
+            }
+        });
+
         // Add click event listener to performance card
         document.addEventListener('DOMContentLoaded', function() {
             const performanceCard = document.querySelector('.performance-card');
