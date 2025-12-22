@@ -357,49 +357,74 @@
     </div>
     @endif
 
-
-
-    <!-- Schedule Section -->
-    <div class="schedule-section">
-        <div class="schedule-carousel">
+    <!-- Day Indicator -->
+    <div class="day-indicator">
+        <div class="day-indicator-container">
             @php
             $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             @endphp
-
-            @foreach($days as $day)
-                <div class="day-card">
-                    <div class="day-header">
-                        <strong>{{ $day }}</strong>
-                    </div>
-                    <div class="schedule-list">
-                        @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
-                            @foreach($schedules[$day] as $schedule)
-                                <div class="schedule-item">
-                                    <div class="schedule-icon">
-                                        <i class="bx bx-book"></i>
-                                    </div>
-                                    <div class="schedule-info">
-                                        <strong>{{ $schedule->subject }}</strong>
-                                        <small>{{ $schedule->class_name }}</small>
-                                        <div class="schedule-time">
-                                            <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                        </div>
-                                        <div class="school-badge">
-                                            {{ Str::limit($schedule->school->name ?? 'N/A', 21) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="no-schedule">
-                                <i class="bx bx-calendar-x"></i>
-                                <p>Tidak ada jadwal</p>
-                            </div>
-                        @endif
-                    </div>
+            @foreach($days as $index => $day)
+                <div class="day-indicator-item {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
+                    <span>{{ substr($day, 0, 1) }}</span>
                 </div>
             @endforeach
         </div>
     </div>
+
+    <!-- Schedule Cards -->
+    @foreach($days as $index => $day)
+        <div class="day-card {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
+            <div class="day-header">
+                <strong>{{ $day }}</strong>
+            </div>
+            <div class="schedule-list">
+                @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
+                    @foreach($schedules[$day] as $schedule)
+                        <div class="schedule-item">
+                            <div class="schedule-icon">
+                                <i class="bx bx-book"></i>
+                            </div>
+                            <div class="schedule-info">
+                                <strong>{{ $schedule->subject }}</strong>
+                                <small>{{ $schedule->class_name }}</small>
+                                <div class="schedule-time">
+                                    <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                </div>
+                            </div>
+                            <div class="school-badge">
+                                {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="no-schedule">
+                        <i class="bx bx-calendar-x"></i>
+                        <p>Tidak ada jadwal</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endforeach
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const indicatorItems = document.querySelectorAll('.day-indicator-item');
+            const dayCards = document.querySelectorAll('.day-card');
+
+            indicatorItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const day = this.getAttribute('data-day');
+
+                    // Remove active class from all items
+                    indicatorItems.forEach(i => i.classList.remove('active'));
+                    dayCards.forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked item and corresponding card
+                    this.classList.add('active');
+                    document.querySelector(`.day-card[data-day="${day}"]`).classList.add('active');
+                });
+            });
+        });
+    </script>
 </div>
 @endsection
