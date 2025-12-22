@@ -1076,7 +1076,7 @@ $progressColor = "rgb($red, $green, 0)";
 
         <div class="text-center mt-2">
             <a href="#" class="text-light text-decoration-none" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion" style="font-size: 12px; font-weight: 500;">
-                Lihat Detail
+                Lihat Detail <i class="bx bx-chevron-down" id="detailArrow"></i>
             </a>
         </div>
     </div>
@@ -1824,4 +1824,21 @@ function renderCalendar(data) {
 
     calendarContainer.innerHTML = html;
 }
+
+// Handle accordion arrow toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const accordion = document.getElementById('performanceAccordion');
+    const arrowIcon = document.getElementById('detailArrow');
+
+    if (accordion && arrowIcon) {
+        // Listen to Bootstrap collapse events
+        accordion.addEventListener('show.bs.collapse', function() {
+            arrowIcon.className = 'bx bx-chevron-up';
+        });
+
+        accordion.addEventListener('hide.bs.collapse', function() {
+            arrowIcon.className = 'bx bx-chevron-down';
+        });
+    }
+});
 </script>
