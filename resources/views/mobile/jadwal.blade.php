@@ -160,7 +160,8 @@
         }
 
         .day-card {
-            width: 100vw;
+            max-width: 520px;
+            margin: 0 auto;
             background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             border-radius: 0;
             min-height: calc(100vh - 120px);
@@ -170,7 +171,6 @@
             padding: 16px;
             box-shadow: none;
             border: none;
-            margin: 0;
             display: none;
         }
 
@@ -380,31 +380,31 @@
             <div class="day-header">
                 <strong>{{ $day }}</strong>
             </div>
-            @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
-                @foreach($schedules[$day] as $schedule)
-                    <div class="schedule-item">
-                        <div class="schedule-icon">
-                            <i class="bx bx-book"></i>
-                        </div>
-                        <div class="schedule-info">
-                            <strong>{{ $schedule->subject }}</strong>
-                            <small>{{ $schedule->class_name }}</small>
-                            <div class="schedule-time">
-                                <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
+            <div class="schedule-list">
+                @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
+                    @foreach($schedules[$day] as $schedule)
+                        <div class="schedule-item">
+                            <div class="schedule-icon">
+                                <i class="bx bx-book"></i>
+                            </div>
+                            <div class="schedule-info">
+                                <strong>{{ $schedule->subject }}</strong>
+                                <small>{{ $schedule->class_name }}</small>
+                                <div class="schedule-time">
+                                    <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                </div>
+                            </div>
+                            <div class="school-badge">
+                                {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
                             </div>
                         </div>
-                        <div class="school-badge">
-                            {{ Str::limit($schedule->school->name ?? 'N/A', 8) }}
-                        </div>
+                    @endforeach
+                @else
+                    <div class="no-schedule">
+                        <i class="bx bx-calendar-x"></i>
+                        <p>Tidak ada jadwal</p>
                     </div>
-                @endforeach
-            @else
-                <div class="no-schedule">
-                    <i class="bx bx-calendar-x"></i>
-                    <p>Tidak ada jadwal</p>
-                </div>
-            @endif
-            <div class="schedule-list">
+                @endif
             </div>
         </div>
     @endforeach
