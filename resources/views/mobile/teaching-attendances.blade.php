@@ -1,10 +1,20 @@
 @extends('layouts.mobile')
 
 @section('title', 'Presensi Mengajar')
-@section('subtitle', 'Presensi Mengajar Hari Ini')
+@section('subtitle', 'Presensi Mengajar Saya')
 
 @section('content')
-<div class="container py-3" style="max-width: 600px; margin: auto;">
+    <div class="container py-3" style="max-width: 600px; margin: auto;">
+    <div class="text-center mb-4">
+        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Presensi Mengajar</h5>
+        <small class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
+    </div>
+
+    @if(session('success'))
+    <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
+        <i class="bx bx-check-circle me-1"></i>{{ session('success') }}
+    </div>
+    @endif
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -40,10 +50,7 @@
             background-color: transparent !important;
         }
 
-        .presensi-header { background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: #fff; border-radius: 12px; padding: 12px 10px; box-shadow: 0 4px 10px rgba(0,75,76,0.3); margin-bottom: 10px; }
-        .presensi-header h6 { font-weight: 600; font-size: 12px; }
-        .presensi-header h5 { font-size: 14px; }
-        .presensi-date { font-size: 11px; color: #6c757d; }
+
 
         .schedule-item {
             background: rgba(255, 255, 255, 0.95);
@@ -162,7 +169,7 @@
     </div>
 
     @if($schedules->isEmpty())
-        <div class="empty-state">
+        <div class="no-schedule">
             <i class="bx bx-calendar-x"></i>
             <p>Tidak ada jadwal mengajar hari ini</p>
         </div>
