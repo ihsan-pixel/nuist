@@ -23,6 +23,11 @@ if ($hour >= 0 && $hour <= 11) {
     $congrat = 'Selamat Malam ';
 }
 
+// Calculate progress color from red to bright green based on percentage
+$red = 255 - (int)($kinerjaPercent * 2.55);
+$green = (int)($kinerjaPercent * 2.55);
+$progressColor = "rgb($red, $green, 0)";
+
 ?>
 <header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
     <div class="container-fluid px-0 py-0" style="background: transparent;">
@@ -857,7 +862,7 @@ if ($hour >= 0 && $hour <= 11) {
         .progress-bar {
             width: 100%;
             height: 6px;
-            background: rgba(0,0,0,.08);
+            background: white;
             border-radius: 999px;
             overflow: hidden;
         }
@@ -1008,7 +1013,7 @@ if ($hour >= 0 && $hour <= 11) {
 
         <div class="performance-progress">
             <div class="progress-bar">
-                <div class="progress-fill"></div>
+                <div class="progress-fill" style="background: {{ $progressColor }}"></div>
             </div>
             <div class="progress-text">
                 <strong>{{ $kinerjaPercent }}%</strong>
@@ -1419,7 +1424,7 @@ if ($hour >= 0 && $hour <= 11) {
                     </div>
 
                     <div class="progress-bar mb-3">
-                        <div class="progress-fill"></div>
+                        <div class="progress-fill" style="background: {{ $progressColor }}"></div>
                     </div>
                     <div class="progress-text mb-4">
                         <strong>{{ $kinerjaPercent }}%</strong>
