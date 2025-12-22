@@ -876,12 +876,12 @@ if ($hour >= 0 && $hour <= 11) {
 
         .progress-text strong {
             font-size: 14px;
-            color: #004b4c;
+            color: #fcffff;
         }
 
         .progress-text small {
             font-size: 9px;
-            color: #6c757d;
+            color: #ffffff;
         }
 
         .performance-progress {
@@ -999,8 +999,6 @@ if ($hour >= 0 && $hour <= 11) {
             </div>
         </div>
     </div>
-
-    <small>Aktivitas Kinerja Hari Ini</small>
 
     <div class="performance-card">
         <div class="performance-level">
