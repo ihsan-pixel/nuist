@@ -1005,7 +1005,7 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="performance-card">
         <div class="performance-level">
             <span class="level-badge">LEVEL</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Sangat Baik' : ($kinerjaPercent >= 66 ? 'Baik' : 'Cukup')) }}</strong>
+            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik' : ($kinerjaPercent >= 66 ? 'Cukup' : 'Belum Ada Progress')) }}</strong>
         </div>
 
         <div class="performance-progress">
@@ -1198,25 +1198,6 @@ if ($hour >= 0 && $hour <= 11) {
             }
         });
     </script>
-
-    <small>Aktivitas Kinerja Hari Ini</small>
-
-    <div class="performance-card">
-        <div class="performance-level">
-            <span class="level-badge">LEVEL</span>
-            <strong>{{ $kinerjaPercent >= 100 ? 'Teladan' : ($kinerjaPercent >= 80 ? 'Baik' : ($kinerjaPercent >= 66 ? 'Cukup' : 'Belum Ada Progres')) }}</strong>
-        </div>
-
-        <div class="performance-progress">
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-            <div class="progress-text">
-                <strong>{{ $kinerjaPercent }}%</strong>
-                <small>Hari ini</small>
-            </div>
-        </div>
-    </div>
 
     <!-- Teacher Info -->
     {{-- <div class="info-section">
