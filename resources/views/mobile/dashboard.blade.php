@@ -902,35 +902,62 @@ $progressColor = "rgb($red, $green, 0)";
         }
 
         .timeline-accordion {
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+            padding-left: 20px;
+        }
+
+        .timeline-accordion::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #004b4c, #0e8549);
+            border-radius: 1px;
         }
 
         .timeline-item-accordion {
+            position: relative;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            transition: all 0.2s ease;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .timeline-item-accordion:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .timeline-item-accordion.done {
-            background: rgba(40,167,69,0.2);
-            border-left: 3px solid #28a745;
+            background: #d4edda;
+            border-color: #c3e6cb;
+            border-left: 4px solid #28a745;
         }
 
         .timeline-item-accordion .timeline-icon {
+            position: absolute;
+            left: -24px;
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            background: #6c757d;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1;
         }
 
         .timeline-item-accordion.done .timeline-icon {
@@ -938,21 +965,29 @@ $progressColor = "rgb($red, $green, 0)";
             color: white;
         }
 
+        .timeline-item-accordion .timeline-content {
+            flex: 1;
+        }
+
         .timeline-item-accordion .timeline-content strong {
             display: block;
             font-size: 13px;
-            color: white;
-            margin-bottom: 2px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 4px;
         }
 
         .timeline-item-accordion .timeline-content small {
             font-size: 11px;
-            color: rgba(255,255,255,0.8);
+            color: #6c757d;
         }
 
-        .timeline-item-accordion.done .timeline-content strong,
+        .timeline-item-accordion.done .timeline-content strong {
+            color: #155724;
+        }
+
         .timeline-item-accordion.done .timeline-content small {
-            color: #d4edda;
+            color: #155724;
         }
 
     </style>
@@ -1082,42 +1117,45 @@ $progressColor = "rgb($red, $green, 0)";
     </div>
 
     <div class="collapse" id="performanceAccordion">
-        <div class="accordion-body" style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin-top: 8px;">
-            <div class="timeline-accordion">
-                <!-- Presensi Masuk -->
-                <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
-                    <div class="timeline-icon">
-                        <i class="bx bx-log-in"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <strong>Presensi Masuk</strong>
-                        <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
-                    </div>
-                </div>
-
-                <!-- Presensi Mengajar - tampilkan per jadwal -->
-                @if(count($teachingSteps) > 0)
-                    @foreach($teachingSteps as $step)
-                    <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
+        <div class="card mt-3" style="background: rgba(255,255,255,0.95); border: 1px solid rgba(0,75,76,0.1); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="card-body p-3">
+                <h6 class="card-title mb-3" style="font-size: 12px; font-weight: 600; color: #004b4c;">Detail Aktivitas Hari Ini</h6>
+                <div class="timeline-accordion">
+                    <!-- Presensi Masuk -->
+                    <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
                         <div class="timeline-icon">
-                            <i class="bx bx-chalkboard"></i>
+                            <i class="bx bx-log-in"></i>
                         </div>
                         <div class="timeline-content">
-                            <strong>{{ $step['label'] }}</strong>
-                            <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            <strong>Presensi Masuk</strong>
+                            <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
                         </div>
                     </div>
-                    @endforeach
-                @endif
 
-                <!-- Presensi Keluar -->
-                <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
-                    <div class="timeline-icon">
-                        <i class="bx bx-log-out"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <strong>Presensi Keluar</strong>
-                        <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                    <!-- Presensi Mengajar - tampilkan per jadwal -->
+                    @if(count($teachingSteps) > 0)
+                        @foreach($teachingSteps as $step)
+                        <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                            <div class="timeline-icon">
+                                <i class="bx bx-chalkboard"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <strong>{{ $step['label'] }}</strong>
+                                <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+
+                    <!-- Presensi Keluar -->
+                    <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                        <div class="timeline-icon">
+                            <i class="bx bx-log-out"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <strong>Presensi Keluar</strong>
+                            <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                        </div>
                     </div>
                 </div>
             </div>
