@@ -432,6 +432,10 @@
                     </div>
 
                     <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
+                        <div id="map-loading" class="map-loading">
+                            <i class="bx bx-loader-alt"></i>
+                            <span>Membaca lokasi Anda...<br>Mohon tunggu sebentar</span>
+                        </div>
                         <div id="map-placeholder" class="map-placeholder">
                             <i class="bx bx-map"></i>
                             <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
@@ -661,16 +665,15 @@ function openAttendanceModal(scheduleId, subject, className, schoolName, startTi
     const modalEl = document.getElementById('attendanceModal');
     const modal = new bootstrap.Modal(modalEl);
 
-    // Initialize map when modal is fully shown - but only show placeholder initially
+    // Map will be initialized when location is obtained
     modalEl.addEventListener('shown.bs.modal', function onModalShown() {
-        // Don't initialize map yet - wait for location
         modalEl.removeEventListener('shown.bs.modal', onModalShown);
     });
 
     modal.show();
     updateLocationStatus('loading', 'Mendapatkan lokasi Anda...');
 
-    // Show loading initially - map will be initialized when location is obtained
+    // Show loading initially
     $('#map-loading').show();
     $('#map-placeholder').hide();
     $('#locationMap').hide();
