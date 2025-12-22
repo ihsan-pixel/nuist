@@ -901,6 +901,60 @@ $progressColor = "rgb($red, $green, 0)";
             flex: 1;
         }
 
+        .timeline-accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timeline-item-accordion {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .timeline-item-accordion.done {
+            background: rgba(40,167,69,0.2);
+            border-left: 3px solid #28a745;
+        }
+
+        .timeline-item-accordion .timeline-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .timeline-item-accordion.done .timeline-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        .timeline-item-accordion .timeline-content strong {
+            display: block;
+            font-size: 13px;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .timeline-item-accordion .timeline-content small {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .timeline-item-accordion.done .timeline-content strong,
+        .timeline-item-accordion.done .timeline-content small {
+            color: #d4edda;
+        }
+
     </style>
 
     <!-- Show banner modal on page load -->
@@ -1017,6 +1071,55 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
             <div class="progress-text">
                 <strong>{{ $kinerjaPercent }}%</strong>
+            </div>
+        </div>
+
+        <div class="text-center mt-2">
+            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion">
+                Lihat Detail
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse" id="performanceAccordion">
+        <div class="accordion-body" style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin-top: 8px;">
+            <div class="timeline-accordion">
+                <!-- Presensi Masuk -->
+                <div class="timeline-item-accordion {{ $presensiMasukStatus === 'sudah' ? 'done' : '' }}">
+                    <div class="timeline-icon">
+                        <i class="bx bx-log-in"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Presensi Masuk</strong>
+                        <small>{{ $presensiMasukStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                    </div>
+                </div>
+
+                <!-- Presensi Mengajar - tampilkan per jadwal -->
+                @if(count($teachingSteps) > 0)
+                    @foreach($teachingSteps as $step)
+                    <div class="timeline-item-accordion {{ $step['status'] === 'completed' ? 'done' : '' }}">
+                        <div class="timeline-icon">
+                            <i class="bx bx-chalkboard"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <strong>{{ $step['label'] }}</strong>
+                            <small>{{ $step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                        </div>
+                    </div>
+                    @endforeach
+                @endif
+
+                <!-- Presensi Keluar -->
+                <div class="timeline-item-accordion {{ $presensiKeluarStatus === 'sudah' ? 'done' : '' }}">
+                    <div class="timeline-icon">
+                        <i class="bx bx-log-out"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>Presensi Keluar</strong>
+                        <small>{{ $presensiKeluarStatus === 'sudah' ? 'Sudah dilakukan' : 'Belum dilakukan' }}</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
