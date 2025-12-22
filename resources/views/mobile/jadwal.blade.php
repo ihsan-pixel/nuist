@@ -180,7 +180,7 @@
 
         @media (max-width: 576px) {
             .day-card {
-                min-height: calc(100vh - 100px);
+                min-height: 200px;
                 padding: 12px;
             }
         }
