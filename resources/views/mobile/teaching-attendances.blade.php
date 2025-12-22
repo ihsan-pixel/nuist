@@ -131,22 +131,46 @@
         .presensi-btn.outline { background: transparent; border:1px solid #e9ecef; color:#333; }
         .small-muted { font-size: 12px; color: #6c757d; }
 
-        .empty-state {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            text-align: center;
-            color: #999;
+        .day-card {
+            max-width: 520px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            border-radius: 0;
+            min-height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 16px;
+            box-shadow: none;
+            border: none;
         }
 
-        .empty-state i {
+        .schedule-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .no-schedule {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .no-schedule i {
             font-size: 32px;
             margin-bottom: 8px;
             opacity: 0.7;
         }
 
-        .empty-state p {
+        .no-schedule p {
             font-size: 12px;
             margin: 0;
         }
@@ -168,90 +192,94 @@
         <small class="small-muted presensi-date">{{ \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</small>
     </div> --}}
 
-    @if($schedules->isEmpty())
-        <div class="no-schedule">
-            <i class="bx bx-calendar-x"></i>
-            <p>Tidak ada jadwal mengajar hari ini</p>
-        </div>
-    @else
-        @foreach($schedules as $schedule)
-            <div class="schedule-item">
-                <div class="schedule-icon">
-                    <i class="bx bx-book"></i>
+    <div class="day-card">
+        <div class="schedule-list">
+            @if($schedules->isEmpty())
+                <div class="no-schedule">
+                    <i class="bx bx-calendar-x"></i>
+                    <p>Tidak ada jadwal mengajar hari ini</p>
                 </div>
-                <div class="schedule-info">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <strong>{{ $schedule->subject }}</strong>
-                            <small>{{ $schedule->class_name }}</small>
-                            <div class="schedule-time">
-                                <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                            </div>
-                            <div class="school-badge">
-                                {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
-                            </div>
+            @else
+                @foreach($schedules as $schedule)
+                    <div class="schedule-item">
+                        <div class="schedule-icon">
+                            <i class="bx bx-book"></i>
                         </div>
-                        <div class="text-end">
-                            @if($schedule->attendance)
-                                <div class="badge bg-success">Hadir</div>
-                            @else
-                                <div class="badge bg-warning text-dark">Belum</div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        @if($schedule->attendance)
-                            <div class="alert alert-success mb-0">
-                                <div class="d-flex align-items-center">
-                                    <i class="bx bx-check-circle fs-4 me-2"></i>
-                                    <div>
-                                        <div class="fw-semibold">Presensi Berhasil</div>
-                                        <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                        <div class="schedule-info">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <strong>{{ $schedule->subject }}</strong>
+                                    <small>{{ $schedule->class_name }}</small>
+                                    <div class="schedule-time">
+                                        <i class="bx bx-time-five"></i> {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                    </div>
+                                    <div class="school-badge">
+                                        {{ Str::limit($schedule->school->name ?? 'N/A', 100) }}
                                     </div>
                                 </div>
+                                <div class="text-end">
+                                    @if($schedule->attendance)
+                                        <div class="badge bg-success">Hadir</div>
+                                    @else
+                                        <div class="badge bg-warning text-dark">Belum</div>
+                                    @endif
+                                </div>
                             </div>
-                        @else
-                            <div class="time-status-container" data-schedule-id="{{ $schedule->id }}" data-start-time="{{ $schedule->start_time }}" data-end-time="{{ $schedule->end_time }}">
-                                @php
-                                    $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
-                                    $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
-                                    $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
-                                    $isWithinTime = $currentTime->between($startTime, $endTime);
-                                    $isBeforeStart = $currentTime->lt($startTime);
-                                    $isAfterEnd = $currentTime->gt($endTime);
-                                @endphp
 
-                                @if($isWithinTime)
-                                    <button class="presensi-btn attendance-btn" data-schedule-id="{{ $schedule->id }}" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
-                                        <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
-                                    </button>
-                                @elseif($isBeforeStart)
-                                    <button class="presensi-btn outline countdown-btn" disabled data-schedule-id="{{ $schedule->id }}">
-                                        <i class="bx bx-time me-1"></i> <span class="countdown-text">Menunggu Waktu Mengajar</span>
-                                    </button>
-                                    <div class="text-center mt-2">
-                                        <small class="small-muted bg-light px-2 py-1 rounded-pill countdown-info" data-schedule-id="{{ $schedule->id }}">
-                                            <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                        </small>
+                            <div class="mt-3">
+                                @if($schedule->attendance)
+                                    <div class="alert alert-success mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bx bx-check-circle fs-4 me-2"></i>
+                                            <div>
+                                                <div class="fw-semibold">Presensi Berhasil</div>
+                                                <small class="small-muted">Waktu: {{ $schedule->attendance->waktu }}</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 @else
-                                    <button class="presensi-btn outline" disabled>
-                                        <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
-                                    </button>
-                                    <div class="text-center mt-2">
-                                        <small class="small-muted bg-light px-2 py-1 rounded-pill">
-                                            <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
-                                        </small>
+                                    <div class="time-status-container" data-schedule-id="{{ $schedule->id }}" data-start-time="{{ $schedule->start_time }}" data-end-time="{{ $schedule->end_time }}">
+                                        @php
+                                            $currentTime = \Carbon\Carbon::now('Asia/Jakarta');
+                                            $startTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->start_time, 'Asia/Jakarta');
+                                            $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
+                                            $isWithinTime = $currentTime->between($startTime, $endTime);
+                                            $isBeforeStart = $currentTime->lt($startTime);
+                                            $isAfterEnd = $currentTime->gt($endTime);
+                                        @endphp
+
+                                        @if($isWithinTime)
+                                            <button class="presensi-btn attendance-btn" data-schedule-id="{{ $schedule->id }}" onclick="openAttendanceModal({{ $schedule->id }}, '{{ addslashes($schedule->subject) }}', '{{ addslashes($schedule->class_name) }}', '{{ addslashes($schedule->school->name ?? 'N/A') }}', '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')">
+                                                <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
+                                            </button>
+                                        @elseif($isBeforeStart)
+                                            <button class="presensi-btn outline countdown-btn" disabled data-schedule-id="{{ $schedule->id }}">
+                                                <i class="bx bx-time me-1"></i> <span class="countdown-text">Menunggu Waktu Mengajar</span>
+                                            </button>
+                                            <div class="text-center mt-2">
+                                                <small class="small-muted bg-light px-2 py-1 rounded-pill countdown-info" data-schedule-id="{{ $schedule->id }}">
+                                                    <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                                </small>
+                                            </div>
+                                        @else
+                                            <button class="presensi-btn outline" disabled>
+                                                <i class="bx bx-time me-1"></i> Waktu Mengajar Berakhir
+                                            </button>
+                                            <div class="text-center mt-2">
+                                                <small class="small-muted bg-light px-2 py-1 rounded-pill">
+                                                    <i class="bx bx-info-circle me-1"></i>Waktu mengajar: {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                                                </small>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
-                        @endif
+                        </div>
                     </div>
-                </div>
-            </div>
-        @endforeach
-    @endif
+                @endforeach
+            @endif
+        </div>
+    </div>
 
     <!-- Modal -->
     <div class="modal fade" id="attendanceModal" tabindex="-1" aria-hidden="true">
