@@ -4,7 +4,7 @@
 @section('subtitle', 'Jadwal Mengajar Saya')
 
 @section('content')
-<div class="container py-3" style="max-width: 520px; margin: auto;">
+<div class="container py-3" style="max-width: 600px; margin: auto;">
     <div class="text-center mb-4">
         <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jadwal Mengajar</h5>
         <small class="text-muted" style="font-size: 12px;">Minggu Ini</small>
