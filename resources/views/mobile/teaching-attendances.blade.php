@@ -136,7 +136,7 @@
             margin: 0 auto;
             background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             border-radius: 0;
-            min-height: calc(100vh - 120px);
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             position: relative;
