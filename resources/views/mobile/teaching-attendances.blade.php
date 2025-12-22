@@ -153,7 +153,7 @@
     </style>
 
     <!-- Header -->
-    <div class="presensi-header d-flex align-items-center">
+    {{-- <div class="presensi-header d-flex align-items-center">
         <div class="me-2">
             <h6 class="mb-1">Presensi-Mengajar</h6>
             <h5 class="fw-bold mb-0">{{ Auth::user()->name ?? Auth::user()->username ?? 'User' }}</h5>
@@ -161,7 +161,7 @@
         <div class="ms-auto">
             <img src="{{ isset(Auth::user()->avatar) ? asset('storage/' . Auth::user()->avatar) : asset('build/images/avatar-1.jpg') }}" class="rounded-circle border border-white" width="32" height="32" alt="User">
         </div>
-    </div>
+    </div> --}}
 
     <!-- Date below header (smaller font) -->
     <div class="text-center mt-2">
