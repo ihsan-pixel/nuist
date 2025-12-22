@@ -302,7 +302,6 @@
                 <div class="day-card">
                     <div class="day-header">
                         <strong>{{ $day }}</strong>
-                        <small>{{ \Carbon\Carbon::parse($day)->locale('id')->format('d/m') }}</small>
                     </div>
                     <div class="schedule-list">
                         @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
