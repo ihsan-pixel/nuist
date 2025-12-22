@@ -104,7 +104,6 @@
         .day-indicator-item {
             width: 36px;
             height: 36px;
-            border-radius: 50%;
             background: #f8f9fa;
             display: flex;
             align-items: center;
@@ -115,6 +114,10 @@
             border: 2px solid transparent;
             position: relative;
             flex-shrink: 0;
+        }
+
+        .day-indicator-item:not(.active) {
+            border-radius: 50%;
         }
 
         @media (max-width: 576px) {
@@ -148,6 +151,17 @@
             color: white;
             border-color: rgba(253, 189, 87, 0.5);
             box-shadow: 0 2px 8px rgba(253, 189, 87, 0.4);
+            border-radius: 8px;
+            width: auto;
+            min-width: 60px;
+            padding: 0 8px;
+        }
+
+        @media (max-width: 576px) {
+            .day-indicator-item.active {
+                min-width: 50px;
+                padding: 0 6px;
+            }
         }
 
         .day-indicator-item span {
