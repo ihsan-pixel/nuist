@@ -40,6 +40,14 @@
             background-color: transparent !important;
         }
 
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fb;
+            padding-bottom: 16px;
+        }
+
         .profile-header {
             background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
             color: #fff;
