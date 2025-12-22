@@ -400,9 +400,9 @@
     <!-- Schedule Cards -->
     @foreach($days as $index => $day)
         <div class="day-card {{ $index === 0 ? 'active' : '' }}" data-day="{{ $day }}">
-            <div class="day-header">
+            {{-- <div class="day-header">
                 <strong>{{ $day }}</strong>
-            </div>
+            </div> --}}
             <div class="schedule-list">
                 @if(isset($schedules[$day]) && $schedules[$day]->count() > 0)
                     @foreach($schedules[$day] as $schedule)
