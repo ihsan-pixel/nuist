@@ -210,12 +210,7 @@
             position: relative;
             overflow: hidden;
             border-radius: 12px;
-        }
-
-        .user-location-map-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
+            height: 220px;
         }
 
         .map-placeholder {
@@ -404,7 +399,7 @@
                         </div>
                     </div>
 
-                    <div class="user-location-map-container" style="box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
+                    <div class="user-location-map-container" style="height: 220px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(14, 133, 73, 0.1);">
                         <div id="map-placeholder" class="map-placeholder">
                             <i class="bx bx-map"></i>
                             <span>Menunggu data lokasi...<br>Peta akan muncul setelah GPS aktif</span>
