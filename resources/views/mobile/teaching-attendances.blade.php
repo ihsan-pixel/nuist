@@ -480,10 +480,7 @@ function initializeMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add marker
-    marker = L.marker(defaultLocation).addTo(map)
-        .bindPopup('Lokasi default')
-        .openPopup();
+    // No default marker - will be added when user location is obtained
 }
 
 // Update map with user location
