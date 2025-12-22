@@ -1075,9 +1075,9 @@ $progressColor = "rgb($red, $green, 0)";
         </div>
 
         <div class="text-center mt-2">
-            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion">
+            <a href="#" class="text-light text-decoration-none" data-bs-toggle="collapse" data-bs-target="#performanceAccordion" aria-expanded="false" aria-controls="performanceAccordion" style="font-size: 12px; font-weight: 500;">
                 Lihat Detail
-            </button>
+            </a>
         </div>
     </div>
 
