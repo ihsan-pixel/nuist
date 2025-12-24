@@ -599,7 +599,7 @@
 
                         <div class="form-group">
                             <label>Tahun Sertifikasi & Impassing</label>
-                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018" id="tahunSertifikasiInput">
+                            <input type="text" name="tahun_sertifikasi_impassing" value="{{ old('tahun_sertifikasi_impassing', $simfoni->tahun_sertifikasi_impassing ?? '') }}" placeholder="Contoh: 2015 & 2018" id="tahunSertifikasiInput" maxlength="100">
                         </div>
 
                         <div class="row-2col">
@@ -1364,11 +1364,11 @@
         function formatTahunSertifikasi(value) {
             // Remove all non-digit and non-& characters
             let cleaned = value.replace(/[^0-9&]/g, '');
-            // Split by & and take up to 2 parts
-            let parts = cleaned.split('&').slice(0, 2);
-            // Format each part as 4-digit year if possible
+            // Split by &
+            let parts = cleaned.split('&');
+            // Format each part as year (no length limit)
             let formatted = parts.map(part => {
-                let year = part.replace(/\D/g, '').slice(0, 4);
+                let year = part.replace(/\D/g, '');
                 return year;
             }).filter(year => year.length > 0);
             // Join with ' & '
