@@ -1362,11 +1362,12 @@
 
         // Format Tahun Sertifikasi & Impassing as years
         function formatTahunSertifikasi(value) {
-            // Remove all non-digit and non-& characters
-            let cleaned = value.replace(/[^0-9&]/g, '');
-            // Split by &
-            let parts = cleaned.split('&');
-            // Format each part as year (no length limit)
+            // Allow digits, &, and space
+            let cleaned = value.replace(/[^0-9&\s]/g, '');
+            // Replace space after 4 digits with " & "
+            cleaned = cleaned.replace(/(\d{4})\s/g, '$1 & ');
+            // Split by & and format
+            let parts = cleaned.split('&').map(p => p.trim()).filter(p => p);
             let formatted = parts.map(part => {
                 let year = part.replace(/\D/g, '');
                 return year;
