@@ -1360,19 +1360,17 @@
             });
         }
 
-        // Format Tahun Sertifikasi & Impassing as years
-        function formatTahunSertifikasi(value) {
-            // Replace space after 4 digits with " & " (if not already followed by &)
-            value = value.replace(/(\d{4})\s(?!&)/g, '$1 & ');
-            // Remove invalid characters except digits, &, space
-            value = value.replace(/[^0-9&\s]/g, '');
-            return value;
-        }
-
         const tahunSertifikasiInput = document.getElementById('tahunSertifikasiInput');
         if (tahunSertifikasiInput) {
+            tahunSertifikasiInput.addEventListener('keydown', function(e) {
+                if (e.key === ' ' && this.value.match(/\d{4}$/) && !this.value.includes('&')) {
+                    e.preventDefault();
+                    this.value += ' & ';
+                }
+            });
             tahunSertifikasiInput.addEventListener('input', function() {
-                this.value = formatTahunSertifikasi(this.value);
+                // Remove invalid characters except digits, &, space
+                this.value = this.value.replace(/[^0-9&\s]/g, '');
             });
         }
     });
