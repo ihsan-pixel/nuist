@@ -1362,18 +1362,11 @@
 
         // Format Tahun Sertifikasi & Impassing as years
         function formatTahunSertifikasi(value) {
-            // Allow digits, &, and space
-            let cleaned = value.replace(/[^0-9&\s]/g, '');
-            // Replace space after 4 digits with " & "
-            cleaned = cleaned.replace(/(\d{4})\s/g, '$1 & ');
-            // Split by & and format
-            let parts = cleaned.split('&').map(p => p.trim()).filter(p => p);
-            let formatted = parts.map(part => {
-                let year = part.replace(/\D/g, '');
-                return year;
-            }).filter(year => year.length > 0);
-            // Join with ' & '
-            return formatted.join(' & ');
+            // Replace space after 4 digits with " & " (if not already followed by &)
+            value = value.replace(/(\d{4})\s(?!&)/g, '$1 & ');
+            // Remove invalid characters except digits, &, space
+            value = value.replace(/[^0-9&\s]/g, '');
+            return value;
         }
 
         const tahunSertifikasiInput = document.getElementById('tahunSertifikasiInput');
