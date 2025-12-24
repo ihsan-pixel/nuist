@@ -245,8 +245,73 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
-        // For all users, use main madrasah only (simplified logic)
-        $determinedMadrasahId = $user->madrasah_id;
+        // Determine madrasah based on location for users with additional madrasah
+        $determinedMadrasahId = null;
+        $isWithinAnyPolygon = false;
+
+        // If user has pemenuhan_beban_kerja_lain and madrasah_id_tambahan, check additional madrasah first
+        if ($user->pemenuhan_beban_kerja_lain && $user->madrasah_id_tambahan) {
+            $additionalMadrasah = $user->madrasahTambahan;
+            $polygonsToCheck = [];
+            if ($additionalMadrasah && $additionalMadrasah->polygon_koordinat) {
+                $polygonsToCheck[] = $additionalMadrasah->polygon_koordinat;
+            }
+            if ($additionalMadrasah && $additionalMadrasah->enable_dual_polygon && $additionalMadrasah->polygon_koordinat_2) {
+                $polygonsToCheck[] = $additionalMadrasah->polygon_koordinat_2;
+            }
+
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinAnyPolygon = true;
+                            $determinedMadrasahId = $user->madrasah_id_tambahan;
+                            break;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+
+        // If not within additional madrasah (or no additional), check main madrasah
+        if (!$isWithinAnyPolygon) {
+            $mainMadrasah = $user->madrasah;
+            $polygonsToCheck = [];
+            if ($mainMadrasah && $mainMadrasah->polygon_koordinat) {
+                $polygonsToCheck[] = $mainMadrasah->polygon_koordinat;
+            }
+            if ($mainMadrasah && $mainMadrasah->enable_dual_polygon && $mainMadrasah->polygon_koordinat_2) {
+                $polygonsToCheck[] = $mainMadrasah->polygon_koordinat_2;
+            }
+
+            foreach ($polygonsToCheck as $polygonJson) {
+                try {
+                    $polygonGeometry = json_decode($polygonJson, true);
+                    if (isset($polygonGeometry['coordinates'][0])) {
+                        $polygon = $polygonGeometry['coordinates'][0];
+                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
+                            $isWithinAnyPolygon = true;
+                            $determinedMadrasahId = $user->madrasah_id;
+                            break;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+
+        // If not within any polygon, reject presensi
+        if (!$isWithinAnyPolygon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
+            ], 400);
+        }
 
         // Check existing presensi - different logic for penjaga sekolah
         if ($user->ketugasan === 'penjaga sekolah') {
@@ -334,50 +399,6 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'message' => 'Presensi keluar hari ini sudah dicatat. Presensi hari ini sudah lengkap.'
             ], 400);
         }
-
-
-
-        // Location consistency validation removed - presensi will proceed regardless
-
-        // Location validation using polygon from madrasah
-        $madrasah = $user->madrasah;
-        $isWithinPolygon = false;
-
-        $polygonsToCheck = [];
-        if ($madrasah && $madrasah->polygon_koordinat) {
-            $polygonsToCheck[] = $madrasah->polygon_koordinat;
-        }
-        if ($madrasah && $madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2) {
-            $polygonsToCheck[] = $madrasah->polygon_koordinat_2;
-        }
-
-        if (!empty($polygonsToCheck)) {
-            foreach ($polygonsToCheck as $polygonJson) {
-                try {
-                    $polygonGeometry = json_decode($polygonJson, true);
-                    if (isset($polygonGeometry['coordinates'][0])) {
-                        $polygon = $polygonGeometry['coordinates'][0];
-                        if ($this->isPointInPolygon([$request->longitude, $request->latitude], $polygon)) {
-                            $isWithinPolygon = true;
-                            break; // Jika sudah ada yang valid, tidak perlu cek yang lain
-                        }
-                    }
-                } catch (\Exception $e) {
-                    continue; // Skip invalid polygon
-                }
-            }
-        }
-
-        // Location validation using polygon from madrasah
-        if (!$isWithinPolygon) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lokasi Anda berada di luar area sekolah yang telah ditentukan. Pastikan Anda berada di dalam lingkungan madrasah untuk melakukan presensi.'
-            ], 400);
-        }
-
-        // Add location validation note if outside polygon
-        $locationNote = '';
 
         // Determine if this is presensi masuk or keluar
         if ($isPresensiMasuk) {
