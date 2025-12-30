@@ -129,13 +129,16 @@
         border-radius: 14px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.12);
         padding: 12px;
+        display: none;
         opacity: 0;
         transform: translateY(10px);
         transition: all 0.3s ease;
         z-index: 999;
     }
 
-    .submenu.show {
+    .dropdown:hover .submenu,
+    .dropdown.open .submenu {
+        display: block;
         opacity: 1;
         transform: translateY(0);
     }
@@ -459,21 +462,14 @@ function toggleSubmenu(e) {
     e.stopPropagation();
 
     const dropdown = e.target.closest('.dropdown');
-    const submenu = e.target.nextElementSibling;
-    const isOpen = submenu.classList.contains('show');
+    const isOpen = dropdown.classList.contains('open');
 
     document.querySelectorAll('.dropdown').forEach(drop => {
         drop.classList.remove('open');
     });
-    document.querySelectorAll('.submenu').forEach(menu => {
-        menu.classList.remove('show');
-        menu.style.display = 'none';
-    });
 
     if (!isOpen) {
         dropdown.classList.add('open');
-        submenu.style.display = 'block';
-        setTimeout(() => submenu.classList.add('show'), 10);
     }
 }
 
