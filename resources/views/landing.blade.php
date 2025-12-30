@@ -388,7 +388,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <h1 class="logo">CMS Pro</h1>
+            <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li><a href="#features">Fitur</a></li>
