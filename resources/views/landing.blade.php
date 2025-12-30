@@ -99,6 +99,16 @@
         position: relative;
     }
 
+    .arrow {
+        display: inline-block;
+        transition: transform 0.3s;
+        transform: rotate(90deg);
+    }
+
+    .dropdown.open .arrow {
+        transform: rotate(-90deg);
+    }
+
     .submenu {
         position: absolute;
         top: 110%;
@@ -437,15 +447,20 @@ function toggleSubmenu(e) {
     e.preventDefault();
     e.stopPropagation();
 
+    const dropdown = e.target.closest('.dropdown');
     const submenu = e.target.nextElementSibling;
     const isOpen = submenu.classList.contains('show');
 
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.classList.remove('open');
+    });
     document.querySelectorAll('.submenu').forEach(menu => {
         menu.classList.remove('show');
         menu.style.display = 'none';
     });
 
     if (!isOpen) {
+        dropdown.classList.add('open');
         submenu.style.display = 'block';
         setTimeout(() => submenu.classList.add('show'), 10);
     }
@@ -469,7 +484,7 @@ document.addEventListener('click', function () {
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur ▾</a>
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur <span class="arrow">></span></a>
                     <ul class="submenu">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
