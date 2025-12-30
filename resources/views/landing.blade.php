@@ -433,32 +433,29 @@
     }
 </style>
 <script>
-function toggleSubmenu(event) {
-    event.preventDefault();
-    const submenu = event.target.nextElementSibling;
-    const isVisible = submenu.classList.contains('show');
+function toggleSubmenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-    // Close all other submenus first
-    document.querySelectorAll('.submenu').forEach(sub => {
-        sub.classList.remove('show');
-        setTimeout(() => sub.style.display = 'none', 300);
+    const submenu = e.target.nextElementSibling;
+    const isOpen = submenu.classList.contains('show');
+
+    document.querySelectorAll('.submenu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.display = 'none';
     });
 
-    if (!isVisible) {
+    if (!isOpen) {
         submenu.style.display = 'block';
         setTimeout(() => submenu.classList.add('show'), 10);
     }
 }
 
-// Close submenu when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdowns = document.querySelectorAll('.dropdown');
-    dropdowns.forEach(dropdown => {
-        const submenu = dropdown.querySelector('.submenu');
-        if (!dropdown.contains(event.target)) {
-            submenu.classList.remove('show');
-            setTimeout(() => submenu.style.display = 'none', 300);
-        }
+// close jika klik di luar navbar
+document.addEventListener('click', function () {
+    document.querySelectorAll('.submenu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.display = 'none';
     });
 });
 </script>
