@@ -100,7 +100,11 @@
         position: relative;
     }
 
-
+    .dropdown:hover .submenu {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
 
     .arrow {
         display: inline-block;
@@ -110,7 +114,8 @@
         vertical-align: middle;
     }
 
-    .dropdown:hover .arrow {
+    .dropdown:hover .arrow,
+    .dropdown.open .arrow {
         transform: rotate(-180deg);
     }
 
@@ -460,7 +465,7 @@
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
-                    <a href="#">Fitur <i class="bx bx-chevron-down arrow"></i></a>
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
                     <ul class="submenu">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
