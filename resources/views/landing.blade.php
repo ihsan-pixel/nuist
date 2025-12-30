@@ -68,15 +68,17 @@
         text-decoration: none;
         color: #000000;
         font-weight: 350;
-        transition: color 0.3s;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s;
     }
 
     .nav-menu a:hover {
         color: #2563eb;
         background: rgba(37, 99, 235, 0.1);
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(37, 99, 235, 0.15);
     }
 
     .btn-primary {
