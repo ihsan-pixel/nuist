@@ -469,6 +469,9 @@ function toggleSubmenu(e) {
 
 // close jika klik di luar navbar
 document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.classList.remove('open');
+    });
     document.querySelectorAll('.submenu').forEach(menu => {
         menu.classList.remove('show');
         menu.style.display = 'none';
@@ -485,7 +488,7 @@ document.addEventListener('click', function () {
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down" id="arrow"></i></a>
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
                     <ul class="submenu">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
