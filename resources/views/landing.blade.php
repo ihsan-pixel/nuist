@@ -396,7 +396,17 @@
             <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px;">
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
-                <li><a href="#features">Fitur</a></li>
+                <li class="dropdown">
+                    <a href="#features">Fitur</a>
+                    <ul class="submenu">
+                        <li><a href="#features">Performa Tinggi</a></li>
+                        <li><a href="#features">Responsif Penuh</a></li>
+                        <li><a href="#features">Keamanan Terjamin</a></li>
+                        <li><a href="#features">Template Modern</a></li>
+                        <li><a href="#features">Analytics Terintegrasi</a></li>
+                        <li><a href="#features">Dukungan 24/7</a></li>
+                    </ul>
+                </li>
                 <li><a href="#about">Tentang</a></li>
                 <li><a href="#pricing">Harga</a></li>
                 <li><a href="#contact">Kontak</a></li>
