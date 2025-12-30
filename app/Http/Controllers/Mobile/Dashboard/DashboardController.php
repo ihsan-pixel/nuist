@@ -51,6 +51,9 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->whereMonth('date', $currentMonth)
             ->where('is_active', true)
             ->pluck('date')
+            ->map(function ($date) {
+                return $date->toDateString();
+            })
             ->toArray();
 
         // Get all presensi for the month
@@ -297,6 +300,9 @@ class DashboardController extends \App\Http\Controllers\Controller
             ->whereMonth('date', $currentMonth)
             ->where('is_active', true)
             ->pluck('date')
+            ->map(function ($date) {
+                return $date->toDateString();
+            })
             ->toArray();
 
         // Get all presensi for the month
