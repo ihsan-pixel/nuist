@@ -142,6 +142,9 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 })->middleware('auth')->name('root');
 
+// Landing page - public access
+Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
+
 // Jika akses link nuist.id/index maka akan tertuju halaman login
 Route::get('/index', function () {
     return redirect()->route('login');
