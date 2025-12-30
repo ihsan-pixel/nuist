@@ -61,7 +61,7 @@
     .nav-menu {
         list-style: none;
         display: flex;
-        gap: 10px;
+        gap: 20px;
     }
 
     .nav-menu a {
