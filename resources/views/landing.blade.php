@@ -507,7 +507,7 @@ document.addEventListener('click', function(e) {
                 <li><a href="#contact">Kontak</a></li>
             </ul>
         </div>
-        <a href="#" class="btn-primary">Mulai Gratis</a>
+        <a href="#" class="btn-primary">Login</a>
     </div>
 </nav>
 
