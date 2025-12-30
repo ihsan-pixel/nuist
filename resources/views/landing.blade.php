@@ -65,7 +65,7 @@
 
     .nav-menu a {
         text-decoration: none;
-        color: #060606;
+        color: #000000;
         font-weight: 350;
         transition: color 0.3s;
     }
