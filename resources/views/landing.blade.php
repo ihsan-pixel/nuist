@@ -388,16 +388,16 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-        <h1 class="logo">CMS Pro</h1>
-        <ul class="nav-menu">
-            <li><a href="#home">Beranda</a></li>
-            <li><a href="#features">Fitur</a></li>
-            <li><a href="#about">Tentang</a></li>
-            <li><a href="#pricing">Harga</a></li>
-            <li><a href="#contact">Kontak</a></li>
-        </ul>
-        <a href="#" class="btn-primary">Mulai Gratis</a>
+            <h1 class="logo">CMS Pro</h1>
+            <ul class="nav-menu">
+                <li><a href="#home">Beranda</a></li>
+                <li><a href="#features">Fitur</a></li>
+                <li><a href="#about">Tentang</a></li>
+                <li><a href="#pricing">Harga</a></li>
+                <li><a href="#contact">Kontak</a></li>
+            </ul>
         </div>
+        <a href="#" class="btn-primary">Mulai Gratis</a>
     </div>
 </nav>
 
