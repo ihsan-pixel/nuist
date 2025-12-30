@@ -1514,13 +1514,18 @@ $progressColor = "rgb($red, $green, 0)";
                             $presensiStatus = 'alpha';
                         }
 
+                        // Jika hari libur, jangan tampilkan status presensi
+                        if ($isHoliday) {
+                            $presensiStatus = null;
+                        }
+
                         // Treat 'sakit' as 'izin' for display consistency
                         if ($presensiStatus === 'sakit') {
                             $presensiStatus = 'izin';
                         }
                     @endphp
 
-                    <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ $presensiStatus ? 'status-' . $presensiStatus : '' }} {{ $presensiStatus ? 'has-presensi' : '' }} {{ $isHoliday ? 'holiday' : '' }}">
+                    <div class="calendar-day {{ $isToday ? 'today' : '' }} {{ ($presensiStatus && !$isHoliday) ? 'status-' . $presensiStatus : '' }} {{ ($presensiStatus && !$isHoliday) ? 'has-presensi' : '' }} {{ $isHoliday ? 'holiday' : '' }}">
                         <div class="day-number">{{ $day }}</div>
                         @if($isHoliday)
                             <div class="holiday-indicator">
