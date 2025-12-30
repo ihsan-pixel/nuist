@@ -86,7 +86,7 @@ class DashboardController extends \App\Http\Controllers\Controller
                     $hadir++;
                 } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
                     $izin++;
-                } elseif (($presensiStatus === 'alpha' && !$isHoliday) || (!$presensiStatus && $date->isBefore($today->startOfDay()) && !$isHoliday)) {
+                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
                     $alpha++;
                 }
             }
@@ -332,7 +332,7 @@ class DashboardController extends \App\Http\Controllers\Controller
                     $hadir++;
                 } elseif (in_array($presensiStatus, ['izin', 'sakit'])) {
                     $izin++;
-                } elseif (($presensiStatus === 'alpha' && !$isHoliday) || (!$presensiStatus && $date->isBefore($today->startOfDay()) && !$isHoliday)) {
+                } elseif ($presensiStatus === 'alpha' || (!$presensiStatus && $date->isBefore($today->startOfDay()))) {
                     $alpha++;
                 }
             }
