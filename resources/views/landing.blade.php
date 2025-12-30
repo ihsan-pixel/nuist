@@ -29,7 +29,7 @@
 
     /* NAVBAR */
     .navbar {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgb(255, 255, 255);
         backdrop-filter: blur(10px);
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         position: fixed;
@@ -70,7 +70,7 @@
         font-weight: 350;
         padding: 8px 16px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.8);
+        background: rgb(255, 255, 255);
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         transition: all 0.3s;
     }
