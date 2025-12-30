@@ -71,7 +71,6 @@
         padding: 8px 16px;
         border-radius: 8px;
         background: rgb(255, 255, 255);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         transition: all 0.3s;
     }
 
