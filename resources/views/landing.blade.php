@@ -100,7 +100,8 @@
         position: relative;
     }
 
-    .dropdown:hover .submenu {
+    .dropdown:hover .submenu,
+    .dropdown.open .submenu {
         display: block;
         opacity: 1;
         transform: translateY(0);
@@ -476,16 +477,7 @@ function toggleSubmenu(e) {
     }
 }
 
-// close jika klik di luar navbar
-document.addEventListener('click', function () {
-    document.querySelectorAll('.dropdown').forEach(drop => {
-        drop.classList.remove('open');
-    });
-    document.querySelectorAll('.submenu').forEach(menu => {
-        menu.classList.remove('show');
-        menu.style.display = 'none';
-    });
-});
+// Submenu stays open until clicked again, and also shows on hover
 </script>
 <body>
 
