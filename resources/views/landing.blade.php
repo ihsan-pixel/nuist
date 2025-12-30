@@ -105,6 +105,7 @@
         transition: transform 0.3s;
         transform: rotate(0deg);
         font-size: 20px;
+        vertical-align: middle;
     }
 
     .dropdown.open .arrow {
