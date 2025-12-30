@@ -388,7 +388,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/flayer1.png') }}" class="img-fluid rounded animate-bounce-in" alt="Flayer PPDB">
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 40px;">
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li><a href="#features">Fitur</a></li>
