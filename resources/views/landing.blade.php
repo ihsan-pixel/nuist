@@ -36,6 +36,7 @@
         top: 0;
         width: 100%;
         z-index: 1000;
+        border-radius: 0 0 20px 20px;
     }
 
     .nav-flex {
