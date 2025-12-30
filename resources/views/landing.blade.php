@@ -48,7 +48,7 @@
     .nav-left {
         display: flex;
         align-items: center;
-        gap: 30px;
+        gap: 50px;
     }
 
     .logo {
