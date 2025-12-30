@@ -18,7 +18,7 @@
             <div class="flex justify-center">
                 <div class="text-center">
                     <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        NU IST
+                        NUIST
                     </h1>
                     <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
                         Sistem Informasi Tenaga Pendidik Madrasah
