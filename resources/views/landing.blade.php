@@ -94,6 +94,51 @@
         box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
     }
 
+    /* DROPDOWN SUBMENU */
+    .dropdown {
+        position: relative;
+    }
+
+    .submenu {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        min-width: 240px;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        padding: 12px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+
+    .submenu.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .submenu li {
+        list-style: none;
+    }
+
+    .submenu li a {
+        display: block;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1f2937;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .submenu li a:hover {
+        background: #f1f5ff;
+        color: #2563eb;
+        padding-left: 18px;
+    }
+
     /* HERO */
     .hero {
         padding: 120px 0 80px;
@@ -427,14 +472,14 @@ document.addEventListener('click', function(event) {
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
-                    <a href="#features" onclick="toggleSubmenu(event)">Fitur</a>
-                    <ul class="submenu" style="display: none;">
-                        <li><a href="#features">Performa Tinggi</a></li>
-                        <li><a href="#features">Responsif Penuh</a></li>
-                        <li><a href="#features">Keamanan Terjamin</a></li>
-                        <li><a href="#features">Template Modern</a></li>
-                        <li><a href="#features">Analytics Terintegrasi</a></li>
-                        <li><a href="#features">Dukungan 24/7</a></li>
+                    <a href="#" onclick="toggleSubmenu(event)">Fitur ▾</a>
+                    <ul class="submenu">
+                        <li><a href="#features">⚡ Performa Tinggi</a></li>
+                        <li><a href="#features">📱 Responsif Penuh</a></li>
+                        <li><a href="#features">🔒 Keamanan Terjamin</a></li>
+                        <li><a href="#features">🎨 Template Modern</a></li>
+                        <li><a href="#features">📊 Analytics Terintegrasi</a></li>
+                        <li><a href="#features">🤝 Dukungan 24/7</a></li>
                     </ul>
                 </li>
                 <li><a href="#about">Tentang</a></li>
