@@ -453,7 +453,39 @@
     }
 </style>
 <script>
-// No JavaScript needed for hover-based submenu
+function toggleSubmenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dropdown = e.target.closest('.dropdown');
+    const submenu = e.target.nextElementSibling;
+    const isOpen = submenu.classList.contains('show');
+
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.classList.remove('open');
+    });
+    document.querySelectorAll('.submenu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.display = 'none';
+    });
+
+    if (!isOpen) {
+        dropdown.classList.add('open');
+        submenu.style.display = 'block';
+        setTimeout(() => submenu.classList.add('show'), 10);
+    }
+}
+
+// close jika klik di luar navbar
+document.addEventListener('click', function () {
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.classList.remove('open');
+    });
+    document.querySelectorAll('.submenu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.display = 'none';
+    });
+});
 </script>
 <body>
 
