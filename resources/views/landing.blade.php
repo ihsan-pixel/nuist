@@ -103,7 +103,7 @@
     .arrow {
         display: inline-block;
         transition: transform 0.3s;
-        transform: rotate(1800deg);
+        transform: rotate(180deg);
     }
 
     .dropdown.open .arrow {
