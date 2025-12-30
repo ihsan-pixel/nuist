@@ -76,7 +76,7 @@
 
     .nav-menu a:hover {
         color: #2563eb;
-        background: rgba(37, 235, 100, 0.1);
+        background: rgba(52, 52, 52, 0.1);
     }
 
     .btn-primary {
