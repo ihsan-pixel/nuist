@@ -417,14 +417,14 @@ document.addEventListener('click', function(event) {
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
                     <a href="#features" onclick="toggleSubmenu(event)">Fitur</a>
-                    <ul class="submenu">
+                    {{-- <ul class="submenu">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
                         <li><a href="#features">Keamanan Terjamin</a></li>
                         <li><a href="#features">Template Modern</a></li>
                         <li><a href="#features">Analytics Terintegrasi</a></li>
                         <li><a href="#features">Dukungan 24/7</a></li>
-                    </ul>
+                    </ul> --}}
                 </li>
                 <li><a href="#about">Tentang</a></li>
                 <li><a href="#pricing">Harga</a></li>
