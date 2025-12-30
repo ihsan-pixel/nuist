@@ -391,8 +391,18 @@
 function toggleSubmenu(event) {
     event.preventDefault();
     const submenu = event.target.nextElementSibling;
-    const isVisible = submenu.style.display === 'block';
-    submenu.style.display = isVisible ? 'none' : 'block';
+    const isVisible = submenu.classList.contains('show');
+
+    // Close all other submenus first
+    document.querySelectorAll('.submenu').forEach(sub => {
+        sub.classList.remove('show');
+        setTimeout(() => sub.style.display = 'none', 300);
+    });
+
+    if (!isVisible) {
+        submenu.style.display = 'block';
+        setTimeout(() => submenu.classList.add('show'), 10);
+    }
 }
 
 // Close submenu when clicking outside
@@ -401,7 +411,8 @@ document.addEventListener('click', function(event) {
     dropdowns.forEach(dropdown => {
         const submenu = dropdown.querySelector('.submenu');
         if (!dropdown.contains(event.target)) {
-            submenu.style.display = 'none';
+            submenu.classList.remove('show');
+            setTimeout(() => submenu.style.display = 'none', 300);
         }
     });
 });
@@ -417,14 +428,14 @@ document.addEventListener('click', function(event) {
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
                     <a href="#features" onclick="toggleSubmenu(event)">Fitur</a>
-                    {{-- <ul class="submenu">
+                    <ul class="submenu" style="display: none;">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
                         <li><a href="#features">Keamanan Terjamin</a></li>
                         <li><a href="#features">Template Modern</a></li>
                         <li><a href="#features">Analytics Terintegrasi</a></li>
                         <li><a href="#features">Dukungan 24/7</a></li>
-                    </ul> --}}
+                    </ul>
                 </li>
                 <li><a href="#about">Tentang</a></li>
                 <li><a href="#pricing">Harga</a></li>
