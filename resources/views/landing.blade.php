@@ -45,6 +45,12 @@
         height: 80px;
     }
 
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
     .logo {
         font-size: 28px;
         font-weight: 700;
