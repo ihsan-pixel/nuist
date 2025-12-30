@@ -67,7 +67,7 @@
     .nav-menu a {
         text-decoration: none;
         color: #000000;
-        font-weight: 350;
+        font-weight: 400;
         padding: 8px 16px;
         border-radius: 8px;
         background: rgb(255, 255, 255);
