@@ -324,9 +324,12 @@ class DashboardController extends \App\Http\Controllers\Controller
                 $isWorkingDay = false;
             }
             $isHoliday = in_array($dateKey, $monthlyHolidays);
+            if ($isHoliday) {
+                $isWorkingDay = false; // Hari libur tidak dihitung sebagai hari kerja
+            }
             $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
 
-            if ($isWorkingDay && !$isHoliday) {
+            if ($isWorkingDay) {
                 $workingDays++;
                 if ($presensiStatus === 'hadir') {
                     $hadir++;
