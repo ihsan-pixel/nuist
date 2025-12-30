@@ -76,7 +76,7 @@
     }
 
     .nav-menu a:hover {
-        color: #004b4c;
+        color: #eda711;
         background: rgba(52, 52, 52, 0.1);
     }
 
