@@ -73,6 +73,10 @@
 
     .nav-menu a:hover {
         color: #2563eb;
+        background: rgba(37, 99, 235, 0.1);
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s;
     }
 
     .btn-primary {
