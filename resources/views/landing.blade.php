@@ -74,6 +74,49 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">NUIST</h3>
+                    <p class="text-gray-400 text-sm">
+                        Sistem Informasi Tenaga Pendidik Madrasah di lingkungan Nahdlatul Ulama.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Fitur</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#features" class="hover:text-white">Presensi Digital</a></li>
+                        <li><a href="#features" class="hover:text-white">Manajemen Jadwal</a></li>
+                        <li><a href="#features" class="hover:text-white">PPDB Online</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Link</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#about" class="hover:text-white">Tentang Kami</a></li>
+                        <li><a href="#contact" class="hover:text-white">Kontak</a></li>
+                        <li><a href="{{ route('login') }}" class="hover:text-white">Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Kontak</h4>
+                    <p class="text-gray-400 text-sm">
+                        Email: info@nuist.id<br>
+                        Telepon: (021) 123-4567<br>
+                        Alamat: Jakarta, Indonesia
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400 text-sm">
+                    &copy; 2024 NUIST - Sistem Informasi Tenaga Pendidik Madrasah. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
     <style>
         .bg-dots-darker {
             background-image: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z' fill='rgba(0,0,0,0.07)'/%3E%3C/svg%3E");
