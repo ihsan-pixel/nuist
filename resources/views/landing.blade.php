@@ -387,6 +387,25 @@
         }
     }
 </style>
+<script>
+function toggleSubmenu(event) {
+    event.preventDefault();
+    const submenu = event.target.nextElementSibling;
+    const isVisible = submenu.style.display === 'block';
+    submenu.style.display = isVisible ? 'none' : 'block';
+}
+
+// Close submenu when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        const submenu = dropdown.querySelector('.submenu');
+        if (!dropdown.contains(event.target)) {
+            submenu.style.display = 'none';
+        }
+    });
+});
+</script>
 <body>
 
 <!-- NAVBAR -->
@@ -397,7 +416,7 @@
             <ul class="nav-menu">
                 <li><a href="#home">Beranda</a></li>
                 <li class="dropdown">
-                    <a href="#features">Fitur</a>
+                    <a href="#features" onclick="toggleSubmenu(event)">Fitur</a>
                     <ul class="submenu">
                         <li><a href="#features">Performa Tinggi</a></li>
                         <li><a href="#features">Responsif Penuh</a></li>
