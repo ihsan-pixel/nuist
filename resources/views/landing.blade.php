@@ -473,7 +473,14 @@ function toggleSubmenu(e) {
     }
 }
 
-// Submenu stays open until clicked again, and also shows on hover
+// Close submenu when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown').forEach(drop => {
+            drop.classList.remove('open');
+        });
+    }
+});
 </script>
 <body>
 
