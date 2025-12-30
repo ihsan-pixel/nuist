@@ -104,7 +104,7 @@
         display: inline-block;
         transition: transform 0.3s;
         transform: rotate(0deg);
-        font-size: 12px;
+        font-size: 20px;
     }
 
     .dropdown.open .arrow {
