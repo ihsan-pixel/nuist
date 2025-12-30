@@ -159,7 +159,7 @@
 
     .submenu li a:hover {
         background: #f1f5ff;
-        color: #2563eb;
+        color: #eda711;
         padding-left: 18px;
     }
 
