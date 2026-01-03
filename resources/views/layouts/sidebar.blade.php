@@ -248,6 +248,15 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
+
+                @if($userRole === 'super_admin')
+                <li>
+                    <a href="{{ route('admin.simfoni.index') }}" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Simfoni</span>
+                    </a>
+                </li>
+                @endif
                 @endif
 
                 @if($userRole === 'super_admin')
