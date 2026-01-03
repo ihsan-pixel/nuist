@@ -124,7 +124,7 @@
                 <tbody>
                     @forelse($simfonis as $index => $simfoni)
                     <tr>
-                        <td>{{ $simfonis->firstItem() + $index }}</td>
+                        <td>{{ $index + 1 }}</td>
                         <td>{{ $simfoni->nama_lengkap_gelar }}</td>
                         <td>{{ $simfoni->gelar }}</td>
                         <td>{{ $simfoni->tempat_lahir }}</td>
