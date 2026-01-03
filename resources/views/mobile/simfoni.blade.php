@@ -527,9 +527,9 @@
                     </div>
 
                     <div class="section-content">
-                        <div class="form-group required">
+                        <div class="form-group">
                             <label>Status Kerja Saat Ini</label>
-                            <select name="status_kerja" id="statusKerjaSelect" required>
+                            <select name="status_kerja" id="statusKerjaSelect">
                                 <option value="">-- Pilih Status --</option>
                                 @foreach($statusKepegawaian as $status)
                                     <option value="{{ $status->name }}" {{ old('status_kerja', $simfoni->status_kerja ?? '') == $status->name ? 'selected' : '' }}>{{ $status->name }}</option>
@@ -542,16 +542,16 @@
                         </div>
 
                         <div class="row-2col">
-                            <div class="form-group required">
+                            <div class="form-group">
                                 <label>Tanggal SK Pertama</label>
-                                <input type="date" name="tanggal_sk_pertama" value="{{ old('tanggal_sk_pertama', $simfoni->tanggal_sk_pertama ?? '') }}" required>
+                                <input type="date" name="tanggal_sk_pertama" value="{{ old('tanggal_sk_pertama', $simfoni->tanggal_sk_pertama ?? '') }}">
                                 @error('tanggal_sk_pertama')
                                     <div class="form-error">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="form-group required">
+                            <div class="form-group">
                                 <label>Nomor SK Pertama</label>
-                                <input type="text" name="nomor_sk_pertama" value="{{ old('nomor_sk_pertama', $simfoni->nomor_sk_pertama ?? '') }}" required>
+                                <input type="text" name="nomor_sk_pertama" value="{{ old('nomor_sk_pertama', $simfoni->nomor_sk_pertama ?? '') }}">
                                 @error('nomor_sk_pertama')
                                     <div class="form-error">{{ $message }}</div>
                                 @enderror
@@ -973,9 +973,9 @@
                             </div>
                         </div>
 
-                        <div class="form-group required">
+                        <div class="form-group">
                             <div class="d-flex align-items-center">
-                                <input type="checkbox" id="pernyataan_setuju" name="pernyataan_setuju" value="1" {{ old('pernyataan_setuju', $simfoni->pernyataan_setuju ?? '') ? 'checked' : '' }} required style="margin-right: 8px;">
+                                <input type="checkbox" id="pernyataan_setuju" name="pernyataan_setuju" value="1" {{ old('pernyataan_setuju', $simfoni->pernyataan_setuju ?? '') ? 'checked' : '' }} style="margin-right: 8px;">
                                 <label for="pernyataan_setuju" style="margin: 0; font-size: 11px; color: #004b4c;">Saya menyetujui dan bertanggung jawab atas kebenaran data yang saya isi</label>
                             </div>
                             @error('pernyataan_setuju')
@@ -1050,6 +1050,34 @@
         let currentStep = 1;
         const totalSteps = 7;
 
+        // Define required fields for each step
+        const stepRequiredFields = {
+            1: ['nama_lengkap_gelar', 'tempat_lahir', 'tanggal_lahir', 'nik', 'tmt', 'strata_pendidikan', 'tahun_lulus', 'program_studi'],
+            2: ['status_kerja', 'tanggal_sk_pertama', 'nomor_sk_pertama'],
+            3: ['no_hp', 'email', 'status_pernikahan', 'alamat_lengkap'],
+            4: [], // No required fields in step 4
+            5: [], // No required fields in step 5
+            6: [], // No required fields in step 6
+            7: ['akan_kuliah_s2', 'akan_mendaftar_pns', 'akan_mendaftar_pppk', 'akan_mengikuti_ppg', 'akan_menulis_buku_modul_riset', 'akan_mengikuti_seleksi_diklat_cakep', 'akan_membimbing_riset_prestasi_siswa', 'akan_masuk_tim_unggulan_sekolah_madrasah', 'akan_kompetisi_pimpinan_level_ii', 'akan_aktif_mengikuti_pelatihan', 'akan_aktif_mgmp_mkk', 'akan_mengikuti_pendidikan_kader_nu', 'akan_aktif_membantu_kegiatan_lembaga', 'akan_aktif_mengikuti_kegiatan_nu', 'akan_aktif_ikut_zis_kegiatan_sosial', 'akan_mengembangkan_unit_usaha_satpen', 'akan_bekerja_disiplin_produktif', 'akan_loyal_nu_aktif_masyarakat', 'akan_bersedia_dipindah_satpen_lain', 'pernyataan_setuju']
+        };
+
+        function updateRequiredFields(step) {
+            // Remove required from all fields first
+            document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+                field.removeAttribute('required');
+            });
+
+            // Add required to fields in current step
+            if (stepRequiredFields[step]) {
+                stepRequiredFields[step].forEach(fieldName => {
+                    const field = document.querySelector(`[name="${fieldName}"]`);
+                    if (field) {
+                        field.setAttribute('required', 'required');
+                    }
+                });
+            }
+        }
+
         function showStep(step) {
             // Hide all steps
             document.querySelectorAll('.step-content').forEach(stepEl => {
@@ -1063,6 +1091,9 @@
                 currentStepEl.classList.add('active');
                 currentStepEl.style.display = 'block';
             }
+
+            // Update required fields
+            updateRequiredFields(step);
 
             // Update timeline
             document.querySelectorAll('.timeline-step').forEach((timelineStep, index) => {
