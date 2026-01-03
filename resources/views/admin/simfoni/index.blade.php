@@ -128,7 +128,7 @@
                         <td>{{ $simfoni->nama_lengkap_gelar }}</td>
                         <td>{{ $simfoni->gelar }}</td>
                         <td>{{ $simfoni->tempat_lahir }}</td>
-                        <td>{{ $simfoni->tanggal_lahir ? $simfoni->tanggal_lahir->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $simfoni->tanggal_lahir ? \Carbon\Carbon::parse($simfoni->tanggal_lahir)->format('d/m/Y') : '-' }}</td>
                         <td>{{ $simfoni->nuptk }}</td>
                         <td>{{ $simfoni->kartanu }}</td>
                         <td>{{ $simfoni->nipm }}</td>
@@ -139,7 +139,7 @@
                         <td>{{ $simfoni->tahun_lulus }}</td>
                         <td>{{ $simfoni->program_studi }}</td>
                         <td>{{ $simfoni->status_kerja }}</td>
-                        <td>{{ $simfoni->tanggal_sk_pertama }}</td>
+                        <td>{{ $simfoni->tanggal_sk_pertama ? \Carbon\Carbon::parse($simfoni->tanggal_sk_pertama)->format('d/m/Y') : '-' }}</td>
                         <td>{{ $simfoni->nomor_sk_pertama }}</td>
                         <td>{{ $simfoni->nomor_sertifikasi_pendidik }}</td>
                         <td>{{ $simfoni->riwayat_kerja_sebelumnya }}</td>
