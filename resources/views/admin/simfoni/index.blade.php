@@ -17,6 +17,7 @@
                                 <th>No</th>
                                 <th>Nama Lengkap</th>
                                 <th>Email</th>
+                                <th>Asal Sekolah</th>
                                 <th>Strata Pendidikan</th>
                                 <th>Status Kerja</th>
                                 <th>Gaji Pokok</th>
