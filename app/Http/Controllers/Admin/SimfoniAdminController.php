@@ -10,7 +10,7 @@ class SimfoniAdminController extends Controller
 {
     public function index()
     {
-        // $simfonis = Simfoni::with('user.madrasah')->paginate(20);
+        $simfonis = Simfoni::with('user.madrasah');
 
         return view('admin.simfoni.index', compact('simfonis'));
     }
