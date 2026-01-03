@@ -4,6 +4,51 @@
 
 @section('content')
 <div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">10 Madrasah Terbaik Presensi Bulanan</h3>
+                    <div class="card-tools">
+                        <form method="GET" class="d-inline">
+                            <div class="input-group input-group-sm">
+                                <input type="month" name="month" value="{{ request('month', date('Y-m')) }}" class="form-control" onchange="this.form.submit()">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th>Nama Sekolah</th>
+                                <th class="text-center">Persentase (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($top10Madrasah ?? [] as $index => $madrasah)
+                            <tr>
+                                <td class="text-center">{{ $index + 1 }}</td>
+                                <td>{{ $madrasah['nama'] }}</td>
+                                <td class="text-center">{{ number_format($madrasah['persentase'], 2) }}%</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
