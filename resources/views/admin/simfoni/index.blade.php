@@ -31,6 +31,7 @@
                                 <td>{{ $simfonis->firstItem() + $index }}</td>
                                 <td>{{ $simfoni->nama_lengkap_gelar }}</td>
                                 <td>{{ $simfoni->email }}</td>
+                                <td>{{ $simfoni->user->madrasah->name ?? '-' }}</td>
                                 <td>{{ $simfoni->strata_pendidikan }}</td>
                                 <td>{{ $simfoni->status_kerja }}</td>
                                 <td>{{ number_format($simfoni->gaji_pokok, 0, ',', '.') }}</td>
@@ -40,7 +41,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center">Tidak ada data Simfoni.</td>
+                                <td colspan="10" class="text-center">Tidak ada data Simfoni.</td>
                             </tr>
                             @endforelse
                         </tbody>
