@@ -858,6 +858,73 @@ class PresensiAdminController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // Get month for top 10 madrasah
+        $month = $request->input('month', now()->format('Y-m'));
+        $year = (int) substr($month, 0, 4);
+        $monthNum = (int) substr($month, 5, 2);
+        $startOfMonth = Carbon::create($year, $monthNum, 1);
+        $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+        // Calculate top 10 madrasah for the month
+        $madrasahPercentages = [];
+        $allMadrasahs = \App\Models\Madrasah::orderByRaw("CAST(scod AS UNSIGNED) ASC")->get();
+
+        foreach ($allMadrasahs as $madrasah) {
+            $teachers = User::where('madrasah_id', $madrasah->id)
+                ->where('role', 'tenaga_pendidik')
+                ->get();
+
+            $totalTeachers = $teachers->count();
+
+            if ($totalTeachers == 0) {
+                $madrasahPercentages[] = [
+                    'nama' => $madrasah->name,
+                    'persentase' => 0
+                ];
+                continue;
+            }
+
+            $totalHadir = 0;
+            $totalPresensi = 0;
+            $currentDate = $startOfMonth->copy();
+
+            while ($currentDate <= $endOfMonth) {
+                $dayOfWeek = $currentDate->dayOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday
+                $isWorkingDay = ($madrasah->hari_kbm == 5) ? ($dayOfWeek >= 1 && $dayOfWeek <= 5) : ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+
+                if ($isWorkingDay) {
+                    $hadir = 0;
+                    $alpha = 0;
+
+                    foreach ($teachers as $guru) {
+                        $presensi = Presensi::where('user_id', $guru->id)
+                            ->whereDate('tanggal', $currentDate)
+                            ->first();
+
+                        if ($presensi && $presensi->status === 'hadir') {
+                            $hadir++;
+                        } else {
+                            $alpha++;
+                        }
+                    }
+
+                    $totalHadir += $hadir;
+                    $totalPresensi += ($hadir + $alpha);
+                }
+
+                $currentDate->addDay();
+            }
+
+            $persentase = $totalPresensi > 0 ? ($totalHadir / $totalPresensi) * 100 : 0;
+
+            $madrasahPercentages[] = [
+                'nama' => $madrasah->name,
+                'persentase' => $persentase
+            ];
+        }
+
+        $top10Madrasah = collect($madrasahPercentages)->sortByDesc('persentase')->take(10)->values()->all();
+
         // Format input week: YYYY-Www (contoh: 2025-W49)
         $weekInput = trim($request->input('week', now()->format('Y-\WW')));
 
@@ -979,7 +1046,8 @@ class PresensiAdminController extends Controller
 
         return view('backend.presensi_admin.laporan_mingguan', compact(
             'laporanData',
-            'startOfWeek'
+            'startOfWeek',
+            'top10Madrasah'
         ));
     }
 
