@@ -44,7 +44,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Development notice - prevent creation
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pembuatan laporan akhir tahun sedang dalam pengembangan. Silakan hubungi administrator untuk informasi lebih lanjut.');
+            ->with('warning', 'Fitur pembuatan laporan akhir tahun sedang dalam pengembangan.');
     }
 
     /**
@@ -61,7 +61,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Development notice - prevent storing
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur penyimpanan laporan akhir tahun sedang dalam pengembangan. Silakan hubungi administrator untuk informasi lebih lanjut.');
+            ->with('warning', 'Fitur penyimpanan laporan akhir tahun sedang dalam pengembangan.');
     }
 
     /**
@@ -96,7 +96,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Development notice - prevent editing
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pengeditan laporan akhir tahun sedang dalam pengembangan. Silakan hubungi administrator untuk informasi lebih lanjut.');
+            ->with('warning', 'Fitur pengeditan laporan akhir tahun sedang dalam pengembangan.');
     }
 
     /**
@@ -113,7 +113,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Development notice - prevent updating
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pembaruan laporan akhir tahun sedang dalam pengembangan. Silakan hubungi administrator untuk informasi lebih lanjut.');
+            ->with('warning', 'Fitur pembaruan laporan akhir tahun sedang dalam pengembangan.');
     }
 
     /**
@@ -130,6 +130,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Development notice - prevent deletion
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur penghapusan laporan akhir tahun sedang dalam pengembangan. Silakan hubungi administrator untuk informasi lebih lanjut.');
+            ->with('warning', 'Fitur penghapusan laporan akhir tahun sedang dalam pengembangan.');
     }
 }
