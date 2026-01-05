@@ -508,6 +508,24 @@
         </div>
     </div>
 
+    @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
+    <!-- Laporan Akhir Tahun -->
+    <div class="settings-section">
+        <div class="settings-header">
+            <h6><i class="bx bx-file-text me-2"></i>Laporan Akhir Tahun</h6>
+        </div>
+        <div class="settings-content">
+            <p style="font-size: 11px; color: #666; margin-bottom: 12px; line-height: 1.5;">
+                Kelola laporan akhir tahun sebagai kepala sekolah.
+            </p>
+            <a href="{{ route('mobile.laporan-akhir-tahun.index') }}" class="settings-button" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+                <i class="bx bx-file-text"></i>
+                Laporan Akhir Tahun
+            </a>
+        </div>
+    </div>
+    @endif
+
     <!-- Account Settings -->
     <div class="settings-section">
         <div class="settings-header">

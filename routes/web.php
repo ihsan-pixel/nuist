@@ -200,6 +200,9 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
     // Mobile presensi mengajar (mobile-optimized view)
     Route::get('/teaching-attendances', [App\Http\Controllers\Mobile\Laporan\LaporanController::class, 'teachingAttendances'])->name('teaching-attendances');
 
+    // Laporan Akhir Tahun Kepala Sekolah
+    Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
+
     // Monitoring (kepala madrasah)
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');
     Route::get('/monitor-map', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorMap'])->name('monitor-map');
