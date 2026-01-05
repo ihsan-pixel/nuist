@@ -11,6 +11,13 @@
                     <h4 class="card-title mb-0">Laporan Akhir Tahun</h4>
                 </div>
                 <div class="card-body">
+                    <!-- Development Notice -->
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Fitur Dalam Pengembangan</strong> - Laporan akhir tahun sedang dalam tahap pengembangan. Anda dapat melihat daftar laporan yang ada, namun belum dapat membuat atau mengedit laporan baru.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {{ session('success') }}
@@ -25,11 +32,18 @@
                         </div>
                     @endif
 
+                    @if(session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <p class="text-muted mb-0">Daftar laporan akhir tahun yang telah Anda buat</p>
-                        <a href="{{ route('mobile.laporan-akhir-tahun.create') }}" class="btn btn-primary">
+                        {{-- <a href="{{ route('mobile.laporan-akhir-tahun.create') }}" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Buat Laporan Baru
-                        </a>
+                        </a> --}}
                     </div>
 
                     @if($laporans->count() > 0)
