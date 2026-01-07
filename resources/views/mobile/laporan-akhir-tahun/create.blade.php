@@ -1368,22 +1368,29 @@
         const penjelasanContent = document.getElementById('penjelasan_content');
 
         if (togglePenjelasanBtn && penjelasanContent) {
-            // Ensure initial state
+            // Initialize state
+            let isVisible = false;
             penjelasanContent.style.display = 'none';
             togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Lihat Penjelasan';
 
-            togglePenjelasanBtn.addEventListener('click', function(e) {
-                e.preventDefault(); // Prevent any default behavior
-                e.stopPropagation(); // Stop event bubbling
+            // Remove any existing event listeners and use direct assignment
+            togglePenjelasanBtn.onclick = null;
+            togglePenjelasanBtn.onclick = function(event) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
 
-                if (penjelasanContent.style.display === 'none' || penjelasanContent.style.display === '') {
+                if (!isVisible) {
                     penjelasanContent.style.display = 'block';
                     togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Sembunyikan Penjelasan';
+                    isVisible = true;
                 } else {
                     penjelasanContent.style.display = 'none';
                     togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Lihat Penjelasan';
+                    isVisible = false;
                 }
-            });
+
+                return false;
+            };
         }
 
         // Format Rupiah for dana fields
