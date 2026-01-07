@@ -828,7 +828,7 @@ function updateAkreditasiInfo() {
         }
 
         // Update dana score info only if target and capaian are filled
-        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
             updateDanaScoreInfo(skorTambahanDana);
         } else {
             const info = document.getElementById('dana_score_info');
