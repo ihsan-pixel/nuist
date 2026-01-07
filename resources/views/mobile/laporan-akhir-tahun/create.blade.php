@@ -537,6 +537,26 @@
         font-size: 12px;
         pointer-events: none;
     }
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .divider span {
+        padding: 0 15px;
+        font-size: 14px;
+        color: #555;
+        white-space: nowrap;
+    }
 </style>
 
 <!-- Header -->
@@ -662,10 +682,13 @@
                     <h6 class="section-title">1. TARGET UTAMA</h6>
                 </div>
 
+                <div class="divider">
+                    <span>Laporan Akhir Tahun</span>
+                </div>
+
                 <div class="section-content">
                     <h6 class="mb-3">1-A. Capaian dan Target Utama</h6>
 
-                    <small>Siswa</small>
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Jumlah Siswa</label>
