@@ -838,7 +838,8 @@
                                     <div><strong>Rincian Skor:</strong></div>
                                     <div id="skor_siswa_kategori">Skor Kategori Siswa: 0</div>
                                     <div id="skor_siswa_prestasi">Skor Prestasi Siswa: 0</div>
-                                    <div id="skor_dana">Skor Dana: 0</div>
+                                    <div id="skor_dana_kategori">Skor Kategori Dana: 0</div>
+                                    <div id="skor_dana_prestasi">Skor Prestasi Dana: 0</div>
                                     <div id="skor_alumni">Skor Alumni: 0</div>
                                     <div id="skor_akreditasi">Skor Akreditasi: 0</div>
                                     <div style="border-top: 1px solid #004b4c; margin-top: 4px; padding-top: 4px;"><strong id="total_breakdown">Total: 0</strong></div>
@@ -1292,6 +1293,7 @@
     let currentStep = 1;
     const totalSteps = 8;
 
+    // Navigation functions
     function showStep(step) {
         // Hide all steps
         document.querySelectorAll('.step-content').forEach(content => {
@@ -1793,8 +1795,6 @@
 
         // Get dana kategori score (based on capaian dana)
         const danaInput = document.getElementById('capaian_dana');
-        let skorDanaKategori = 0;
-        let skorDanaPrestasi = 0;
         if (danaInput) {
             const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
             const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
