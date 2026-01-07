@@ -424,6 +424,62 @@
         transform: scale(1.05);
         box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
     }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0;
+        font-size: 10px;
+        background: #fff;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .info-table th,
+    .info-table td {
+        padding: 6px 8px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #004b4c;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-table td {
+        color: #495057;
+        font-size: 9px;
+    }
+
+    .info-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .info-section {
+        margin: 12px 0;
+    }
+
+    .info-section h5 {
+        font-size: 11px;
+        font-weight: 600;
+        color: #004b4c;
+        margin: 0 0 6px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-note {
+        font-size: 10px;
+        color: #6c757d;
+        line-height: 1.4;
+        margin: 6px 0;
+    }
 </style>
 
 <!-- Header -->
@@ -660,46 +716,83 @@
                     <!-- Penjelasan -->
                     <div class="form-group">
                         <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #004b4c; font-size: 11px; line-height: 1.4; color: #004b4c;">
-                            <strong>Penjelasan</strong><br>
-                            *Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
-                            ** Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan<br><br>
-                            <strong>Skor Prestasi Target SDA</strong><br>
-                            +0 = turun. +1 = tetap. +2 = naik<br><br>
-                            <strong>Prestasi akreditasi Akreditasi</strong><br>
-                            Belum = +1. C = +4. B = +7. A = +10<br><br>
-                            <strong>Skor Dan Kategori</strong><br>
-                            <strong>Kategori Berdasarkan Jumlah Siswa</strong><br>
-                            Skor Kategori Siswa<br>
-                            9 Unggulan A >1001<br>
-                            8 Unggulan B 751 - 1000<br>
-                            7 Mandiri A 501 - 750<br>
-                            6 Mandiri B 251 - 500<br>
-                            5 Pramandiri A 151 - 250<br>
-                            4 Pramandiri B 101 - 150<br>
-                            3 Rintisan A 61 - 100<br>
-                            2 Rintisan B 20 - 60<br>
-                            1 Posisi Zero 0 - 19<br><br>
-                            <strong>Kategori Berdasarkan Jumlah Dana</strong><br>
-                            Skor Kategori Dana Juta<br>
-                            9 Unggulan A > 5001<br>
-                            8 Unggulan B 3001-5000<br>
-                            7 Mandiri A 2000 - 3000<br>
-                            6 Mandiri B 1251 - 1999<br>
-                            5 Pramandiri A 751 - 1250<br>
-                            4 Pramandiri B 351 - 750<br>
-                            3 Rintisan A 151 - 350<br>
-                            2 Rintisan B 30 - 150<br>
-                            1 Posisi Zero 0 - 29<br><br>
-                            <strong>Kategori Berdasarkan Keterserapan Lulusan</strong><br>
-                            Skor Kategori BMW+A<br>
-                            9 Unggulan A 81 - 100%<br>
-                            8 Unggulan B 66 = 80%<br>
-                            7 Mandiri A 51 - 65%<br>
-                            6 Mandiri B 35 - 50%<br>
-                            5 Pramandiri A 20 - 34%<br>
-                            4 Pramandiri B 10 - 19%<br>
-                            3 Rintisan A 3 - 9%<br>
-                            2 Rintisan B 1 = 2%<br>
+                            <div class="info-note">
+                                <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
+                                <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
+                            </div>
+
+                            <div class="info-section">
+                                <h5>Skor Prestasi Target SDA</h5>
+                                <table class="info-table">
+                                    <tr><td>+0 = turun</td><td>+1 = tetap</td><td>+2 = naik</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <h5>Prestasi Akreditasi</h5>
+                                <table class="info-table">
+                                    <tr><td>Belum = +1</td><td>C = +4</td><td>B = +7</td><td>A = +10</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <h5>Kategori Berdasarkan Jumlah Siswa</h5>
+                                <table class="info-table">
+                                    <thead>
+                                        <tr><th>Skor</th><th>Kategori</th><th>Jumlah Siswa</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>9</td><td>Unggulan A</td><td>>1001</td></tr>
+                                        <tr><td>8</td><td>Unggulan B</td><td>751 - 1000</td></tr>
+                                        <tr><td>7</td><td>Mandiri A</td><td>501 - 750</td></tr>
+                                        <tr><td>6</td><td>Mandiri B</td><td>251 - 500</td></tr>
+                                        <tr><td>5</td><td>Pramandiri A</td><td>151 - 250</td></tr>
+                                        <tr><td>4</td><td>Pramandiri B</td><td>101 - 150</td></tr>
+                                        <tr><td>3</td><td>Rintisan A</td><td>61 - 100</td></tr>
+                                        <tr><td>2</td><td>Rintisan B</td><td>20 - 60</td></tr>
+                                        <tr><td>1</td><td>Posisi Zero</td><td>0 - 19</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <h5>Kategori Berdasarkan Jumlah Dana (Juta)</h5>
+                                <table class="info-table">
+                                    <thead>
+                                        <tr><th>Skor</th><th>Kategori</th><th>Jumlah Dana</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>9</td><td>Unggulan A</td><td>>5001</td></tr>
+                                        <tr><td>8</td><td>Unggulan B</td><td>3001-5000</td></tr>
+                                        <tr><td>7</td><td>Mandiri A</td><td>2000 - 3000</td></tr>
+                                        <tr><td>6</td><td>Mandiri B</td><td>1251 - 1999</td></tr>
+                                        <tr><td>5</td><td>Pramandiri A</td><td>751 - 1250</td></tr>
+                                        <tr><td>4</td><td>Pramandiri B</td><td>351 - 750</td></tr>
+                                        <tr><td>3</td><td>Rintisan A</td><td>151 - 350</td></tr>
+                                        <tr><td>2</td><td>Rintisan B</td><td>30 - 150</td></tr>
+                                        <tr><td>1</td><td>Posisi Zero</td><td>0 - 29</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <h5>Kategori Berdasarkan Keterserapan Lulusan</h5>
+                                <table class="info-table">
+                                    <thead>
+                                        <tr><th>Skor</th><th>Kategori</th><th>Persentase</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>9</td><td>Unggulan A</td><td>81 - 100%</td></tr>
+                                        <tr><td>8</td><td>Unggulan B</td><td>66 - 80%</td></tr>
+                                        <tr><td>7</td><td>Mandiri A</td><td>51 - 65%</td></tr>
+                                        <tr><td>6</td><td>Mandiri B</td><td>35 - 50%</td></tr>
+                                        <tr><td>5</td><td>Pramandiri A</td><td>20 - 34%</td></tr>
+                                        <tr><td>4</td><td>Pramandiri B</td><td>10 - 19%</td></tr>
+                                        <tr><td>3</td><td>Rintisan A</td><td>3 - 9%</td></tr>
+                                        <tr><td>2</td><td>Rintisan B</td><td>1 - 2%</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
