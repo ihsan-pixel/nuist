@@ -595,7 +595,7 @@
 
                     <div class="form-group">
                         <label>Untuk Capaian Siswa</label>
-                        <textarea name="upaya_capaian_siswa" placeholder="Jelaskan upaya untuk mencapai target siswa..." rows="2">{{ old('upaya_capaian_siswa') }}</textarea>
+                        <textarea name="upaya_capaian_siswa" placeholder="1. Upaya pertama untuk mencapai target siswa&#10;2. Upaya kedua untuk mencapai target siswa&#10;3. Upaya ketiga untuk mencapai target siswa&#10;..." rows="4">{{ old('upaya_capaian_siswa') }}</textarea>
                         @error('upaya_capaian_siswa')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -603,7 +603,7 @@
 
                     <div class="form-group">
                         <label>Untuk Capaian Dana</label>
-                        <textarea name="upaya_capaian_dana" placeholder="Jelaskan upaya untuk mencapai target dana..." rows="2">{{ old('upaya_capaian_dana') }}</textarea>
+                        <textarea name="upaya_capaian_dana" placeholder="1. Upaya pertama untuk mencapai target dana&#10;2. Upaya kedua untuk mencapai target dana&#10;3. Upaya ketiga untuk mencapai target dana&#10;..." rows="4">{{ old('upaya_capaian_dana') }}</textarea>
                         @error('upaya_capaian_dana')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -611,7 +611,7 @@
 
                     <div class="form-group">
                         <label>Untuk Alumni BMWA</label>
-                        <textarea name="upaya_alumni_bmwa" placeholder="Jelaskan upaya untuk alumni BMWA..." rows="2">{{ old('upaya_alumni_bmwa') }}</textarea>
+                        <textarea name="upaya_alumni_bmwa" placeholder="1. Upaya pertama untuk alumni BMWA&#10;2. Upaya kedua untuk alumni BMWA&#10;3. Upaya ketiga untuk alumni BMWA&#10;..." rows="4">{{ old('upaya_alumni_bmwa') }}</textarea>
                         @error('upaya_alumni_bmwa')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -619,7 +619,7 @@
 
                     <div class="form-group">
                         <label>Untuk Akreditasi</label>
-                        <textarea name="upaya_akreditasi" placeholder="Jelaskan upaya untuk akreditasi..." rows="2">{{ old('upaya_akreditasi') }}</textarea>
+                        <textarea name="upaya_akreditasi" placeholder="1. Upaya pertama untuk akreditasi&#10;2. Upaya kedua untuk akreditasi&#10;3. Upaya ketiga untuk akreditasi&#10;..." rows="4">{{ old('upaya_akreditasi') }}</textarea>
                         @error('upaya_akreditasi')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
