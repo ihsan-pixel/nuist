@@ -260,6 +260,9 @@
                                     <div id="total_skor_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
                                 </div>
 
+                                <!-- Student Score Info -->
+                                <div id="student_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
+
                                 <!-- Scoring Information -->
                                 <div class="alert alert-light border">
                                     <h6 class="mb-2">Kategori Berdasarkan Jumlah Siswa</h6>
@@ -691,20 +694,24 @@ function updateAkreditasiInfo() {
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
+        let siswaScore = 0;
 
-        // Get siswa score
-        const siswaInput = document.getElementById('capaian_jumlah_siswa');
-        if (siswaInput) {
-            const siswaValue = parseInt(siswaInput.value) || 0;
-            if (siswaValue > 1001) totalSkor += 9;
-            else if (siswaValue >= 751) totalSkor += 8;
-            else if (siswaValue >= 501) totalSkor += 7;
-            else if (siswaValue >= 251) totalSkor += 6;
-            else if (siswaValue >= 151) totalSkor += 5;
-            else if (siswaValue >= 101) totalSkor += 4;
-            else if (siswaValue >= 61) totalSkor += 3;
-            else if (siswaValue >= 20) totalSkor += 2;
-            else if (siswaValue > 0) totalSkor += 1;
+        // Get siswa score based on target vs achievement comparison
+        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
+        const capaianSiswaInput = document.getElementById('capaian_jumlah_siswa');
+        if (targetSiswaInput && capaianSiswaInput) {
+            const targetValue = parseInt(targetSiswaInput.value) || 0;
+            const capaianValue = parseInt(capaianSiswaInput.value) || 0;
+
+            if (capaianValue < targetValue) {
+                siswaScore = 0; // turun
+            } else if (capaianValue === targetValue) {
+                siswaScore = 1; // tetap
+            } else if (capaianValue > targetValue) {
+                siswaScore = 2; // naik
+            }
+
+            totalSkor += siswaScore;
         }
 
         // Get dana score
@@ -755,6 +762,27 @@ function updateAkreditasiInfo() {
 
         // Update total score info
         updateTotalSkorInfo(totalSkor);
+    }
+
+    // Function to update student score info
+    function updateStudentScoreInfo(siswaScore) {
+        const info = document.getElementById('student_score_info');
+        let scoreText = '';
+
+        if (siswaScore === 0) {
+            scoreText = 'Skor Siswa: 0 (turun)';
+        } else if (siswaScore === 1) {
+            scoreText = 'Skor Siswa: 1 (tetap)';
+        } else if (siswaScore === 2) {
+            scoreText = 'Skor Siswa: 2 (naik)';
+        }
+
+        if (scoreText) {
+            info.textContent = scoreText;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
     }
 
     // Function to update total score info
