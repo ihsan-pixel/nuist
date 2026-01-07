@@ -992,4 +992,17 @@
         let value = input.value.replace(/[^\d]/g, '');
         input.value = value;
     }
+
+    // Before form submission, remove Rupiah formatting
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            danaFields.forEach(fieldName => {
+                const input = document.querySelector(`input[name="${fieldName}"]`);
+                if (input && input.value.includes('Rp ')) {
+                    input.value = input.value.replace(/[^\d]/g, '');
+                }
+            });
+        });
+    }
 </script>
