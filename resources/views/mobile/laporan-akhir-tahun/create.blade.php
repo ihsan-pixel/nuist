@@ -364,6 +364,66 @@
         background: #5a6268;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
+
+    .dynamic-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .input-row input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        background: #fff;
+    }
+
+    .input-row input:focus {
+        outline: none;
+        border-color: #004b4c;
+        box-shadow: 0 0 0 3px rgba(0, 75, 76, 0.1);
+    }
+
+    .add-input-btn, .remove-input-btn {
+        background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+
+    .add-input-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 75, 76, 0.3);
+    }
+
+    .remove-input-btn {
+        background: #dc3545;
+    }
+
+    .remove-input-btn:hover {
+        background: #c82333;
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
 </style>
 
 <!-- Header -->
@@ -611,6 +671,18 @@
                                     <i class="bx bx-plus"></i>
                                 </button>
                             </div>
+                            @if(old('upaya_capaian_siswa'))
+                                @foreach(old('upaya_capaian_siswa') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_capaian_siswa[]" placeholder="Upaya untuk mencapai target siswa" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                         @error('upaya_capaian_siswa')
                             <div class="form-error">{{ $message }}</div>
@@ -649,6 +721,18 @@
                                     <i class="bx bx-plus"></i>
                                 </button>
                             </div>
+                            @if(old('upaya_alumni_bmwa'))
+                                @foreach(old('upaya_alumni_bmwa') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_alumni_bmwa[]" placeholder="Upaya untuk alumni BMWA" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                         @error('upaya_alumni_bmwa')
                             <div class="form-error">{{ $message }}</div>
@@ -668,6 +752,18 @@
                                     <i class="bx bx-plus"></i>
                                 </button>
                             </div>
+                            @if(old('upaya_akreditasi'))
+                                @foreach(old('upaya_akreditasi') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_akreditasi[]" placeholder="Upaya untuk akreditasi" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                         @error('upaya_akreditasi')
                             <div class="form-error">{{ $message }}</div>
@@ -1071,12 +1167,6 @@
         input.name = `upaya_${getFieldName(category)}[]`;
         input.placeholder = getPlaceholderText(category);
 
-        // Set old value if exists
-        const oldValue = `{{ old('upaya_${getFieldName(category)}.${newIndex}') }}`;
-        if (oldValue && oldValue.trim() !== '{{ old(\'upaya_${getFieldName(category)}.${newIndex}\') }}') {
-            input.value = oldValue;
-        }
-
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'remove-input-btn';
@@ -1126,17 +1216,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // ... existing code ...
 
-        // Initialize dynamic inputs with existing data
-        const categories = ['siswa', 'dana', 'alumni', 'akreditasi'];
-        categories.forEach(category => {
-            const fieldName = getFieldName(category);
-            let index = 1;
-            while (true) {
-                const oldValue = `{{ old('upaya_${fieldName}.${index}') }}`;
-                if (!oldValue || oldValue.trim() === '{{ old(\'upaya_${fieldName}.${index}\') }}') break;
-                addInputField(category);
-                index++;
-            }
-        });
+        // Dynamic inputs are now handled server-side with Blade templates
+        // No additional JavaScript initialization needed
     });
 </script>
