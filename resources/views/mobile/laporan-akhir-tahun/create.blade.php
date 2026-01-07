@@ -1779,7 +1779,7 @@
         const targetDanaInput = document.getElementById('target_dana');
         const capaianDanaInput2 = document.getElementById('capaian_dana');
         if (targetDanaInput && capaianDanaInput2) {
-            const targetValue = parseInt(targetDanaInput.value) || 0;
+            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
             const capaianValue = parseInt(capaianDanaInput2.value.replace(/[^\d]/g, '')) || 0;
 
             if (capaianValue < targetValue) {
