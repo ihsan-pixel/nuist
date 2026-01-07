@@ -833,6 +833,15 @@
                                 <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
                                 <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
                                 <div id="total_skor_info" class="dynamic-info" style="display: none;"></div>
+                                <!-- Rincian Skor -->
+                                <div id="skor_breakdown" style="margin-top: 8px; font-size: 11px; color: #004b4c;">
+                                    <div><strong>Rincian Skor:</strong></div>
+                                    <div id="skor_siswa">Skor Siswa: 0</div>
+                                    <div id="skor_dana">Skor Dana: 0</div>
+                                    <div id="skor_alumni">Skor Alumni: 0</div>
+                                    <div id="skor_akreditasi">Skor Akreditasi: 0</div>
+                                    <div style="border-top: 1px solid #004b4c; margin-top: 4px; padding-top: 4px;"><strong id="total_breakdown">Total: 0</strong></div>
+                                </div>
                             </div>
 
                     <!-- Penjelasan -->
@@ -1699,20 +1708,25 @@
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
+        let skorSiswa = 0;
+        let skorDana = 0;
+        let skorAlumni = 0;
+        let skorAkreditasi = 0;
 
         // Get siswa score
         const siswaInput = document.getElementById('capaian_jumlah_siswa');
         if (siswaInput) {
             const siswaValue = parseInt(siswaInput.value) || 0;
-            if (siswaValue > 1001) totalSkor += 9;
-            else if (siswaValue >= 751) totalSkor += 8;
-            else if (siswaValue >= 501) totalSkor += 7;
-            else if (siswaValue >= 251) totalSkor += 6;
-            else if (siswaValue >= 151) totalSkor += 5;
-            else if (siswaValue >= 101) totalSkor += 4;
-            else if (siswaValue >= 61) totalSkor += 3;
-            else if (siswaValue >= 20) totalSkor += 2;
-            else if (siswaValue > 0) totalSkor += 1;
+            if (siswaValue > 1001) skorSiswa = 9;
+            else if (siswaValue >= 751) skorSiswa = 8;
+            else if (siswaValue >= 501) skorSiswa = 7;
+            else if (siswaValue >= 251) skorSiswa = 6;
+            else if (siswaValue >= 151) skorSiswa = 5;
+            else if (siswaValue >= 101) skorSiswa = 4;
+            else if (siswaValue >= 61) skorSiswa = 3;
+            else if (siswaValue >= 20) skorSiswa = 2;
+            else if (siswaValue > 0) skorSiswa = 1;
+            totalSkor += skorSiswa;
         }
 
         // Get dana score
@@ -1720,39 +1734,42 @@
         if (danaInput) {
             const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
             const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
-            if (danaValue > 5001) totalSkor += 9;
-            else if (danaValue >= 3001) totalSkor += 8;
-            else if (danaValue >= 2000) totalSkor += 7;
-            else if (danaValue >= 1251) totalSkor += 6;
-            else if (danaValue >= 751) totalSkor += 5;
-            else if (danaValue >= 351) totalSkor += 4;
-            else if (danaValue >= 151) totalSkor += 3;
-            else if (danaValue >= 30) totalSkor += 2;
-            else if (danaRawValue > 0) totalSkor += 1;
+            if (danaValue > 5001) skorDana = 9;
+            else if (danaValue >= 3001) skorDana = 8;
+            else if (danaValue >= 2000) skorDana = 7;
+            else if (danaValue >= 1251) skorDana = 6;
+            else if (danaValue >= 751) skorDana = 5;
+            else if (danaValue >= 351) skorDana = 4;
+            else if (danaValue >= 151) skorDana = 3;
+            else if (danaValue >= 30) skorDana = 2;
+            else if (danaRawValue > 0) skorDana = 1;
+            totalSkor += skorDana;
         }
 
         // Get alumni score
         const alumniInput = document.getElementById('capaian_alumni');
         if (alumniInput) {
             const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
-            if (alumniValue >= 81) totalSkor += 9;
-            else if (alumniValue >= 66) totalSkor += 8;
-            else if (alumniValue >= 51) totalSkor += 7;
-            else if (alumniValue >= 35) totalSkor += 6;
-            else if (alumniValue >= 20) totalSkor += 5;
-            else if (alumniValue >= 10) totalSkor += 4;
-            else if (alumniValue >= 3) totalSkor += 3;
-            else if (alumniValue >= 1) totalSkor += 2;
+            if (alumniValue >= 81) skorAlumni = 9;
+            else if (alumniValue >= 66) skorAlumni = 8;
+            else if (alumniValue >= 51) skorAlumni = 7;
+            else if (alumniValue >= 35) skorAlumni = 6;
+            else if (alumniValue >= 20) skorAlumni = 5;
+            else if (alumniValue >= 10) skorAlumni = 4;
+            else if (alumniValue >= 3) skorAlumni = 3;
+            else if (alumniValue >= 1) skorAlumni = 2;
+            totalSkor += skorAlumni;
         }
 
         // Get akreditasi score
         const akreditasiSelect = document.getElementById('akreditasi');
         if (akreditasiSelect) {
             const akreditasiValue = akreditasiSelect.value;
-            if (akreditasiValue === 'A') totalSkor += 10;
-            else if (akreditasiValue === 'B') totalSkor += 7;
-            else if (akreditasiValue === 'C') totalSkor += 4;
-            else if (akreditasiValue === 'Belum') totalSkor += 1;
+            if (akreditasiValue === 'A') skorAkreditasi = 10;
+            else if (akreditasiValue === 'B') skorAkreditasi = 7;
+            else if (akreditasiValue === 'C') skorAkreditasi = 4;
+            else if (akreditasiValue === 'Belum') skorAkreditasi = 1;
+            totalSkor += skorAkreditasi;
         }
 
         // Update total score field
@@ -1760,5 +1777,12 @@
         if (totalSkorField) {
             totalSkorField.value = totalSkor;
         }
+
+        // Update breakdown display
+        document.getElementById('skor_siswa').textContent = `Skor Siswa: ${skorSiswa}`;
+        document.getElementById('skor_dana').textContent = `Skor Dana: ${skorDana}`;
+        document.getElementById('skor_alumni').textContent = `Skor Alumni: ${skorAlumni}`;
+        document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
+        document.getElementById('total_breakdown').textContent = `Total: ${totalSkor}`;
     }
 </script>
