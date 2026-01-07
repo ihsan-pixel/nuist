@@ -520,14 +520,14 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Dana</label>
-                            <input type="number" name="target_dana" value="{{ old('target_dana') }}" min="0" step="1000" placeholder="0">
+                            <input type="text" name="target_dana" value="{{ old('target_dana') }}" placeholder="Rp 0">
                             @error('target_dana')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label>Capaian Dana</label>
-                            <input type="number" name="capaian_dana" value="{{ old('capaian_dana') }}" min="0" step="1000" placeholder="0">
+                            <input type="text" name="capaian_dana" value="{{ old('capaian_dana') }}" placeholder="Rp 0">
                             @error('capaian_dana')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -536,7 +536,7 @@
 
                     <div class="form-group">
                         <label>Target Dana Tahun Berikutnya</label>
-                        <input type="number" name="target_dana_tahun_berikutnya" value="{{ old('target_dana_tahun_berikutnya') }}" min="0" step="1000" placeholder="0">
+                        <input type="text" name="target_dana_tahun_berikutnya" value="{{ old('target_dana_tahun_berikutnya') }}" placeholder="Rp 0">
                         @error('target_dana_tahun_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -959,6 +959,11 @@
         danaFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
+                // Format initial value if it exists
+                if (input.value && !input.value.includes('Rp ')) {
+                    formatRupiah(input);
+                }
+
                 input.addEventListener('focus', function() {
                     // Remove formatting when focused for editing
                     let value = this.value.replace(/[^\d]/g, '');
