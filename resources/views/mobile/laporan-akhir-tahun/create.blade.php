@@ -1014,10 +1014,11 @@
                         </div>
                         <div class="form-group required">
                             <label>Jumlah Siswa</label>
-                            <input type="number" name="jumlah_siswa" value="{{ old('jumlah_siswa') }}" min="0" placeholder="0" required>
+                            <input type="number" name="jumlah_siswa" id="jumlah_siswa" value="{{ old('jumlah_siswa') }}" min="0" placeholder="0" required>
                             @error('jumlah_siswa')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="jumlah_siswa_info" class="dynamic-info" style="display: none;"></div>
                         </div>
                     </div>
 
@@ -1385,6 +1386,7 @@
         // Initialize dynamic info for existing values
         updateSiswaInfo('target_jumlah_siswa', 'target_siswa_info');
         updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+        updateSiswaInfo('jumlah_siswa', 'jumlah_siswa_info');
         updateAlumniInfo('target_alumni', 'target_alumni_info');
         updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         updateAkreditasiInfo();
@@ -1395,6 +1397,9 @@
         });
         document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
             updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+        });
+        document.getElementById('jumlah_siswa').addEventListener('input', function() {
+            updateSiswaInfo('jumlah_siswa', 'jumlah_siswa_info');
         });
         document.getElementById('target_alumni').addEventListener('input', function() {
             updateAlumniInfo('target_alumni', 'target_alumni_info');
