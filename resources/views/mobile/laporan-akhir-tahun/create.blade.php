@@ -683,7 +683,7 @@
                 </div>
 
                 <div class="divider">
-                    <span>Laporan Akhir Tahun</span>
+                    <span>Siswa</span>
                 </div>
 
                 <div class="section-content">
@@ -715,6 +715,10 @@
                         @enderror
                     </div>
 
+                    <div class="divider">
+                        <span>Dana</span>
+                    </div>
+
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Dana</label>
@@ -739,6 +743,10 @@
                         @error('target_dana_tahun_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="divider">
+                        <span>Alumni</span>
                     </div>
 
                     <div class="row-2col">
@@ -775,6 +783,10 @@
                         @error('target_alumni_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="divider">
+                        <span>Akreditasi</span>
                     </div>
 
                     <div class="row-2col">
