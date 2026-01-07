@@ -726,7 +726,7 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Dana</label>
-                            <input type="text" name="target_dana" value="{{ old('target_dana') }}" placeholder="Rp 0">
+                            <input type="text" name="target_dana" id="target_dana" value="{{ old('target_dana') }}" placeholder="Rp 0">
                             @error('target_dana')
                             <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -1549,6 +1549,9 @@
         });
         document.getElementById('capaian_dana').addEventListener('blur', function() {
             updateDanaInfo('capaian_dana', 'capaian_dana_info');
+        });
+        document.getElementById('target_dana').addEventListener('blur', function() {
+            updateTotalSkor(); // Update total score when target dana changes
         });
         document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
     });
