@@ -840,7 +840,8 @@
                                     <div id="skor_siswa_prestasi">Skor Prestasi Siswa: 0</div>
                                     <div id="skor_dana_kategori">Skor Kategori Dana: 0</div>
                                     <div id="skor_dana_prestasi">Skor Prestasi Dana: 0</div>
-                                    <div id="skor_alumni">Skor Alumni: 0</div>
+                                    <div id="skor_alumni_kategori">Skor Kategori Alumni: 0</div>
+                                    <div id="skor_alumni_prestasi">Skor Prestasi Alumni: 0</div>
                                     <div id="skor_akreditasi">Skor Akreditasi: 0</div>
                                     <div style="border-top: 1px solid #004b4c; margin-top: 4px; padding-top: 4px;"><strong id="total_breakdown">Total: 0</strong></div>
                                 </div>
@@ -1553,6 +1554,9 @@
         document.getElementById('target_dana').addEventListener('blur', function() {
             updateTotalSkor(); // Update total score when target dana changes
         });
+        document.getElementById('target_alumni').addEventListener('blur', function() {
+            updateTotalSkor(); // Update total score when target alumni changes
+        });
         document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
     });
 
@@ -1626,34 +1630,52 @@
         const info = document.getElementById(infoId);
         const value = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
 
-        let skor = 2;
+        let skorKategori = 2;
         let kategori = 'Rintisan B';
 
         if (value >= 81) {
-            skor = 9;
+            skorKategori = 9;
             kategori = 'Unggulan A';
         } else if (value >= 66) {
-            skor = 8;
+            skorKategori = 8;
             kategori = 'Unggulan B';
         } else if (value >= 51) {
-            skor = 7;
+            skorKategori = 7;
             kategori = 'Mandiri A';
         } else if (value >= 35) {
-            skor = 6;
+            skorKategori = 6;
             kategori = 'Mandiri B';
         } else if (value >= 20) {
-            skor = 5;
+            skorKategori = 5;
             kategori = 'Pramandiri A';
         } else if (value >= 10) {
-            skor = 4;
+            skorKategori = 4;
             kategori = 'Pramandiri B';
         } else if (value >= 3) {
-            skor = 3;
+            skorKategori = 3;
             kategori = 'Rintisan A';
         }
 
+        // Calculate prestasi score
+        const targetAlumniInput = document.getElementById('target_alumni');
+        let skorPrestasi = 0;
+        let prestasiText = '';
+        if (targetAlumniInput) {
+            const target = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+            if (value > target) {
+                skorPrestasi = 2;
+                prestasiText = ' (Prestasi: +2 - Melebihi Target)';
+            } else if (value === target && value > 0) {
+                skorPrestasi = 1;
+                prestasiText = ' (Prestasi: +1 - Sesuai Target)';
+            } else if (value < target && value > 0) {
+                skorPrestasi = 0;
+                prestasiText = ' (Prestasi: +0 - Di Bawah Target)';
+            }
+        }
+
         if (value > 0) {
-            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.textContent = `Skor Kategori: ${skorKategori}, Kategori: ${kategori}${prestasiText}`;
             info.style.display = 'block';
         } else {
             info.style.display = 'none';
@@ -1766,7 +1788,8 @@
         let skorSiswaPrestasi = 0;
         let skorDanaKategori = 0;
         let skorDanaPrestasi = 0;
-        let skorAlumni = 0;
+        let skorAlumniKategori = 0;
+        let skorAlumniPrestasi = 0;
         let skorAkreditasi = 0;
 
         // Get siswa kategori score (based on capaian jumlah siswa)
@@ -1824,19 +1847,30 @@
             totalSkor += skorDanaPrestasi;
         }
 
-        // Get alumni score
+        // Get alumni kategori score (based on capaian alumni)
         const alumniInput = document.getElementById('capaian_alumni');
         if (alumniInput) {
             const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
-            if (alumniValue >= 81) skorAlumni = 9;
-            else if (alumniValue >= 66) skorAlumni = 8;
-            else if (alumniValue >= 51) skorAlumni = 7;
-            else if (alumniValue >= 35) skorAlumni = 6;
-            else if (alumniValue >= 20) skorAlumni = 5;
-            else if (alumniValue >= 10) skorAlumni = 4;
-            else if (alumniValue >= 3) skorAlumni = 3;
-            else if (alumniValue >= 1) skorAlumni = 2;
-            totalSkor += skorAlumni;
+            if (alumniValue >= 81) skorAlumniKategori = 9;
+            else if (alumniValue >= 66) skorAlumniKategori = 8;
+            else if (alumniValue >= 51) skorAlumniKategori = 7;
+            else if (alumniValue >= 35) skorAlumniKategori = 6;
+            else if (alumniValue >= 20) skorAlumniKategori = 5;
+            else if (alumniValue >= 10) skorAlumniKategori = 4;
+            else if (alumniValue >= 3) skorAlumniKategori = 3;
+            else if (alumniValue >= 1) skorAlumniKategori = 2;
+            totalSkor += skorAlumniKategori;
+        }
+
+        // Get alumni prestasi score (based on comparison with target)
+        const targetAlumniInput = document.getElementById('target_alumni');
+        if (alumniInput && targetAlumniInput) {
+            const capaian = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
+            const target = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+            if (capaian > target) skorAlumniPrestasi = 2;
+            else if (capaian === target && capaian > 0) skorAlumniPrestasi = 1;
+            else skorAlumniPrestasi = 0;
+            totalSkor += skorAlumniPrestasi;
         }
 
         // Get akreditasi score
