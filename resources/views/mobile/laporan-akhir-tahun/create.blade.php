@@ -849,7 +849,11 @@
 
                     <!-- Penjelasan -->
                     <div class="form-group">
-                        <div style="background: #f7e0e0; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
+                        <button type="button" id="toggle_penjelasan" class="btn btn-link text-decoration-none p-0 mb-2" style="color: #004b4c; font-size: 12px; font-weight: 600;">
+                            <i class="bx bx-info-circle" style="margin-right: 4px;"></i>
+                            Lihat Penjelasan
+                        </button>
+                        <div id="penjelasan_content" style="background: #f7e0e0; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c; display: none;">
 
                             <div class="info-section">
                                 <h5>Skor Prestasi Target SDA</h5>
@@ -1358,6 +1362,22 @@
     // Initialize first step
     document.addEventListener('DOMContentLoaded', function() {
         showStep(1);
+
+        // Toggle penjelasan functionality
+        const togglePenjelasanBtn = document.getElementById('toggle_penjelasan');
+        const penjelasanContent = document.getElementById('penjelasan_content');
+
+        if (togglePenjelasanBtn && penjelasanContent) {
+            togglePenjelasanBtn.addEventListener('click', function() {
+                if (penjelasanContent.style.display === 'none') {
+                    penjelasanContent.style.display = 'block';
+                    togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Sembunyikan Penjelasan';
+                } else {
+                    penjelasanContent.style.display = 'none';
+                    togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Lihat Penjelasan';
+                }
+            });
+        }
 
         // Format Rupiah for dana fields
         const danaFields = [
