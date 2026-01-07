@@ -707,15 +707,18 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Akreditasi</label>
-                            <select name="akreditasi">
+                            <select name="akreditasi" id="akreditasi">
                                 <option value="">Pilih Akreditasi</option>
-                                <option value="A" {{ old('akreditasi') == 'A' ? 'selected' : '' }}>A</option>
-                                <option value="B" {{ old('akreditasi') == 'B' ? 'selected' : '' }}>B</option>
+                                <option value="Belum" {{ old('akreditasi') == 'Belum' ? 'selected' : '' }}>Belum</option>
                                 <option value="C" {{ old('akreditasi') == 'C' ? 'selected' : '' }}>C</option>
+                                <option value="B" {{ old('akreditasi') == 'B' ? 'selected' : '' }}>B</option>
+                                <option value="A" {{ old('akreditasi') == 'A' ? 'selected' : '' }}>A</option>
                             </select>
                             @error('akreditasi')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="akreditasi_info" class="dynamic-info" style="display: none;"></div>
+                            <div class="form-hint">Skor: Belum=+1, C=+4, B=+7, A=+10</div>
                         </div>
                         <div class="form-group">
                             <label>Tahun Akreditasi</label>
