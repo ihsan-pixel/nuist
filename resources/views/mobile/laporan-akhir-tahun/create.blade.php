@@ -534,6 +534,14 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label>Target Dana Tahun Berikutnya</label>
+                        <input type="number" name="target_dana_tahun_berikutnya" value="{{ old('target_dana_tahun_berikutnya') }}" min="0" step="1000" placeholder="0">
+                        @error('target_dana_tahun_berikutnya')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Alumni</label>
