@@ -1759,7 +1759,8 @@
         let totalSkor = 0;
         let skorSiswaKategori = 0;
         let skorSiswaPrestasi = 0;
-        let skorDana = 0;
+        let skorDanaKategori = 0;
+        let skorDanaPrestasi = 0;
         let skorAlumni = 0;
         let skorAkreditasi = 0;
 
