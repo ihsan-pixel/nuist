@@ -788,6 +788,13 @@
                     <!-- Penjelasan -->
                     <div class="form-group">
                         <div style="background: #f5d5d5; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
+                            <!-- Total Skor Field -->
+                            <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
+                                <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
+                                <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
+                                <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
+                            </div>
+
                             <div class="info-note">
                                 <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
                                 <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
@@ -1476,6 +1483,9 @@
         updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         updateAkreditasiInfo();
 
+        // Initialize total score
+        updateTotalSkor();
+
         // Add event listeners for dynamic updates
         document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
             updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
@@ -1622,17 +1632,17 @@
         const info = document.getElementById('akreditasi_info');
         const value = select.value;
 
-        let skor = '+1';
+        let skor = 1; // Default for "Belum"
         let kategori = 'Belum';
 
         if (value === 'A') {
-            skor = '+10';
+            skor = 10;
             kategori = 'Unggulan A';
         } else if (value === 'B') {
-            skor = '+7';
+            skor = 7;
             kategori = 'Mandiri A';
         } else if (value === 'C') {
-            skor = '+4';
+            skor = 4;
             kategori = 'Rintisan A';
         }
 
@@ -1641,6 +1651,75 @@
             info.style.display = 'block';
         } else {
             info.style.display = 'none';
+        }
+
+        // Update total score
+        updateTotalSkor();
+    }
+
+    // Function to calculate and update total score
+    function updateTotalSkor() {
+        let totalSkor = 0;
+
+        // Get siswa score
+        const siswaInput = document.getElementById('capaian_jumlah_siswa');
+        if (siswaInput) {
+            const siswaValue = parseInt(siswaInput.value) || 0;
+            if (siswaValue > 1001) totalSkor += 9;
+            else if (siswaValue >= 751) totalSkor += 8;
+            else if (siswaValue >= 501) totalSkor += 7;
+            else if (siswaValue >= 251) totalSkor += 6;
+            else if (siswaValue >= 151) totalSkor += 5;
+            else if (siswaValue >= 101) totalSkor += 4;
+            else if (siswaValue >= 61) totalSkor += 3;
+            else if (siswaValue >= 20) totalSkor += 2;
+            else if (siswaValue > 0) totalSkor += 1;
+        }
+
+        // Get dana score
+        const danaInput = document.getElementById('capaian_dana');
+        if (danaInput) {
+            const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
+            const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
+            if (danaValue > 5001) totalSkor += 9;
+            else if (danaValue >= 3001) totalSkor += 8;
+            else if (danaValue >= 2000) totalSkor += 7;
+            else if (danaValue >= 1251) totalSkor += 6;
+            else if (danaValue >= 751) totalSkor += 5;
+            else if (danaValue >= 351) totalSkor += 4;
+            else if (danaValue >= 151) totalSkor += 3;
+            else if (danaValue >= 30) totalSkor += 2;
+            else if (danaRawValue > 0) totalSkor += 1;
+        }
+
+        // Get alumni score
+        const alumniInput = document.getElementById('capaian_alumni');
+        if (alumniInput) {
+            const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
+            if (alumniValue >= 81) totalSkor += 9;
+            else if (alumniValue >= 66) totalSkor += 8;
+            else if (alumniValue >= 51) totalSkor += 7;
+            else if (alumniValue >= 35) totalSkor += 6;
+            else if (alumniValue >= 20) totalSkor += 5;
+            else if (alumniValue >= 10) totalSkor += 4;
+            else if (alumniValue >= 3) totalSkor += 3;
+            else if (alumniValue >= 1) totalSkor += 2;
+        }
+
+        // Get akreditasi score
+        const akreditasiSelect = document.getElementById('akreditasi');
+        if (akreditasiSelect) {
+            const akreditasiValue = akreditasiSelect.value;
+            if (akreditasiValue === 'A') totalSkor += 10;
+            else if (akreditasiValue === 'B') totalSkor += 7;
+            else if (akreditasiValue === 'C') totalSkor += 4;
+            else if (akreditasiValue === 'Belum') totalSkor += 1;
+        }
+
+        // Update total score field
+        const totalSkorField = document.getElementById('total_skor');
+        if (totalSkorField) {
+            totalSkorField.value = totalSkor;
         }
     }
 </script>
