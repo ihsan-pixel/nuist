@@ -1494,17 +1494,17 @@
         const info = document.getElementById('akreditasi_info');
         const value = select.value;
 
-        let skor = 1;
+        let skor = '+1';
         let kategori = 'Belum';
 
         if (value === 'A') {
-            skor = 10;
+            skor = '+10';
             kategori = 'Unggulan A';
         } else if (value === 'B') {
-            skor = 7;
+            skor = '+7';
             kategori = 'Mandiri A';
         } else if (value === 'C') {
-            skor = 4;
+            skor = '+4';
             kategori = 'Rintisan A';
         }
 
