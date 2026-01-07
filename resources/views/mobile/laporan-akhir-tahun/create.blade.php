@@ -480,7 +480,7 @@
         </div>
 
         <!-- Step 2: A. DATA KEPALA SEKOLAH -->
-        <div class="step-content active" data-step="1">
+        <div class="step-content active" data-step="2">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
