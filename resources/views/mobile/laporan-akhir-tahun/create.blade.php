@@ -1390,6 +1390,13 @@
             }
         });
 
+        // Format percentage for alumni fields
+        const alumniFields = [
+            'target_alumni',
+            'capaian_alumni',
+            'target_alumni_berikutnya'
+        ];
+
         alumniFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
@@ -1544,6 +1551,7 @@
         });
         document.getElementById('target_jumlah_siswa').addEventListener('input', function() {
             updateTotalSkor(); // Update total score when target siswa changes
+            updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info'); // Update info display
         });
         document.getElementById('capaian_alumni').addEventListener('input', function() {
             updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
@@ -1553,9 +1561,17 @@
         });
         document.getElementById('target_dana').addEventListener('blur', function() {
             updateTotalSkor(); // Update total score when target dana changes
+            updateDanaInfo('capaian_dana', 'capaian_dana_info'); // Update info display
+        });
+        document.getElementById('target_dana').addEventListener('input', function() {
+            updateDanaInfo('capaian_dana', 'capaian_dana_info'); // Update info display on input
         });
         document.getElementById('target_alumni').addEventListener('blur', function() {
             updateTotalSkor(); // Update total score when target alumni changes
+            updateAlumniInfo('capaian_alumni', 'capaian_alumni_info'); // Update info display
+        });
+        document.getElementById('target_alumni').addEventListener('input', function() {
+            updateAlumniInfo('capaian_alumni', 'capaian_alumni_info'); // Update info display on input
         });
         document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
     });
@@ -1895,7 +1911,8 @@
         document.getElementById('skor_siswa_prestasi').textContent = `Skor Prestasi Siswa: ${skorSiswaPrestasi}`;
         document.getElementById('skor_dana_kategori').textContent = `Skor Kategori Dana: ${skorDanaKategori}`;
         document.getElementById('skor_dana_prestasi').textContent = `Skor Prestasi Dana: ${skorDanaPrestasi}`;
-        document.getElementById('skor_alumni').textContent = `Skor Alumni: ${skorAlumni}`;
+        document.getElementById('skor_alumni_kategori').textContent = `Skor Kategori Alumni: ${skorAlumniKategori}`;
+        document.getElementById('skor_alumni_prestasi').textContent = `Skor Prestasi Alumni: ${skorAlumniPrestasi}`;
         document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
         document.getElementById('total_breakdown').textContent = `Total: ${totalSkor}`;
     }
