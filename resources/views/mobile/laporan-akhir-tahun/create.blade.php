@@ -1906,6 +1906,30 @@
             totalSkorField.value = totalSkor;
         }
 
+        // Update total score info based on scoring guidelines
+        const totalSkorInfo = document.getElementById('total_skor_info');
+        if (totalSkorInfo) {
+            let kategori = '';
+            if (totalSkor >= 0 && totalSkor <= 5) {
+                kategori = 'Sangat Lemah';
+            } else if (totalSkor >= 6 && totalSkor <= 16) {
+                kategori = 'Lemah';
+            } else if (totalSkor >= 17 && totalSkor <= 25) {
+                kategori = 'Rintisan';
+            } else if (totalSkor >= 26 && totalSkor <= 33) {
+                kategori = 'Cukup';
+            } else if (totalSkor >= 34 && totalSkor <= 38) {
+                kategori = 'Mandiri (Kuat)';
+            } else if (totalSkor >= 39 && totalSkor <= 43) {
+                kategori = 'Unggul';
+            } else {
+                kategori = 'Tidak Valid';
+            }
+
+            totalSkorInfo.textContent = `Kategori: ${kategori}`;
+            totalSkorInfo.style.display = 'block';
+        }
+
         // Update breakdown display
         document.getElementById('skor_siswa_kategori').textContent = `Skor Kategori Siswa: ${skorSiswaKategori}`;
         document.getElementById('skor_siswa_prestasi').textContent = `Skor Prestasi Siswa: ${skorSiswaPrestasi}`;
