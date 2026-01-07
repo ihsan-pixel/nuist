@@ -471,10 +471,7 @@
 
             <!-- Step Navigation -->
             <div class="step-navigation">
-                <button type="button" class="step-btn secondary" onclick="prevStep()">
-                    <i class="bx bx-chevron-left"></i>
-                    Sebelumnya
-                </button>
+                <div></div>
                 <button type="button" class="step-btn" onclick="nextStep()">
                     Selanjutnya
                     <i class="bx bx-chevron-right"></i>
@@ -522,7 +519,10 @@
 
             <!-- Step Navigation -->
             <div class="step-navigation">
-                <div></div>
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
                 <button type="button" class="step-btn" onclick="nextStep()">
                     Selanjutnya
                     <i class="bx bx-chevron-right"></i>
