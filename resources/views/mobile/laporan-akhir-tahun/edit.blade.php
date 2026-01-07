@@ -752,7 +752,7 @@ function updateAkreditasiInfo() {
         // Get skor tambahan siswa (additional score based on target vs achievement)
         const targetSiswaInput = document.getElementById('target_jumlah_siswa');
         const capaianSiswaInput2 = document.getElementById('capaian_jumlah_siswa');
-        if (targetSiswaInput && capaianSiswaInput2) {
+        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
             const targetValue = parseInt(targetSiswaInput.value) || 0;
             const capaianValue = parseInt(capaianSiswaInput2.value) || 0;
 
@@ -770,7 +770,7 @@ function updateAkreditasiInfo() {
         // Get skor tambahan dana (additional score based on target vs achievement)
         const targetDanaInput = document.getElementById('target_dana');
         const capaianDanaInput2 = document.getElementById('capaian_dana');
-        if (targetDanaInput && capaianDanaInput2) {
+        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
             const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
             const capaianValue = parseInt(capaianDanaInput2.value.replace(/[^\d]/g, '')) || 0;
 
@@ -788,7 +788,7 @@ function updateAkreditasiInfo() {
         // Get skor tambahan alumni (additional score based on target vs achievement)
         const targetAlumniInput = document.getElementById('target_alumni');
         const capaianAlumniInput2 = document.getElementById('capaian_alumni');
-        if (targetAlumniInput && capaianAlumniInput2) {
+        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
             const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
             const capaianValue = parseInt(capaianAlumniInput2.value.replace(/[^\d]/g, '')) || 0;
 
@@ -819,14 +819,29 @@ function updateAkreditasiInfo() {
             totalSkorField.value = totalSkor;
         }
 
-        // Update student score info
-        updateStudentScoreInfo(skorTambahanSiswa);
+        // Update student score info only if target and capaian are filled
+        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
+            updateStudentScoreInfo(skorTambahanSiswa);
+        } else {
+            const info = document.getElementById('student_score_info');
+            info.style.display = 'none';
+        }
 
-        // Update dana score info
-        updateDanaScoreInfo(skorTambahanDana);
+        // Update dana score info only if target and capaian are filled
+        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+            updateDanaScoreInfo(skorTambahanDana);
+        } else {
+            const info = document.getElementById('dana_score_info');
+            info.style.display = 'none';
+        }
 
-        // Update alumni score info
-        updateAlumniScoreInfo(skorTambahanAlumni);
+        // Update alumni score info only if target and capaian are filled
+        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+            updateAlumniScoreInfo(skorTambahanAlumni);
+        } else {
+            const info = document.getElementById('alumni_score_info');
+            info.style.display = 'none';
+        }
 
         // Update total score info
         updateTotalSkorInfo(totalSkor);

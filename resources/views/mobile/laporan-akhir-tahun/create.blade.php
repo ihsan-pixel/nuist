@@ -1827,14 +1827,29 @@
             totalSkorField.value = totalSkor;
         }
 
-        // Update student score info
-        updateStudentScoreInfo(skorTambahanSiswa);
+        // Update student score info only if target and capaian are filled
+        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
+            updateStudentScoreInfo(skorTambahanSiswa);
+        } else {
+            const info = document.getElementById('student_score_info');
+            info.style.display = 'none';
+        }
 
-        // Update dana score info
-        updateDanaScoreInfo(skorTambahanDana);
+        // Update dana score info only if target and capaian are filled
+        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+            updateDanaScoreInfo(skorTambahanDana);
+        } else {
+            const info = document.getElementById('dana_score_info');
+            info.style.display = 'none';
+        }
 
-        // Update alumni score info
-        updateAlumniScoreInfo(skorTambahanAlumni);
+        // Update alumni score info only if target and capaian are filled
+        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+            updateAlumniScoreInfo(skorTambahanAlumni);
+        } else {
+            const info = document.getElementById('alumni_score_info');
+            info.style.display = 'none';
+        }
 
         // Update total score info
         updateTotalSkorInfo(totalSkor);
