@@ -1588,6 +1588,9 @@
         } else {
             info.style.display = 'none';
         }
+
+        // Update total score when siswa info changes
+        updateTotalSkor();
     }
 
     // Function to update alumni percentage info
@@ -1628,6 +1631,9 @@
         } else {
             info.style.display = 'none';
         }
+
+        // Update total score when alumni info changes
+        updateTotalSkor();
     }
 
     // Function to update dana info
@@ -1672,6 +1678,9 @@
         } else {
             info.style.display = 'none';
         }
+
+        // Update total score when dana info changes
+        updateTotalSkor();
     }
 
     // Function to update accreditation info
@@ -1701,7 +1710,7 @@
             info.style.display = 'none';
         }
 
-        // Update total score
+        // Update total score when akreditasi info changes
         updateTotalSkor();
     }
 
