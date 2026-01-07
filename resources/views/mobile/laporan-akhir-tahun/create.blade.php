@@ -662,10 +662,11 @@
                         </div>
                         <div class="form-group">
                             <label>Capaian Dana</label>
-                            <input type="text" name="capaian_dana" value="{{ old('capaian_dana') }}" placeholder="Rp 0">
+                            <input type="text" name="capaian_dana" id="capaian_dana" value="{{ old('capaian_dana') }}" placeholder="Rp 0">
                             @error('capaian_dana')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="capaian_dana_info" class="dynamic-info" style="display: none;"></div>
                         </div>
                     </div>
 
@@ -1387,6 +1388,7 @@
         updateSiswaInfo('target_jumlah_siswa', 'target_siswa_info');
         updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
         updateSiswaInfo('jumlah_siswa', 'jumlah_siswa_info');
+        updateDanaInfo('capaian_dana', 'capaian_dana_info');
         updateAlumniInfo('target_alumni', 'target_alumni_info');
         updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         updateAkreditasiInfo();
@@ -1483,6 +1485,49 @@
         } else if (value >= 3) {
             skor = 3;
             kategori = 'Rintisan A';
+        }
+
+        if (value > 0) {
+            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
+
+    // Function to update dana info
+    function updateDanaInfo(inputId, infoId) {
+        const input = document.getElementById(inputId);
+        const info = document.getElementById(infoId);
+        const value = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
+
+        let skor = 1;
+        let kategori = 'Posisi Zero';
+
+        if (value > 5001) {
+            skor = 9;
+            kategori = 'Unggulan A';
+        } else if (value >= 3001) {
+            skor = 8;
+            kategori = 'Unggulan B';
+        } else if (value >= 2000) {
+            skor = 7;
+            kategori = 'Mandiri A';
+        } else if (value >= 1251) {
+            skor = 6;
+            kategori = 'Mandiri B';
+        } else if (value >= 751) {
+            skor = 5;
+            kategori = 'Pramandiri A';
+        } else if (value >= 351) {
+            skor = 4;
+            kategori = 'Pramandiri B';
+        } else if (value >= 151) {
+            skor = 3;
+            kategori = 'Rintisan A';
+        } else if (value >= 30) {
+            skor = 2;
+            kategori = 'Rintisan B';
         }
 
         if (value > 0) {
