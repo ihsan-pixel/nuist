@@ -836,7 +836,8 @@
                                 <!-- Rincian Skor -->
                                 <div id="skor_breakdown" style="margin-top: 8px; font-size: 11px; color: #004b4c;">
                                     <div><strong>Rincian Skor:</strong></div>
-                                    <div id="skor_siswa">Skor Siswa: 0</div>
+                                    <div id="skor_siswa_kategori">Skor Kategori Siswa: 0</div>
+                                    <div id="skor_siswa_prestasi">Skor Prestasi Siswa: 0</div>
                                     <div id="skor_dana">Skor Dana: 0</div>
                                     <div id="skor_alumni">Skor Alumni: 0</div>
                                     <div id="skor_akreditasi">Skor Akreditasi: 0</div>
@@ -1538,6 +1539,9 @@
         document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
             updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
         });
+        document.getElementById('target_jumlah_siswa').addEventListener('input', function() {
+            updateTotalSkor(); // Update total score when target siswa changes
+        });
         document.getElementById('capaian_alumni').addEventListener('input', function() {
             updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         });
@@ -1717,25 +1721,37 @@
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
-        let skorSiswa = 0;
+        let skorSiswaKategori = 0;
+        let skorSiswaPrestasi = 0;
         let skorDana = 0;
         let skorAlumni = 0;
         let skorAkreditasi = 0;
 
-        // Get siswa score
+        // Get siswa kategori score (based on capaian jumlah siswa)
         const siswaInput = document.getElementById('capaian_jumlah_siswa');
         if (siswaInput) {
             const siswaValue = parseInt(siswaInput.value) || 0;
-            if (siswaValue > 1001) skorSiswa = 9;
-            else if (siswaValue >= 751) skorSiswa = 8;
-            else if (siswaValue >= 501) skorSiswa = 7;
-            else if (siswaValue >= 251) skorSiswa = 6;
-            else if (siswaValue >= 151) skorSiswa = 5;
-            else if (siswaValue >= 101) skorSiswa = 4;
-            else if (siswaValue >= 61) skorSiswa = 3;
-            else if (siswaValue >= 20) skorSiswa = 2;
-            else if (siswaValue > 0) skorSiswa = 1;
-            totalSkor += skorSiswa;
+            if (siswaValue > 1001) skorSiswaKategori = 9;
+            else if (siswaValue >= 751) skorSiswaKategori = 8;
+            else if (siswaValue >= 501) skorSiswaKategori = 7;
+            else if (siswaValue >= 251) skorSiswaKategori = 6;
+            else if (siswaValue >= 151) skorSiswaKategori = 5;
+            else if (siswaValue >= 101) skorSiswaKategori = 4;
+            else if (siswaValue >= 61) skorSiswaKategori = 3;
+            else if (siswaValue >= 20) skorSiswaKategori = 2;
+            else if (siswaValue > 0) skorSiswaKategori = 1;
+            totalSkor += skorSiswaKategori;
+        }
+
+        // Get siswa prestasi score (based on comparison with target)
+        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
+        if (siswaInput && targetSiswaInput) {
+            const capaian = parseInt(siswaInput.value) || 0;
+            const target = parseInt(targetSiswaInput.value) || 0;
+            if (capaian > target) skorSiswaPrestasi = 2;
+            else if (capaian === target) skorSiswaPrestasi = 1;
+            else skorSiswaPrestasi = 0;
+            totalSkor += skorSiswaPrestasi;
         }
 
         // Get dana score
@@ -1788,7 +1804,8 @@
         }
 
         // Update breakdown display
-        document.getElementById('skor_siswa').textContent = `Skor Siswa: ${skorSiswa}`;
+        document.getElementById('skor_siswa_kategori').textContent = `Skor Kategori Siswa: ${skorSiswaKategori}`;
+        document.getElementById('skor_siswa_prestasi').textContent = `Skor Prestasi Siswa: ${skorSiswaPrestasi}`;
         document.getElementById('skor_dana').textContent = `Skor Dana: ${skorDana}`;
         document.getElementById('skor_alumni').textContent = `Skor Alumni: ${skorAlumni}`;
         document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
