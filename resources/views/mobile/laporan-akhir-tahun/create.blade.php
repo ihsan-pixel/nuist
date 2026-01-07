@@ -784,16 +784,16 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <!-- Total Skor Field -->
+                    <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
+                        <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
+                        <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
+                    </div>
 
                     <!-- Penjelasan -->
                     <div class="form-group">
                         <div style="background: #f5d5d5; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
-                            <!-- Total Skor Field -->
-                            <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
-                                <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
-                                <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
-                                <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
-                            </div>
 
                             <div class="info-note">
                                 <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
