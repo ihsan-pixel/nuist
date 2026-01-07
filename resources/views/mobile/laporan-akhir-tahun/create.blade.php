@@ -1499,7 +1499,8 @@
     function updateDanaInfo(inputId, infoId) {
         const input = document.getElementById(inputId);
         const info = document.getElementById(infoId);
-        const value = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
+        const rawValue = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
+        const value = Math.floor(rawValue / 1000000); // Convert to millions
 
         let skor = 1;
         let kategori = 'Posisi Zero';
@@ -1530,7 +1531,7 @@
             kategori = 'Rintisan B';
         }
 
-        if (value > 0) {
+        if (rawValue > 0) {
             info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
             info.style.display = 'block';
         } else {
