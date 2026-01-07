@@ -827,12 +827,13 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                    <!-- Total Skor Field -->
-                    <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
-                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
-                        <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
-                        <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
-                    </div>
+                            <!-- Total Skor Field -->
+                            <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
+                                <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
+                                <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
+                                <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
+                                <div id="total_skor_info" class="dynamic-info" style="display: none;"></div>
+                            </div>
 
                     <!-- Penjelasan -->
                     <div class="form-group">
@@ -1758,6 +1759,36 @@
         const totalSkorField = document.getElementById('total_skor');
         if (totalSkorField) {
             totalSkorField.value = totalSkor;
+        }
+
+        // Update total score info
+        updateTotalSkorInfo(totalSkor);
+    }
+
+    // Function to update total score info
+    function updateTotalSkorInfo(totalSkor) {
+        const info = document.getElementById('total_skor_info');
+        let kategori = '';
+
+        if (totalSkor >= 0 && totalSkor <= 5) {
+            kategori = 'Sangat Lemah';
+        } else if (totalSkor >= 6 && totalSkor <= 16) {
+            kategori = 'Lemah';
+        } else if (totalSkor >= 17 && totalSkor <= 25) {
+            kategori = 'Rintisan';
+        } else if (totalSkor >= 26 && totalSkor <= 33) {
+            kategori = 'Cukup';
+        } else if (totalSkor >= 34 && totalSkor <= 38) {
+            kategori = 'Mandiri (Kuat)';
+        } else if (totalSkor >= 39 && totalSkor <= 43) {
+            kategori = 'Unggul';
+        }
+
+        if (kategori) {
+            info.textContent = `Kategori: ${kategori}`;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
         }
     }
 </script>
