@@ -1549,7 +1549,7 @@
         document.getElementById('capaian_alumni').addEventListener('input', function() {
             updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         });
-        document.getElementById('capaian_dana').addEventListener('blur', function() {
+        document.getElementById('capaian_dana').addEventListener('input', function() {
             updateDanaInfo('capaian_dana', 'capaian_dana_info');
         });
         document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
