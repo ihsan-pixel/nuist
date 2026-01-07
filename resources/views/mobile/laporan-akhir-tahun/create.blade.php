@@ -480,6 +480,23 @@
         line-height: 1.4;
         margin: 6px 0;
     }
+
+    .dynamic-info {
+        font-size: 10px;
+        color: #004b4c;
+        background: #e8f5e8;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-top: 4px;
+        border: 1px solid #c3e6c3;
+        font-weight: 600;
+    }
+
+    .dynamic-info.warning {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
 </style>
 
 <!-- Header -->
@@ -611,18 +628,20 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Jumlah Siswa</label>
-                            <input type="number" name="target_jumlah_siswa" value="{{ old('target_jumlah_siswa') }}" min="0" placeholder="0">
+                            <input type="number" name="target_jumlah_siswa" id="target_jumlah_siswa" value="{{ old('target_jumlah_siswa') }}" min="0" placeholder="0">
                             @error('target_jumlah_siswa')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="target_siswa_info" class="dynamic-info" style="display: none;"></div>
                             <div class="form-hint">* Kategori: 9=Unggulan A (>1001), 8=Unggulan B (751-1000), 7=Mandiri A (501-750), 6=Mandiri B (251-500), 5=Pramandiri A (151-250), 4=Pramandiri B (101-150), 3=Rintisan A (61-100), 2=Rintisan B (20-60), 1=Posisi Zero (0-19)</div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Jumlah Siswa</label>
-                            <input type="number" name="capaian_jumlah_siswa" value="{{ old('capaian_jumlah_siswa') }}" min="0" placeholder="0">
+                            <input type="number" name="capaian_jumlah_siswa" id="capaian_jumlah_siswa" value="{{ old('capaian_jumlah_siswa') }}" min="0" placeholder="0">
                             @error('capaian_jumlah_siswa')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="capaian_siswa_info" class="dynamic-info" style="display: none;"></div>
                             <div class="form-hint">* Kategori: 9=Unggulan A (>1001), 8=Unggulan B (751-1000), 7=Mandiri A (501-750), 6=Mandiri B (251-500), 5=Pramandiri A (151-250), 4=Pramandiri B (101-150), 3=Rintisan A (61-100), 2=Rintisan B (20-60), 1=Posisi Zero (0-19)</div>
                         </div>
                     </div>
@@ -663,18 +682,20 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Alumni</label>
-                            <input type="number" name="target_alumni" value="{{ old('target_alumni') }}" min="0" placeholder="0">
+                            <input type="number" name="target_alumni" id="target_alumni" value="{{ old('target_alumni') }}" min="0" placeholder="0">
                             @error('target_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="target_alumni_info" class="dynamic-info" style="display: none;"></div>
                             <div class="form-hint">Kategori (%): 9=Unggulan A (81-100%), 8=Unggulan B (66-80%), 7=Mandiri A (51-65%), 6=Mandiri B (35-50%), 5=Pramandiri A (20-34%), 4=Pramandiri B (10-19%), 3=Rintisan A (3-9%), 2=Rintisan B (1-2%)</div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Alumni</label>
-                            <input type="number" name="capaian_alumni" value="{{ old('capaian_alumni') }}" min="0" placeholder="0">
+                            <input type="number" name="capaian_alumni" id="capaian_alumni" value="{{ old('capaian_alumni') }}" min="0" placeholder="0">
                             @error('capaian_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
+                            <div id="capaian_alumni_info" class="dynamic-info" style="display: none;"></div>
                             <div class="form-hint">Kategori (%): 9=Unggulan A (81-100%), 8=Unggulan B (66-80%), 7=Mandiri A (51-65%), 6=Mandiri B (35-50%), 5=Pramandiri A (20-34%), 4=Pramandiri B (10-19%), 3=Rintisan A (3-9%), 2=Rintisan B (1-2%)</div>
                         </div>
                     </div>
@@ -1362,5 +1383,138 @@
 
         // Dynamic inputs are now handled server-side with Blade templates
         // No additional JavaScript initialization needed
+
+        // Initialize dynamic info for existing values
+        updateSiswaInfo('target_jumlah_siswa', 'target_siswa_info');
+        updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+        updateAlumniInfo('target_alumni', 'target_alumni_info');
+        updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
+        updateAkreditasiInfo();
+
+        // Add event listeners for dynamic updates
+        document.getElementById('target_jumlah_siswa').addEventListener('input', function() {
+            updateSiswaInfo('target_jumlah_siswa', 'target_siswa_info');
+        });
+        document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
+            updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+        });
+        document.getElementById('target_alumni').addEventListener('input', function() {
+            updateAlumniInfo('target_alumni', 'target_alumni_info');
+        });
+        document.getElementById('capaian_alumni').addEventListener('input', function() {
+            updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
+        });
+        document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
     });
+
+    // Function to update student count info
+    function updateSiswaInfo(inputId, infoId) {
+        const input = document.getElementById(inputId);
+        const info = document.getElementById(infoId);
+        const value = parseInt(input.value) || 0;
+
+        let skor = 1;
+        let kategori = 'Posisi Zero';
+
+        if (value > 1001) {
+            skor = 9;
+            kategori = 'Unggulan A';
+        } else if (value >= 751) {
+            skor = 8;
+            kategori = 'Unggulan B';
+        } else if (value >= 501) {
+            skor = 7;
+            kategori = 'Mandiri A';
+        } else if (value >= 251) {
+            skor = 6;
+            kategori = 'Mandiri B';
+        } else if (value >= 151) {
+            skor = 5;
+            kategori = 'Pramandiri A';
+        } else if (value >= 101) {
+            skor = 4;
+            kategori = 'Pramandiri B';
+        } else if (value >= 61) {
+            skor = 3;
+            kategori = 'Rintisan A';
+        } else if (value >= 20) {
+            skor = 2;
+            kategori = 'Rintisan B';
+        }
+
+        if (value > 0) {
+            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
+
+    // Function to update alumni percentage info
+    function updateAlumniInfo(inputId, infoId) {
+        const input = document.getElementById(inputId);
+        const info = document.getElementById(infoId);
+        const value = parseInt(input.value) || 0;
+
+        let skor = 2;
+        let kategori = 'Rintisan B';
+
+        if (value >= 81) {
+            skor = 9;
+            kategori = 'Unggulan A';
+        } else if (value >= 66) {
+            skor = 8;
+            kategori = 'Unggulan B';
+        } else if (value >= 51) {
+            skor = 7;
+            kategori = 'Mandiri A';
+        } else if (value >= 35) {
+            skor = 6;
+            kategori = 'Mandiri B';
+        } else if (value >= 20) {
+            skor = 5;
+            kategori = 'Pramandiri A';
+        } else if (value >= 10) {
+            skor = 4;
+            kategori = 'Pramandiri B';
+        } else if (value >= 3) {
+            skor = 3;
+            kategori = 'Rintisan A';
+        }
+
+        if (value > 0) {
+            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
+
+    // Function to update accreditation info
+    function updateAkreditasiInfo() {
+        const select = document.getElementById('akreditasi');
+        const info = document.getElementById('akreditasi_info');
+        const value = select.value;
+
+        let skor = 1;
+        let kategori = 'Belum';
+
+        if (value === 'A') {
+            skor = 10;
+            kategori = 'Unggulan A';
+        } else if (value === 'B') {
+            skor = 7;
+            kategori = 'Mandiri A';
+        } else if (value === 'C') {
+            skor = 4;
+            kategori = 'Rintisan A';
+        }
+
+        if (value) {
+            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
 </script>
