@@ -681,7 +681,7 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Alumni</label>
-                            <input type="number" name="target_alumni" id="target_alumni" value="{{ old('target_alumni') }}" min="0" placeholder="0">
+                            <input type="text" name="target_alumni" id="target_alumni" value="{{ old('target_alumni') }}" placeholder="0%">
                             @error('target_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -689,7 +689,7 @@
                         </div>
                         <div class="form-group">
                             <label>Capaian Alumni</label>
-                            <input type="number" name="capaian_alumni" id="capaian_alumni" value="{{ old('capaian_alumni') }}" min="0" placeholder="0">
+                            <input type="text" name="capaian_alumni" id="capaian_alumni" value="{{ old('capaian_alumni') }}" placeholder="0%">
                             @error('capaian_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -699,7 +699,7 @@
 
                     <div class="form-group">
                         <label>Target Alumni Berikutnya</label>
-                        <input type="text" name="target_alumni_berikutnya" value="{{ old('target_alumni_berikutnya') }}" placeholder="Target alumni untuk tahun berikutnya">
+                        <input type="text" name="target_alumni_berikutnya" value="{{ old('target_alumni_berikutnya') }}" placeholder="Target alumni untuk tahun berikutnya (%)">
                         @error('target_alumni_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -1283,6 +1283,30 @@
                 });
             }
         });
+
+        alumniFields.forEach(fieldName => {
+            const input = document.querySelector(`input[name="${fieldName}"]`);
+            if (input) {
+                // Format initial value if it exists
+                if (input.value && !input.value.includes('%')) {
+                    formatPercentage(input);
+                }
+
+                input.addEventListener('focus', function() {
+                    // Remove formatting when focused for editing
+                    let value = this.value.replace(/[^\d]/g, '');
+                    this.value = value;
+                });
+                input.addEventListener('blur', function() {
+                    // Format when leaving the field
+                    formatPercentage(this);
+                });
+                input.addEventListener('input', function() {
+                    // Allow free input while focused, only format on blur
+                    // This prevents interference during typing
+                });
+            }
+        });
     });
 
     // Format number to Rupiah
@@ -1296,19 +1320,35 @@
         }
     }
 
+    // Format number to percentage
+    function formatPercentage(input) {
+        let value = input.value.replace(/[^\d]/g, '');
+        if (value) {
+            input.value = value + '%';
+        } else {
+            input.value = '';
+        }
+    }
+
     // Remove Rupiah formatting for editing
     function unformatRupiah(input) {
         let value = input.value.replace(/[^\d]/g, '');
         input.value = value;
     }
 
-    // Before form submission, remove Rupiah formatting
+    // Before form submission, remove Rupiah and percentage formatting
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function() {
             danaFields.forEach(fieldName => {
                 const input = document.querySelector(`input[name="${fieldName}"]`);
                 if (input && input.value.includes('Rp ')) {
+                    input.value = input.value.replace(/[^\d]/g, '');
+                }
+            });
+            alumniFields.forEach(fieldName => {
+                const input = document.querySelector(`input[name="${fieldName}"]`);
+                if (input && input.value.includes('%')) {
                     input.value = input.value.replace(/[^\d]/g, '');
                 }
             });
@@ -1461,7 +1501,7 @@
     function updateAlumniInfo(inputId, infoId) {
         const input = document.getElementById(inputId);
         const info = document.getElementById(infoId);
-        const value = parseInt(input.value) || 0;
+        const value = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
 
         let skor = 2;
         let kategori = 'Rintisan B';
