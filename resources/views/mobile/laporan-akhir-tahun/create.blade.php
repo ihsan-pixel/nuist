@@ -932,55 +932,118 @@
 
                     <hr class="my-4">
 
-                    <h6 class="mb-3">1-B. UPAYA Satpen Meraih Target Utama di Atas? (Skor maksimal 5)</h6>
+                    <h6 class="mb-3">1-B. UPAYA Satpen Meraih Target Utama di Atas? (Skor maksimal 20)</h6>
 
-                    <!-- Upaya fields (max 5, each filled = 1 point) -->
+                    <!-- Untuk Capaian Siswa -->
                     <div class="form-group">
-                        <label>Upaya yang Dilakukan</label>
-                        <div id="upaya-container">
-                            <!-- Initial 5 input fields -->
-                            @for($i = 0; $i < 5; $i++)
-                                <div class="input-row upaya-row" style="margin-bottom: 8px;">
-                                    <input type="text" name="upaya[]" placeholder="Upaya {{ $i + 1 }}" value="{{ old('upaya.' . $i) }}" oninput="updateUpayaScore()">
-                                    <span class="input-score" style="margin-left: 8px; font-size: 12px; color: #004b4c;">Skor: <span class="score-value">0</span></span>
-                                </div>
-                            @endfor
+                        <label>Untuk Capaian Siswa</label>
+                        <div class="dynamic-inputs" data-category="siswa">
+                            <div class="input-row">
+                                <input type="text" name="upaya_capaian_siswa[]" placeholder="Upaya untuk mencapai target siswa" value="{{ old('upaya_capaian_siswa.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('siswa')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                            @if(old('upaya_capaian_siswa'))
+                                @foreach(old('upaya_capaian_siswa') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_capaian_siswa[]" placeholder="Upaya untuk mencapai target siswa" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
-                        @error('upaya')
+                        @error('upaya_capaian_siswa')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
-                        @error('upaya.*')
+                        @error('upaya_capaian_siswa.*')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <!-- Total Skor Upaya -->
-                    <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
-                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor Upaya</label>
-                        <input type="text" id="total_skor_upaya" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
-                        <div class="form-hint">Total skor dari upaya yang diisi (maksimal 5)</div>
-                        <div id="total_skor_upaya_info" class="dynamic-info" style="display: none;"></div>
+                    <!-- Untuk Capaian Dana -->
+                    <div class="form-group">
+                        <label>Untuk Capaian Dana</label>
+                        <div class="dynamic-inputs" data-category="dana">
+                            <div class="input-row">
+                                <input type="text" name="upaya_capaian_dana[]" placeholder="Upaya untuk mencapai target dana" value="{{ old('upaya_capaian_dana.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('dana')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @error('upaya_capaian_dana')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('upaya_capaian_dana.*')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <!-- PEDOMAN PENSKORAN CAPAIAN TARGET UTAMA -->
-                    <div class="info-section" style="margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-                        <h5 style="margin-bottom: 8px;">PEDOMAN PENSKORAN CAPAIAN TARGET UTAMA</h5>
-                        <table class="info-table">
-                            <thead>
-                                <tr>
-                                    <th>Skor</th>
-                                    <th>Kategori</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>0 (00 -02)</td><td>Sangat lemah</td></tr>
-                                <tr><td>1 (03 - 07)</td><td>Lemah</td></tr>
-                                <tr><td>2 (08 - 11)</td><td>Rintisan</td></tr>
-                                <tr><td>3 (12 - 15)</td><td>Cukup</td></tr>
-                                <tr><td>4 (16 - 18)</td><td>Mandiri (kuat)</td></tr>
-                                <tr><td>5 (19 - 20)</td><td>Unggul</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Untuk Alumni BMWA -->
+                    <div class="form-group">
+                        <label>Untuk Alumni BMWA</label>
+                        <div class="dynamic-inputs" data-category="alumni">
+                            <div class="input-row">
+                                <input type="text" name="upaya_alumni_bmwa[]" placeholder="Upaya untuk alumni BMWA" value="{{ old('upaya_alumni_bmwa.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('alumni')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                            @if(old('upaya_alumni_bmwa'))
+                                @foreach(old('upaya_alumni_bmwa') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_alumni_bmwa[]" placeholder="Upaya untuk alumni BMWA" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
+                        @error('upaya_alumni_bmwa')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('upaya_alumni_bmwa.*')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Untuk Akreditasi -->
+                    <div class="form-group">
+                        <label>Untuk Akreditasi</label>
+                        <div class="dynamic-inputs" data-category="akreditasi">
+                            <div class="input-row">
+                                <input type="text" name="upaya_akreditasi[]" placeholder="Upaya untuk akreditasi" value="{{ old('upaya_akreditasi.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('akreditasi')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                            @if(old('upaya_akreditasi'))
+                                @foreach(old('upaya_akreditasi') as $index => $value)
+                                    @if($index > 0 && !empty($value))
+                                        <div class="input-row">
+                                            <input type="text" name="upaya_akreditasi[]" placeholder="Upaya untuk akreditasi" value="{{ $value }}">
+                                            <button type="button" class="remove-input-btn" onclick="removeInputField(this)">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
+                        @error('upaya_akreditasi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('upaya_akreditasi.*')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -1709,54 +1772,7 @@
         updateTotalSkor();
     }
 
-    // Function to update upaya score
-    function updateUpayaScore() {
-        const upayaRows = document.querySelectorAll('.upaya-row');
-        let totalUpayaScore = 0;
 
-        upayaRows.forEach(row => {
-            const input = row.querySelector('input');
-            const scoreValue = row.querySelector('.score-value');
-            const value = input.value.trim();
-
-            if (value.length > 0) {
-                scoreValue.textContent = '1';
-                totalUpayaScore += 1;
-            } else {
-                scoreValue.textContent = '0';
-            }
-        });
-
-        // Update total skor upaya field
-        const totalSkorUpayaField = document.getElementById('total_skor_upaya');
-        if (totalSkorUpayaField) {
-            totalSkorUpayaField.value = totalUpayaScore;
-        }
-
-        // Update total skor upaya info based on scoring guidelines
-        const totalSkorUpayaInfo = document.getElementById('total_skor_upaya_info');
-        if (totalSkorUpayaInfo) {
-            let kategori = '';
-            if (totalUpayaScore >= 0 && totalUpayaScore <= 2) {
-                kategori = 'Sangat lemah';
-            } else if (totalUpayaScore >= 3 && totalUpayaScore <= 7) {
-                kategori = 'Lemah';
-            } else if (totalUpayaScore >= 8 && totalUpayaScore <= 11) {
-                kategori = 'Rintisan';
-            } else if (totalUpayaScore >= 12 && totalUpayaScore <= 15) {
-                kategori = 'Cukup';
-            } else if (totalUpayaScore >= 16 && totalUpayaScore <= 18) {
-                kategori = 'Mandiri (kuat)';
-            } else if (totalUpayaScore >= 19 && totalUpayaScore <= 20) {
-                kategori = 'Unggul';
-            } else {
-                kategori = 'Tidak Valid';
-            }
-
-            totalSkorUpayaInfo.textContent = `Kategori: ${kategori}`;
-            totalSkorUpayaInfo.style.display = 'block';
-        }
-    }
 
     // Function to calculate and update total score
     function updateTotalSkor() {
@@ -1900,5 +1916,115 @@
         document.getElementById('skor_alumni_prestasi').textContent = `Skor Prestasi Alumni: ${skorAlumniPrestasi}`;
         document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
         document.getElementById('total_breakdown').textContent = `Total: ${totalSkor}`;
+    }
+
+    // Dynamic input fields functionality
+    function addInputField(category) {
+        const container = document.querySelector(`.dynamic-inputs[data-category="${category}"]`);
+        if (!container) return;
+
+        const inputRows = container.querySelectorAll('.input-row');
+        const newIndex = inputRows.length;
+
+        const newRow = document.createElement('div');
+        newRow.className = 'input-row';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `upaya_${getFieldName(category)}[]`;
+        input.placeholder = getPlaceholderText(category);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-input-btn';
+        removeBtn.innerHTML = '<i class="bx bx-minus"></i>';
+        removeBtn.onclick = function() {
+            removeInputField(this);
+        };
+
+        newRow.appendChild(input);
+        newRow.appendChild(removeBtn);
+
+        container.appendChild(newRow);
+    }
+
+    function removeInputField(button) {
+        const inputRow = button.closest('.input-row');
+        const container = inputRow.closest('.dynamic-inputs');
+        const inputRows = container.querySelectorAll('.input-row');
+
+        // Keep at least one input field
+        if (inputRows.length > 1) {
+            inputRow.remove();
+        }
+    }
+
+    function getFieldName(category) {
+        switch(category) {
+            case 'siswa': return 'capaian_siswa';
+            case 'dana': return 'capaian_dana';
+            case 'alumni': return 'alumni_bmwa';
+            case 'akreditasi': return 'akreditasi';
+            default: return category;
+        }
+    }
+
+    function getPlaceholderText(category) {
+        switch(category) {
+            case 'siswa': return 'Upaya untuk mencapai target siswa';
+            case 'dana': return 'Upaya untuk mencapai target dana';
+            case 'alumni': return 'Upaya untuk alumni BMWA';
+            case 'akreditasi': return 'Upaya untuk akreditasi';
+            default: return 'Upaya';
+        }
+    }
+
+    // Function to update upaya score
+    function updateUpayaScore() {
+        const upayaRows = document.querySelectorAll('.upaya-row');
+        let totalUpayaScore = 0;
+
+        upayaRows.forEach(row => {
+            const input = row.querySelector('input');
+            const scoreValue = row.querySelector('.score-value');
+            const value = input.value.trim();
+
+            if (value.length > 0) {
+                scoreValue.textContent = '1';
+                totalUpayaScore += 1;
+            } else {
+                scoreValue.textContent = '0';
+            }
+        });
+
+        // Update total skor upaya field
+        const totalSkorUpayaField = document.getElementById('total_skor_upaya');
+        if (totalSkorUpayaField) {
+            totalSkorUpayaField.value = totalUpayaScore;
+        }
+
+        // Update total skor upaya info based on scoring guidelines
+        const totalSkorUpayaInfo = document.getElementById('total_skor_upaya_info');
+        if (totalSkorUpayaInfo) {
+            let kategori = '';
+            if (totalUpayaScore >= 0 && totalUpayaScore <= 2) {
+                kategori = 'Sangat lemah';
+            } else if (totalUpayaScore >= 3 && totalUpayaScore <= 7) {
+                kategori = 'Lemah';
+            } else if (totalUpayaScore >= 8 && totalUpayaScore <= 11) {
+                kategori = 'Rintisan';
+            } else if (totalUpayaScore >= 12 && totalUpayaScore <= 15) {
+                kategori = 'Cukup';
+            } else if (totalUpayaScore >= 16 && totalUpayaScore <= 18) {
+                kategori = 'Mandiri (kuat)';
+            } else if (totalUpayaScore >= 19 && totalUpayaScore <= 20) {
+                kategori = 'Unggul';
+            } else {
+                kategori = 'Tidak Valid';
+            }
+
+            totalSkorUpayaInfo.textContent = `Kategori: ${kategori}`;
+            totalSkorUpayaInfo.style.display = 'block';
+        }
     }
 </script>
