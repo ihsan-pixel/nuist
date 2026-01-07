@@ -838,7 +838,8 @@
                                     <div><strong>Rincian Skor:</strong></div>
                                     <div id="skor_siswa_kategori">Skor Kategori Siswa: 0</div>
                                     <div id="skor_siswa_prestasi">Skor Prestasi Siswa: 0</div>
-                                    <div id="skor_dana">Skor Dana: 0</div>
+                                    <div id="skor_dana_kategori">Skor Kategori Dana: 0</div>
+                                    <div id="skor_dana_prestasi">Skor Prestasi Dana: 0</div>
                                     <div id="skor_alumni">Skor Alumni: 0</div>
                                     <div id="skor_akreditasi">Skor Akreditasi: 0</div>
                                     <div style="border-top: 1px solid #004b4c; margin-top: 4px; padding-top: 4px;"><strong id="total_breakdown">Total: 0</strong></div>
@@ -1542,6 +1543,9 @@
         document.getElementById('target_jumlah_siswa').addEventListener('input', function() {
             updateTotalSkor(); // Update total score when target siswa changes
         });
+        document.getElementById('target_dana').addEventListener('blur', function() {
+            updateTotalSkor(); // Update total score when target dana changes
+        });
         document.getElementById('capaian_alumni').addEventListener('input', function() {
             updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
         });
@@ -1723,7 +1727,8 @@
         let totalSkor = 0;
         let skorSiswaKategori = 0;
         let skorSiswaPrestasi = 0;
-        let skorDana = 0;
+        let skorDanaKategori = 0;
+        let skorDanaPrestasi = 0;
         let skorAlumni = 0;
         let skorAkreditasi = 0;
 
@@ -1754,21 +1759,32 @@
             totalSkor += skorSiswaPrestasi;
         }
 
-        // Get dana score
+        // Get dana kategori score (based on capaian dana)
         const danaInput = document.getElementById('capaian_dana');
         if (danaInput) {
             const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
             const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
-            if (danaValue > 5001) skorDana = 9;
-            else if (danaValue >= 3001) skorDana = 8;
-            else if (danaValue >= 2000) skorDana = 7;
-            else if (danaValue >= 1251) skorDana = 6;
-            else if (danaValue >= 751) skorDana = 5;
-            else if (danaValue >= 351) skorDana = 4;
-            else if (danaValue >= 151) skorDana = 3;
-            else if (danaValue >= 30) skorDana = 2;
-            else if (danaRawValue > 0) skorDana = 1;
-            totalSkor += skorDana;
+            if (danaValue > 5001) skorDanaKategori = 9;
+            else if (danaValue >= 3001) skorDanaKategori = 8;
+            else if (danaValue >= 2000) skorDanaKategori = 7;
+            else if (danaValue >= 1251) skorDanaKategori = 6;
+            else if (danaValue >= 751) skorDanaKategori = 5;
+            else if (danaValue >= 351) skorDanaKategori = 4;
+            else if (danaValue >= 151) skorDanaKategori = 3;
+            else if (danaValue >= 30) skorDanaKategori = 2;
+            else if (danaRawValue > 0) skorDanaKategori = 1;
+            totalSkor += skorDanaKategori;
+        }
+
+        // Get dana prestasi score (based on comparison with target)
+        const targetDanaInput = document.getElementById('target_dana');
+        if (danaInput && targetDanaInput) {
+            const capaianDana = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
+            const targetDana = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
+            if (capaianDana > targetDana) skorDanaPrestasi = 2;
+            else if (capaianDana === targetDana) skorDanaPrestasi = 1;
+            else skorDanaPrestasi = 0;
+            totalSkor += skorDanaPrestasi;
         }
 
         // Get alumni score
@@ -1806,7 +1822,8 @@
         // Update breakdown display
         document.getElementById('skor_siswa_kategori').textContent = `Skor Kategori Siswa: ${skorSiswaKategori}`;
         document.getElementById('skor_siswa_prestasi').textContent = `Skor Prestasi Siswa: ${skorSiswaPrestasi}`;
-        document.getElementById('skor_dana').textContent = `Skor Dana: ${skorDana}`;
+        document.getElementById('skor_dana_kategori').textContent = `Skor Kategori Dana: ${skorDanaKategori}`;
+        document.getElementById('skor_dana_prestasi').textContent = `Skor Prestasi Dana: ${skorDanaPrestasi}`;
         document.getElementById('skor_alumni').textContent = `Skor Alumni: ${skorAlumni}`;
         document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
         document.getElementById('total_breakdown').textContent = `Total: ${totalSkor}`;
