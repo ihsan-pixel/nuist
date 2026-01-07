@@ -718,21 +718,20 @@
                     <div class="divider">
                         <span>Dana</span>
                     </div>
-                    <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
 
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Dana</label>
                             <input type="text" name="target_dana" value="{{ old('target_dana') }}" placeholder="Rp 0">
                             @error('target_dana')
-                                <div class="form-error">{{ $message }}</div>
+                            <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label>Capaian Dana</label>
                             <input type="text" name="capaian_dana" id="capaian_dana" value="{{ old('capaian_dana') }}" placeholder="Rp 0">
                             @error('capaian_dana')
-                                <div class="form-error">{{ $message }}</div>
+                            <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="capaian_dana_info" class="dynamic-info" style="display: none;"></div>
                         </div>
@@ -742,9 +741,10 @@
                         <label>Target Dana Tahun Berikutnya</label>
                         <input type="text" name="target_dana_tahun_berikutnya" value="{{ old('target_dana_tahun_berikutnya') }}" placeholder="Rp 0">
                         @error('target_dana_tahun_berikutnya')
-                            <div class="form-error">{{ $message }}</div>
+                        <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
 
                     <div class="divider">
                         <span>Alumni</span>
