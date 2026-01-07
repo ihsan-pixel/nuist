@@ -820,13 +820,13 @@ function updateAkreditasiInfo() {
         }
 
         // Update student score info
-        updateStudentScoreInfo(siswaScore);
+        updateStudentScoreInfo(skorTambahanSiswa);
 
         // Update dana score info
-        updateDanaScoreInfo(danaScore);
+        updateDanaScoreInfo(skorTambahanDana);
 
         // Update alumni score info
-        updateAlumniScoreInfo(alumniScore);
+        updateAlumniScoreInfo(skorTambahanAlumni);
 
         // Update total score info
         updateTotalSkorInfo(totalSkor);
