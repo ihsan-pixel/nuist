@@ -1855,8 +1855,7 @@
         // Update breakdown display
         document.getElementById('skor_siswa_kategori').textContent = `Skor Kategori Siswa: ${skorSiswaKategori}`;
         document.getElementById('skor_siswa_prestasi').textContent = `Skor Prestasi Siswa: ${skorSiswaPrestasi}`;
-        document.getElementById('skor_dana_kategori').textContent = `Skor Kategori Dana: ${skorDanaKategori}`;
-        document.getElementById('skor_dana_prestasi').textContent = `Skor Prestasi Dana: ${skorDanaPrestasi}`;
+        document.getElementById('skor_dana').textContent = `Skor Dana: ${skorDana}`;
         document.getElementById('skor_alumni').textContent = `Skor Alumni: ${skorAlumni}`;
         document.getElementById('skor_akreditasi').textContent = `Skor Akreditasi: ${skorAkreditasi}`;
         document.getElementById('total_breakdown').textContent = `Total: ${totalSkor}`;
