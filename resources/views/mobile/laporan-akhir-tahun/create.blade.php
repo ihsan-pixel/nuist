@@ -401,19 +401,76 @@
 
     <!-- Step Indicators -->
     <div class="step-indicators">
-        <div class="step-indicator active" data-step="1">1</div>
-        <div class="step-indicator" data-step="2">2</div>
-        <div class="step-indicator" data-step="3">3</div>
-        <div class="step-indicator" data-step="4">4</div>
-        <div class="step-indicator" data-step="5">5</div>
-        <div class="step-indicator" data-step="6">6</div>
-        <div class="step-indicator" data-step="7">7</div>
+        <div class="step-indicator active" data-step="1"><i class="bx bx-file"></i></div>
+        <div class="step-indicator" data-step="2"><i class="bx bx-user"></i></div>
+        <div class="step-indicator" data-step="3"><i class="bx bx-building"></i></div>
+        <div class="step-indicator" data-step="4"><i class="bx bx-bar-chart"></i></div>
+        <div class="step-indicator" data-step="5"><i class="bx bx-calendar"></i></div>
+        <div class="step-indicator" data-step="6"><i class="bx bx-trophy"></i></div>
+        <div class="step-indicator" data-step="7"><i class="bx bx-error"></i></div>
+        <div class="step-indicator" data-step="8"><i class="bx bx-target"></i></div>
     </div>
 
     <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST">
         @csrf
 
-        <!-- Step 1: A. DATA KEPALA SEKOLAH -->
+        <!-- Step 1: DATA POKOK LAPORAN -->
+        <div class="step-content active" data-step="1">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-file"></i>
+                    </div>
+                    <h6 class="section-title">DATA POKOK LAPORAN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Kepala Sekolah</label>
+                        <input type="text" name="nama_kepala_sekolah" value="{{ old('nama_kepala_sekolah', $data['nama_kepala_sekolah'] ?? '') }}" placeholder="Nama Lengkap" required>
+                        @error('nama_kepala_sekolah')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>NIP</label>
+                            <input type="text" name="nip" value="{{ old('nip', $data['nip'] ?? '') }}" placeholder="NIP (jika ada)">
+                            @error('nip')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>Tanggal TMT Kepala Sekolah</label>
+                            <input type="date" name="tanggal_tmt_kepala_sekolah" value="{{ old('tanggal_tmt_kepala_sekolah') }}" required>
+                            @error('tanggal_tmt_kepala_sekolah')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tahun Laporan</label>
+                        <input type="number" name="tahun_pelaporan" value="{{ old('tahun_pelaporan', $data['tahun_pelaporan'] ?? date('Y')) }}" min="2020" max="{{ date('Y') + 1 }}" placeholder="2024" required>
+                        @error('tahun_pelaporan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <div></div>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: A. DATA KEPALA SEKOLAH -->
         <div class="step-content active" data-step="1">
             <div class="section-card">
                 <div class="section-header">
@@ -461,8 +518,8 @@
             </div>
         </div>
 
-        <!-- Step 2: B. DATA MADRASAH -->
-        <div class="step-content" data-step="2">
+        <!-- Step 3: B. DATA MADRASAH -->
+        <div class="step-content" data-step="3">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -503,8 +560,8 @@
             </div>
         </div>
 
-        <!-- Step 3: C. DATA STATISTIK -->
-        <div class="step-content" data-step="3">
+        <!-- Step 4: C. DATA STATISTIK -->
+        <div class="step-content" data-step="4">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -554,8 +611,8 @@
             </div>
         </div>
 
-        <!-- Step 4: D. INFORMASI LAPORAN -->
-        <div class="step-content" data-step="4">
+        <!-- Step 5: D. INFORMASI LAPORAN -->
+        <div class="step-content" data-step="5">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -565,21 +622,12 @@
                 </div>
 
                 <div class="section-content">
-                    <div class="row-2col">
-                        <div class="form-group required">
-                            <label>Tahun Pelaporan</label>
-                            <input type="number" name="tahun_pelaporan" value="{{ old('tahun_pelaporan', $data['tahun_pelaporan'] ?? date('Y')) }}" min="2020" max="{{ date('Y') + 1 }}" placeholder="2024" required>
-                            @error('tahun_pelaporan')
-                                <div class="form-error">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group required">
-                            <label>Tanggal Laporan</label>
-                            <input type="date" name="tanggal_laporan" value="{{ old('tanggal_laporan', date('Y-m-d')) }}" required>
-                            @error('tanggal_laporan')
-                                <div class="form-error">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <div class="form-group required">
+                        <label>Tanggal Laporan</label>
+                        <input type="date" name="tanggal_laporan" value="{{ old('tanggal_laporan', date('Y-m-d')) }}" required>
+                        @error('tanggal_laporan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -597,8 +645,8 @@
             </div>
         </div>
 
-        <!-- Step 5: E. PRESTASI MADRASAH -->
-        <div class="step-content" data-step="5">
+        <!-- Step 6: E. PRESTASI MADRASAH -->
+        <div class="step-content" data-step="6">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -631,8 +679,8 @@
             </div>
         </div>
 
-        <!-- Step 6: F. KENDALA UTAMA -->
-        <div class="step-content" data-step="6">
+        <!-- Step 7: F. KENDALA UTAMA -->
+        <div class="step-content" data-step="7">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -665,8 +713,8 @@
             </div>
         </div>
 
-        <!-- Step 7: G. PROGRAM KERJA TAHUN DEPAN -->
-        <div class="step-content" data-step="7">
+        <!-- Step 8: G. PROGRAM KERJA TAHUN DEPAN -->
+        <div class="step-content" data-step="8">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
@@ -705,7 +753,7 @@
 
 <script>
     let currentStep = 1;
-    const totalSteps = 7;
+    const totalSteps = 8;
 
     function showStep(step) {
         // Hide all steps
