@@ -959,14 +959,18 @@
         danaFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
-                input.addEventListener('input', function() {
-                    formatRupiah(this);
-                });
                 input.addEventListener('focus', function() {
-                    unformatRupiah(this);
+                    // Remove formatting when focused for editing
+                    let value = this.value.replace(/[^\d]/g, '');
+                    this.value = value;
                 });
                 input.addEventListener('blur', function() {
+                    // Format when leaving the field
                     formatRupiah(this);
+                });
+                input.addEventListener('input', function() {
+                    // Allow free input while focused, only format on blur
+                    // This prevents interference during typing
                 });
             }
         });
