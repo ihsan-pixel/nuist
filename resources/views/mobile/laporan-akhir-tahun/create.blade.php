@@ -632,7 +632,6 @@
                             @error('target_jumlah_siswa')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
-                            <div id="target_siswa_info" class="dynamic-info" style="display: none;"></div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Jumlah Siswa</label>
@@ -685,7 +684,6 @@
                             @error('target_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
-                            <div id="target_alumni_info" class="dynamic-info" style="display: none;"></div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Alumni</label>
