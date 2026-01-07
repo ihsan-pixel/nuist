@@ -263,6 +263,12 @@
                                 <!-- Student Score Info -->
                                 <div id="student_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
 
+                                <!-- Dana Score Info -->
+                                <div id="dana_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
+
+                                <!-- Alumni Score Info -->
+                                <div id="alumni_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
+
                                 <!-- Scoring Information -->
                                 <div class="alert alert-light border">
                                     <h6 class="mb-2">Kategori Berdasarkan Jumlah Siswa</h6>
@@ -714,34 +720,42 @@ function updateAkreditasiInfo() {
             totalSkor += siswaScore;
         }
 
-        // Get dana score
-        const danaInput = document.getElementById('capaian_dana');
-        if (danaInput) {
-            const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
-            const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
-            if (danaValue > 5001) totalSkor += 9;
-            else if (danaValue >= 3001) totalSkor += 8;
-            else if (danaValue >= 2000) totalSkor += 7;
-            else if (danaValue >= 1251) totalSkor += 6;
-            else if (danaValue >= 751) totalSkor += 5;
-            else if (danaValue >= 351) totalSkor += 4;
-            else if (danaValue >= 151) totalSkor += 3;
-            else if (danaValue >= 30) totalSkor += 2;
-            else if (danaRawValue > 0) totalSkor += 1;
+        // Get dana score based on target vs achievement comparison
+        let danaScore = 0;
+        const targetDanaInput = document.getElementById('target_dana');
+        const capaianDanaInput = document.getElementById('capaian_dana');
+        if (targetDanaInput && capaianDanaInput) {
+            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
+            const capaianValue = parseInt(capaianDanaInput.value.replace(/[^\d]/g, '')) || 0;
+
+            if (capaianValue < targetValue) {
+                danaScore = 0; // turun
+            } else if (capaianValue === targetValue) {
+                danaScore = 1; // tetap
+            } else if (capaianValue > targetValue) {
+                danaScore = 2; // naik
+            }
+
+            totalSkor += danaScore;
         }
 
-        // Get alumni score
-        const alumniInput = document.getElementById('capaian_alumni');
-        if (alumniInput) {
-            const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
-            if (alumniValue >= 81) totalSkor += 9;
-            else if (alumniValue >= 66) totalSkor += 8;
-            else if (alumniValue >= 51) totalSkor += 7;
-            else if (alumniValue >= 35) totalSkor += 6;
-            else if (alumniValue >= 20) totalSkor += 5;
-            else if (alumniValue >= 10) totalSkor += 4;
-            else if (alumniValue >= 3) totalSkor += 3;
-            else if (alumniValue >= 1) totalSkor += 2;
+        // Get alumni score based on target vs achievement comparison
+        let alumniScore = 0;
+        const targetAlumniInput = document.getElementById('target_alumni');
+        const capaianAlumniInput = document.getElementById('capaian_alumni');
+        if (targetAlumniInput && capaianAlumniInput) {
+            const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+            const capaianValue = parseInt(capaianAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+
+            if (capaianValue < targetValue) {
+                alumniScore = 0; // turun
+            } else if (capaianValue === targetValue) {
+                alumniScore = 1; // tetap
+            } else if (capaianValue > targetValue) {
+                alumniScore = 2; // naik
+            }
+
+            totalSkor += alumniScore;
         }
 
         // Get akreditasi score
@@ -760,6 +774,15 @@ function updateAkreditasiInfo() {
             totalSkorField.value = totalSkor;
         }
 
+        // Update student score info
+        updateStudentScoreInfo(siswaScore);
+
+        // Update dana score info
+        updateDanaScoreInfo(danaScore);
+
+        // Update alumni score info
+        updateAlumniScoreInfo(alumniScore);
+
         // Update total score info
         updateTotalSkorInfo(totalSkor);
     }
@@ -775,6 +798,48 @@ function updateAkreditasiInfo() {
             scoreText = 'Skor Siswa: 1 (tetap)';
         } else if (siswaScore === 2) {
             scoreText = 'Skor Siswa: 2 (naik)';
+        }
+
+        if (scoreText) {
+            info.textContent = scoreText;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
+
+    // Function to update dana score info
+    function updateDanaScoreInfo(danaScore) {
+        const info = document.getElementById('dana_score_info');
+        let scoreText = '';
+
+        if (danaScore === 0) {
+            scoreText = 'Skor Dana: 0 (turun)';
+        } else if (danaScore === 1) {
+            scoreText = 'Skor Dana: 1 (tetap)';
+        } else if (danaScore === 2) {
+            scoreText = 'Skor Dana: 2 (naik)';
+        }
+
+        if (scoreText) {
+            info.textContent = scoreText;
+            info.style.display = 'block';
+        } else {
+            info.style.display = 'none';
+        }
+    }
+
+    // Function to update alumni score info
+    function updateAlumniScoreInfo(alumniScore) {
+        const info = document.getElementById('alumni_score_info');
+        let scoreText = '';
+
+        if (alumniScore === 0) {
+            scoreText = 'Skor Alumni: 0 (turun)';
+        } else if (alumniScore === 1) {
+            scoreText = 'Skor Alumni: 1 (tetap)';
+        } else if (alumniScore === 2) {
+            scoreText = 'Skor Alumni: 2 (naik)';
         }
 
         if (scoreText) {
