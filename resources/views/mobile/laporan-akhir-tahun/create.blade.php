@@ -832,7 +832,13 @@
                                 <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
                                 <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
                                 <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
-                                <div id="total_skor_info" class="dynamic-info" style="display: none;"></div>
+                                <div id="total_skor_breakdown" class="dynamic-info" style="display: block; margin-top: 8px; padding: 8px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; font-size: 11px;">
+                                    <strong>Rincian Skor:</strong><br>
+                                    <span id="skor_siswa">Siswa: 0</span><br>
+                                    <span id="skor_dana">Dana: 0</span><br>
+                                    <span id="skor_alumni">Alumni: 0</span><br>
+                                    <span id="skor_akreditasi">Akreditasi: 0</span>
+                                </div>
                             </div>
 
                     <!-- Penjelasan -->
