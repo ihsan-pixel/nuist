@@ -553,7 +553,7 @@
 
     .divider span {
         padding: 0 15px;
-        font-size: 14px;
+        font-size: 10px;
         color: #555;
         white-space: nowrap;
     }
