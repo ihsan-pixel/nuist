@@ -445,7 +445,7 @@
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>NIPM</label>
-                            <input type="text" name="nip" value="{{ old('nip', $data['nipm'] ?? '') }}" placeholder="NIPM" required>
+                            <input type="text" name="nip" value="{{ old('nip', $data['nip'] ?? '') }}" placeholder="NIPM" required>
                             @error('nip')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
