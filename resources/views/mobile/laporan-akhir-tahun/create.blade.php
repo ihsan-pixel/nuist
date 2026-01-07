@@ -835,15 +835,6 @@
                                 <div id="total_skor_info" class="dynamic-info" style="display: none;"></div>
                             </div>
 
-                            <!-- Student Score Info -->
-                            <div id="student_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
-                            <!-- Dana Score Info -->
-                            <div id="dana_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
-                            <!-- Alumni Score Info -->
-                            <div id="alumni_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
                     <!-- Penjelasan -->
                     <div class="form-group">
                         <div style="background: #f7e0e0; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
@@ -1362,13 +1353,6 @@
             'target_dana_tahun_berikutnya'
         ];
 
-        // Format percentage for alumni fields
-        const alumniFields = [
-            'target_alumni',
-            'capaian_alumni',
-            'target_alumni_berikutnya'
-        ];
-
         danaFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
@@ -1415,33 +1399,6 @@
                     // This prevents interference during typing
                 });
             }
-        });
-
-        // Initialize dynamic info for existing values
-        updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
-        updateDanaInfo('capaian_dana', 'capaian_dana_info');
-        updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
-        updateAkreditasiInfo();
-
-        // Initialize total score
-        updateTotalSkor();
-
-        // Add event listeners for dynamic updates
-        document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
-            updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
-            updateTotalSkor();
-        });
-        document.getElementById('capaian_alumni').addEventListener('input', function() {
-            updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
-            updateTotalSkor();
-        });
-        document.getElementById('capaian_dana').addEventListener('blur', function() {
-            updateDanaInfo('capaian_dana', 'capaian_dana_info');
-            updateTotalSkor();
-        });
-        document.getElementById('akreditasi').addEventListener('change', function() {
-            updateAkreditasiInfo();
-            updateTotalSkor();
         });
     });
 
@@ -1742,14 +1699,11 @@
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
-        let skorTambahanSiswa = 0;
-        let skorTambahanDana = 0;
-        let skorTambahanAlumni = 0;
 
-        // Get capaian siswa score (based on student count)
-        const capaianSiswaInput = document.getElementById('capaian_jumlah_siswa');
-        if (capaianSiswaInput) {
-            const siswaValue = parseInt(capaianSiswaInput.value) || 0;
+        // Get siswa score
+        const siswaInput = document.getElementById('capaian_jumlah_siswa');
+        if (siswaInput) {
+            const siswaValue = parseInt(siswaInput.value) || 0;
             if (siswaValue > 1001) totalSkor += 9;
             else if (siswaValue >= 751) totalSkor += 8;
             else if (siswaValue >= 501) totalSkor += 7;
@@ -1761,10 +1715,10 @@
             else if (siswaValue > 0) totalSkor += 1;
         }
 
-        // Get capaian dana score (based on dana amount)
-        const capaianDanaInput = document.getElementById('capaian_dana');
-        if (capaianDanaInput) {
-            const danaRawValue = parseInt(capaianDanaInput.value.replace(/[^\d]/g, '')) || 0;
+        // Get dana score
+        const danaInput = document.getElementById('capaian_dana');
+        if (danaInput) {
+            const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
             const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
             if (danaValue > 5001) totalSkor += 9;
             else if (danaValue >= 3001) totalSkor += 8;
@@ -1777,10 +1731,10 @@
             else if (danaRawValue > 0) totalSkor += 1;
         }
 
-        // Get capaian alumni score (based on alumni percentage)
-        const capaianAlumniInput = document.getElementById('capaian_alumni');
-        if (capaianAlumniInput) {
-            const alumniValue = parseInt(capaianAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+        // Get alumni score
+        const alumniInput = document.getElementById('capaian_alumni');
+        if (alumniInput) {
+            const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
             if (alumniValue >= 81) totalSkor += 9;
             else if (alumniValue >= 66) totalSkor += 8;
             else if (alumniValue >= 51) totalSkor += 7;
@@ -1789,60 +1743,6 @@
             else if (alumniValue >= 10) totalSkor += 4;
             else if (alumniValue >= 3) totalSkor += 3;
             else if (alumniValue >= 1) totalSkor += 2;
-        }
-
-        // Get skor tambahan siswa (additional score based on target vs achievement)
-        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
-        const capaianSiswaInput2 = document.getElementById('capaian_jumlah_siswa');
-        if (targetSiswaInput && capaianSiswaInput2) {
-            const targetValue = parseInt(targetSiswaInput.value) || 0;
-            const capaianValue = parseInt(capaianSiswaInput2.value) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanSiswa = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanSiswa = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanSiswa = 2; // naik
-            }
-
-            totalSkor += skorTambahanSiswa;
-        }
-
-        // Get skor tambahan dana (additional score based on target vs achievement)
-        const targetDanaInput = document.getElementById('target_dana');
-        const capaianDanaInput2 = document.getElementById('capaian_dana');
-        if (targetDanaInput && capaianDanaInput2) {
-            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianDanaInput2.value.replace(/[^\d]/g, '')) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanDana = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanDana = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanDana = 2; // naik
-            }
-
-            totalSkor += skorTambahanDana;
-        }
-
-        // Get skor tambahan alumni (additional score based on target vs achievement)
-        const targetAlumniInput = document.getElementById('target_alumni');
-        const capaianAlumniInput2 = document.getElementById('capaian_alumni');
-        if (targetAlumniInput && capaianAlumniInput2) {
-            const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianAlumniInput2.value.replace(/[^\d]/g, '')) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanAlumni = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanAlumni = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanAlumni = 2; // naik
-            }
-
-            totalSkor += skorTambahanAlumni;
         }
 
         // Get akreditasi score
@@ -1859,124 +1759,6 @@
         const totalSkorField = document.getElementById('total_skor');
         if (totalSkorField) {
             totalSkorField.value = totalSkor;
-        }
-
-        // Update student score info only if target and capaian are filled
-        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
-            updateStudentScoreInfo(skorTambahanSiswa);
-        } else {
-            const info = document.getElementById('student_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update dana score info only if target > 0 and capaian is filled
-        const targetDanaValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
-        if (targetDanaInput && capaianDanaInput2 && targetDanaValue > 0 && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            updateDanaScoreInfo(skorTambahanDana);
-        } else {
-            const info = document.getElementById('dana_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update alumni score info only if target and capaian are filled
-        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            updateAlumniScoreInfo(skorTambahanAlumni);
-        } else {
-            const info = document.getElementById('alumni_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update total score info
-        updateTotalSkorInfo(totalSkor);
-    }
-
-    // Function to update student score info
-    function updateStudentScoreInfo(siswaScore) {
-        const info = document.getElementById('student_score_info');
-        let scoreText = '';
-
-        if (siswaScore === 0) {
-            scoreText = 'Skor Siswa: 0 (turun)';
-        } else if (siswaScore === 1) {
-            scoreText = 'Skor Siswa: 1 (tetap)';
-        } else if (siswaScore === 2) {
-            scoreText = 'Skor Siswa: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update dana score info
-    function updateDanaScoreInfo(danaScore) {
-        const info = document.getElementById('dana_score_info');
-        let scoreText = '';
-
-        if (danaScore === 0) {
-            scoreText = 'Skor Dana: 0 (turun)';
-        } else if (danaScore === 1) {
-            scoreText = 'Skor Dana: 1 (tetap)';
-        } else if (danaScore === 2) {
-            scoreText = 'Skor Dana: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update alumni score info
-    function updateAlumniScoreInfo(alumniScore) {
-        const info = document.getElementById('alumni_score_info');
-        let scoreText = '';
-
-        if (alumniScore === 0) {
-            scoreText = 'Skor Alumni: 0 (turun)';
-        } else if (alumniScore === 1) {
-            scoreText = 'Skor Alumni: 1 (tetap)';
-        } else if (alumniScore === 2) {
-            scoreText = 'Skor Alumni: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update total score info
-    function updateTotalSkorInfo(totalSkor) {
-        const info = document.getElementById('total_skor_info');
-        let kategori = '';
-
-        if (totalSkor >= 0 && totalSkor <= 5) {
-            kategori = 'Sangat Lemah';
-        } else if (totalSkor >= 6 && totalSkor <= 16) {
-            kategori = 'Lemah';
-        } else if (totalSkor >= 17 && totalSkor <= 25) {
-            kategori = 'Rintisan';
-        } else if (totalSkor >= 26 && totalSkor <= 33) {
-            kategori = 'Cukup';
-        } else if (totalSkor >= 34 && totalSkor <= 38) {
-            kategori = 'Mandiri (Kuat)';
-        } else if (totalSkor >= 39 && totalSkor <= 43) {
-            kategori = 'Unggul';
-        }
-
-        if (kategori) {
-            info.textContent = `Kategori: ${kategori}`;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
         }
     }
 </script>
