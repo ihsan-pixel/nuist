@@ -715,6 +715,10 @@
                         @enderror
                     </div>
 
+                    <div class="info-note">
+                        <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
+                    </div>
+
                     <div class="divider">
                         <span>Dana</span>
                     </div>
@@ -745,7 +749,7 @@
                         @enderror
                     </div>
                     <div class="info-note">
-                        <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
+                        <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetailkan
                     </div>
 
                     <div class="divider">
@@ -833,11 +837,6 @@
                     <!-- Penjelasan -->
                     <div class="form-group">
                         <div style="background: #f7e0e0; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
-
-                            <div class="info-note">
-                                <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
-                                <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
-                            </div>
 
                             <div class="info-section">
                                 <h5>Skor Prestasi Target SDA</h5>
