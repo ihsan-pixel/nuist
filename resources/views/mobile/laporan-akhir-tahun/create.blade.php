@@ -744,7 +744,9 @@
                         <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
-                    <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
+                    <div class="info-note">
+                        <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
+                    </div>
 
                     <div class="divider">
                         <span>Alumni</span>
