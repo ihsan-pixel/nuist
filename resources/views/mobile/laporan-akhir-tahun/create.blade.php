@@ -497,6 +497,46 @@
         border-color: #ffeaa7;
         color: #856404;
     }
+
+    .input-with-symbol {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-with-symbol input {
+        flex: 1;
+        padding-right: 40px; /* Space for the symbol */
+    }
+
+    .input-symbol {
+        position: absolute;
+        right: 12px;
+        color: #004b4c;
+        font-weight: 600;
+        font-size: 12px;
+        pointer-events: none;
+    }
+
+    .input-with-symbol {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-with-symbol input {
+        flex: 1;
+        padding-right: 40px; /* Space for the symbol */
+    }
+
+    .input-symbol {
+        position: absolute;
+        right: 12px;
+        color: #004b4c;
+        font-weight: 600;
+        font-size: 12px;
+        pointer-events: none;
+    }
 </style>
 
 <!-- Header -->
@@ -680,7 +720,10 @@
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Alumni</label>
-                            <input type="text" name="target_alumni" id="target_alumni" value="{{ old('target_alumni') }}" placeholder="0%">
+                            <div class="input-with-symbol">
+                                <input type="text" name="target_alumni" id="target_alumni" value="{{ old('target_alumni') }}" placeholder="0">
+                                <span class="input-symbol">%</span>
+                            </div>
                             @error('target_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -688,7 +731,10 @@
                         </div>
                         <div class="form-group">
                             <label>Capaian Alumni</label>
-                            <input type="text" name="capaian_alumni" id="capaian_alumni" value="{{ old('capaian_alumni') }}" placeholder="0%">
+                            <div class="input-with-symbol">
+                                <input type="text" name="capaian_alumni" id="capaian_alumni" value="{{ old('capaian_alumni') }}" placeholder="0">
+                                <span class="input-symbol">%</span>
+                            </div>
                             @error('capaian_alumni')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
@@ -698,7 +744,10 @@
 
                     <div class="form-group">
                         <label>Target Alumni Berikutnya</label>
-                        <input type="text" name="target_alumni_berikutnya" value="{{ old('target_alumni_berikutnya') }}" placeholder="Target alumni untuk tahun berikutnya (%)">
+                        <div class="input-with-symbol">
+                            <input type="text" name="target_alumni_berikutnya" value="{{ old('target_alumni_berikutnya') }}" placeholder="0">
+                            <span class="input-symbol">%</span>
+                        </div>
                         @error('target_alumni_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
