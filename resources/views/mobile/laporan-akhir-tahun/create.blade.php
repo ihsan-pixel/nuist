@@ -1557,37 +1557,55 @@
         const info = document.getElementById(infoId);
         const value = parseInt(input.value) || 0;
 
-        let skor = 1;
+        let skorKategori = 1;
         let kategori = 'Posisi Zero';
 
         if (value > 1001) {
-            skor = 9;
+            skorKategori = 9;
             kategori = 'Unggulan A';
         } else if (value >= 751) {
-            skor = 8;
+            skorKategori = 8;
             kategori = 'Unggulan B';
         } else if (value >= 501) {
-            skor = 7;
+            skorKategori = 7;
             kategori = 'Mandiri A';
         } else if (value >= 251) {
-            skor = 6;
+            skorKategori = 6;
             kategori = 'Mandiri B';
         } else if (value >= 151) {
-            skor = 5;
+            skorKategori = 5;
             kategori = 'Pramandiri A';
         } else if (value >= 101) {
-            skor = 4;
+            skorKategori = 4;
             kategori = 'Pramandiri B';
         } else if (value >= 61) {
-            skor = 3;
+            skorKategori = 3;
             kategori = 'Rintisan A';
         } else if (value >= 20) {
-            skor = 2;
+            skorKategori = 2;
             kategori = 'Rintisan B';
         }
 
+        // Calculate prestasi score
+        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
+        let skorPrestasi = 0;
+        let prestasiText = '';
+        if (targetSiswaInput) {
+            const target = parseInt(targetSiswaInput.value) || 0;
+            if (value > target) {
+                skorPrestasi = 2;
+                prestasiText = ' (Prestasi: +2 - Melebihi Target)';
+            } else if (value === target && value > 0) {
+                skorPrestasi = 1;
+                prestasiText = ' (Prestasi: +1 - Sesuai Target)';
+            } else if (value < target && value > 0) {
+                skorPrestasi = 0;
+                prestasiText = ' (Prestasi: +0 - Di Bawah Target)';
+            }
+        }
+
         if (value > 0) {
-            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.textContent = `Skor Kategori: ${skorKategori}, Kategori: ${kategori}${prestasiText}`;
             info.style.display = 'block';
         } else {
             info.style.display = 'none';
@@ -1647,37 +1665,55 @@
         const rawValue = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
         const value = Math.floor(rawValue / 1000000); // Convert to millions
 
-        let skor = 1;
+        let skorKategori = 1;
         let kategori = 'Posisi Zero';
 
         if (value > 5001) {
-            skor = 9;
+            skorKategori = 9;
             kategori = 'Unggulan A';
         } else if (value >= 3001) {
-            skor = 8;
+            skorKategori = 8;
             kategori = 'Unggulan B';
         } else if (value >= 2000) {
-            skor = 7;
+            skorKategori = 7;
             kategori = 'Mandiri A';
         } else if (value >= 1251) {
-            skor = 6;
+            skorKategori = 6;
             kategori = 'Mandiri B';
         } else if (value >= 751) {
-            skor = 5;
+            skorKategori = 5;
             kategori = 'Pramandiri A';
         } else if (value >= 351) {
-            skor = 4;
+            skorKategori = 4;
             kategori = 'Pramandiri B';
         } else if (value >= 151) {
-            skor = 3;
+            skorKategori = 3;
             kategori = 'Rintisan A';
         } else if (value >= 30) {
-            skor = 2;
+            skorKategori = 2;
             kategori = 'Rintisan B';
         }
 
+        // Calculate prestasi score
+        const targetDanaInput = document.getElementById('target_dana');
+        let skorPrestasi = 0;
+        let prestasiText = '';
+        if (targetDanaInput) {
+            const targetDana = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
+            if (rawValue > targetDana) {
+                skorPrestasi = 2;
+                prestasiText = ' (Prestasi: +2 - Melebihi Target)';
+            } else if (rawValue === targetDana && rawValue > 0) {
+                skorPrestasi = 1;
+                prestasiText = ' (Prestasi: +1 - Sesuai Target)';
+            } else if (rawValue < targetDana && rawValue > 0) {
+                skorPrestasi = 0;
+                prestasiText = ' (Prestasi: +0 - Di Bawah Target)';
+            }
+        }
+
         if (rawValue > 0) {
-            info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
+            info.textContent = `Skor Kategori: ${skorKategori}, Kategori: ${kategori}${prestasiText}`;
             info.style.display = 'block';
         } else {
             info.style.display = 'none';
