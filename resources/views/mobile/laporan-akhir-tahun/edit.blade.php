@@ -700,62 +700,107 @@ function updateAkreditasiInfo() {
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
-        let siswaScore = 0;
+        let skorTambahanSiswa = 0;
+        let skorTambahanDana = 0;
+        let skorTambahanAlumni = 0;
 
-        // Get siswa score based on target vs achievement comparison
-        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
+        // Get capaian siswa score (based on student count)
         const capaianSiswaInput = document.getElementById('capaian_jumlah_siswa');
-        if (targetSiswaInput && capaianSiswaInput) {
-            const targetValue = parseInt(targetSiswaInput.value) || 0;
-            const capaianValue = parseInt(capaianSiswaInput.value) || 0;
-
-            if (capaianValue < targetValue) {
-                siswaScore = 0; // turun
-            } else if (capaianValue === targetValue) {
-                siswaScore = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                siswaScore = 2; // naik
-            }
-
-            totalSkor += siswaScore;
+        if (capaianSiswaInput) {
+            const siswaValue = parseInt(capaianSiswaInput.value) || 0;
+            if (siswaValue > 1001) totalSkor += 9;
+            else if (siswaValue >= 751) totalSkor += 8;
+            else if (siswaValue >= 501) totalSkor += 7;
+            else if (siswaValue >= 251) totalSkor += 6;
+            else if (siswaValue >= 151) totalSkor += 5;
+            else if (siswaValue >= 101) totalSkor += 4;
+            else if (siswaValue >= 61) totalSkor += 3;
+            else if (siswaValue >= 20) totalSkor += 2;
+            else if (siswaValue > 0) totalSkor += 1;
         }
 
-        // Get dana score based on target vs achievement comparison
-        let danaScore = 0;
-        const targetDanaInput = document.getElementById('target_dana');
+        // Get capaian dana score (based on dana amount)
         const capaianDanaInput = document.getElementById('capaian_dana');
-        if (targetDanaInput && capaianDanaInput) {
-            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianDanaInput.value.replace(/[^\d]/g, '')) || 0;
-
-            if (capaianValue < targetValue) {
-                danaScore = 0; // turun
-            } else if (capaianValue === targetValue) {
-                danaScore = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                danaScore = 2; // naik
-            }
-
-            totalSkor += danaScore;
+        if (capaianDanaInput) {
+            const danaRawValue = parseInt(capaianDanaInput.value.replace(/[^\d]/g, '')) || 0;
+            const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
+            if (danaValue > 5001) totalSkor += 9;
+            else if (danaValue >= 3001) totalSkor += 8;
+            else if (danaValue >= 2000) totalSkor += 7;
+            else if (danaValue >= 1251) totalSkor += 6;
+            else if (danaValue >= 751) totalSkor += 5;
+            else if (danaValue >= 351) totalSkor += 4;
+            else if (danaValue >= 151) totalSkor += 3;
+            else if (danaValue >= 30) totalSkor += 2;
+            else if (danaRawValue > 0) totalSkor += 1;
         }
 
-        // Get alumni score based on target vs achievement comparison
-        let alumniScore = 0;
-        const targetAlumniInput = document.getElementById('target_alumni');
+        // Get capaian alumni score (based on alumni percentage)
         const capaianAlumniInput = document.getElementById('capaian_alumni');
-        if (targetAlumniInput && capaianAlumniInput) {
-            const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+        if (capaianAlumniInput) {
+            const alumniValue = parseInt(capaianAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+            if (alumniValue >= 81) totalSkor += 9;
+            else if (alumniValue >= 66) totalSkor += 8;
+            else if (alumniValue >= 51) totalSkor += 7;
+            else if (alumniValue >= 35) totalSkor += 6;
+            else if (alumniValue >= 20) totalSkor += 5;
+            else if (alumniValue >= 10) totalSkor += 4;
+            else if (alumniValue >= 3) totalSkor += 3;
+            else if (alumniValue >= 1) totalSkor += 2;
+        }
+
+        // Get skor tambahan siswa (additional score based on target vs achievement)
+        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
+        const capaianSiswaInput2 = document.getElementById('capaian_jumlah_siswa');
+        if (targetSiswaInput && capaianSiswaInput2) {
+            const targetValue = parseInt(targetSiswaInput.value) || 0;
+            const capaianValue = parseInt(capaianSiswaInput2.value) || 0;
 
             if (capaianValue < targetValue) {
-                alumniScore = 0; // turun
+                skorTambahanSiswa = 0; // turun
             } else if (capaianValue === targetValue) {
-                alumniScore = 1; // tetap
+                skorTambahanSiswa = 1; // tetap
             } else if (capaianValue > targetValue) {
-                alumniScore = 2; // naik
+                skorTambahanSiswa = 2; // naik
             }
 
-            totalSkor += alumniScore;
+            totalSkor += skorTambahanSiswa;
+        }
+
+        // Get skor tambahan dana (additional score based on target vs achievement)
+        const targetDanaInput = document.getElementById('target_dana');
+        const capaianDanaInput2 = document.getElementById('capaian_dana');
+        if (targetDanaInput && capaianDanaInput2) {
+            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
+            const capaianValue = parseInt(capaianDanaInput2.value.replace(/[^\d]/g, '')) || 0;
+
+            if (capaianValue < targetValue) {
+                skorTambahanDana = 0; // turun
+            } else if (capaianValue === targetValue) {
+                skorTambahanDana = 1; // tetap
+            } else if (capaianValue > targetValue) {
+                skorTambahanDana = 2; // naik
+            }
+
+            totalSkor += skorTambahanDana;
+        }
+
+        // Get skor tambahan alumni (additional score based on target vs achievement)
+        const targetAlumniInput = document.getElementById('target_alumni');
+        const capaianAlumniInput2 = document.getElementById('capaian_alumni');
+        if (targetAlumniInput && capaianAlumniInput2) {
+            const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
+            const capaianValue = parseInt(capaianAlumniInput2.value.replace(/[^\d]/g, '')) || 0;
+
+            if (capaianValue < targetValue) {
+                skorTambahanAlumni = 0; // turun
+            } else if (capaianValue === targetValue) {
+                skorTambahanAlumni = 1; // tetap
+            } else if (capaianValue > targetValue) {
+                skorTambahanAlumni = 2; // naik
+            }
+
+            totalSkor += skorTambahanAlumni;
         }
 
         // Get akreditasi score
