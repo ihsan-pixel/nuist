@@ -719,7 +719,6 @@
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="akreditasi_info" class="dynamic-info" style="display: none;"></div>
-                            <div class="form-hint">Skor: Belum=+1, C=+4, B=+7, A=+10</div>
                         </div>
                         <div class="form-group">
                             <label>Tahun Akreditasi</label>
