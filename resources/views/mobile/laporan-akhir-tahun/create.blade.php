@@ -715,7 +715,7 @@
 
                     <!-- Penjelasan -->
                     <div class="form-group">
-                        <div style="background: #dca5a5; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
+                        <div style="background: #f5d5d5; padding: 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; color: #004b4c;">
                             <div class="info-note">
                                 <strong>*</strong> Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
                                 <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
