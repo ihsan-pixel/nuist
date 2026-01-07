@@ -708,8 +708,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Target Tahun Berikutnya</label>
-                        <input type="text" name="target_tahun_berikutnya" value="{{ old('target_tahun_berikutnya') }}" placeholder="Target untuk tahun berikutnya">
+                        <label>Target Siswa Tahun Berikutnya</label>
+                        <input type="number" name="target_tahun_berikutnya" value="{{ old('target_tahun_berikutnya') }}" min="0" placeholder="0">
                         @error('target_tahun_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
