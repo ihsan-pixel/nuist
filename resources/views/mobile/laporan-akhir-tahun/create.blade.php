@@ -1835,8 +1835,9 @@
             info.style.display = 'none';
         }
 
-        // Update dana score info if capaian is filled
-        if (capaianDanaInput2 && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
+        // Update dana score info only if target > 0 and capaian is filled
+        const targetDanaValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
+        if (targetDanaInput && capaianDanaInput2 && targetDanaValue > 0 && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
             updateDanaScoreInfo(skorTambahanDana);
         } else {
             const info = document.getElementById('dana_score_info');
