@@ -832,13 +832,7 @@
                                 <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Skor</label>
                                 <input type="text" id="total_skor" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
                                 <div class="form-hint">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</div>
-                                <div id="total_skor_breakdown" class="dynamic-info" style="display: block; margin-top: 8px; padding: 8px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; font-size: 11px;">
-                                    <strong>Rincian Skor:</strong><br>
-                                    <span id="skor_siswa">Siswa: 0</span><br>
-                                    <span id="skor_dana">Dana: 0</span><br>
-                                    <span id="skor_alumni">Alumni: 0</span><br>
-                                    <span id="skor_akreditasi">Akreditasi: 0</span>
-                                </div>
+                                <div id="total_skor_info" class="dynamic-info" style="display: none;"></div>
                             </div>
 
                     <!-- Penjelasan -->
@@ -1383,13 +1377,6 @@
             }
         });
 
-        // Format percentage for alumni fields
-        const alumniFields = [
-            'target_alumni',
-            'capaian_alumni',
-            'target_alumni_berikutnya'
-        ];
-
         alumniFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
@@ -1541,24 +1528,12 @@
         // Add event listeners for dynamic updates
         document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
             updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
-            updateTotalSkor();
-        });
-        document.getElementById('target_jumlah_siswa').addEventListener('input', function() {
-            updateTotalSkor();
         });
         document.getElementById('capaian_alumni').addEventListener('input', function() {
             updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
-            updateTotalSkor();
-        });
-        document.getElementById('target_alumni').addEventListener('input', function() {
-            updateTotalSkor();
         });
         document.getElementById('capaian_dana').addEventListener('blur', function() {
             updateDanaInfo('capaian_dana', 'capaian_dana_info');
-            updateTotalSkor();
-        });
-        document.getElementById('target_dana').addEventListener('blur', function() {
-            updateTotalSkor();
         });
         document.getElementById('akreditasi').addEventListener('change', updateAkreditasiInfo);
     });
@@ -1724,56 +1699,60 @@
     // Function to calculate and update total score
     function updateTotalSkor() {
         let totalSkor = 0;
-        let siswaSkor = 0;
-        let danaSkor = 0;
-        let alumniSkor = 0;
-        let akreditasiSkor = 0;
 
-        // Compare capaian siswa vs target siswa
-        const siswaCapaianInput = document.getElementById('capaian_jumlah_siswa');
-        const siswaTargetInput = document.getElementById('target_jumlah_siswa');
-        if (siswaCapaianInput && siswaTargetInput) {
-            const capaian = parseInt(siswaCapaianInput.value) || 0;
-            const target = parseInt(siswaTargetInput.value) || 0;
-            if (capaian > target) siswaSkor = 2;
-            else if (capaian === target && capaian > 0) siswaSkor = 1;
-            else siswaSkor = 0;
-            totalSkor += siswaSkor;
+        // Get siswa score
+        const siswaInput = document.getElementById('capaian_jumlah_siswa');
+        if (siswaInput) {
+            const siswaValue = parseInt(siswaInput.value) || 0;
+            if (siswaValue > 1001) totalSkor += 9;
+            else if (siswaValue >= 751) totalSkor += 8;
+            else if (siswaValue >= 501) totalSkor += 7;
+            else if (siswaValue >= 251) totalSkor += 6;
+            else if (siswaValue >= 151) totalSkor += 5;
+            else if (siswaValue >= 101) totalSkor += 4;
+            else if (siswaValue >= 61) totalSkor += 3;
+            else if (siswaValue >= 20) totalSkor += 2;
+            else if (siswaValue > 0) totalSkor += 1;
         }
 
-        // Compare capaian dana vs target dana
-        const danaCapaianInput = document.getElementById('capaian_dana');
-        const danaTargetInput = document.getElementById('target_dana');
-        if (danaCapaianInput && danaTargetInput) {
-            const capaian = parseInt(danaCapaianInput.value.replace(/[^\d]/g, '')) || 0;
-            const target = parseInt(danaTargetInput.value.replace(/[^\d]/g, '')) || 0;
-            if (capaian > target) danaSkor = 2;
-            else if (capaian === target && capaian > 0) danaSkor = 1;
-            else danaSkor = 0;
-            totalSkor += danaSkor;
+        // Get dana score
+        const danaInput = document.getElementById('capaian_dana');
+        if (danaInput) {
+            const danaRawValue = parseInt(danaInput.value.replace(/[^\d]/g, '')) || 0;
+            const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
+            if (danaValue > 5001) totalSkor += 9;
+            else if (danaValue >= 3001) totalSkor += 8;
+            else if (danaValue >= 2000) totalSkor += 7;
+            else if (danaValue >= 1251) totalSkor += 6;
+            else if (danaValue >= 751) totalSkor += 5;
+            else if (danaValue >= 351) totalSkor += 4;
+            else if (danaValue >= 151) totalSkor += 3;
+            else if (danaValue >= 30) totalSkor += 2;
+            else if (danaRawValue > 0) totalSkor += 1;
         }
 
-        // Compare capaian alumni vs target alumni
-        const alumniCapaianInput = document.getElementById('capaian_alumni');
-        const alumniTargetInput = document.getElementById('target_alumni');
-        if (alumniCapaianInput && alumniTargetInput) {
-            const capaian = parseInt(alumniCapaianInput.value.replace(/[^\d]/g, '')) || 0;
-            const target = parseInt(alumniTargetInput.value.replace(/[^\d]/g, '')) || 0;
-            if (capaian > target) alumniSkor = 2;
-            else if (capaian === target && capaian > 0) alumniSkor = 1;
-            else alumniSkor = 0;
-            totalSkor += alumniSkor;
+        // Get alumni score
+        const alumniInput = document.getElementById('capaian_alumni');
+        if (alumniInput) {
+            const alumniValue = parseInt(alumniInput.value.replace(/[^\d]/g, '')) || 0;
+            if (alumniValue >= 81) totalSkor += 9;
+            else if (alumniValue >= 66) totalSkor += 8;
+            else if (alumniValue >= 51) totalSkor += 7;
+            else if (alumniValue >= 35) totalSkor += 6;
+            else if (alumniValue >= 20) totalSkor += 5;
+            else if (alumniValue >= 10) totalSkor += 4;
+            else if (alumniValue >= 3) totalSkor += 3;
+            else if (alumniValue >= 1) totalSkor += 2;
         }
 
         // Get akreditasi score
         const akreditasiSelect = document.getElementById('akreditasi');
         if (akreditasiSelect) {
             const akreditasiValue = akreditasiSelect.value;
-            if (akreditasiValue === 'A') akreditasiSkor = 10;
-            else if (akreditasiValue === 'B') akreditasiSkor = 7;
-            else if (akreditasiValue === 'C') akreditasiSkor = 4;
-            else if (akreditasiValue === 'Belum') akreditasiSkor = 1;
-            totalSkor += akreditasiSkor;
+            if (akreditasiValue === 'A') totalSkor += 10;
+            else if (akreditasiValue === 'B') totalSkor += 7;
+            else if (akreditasiValue === 'C') totalSkor += 4;
+            else if (akreditasiValue === 'Belum') totalSkor += 1;
         }
 
         // Update total score field
@@ -1781,14 +1760,5 @@
         if (totalSkorField) {
             totalSkorField.value = totalSkor;
         }
-
-        // Update breakdown
-        document.getElementById('skor_siswa').textContent = 'Siswa: ' + siswaSkor;
-        document.getElementById('skor_dana').textContent = 'Dana: ' + danaSkor;
-        document.getElementById('skor_alumni').textContent = 'Alumni: ' + alumniSkor;
-        document.getElementById('skor_akreditasi').textContent = 'Akreditasi: ' + akreditasiSkor;
-
-        // Update akreditasi info
-        updateAkreditasiInfo();
     }
 </script>
