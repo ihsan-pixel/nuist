@@ -479,40 +479,150 @@
             </div>
         </div>
 
-        <!-- Step 2: A. DATA KEPALA SEKOLAH -->
-        <div class="step-content active" data-step="2">
+        <!-- Step 2: 1. TARGET UTAMA -->
+        <div class="step-content" data-step="2">
             <div class="section-card">
                 <div class="section-header">
                     <div class="section-icon">
-                        <i class="bx bx-user"></i>
+                        <i class="bx bx-target"></i>
                     </div>
-                    <h6 class="section-title">A. DATA KEPALA SEKOLAH</h6>
+                    <h6 class="section-title">1. TARGET UTAMA</h6>
                 </div>
 
                 <div class="section-content">
-                    <div class="form-group required">
-                        <label>Nama Kepala Sekolah</label>
-                        <input type="text" name="nama_kepala_sekolah" value="{{ old('nama_kepala_sekolah', $data['nama_kepala_sekolah'] ?? '') }}" placeholder="Nama Lengkap" required>
-                        @error('nama_kepala_sekolah')
+                    <h6 class="mb-3">1. Capaian dan Target Utama</h6>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Target Jumlah Siswa</label>
+                            <input type="number" name="target_jumlah_siswa" value="{{ old('target_jumlah_siswa') }}" min="0" placeholder="0">
+                            @error('target_jumlah_siswa')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label>Capaian Jumlah Siswa</label>
+                            <input type="number" name="capaian_jumlah_siswa" value="{{ old('capaian_jumlah_siswa') }}" min="0" placeholder="0">
+                            @error('capaian_jumlah_siswa')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Tahun Berikutnya</label>
+                        <input type="text" name="target_tahun_berikutnya" value="{{ old('target_tahun_berikutnya') }}" placeholder="Target untuk tahun berikutnya">
+                        @error('target_tahun_berikutnya')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="row-2col">
                         <div class="form-group">
-                            <label>NIP</label>
-                            <input type="text" name="nip" value="{{ old('nip', $data['nip'] ?? '') }}" placeholder="NIP (jika ada)">
-                            @error('nip')
+                            <label>Target Dana</label>
+                            <input type="number" name="target_dana" value="{{ old('target_dana') }}" min="0" step="1000" placeholder="0">
+                            @error('target_dana')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label>NUPTK</label>
-                            <input type="text" name="nuptk" value="{{ old('nuptk', $data['nuptk'] ?? '') }}" placeholder="NUPTK (jika ada)">
-                            @error('nuptk')
+                            <label>Capaian Dana</label>
+                            <input type="number" name="capaian_dana" value="{{ old('capaian_dana') }}" min="0" step="1000" placeholder="0">
+                            @error('capaian_dana')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Target Alumni</label>
+                            <input type="number" name="target_alumni" value="{{ old('target_alumni') }}" min="0" placeholder="0">
+                            @error('target_alumni')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label>Capaian Alumni</label>
+                            <input type="number" name="capaian_alumni" value="{{ old('capaian_alumni') }}" min="0" placeholder="0">
+                            @error('capaian_alumni')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target Alumni Berikutnya</label>
+                        <input type="text" name="target_alumni_berikutnya" value="{{ old('target_alumni_berikutnya') }}" placeholder="Target alumni untuk tahun berikutnya">
+                        @error('target_alumni_berikutnya')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group">
+                            <label>Akreditasi</label>
+                            <select name="akreditasi">
+                                <option value="">Pilih Akreditasi</option>
+                                <option value="A" {{ old('akreditasi') == 'A' ? 'selected' : '' }}>A</option>
+                                <option value="B" {{ old('akreditasi') == 'B' ? 'selected' : '' }}>B</option>
+                                <option value="C" {{ old('akreditasi') == 'C' ? 'selected' : '' }}>C</option>
+                            </select>
+                            @error('akreditasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label>Tahun Akreditasi</label>
+                            <input type="number" name="tahun_akreditasi" value="{{ old('tahun_akreditasi') }}" min="2000" max="{{ date('Y') + 10 }}" placeholder="2024">
+                            @error('tahun_akreditasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nilai Akreditasi</label>
+                        <input type="number" name="nilai_akreditasi" value="{{ old('nilai_akreditasi') }}" min="0" max="100" step="0.01" placeholder="0.00">
+                        @error('nilai_akreditasi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="mb-3">1-B. UPAYA Satpen Meraih Target Utama di Atas? (Skor maksimal 20)</h6>
+
+                    <div class="form-group">
+                        <label>Untuk Capaian Siswa</label>
+                        <textarea name="upaya_capaian_siswa" placeholder="Jelaskan upaya untuk mencapai target siswa..." rows="2">{{ old('upaya_capaian_siswa') }}</textarea>
+                        @error('upaya_capaian_siswa')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Untuk Capaian Dana</label>
+                        <textarea name="upaya_capaian_dana" placeholder="Jelaskan upaya untuk mencapai target dana..." rows="2">{{ old('upaya_capaian_dana') }}</textarea>
+                        @error('upaya_capaian_dana')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Untuk Alumni BMWA</label>
+                        <textarea name="upaya_alumni_bmwa" placeholder="Jelaskan upaya untuk alumni BMWA..." rows="2">{{ old('upaya_alumni_bmwa') }}</textarea>
+                        @error('upaya_alumni_bmwa')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Untuk Akreditasi</label>
+                        <textarea name="upaya_akreditasi" placeholder="Jelaskan upaya untuk akreditasi..." rows="2">{{ old('upaya_akreditasi') }}</textarea>
+                        @error('upaya_akreditasi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
