@@ -1788,7 +1788,7 @@
             const capaian = parseInt(siswaInput.value) || 0;
             const target = parseInt(targetSiswaInput.value) || 0;
             if (capaian > target) skorSiswaPrestasi = 2;
-            else if (capaian === target) skorSiswaPrestasi = 1;
+            else if (capaian === target && capaian > 0) skorSiswaPrestasi = 1;
             else skorSiswaPrestasi = 0;
             totalSkor += skorSiswaPrestasi;
         }
