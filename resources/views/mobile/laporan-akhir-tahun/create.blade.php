@@ -1362,6 +1362,13 @@
             'target_dana_tahun_berikutnya'
         ];
 
+        // Format percentage for alumni fields
+        const alumniFields = [
+            'target_alumni',
+            'capaian_alumni',
+            'target_alumni_berikutnya'
+        ];
+
         danaFields.forEach(fieldName => {
             const input = document.querySelector(`input[name="${fieldName}"]`);
             if (input) {
@@ -1408,6 +1415,33 @@
                     // This prevents interference during typing
                 });
             }
+        });
+
+        // Initialize dynamic info for existing values
+        updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+        updateDanaInfo('capaian_dana', 'capaian_dana_info');
+        updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
+        updateAkreditasiInfo();
+
+        // Initialize total score
+        updateTotalSkor();
+
+        // Add event listeners for dynamic updates
+        document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
+            updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
+            updateTotalSkor();
+        });
+        document.getElementById('capaian_alumni').addEventListener('input', function() {
+            updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
+            updateTotalSkor();
+        });
+        document.getElementById('capaian_dana').addEventListener('blur', function() {
+            updateDanaInfo('capaian_dana', 'capaian_dana_info');
+            updateTotalSkor();
+        });
+        document.getElementById('akreditasi').addEventListener('change', function() {
+            updateAkreditasiInfo();
+            updateTotalSkor();
         });
     });
 
