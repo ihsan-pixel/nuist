@@ -11,12 +11,7 @@
                     <h4 class="card-title mb-0">Laporan Akhir Tahun</h4>
                 </div>
                 <div class="card-body">
-                    <!-- Development Notice -->
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Fitur Dalam Pengembangan</strong> - Laporan akhir tahun sedang dalam tahap pengembangan. Anda dapat melihat daftar laporan yang ada, namun belum dapat membuat atau mengedit laporan baru.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+
 
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">

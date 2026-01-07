@@ -42,9 +42,28 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Development notice - prevent creation
-        return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pembuatan laporan akhir tahun sedang dalam pengembangan.');
+        // Check if user already has a report for current year
+        $currentYear = Carbon::now()->year;
+        $existingReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            ->where('tahun_pelaporan', $currentYear)
+            ->first();
+
+        if ($existingReport) {
+            return redirect()->route('mobile.laporan-akhir-tahun.edit', $existingReport->id)
+                ->with('info', 'Anda sudah memiliki laporan untuk tahun ' . $currentYear . '. Silakan edit laporan tersebut.');
+        }
+
+        // Pre-fill data from user and madrasah
+        $data = [
+            'nama_kepala_sekolah' => $user->name,
+            'nip' => $user->nip,
+            'nuptk' => $user->nuptk,
+            'nama_madrasah' => $user->madrasah->name ?? '',
+            'alamat_madrasah' => $user->madrasah->alamat ?? '',
+            'tahun_pelaporan' => $currentYear,
+        ];
+
+        return view('mobile.laporan-akhir-tahun.create', compact('data'));
     }
 
     /**
@@ -59,9 +78,58 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Development notice - prevent storing
+        $request->validate([
+            'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
+            'nama_kepala_sekolah' => 'required|string|max:255',
+            'nip' => 'nullable|string|max:255',
+            'nuptk' => 'nullable|string|max:255',
+            'nama_madrasah' => 'required|string|max:255',
+            'alamat_madrasah' => 'required|string',
+            'jumlah_guru' => 'required|integer|min:0',
+            'jumlah_siswa' => 'required|integer|min:0',
+            'jumlah_kelas' => 'required|integer|min:0',
+            'prestasi_madrasah' => 'required|string',
+            'kendala_utama' => 'required|string',
+            'program_kerja_tahun_depan' => 'required|string',
+            'anggaran_digunakan' => 'nullable|numeric|min:0',
+            'saran_dan_masukan' => 'nullable|string',
+            'tanggal_laporan' => 'required|date',
+            'pernyataan_setuju' => 'required|accepted',
+        ]);
+
+        // Check if report already exists for this year
+        $existingReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            ->where('tahun_pelaporan', $request->tahun_pelaporan)
+            ->first();
+
+        if ($existingReport) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['tahun_pelaporan' => 'Laporan untuk tahun ini sudah ada.']);
+        }
+
+        $laporan = LaporanAkhirTahunKepalaSekolah::create([
+            'user_id' => $user->id,
+            'tahun_pelaporan' => $request->tahun_pelaporan,
+            'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
+            'nip' => $request->nip,
+            'nuptk' => $request->nuptk,
+            'nama_madrasah' => $request->nama_madrasah,
+            'alamat_madrasah' => $request->alamat_madrasah,
+            'jumlah_guru' => $request->jumlah_guru,
+            'jumlah_siswa' => $request->jumlah_siswa,
+            'jumlah_kelas' => $request->jumlah_kelas,
+            'prestasi_madrasah' => $request->prestasi_madrasah,
+            'kendala_utama' => $request->kendala_utama,
+            'program_kerja_tahun_depan' => $request->program_kerja_tahun_depan,
+            'anggaran_digunakan' => $request->anggaran_digunakan,
+            'saran_dan_masukan' => $request->saran_dan_masukan,
+            'tanggal_laporan' => $request->tanggal_laporan,
+            'status' => 'submitted',
+        ]);
+
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur penyimpanan laporan akhir tahun sedang dalam pengembangan.');
+            ->with('success', 'Laporan akhir tahun berhasil disimpan.');
     }
 
     /**
@@ -94,9 +162,10 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Development notice - prevent editing
-        return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pengeditan laporan akhir tahun sedang dalam pengembangan.');
+        $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            ->findOrFail($id);
+
+        return view('mobile.laporan-akhir-tahun.edit', compact('laporan'));
     }
 
     /**
@@ -111,9 +180,46 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Development notice - prevent updating
+        $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            ->findOrFail($id);
+
+        $request->validate([
+            'nama_kepala_sekolah' => 'required|string|max:255',
+            'nip' => 'nullable|string|max:255',
+            'nuptk' => 'nullable|string|max:255',
+            'nama_madrasah' => 'required|string|max:255',
+            'alamat_madrasah' => 'required|string',
+            'jumlah_guru' => 'required|integer|min:0',
+            'jumlah_siswa' => 'required|integer|min:0',
+            'jumlah_kelas' => 'required|integer|min:0',
+            'prestasi_madrasah' => 'required|string',
+            'kendala_utama' => 'required|string',
+            'program_kerja_tahun_depan' => 'required|string',
+            'anggaran_digunakan' => 'nullable|numeric|min:0',
+            'saran_dan_masukan' => 'nullable|string',
+            'tanggal_laporan' => 'required|date',
+            'pernyataan_setuju' => 'required|accepted',
+        ]);
+
+        $laporan->update([
+            'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
+            'nip' => $request->nip,
+            'nuptk' => $request->nuptk,
+            'nama_madrasah' => $request->nama_madrasah,
+            'alamat_madrasah' => $request->alamat_madrasah,
+            'jumlah_guru' => $request->jumlah_guru,
+            'jumlah_siswa' => $request->jumlah_siswa,
+            'jumlah_kelas' => $request->jumlah_kelas,
+            'prestasi_madrasah' => $request->prestasi_madrasah,
+            'kendala_utama' => $request->kendala_utama,
+            'program_kerja_tahun_depan' => $request->program_kerja_tahun_depan,
+            'anggaran_digunakan' => $request->anggaran_digunakan,
+            'saran_dan_masukan' => $request->saran_dan_masukan,
+            'tanggal_laporan' => $request->tanggal_laporan,
+        ]);
+
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur pembaruan laporan akhir tahun sedang dalam pengembangan.');
+            ->with('success', 'Laporan akhir tahun berhasil diperbarui.');
     }
 
     /**
@@ -128,8 +234,18 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Development notice - prevent deletion
+        $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            ->findOrFail($id);
+
+        // Only allow deletion of draft reports
+        if ($laporan->status !== 'draft') {
+            return redirect()->back()
+                ->withErrors(['error' => 'Hanya laporan dengan status draft yang dapat dihapus.']);
+        }
+
+        $laporan->delete();
+
         return redirect()->route('mobile.laporan-akhir-tahun.index')
-            ->with('warning', 'Fitur penghapusan laporan akhir tahun sedang dalam pengembangan.');
+            ->with('success', 'Laporan akhir tahun berhasil dihapus.');
     }
 }
