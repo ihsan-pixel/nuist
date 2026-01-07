@@ -948,5 +948,44 @@
     // Initialize first step
     document.addEventListener('DOMContentLoaded', function() {
         showStep(1);
+
+        // Format Rupiah for dana fields
+        const danaFields = [
+            'target_dana',
+            'capaian_dana',
+            'target_dana_tahun_berikutnya'
+        ];
+
+        danaFields.forEach(fieldName => {
+            const input = document.querySelector(`input[name="${fieldName}"]`);
+            if (input) {
+                input.addEventListener('input', function() {
+                    formatRupiah(this);
+                });
+                input.addEventListener('focus', function() {
+                    unformatRupiah(this);
+                });
+                input.addEventListener('blur', function() {
+                    formatRupiah(this);
+                });
+            }
+        });
     });
+
+    // Format number to Rupiah
+    function formatRupiah(input) {
+        let value = input.value.replace(/[^\d]/g, '');
+        if (value) {
+            value = parseInt(value).toLocaleString('id-ID');
+            input.value = 'Rp ' + value;
+        } else {
+            input.value = '';
+        }
+    }
+
+    // Remove Rupiah formatting for editing
+    function unformatRupiah(input) {
+        let value = input.value.replace(/[^\d]/g, '');
+        input.value = value;
+    }
 </script>
