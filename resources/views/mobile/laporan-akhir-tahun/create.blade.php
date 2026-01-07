@@ -425,12 +425,21 @@
                 </div>
 
                 <div class="section-content">
-                    <div class="form-group required">
-                        <label>Nama Kepala Sekolah</label>
-                        <input type="text" name="nama_kepala_sekolah" value="{{ old('nama_kepala_sekolah', $data['nama_kepala_sekolah'] ?? '') }}" placeholder="Nama Lengkap" required>
-                        @error('nama_kepala_sekolah')
-                            <div class="form-error">{{ $message }}</div>
-                        @enderror
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>Nama Kepala Sekolah</label>
+                            <input type="text" name="nama_kepala_sekolah" value="{{ old('nama_kepala_sekolah', $data['nama_kepala_sekolah'] ?? '') }}" placeholder="Nama Lengkap" required>
+                            @error('nama_kepala_sekolah')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group">
+                            <label>Gelar</label>
+                            <input type="text" name="gelar" value="{{ old('gelar') }}" placeholder="S.Pd., M.Pd., dll">
+                            @error('gelar')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="row-2col">
