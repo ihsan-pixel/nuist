@@ -1368,8 +1368,15 @@
         const penjelasanContent = document.getElementById('penjelasan_content');
 
         if (togglePenjelasanBtn && penjelasanContent) {
-            togglePenjelasanBtn.addEventListener('click', function() {
-                if (penjelasanContent.style.display === 'none') {
+            // Ensure initial state
+            penjelasanContent.style.display = 'none';
+            togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Lihat Penjelasan';
+
+            togglePenjelasanBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent any default behavior
+                e.stopPropagation(); // Stop event bubbling
+
+                if (penjelasanContent.style.display === 'none' || penjelasanContent.style.display === '') {
                     penjelasanContent.style.display = 'block';
                     togglePenjelasanBtn.innerHTML = '<i class="bx bx-info-circle" style="margin-right: 4px;"></i>Sembunyikan Penjelasan';
                 } else {
