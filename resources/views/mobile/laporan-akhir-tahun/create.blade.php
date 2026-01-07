@@ -490,7 +490,7 @@
                 </div>
 
                 <div class="section-content">
-                    <h6 class="mb-3">1. Capaian dan Target Utama</h6>
+                    <h6 class="mb-3">1-A. Capaian dan Target Utama</h6>
 
                     <div class="row-2col">
                         <div class="form-group">
