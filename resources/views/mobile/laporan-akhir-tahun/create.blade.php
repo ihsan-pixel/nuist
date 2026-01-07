@@ -601,34 +601,78 @@
 
                     <h6 class="mb-3">1-B. UPAYA Satpen Meraih Target Utama di Atas? (Skor maksimal 20)</h6>
 
+                    <!-- Untuk Capaian Siswa -->
                     <div class="form-group">
                         <label>Untuk Capaian Siswa</label>
-                        <textarea name="upaya_capaian_siswa" placeholder="1. Upaya pertama untuk mencapai target siswa&#10;2. Upaya kedua untuk mencapai target siswa&#10;3. Upaya ketiga untuk mencapai target siswa&#10;..." rows="4">{{ old('upaya_capaian_siswa') }}</textarea>
+                        <div class="dynamic-inputs" data-category="siswa">
+                            <div class="input-row">
+                                <input type="text" name="upaya_capaian_siswa[]" placeholder="Upaya untuk mencapai target siswa" value="{{ old('upaya_capaian_siswa.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('siswa')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                         @error('upaya_capaian_siswa')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
+                        @error('upaya_capaian_siswa.*')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
                     </div>
 
+                    <!-- Untuk Capaian Dana -->
                     <div class="form-group">
                         <label>Untuk Capaian Dana</label>
-                        <textarea name="upaya_capaian_dana" placeholder="1. Upaya pertama untuk mencapai target dana&#10;2. Upaya kedua untuk mencapai target dana&#10;3. Upaya ketiga untuk mencapai target dana&#10;..." rows="4">{{ old('upaya_capaian_dana') }}</textarea>
+                        <div class="dynamic-inputs" data-category="dana">
+                            <div class="input-row">
+                                <input type="text" name="upaya_capaian_dana[]" placeholder="Upaya untuk mencapai target dana" value="{{ old('upaya_capaian_dana.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('dana')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                         @error('upaya_capaian_dana')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label>Untuk Alumni BMWA</label>
-                        <textarea name="upaya_alumni_bmwa" placeholder="1. Upaya pertama untuk alumni BMWA&#10;2. Upaya kedua untuk alumni BMWA&#10;3. Upaya ketiga untuk alumni BMWA&#10;..." rows="4">{{ old('upaya_alumni_bmwa') }}</textarea>
-                        @error('upaya_alumni_bmwa')
+                        @error('upaya_capaian_dana.*')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
 
+                    <!-- Untuk Alumni BMWA -->
+                    <div class="form-group">
+                        <label>Untuk Alumni BMWA</label>
+                        <div class="dynamic-inputs" data-category="alumni">
+                            <div class="input-row">
+                                <input type="text" name="upaya_alumni_bmwa[]" placeholder="Upaya untuk alumni BMWA" value="{{ old('upaya_alumni_bmwa.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('alumni')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        @error('upaya_alumni_bmwa')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('upaya_alumni_bmwa.*')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Untuk Akreditasi -->
                     <div class="form-group">
                         <label>Untuk Akreditasi</label>
-                        <textarea name="upaya_akreditasi" placeholder="1. Upaya pertama untuk akreditasi&#10;2. Upaya kedua untuk akreditasi&#10;3. Upaya ketiga untuk akreditasi&#10;..." rows="4">{{ old('upaya_akreditasi') }}</textarea>
+                        <div class="dynamic-inputs" data-category="akreditasi">
+                            <div class="input-row">
+                                <input type="text" name="upaya_akreditasi[]" placeholder="Upaya untuk akreditasi" value="{{ old('upaya_akreditasi.0') }}">
+                                <button type="button" class="add-input-btn" onclick="addInputField('akreditasi')">
+                                    <i class="bx bx-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                         @error('upaya_akreditasi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('upaya_akreditasi.*')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
@@ -1010,4 +1054,89 @@
             });
         });
     }
+
+    // Dynamic input fields functionality
+    function addInputField(category) {
+        const container = document.querySelector(`.dynamic-inputs[data-category="${category}"]`);
+        if (!container) return;
+
+        const inputRows = container.querySelectorAll('.input-row');
+        const newIndex = inputRows.length;
+
+        const newRow = document.createElement('div');
+        newRow.className = 'input-row';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `upaya_${getFieldName(category)}[]`;
+        input.placeholder = getPlaceholderText(category);
+
+        // Set old value if exists
+        const oldValue = `{{ old('upaya_${getFieldName(category)}.${newIndex}') }}`;
+        if (oldValue && oldValue.trim() !== '{{ old(\'upaya_${getFieldName(category)}.${newIndex}\') }}') {
+            input.value = oldValue;
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-input-btn';
+        removeBtn.innerHTML = '<i class="bx bx-minus"></i>';
+        removeBtn.onclick = function() {
+            removeInputField(this);
+        };
+
+        newRow.appendChild(input);
+        newRow.appendChild(removeBtn);
+
+        container.appendChild(newRow);
+    }
+
+    function removeInputField(button) {
+        const inputRow = button.closest('.input-row');
+        const container = inputRow.closest('.dynamic-inputs');
+        const inputRows = container.querySelectorAll('.input-row');
+
+        // Keep at least one input field
+        if (inputRows.length > 1) {
+            inputRow.remove();
+        }
+    }
+
+    function getFieldName(category) {
+        switch(category) {
+            case 'siswa': return 'capaian_siswa';
+            case 'dana': return 'capaian_dana';
+            case 'alumni': return 'alumni_bmwa';
+            case 'akreditasi': return 'akreditasi';
+            default: return category;
+        }
+    }
+
+    function getPlaceholderText(category) {
+        switch(category) {
+            case 'siswa': return 'Upaya untuk mencapai target siswa';
+            case 'dana': return 'Upaya untuk mencapai target dana';
+            case 'alumni': return 'Upaya untuk alumni BMWA';
+            case 'akreditasi': return 'Upaya untuk akreditasi';
+            default: return 'Upaya';
+        }
+    }
+
+    // Initialize existing dynamic fields from old input
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... existing code ...
+
+        // Initialize dynamic inputs with existing data
+        const categories = ['siswa', 'dana', 'alumni', 'akreditasi'];
+        categories.forEach(category => {
+            const fieldName = getFieldName(category);
+            let index = 1;
+            while (true) {
+                const oldValue = `{{ old('upaya_${fieldName}.${index}') }}`;
+                if (!oldValue || oldValue.trim() === '{{ old(\'upaya_${fieldName}.${index}\') }}') break;
+                addInputField(category);
+                index++;
+            }
+        });
+    });
 </script>
