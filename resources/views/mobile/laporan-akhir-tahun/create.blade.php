@@ -633,7 +633,6 @@
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="target_siswa_info" class="dynamic-info" style="display: none;"></div>
-                            <div class="form-hint">* Kategori: 9=Unggulan A (>1001), 8=Unggulan B (751-1000), 7=Mandiri A (501-750), 6=Mandiri B (251-500), 5=Pramandiri A (151-250), 4=Pramandiri B (101-150), 3=Rintisan A (61-100), 2=Rintisan B (20-60), 1=Posisi Zero (0-19)</div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Jumlah Siswa</label>
@@ -642,7 +641,6 @@
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="capaian_siswa_info" class="dynamic-info" style="display: none;"></div>
-                            <div class="form-hint">* Kategori: 9=Unggulan A (>1001), 8=Unggulan B (751-1000), 7=Mandiri A (501-750), 6=Mandiri B (251-500), 5=Pramandiri A (151-250), 4=Pramandiri B (101-150), 3=Rintisan A (61-100), 2=Rintisan B (20-60), 1=Posisi Zero (0-19)</div>
                         </div>
                     </div>
 
@@ -687,7 +685,6 @@
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="target_alumni_info" class="dynamic-info" style="display: none;"></div>
-                            <div class="form-hint">Kategori (%): 9=Unggulan A (81-100%), 8=Unggulan B (66-80%), 7=Mandiri A (51-65%), 6=Mandiri B (35-50%), 5=Pramandiri A (20-34%), 4=Pramandiri B (10-19%), 3=Rintisan A (3-9%), 2=Rintisan B (1-2%)</div>
                         </div>
                         <div class="form-group">
                             <label>Capaian Alumni</label>
@@ -696,7 +693,6 @@
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
                             <div id="capaian_alumni_info" class="dynamic-info" style="display: none;"></div>
-                            <div class="form-hint">Kategori (%): 9=Unggulan A (81-100%), 8=Unggulan B (66-80%), 7=Mandiri A (51-65%), 6=Mandiri B (35-50%), 5=Pramandiri A (20-34%), 4=Pramandiri B (10-19%), 3=Rintisan A (3-9%), 2=Rintisan B (1-2%)</div>
                         </div>
                     </div>
 
@@ -720,7 +716,6 @@
                             @error('akreditasi')
                                 <div class="form-error">{{ $message }}</div>
                             @enderror
-                            <div class="form-hint">Skor: Belum=+1, C=+4, B=+7, A=+10</div>
                         </div>
                         <div class="form-group">
                             <label>Tahun Akreditasi</label>
