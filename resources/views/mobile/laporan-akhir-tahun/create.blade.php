@@ -402,13 +402,13 @@
     <!-- Step Indicators -->
     <div class="step-indicators">
         <div class="step-indicator active" data-step="1"><i class="bx bx-file"></i></div>
-        <div class="step-indicator" data-step="2"><i class="bx bx-user"></i></div>
-        <div class="step-indicator" data-step="3"><i class="bx bx-building"></i></div>
-        <div class="step-indicator" data-step="4"><i class="bx bx-bar-chart"></i></div>
-        <div class="step-indicator" data-step="5"><i class="bx bx-calendar"></i></div>
-        <div class="step-indicator" data-step="6"><i class="bx bx-trophy"></i></div>
-        <div class="step-indicator" data-step="7"><i class="bx bx-error"></i></div>
-        <div class="step-indicator" data-step="8"><i class="bx bx-target"></i></div>
+        <div class="step-indicator" data-step="2">1</div>
+        <div class="step-indicator" data-step="3">2</div>
+        <div class="step-indicator" data-step="4">3</div>
+        <div class="step-indicator" data-step="5">4</div>
+        <div class="step-indicator" data-step="6">5</div>
+        <div class="step-indicator" data-step="7">6</div>
+        <div class="step-indicator" data-step="8">7</div>
     </div>
 
     <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST">
