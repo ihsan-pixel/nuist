@@ -665,6 +665,7 @@
                 <div class="section-content">
                     <h6 class="mb-3">1-A. Capaian dan Target Utama</h6>
 
+                    <small>Siswa</small>
                     <div class="row-2col">
                         <div class="form-group">
                             <label>Target Jumlah Siswa</label>
