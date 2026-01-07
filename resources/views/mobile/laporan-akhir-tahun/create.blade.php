@@ -1787,5 +1787,8 @@
         document.getElementById('skor_dana').textContent = 'Dana: ' + danaSkor;
         document.getElementById('skor_alumni').textContent = 'Alumni: ' + alumniSkor;
         document.getElementById('skor_akreditasi').textContent = 'Akreditasi: ' + akreditasiSkor;
+
+        // Update akreditasi info
+        updateAkreditasiInfo();
     }
 </script>
