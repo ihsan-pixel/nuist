@@ -657,6 +657,52 @@
                         @enderror
                     </div>
 
+                    <!-- Penjelasan -->
+                    <div class="form-group">
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #004b4c; font-size: 11px; line-height: 1.4; color: #004b4c;">
+                            <strong>Penjelasan</strong><br>
+                            *Jumlah siswa dihitung keseluruhan tapi pada lampiran tetap dirinci kelas X, XI, XII. Pada SLB disebutkan seluruh jenjang<br>
+                            ** Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan<br><br>
+                            <strong>Skor Prestasi Target SDA</strong><br>
+                            +0 = turun. +1 = tetap. +2 = naik<br><br>
+                            <strong>Prestasi akreditasi Akreditasi</strong><br>
+                            Belum = +1. C = +4. B = +7. A = +10<br><br>
+                            <strong>Skor Dan Kategori</strong><br>
+                            <strong>Kategori Berdasarkan Jumlah Siswa</strong><br>
+                            Skor Kategori Siswa<br>
+                            9 Unggulan A >1001<br>
+                            8 Unggulan B 751 - 1000<br>
+                            7 Mandiri A 501 - 750<br>
+                            6 Mandiri B 251 - 500<br>
+                            5 Pramandiri A 151 - 250<br>
+                            4 Pramandiri B 101 - 150<br>
+                            3 Rintisan A 61 - 100<br>
+                            2 Rintisan B 20 - 60<br>
+                            1 Posisi Zero 0 - 19<br><br>
+                            <strong>Kategori Berdasarkan Jumlah Dana</strong><br>
+                            Skor Kategori Dana Juta<br>
+                            9 Unggulan A > 5001<br>
+                            8 Unggulan B 3001-5000<br>
+                            7 Mandiri A 2000 - 3000<br>
+                            6 Mandiri B 1251 - 1999<br>
+                            5 Pramandiri A 751 - 1250<br>
+                            4 Pramandiri B 351 - 750<br>
+                            3 Rintisan A 151 - 350<br>
+                            2 Rintisan B 30 - 150<br>
+                            1 Posisi Zero 0 - 29<br><br>
+                            <strong>Kategori Berdasarkan Keterserapan Lulusan</strong><br>
+                            Skor Kategori BMW+A<br>
+                            9 Unggulan A 81 - 100%<br>
+                            8 Unggulan B 66 = 80%<br>
+                            7 Mandiri A 51 - 65%<br>
+                            6 Mandiri B 35 - 50%<br>
+                            5 Pramandiri A 20 - 34%<br>
+                            4 Pramandiri B 10 - 19%<br>
+                            3 Rintisan A 3 - 9%<br>
+                            2 Rintisan B 1 = 2%<br>
+                        </div>
+                    </div>
+
                     <hr class="my-4">
 
                     <h6 class="mb-3">1-B. UPAYA Satpen Meraih Target Utama di Atas? (Skor maksimal 20)</h6>
