@@ -434,7 +434,7 @@
                     </div>
 
                     <div class="row-2col">
-                        <div class="form-group">
+                        <div class="form-group required">
                             <label>NIPM</label>
                             <input type="text" name="nip" value="{{ old('nip', $data['nipm'] ?? '') }}" placeholder="NIPM" required>
                             @error('nip')
