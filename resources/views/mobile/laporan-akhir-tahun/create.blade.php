@@ -718,6 +718,7 @@
                     <div class="divider">
                         <span>Dana</span>
                     </div>
+                    <strong>**</strong> Jumlah dana adalah jumlah gabungan dari BOSNAS, BOSDA, SPP, BP3 dll. Di atas ditulis global, pada lampiran didetilkan
 
                     <div class="row-2col">
                         <div class="form-group">
