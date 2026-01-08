@@ -18,7 +18,7 @@ if ($hour >= 0 && $hour <= 11) {
 } elseif ($hour >= 15 && $hour <= 17) {
     $congrat = 'Selamat Sore ';
 } elseif ($hour >= 17 && $hour <= 18) {
-    $congrat = 'Selamat Petang ';
+    $congrat = 'Selamat Petangg ';
 } elseif ($hour >= 19 && $hour <= 23) {
     $congrat = 'Selamat Malam ';
 }
