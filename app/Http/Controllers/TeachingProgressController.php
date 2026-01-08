@@ -130,19 +130,27 @@ class TeachingProgressController extends Controller
             ];
 
             foreach ($madrasahs as $madrasah) {
-                // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8
+                // Get all teachers for this madrasah excluding status_kepegawaian_id 7 and 8 and ketugasan kepala madrasah/sekolah
                 $teachers = User::where('madrasah_id', $madrasah->id)
                     ->where('role', 'tenaga_pendidik')
                     ->whereNotIn('status_kepegawaian_id', [7, 8])
+                    ->where('ketugasan', '!=', 'kepala madrasah/sekolah')
                     ->get();
 
                 $totalTeachers = $teachers->count();
+
+                // Count teachers with and without teaching schedules
+                $teachersWithSchedule = $teachers->filter(function ($teacher) {
+                    return TeachingSchedule::where('teacher_id', $teacher->id)->exists();
+                })->count();
+                $teachersWithoutSchedule = $totalTeachers - $teachersWithSchedule;
 
                 if ($totalTeachers == 0) {
                     $kabupatenData['madrasahs'][] = [
                         'scod' => $madrasah->scod,
                         'nama' => $madrasah->name,
                         'hari_kbm' => $madrasah->hari_kbm,
+                        'jumlah_tenaga_pendidik' => 'Sudah: 0, Belum: 0',
                         'presensi' => array_fill(0, 6, ['hadir' => 0, 'izin' => 0, 'alpha' => $totalTeachers]),
                         'persentase_kehadiran' => 0
                     ];
@@ -196,6 +204,7 @@ class TeachingProgressController extends Controller
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
+                    'jumlah_tenaga_pendidik' => "Sudah: {$teachersWithSchedule}, Belum: {$teachersWithoutSchedule}",
                     'presensi' => $presensiMingguan,
                     'persentase_kehadiran' => $persentase
                 ];

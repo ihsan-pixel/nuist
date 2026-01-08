@@ -28,6 +28,7 @@
                             <tr>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
+                                <th rowspan="2" class="text-center align-middle">Jumlah Tenaga Pendidik</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
                                 <th colspan="2" class="text-center">Senin</th>
                                 <th colspan="2" class="text-center">Selasa</th>
@@ -53,6 +54,7 @@
                             <tr>
                                 <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
                                 <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
+                                <td class="text-center">{{ $madrasah['jumlah_tenaga_pendidik'] }}</td>
                                 <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
                                 @foreach($madrasah['presensi'] as $presensi)
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
