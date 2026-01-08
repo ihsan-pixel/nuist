@@ -18,9 +18,9 @@ if ($hour >= 0 && $hour <= 11) {
 } elseif ($hour >= 15 && $hour <= 17) {
     $congrat = 'Selamat Sore ';
 } elseif ($hour >= 17 && $hour <= 18) {
-    $congrat = 'Selamat Petangg ';
+    $congrat = 'Selamat Petang ';
 } elseif ($hour >= 19 && $hour <= 23) {
-    $congrat = 'Selamat Malam ';
+    $congrat = 'Selamat Malamm ';
 }
 
 // Calculate progress color from red to bright green based on percentage
