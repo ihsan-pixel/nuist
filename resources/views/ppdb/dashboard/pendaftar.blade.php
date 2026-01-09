@@ -519,6 +519,17 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('warning'))
+<script>
+Swal.fire({
+    icon: 'warning',
+    title: 'Tidak Ada Pendaftar',
+    text: '{{ session("warning") }}',
+    confirmButtonText: 'OK'
+});
+</script>
+@endif
 <script>
 function showDetail(pendaftarId) {
     // Load detail content via AJAX
@@ -570,26 +581,23 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
 });
 
 function exportToExcel() {
-    const confirmed = confirm('Apakah Anda ingin mengexport data pendaftar ke Excel?');
-    if (confirmed) {
-        // Create form and submit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ route("ppdb.sekolah.export") }}';
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("ppdb.sekolah.export") }}';
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = csrfToken.getAttribute('content');
-            form.appendChild(csrfInput);
-        }
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken.getAttribute('content');
+        form.appendChild(csrfInput);
     }
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
 }
 
 function resetFilters() {

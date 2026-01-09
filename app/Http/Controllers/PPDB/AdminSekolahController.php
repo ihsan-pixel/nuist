@@ -8,6 +8,7 @@ use App\Models\PPDBPendaftar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminSekolahController extends Controller
 {
@@ -230,7 +231,7 @@ class AdminSekolahController extends Controller
     }
 
     /**
-     * Halaman export data pendaftar
+     * Export data pendaftar ke Excel
      */
     public function export()
     {
@@ -251,6 +252,14 @@ class AdminSekolahController extends Controller
 
         $pendaftars = $ppdbSetting->pendaftars()->get();
 
-        return view('ppdb.dashboard.export', compact('pendaftars', 'ppdbSetting'));
+        // Jika tidak ada data pendaftar, kembali dengan pesan peringatan
+        if ($pendaftars->isEmpty()) {
+            return redirect()->back()->with('warning', 'Tidak ada pendaftar yang masuk untuk sekolah ini.');
+        }
+
+        // Export ke Excel
+        $fileName = 'data_pendaftar_' . $ppdbSetting->nama_sekolah . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new \App\Exports\PPDBPendaftarExport($ppdbSetting), $fileName);
     }
 }
