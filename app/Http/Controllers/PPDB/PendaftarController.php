@@ -10,6 +10,8 @@ use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PPDBRegistrationConfirmation;
 
 class PendaftarController extends Controller
 {
@@ -299,6 +301,14 @@ class PendaftarController extends Controller
             }
 
             $pendaftar = PPDBPendaftar::create($dataPendaftar);
+
+            // Kirim email konfirmasi pendaftaran
+            try {
+                Mail::to($pendaftar->ppdb_email_siswa)->send(new PPDBRegistrationConfirmation($pendaftar));
+            } catch (\Exception $e) {
+                // Log error jika pengiriman email gagal, tapi jangan hentikan proses pendaftaran
+                \Log::error('Gagal mengirim email konfirmasi PPDB: ' . $e->getMessage());
+            }
 
             return redirect()->route('ppdb.sekolah', $slug)
                 ->with('success', "✅ Pendaftaran berhasil! Nomor pendaftaran Anda: <strong>{$pendaftar->nomor_pendaftaran}</strong>");
