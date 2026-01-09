@@ -420,7 +420,7 @@ Route::middleware(['auth', 'role:super_admin,admin'])->prefix('ppdb/lp')->group(
     Route::put('/jalur/{jalurId}', [AdminLPController::class, 'updateJalur'])->name('ppdb.lp.update-jalur');
     Route::delete('/jalur/{jalurId}', [AdminLPController::class, 'deleteJalur'])->name('ppdb.lp.delete-jalur');
     Route::get('/pendaftar/{slug}', [AdminLPController::class, 'pendaftar'])->name('ppdb.lp.pendaftar');
-    Route::get('/pendaftar/{slug}/export', [AdminLPController::class, 'export'])->name('ppdb.lp.export');
+    Route::get('/pendaftar/{madrasahId}/export', [AdminLPController::class, 'export'])->name('ppdb.lp.export');
     Route::get('/pendaftar-detail/{id}', [AdminLPController::class, 'showPendaftarDetail'])->name('ppdb.lp.pendaftar-detail');
     Route::post('/pendaftar/{id}/update-status', [AdminLPController::class, 'updateStatus'])->name('ppdb.lp.update-status');
 });

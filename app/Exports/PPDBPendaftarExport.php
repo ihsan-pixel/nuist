@@ -9,11 +9,11 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class PPDBPendaftarExport implements FromCollection, WithHeadings
 {
-    protected $ppdbSetting;
+    protected $pendaftars;
 
-    public function __construct($ppdbSetting)
+    public function __construct($pendaftars)
     {
-        $this->ppdbSetting = $ppdbSetting;
+        $this->pendaftars = $pendaftars;
     }
 
     public function headings(): array

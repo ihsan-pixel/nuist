@@ -209,7 +209,7 @@
                 function exportToExcel() {
                     @if($userRole === 'super_admin' || $userRole === 'admin')
                         // For LP admin, use the LP export route
-                        window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->slug) }}';
+                        window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->sekolah_id) }}';
                     @else
                         // For school admin, use the school export route
                         window.location.href = '{{ route("ppdb.sekolah.export") }}';

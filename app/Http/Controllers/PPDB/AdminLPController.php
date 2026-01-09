@@ -664,13 +664,13 @@ class AdminLPController extends Controller
     /**
      * Export data pendaftar ke Excel untuk LP
      */
-    public function export($slug)
+    public function export($madrasahId)
     {
-        $ppdbSetting = PPDBSetting::where('slug', $slug)
-            ->where('tahun', now()->year)
-            ->firstOrFail();
+        $madrasah = Madrasah::findOrFail($madrasahId);
 
-        $pendaftars = $ppdbSetting->pendaftars()->get();
+        $pendaftars = PPDBPendaftar::whereHas('ppdbSetting', function($query) use ($madrasahId) {
+            $query->where('sekolah_id', $madrasahId);
+        })->with('ppdbSetting.sekolah', 'ppdbJalur')->orderBy('created_at', 'desc')->get();
 
         // Jika tidak ada data pendaftar, kembali dengan pesan peringatan
         if ($pendaftars->isEmpty()) {
@@ -678,8 +678,8 @@ class AdminLPController extends Controller
         }
 
         // Export ke Excel
-        $fileName = 'data_pendaftar_' . $ppdbSetting->nama_sekolah . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        $fileName = 'data_pendaftar_' . $madrasah->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
 
-        return Excel::download(new \App\Exports\PPDBPendaftarExport($ppdbSetting), $fileName);
+        return Excel::download(new \App\Exports\PPDBPendaftarExport($pendaftars), $fileName);
     }
 }
