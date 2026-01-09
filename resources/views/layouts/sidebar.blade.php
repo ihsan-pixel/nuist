@@ -182,7 +182,7 @@
                             }
                         @endphp
                         <li><a href="{{ route('ppdb.lp.pendaftar', $slug) }}">Pendaftar</a></li>
-                        <li><a href="{{ route('ppdb.sekolah.dashboard') }}">Pengaturan</a></li>
+                        <li><a href="{{ route('ppdb.lp.ppdb-settings', auth()->user()->madrasah_id) }}">Pengaturan</a></li>
                         <li><a href="{{ route('ppdb.lp.edit', auth()->user()->madrasah_id) }}">Edit Profile PPDB</a></li>
                         {{-- <li><a href="{{ route('ppdb.lp.dashboard') }}">Dashboard LP</a></li> --}}
                     </ul>
