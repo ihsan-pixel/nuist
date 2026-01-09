@@ -662,6 +662,21 @@ class AdminLPController extends Controller
     }
 
     /**
+     * Check if there are pendaftar for a madrasah
+     */
+    public function checkPendaftar($madrasahId)
+    {
+        $count = PPDBPendaftar::whereHas('ppdbSetting', function($query) use ($madrasahId) {
+            $query->where('sekolah_id', $madrasahId);
+        })->count();
+
+        return response()->json([
+            'has_data' => $count > 0,
+            'count' => $count
+        ]);
+    }
+
+    /**
      * Export data pendaftar ke Excel untuk LP
      */
     public function export($madrasahId)
@@ -672,12 +687,7 @@ class AdminLPController extends Controller
             $query->where('sekolah_id', $madrasahId);
         })->with('ppdbSetting.sekolah', 'ppdbJalur')->orderBy('created_at', 'desc')->get();
 
-        // Jika tidak ada data pendaftar, kembali dengan pesan peringatan
-        if ($pendaftars->isEmpty()) {
-            return redirect()->back()->with('warning', 'Tidak ada pendaftar yang masuk untuk sekolah ini.');
-        }
-
-        // Export ke Excel
+        // Export ke Excel (will be empty if no data, but that's fine)
         $fileName = 'data_pendaftar_' . $madrasah->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
 
         return Excel::download(new \App\Exports\PPDBPendaftarExport($pendaftars), $fileName);

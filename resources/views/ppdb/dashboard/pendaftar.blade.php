@@ -208,8 +208,20 @@
             <script>
                 function exportToExcel() {
                     @if($userRole === 'super_admin' || $userRole === 'admin')
-                        // For LP admin, use the LP export route
-                        window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->sekolah_id) }}';
+                        // For LP admin, check if data exists first
+                        fetch('{{ route("ppdb.lp.check-pendaftar", $ppdbSetting->sekolah_id) }}')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.has_data) {
+                                    window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->sekolah_id) }}';
+                                } else {
+                                    alert('Tidak ada data pendaftar yang tersedia untuk diekspor.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Terjadi kesalahan saat memeriksa data pendaftar.');
+                            });
                     @else
                         // For school admin, use the school export route
                         window.location.href = '{{ route("ppdb.sekolah.export") }}';
