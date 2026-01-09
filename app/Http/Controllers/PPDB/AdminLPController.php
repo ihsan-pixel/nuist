@@ -660,4 +660,26 @@ class AdminLPController extends Controller
             'message' => 'Status berhasil diupdate'
         ]);
     }
+
+    /**
+     * Export data pendaftar ke Excel untuk LP
+     */
+    public function export($slug)
+    {
+        $ppdbSetting = PPDBSetting::where('slug', $slug)
+            ->where('tahun', now()->year)
+            ->firstOrFail();
+
+        $pendaftars = $ppdbSetting->pendaftars()->get();
+
+        // Jika tidak ada data pendaftar, kembali dengan pesan peringatan
+        if ($pendaftars->isEmpty()) {
+            return redirect()->back()->with('warning', 'Tidak ada pendaftar yang masuk untuk sekolah ini.');
+        }
+
+        // Export ke Excel
+        $fileName = 'data_pendaftar_' . $ppdbSetting->nama_sekolah . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new \App\Exports\PPDBPendaftarExport($ppdbSetting), $fileName);
+    }
 }

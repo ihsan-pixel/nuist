@@ -205,6 +205,17 @@
             <button onclick="exportToExcel()" class="btn btn-success">
                 <i class="mdi mdi-download me-1"></i>Export Excel
             </button>
+            <script>
+                function exportToExcel() {
+                    @if($userRole === 'super_admin' || $userRole === 'admin')
+                        // For LP admin, use the LP export route
+                        window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->slug) }}';
+                    @else
+                        // For school admin, use the school export route
+                        window.location.href = '{{ route("ppdb.sekolah.export") }}';
+                    @endif
+                }
+            </script>
         </div>
     </div>
 
