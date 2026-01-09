@@ -302,11 +302,13 @@
                         </h2>
                         <p class="mb-0 opacity-75">Lengkapi informasi profil {{ $ppdbSetting->nama_sekolah }}</p>
                     </div>
+                    @if($userRole === 'super_admin')
                     <div class="col-lg-4 text-lg-end">
                         <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-light">
                             <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
                         </a>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

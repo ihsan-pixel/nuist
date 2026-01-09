@@ -11,9 +11,11 @@
             </h2>
             <p class="text-muted mb-0">Konfigurasi pengaturan PPDB untuk {{ $madrasah->name }}</p>
         </div>
+        @if($userRole === 'super_admin')
         <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-secondary">
             <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
         </a>
+        @endif
     </div>
 
     <!-- Success/Error Messages -->
