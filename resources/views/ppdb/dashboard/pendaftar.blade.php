@@ -191,9 +191,11 @@
             <p class="text-muted mb-0">{{ $ppdbSetting->nama_sekolah }} - Tahun {{ $ppdbSetting->tahun }}</p>
         </div>
         <div class="d-flex gap-2">
+            @if($userRole === 'super_admin')
             <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left me-1"></i>Kembali
             </a>
+            @endif
             {{-- <a href="{{ route('chat.index') }}" class="btn btn-info">
                 <i class="mdi mdi-chat me-1"></i>Live Chat
             </a> --}}
