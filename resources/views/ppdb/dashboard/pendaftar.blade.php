@@ -215,7 +215,7 @@
                                 if (data.has_data) {
                                     window.location.href = '{{ route("ppdb.lp.export", $ppdbSetting->sekolah_id) }}';
                                 } else {
-                                    alert('Tidak ada data pendaftar yang tersedia untuk diekspor.');
+                                    alert('Peringatan: Data pendaftar tidak tersedia untuk diekspor.');
                                 }
                             })
                             .catch(error => {
