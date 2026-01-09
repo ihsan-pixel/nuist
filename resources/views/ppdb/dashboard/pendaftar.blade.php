@@ -581,23 +581,8 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
 });
 
 function exportToExcel() {
-    // Create form and submit
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("ppdb.sekolah.export") }}';
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken.getAttribute('content');
-        form.appendChild(csrfInput);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    // Direct redirect to export URL (GET request)
+    window.location.href = '{{ route("ppdb.sekolah.export") }}';
 }
 
 function resetFilters() {
