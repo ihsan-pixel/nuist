@@ -34,6 +34,9 @@ class Simfoni extends Model
         'nomor_sk_pertama',
         'nomor_sertifikasi_pendidik',
         'riwayat_kerja_sebelumnya',
+        'pernah_mendaftar_pppk',
+        'tahun_mendaftar_pppk',
+        'formasi',
 
         // C. KEAHLIAN DAN DATA LAIN
         'keahlian',

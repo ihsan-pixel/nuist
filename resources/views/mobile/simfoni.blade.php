@@ -567,6 +567,31 @@
                             <label>Riwayat Kerja Sebelumnya</label>
                             <textarea name="riwayat_kerja_sebelumnya" placeholder="Ceritakan pengalaman kerja sebelumnya...">{{ old('riwayat_kerja_sebelumnya', $simfoni->riwayat_kerja_sebelumnya ?? '') }}</textarea>
                         </div>
+
+                        <div class="form-group">
+                            <label>Pernah Mendaftar PPPK</label>
+                            <div style="display: flex; gap: 20px;">
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" name="pernah_mendaftar_pppk" value="1" {{ old('pernah_mendaftar_pppk', $simfoni->pernah_mendaftar_pppk ?? '') == '1' ? 'checked' : '' }} id="pppk_yes">
+                                    Iya
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="radio" name="pernah_mendaftar_pppk" value="0" {{ old('pernah_mendaftar_pppk', $simfoni->pernah_mendaftar_pppk ?? '') == '0' ? 'checked' : '' }} id="pppk_no">
+                                    Tidak
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row-2col" id="pppk_details" style="display: {{ old('pernah_mendaftar_pppk', $simfoni->pernah_mendaftar_pppk ?? '') == '1' ? 'grid' : 'none' }};">
+                            <div class="form-group">
+                                <label>Tahun Mendaftar PPPK</label>
+                                <input type="number" name="tahun_mendaftar_pppk" value="{{ old('tahun_mendaftar_pppk', $simfoni->tahun_mendaftar_pppk ?? '') }}" min="2000" max="2030" placeholder="2024">
+                            </div>
+                            <div class="form-group">
+                                <label>Formasi</label>
+                                <input type="text" name="formasi" value="{{ old('formasi', $simfoni->formasi ?? '') }}" placeholder="Formasi PPPK">
+                            </div>
+                        </div>
                     </div> <!-- /.section-content -->
                 </div> <!-- /.section-card -->
             </div> <!-- /.step-content -->
@@ -1403,6 +1428,26 @@
                 // Remove invalid characters except digits, &, space
                 this.value = this.value.replace(/[^0-9&\s]/g, '');
             });
+        }
+
+        // PPPK fields show/hide functionality
+        const pppkYes = document.getElementById('pppk_yes');
+        const pppkNo = document.getElementById('pppk_no');
+        const pppkDetails = document.getElementById('pppk_details');
+
+        function togglePppkDetails() {
+            if (pppkYes && pppkYes.checked) {
+                pppkDetails.style.display = 'grid';
+            } else {
+                pppkDetails.style.display = 'none';
+            }
+        }
+
+        if (pppkYes) {
+            pppkYes.addEventListener('change', togglePppkDetails);
+        }
+        if (pppkNo) {
+            pppkNo.addEventListener('change', togglePppkDetails);
         }
     });
 </script>

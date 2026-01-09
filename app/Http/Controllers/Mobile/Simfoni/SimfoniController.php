@@ -167,6 +167,9 @@ class SimfoniController extends Controller
             'nomor_sk_pertama' => 'required|string|max:100',
             'nomor_sertifikasi_pendidik' => 'nullable|string|max:100',
             'riwayat_kerja_sebelumnya' => 'nullable|string',
+            'pernah_mendaftar_pppk' => 'required|boolean',
+            'tahun_mendaftar_pppk' => 'nullable|required_if:pernah_mendaftar_pppk,1|integer|min:2000|max:2030',
+            'formasi' => 'nullable|required_if:pernah_mendaftar_pppk,1|string|max:255',
 
             // C. KEAHLIAN DAN DATA LAIN
             'keahlian' => 'nullable|string',
