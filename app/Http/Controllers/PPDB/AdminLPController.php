@@ -162,7 +162,9 @@ class AdminLPController extends Controller
             ->where('ketugasan', 'kepala madrasah/sekolah')
             ->first();
 
-        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru', 'jumlahFasilitas', 'jumlahJurusan', 'kepalaSekolah'));
+        $userRole = auth()->user()->role ?? null;
+
+        return view('ppdb.dashboard.lp-edit', compact('ppdbSetting', 'jumlahGuru', 'jumlahFasilitas', 'jumlahJurusan', 'kepalaSekolah', 'userRole'));
     }
 
     /**
