@@ -403,13 +403,14 @@ Route::prefix('ppdb')->group(function () {
 // ADMIN SEKOLAH
 Route::middleware(['auth', 'role:admin'])->prefix('ppdb/sekolah')->group(function () {
     Route::get('/dashboard', [AdminSekolahController::class, 'index'])->name('ppdb.sekolah.dashboard');
+    Route::get('/pendaftar', [AdminSekolahController::class, 'pendaftar'])->name('ppdb.sekolah.pendaftar');
     Route::get('/verifikasi', [AdminSekolahController::class, 'verifikasi'])->name('ppdb.sekolah.verifikasi');
     Route::get('/seleksi', [AdminSekolahController::class, 'seleksi'])->name('ppdb.sekolah.seleksi');
     Route::get('/export', [AdminSekolahController::class, 'export'])->name('ppdb.sekolah.export');
 });
 
 // ADMIN LP. MA'ARIF
-Route::middleware(['auth', 'role:super_admin'])->prefix('ppdb/lp')->group(function () {
+Route::middleware(['auth', 'role:super_admin,admin'])->prefix('ppdb/lp')->group(function () {
     Route::get('/dashboard', [AdminLPController::class, 'index'])->name('ppdb.lp.dashboard');
     Route::get('/edit/{id}', [AdminLPController::class, 'edit'])->name('ppdb.lp.edit');
     Route::put('/update/{id}', [AdminLPController::class, 'update'])->name('ppdb.lp.update');

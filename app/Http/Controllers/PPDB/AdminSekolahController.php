@@ -172,6 +172,58 @@ class AdminSekolahController extends Controller
     }
 
     /**
+     * Halaman data pendaftar untuk admin sekolah
+     */
+    public function pendaftar()
+    {
+        $user = Auth::user();
+        $sekolah = $user->sekolah;
+
+        if (!$sekolah) {
+            return redirect()->back()->with('error', 'Sekolah tidak ditemukan untuk akun Anda');
+        }
+
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
+            ->where('tahun', now()->year)
+            ->first();
+
+        if (!$ppdbSetting) {
+            return redirect()->back()->with('error', 'PPDB tidak ditemukan untuk sekolah Anda');
+        }
+
+        $pendaftars = $ppdbSetting->pendaftars()
+            ->with('ppdbJalur')
+            ->orderBy('skor_total', 'desc')
+            ->paginate(20);
+
+        // Hitung skor untuk setiap pendaftar dan simpan ke database
+        foreach ($pendaftars as $pendaftar) {
+            $pendaftar->hitungSkor();
+            $pendaftar->save();
+        }
+
+        // Ambil jalur-jalur yang unik dari data pendaftar melalui relasi ppdbJalur
+        $jalarList = $ppdbSetting->pendaftars()
+            ->with('ppdbJalur')
+            ->get()
+            ->pluck('ppdbJalur.nama_jalur')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        $statistik = [
+            'total' => $ppdbSetting->pendaftars()->count(),
+            'lulus' => $ppdbSetting->pendaftars()->where('status', 'lulus')->count(),
+            'tidak_lulus' => $ppdbSetting->pendaftars()->where('status', 'tidak_lulus')->count(),
+            'pending' => $ppdbSetting->pendaftars()->where('status', 'pending')->count(),
+            'verifikasi' => $ppdbSetting->pendaftars()->where('status', 'verifikasi')->count(),
+        ];
+
+        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik', 'jalarList'));
+    }
+
+    /**
      * Halaman export data pendaftar
      */
     public function export()

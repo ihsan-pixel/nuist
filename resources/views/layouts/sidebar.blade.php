@@ -167,7 +167,7 @@
                         <span>PPDB</span>
                     </a>
                     <ul class="sub-menu collapse" id="ppdbSubmenu">
-                        <li><a href="{{ route('ppdb.sekolah.verifikasi') }}">Pendaftar</a></li>
+                        <li><a href="{{ route('ppdb.sekolah.pendaftar') }}">Pendaftar</a></li>
                         <li><a href="{{ route('ppdb.sekolah.dashboard') }}">Pengaturan</a></li>
                         <li><a href="{{ route('ppdb.lp.edit', auth()->user()->madrasah_id) }}">Edit Profile PPDB</a></li>
                     </ul>
