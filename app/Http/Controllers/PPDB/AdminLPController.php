@@ -628,7 +628,9 @@ class AdminLPController extends Controller
             'verifikasi' => $ppdbSetting->pendaftars()->where('status', 'verifikasi')->count(),
         ];
 
-        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik', 'jalarList'));
+        $userRole = auth()->user()->role ?? null;
+
+        return view('ppdb.dashboard.pendaftar', compact('ppdbSetting', 'pendaftars', 'statistik', 'jalarList', 'userRole'));
     }
 
     /**
