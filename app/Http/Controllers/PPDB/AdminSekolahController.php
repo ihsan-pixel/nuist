@@ -7,6 +7,7 @@ use App\Models\PPDBSetting;
 use App\Models\PPDBPendaftar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AdminSekolahController extends Controller
 {
@@ -180,16 +181,21 @@ class AdminSekolahController extends Controller
         $sekolah = $user->sekolah;
 
         if (!$sekolah) {
-            return redirect()->back()->with('error', 'Sekolah tidak ditemukan untuk akun Anda');
+            return redirect()->route('ppdb.lp.dashboard')->with('info', 'Sekolah tidak ditemukan untuk akun Anda. Silakan hubungi administrator.');
         }
 
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $sekolah->id)
-            ->where('tahun', now()->year)
-            ->first();
-
-        if (!$ppdbSetting) {
-            return redirect()->back()->with('error', 'PPDB tidak ditemukan untuk sekolah Anda');
-        }
+        // Get or create PPDB setting for current year
+        $tahun = now()->year;
+        $ppdbSetting = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $sekolah->id,
+                'tahun' => $tahun
+            ],
+            [
+                'slug' => Str::slug($sekolah->name . '-' . $sekolah->id . '-' . $tahun),
+                'nama_sekolah' => $sekolah->name
+            ]
+        );
 
         $pendaftars = $ppdbSetting->pendaftars()
             ->with('ppdbJalur')
