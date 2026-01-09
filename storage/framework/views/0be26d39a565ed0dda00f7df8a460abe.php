@@ -121,6 +121,7 @@
                     <ul class="sub-menu collapse" id="presensiAdminSubmenu">
                         <li><a href="<?php echo e(route('presensi_admin.settings')); ?>">Pengaturan Presensi</a></li>
                         <li><a href="<?php echo e(route('presensi_admin.index')); ?>">Data Presensi</a></li>
+                        <li><a href="<?php echo e(route('presensi_admin.laporan_mingguan')); ?>">Laporan</a></li>
                     </ul>
                 </li>
                 <?php elseif($userRole === 'admin'): ?>
@@ -141,6 +142,37 @@
                 <?php
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 ?>
+
+                <?php if($userRole === 'admin'): ?>
+                <li class="menu-title">PPDB</li>
+
+                <li>
+                    <a href="#ppdbSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-file"></i>
+                        <span>PPDB</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="ppdbSubmenu">
+                        <?php
+                            $tahun = now()->year;
+                            $ppdbSetting = \App\Models\PPDBSetting::where('sekolah_id', auth()->user()->madrasah_id)
+                                ->where('tahun', $tahun)
+                                ->first();
+
+                            if ($ppdbSetting) {
+                                $slug = $ppdbSetting->slug;
+                            } else {
+                                $madrasah = \App\Models\Madrasah::find(auth()->user()->madrasah_id);
+                                $madrasahName = $madrasah ? $madrasah->name : 'madrasah-' . auth()->user()->madrasah_id;
+                                $slug = \Illuminate\Support\Str::slug($madrasahName . '-' . auth()->user()->madrasah_id . '-' . $tahun);
+                            }
+                        ?>
+                        <li><a href="<?php echo e(route('ppdb.lp.pendaftar', $slug)); ?>">Pendaftar</a></li>
+                        <li><a href="<?php echo e(route('ppdb.lp.ppdb-settings', auth()->user()->madrasah_id)); ?>">Pengaturan</a></li>
+                        <li><a href="<?php echo e(route('ppdb.lp.edit', auth()->user()->madrasah_id)); ?>">Edit Profile PPDB</a></li>
+                        
+                    </ul>
+                </li>
+                <?php endif; ?>
 
                 <?php if(in_array($userRole, ['super_admin', 'pengurus'])): ?>
 
@@ -183,6 +215,15 @@
                         <span>Pengguna Aktif</span>
                     </a>
                 </li>
+
+                <?php if($userRole === 'super_admin'): ?>
+                <li>
+                    <a href="<?php echo e(route('admin.simfoni.index')); ?>" class="waves-effect">
+                        <i class="bx bx-data"></i>
+                        <span>Simfoni</span>
+                    </a>
+                </li>
+                <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if($userRole === 'super_admin'): ?>

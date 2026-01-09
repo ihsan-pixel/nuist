@@ -10,6 +10,7 @@ use App\Models\Madrasah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PPDBRegistrationConfirmation;
 
@@ -293,7 +294,7 @@ class PendaftarController extends Controller
             // skor_nilai akan diisi nanti oleh admin saat seleksi
 
             // Cek dan tambahkan field yang ada di schema database, kecuali skor_nilai
-            $tableColumns = \Schema::getColumnListing('ppdb_pendaftar');
+            $tableColumns = Schema::getColumnListing('ppdb_pendaftar');
             foreach ($optionalFields as $field => $value) {
                 if (in_array($field, $tableColumns) && $field !== 'skor_nilai') {
                     $dataPendaftar[$field] = $value;

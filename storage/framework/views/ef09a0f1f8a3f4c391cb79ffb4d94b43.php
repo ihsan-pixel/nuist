@@ -65,7 +65,7 @@
 <?php echo $__env->yieldContent('script'); ?>   
 
 <!-- App JS utama -->
-
+<script src="<?php echo e(asset('build/js/app.js')); ?>"></script>
 
 <!-- Script tambahan di paling bawah (jika ada) -->
 <?php echo $__env->yieldContent('script-bottom'); ?>
