@@ -172,7 +172,7 @@
                             $ppdbSetting = \App\Models\PPDBSetting::where('sekolah_id', auth()->user()->madrasah_id)
                                 ->where('tahun', $tahun)
                                 ->first();
-                            $slug = $ppdbSetting ? $ppdbSetting->slug : '';
+                            $slug = $ppdbSetting ? $ppdbSetting->slug : \Illuminate\Support\Str::slug(\App\Models\Madrasah::find(auth()->user()->madrasah_id)->name . '-' . auth()->user()->madrasah_id . '-' . $tahun);
                         @endphp
                         <li><a href="{{ route('ppdb.lp.pendaftar', $slug) }}">Pendaftar</a></li>
                         <li><a href="{{ route('ppdb.sekolah.dashboard') }}">Pengaturan</a></li>
