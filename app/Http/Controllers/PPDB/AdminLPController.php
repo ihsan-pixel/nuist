@@ -534,7 +534,9 @@ class AdminLPController extends Controller
             ->where('tahun', $tahun)
             ->first();
 
-        return view('ppdb.dashboard.ppdb-settings', compact('madrasah', 'ppdbSetting'));
+        $userRole = auth()->user()->role ?? null;
+
+        return view('ppdb.dashboard.ppdb-settings', compact('madrasah', 'ppdbSetting', 'userRole'));
     }
 
     /**
