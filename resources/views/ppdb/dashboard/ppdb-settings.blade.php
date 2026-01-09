@@ -58,8 +58,7 @@
                         </select>
                         <div class="status-indicator status-{{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') }}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></div>
                         <small class="text-muted">Status akan berubah otomatis berdasarkan jadwal</small>
-                        @if(old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') == 'buka')
-                            <div class="mt-3 p-3 bg-light rounded border">
+                        <div class="mt-3 p-3 bg-light rounded border {{ old('ppdb_status', $ppdbSetting->ppdb_status ?? 'tutup') != 'buka' ? 'd-none' : '' }}" id="ppdb-link-qr-section">
                                 <div class="row align-items-center">
                                     <div class="col-md-8 text-center">
                                         <label class="form-label fw-semibold mb-2 text-center">Link PPDB:</label>
@@ -95,7 +94,7 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                     @error('ppdb_status')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -347,6 +346,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle PPDB status change to show/hide link and QR section
+    const ppdbStatusSelect = document.getElementById('ppdb_status');
+    const linkQrSection = document.getElementById('ppdb-link-qr-section');
+
+    if (ppdbStatusSelect && linkQrSection) {
+        ppdbStatusSelect.addEventListener('change', function() {
+            if (this.value === 'buka') {
+                linkQrSection.classList.remove('d-none');
+            } else {
+                linkQrSection.classList.add('d-none');
+            }
+        });
+    }
+
     // Array input management
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('add-array-item') || e.target.closest('.add-array-item')) {
