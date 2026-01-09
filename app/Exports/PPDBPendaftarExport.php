@@ -53,12 +53,7 @@ class PPDBPendaftarExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        $pendaftars = $this->ppdbSetting->pendaftars()
-            ->with('ppdbJalur')
-            ->orderBy('skor_total', 'desc')
-            ->get();
-
-        return $pendaftars->map(function ($pendaftar, $index) {
+        return $this->pendaftars->map(function ($pendaftar, $index) {
             return [
                 'No Pendaftaran' => $pendaftar->nomor_pendaftaran,
                 'Nama Lengkap' => $pendaftar->nama_lengkap,
