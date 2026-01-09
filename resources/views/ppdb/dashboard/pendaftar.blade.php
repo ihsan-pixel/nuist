@@ -194,6 +194,9 @@
             <a href="{{ route('ppdb.lp.dashboard') }}" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left me-1"></i>Kembali
             </a>
+            <a href="{{ route('chat.index') }}" class="btn btn-info">
+                <i class="mdi mdi-chat me-1"></i>Live Chat
+            </a>
             <button onclick="window.print()" class="btn btn-outline-primary">
                 <i class="mdi mdi-printer me-1"></i>Cetak
             </button>

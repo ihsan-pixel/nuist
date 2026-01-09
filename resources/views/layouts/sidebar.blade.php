@@ -158,6 +158,22 @@
                     \Log::info('Sidebar PresensiAdmin isAllowed: ' . ($isAllowed ? 'true' : 'false'));
                 @endphp
 
+                @if($userRole === 'admin')
+                <li class="menu-title">PPDB</li>
+
+                <li>
+                    <a href="#ppdbSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-file"></i>
+                        <span>PPDB</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="ppdbSubmenu">
+                        <li><a href="{{ route('ppdb.sekolah.verifikasi') }}">Pendaftar</a></li>
+                        <li><a href="{{ route('ppdb.sekolah.dashboard') }}">Pengaturan</a></li>
+                        <li><a href="{{ route('ppdb.lp.edit', auth()->user()->madrasah_id) }}">Edit Profile PPDB</a></li>
+                    </ul>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
 
                 <li class="menu-title">PPDB</li>
