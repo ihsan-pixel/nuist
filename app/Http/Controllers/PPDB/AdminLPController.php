@@ -127,11 +127,18 @@ class AdminLPController extends Controller
      */
     public function edit($id)
     {
-        // Get PPDB setting for current year
+        // Get PPDB setting for current year, create if doesn't exist
         $tahun = now()->year;
-        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
-            ->where('tahun', $tahun)
-            ->firstOrFail();
+        $ppdbSetting = PPDBSetting::firstOrCreate(
+            [
+                'sekolah_id' => $id,
+                'tahun' => $tahun
+            ],
+            [
+                'slug' => Str::slug(Madrasah::find($id)->name . '-' . $id . '-' . $tahun),
+                'nama_sekolah' => Madrasah::find($id)->name
+            ]
+        );
 
         // Hitung jumlah guru dari tenaga pendidik
         $jumlahGuru = $ppdbSetting->sekolah->tenagaPendidikUsers()->count();
