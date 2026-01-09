@@ -172,12 +172,19 @@
                             $ppdbSetting = \App\Models\PPDBSetting::where('sekolah_id', auth()->user()->madrasah_id)
                                 ->where('tahun', $tahun)
                                 ->first();
-                            $slug = $ppdbSetting ? $ppdbSetting->slug : \Illuminate\Support\Str::slug(\App\Models\Madrasah::find(auth()->user()->madrasah_id)->name . '-' . auth()->user()->madrasah_id . '-' . $tahun);
+
+                            if ($ppdbSetting) {
+                                $slug = $ppdbSetting->slug;
+                            } else {
+                                $madrasah = \App\Models\Madrasah::find(auth()->user()->madrasah_id);
+                                $madrasahName = $madrasah ? $madrasah->name : 'madrasah-' . auth()->user()->madrasah_id;
+                                $slug = \Illuminate\Support\Str::slug($madrasahName . '-' . auth()->user()->madrasah_id . '-' . $tahun);
+                            }
                         @endphp
                         <li><a href="{{ route('ppdb.lp.pendaftar', $slug) }}">Pendaftar</a></li>
                         <li><a href="{{ route('ppdb.sekolah.dashboard') }}">Pengaturan</a></li>
                         <li><a href="{{ route('ppdb.lp.edit', auth()->user()->madrasah_id) }}">Edit Profile PPDB</a></li>
-                        <li><a href="{{ route('ppdb.lp.dashboard') }}">Dashboard LP</a></li>
+                        {{-- <li><a href="{{ route('ppdb.lp.dashboard') }}">Dashboard LP</a></li> --}}
                     </ul>
                 </li>
                 @endif
