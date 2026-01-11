@@ -3,6 +3,15 @@
 <?php $__env->startSection('content'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('css/mobile/laporan-akhir-tahun-create.css')); ?>">
 
+<style>
+    body {
+    background: #f8f9fb url('/images/bg.png') no-repeat center center;
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+}
+</style>
+
 <!-- Header -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
     <button onclick="window.location.href='<?php echo e(route('mobile.laporan-akhir-tahun.index')); ?>'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
