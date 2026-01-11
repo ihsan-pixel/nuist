@@ -12,4 +12,7 @@
 <!-- App js -->
 <script src="{{ asset('build/js/plugin.js') }}"></script>
 
+<!-- Laporan Akhir Tahun Create Styles -->
+<link href="{{ asset('css/mobile/laporan-akhir-tahun-create.css') }}" rel="stylesheet" type="text/css" />
+
 @stack('css')

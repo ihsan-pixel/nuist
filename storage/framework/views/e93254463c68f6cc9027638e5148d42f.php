@@ -12,5 +12,8 @@
 <!-- App js -->
 <script src="<?php echo e(asset('build/js/plugin.js')); ?>"></script>
 
+<!-- Laporan Akhir Tahun Create Styles -->
+<link href="<?php echo e(asset('css/mobile/laporan-akhir-tahun-create.css')); ?>" rel="stylesheet" type="text/css" />
+
 <?php echo $__env->yieldPushContent('css'); ?>
 <?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/layouts/head-css.blade.php ENDPATH**/ ?>
