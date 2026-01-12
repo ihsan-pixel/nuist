@@ -206,8 +206,8 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => 'required|date',
             'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => 'required|string|max:255',
-            'nama_madrasah' => 'required|string|max:255',
-            'alamat_madrasah' => 'required|string',
+            'nama_madrasah' => 'nullable|string|max:255',
+            'alamat_madrasah' => 'nullable|string',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
@@ -549,8 +549,8 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_pertama' => 'required|date',
             'tmt_ks_kamad_terakhir' => 'required|date',
             'nama_kepala_sekolah' => 'required|string|max:255',
-            'nama_madrasah' => 'required|string|max:255',
-            'alamat_madrasah' => 'required|string',
+            'nama_madrasah' => 'nullable|string|max:255',
+            'alamat_madrasah' => 'nullable|string',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
