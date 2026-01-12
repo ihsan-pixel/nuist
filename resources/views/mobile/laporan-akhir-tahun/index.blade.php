@@ -30,6 +30,9 @@
 <!-- Main Container -->
 <div class="form-container">
     <!-- Success Alert will be shown via SweetAlert -->
+    @if (session('success'))
+        <div id="success-message" data-message="{{ session('success') }}" style="display: none;"></div>
+    @endif
 
     <!-- Info Alert -->
     @if (session('info'))

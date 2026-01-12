@@ -29,11 +29,9 @@
 
 <!-- Form Container -->
 <div class="form-container">
-    <!-- Success Alert -->
+    <!-- Success Alert will be shown via SweetAlert -->
     @if (session('success'))
-        <div class="success-alert">
-            ✓ {{ session('success') }}
-        </div>
+        <div id="success-message" data-message="{{ session('success') }}" style="display: none;"></div>
     @endif
 
     <!-- Auto-save Indicator -->
@@ -981,4 +979,14 @@
 @endsection
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            confirmButtonText: 'OK'
+        });
+    @endif
+</script>
 <script src="{{ asset('js/mobile/laporan-akhir-tahun-create.js') }}"></script>
