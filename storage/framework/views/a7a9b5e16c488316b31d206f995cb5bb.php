@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Buat Laporan Akhir Tahun'); ?>
+<?php $__env->startSection('title', 'Edit Laporan Akhir Tahun'); ?>
 
 <?php $__env->startSection('content'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('css/mobile/laporan-akhir-tahun-create.css')); ?>">
@@ -21,7 +21,7 @@
 </div>
 
 <div class="simfoni-header" style="margin-top: -10px;">
-    <h4>LAPORAN AKHIR TAHUN</h4>
+    <h4>EDIT LAPORAN AKHIR TAHUN</h4>
     <p>Kepala Sekolah/Madrasah</p>
 </div>
 
@@ -35,10 +35,7 @@
         </div>
     <?php endif; ?>
 
-    <!-- Auto-save Indicator -->
-    <div id="auto-save-indicator" class="auto-save-indicator" style="display: none;">
-        <i class="bx bx-save"></i> Draft tersimpan
-    </div>
+
 
     <!-- Error Messages -->
     <?php if($errors->any()): ?>
@@ -62,14 +59,15 @@
         </div>
     </div>
 
-    <form action="<?php echo e(route('mobile.laporan-akhir-tahun.store')); ?>" method="POST">
+    <form action="<?php echo e(route('mobile.laporan-akhir-tahun.update', $laporan->id)); ?>" method="POST">
         <?php echo csrf_field(); ?>
+        <?php echo method_field('PUT'); ?>
 
         <!-- Hidden inputs for pre-filled required fields -->
-        <input type="hidden" name="tahun_pelaporan" value="<?php echo e($data['tahun_pelaporan']); ?>">
-        <input type="hidden" name="nama_kepala_sekolah" value="<?php echo e($data['nama_kepala_sekolah']); ?>">
-        <input type="hidden" name="nama_madrasah" value="<?php echo e($data['nama_madrasah']); ?>">
-        <input type="hidden" name="alamat_madrasah" value="<?php echo e($data['alamat_madrasah']); ?>">
+        <input type="hidden" name="tahun_pelaporan" value="<?php echo e($laporan->tahun_pelaporan); ?>">
+        <input type="hidden" name="nama_kepala_sekolah" value="<?php echo e($laporan->nama_kepala_sekolah); ?>">
+        <input type="hidden" name="nama_madrasah" value="<?php echo e($laporan->nama_madrasah); ?>">
+        <input type="hidden" name="alamat_madrasah" value="<?php echo e($laporan->alamat_madrasah); ?>">
 
         <!-- Step 1: A. IDENTITAS SATPEN -->
         <div class="step-content active" data-step="1">
@@ -84,7 +82,7 @@
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Satpen</label>
-                        <input type="text" name="nama_satpen" value="<?php echo e(old('nama_satpen', $data['nama_madrasah'] ?? '')); ?>" placeholder="Nama Satpen" required>
+                        <input type="text" name="nama_satpen" value="<?php echo e(old('nama_satpen', $laporan->nama_satpen)); ?>" placeholder="Nama Satpen" required>
                         <?php $__errorArgs = ['nama_satpen'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -99,7 +97,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Alamat</label>
-                        <textarea name="alamat" placeholder="Alamat lengkap" required><?php echo e(old('alamat', $data['alamat_madrasah'] ?? '')); ?></textarea>
+                        <textarea name="alamat" placeholder="Alamat lengkap" required><?php echo e(old('alamat', $laporan->alamat)); ?></textarea>
                         <?php $__errorArgs = ['alamat'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -114,7 +112,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Nama Kepala Sekolah/Madrasah</label>
-                        <input type="text" name="nama_kepala_sekolah_madrasah" value="<?php echo e(old('nama_kepala_sekolah_madrasah', $data['nama_kepala_sekolah'] ?? '')); ?>" placeholder="Nama Lengkap" required>
+                        <input type="text" name="nama_kepala_sekolah_madrasah" value="<?php echo e(old('nama_kepala_sekolah_madrasah', $laporan->nama_kepala_sekolah_madrasah)); ?>" placeholder="Nama Lengkap" required>
                         <?php $__errorArgs = ['nama_kepala_sekolah_madrasah'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -132,7 +130,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Gelar</label>
-                        <input type="text" name="gelar" value="<?php echo e(old('gelar', $data['gelar'] ?? '')); ?>" placeholder="S.Pd., M.Pd., dll" required>
+                        <input type="text" name="gelar" value="<?php echo e(old('gelar', $laporan->gelar)); ?>" placeholder="S.Pd., M.Pd., dll" required>
                         <?php $__errorArgs = ['gelar'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -147,7 +145,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TMT KS/Kamad Pertama</label>
-                        <input type="date" name="tmt_ks_kamad_pertama" value="<?php echo e(old('tmt_ks_kamad_pertama')); ?>" required>
+                        <input type="date" name="tmt_ks_kamad_pertama" value="<?php echo e(old('tmt_ks_kamad_pertama', $laporan->tmt_ks_kamad_pertama ? $laporan->tmt_ks_kamad_pertama->format('Y-m-d') : '')); ?>" required>
                         <?php $__errorArgs = ['tmt_ks_kamad_pertama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -162,7 +160,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TMT KS/Kamad Terakhir</label>
-                        <input type="date" name="tmt_ks_kamad_terakhir" value="<?php echo e(old('tmt_ks_kamad_terakhir')); ?>" required>
+                        <input type="date" name="tmt_ks_kamad_terakhir" value="<?php echo e(old('tmt_ks_kamad_terakhir', $laporan->tmt_ks_kamad_terakhir ? $laporan->tmt_ks_kamad_terakhir->format('Y-m-d') : '')); ?>" required>
                         <?php $__errorArgs = ['tmt_ks_kamad_terakhir'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -204,7 +202,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2023</label>
-                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023', $laporan->jumlah_siswa_2023)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -219,7 +217,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2024</label>
-                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024', $laporan->jumlah_siswa_2024)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -234,7 +232,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2025</label>
-                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025', $laporan->jumlah_siswa_2025)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -254,7 +252,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Persentase Alumni Bekerja/Melanjutkan</label>
                         <div class="input-with-symbol">
-                            <input type="text" name="persentase_alumni_bekerja" value="<?php echo e(old('persentase_alumni_bekerja')); ?>" placeholder="0.00" required>
+                            <input type="text" name="persentase_alumni_bekerja" value="<?php echo e(old('persentase_alumni_bekerja', $laporan->persentase_alumni_bekerja . '%')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
                         <?php $__errorArgs = ['persentase_alumni_bekerja'];
@@ -272,7 +270,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Persentase Alumni Wirausaha-Agamaawan</label>
                         <div class="input-with-symbol">
-                            <input type="text" name="persentase_alumni_wirausaha" value="<?php echo e(old('persentase_alumni_wirausaha')); ?>" placeholder="0.00" required>
+                            <input type="text" name="persentase_alumni_wirausaha" value="<?php echo e(old('persentase_alumni_wirausaha', $laporan->persentase_alumni_wirausaha . '%')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
                         <?php $__errorArgs = ['persentase_alumni_wirausaha'];
@@ -290,7 +288,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Persentase Alumni Tidak Terdeteksi</label>
                         <div class="input-with-symbol">
-                            <input type="text" name="persentase_alumni_tidak_terdeteksi" value="<?php echo e(old('persentase_alumni_tidak_terdeteksi')); ?>" placeholder="0.00" required>
+                            <input type="text" name="persentase_alumni_tidak_terdeteksi" value="<?php echo e(old('persentase_alumni_tidak_terdeteksi', $laporan->persentase_alumni_tidak_terdeteksi . '%')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
                         <?php $__errorArgs = ['persentase_alumni_tidak_terdeteksi'];
@@ -313,7 +311,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
-                        <input type="text" name="bosnas_2023" value="<?php echo e(old('bosnas_2023')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosnas_2023" value="<?php echo e(old('bosnas_2023', $laporan->bosnas_2023)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosnas_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -328,7 +326,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
-                        <input type="text" name="bosnas_2024" value="<?php echo e(old('bosnas_2024')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosnas_2024" value="<?php echo e(old('bosnas_2024', $laporan->bosnas_2024)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosnas_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -343,7 +341,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
-                        <input type="text" name="bosnas_2025" value="<?php echo e(old('bosnas_2025')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosnas_2025" value="<?php echo e(old('bosnas_2025', $laporan->bosnas_2025)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosnas_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -360,7 +358,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
-                        <input type="text" name="bosda_2023" value="<?php echo e(old('bosda_2023')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosda_2023" value="<?php echo e(old('bosda_2023', $laporan->bosda_2023)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosda_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -375,7 +373,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
-                        <input type="text" name="bosda_2024" value="<?php echo e(old('bosda_2024')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosda_2024" value="<?php echo e(old('bosda_2024', $laporan->bosda_2024)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosda_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -390,7 +388,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
-                        <input type="text" name="bosda_2025" value="<?php echo e(old('bosda_2025')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="bosda_2025" value="<?php echo e(old('bosda_2025', $laporan->bosda_2025)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['bosda_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -407,7 +405,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
-                        <input type="text" name="spp_bppp_lain_2023" value="<?php echo e(old('spp_bppp_lain_2023')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="spp_bppp_lain_2023" value="<?php echo e(old('spp_bppp_lain_2023', $laporan->spp_bppp_lain_2023)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['spp_bppp_lain_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -422,7 +420,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
-                        <input type="text" name="spp_bppp_lain_2024" value="<?php echo e(old('spp_bppp_lain_2024')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="spp_bppp_lain_2024" value="<?php echo e(old('spp_bppp_lain_2024', $laporan->spp_bppp_lain_2024)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['spp_bppp_lain_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -437,7 +435,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
-                        <input type="text" name="spp_bppp_lain_2025" value="<?php echo e(old('spp_bppp_lain_2025')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="spp_bppp_lain_2025" value="<?php echo e(old('spp_bppp_lain_2025', $laporan->spp_bppp_lain_2025)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['spp_bppp_lain_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -454,7 +452,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tahun 2023</label>
-                        <input type="text" name="pendapatan_unit_usaha_2023" value="<?php echo e(old('pendapatan_unit_usaha_2023')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="pendapatan_unit_usaha_2023" value="<?php echo e(old('pendapatan_unit_usaha_2023', $laporan->pendapatan_unit_usaha_2023)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['pendapatan_unit_usaha_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -469,7 +467,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tahun 2024</label>
-                        <input type="text" name="pendapatan_unit_usaha_2024" value="<?php echo e(old('pendapatan_unit_usaha_2024')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="pendapatan_unit_usaha_2024" value="<?php echo e(old('pendapatan_unit_usaha_2024', $laporan->pendapatan_unit_usaha_2024)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['pendapatan_unit_usaha_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -484,7 +482,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tahun 2025</label>
-                        <input type="text" name="pendapatan_unit_usaha_2025" value="<?php echo e(old('pendapatan_unit_usaha_2025')); ?>" placeholder="Rp 0" required>
+                        <input type="text" name="pendapatan_unit_usaha_2025" value="<?php echo e(old('pendapatan_unit_usaha_2025', $laporan->pendapatan_unit_usaha_2025)); ?>" placeholder="Rp 0" required>
                         <?php $__errorArgs = ['pendapatan_unit_usaha_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -505,10 +503,10 @@ unset($__errorArgs, $__bag); ?>
                         <label>Status Akreditasi</label>
                         <select name="status_akreditasi" required>
                             <option value="">Pilih Status</option>
-                            <option value="Belum" <?php echo e(old('status_akreditasi') == 'Belum' ? 'selected' : ''); ?>>Belum</option>
-                            <option value="C" <?php echo e(old('status_akreditasi') == 'C' ? 'selected' : ''); ?>>C</option>
-                            <option value="B" <?php echo e(old('status_akreditasi') == 'B' ? 'selected' : ''); ?>>B</option>
-                            <option value="A" <?php echo e(old('status_akreditasi') == 'A' ? 'selected' : ''); ?>>A</option>
+                            <option value="Belum" <?php echo e(old('status_akreditasi', $data['status_akreditasi']) == 'Belum' ? 'selected' : ''); ?>>Belum</option>
+                            <option value="C" <?php echo e(old('status_akreditasi', $data['status_akreditasi']) == 'C' ? 'selected' : ''); ?>>C</option>
+                            <option value="B" <?php echo e(old('status_akreditasi', $data['status_akreditasi']) == 'B' ? 'selected' : ''); ?>>B</option>
+                            <option value="A" <?php echo e(old('status_akreditasi', $data['status_akreditasi']) == 'A' ? 'selected' : ''); ?>>A</option>
                         </select>
                         <?php $__errorArgs = ['status_akreditasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -524,7 +522,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tanggal Akreditasi Mulai Berlaku</label>
-                        <input type="date" name="tanggal_akreditasi_mulai" value="<?php echo e(old('tanggal_akreditasi_mulai')); ?>" required>
+                        <input type="date" name="tanggal_akreditasi_mulai" value="<?php echo e(old('tanggal_akreditasi_mulai', $data['tanggal_akreditasi_mulai'])); ?>" required>
                         <?php $__errorArgs = ['tanggal_akreditasi_mulai'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -539,7 +537,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tanggal Akreditasi Berakhir</label>
-                        <input type="date" name="tanggal_akreditasi_berakhir" value="<?php echo e(old('tanggal_akreditasi_berakhir')); ?>" required>
+                        <input type="date" name="tanggal_akreditasi_berakhir" value="<?php echo e(old('tanggal_akreditasi_berakhir', $data['tanggal_akreditasi_berakhir'])); ?>" required>
                         <?php $__errorArgs = ['tanggal_akreditasi_berakhir'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -580,7 +578,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Model Layanan Pendidikan yang Diterapkan</label>
-                        <textarea name="model_layanan_pendidikan" placeholder="Jelaskan model layanan pendidikan yang diterapkan..." required><?php echo e(old('model_layanan_pendidikan')); ?></textarea>
+                        <textarea name="model_layanan_pendidikan" placeholder="Jelaskan model layanan pendidikan yang diterapkan..." required><?php echo e(old('model_layanan_pendidikan', $laporan->model_layanan_pendidikan)); ?></textarea>
                         <?php $__errorArgs = ['model_layanan_pendidikan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -595,7 +593,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Capaian Layanan yang Paling Menonjol</label>
-                        <textarea name="capaian_layanan_menonjol" placeholder="Jelaskan capaian layanan yang paling menonjol..." required><?php echo e(old('capaian_layanan_menonjol')); ?></textarea>
+                        <textarea name="capaian_layanan_menonjol" placeholder="Jelaskan capaian layanan yang paling menonjol..." required><?php echo e(old('capaian_layanan_menonjol', $laporan->capaian_layanan_menonjol)); ?></textarea>
                         <?php $__errorArgs = ['capaian_layanan_menonjol'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -610,7 +608,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah Layanan Utama Tahun Ini</label>
-                        <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required><?php echo e(old('masalah_layanan_utama')); ?></textarea>
+                        <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required><?php echo e(old('masalah_layanan_utama', $laporan->masalah_layanan_utama)); ?></textarea>
                         <?php $__errorArgs = ['masalah_layanan_utama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -638,7 +636,7 @@ unset($__errorArgs, $__bag); ?>
             </div>
         </div>
 
-        <!-- Step 5: D. SUMBER DAYA MANUSIA (SDM) -->
+        <!-- Step 4: D. SUMBER DAYA MANUSIA (SDM) -->
         <div class="step-content" data-step="4">
             <div class="section-card">
                 <div class="section-header">
@@ -656,7 +654,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>PNS Sertifikasi</label>
-                            <input type="number" name="pns_sertifikasi" value="<?php echo e(old('pns_sertifikasi', $data['pns_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="pns_sertifikasi" value="<?php echo e(old('pns_sertifikasi', $laporan->pns_sertifikasi)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['pns_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -670,7 +668,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="form-group required">
                             <label>PNS Non Sertifikasi</label>
-                            <input type="number" name="pns_non_sertifikasi" value="<?php echo e(old('pns_non_sertifikasi', $data['pns_non_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="pns_non_sertifikasi" value="<?php echo e(old('pns_non_sertifikasi', $laporan->pns_non_sertifikasi)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['pns_non_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -687,7 +685,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>GTY Sertifikasi Inpassing</label>
-                            <input type="number" name="gty_sertifikasi_inpassing" value="<?php echo e(old('gty_sertifikasi_inpassing', $data['gty_sertifikasi_inpassing'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="gty_sertifikasi_inpassing" value="<?php echo e(old('gty_sertifikasi_inpassing', $laporan->gty_sertifikasi_inpassing)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['gty_sertifikasi_inpassing'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -701,7 +699,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="form-group required">
                             <label>GTY Sertifikasi</label>
-                            <input type="number" name="gty_sertifikasi" value="<?php echo e(old('gty_sertifikasi', $data['gty_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="gty_sertifikasi" value="<?php echo e(old('gty_sertifikasi', $laporan->gty_sertifikasi)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['gty_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -718,7 +716,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>GTY Non Sertifikasi</label>
-                            <input type="number" name="gty_non_sertifikasi" value="<?php echo e(old('gty_non_sertifikasi', $data['gty_non_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="gty_non_sertifikasi" value="<?php echo e(old('gty_non_sertifikasi', $laporan->gty_non_sertifikasi)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['gty_non_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -732,7 +730,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="form-group required">
                             <label>GTT</label>
-                            <input type="number" name="gtt" value="<?php echo e(old('gtt', $data['gtt'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="gtt" value="<?php echo e(old('gtt', $laporan->gtt)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['gtt'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -749,7 +747,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="row-2col">
                         <div class="form-group required">
                             <label>PTY</label>
-                            <input type="number" name="pty" value="<?php echo e(old('pty', $data['pty'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="pty" value="<?php echo e(old('pty', $laporan->pty)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['pty'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -763,7 +761,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="form-group required">
                             <label>PTT</label>
-                            <input type="number" name="ptt" value="<?php echo e(old('ptt', $data['ptt'] ?? 0)); ?>" min="0" placeholder="0" required>
+                            <input type="number" name="ptt" value="<?php echo e(old('ptt', $laporan->ptt)); ?>" min="0" placeholder="0" required>
                             <?php $__errorArgs = ['ptt'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -793,7 +791,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah (Minimal 3 Maksimal 9)</label>
-                        <input type="number" name="jumlah_talenta" id="jumlah_talenta" value="<?php echo e(old('jumlah_talenta', 3)); ?>" min="3" max="9" placeholder="3" required>
+                        <input type="number" name="jumlah_talenta" id="jumlah_talenta" value="<?php echo e(old('jumlah_talenta', $laporan->jumlah_talenta)); ?>" min="3" max="9" placeholder="3" required>
                         <?php $__errorArgs = ['jumlah_talenta'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -834,26 +832,26 @@ unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <script>
-                        window.guruKaryawanData = <?php echo json_encode($data['guru_karyawan'], 15, 512) ?>;
+                        window.guruKaryawanData = <?php echo json_encode($guruKaryawan ?? [], 15, 512) ?>;
+                        window.existingNamaTalenta = <?php echo json_encode($data['nama_talenta'] ?? [], 15, 512) ?>;
+                        window.existingAlasanTalenta = <?php echo json_encode($data['alasan_talenta'] ?? [], 15, 512) ?>;
                     </script>
 
                     <div class="divider">
                         <span>Kondisi SDM Secara Umum</span>
                     </div>
 
-                    
-
                     <div class="form-group required">
                         <label>Nama Guru dan Karyawan dengan Kondisi secara umum</label>
-                        <?php if(isset($data['guru_karyawan']) && is_array($data['guru_karyawan'])): ?>
-                            <?php $__currentLoopData = $data['guru_karyawan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(isset($guruKaryawan) && is_array($guruKaryawan)): ?>
+                            <?php $__currentLoopData = $guruKaryawan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="form-group">
                                     <label><?php echo e($guru['name']); ?></label>
                                     <select name="kondisi_guru[<?php echo e($guru['id']); ?>]" required>
                                         <option value="">Pilih Kondisi</option>
-                                        <option value="baik" <?php echo e(old('kondisi_guru.' . $guru['id']) == 'baik' ? 'selected' : ''); ?>>Baik</option>
-                                        <option value="cukup" <?php echo e(old('kondisi_guru.' . $guru['id']) == 'cukup' ? 'selected' : ''); ?>>Cukup</option>
-                                        <option value="bermasalah" <?php echo e(old('kondisi_guru.' . $guru['id']) == 'bermasalah' ? 'selected' : ''); ?>>Bermasalah</option>
+                                        <option value="baik" <?php echo e(old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'baik' ? 'selected' : ''); ?>>Baik</option>
+                                        <option value="cukup" <?php echo e(old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'cukup' ? 'selected' : ''); ?>>Cukup</option>
+                                        <option value="bermasalah" <?php echo e(old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'bermasalah' ? 'selected' : ''); ?>>Bermasalah</option>
                                     </select>
                                 </div>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -866,7 +864,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah SDM Utama 1</label>
-                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 1..." required><?php echo e(old('masalah_sdm_utama.0')); ?></textarea>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 1..." required><?php echo e(old('masalah_sdm_utama.0', json_decode($laporan->masalah_sdm_utama, true)[0] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['masalah_sdm_utama.0'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -881,7 +879,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah SDM Utama 2</label>
-                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 2..." required><?php echo e(old('masalah_sdm_utama.1')); ?></textarea>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 2..." required><?php echo e(old('masalah_sdm_utama.1', json_decode($laporan->masalah_sdm_utama, true)[1] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['masalah_sdm_utama.1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -896,7 +894,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah SDM Utama 3</label>
-                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 3..." required><?php echo e(old('masalah_sdm_utama.2')); ?></textarea>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 3..." required><?php echo e(old('masalah_sdm_utama.2', json_decode($laporan->masalah_sdm_utama, true)[2] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['masalah_sdm_utama.2'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -924,7 +922,7 @@ unset($__errorArgs, $__bag); ?>
             </div>
         </div>
 
-        <!-- Step 4: E. KEUANGAN -->
+        <!-- Step 5: E. KEUANGAN -->
         <div class="step-content" data-step="5">
             <div class="section-card">
                 <div class="section-header">
@@ -937,7 +935,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Sumber Dana Utama</label>
-                        <textarea name="sumber_dana_utama" placeholder="Jelaskan sumber dana utama..." required><?php echo e(old('sumber_dana_utama')); ?></textarea>
+                        <textarea name="sumber_dana_utama" placeholder="Jelaskan sumber dana utama..." required><?php echo e(old('sumber_dana_utama', $laporan->sumber_dana_utama)); ?></textarea>
                         <?php $__errorArgs = ['sumber_dana_utama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -954,10 +952,10 @@ unset($__errorArgs, $__bag); ?>
                         <label>Kondisi Keuangan Akhir Tahun</label>
                         <select name="kondisi_keuangan_akhir_tahun" required>
                             <option value="">Pilih Kondisi</option>
-                            <option value="sehat" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'sehat' ? 'selected' : ''); ?>>Sehat</option>
-                            <option value="cukup" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'cukup' ? 'selected' : ''); ?>>Cukup</option>
-                            <option value="risiko" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'risiko' ? 'selected' : ''); ?>>Risiko</option>
-                            <option value="kritis" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'kritis' ? 'selected' : ''); ?>>Kritis</option>
+                            <option value="sehat" <?php echo e(old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'sehat' ? 'selected' : ''); ?>>Sehat</option>
+                            <option value="cukup" <?php echo e(old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'cukup' ? 'selected' : ''); ?>>Cukup</option>
+                            <option value="risiko" <?php echo e(old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'risiko' ? 'selected' : ''); ?>>Risiko</option>
+                            <option value="kritis" <?php echo e(old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'kritis' ? 'selected' : ''); ?>>Kritis</option>
                         </select>
                         <?php $__errorArgs = ['kondisi_keuangan_akhir_tahun'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -973,7 +971,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Catatan Penting Terkait Pengelolaan Keuangan</label>
-                        <textarea name="catatan_pengelolaan_keuangan" placeholder="Jelaskan catatan penting terkait pengelolaan keuangan..." required><?php echo e(old('catatan_pengelolaan_keuangan')); ?></textarea>
+                        <textarea name="catatan_pengelolaan_keuangan" placeholder="Jelaskan catatan penting terkait pengelolaan keuangan..." required><?php echo e(old('catatan_pengelolaan_keuangan', $laporan->catatan_pengelolaan_keuangan)); ?></textarea>
                         <?php $__errorArgs = ['catatan_pengelolaan_keuangan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1001,7 +999,6 @@ unset($__errorArgs, $__bag); ?>
             </div>
         </div>
 
-
         <!-- Step 6: F. PPDB -->
         <div class="step-content" data-step="6">
             <div class="section-card">
@@ -1015,7 +1012,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Metode PPDB yang Digunakan</label>
-                        <textarea name="metode_ppdb" placeholder="Jelaskan metode PPDB yang digunakan..." required><?php echo e(old('metode_ppdb')); ?></textarea>
+                        <textarea name="metode_ppdb" placeholder="Jelaskan metode PPDB yang digunakan..." required><?php echo e(old('metode_ppdb', $laporan->metode_ppdb)); ?></textarea>
                         <?php $__errorArgs = ['metode_ppdb'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1030,7 +1027,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Hasil PPDB Tahun Berjalan</label>
-                        <textarea name="hasil_ppdb_tahun_berjalan" placeholder="Jelaskan hasil PPDB tahun berjalan..." required><?php echo e(old('hasil_ppdb_tahun_berjalan')); ?></textarea>
+                        <textarea name="hasil_ppdb_tahun_berjalan" placeholder="Jelaskan hasil PPDB tahun berjalan..." required><?php echo e(old('hasil_ppdb_tahun_berjalan', $laporan->hasil_ppdb_tahun_berjalan)); ?></textarea>
                         <?php $__errorArgs = ['hasil_ppdb_tahun_berjalan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1045,7 +1042,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah Utama PPDB</label>
-                        <textarea name="masalah_utama_ppdb" placeholder="Jelaskan masalah utama PPDB..." required><?php echo e(old('masalah_utama_ppdb')); ?></textarea>
+                        <textarea name="masalah_utama_ppdb" placeholder="Jelaskan masalah utama PPDB..." required><?php echo e(old('masalah_utama_ppdb', $laporan->masalah_utama_ppdb)); ?></textarea>
                         <?php $__errorArgs = ['masalah_utama_ppdb'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1086,7 +1083,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Nama Program Unggulan</label>
-                        <textarea name="nama_program_unggulan" placeholder="Jelaskan nama program unggulan..." required><?php echo e(old('nama_program_unggulan')); ?></textarea>
+                        <textarea name="nama_program_unggulan" placeholder="Jelaskan nama program unggulan..." required><?php echo e(old('nama_program_unggulan', $laporan->nama_program_unggulan)); ?></textarea>
                         <?php $__errorArgs = ['nama_program_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1101,7 +1098,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Alasan Pemilihan Program</label>
-                        <textarea name="alasan_pemilihan_program" placeholder="Jelaskan alasan pemilihan program..." required><?php echo e(old('alasan_pemilihan_program')); ?></textarea>
+                        <textarea name="alasan_pemilihan_program" placeholder="Jelaskan alasan pemilihan program..." required><?php echo e(old('alasan_pemilihan_program', $laporan->alasan_pemilihan_program)); ?></textarea>
                         <?php $__errorArgs = ['alasan_pemilihan_program'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1116,7 +1113,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Target Unggulan</label>
-                        <textarea name="target_unggulan" placeholder="Jelaskan target unggulan..." required><?php echo e(old('target_unggulan')); ?></textarea>
+                        <textarea name="target_unggulan" placeholder="Jelaskan target unggulan..." required><?php echo e(old('target_unggulan', $laporan->target_unggulan)); ?></textarea>
                         <?php $__errorArgs = ['target_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1131,7 +1128,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Kontribusi Unggulan</label>
-                        <textarea name="kontribusi_unggulan" placeholder="Jelaskan kontribusi unggulan..." required><?php echo e(old('kontribusi_unggulan')); ?></textarea>
+                        <textarea name="kontribusi_unggulan" placeholder="Jelaskan kontribusi unggulan..." required><?php echo e(old('kontribusi_unggulan', $laporan->kontribusi_unggulan)); ?></textarea>
                         <?php $__errorArgs = ['kontribusi_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1146,7 +1143,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Sumber Biaya Program</label>
-                        <textarea name="sumber_biaya_program" placeholder="Jelaskan sumber biaya program..." required><?php echo e(old('sumber_biaya_program')); ?></textarea>
+                        <textarea name="sumber_biaya_program" placeholder="Jelaskan sumber biaya program..." required><?php echo e(old('sumber_biaya_program', $laporan->sumber_biaya_program)); ?></textarea>
                         <?php $__errorArgs = ['sumber_biaya_program'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1161,7 +1158,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Tim Program Unggulan</label>
-                        <textarea name="tim_program_unggulan" placeholder="Jelaskan tim program unggulan..." required><?php echo e(old('tim_program_unggulan')); ?></textarea>
+                        <textarea name="tim_program_unggulan" placeholder="Jelaskan tim program unggulan..." required><?php echo e(old('tim_program_unggulan', $laporan->tim_program_unggulan)); ?></textarea>
                         <?php $__errorArgs = ['tim_program_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1202,7 +1199,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Keberhasilan Terbesar Tahun Ini</label>
-                        <textarea name="keberhasilan_terbesar_tahun_ini" placeholder="Jelaskan keberhasilan terbesar tahun ini..." required><?php echo e(old('keberhasilan_terbesar_tahun_ini')); ?></textarea>
+                        <textarea name="keberhasilan_terbesar_tahun_ini" placeholder="Jelaskan keberhasilan terbesar tahun ini..." required><?php echo e(old('keberhasilan_terbesar_tahun_ini', $laporan->keberhasilan_terbesar_tahun_ini)); ?></textarea>
                         <?php $__errorArgs = ['keberhasilan_terbesar_tahun_ini'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1217,7 +1214,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Masalah Paling Berat yang Dihadapi</label>
-                        <textarea name="masalah_paling_berat_dihadapi" placeholder="Jelaskan masalah paling berat yang dihadapi..." required><?php echo e(old('masalah_paling_berat_dihadapi')); ?></textarea>
+                        <textarea name="masalah_paling_berat_dihadapi" placeholder="Jelaskan masalah paling berat yang dihadapi..." required><?php echo e(old('masalah_paling_berat_dihadapi', $laporan->masalah_paling_berat_dihadapi)); ?></textarea>
                         <?php $__errorArgs = ['masalah_paling_berat_dihadapi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1232,7 +1229,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Keputusan yang Sulit Diambil</label>
-                        <textarea name="keputusan_sulit_diambil" placeholder="Jelaskan keputusan yang sulit diambil..." required><?php echo e(old('keputusan_sulit_diambil')); ?></textarea>
+                        <textarea name="keputusan_sulit_diambil" placeholder="Jelaskan keputusan yang sulit diambil..." required><?php echo e(old('keputusan_sulit_diambil', $laporan->keputusan_sulit_diambil)); ?></textarea>
                         <?php $__errorArgs = ['keputusan_sulit_diambil'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1273,7 +1270,7 @@ unset($__errorArgs, $__bag); ?>
                 <div class="section-content">
                     <div class="form-group required">
                         <label>Risiko Terbesar Satpen Tahun Depan</label>
-                        <textarea name="risiko_terbesar_satpen_tahun_depan" placeholder="Jelaskan risiko terbesar satpen tahun depan..." required><?php echo e(old('risiko_terbesar_satpen_tahun_depan')); ?></textarea>
+                        <textarea name="risiko_terbesar_satpen_tahun_depan" placeholder="Jelaskan risiko terbesar satpen tahun depan..." required><?php echo e(old('risiko_terbesar_satpen_tahun_depan', $laporan->risiko_terbesar_satpen_tahun_depan)); ?></textarea>
                         <?php $__errorArgs = ['risiko_terbesar_satpen_tahun_depan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1288,7 +1285,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Fokus Perbaikan Tahun Depan 1</label>
-                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 1..." required><?php echo e(old('fokus_perbaikan_tahun_depan.0')); ?></textarea>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 1..." required><?php echo e(old('fokus_perbaikan_tahun_depan.0', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[0] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.0'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1303,7 +1300,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group">
                         <label>Fokus Perbaikan Tahun Depan 2</label>
-                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 2..."><?php echo e(old('fokus_perbaikan_tahun_depan.1')); ?></textarea>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 2..."><?php echo e(old('fokus_perbaikan_tahun_depan.1', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[1] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1318,7 +1315,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group">
                         <label>Fokus Perbaikan Tahun Depan 3</label>
-                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3..."><?php echo e(old('fokus_perbaikan_tahun_depan.2')); ?></textarea>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3..."><?php echo e(old('fokus_perbaikan_tahun_depan.2', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[2] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.2'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -1357,11 +1354,9 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <div class="section-content">
-                    
-
                     <div class="form-group required">
                         <div class="checkbox-container">
-                            <input type="checkbox" name="pernyataan_benar" value="1" id="pernyataan_benar" required <?php echo e(old('pernyataan_benar') ? 'checked' : ''); ?>>
+                            <input type="checkbox" name="pernyataan_benar" value="1" id="pernyataan_benar" required <?php echo e(old('pernyataan_benar', $laporan->pernyataan_benar) ? 'checked' : ''); ?>>
                             <label for="pernyataan_benar" class="checkbox-label">Saya menyetujui dan menyatakan bahwa semua data yang saya isi adalah benar dan sesuai dengan kondisi satpen</label>
                         </div>
                         <?php $__errorArgs = ['pernyataan_benar'];
@@ -1383,15 +1378,24 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="signature-area">
                             <p>Tanda Tangan</p>
+                            <div style="margin-bottom: 10px;">
+                                <p style="font-size: 11px; color: #666; font-style: italic;">Masukkan tanda tangan baru jika ingin memperbarui tanda tangan</p>
+                            </div>
                             <canvas id="signature-canvas" width="500" height="300" style="border: 1px solid #ccc; border-radius: 4px; background: #fff;"></canvas>
                             <div style="margin-top: 8px;">
                                 <button type="button" id="clear-signature" class="btn btn-sm btn-outline-secondary" style="font-size: 11px;">Hapus Tanda Tangan</button>
                             </div>
-                            <input type="hidden" name="signature_data" id="signature-data">
+                            <input type="hidden" name="signature_data" id="signature-data" value="<?php echo e($laporan->signature_data); ?>">
+                            <?php if($laporan->signature_data): ?>
+                                <div style="margin-bottom: 10px;">
+                                    <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Tanda Tangan Tersimpan:</p>
+                                    <img src="<?php echo e($laporan->signature_data); ?>" alt="Tanda Tangan Tersimpan" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                                </div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="name-section">
-                            <p><?php echo e($data['nama_kepala_sekolah'] ?? 'Nama Kepala Sekolah'); ?></p>
+                            <p><?php echo e($laporan->nama_kepala_sekolah); ?></p>
                         </div>
                     </div>
                 </div>
@@ -1415,6 +1419,6 @@ unset($__errorArgs, $__bag); ?>
 <?php $__env->stopSection(); ?>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="<?php echo e(asset('js/mobile/laporan-akhir-tahun-create.js')); ?>"></script>
+<script src="<?php echo e(asset('js/mobile/laporan-akhir-tahun-edit.js')); ?>"></script>
 
-<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/laporan-akhir-tahun/create.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/laporan-akhir-tahun/edit.blade.php ENDPATH**/ ?>

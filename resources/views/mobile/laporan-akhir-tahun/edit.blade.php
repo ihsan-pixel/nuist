@@ -3,937 +3,973 @@
 @section('title', 'Edit Laporan Akhir Tahun')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Edit Laporan Akhir Tahun {{ $laporan->tahun_pelaporan }}</h4>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('mobile.laporan-akhir-tahun.update', $laporan->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+<link rel="stylesheet" href="{{ asset('css/mobile/laporan-akhir-tahun-create.css') }}">
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Data Kepala Sekolah</h5>
-                                <div class="mb-3">
-                                    <label for="nama_kepala_sekolah" class="form-label">Nama Kepala Sekolah <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('nama_kepala_sekolah') is-invalid @enderror"
-                                           id="nama_kepala_sekolah" name="nama_kepala_sekolah"
-                                           value="{{ old('nama_kepala_sekolah', $laporan->nama_kepala_sekolah) }}" required>
-                                    @error('nama_kepala_sekolah')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+<style>
+    body {
+    background: #f8f9fb url('/images/bg.png') no-repeat center center;
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+}
+</style>
 
-                                <div class="mb-3">
-                                    <label for="nip" class="form-label">NIP</label>
-                                    <input type="text" class="form-control @error('nip') is-invalid @enderror"
-                                           id="nip" name="nip" value="{{ old('nip', $laporan->nip) }}">
-                                    @error('nip')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+<!-- Header -->
+<div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
+    <button onclick="window.location.href='{{ route('mobile.laporan-akhir-tahun.index') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
+        <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+    </button>
+    <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
+</div>
 
-                                <div class="mb-3">
-                                    <label for="nuptk" class="form-label">NUPTK</label>
-                                    <input type="text" class="form-control @error('nuptk') is-invalid @enderror"
-                                           id="nuptk" name="nuptk" value="{{ old('nuptk', $laporan->nuptk) }}">
-                                    @error('nuptk')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+<div class="simfoni-header" style="margin-top: -10px;">
+    <h4>EDIT LAPORAN AKHIR TAHUN</h4>
+    <p>Kepala Sekolah/Madrasah</p>
+</div>
 
-                            <div class="col-md-6">
-                                <h5>Data Madrasah</h5>
-                                <div class="mb-3">
-                                    <label for="nama_madrasah" class="form-label">Nama Madrasah <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('nama_madrasah') is-invalid @enderror"
-                                           id="nama_madrasah" name="nama_madrasah"
-                                           value="{{ old('nama_madrasah', $laporan->nama_madrasah) }}" required>
-                                    @error('nama_madrasah')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+<!-- Form Container -->
+<div class="form-container">
+    <!-- Success Alert -->
+    @if (session('success'))
+        <div class="success-alert">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
 
-                                <div class="mb-3">
-                                    <label for="alamat_madrasah" class="form-label">Alamat Madrasah <span class="text-danger">*</span></label>
-                                    <textarea class="form-control @error('alamat_madrasah') is-invalid @enderror"
-                                              id="alamat_madrasah" name="alamat_madrasah" rows="3" required>{{ old('alamat_madrasah', $laporan->alamat_madrasah) }}</textarea>
-                                    @error('alamat_madrasah')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
 
-                        <hr>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Data Statistik</h5>
-                                <div class="mb-3">
-                                    <label for="jumlah_guru" class="form-label">Jumlah Guru <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('jumlah_guru') is-invalid @enderror"
-                                           id="jumlah_guru" name="jumlah_guru" min="0"
-                                           value="{{ old('jumlah_guru', $laporan->jumlah_guru) }}" required>
-                                    @error('jumlah_guru')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+    <!-- Error Messages -->
+    @if ($errors->any())
+        <div class="error-container">
+            <ul class="error-list">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                                <div class="mb-3">
-                                    <label for="jumlah_siswa" class="form-label">Jumlah Siswa <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('jumlah_siswa') is-invalid @enderror"
-                                           id="jumlah_siswa" name="jumlah_siswa" min="0"
-                                           value="{{ old('jumlah_siswa', $laporan->jumlah_siswa) }}" required>
-                                    @error('jumlah_siswa')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="jumlah_kelas" class="form-label">Jumlah Kelas <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control @error('jumlah_kelas') is-invalid @enderror"
-                                           id="jumlah_kelas" name="jumlah_kelas" min="0"
-                                           value="{{ old('jumlah_kelas', $laporan->jumlah_kelas) }}" required>
-                                    @error('jumlah_kelas')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <h5>Informasi Laporan</h5>
-                                <div class="mb-3">
-                                    <label for="tanggal_laporan" class="form-label">Tanggal Laporan <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control @error('tanggal_laporan') is-invalid @enderror"
-                                           id="tanggal_laporan" name="tanggal_laporan"
-                                           value="{{ old('tanggal_laporan', $laporan->tanggal_laporan ? \Carbon\Carbon::parse($laporan->tanggal_laporan)->format('Y-m-d') : date('Y-m-d')) }}" required>
-                                    @error('tanggal_laporan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Status Laporan</label>
-                                    <br>
-                                    <span class="badge bg-{{ $laporan->status === 'submitted' ? 'success' : ($laporan->status === 'approved' ? 'primary' : ($laporan->status === 'rejected' ? 'danger' : 'secondary')) }}">
-                                        {{ ucfirst($laporan->status) }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <!-- Target dan Capaian Section -->
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>1. TARGET UTAMA</h5>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="target_jumlah_siswa" class="form-label">Target Jumlah Siswa</label>
-                                            <input type="number" class="form-control @error('target_jumlah_siswa') is-invalid @enderror"
-                                                   id="target_jumlah_siswa" name="target_jumlah_siswa" min="0"
-                                                   value="{{ old('target_jumlah_siswa', $laporan->target_jumlah_siswa) }}">
-                                            @error('target_jumlah_siswa')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="capaian_jumlah_siswa" class="form-label">Capaian Jumlah Siswa</label>
-                                            <input type="number" class="form-control @error('capaian_jumlah_siswa') is-invalid @enderror"
-                                                   id="capaian_jumlah_siswa" name="capaian_jumlah_siswa" min="0"
-                                                   value="{{ old('capaian_jumlah_siswa', $laporan->capaian_jumlah_siswa) }}">
-                                            @error('capaian_jumlah_siswa')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div id="capaian_siswa_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="target_dana" class="form-label">Target Dana</label>
-                                            <input type="text" class="form-control @error('target_dana') is-invalid @enderror"
-                                                   id="target_dana" name="target_dana"
-                                                   value="{{ old('target_dana', $laporan->target_dana) }}" placeholder="Rp 0">
-                                            @error('target_dana')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="capaian_dana" class="form-label">Capaian Dana</label>
-                                            <input type="text" class="form-control @error('capaian_dana') is-invalid @enderror"
-                                                   id="capaian_dana" name="capaian_dana"
-                                                   value="{{ old('capaian_dana', $laporan->capaian_dana) }}" placeholder="Rp 0">
-                                            @error('capaian_dana')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div id="capaian_dana_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="target_alumni" class="form-label">Target Alumni (%)</label>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control @error('target_alumni') is-invalid @enderror"
-                                                       id="target_alumni" name="target_alumni"
-                                                       value="{{ old('target_alumni', $laporan->target_alumni) }}" placeholder="0">
-                                                <span class="input-group-text">%</span>
-                                            </div>
-                                            @error('target_alumni')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div id="target_alumni_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="capaian_alumni" class="form-label">Capaian Alumni (%)</label>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control @error('capaian_alumni') is-invalid @enderror"
-                                                       id="capaian_alumni" name="capaian_alumni"
-                                                       value="{{ old('capaian_alumni', $laporan->capaian_alumni) }}" placeholder="0">
-                                                <span class="input-group-text">%</span>
-                                            </div>
-                                            @error('capaian_alumni')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div id="capaian_alumni_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="akreditasi" class="form-label">Akreditasi</label>
-                                            <select class="form-control @error('akreditasi') is-invalid @enderror" id="akreditasi" name="akreditasi">
-                                                <option value="">Pilih Akreditasi</option>
-                                                <option value="Belum" {{ old('akreditasi', $laporan->akreditasi) == 'Belum' ? 'selected' : '' }}>Belum</option>
-                                                <option value="C" {{ old('akreditasi', $laporan->akreditasi) == 'C' ? 'selected' : '' }}>C</option>
-                                                <option value="B" {{ old('akreditasi', $laporan->akreditasi) == 'B' ? 'selected' : '' }}>B</option>
-                                                <option value="A" {{ old('akreditasi', $laporan->akreditasi) == 'A' ? 'selected' : '' }}>A</option>
-                                            </select>
-                                            @error('akreditasi')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div id="akreditasi_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="tahun_akreditasi" class="form-label">Tahun Akreditasi</label>
-                                            <input type="number" class="form-control @error('tahun_akreditasi') is-invalid @enderror"
-                                                   id="tahun_akreditasi" name="tahun_akreditasi" min="2000" max="{{ date('Y') + 10 }}"
-                                                   value="{{ old('tahun_akreditasi', $laporan->tahun_akreditasi) }}">
-                                            @error('tahun_akreditasi')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="nilai_akreditasi" class="form-label">Nilai Akreditasi</label>
-                                            <input type="number" class="form-control @error('nilai_akreditasi') is-invalid @enderror"
-                                                   id="nilai_akreditasi" name="nilai_akreditasi" min="0" max="100" step="0.01"
-                                                   value="{{ old('nilai_akreditasi', $laporan->nilai_akreditasi) }}">
-                                            @error('nilai_akreditasi')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Total Skor Field -->
-                                <div class="mb-3">
-                                    <label class="form-label"><strong>Total Skor</strong></label>
-                                    <input type="text" class="form-control" id="total_skor" value="0" readonly style="font-weight: bold; background-color: #f8f9fa;">
-                                    <small class="form-text text-muted">Total skor otomatis dari capaian siswa, dana, alumni, dan akreditasi</small>
-                                    <div id="total_skor_info" class="alert alert-info mt-1" style="display: none; font-size: 12px;"></div>
-                                </div>
-
-                                <!-- Student Score Info -->
-                                <div id="student_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
-                                <!-- Dana Score Info -->
-                                <div id="dana_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
-                                <!-- Alumni Score Info -->
-                                <div id="alumni_score_info" class="alert alert-info mt-1" style="display: none; font-size: 12px; margin-bottom: 12px;"></div>
-
-                                <!-- Scoring Information -->
-                                <div class="alert alert-light border">
-                                    <h6 class="mb-2">Kategori Berdasarkan Jumlah Siswa</h6>
-                                    <table class="table table-sm table-borderless mb-3">
-                                        <tbody>
-                                            <tr><td>9</td><td>Unggulan A</td><td>>1001</td></tr>
-                                            <tr><td>8</td><td>Unggulan B</td><td>751 - 1000</td></tr>
-                                            <tr><td>7</td><td>Mandiri A</td><td>501 - 750</td></tr>
-                                            <tr><td>6</td><td>Mandiri B</td><td>251 - 500</td></tr>
-                                            <tr><td>5</td><td>Pramandiri A</td><td>151 - 250</td></tr>
-                                            <tr><td>4</td><td>Pramandiri B</td><td>101 - 150</td></tr>
-                                            <tr><td>3</td><td>Rintisan A</td><td>61 - 100</td></tr>
-                                            <tr><td>2</td><td>Rintisan B</td><td>20 - 60</td></tr>
-                                            <tr><td>1</td><td>Posisi Zero</td><td>0 - 19</td></tr>
-                                        </tbody>
-                                    </table>
-
-                                    <h6 class="mb-2">Kategori Berdasarkan Jumlah Dana (Juta)</h6>
-                                    <table class="table table-sm table-borderless mb-3">
-                                        <tbody>
-                                            <tr><td>9</td><td>Unggulan A</td><td>>5001</td></tr>
-                                            <tr><td>8</td><td>Unggulan B</td><td>3001-5000</td></tr>
-                                            <tr><td>7</td><td>Mandiri A</td><td>2000 - 3000</td></tr>
-                                            <tr><td>6</td><td>Mandiri B</td><td>1251 - 1999</td></tr>
-                                            <tr><td>5</td><td>Pramandiri A</td><td>751 - 1250</td></tr>
-                                            <tr><td>4</td><td>Pramandiri B</td><td>351 - 750</td></tr>
-                                            <tr><td>3</td><td>Rintisan A</td><td>151 - 350</td></tr>
-                                            <tr><td>2</td><td>Rintisan B</td><td>30 - 150</td></tr>
-                                            <tr><td>1</td><td>Posisi Zero</td><td>0 - 29</td></tr>
-                                        </tbody>
-                                    </table>
-
-                                    <h6 class="mb-2">Kategori Berdasarkan Keterserapan Lulusan</h6>
-                                    <table class="table table-sm table-borderless">
-                                        <tbody>
-                                            <tr><td>9</td><td>Unggulan A</td><td>81 - 100%</td></tr>
-                                            <tr><td>8</td><td>Unggulan B</td><td>66 - 80%</td></tr>
-                                            <tr><td>7</td><td>Mandiri A</td><td>51 - 65%</td></tr>
-                                            <tr><td>6</td><td>Mandiri B</td><td>35 - 50%</td></tr>
-                                            <tr><td>5</td><td>Pramandiri A</td><td>20 - 34%</td></tr>
-                                            <tr><td>4</td><td>Pramandiri B</td><td>10 - 19%</td></tr>
-                                            <tr><td>3</td><td>Rintisan A</td><td>3 - 9%</td></tr>
-                                            <tr><td>2</td><td>Rintisan B</td><td>1 - 2%</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Prestasi Madrasah <span class="text-danger">*</span></h5>
-                                <div class="mb-3">
-                                    <textarea class="form-control @error('prestasi_madrasah') is-invalid @enderror"
-                                              id="prestasi_madrasah" name="prestasi_madrasah" rows="4" required>{{ old('prestasi_madrasah', $laporan->prestasi_madrasah) }}</textarea>
-                                    @error('prestasi_madrasah')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Kendala Utama <span class="text-danger">*</span></h5>
-                                <div class="mb-3">
-                                    <textarea class="form-control @error('kendala_utama') is-invalid @enderror"
-                                              id="kendala_utama" name="kendala_utama" rows="4" required>{{ old('kendala_utama', $laporan->kendala_utama) }}</textarea>
-                                    @error('kendala_utama')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Program Kerja Tahun Depan <span class="text-danger">*</span></h5>
-                                <div class="mb-3">
-                                    <textarea class="form-control @error('program_kerja_tahun_depan') is-invalid @enderror"
-                                              id="program_kerja_tahun_depan" name="program_kerja_tahun_depan" rows="4" required>{{ old('program_kerja_tahun_depan', $laporan->program_kerja_tahun_depan) }}</textarea>
-                                    @error('program_kerja_tahun_depan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Anggaran</h5>
-                                <div class="mb-3">
-                                    <label for="anggaran_digunakan" class="form-label">Anggaran Digunakan (Rp)</label>
-                                    <input type="number" class="form-control @error('anggaran_digunakan') is-invalid @enderror"
-                                           id="anggaran_digunakan" name="anggaran_digunakan" min="0" step="1000"
-                                           value="{{ old('anggaran_digunakan', $laporan->anggaran_digunakan) }}">
-                                    @error('anggaran_digunakan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <h5>Saran dan Masukan</h5>
-                                <div class="mb-3">
-                                    <textarea class="form-control @error('saran_dan_masukan') is-invalid @enderror"
-                                              id="saran_dan_masukan" name="saran_dan_masukan" rows="3">{{ old('saran_dan_masukan', $laporan->saran_dan_masukan) }}</textarea>
-                                    @error('saran_dan_masukan')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input @error('pernyataan_setuju') is-invalid @enderror"
-                                           type="checkbox" id="pernyataan_setuju" name="pernyataan_setuju" value="1" {{ old('pernyataan_setuju', true) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="pernyataan_setuju">
-                                        <strong>Saya menyatakan bahwa data yang saya isi adalah benar dan dapat dipertanggungjawabkan. <span class="text-danger">*</span></strong>
-                                    </label>
-                                    @error('pernyataan_setuju')
-                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <a href="{{ route('mobile.laporan-akhir-tahun.show', $laporan->id) }}" class="btn btn-secondary">
-                                        <i class="fas fa-arrow-left"></i> Batal
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Update Laporan
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 10%;"></div>
+        </div>
+        <div class="progress-text">
+            <span id="progress-percentage">10%</span>
+            <span id="progress-step">Step 1 dari 10</span>
         </div>
     </div>
+
+    <form action="{{ route('mobile.laporan-akhir-tahun.update', $laporan->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+
+        <!-- Hidden inputs for pre-filled required fields -->
+        <input type="hidden" name="tahun_pelaporan" value="{{ $laporan->tahun_pelaporan }}">
+        <input type="hidden" name="nama_kepala_sekolah" value="{{ $laporan->nama_kepala_sekolah }}">
+        <input type="hidden" name="nama_madrasah" value="{{ $laporan->nama_madrasah }}">
+        <input type="hidden" name="alamat_madrasah" value="{{ $laporan->alamat_madrasah }}">
+
+        <!-- Step 1: A. IDENTITAS SATPEN -->
+        <div class="step-content active" data-step="1">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-file"></i>
+                    </div>
+                    <h6 class="section-title">A. IDENTITAS SATPEN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Satpen</label>
+                        <input type="text" name="nama_satpen" value="{{ old('nama_satpen', $laporan->nama_satpen) }}" placeholder="Nama Satpen" required>
+                        @error('nama_satpen')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Alamat</label>
+                        <textarea name="alamat" placeholder="Alamat lengkap" required>{{ old('alamat', $laporan->alamat) }}</textarea>
+                        @error('alamat')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama Kepala Sekolah/Madrasah</label>
+                        <input type="text" name="nama_kepala_sekolah_madrasah" value="{{ old('nama_kepala_sekolah_madrasah', $laporan->nama_kepala_sekolah_madrasah) }}" placeholder="Nama Lengkap" required>
+                        @error('nama_kepala_sekolah_madrasah')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="info-note" style="font-style: italic">
+                        <strong>*</strong>Nama Lengkap Tanpa Gelar
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Gelar</label>
+                        <input type="text" name="gelar" value="{{ old('gelar', $laporan->gelar) }}" placeholder="S.Pd., M.Pd., dll" required>
+                        @error('gelar')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TMT KS/Kamad Pertama</label>
+                        <input type="date" name="tmt_ks_kamad_pertama" value="{{ old('tmt_ks_kamad_pertama', $laporan->tmt_ks_kamad_pertama ? $laporan->tmt_ks_kamad_pertama->format('Y-m-d') : '') }}" required>
+                        @error('tmt_ks_kamad_pertama')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TMT KS/Kamad Terakhir</label>
+                        <input type="date" name="tmt_ks_kamad_terakhir" value="{{ old('tmt_ks_kamad_terakhir', $laporan->tmt_ks_kamad_terakhir ? $laporan->tmt_ks_kamad_terakhir->format('Y-m-d') : '') }}" required>
+                        @error('tmt_ks_kamad_terakhir')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <div></div>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: CAPAIAN UTAMA 3 TAHUN BERJALAN -->
+        <div class="step-content" data-step="2">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-target"></i>
+                    </div>
+                    <h6 class="section-title">B. CAPAIAN UTAMA 3 TAHUN BERJALAN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="divider">
+                        <span>Data Siswa</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Jumlah Siswa 2023</label>
+                        <input type="number" name="jumlah_siswa_2023" value="{{ old('jumlah_siswa_2023', $laporan->jumlah_siswa_2023) }}" min="0" placeholder="0" required>
+                        @error('jumlah_siswa_2023')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Jumlah Siswa 2024</label>
+                        <input type="number" name="jumlah_siswa_2024" value="{{ old('jumlah_siswa_2024', $laporan->jumlah_siswa_2024) }}" min="0" placeholder="0" required>
+                        @error('jumlah_siswa_2024')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Jumlah Siswa 2025</label>
+                        <input type="number" name="jumlah_siswa_2025" value="{{ old('jumlah_siswa_2025', $laporan->jumlah_siswa_2025) }}" min="0" placeholder="0" required>
+                        @error('jumlah_siswa_2025')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="divider">
+                        <span>Kondisi Alumni</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Persentase Alumni Bekerja/Melanjutkan</label>
+                        <div class="input-with-symbol">
+                            <input type="text" name="persentase_alumni_bekerja" value="{{ old('persentase_alumni_bekerja', $laporan->persentase_alumni_bekerja . '%') }}" placeholder="0.00" required>
+                            <span class="input-symbol">%</span>
+                        </div>
+                        @error('persentase_alumni_bekerja')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Persentase Alumni Wirausaha-Agamaawan</label>
+                        <div class="input-with-symbol">
+                            <input type="text" name="persentase_alumni_wirausaha" value="{{ old('persentase_alumni_wirausaha', $laporan->persentase_alumni_wirausaha . '%') }}" placeholder="0.00" required>
+                            <span class="input-symbol">%</span>
+                        </div>
+                        @error('persentase_alumni_wirausaha')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Persentase Alumni Tidak Terdeteksi</label>
+                        <div class="input-with-symbol">
+                            <input type="text" name="persentase_alumni_tidak_terdeteksi" value="{{ old('persentase_alumni_tidak_terdeteksi', $laporan->persentase_alumni_tidak_terdeteksi . '%') }}" placeholder="0.00" required>
+                            <span class="input-symbol">%</span>
+                        </div>
+                        @error('persentase_alumni_tidak_terdeteksi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="divider">
+                        <span>Input Keuangan 3 Tahun Terakhir</span>
+                    </div>
+
+                    <h6 class="mb-2">a. BOSNAS</h6>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2023</label>
+                        <input type="text" name="bosnas_2023" value="{{ old('bosnas_2023', $laporan->bosnas_2023) }}" placeholder="Rp 0" required>
+                        @error('bosnas_2023')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2024</label>
+                        <input type="text" name="bosnas_2024" value="{{ old('bosnas_2024', $laporan->bosnas_2024) }}" placeholder="Rp 0" required>
+                        @error('bosnas_2024')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2025</label>
+                        <input type="text" name="bosnas_2025" value="{{ old('bosnas_2025', $laporan->bosnas_2025) }}" placeholder="Rp 0" required>
+                        @error('bosnas_2025')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <h6 class="mb-2">b. BOSDA</h6>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2023</label>
+                        <input type="text" name="bosda_2023" value="{{ old('bosda_2023', $laporan->bosda_2023) }}" placeholder="Rp 0" required>
+                        @error('bosda_2023')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2024</label>
+                        <input type="text" name="bosda_2024" value="{{ old('bosda_2024', $laporan->bosda_2024) }}" placeholder="Rp 0" required>
+                        @error('bosda_2024')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2025</label>
+                        <input type="text" name="bosda_2025" value="{{ old('bosda_2025', $laporan->bosda_2025) }}" placeholder="Rp 0" required>
+                        @error('bosda_2025')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <h6 class="mb-2">c. SPP, BPPP, Sumbangan Lain</h6>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2023</label>
+                        <input type="text" name="spp_bppp_lain_2023" value="{{ old('spp_bppp_lain_2023', $laporan->spp_bppp_lain_2023) }}" placeholder="Rp 0" required>
+                        @error('spp_bppp_lain_2023')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2024</label>
+                        <input type="text" name="spp_bppp_lain_2024" value="{{ old('spp_bppp_lain_2024', $laporan->spp_bppp_lain_2024) }}" placeholder="Rp 0" required>
+                        @error('spp_bppp_lain_2024')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>TAHUN 2025</label>
+                        <input type="text" name="spp_bppp_lain_2025" value="{{ old('spp_bppp_lain_2025', $laporan->spp_bppp_lain_2025) }}" placeholder="Rp 0" required>
+                        @error('spp_bppp_lain_2025')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <h6 class="mb-2">d. Pendapatan Unit Usaha</h6>
+
+                    <div class="form-group required">
+                        <label>Tahun 2023</label>
+                        <input type="text" name="pendapatan_unit_usaha_2023" value="{{ old('pendapatan_unit_usaha_2023', $laporan->pendapatan_unit_usaha_2023) }}" placeholder="Rp 0" required>
+                        @error('pendapatan_unit_usaha_2023')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tahun 2024</label>
+                        <input type="text" name="pendapatan_unit_usaha_2024" value="{{ old('pendapatan_unit_usaha_2024', $laporan->pendapatan_unit_usaha_2024) }}" placeholder="Rp 0" required>
+                        @error('pendapatan_unit_usaha_2024')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tahun 2025</label>
+                        <input type="text" name="pendapatan_unit_usaha_2025" value="{{ old('pendapatan_unit_usaha_2025', $laporan->pendapatan_unit_usaha_2025) }}" placeholder="Rp 0" required>
+                        @error('pendapatan_unit_usaha_2025')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="divider">
+                        <span>Akreditasi</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Status Akreditasi</label>
+                        <select name="status_akreditasi" required>
+                            <option value="">Pilih Status</option>
+                            <option value="Belum" {{ old('status_akreditasi', $data['status_akreditasi']) == 'Belum' ? 'selected' : '' }}>Belum</option>
+                            <option value="C" {{ old('status_akreditasi', $data['status_akreditasi']) == 'C' ? 'selected' : '' }}>C</option>
+                            <option value="B" {{ old('status_akreditasi', $data['status_akreditasi']) == 'B' ? 'selected' : '' }}>B</option>
+                            <option value="A" {{ old('status_akreditasi', $data['status_akreditasi']) == 'A' ? 'selected' : '' }}>A</option>
+                        </select>
+                        @error('status_akreditasi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tanggal Akreditasi Mulai Berlaku</label>
+                        <input type="date" name="tanggal_akreditasi_mulai" value="{{ old('tanggal_akreditasi_mulai', $data['tanggal_akreditasi_mulai']) }}" required>
+                        @error('tanggal_akreditasi_mulai')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tanggal Akreditasi Berakhir</label>
+                        <input type="date" name="tanggal_akreditasi_berakhir" value="{{ old('tanggal_akreditasi_berakhir', $data['tanggal_akreditasi_berakhir']) }}" required>
+                        @error('tanggal_akreditasi_berakhir')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: C. LAYANAN PENDIDIKAN -->
+        <div class="step-content" data-step="3">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-graduation-cap"></i>
+                    </div>
+                    <h6 class="section-title">C. LAYANAN PENDIDIKAN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Model Layanan Pendidikan yang Diterapkan</label>
+                        <textarea name="model_layanan_pendidikan" placeholder="Jelaskan model layanan pendidikan yang diterapkan..." required>{{ old('model_layanan_pendidikan', $laporan->model_layanan_pendidikan) }}</textarea>
+                        @error('model_layanan_pendidikan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Capaian Layanan yang Paling Menonjol</label>
+                        <textarea name="capaian_layanan_menonjol" placeholder="Jelaskan capaian layanan yang paling menonjol..." required>{{ old('capaian_layanan_menonjol', $laporan->capaian_layanan_menonjol) }}</textarea>
+                        @error('capaian_layanan_menonjol')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah Layanan Utama Tahun Ini</label>
+                        <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required>{{ old('masalah_layanan_utama', $laporan->masalah_layanan_utama) }}</textarea>
+                        @error('masalah_layanan_utama')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: D. SUMBER DAYA MANUSIA (SDM) -->
+        <div class="step-content" data-step="4">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-group"></i>
+                    </div>
+                    <h6 class="section-title">D. SUMBER DAYA MANUSIA (SDM)</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="divider">
+                        <span>Jumlah Guru dan Karyawan</span>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>PNS Sertifikasi</label>
+                            <input type="number" name="pns_sertifikasi" value="{{ old('pns_sertifikasi', $laporan->pns_sertifikasi) }}" min="0" placeholder="0" required>
+                            @error('pns_sertifikasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>PNS Non Sertifikasi</label>
+                            <input type="number" name="pns_non_sertifikasi" value="{{ old('pns_non_sertifikasi', $laporan->pns_non_sertifikasi) }}" min="0" placeholder="0" required>
+                            @error('pns_non_sertifikasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>GTY Sertifikasi Inpassing</label>
+                            <input type="number" name="gty_sertifikasi_inpassing" value="{{ old('gty_sertifikasi_inpassing', $laporan->gty_sertifikasi_inpassing) }}" min="0" placeholder="0" required>
+                            @error('gty_sertifikasi_inpassing')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>GTY Sertifikasi</label>
+                            <input type="number" name="gty_sertifikasi" value="{{ old('gty_sertifikasi', $laporan->gty_sertifikasi) }}" min="0" placeholder="0" required>
+                            @error('gty_sertifikasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>GTY Non Sertifikasi</label>
+                            <input type="number" name="gty_non_sertifikasi" value="{{ old('gty_non_sertifikasi', $laporan->gty_non_sertifikasi) }}" min="0" placeholder="0" required>
+                            @error('gty_non_sertifikasi')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>GTT</label>
+                            <input type="number" name="gtt" value="{{ old('gtt', $laporan->gtt) }}" min="0" placeholder="0" required>
+                            @error('gtt')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row-2col">
+                        <div class="form-group required">
+                            <label>PTY</label>
+                            <input type="number" name="pty" value="{{ old('pty', $laporan->pty) }}" min="0" placeholder="0" required>
+                            @error('pty')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="form-group required">
+                            <label>PTT</label>
+                            <input type="number" name="ptt" value="{{ old('ptt', $laporan->ptt) }}" min="0" placeholder="0" required>
+                            @error('ptt')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="info-note" style="font-style: italic">
+                        <strong>*</strong>Data diatas diambil otomatis dari database Nuist (Bisa Disesuaikan)
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px; padding: 8px; background: #fff; border-radius: 6px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 4px; display: block;">Total Jumlah Guru dan Karyawan</label>
+                        <input type="text" id="total_guru_karyawan" value="0" readonly style="width: 100%; padding: 8px; border: none; background: transparent; font-weight: bold; font-size: 14px; color: #004b4c;">
+                        <div class="form-hint">Total otomatis dari semua kategori di atas</div>
+                    </div>
+
+                    <div class="divider">
+                        <span>Jumlah Talenta yang Diproyeksikan</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Jumlah (Minimal 3 Maksimal 9)</label>
+                        <input type="number" name="jumlah_talenta" id="jumlah_talenta" value="{{ old('jumlah_talenta', $laporan->jumlah_talenta) }}" min="3" max="9" placeholder="3" required>
+                        @error('jumlah_talenta')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama dan Alasan</label>
+                        <div class="dynamic-inputs" data-category="talenta">
+                            <!-- Talenta fields will be dynamically generated by JavaScript -->
+                        </div>
+                        @error('nama_talenta')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                        @error('alasan_talenta')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <script>
+                        window.guruKaryawanData = @json($guruKaryawan ?? []);
+                        window.existingNamaTalenta = @json($data['nama_talenta'] ?? []);
+                        window.existingAlasanTalenta = @json($data['alasan_talenta'] ?? []);
+                    </script>
+
+                    <div class="divider">
+                        <span>Kondisi SDM Secara Umum</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Nama Guru dan Karyawan dengan Kondisi secara umum</label>
+                        @if(isset($guruKaryawan) && is_array($guruKaryawan))
+                            @foreach($guruKaryawan as $guru)
+                                <div class="form-group">
+                                    <label>{{ $guru['name'] }}</label>
+                                    <select name="kondisi_guru[{{ $guru['id'] }}]" required>
+                                        <option value="">Pilih Kondisi</option>
+                                        <option value="baik" {{ old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'baik' ? 'selected' : '' }}>Baik</option>
+                                        <option value="cukup" {{ old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'cukup' ? 'selected' : '' }}>Cukup</option>
+                                        <option value="bermasalah" {{ old('kondisi_guru.' . $guru['id'], json_decode($laporan->kondisi_guru, true)[$guru['id']] ?? '') == 'bermasalah' ? 'selected' : '' }}>Bermasalah</option>
+                                    </select>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+
+                    <div class="divider">
+                        <span>Masalah SDM Utama</span>
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah SDM Utama 1</label>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 1..." required>{{ old('masalah_sdm_utama.0', json_decode($laporan->masalah_sdm_utama, true)[0] ?? '') }}</textarea>
+                        @error('masalah_sdm_utama.0')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah SDM Utama 2</label>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 2..." required>{{ old('masalah_sdm_utama.1', json_decode($laporan->masalah_sdm_utama, true)[1] ?? '') }}</textarea>
+                        @error('masalah_sdm_utama.1')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah SDM Utama 3</label>
+                        <textarea name="masalah_sdm_utama[]" placeholder="Masalah 3..." required>{{ old('masalah_sdm_utama.2', json_decode($laporan->masalah_sdm_utama, true)[2] ?? '') }}</textarea>
+                        @error('masalah_sdm_utama.2')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 5: E. KEUANGAN -->
+        <div class="step-content" data-step="5">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-money"></i>
+                    </div>
+                    <h6 class="section-title">E. KEUANGAN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Sumber Dana Utama</label>
+                        <textarea name="sumber_dana_utama" placeholder="Jelaskan sumber dana utama..." required>{{ old('sumber_dana_utama', $laporan->sumber_dana_utama) }}</textarea>
+                        @error('sumber_dana_utama')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Kondisi Keuangan Akhir Tahun</label>
+                        <select name="kondisi_keuangan_akhir_tahun" required>
+                            <option value="">Pilih Kondisi</option>
+                            <option value="sehat" {{ old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'sehat' ? 'selected' : '' }}>Sehat</option>
+                            <option value="cukup" {{ old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'cukup' ? 'selected' : '' }}>Cukup</option>
+                            <option value="risiko" {{ old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'risiko' ? 'selected' : '' }}>Risiko</option>
+                            <option value="kritis" {{ old('kondisi_keuangan_akhir_tahun', $laporan->kondisi_keuangan_akhir_tahun) == 'kritis' ? 'selected' : '' }}>Kritis</option>
+                        </select>
+                        @error('kondisi_keuangan_akhir_tahun')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Catatan Penting Terkait Pengelolaan Keuangan</label>
+                        <textarea name="catatan_pengelolaan_keuangan" placeholder="Jelaskan catatan penting terkait pengelolaan keuangan..." required>{{ old('catatan_pengelolaan_keuangan', $laporan->catatan_pengelolaan_keuangan) }}</textarea>
+                        @error('catatan_pengelolaan_keuangan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 6: F. PPDB -->
+        <div class="step-content" data-step="6">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-user-plus"></i>
+                    </div>
+                    <h6 class="section-title">F. PPDB</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Metode PPDB yang Digunakan</label>
+                        <textarea name="metode_ppdb" placeholder="Jelaskan metode PPDB yang digunakan..." required>{{ old('metode_ppdb', $laporan->metode_ppdb) }}</textarea>
+                        @error('metode_ppdb')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Hasil PPDB Tahun Berjalan</label>
+                        <textarea name="hasil_ppdb_tahun_berjalan" placeholder="Jelaskan hasil PPDB tahun berjalan..." required>{{ old('hasil_ppdb_tahun_berjalan', $laporan->hasil_ppdb_tahun_berjalan) }}</textarea>
+                        @error('hasil_ppdb_tahun_berjalan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah Utama PPDB</label>
+                        <textarea name="masalah_utama_ppdb" placeholder="Jelaskan masalah utama PPDB..." required>{{ old('masalah_utama_ppdb', $laporan->masalah_utama_ppdb) }}</textarea>
+                        @error('masalah_utama_ppdb')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 7: G. UNGGULAN SEKOLAH/MADRASAH -->
+        <div class="step-content" data-step="7">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-star"></i>
+                    </div>
+                    <h6 class="section-title">G. UNGGULAN SEKOLAH/MADRASAH</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Nama Program Unggulan</label>
+                        <textarea name="nama_program_unggulan" placeholder="Jelaskan nama program unggulan..." required>{{ old('nama_program_unggulan', $laporan->nama_program_unggulan) }}</textarea>
+                        @error('nama_program_unggulan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Alasan Pemilihan Program</label>
+                        <textarea name="alasan_pemilihan_program" placeholder="Jelaskan alasan pemilihan program..." required>{{ old('alasan_pemilihan_program', $laporan->alasan_pemilihan_program) }}</textarea>
+                        @error('alasan_pemilihan_program')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Target Unggulan</label>
+                        <textarea name="target_unggulan" placeholder="Jelaskan target unggulan..." required>{{ old('target_unggulan', $laporan->target_unggulan) }}</textarea>
+                        @error('target_unggulan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Kontribusi Unggulan</label>
+                        <textarea name="kontribusi_unggulan" placeholder="Jelaskan kontribusi unggulan..." required>{{ old('kontribusi_unggulan', $laporan->kontribusi_unggulan) }}</textarea>
+                        @error('kontribusi_unggulan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Sumber Biaya Program</label>
+                        <textarea name="sumber_biaya_program" placeholder="Jelaskan sumber biaya program..." required>{{ old('sumber_biaya_program', $laporan->sumber_biaya_program) }}</textarea>
+                        @error('sumber_biaya_program')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Tim Program Unggulan</label>
+                        <textarea name="tim_program_unggulan" placeholder="Jelaskan tim program unggulan..." required>{{ old('tim_program_unggulan', $laporan->tim_program_unggulan) }}</textarea>
+                        @error('tim_program_unggulan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 8: H. REFLEKSI KEPALA SEKOLAH/MADRASAH -->
+        <div class="step-content" data-step="8">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-brain"></i>
+                    </div>
+                    <h6 class="section-title">H. REFLEKSI KEPALA SEKOLAH/MADRASAH</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Keberhasilan Terbesar Tahun Ini</label>
+                        <textarea name="keberhasilan_terbesar_tahun_ini" placeholder="Jelaskan keberhasilan terbesar tahun ini..." required>{{ old('keberhasilan_terbesar_tahun_ini', $laporan->keberhasilan_terbesar_tahun_ini) }}</textarea>
+                        @error('keberhasilan_terbesar_tahun_ini')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Masalah Paling Berat yang Dihadapi</label>
+                        <textarea name="masalah_paling_berat_dihadapi" placeholder="Jelaskan masalah paling berat yang dihadapi..." required>{{ old('masalah_paling_berat_dihadapi', $laporan->masalah_paling_berat_dihadapi) }}</textarea>
+                        @error('masalah_paling_berat_dihadapi')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Keputusan yang Sulit Diambil</label>
+                        <textarea name="keputusan_sulit_diambil" placeholder="Jelaskan keputusan yang sulit diambil..." required>{{ old('keputusan_sulit_diambil', $laporan->keputusan_sulit_diambil) }}</textarea>
+                        @error('keputusan_sulit_diambil')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 9: I. RISIKO DAN TINDAK LANJUT -->
+        <div class="step-content" data-step="9">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-shield"></i>
+                    </div>
+                    <h6 class="section-title">I. RISIKO DAN TINDAK LANJUT</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <label>Risiko Terbesar Satpen Tahun Depan</label>
+                        <textarea name="risiko_terbesar_satpen_tahun_depan" placeholder="Jelaskan risiko terbesar satpen tahun depan..." required>{{ old('risiko_terbesar_satpen_tahun_depan', $laporan->risiko_terbesar_satpen_tahun_depan) }}</textarea>
+                        @error('risiko_terbesar_satpen_tahun_depan')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group required">
+                        <label>Fokus Perbaikan Tahun Depan 1</label>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 1..." required>{{ old('fokus_perbaikan_tahun_depan.0', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[0] ?? '') }}</textarea>
+                        @error('fokus_perbaikan_tahun_depan.0')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fokus Perbaikan Tahun Depan 2</label>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 2...">{{ old('fokus_perbaikan_tahun_depan.1', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[1] ?? '') }}</textarea>
+                        @error('fokus_perbaikan_tahun_depan.1')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fokus Perbaikan Tahun Depan 3</label>
+                        <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3...">{{ old('fokus_perbaikan_tahun_depan.2', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[2] ?? '') }}</textarea>
+                        @error('fokus_perbaikan_tahun_depan.2')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="button" class="step-btn" onclick="nextStep()">
+                    Selanjutnya
+                    <i class="bx bx-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 10: J. PERNYATAAN -->
+        <div class="step-content" data-step="10">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="bx bx-check-circle"></i>
+                    </div>
+                    <h6 class="section-title">J. PERNYATAAN</h6>
+                </div>
+
+                <div class="section-content">
+                    <div class="form-group required">
+                        <div class="checkbox-container">
+                            <input type="checkbox" name="pernyataan_benar" value="1" id="pernyataan_benar" required {{ old('pernyataan_benar', $laporan->pernyataan_benar) ? 'checked' : '' }}>
+                            <label for="pernyataan_benar" class="checkbox-label">Saya menyetujui dan menyatakan bahwa semua data yang saya isi adalah benar dan sesuai dengan kondisi satpen</label>
+                        </div>
+                        @error('pernyataan_benar')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="location-date">
+                            <p>Yogyakarta, {{ date('d F Y') }}</p>
+                        </div>
+
+                        <div class="signature-area">
+                            <p>Tanda Tangan</p>
+                            <div style="margin-bottom: 10px;">
+                                <p style="font-size: 11px; color: #666; font-style: italic;">Masukkan tanda tangan baru jika ingin memperbarui tanda tangan</p>
+                            </div>
+                            <canvas id="signature-canvas" width="500" height="300" style="border: 1px solid #ccc; border-radius: 4px; background: #fff;"></canvas>
+                            <div style="margin-top: 8px;">
+                                <button type="button" id="clear-signature" class="btn btn-sm btn-outline-secondary" style="font-size: 11px;">Hapus Tanda Tangan</button>
+                            </div>
+                            <input type="hidden" name="signature_data" id="signature-data" value="{{ $laporan->signature_data }}">
+                            @if($laporan->signature_data)
+                                <div style="margin-bottom: 10px;">
+                                    <p style="font-size: 12px; color: #666; margin-bottom: 5px;">Tanda Tangan Tersimpan:</p>
+                                    <img src="{{ $laporan->signature_data }}" alt="Tanda Tangan Tersimpan" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="name-section">
+                            <p>{{ $laporan->nama_kepala_sekolah }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Navigation -->
+            <div class="step-navigation">
+                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                    <i class="bx bx-chevron-left"></i>
+                    Sebelumnya
+                </button>
+                <button type="submit" class="step-btn">
+                    <i class="bx bx-save"></i>
+                    Simpan Laporan
+                </button>
+            </div>
+        </div>
+
+    </form>
 </div>
 @endsection
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Format Rupiah for dana fields
-    const danaFields = ['target_dana', 'capaian_dana'];
-
-    danaFields.forEach(fieldName => {
-        const input = document.getElementById(fieldName);
-        if (input) {
-            // Format initial value if it exists
-            if (input.value && !input.value.includes('Rp ')) {
-                formatRupiah(input);
-            }
-
-            input.addEventListener('focus', function() {
-                // Remove formatting when focused for editing
-                let value = this.value.replace(/[^\d]/g, '');
-                this.value = value;
-            });
-            input.addEventListener('blur', function() {
-                // Format when leaving the field
-                formatRupiah(this);
-            });
-        }
-    });
-
-    // Format percentage for alumni fields
-    const alumniFields = ['target_alumni', 'capaian_alumni'];
-
-    alumniFields.forEach(fieldName => {
-        const input = document.getElementById(fieldName);
-        if (input) {
-            // Format initial value if it exists
-            if (input.value && !input.value.includes('%')) {
-                formatPercentage(input);
-            }
-
-            input.addEventListener('focus', function() {
-                // Remove formatting when focused for editing
-                let value = this.value.replace(/[^\d]/g, '');
-                this.value = value;
-            });
-            input.addEventListener('blur', function() {
-                // Format when leaving the field
-                formatPercentage(this);
-            });
-        }
-    });
-
-    // Initialize dynamic info for existing values
-    updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
-    updateDanaInfo('capaian_dana', 'capaian_dana_info');
-    updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
-    updateAkreditasiInfo();
-
-    // Initialize total score
-    updateTotalSkor();
-
-    // Add event listeners for dynamic updates
-    document.getElementById('capaian_jumlah_siswa').addEventListener('input', function() {
-        updateSiswaInfo('capaian_jumlah_siswa', 'capaian_siswa_info');
-        updateTotalSkor();
-    });
-    document.getElementById('capaian_alumni').addEventListener('input', function() {
-        updateAlumniInfo('capaian_alumni', 'capaian_alumni_info');
-        updateTotalSkor();
-    });
-    document.getElementById('capaian_dana').addEventListener('blur', function() {
-        updateDanaInfo('capaian_dana', 'capaian_dana_info');
-        updateTotalSkor();
-    });
-    document.getElementById('akreditasi').addEventListener('change', function() {
-        updateAkreditasiInfo();
-        updateTotalSkor();
-    });
-
-    // Before form submission, remove Rupiah and percentage formatting
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function() {
-            danaFields.forEach(fieldName => {
-                const input = document.getElementById(fieldName);
-                if (input && input.value.includes('Rp ')) {
-                    input.value = input.value.replace(/[^\d]/g, '');
-                }
-            });
-            alumniFields.forEach(fieldName => {
-                const input = document.getElementById(fieldName);
-                if (input && input.value.includes('%')) {
-                    input.value = input.value.replace(/[^\d]/g, '');
-                }
-            });
-        });
-    }
-});
-
-// Format number to Rupiah
-function formatRupiah(input) {
-    let value = input.value.replace(/[^\d]/g, '');
-    if (value) {
-        value = parseInt(value).toLocaleString('id-ID');
-        input.value = 'Rp ' + value;
-    } else {
-        input.value = '';
-    }
-}
-
-// Format number to percentage
-function formatPercentage(input) {
-    let value = input.value.replace(/[^\d]/g, '');
-    if (value) {
-        input.value = value + '%';
-    } else {
-        input.value = '';
-    }
-}
-
-// Function to update student count info
-function updateSiswaInfo(inputId, infoId) {
-    const input = document.getElementById(inputId);
-    const info = document.getElementById(infoId);
-    const value = parseInt(input.value) || 0;
-
-    let skor = 1;
-    let kategori = 'Posisi Zero';
-
-    if (value > 1001) {
-        skor = 9;
-        kategori = 'Unggulan A';
-    } else if (value >= 751) {
-        skor = 8;
-        kategori = 'Unggulan B';
-    } else if (value >= 501) {
-        skor = 7;
-        kategori = 'Mandiri A';
-    } else if (value >= 251) {
-        skor = 6;
-        kategori = 'Mandiri B';
-    } else if (value >= 151) {
-        skor = 5;
-        kategori = 'Pramandiri A';
-    } else if (value >= 101) {
-        skor = 4;
-        kategori = 'Pramandiri B';
-    } else if (value >= 61) {
-        skor = 3;
-        kategori = 'Rintisan A';
-    } else if (value >= 20) {
-        skor = 2;
-        kategori = 'Rintisan B';
-    }
-
-    if (value > 0) {
-        info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
-        info.style.display = 'block';
-    } else {
-        info.style.display = 'none';
-    }
-}
-
-// Function to update alumni percentage info
-function updateAlumniInfo(inputId, infoId) {
-    const input = document.getElementById(inputId);
-    const info = document.getElementById(infoId);
-    const value = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
-
-    let skor = 2;
-    let kategori = 'Rintisan B';
-
-    if (value >= 81) {
-        skor = 9;
-        kategori = 'Unggulan A';
-    } else if (value >= 66) {
-        skor = 8;
-        kategori = 'Unggulan B';
-    } else if (value >= 51) {
-        skor = 7;
-        kategori = 'Mandiri A';
-    } else if (value >= 35) {
-        skor = 6;
-        kategori = 'Mandiri B';
-    } else if (value >= 20) {
-        skor = 5;
-        kategori = 'Pramandiri A';
-    } else if (value >= 10) {
-        skor = 4;
-        kategori = 'Pramandiri B';
-    } else if (value >= 3) {
-        skor = 3;
-        kategori = 'Rintisan A';
-    }
-
-    if (value > 0) {
-        info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
-        info.style.display = 'block';
-    } else {
-        info.style.display = 'none';
-    }
-}
-
-// Function to update dana info
-function updateDanaInfo(inputId, infoId) {
-    const input = document.getElementById(inputId);
-    const info = document.getElementById(infoId);
-    const rawValue = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
-    const value = Math.floor(rawValue / 1000000); // Convert to millions
-
-    let skor = 1;
-    let kategori = 'Posisi Zero';
-
-    if (value > 5001) {
-        skor = 9;
-        kategori = 'Unggulan A';
-    } else if (value >= 3001) {
-        skor = 8;
-        kategori = 'Unggulan B';
-    } else if (value >= 2000) {
-        skor = 7;
-        kategori = 'Mandiri A';
-    } else if (value >= 1251) {
-        skor = 6;
-        kategori = 'Mandiri B';
-    } else if (value >= 751) {
-        skor = 5;
-        kategori = 'Pramandiri A';
-    } else if (value >= 351) {
-        skor = 4;
-        kategori = 'Pramandiri B';
-    } else if (value >= 151) {
-        skor = 3;
-        kategori = 'Rintisan A';
-    } else if (value >= 30) {
-        skor = 2;
-        kategori = 'Rintisan B';
-    }
-
-    if (rawValue > 0) {
-        info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
-        info.style.display = 'block';
-    } else {
-        info.style.display = 'none';
-    }
-}
-
-// Function to update accreditation info
-function updateAkreditasiInfo() {
-    const select = document.getElementById('akreditasi');
-    const info = document.getElementById('akreditasi_info');
-    const value = select.value;
-
-    let skor = 1; // Default for "Belum"
-    let kategori = 'Belum';
-
-    if (value === 'A') {
-        skor = 10;
-        kategori = 'Unggulan A';
-    } else if (value === 'B') {
-        skor = 7;
-        kategori = 'Mandiri A';
-    } else if (value === 'C') {
-        skor = 4;
-        kategori = 'Rintisan A';
-    }
-
-    if (value) {
-        info.textContent = `Skor: ${skor}, Kategori: ${kategori}`;
-        info.style.display = 'block';
-    } else {
-        info.style.display = 'none';
-    }
-}
-
-    // Function to calculate and update total score
-    function updateTotalSkor() {
-        let totalSkor = 0;
-        let skorTambahanSiswa = 0;
-        let skorTambahanDana = 0;
-        let skorTambahanAlumni = 0;
-
-        // Get capaian siswa score (based on student count)
-        const capaianSiswaInput = document.getElementById('capaian_jumlah_siswa');
-        if (capaianSiswaInput) {
-            const siswaValue = parseInt(capaianSiswaInput.value) || 0;
-            if (siswaValue > 1001) totalSkor += 9;
-            else if (siswaValue >= 751) totalSkor += 8;
-            else if (siswaValue >= 501) totalSkor += 7;
-            else if (siswaValue >= 251) totalSkor += 6;
-            else if (siswaValue >= 151) totalSkor += 5;
-            else if (siswaValue >= 101) totalSkor += 4;
-            else if (siswaValue >= 61) totalSkor += 3;
-            else if (siswaValue >= 20) totalSkor += 2;
-            else if (siswaValue > 0) totalSkor += 1;
-        }
-
-        // Get capaian dana score (based on dana amount)
-        const capaianDanaInput = document.getElementById('capaian_dana');
-        if (capaianDanaInput) {
-            const danaRawValue = parseInt(capaianDanaInput.value.replace(/[^\d]/g, '')) || 0;
-            const danaValue = Math.floor(danaRawValue / 1000000); // Convert to millions
-            if (danaValue > 5001) totalSkor += 9;
-            else if (danaValue >= 3001) totalSkor += 8;
-            else if (danaValue >= 2000) totalSkor += 7;
-            else if (danaValue >= 1251) totalSkor += 6;
-            else if (danaValue >= 751) totalSkor += 5;
-            else if (danaValue >= 351) totalSkor += 4;
-            else if (danaValue >= 151) totalSkor += 3;
-            else if (danaValue >= 30) totalSkor += 2;
-            else if (danaRawValue > 0) totalSkor += 1;
-        }
-
-        // Get capaian alumni score (based on alumni percentage)
-        const capaianAlumniInput = document.getElementById('capaian_alumni');
-        if (capaianAlumniInput) {
-            const alumniValue = parseInt(capaianAlumniInput.value.replace(/[^\d]/g, '')) || 0;
-            if (alumniValue >= 81) totalSkor += 9;
-            else if (alumniValue >= 66) totalSkor += 8;
-            else if (alumniValue >= 51) totalSkor += 7;
-            else if (alumniValue >= 35) totalSkor += 6;
-            else if (alumniValue >= 20) totalSkor += 5;
-            else if (alumniValue >= 10) totalSkor += 4;
-            else if (alumniValue >= 3) totalSkor += 3;
-            else if (alumniValue >= 1) totalSkor += 2;
-        }
-
-        // Get skor tambahan siswa (additional score based on target vs achievement)
-        const targetSiswaInput = document.getElementById('target_jumlah_siswa');
-        const capaianSiswaInput2 = document.getElementById('capaian_jumlah_siswa');
-        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
-            const targetValue = parseInt(targetSiswaInput.value) || 0;
-            const capaianValue = parseInt(capaianSiswaInput2.value) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanSiswa = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanSiswa = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanSiswa = 2; // naik
-            }
-
-            totalSkor += skorTambahanSiswa;
-        }
-
-        // Get skor tambahan dana (additional score based on target vs achievement)
-        const targetDanaInput = document.getElementById('target_dana');
-        const capaianDanaInput2 = document.getElementById('capaian_dana');
-        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            const targetValue = parseInt(targetDanaInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianDanaInput2.value.replace(/[^\d]/g, '')) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanDana = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanDana = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanDana = 2; // naik
-            }
-
-            totalSkor += skorTambahanDana;
-        }
-
-        // Get skor tambahan alumni (additional score based on target vs achievement)
-        const targetAlumniInput = document.getElementById('target_alumni');
-        const capaianAlumniInput2 = document.getElementById('capaian_alumni');
-        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            const targetValue = parseInt(targetAlumniInput.value.replace(/[^\d]/g, '')) || 0;
-            const capaianValue = parseInt(capaianAlumniInput2.value.replace(/[^\d]/g, '')) || 0;
-
-            if (capaianValue < targetValue) {
-                skorTambahanAlumni = 0; // turun
-            } else if (capaianValue === targetValue) {
-                skorTambahanAlumni = 1; // tetap
-            } else if (capaianValue > targetValue) {
-                skorTambahanAlumni = 2; // naik
-            }
-
-            totalSkor += skorTambahanAlumni;
-        }
-
-        // Get akreditasi score
-        const akreditasiSelect = document.getElementById('akreditasi');
-        if (akreditasiSelect) {
-            const akreditasiValue = akreditasiSelect.value;
-            if (akreditasiValue === 'A') totalSkor += 10;
-            else if (akreditasiValue === 'B') totalSkor += 7;
-            else if (akreditasiValue === 'C') totalSkor += 4;
-            else if (akreditasiValue === 'Belum') totalSkor += 1;
-        }
-
-        // Update total score field
-        const totalSkorField = document.getElementById('total_skor');
-        if (totalSkorField) {
-            totalSkorField.value = totalSkor;
-        }
-
-        // Update student score info only if target and capaian are filled
-        if (targetSiswaInput && capaianSiswaInput2 && targetSiswaInput.value.trim() !== '' && capaianSiswaInput2.value.trim() !== '') {
-            updateStudentScoreInfo(skorTambahanSiswa);
-        } else {
-            const info = document.getElementById('student_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update dana score info only if target and capaian are filled
-        if (targetDanaInput && capaianDanaInput2 && targetDanaInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianDanaInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            updateDanaScoreInfo(skorTambahanDana);
-        } else {
-            const info = document.getElementById('dana_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update alumni score info only if target and capaian are filled
-        if (targetAlumniInput && capaianAlumniInput2 && targetAlumniInput.value.replace(/[^\d]/g, '').trim() !== '' && capaianAlumniInput2.value.replace(/[^\d]/g, '').trim() !== '') {
-            updateAlumniScoreInfo(skorTambahanAlumni);
-        } else {
-            const info = document.getElementById('alumni_score_info');
-            info.style.display = 'none';
-        }
-
-        // Update total score info
-        updateTotalSkorInfo(totalSkor);
-    }
-
-    // Function to update student score info
-    function updateStudentScoreInfo(siswaScore) {
-        const info = document.getElementById('student_score_info');
-        let scoreText = '';
-
-        if (siswaScore === 0) {
-            scoreText = 'Skor Siswa: 0 (turun)';
-        } else if (siswaScore === 1) {
-            scoreText = 'Skor Siswa: 1 (tetap)';
-        } else if (siswaScore === 2) {
-            scoreText = 'Skor Siswa: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update dana score info
-    function updateDanaScoreInfo(danaScore) {
-        const info = document.getElementById('dana_score_info');
-        let scoreText = '';
-
-        if (danaScore === 0) {
-            scoreText = 'Skor Dana: 0 (turun)';
-        } else if (danaScore === 1) {
-            scoreText = 'Skor Dana: 1 (tetap)';
-        } else if (danaScore === 2) {
-            scoreText = 'Skor Dana: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update alumni score info
-    function updateAlumniScoreInfo(alumniScore) {
-        const info = document.getElementById('alumni_score_info');
-        let scoreText = '';
-
-        if (alumniScore === 0) {
-            scoreText = 'Skor Alumni: 0 (turun)';
-        } else if (alumniScore === 1) {
-            scoreText = 'Skor Alumni: 1 (tetap)';
-        } else if (alumniScore === 2) {
-            scoreText = 'Skor Alumni: 2 (naik)';
-        }
-
-        if (scoreText) {
-            info.textContent = scoreText;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-
-    // Function to update total score info
-    function updateTotalSkorInfo(totalSkor) {
-        const info = document.getElementById('total_skor_info');
-        let kategori = '';
-
-        if (totalSkor >= 0 && totalSkor <= 5) {
-            kategori = 'Sangat Lemah';
-        } else if (totalSkor >= 6 && totalSkor <= 16) {
-            kategori = 'Lemah';
-        } else if (totalSkor >= 17 && totalSkor <= 25) {
-            kategori = 'Rintisan';
-        } else if (totalSkor >= 26 && totalSkor <= 33) {
-            kategori = 'Cukup';
-        } else if (totalSkor >= 34 && totalSkor <= 38) {
-            kategori = 'Mandiri (Kuat)';
-        } else if (totalSkor >= 39 && totalSkor <= 43) {
-            kategori = 'Unggul';
-        }
-
-        if (kategori) {
-            info.textContent = `Kategori: ${kategori}`;
-            info.style.display = 'block';
-        } else {
-            info.style.display = 'none';
-        }
-    }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('js/mobile/laporan-akhir-tahun-edit.js') }}"></script>

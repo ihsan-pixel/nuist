@@ -3,101 +3,105 @@
 @section('title', 'Laporan Akhir Tahun')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/mobile/laporan-akhir-tahun-create.css') }}">
+
+<style>
+    body {
+    background: #f8f9fb url('/images/bg.png') no-repeat center center;
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+}
+</style>
+
+<!-- Header -->
 <div class="d-flex align-items-center mb-3" style="margin-top: -10px;">
-    <button onclick="window.location.href='{{ route('mobile.profile') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #004b4c;">
+    <button onclick="window.location.href='{{ route('mobile.profile') }}'" class="btn btn-link text-decoration-none p-0 me-2" style="color: #ffffff;">
         <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
     </button>
-    <span class="fw-bold" style="color: #004b4c; font-size: 12px;">Kembali</span>
+    <span class="fw-bold" style="color: #ffffff; font-size: 12px;">Kembali</span>
 </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Laporan Akhir Tahun</h4>
-                </div>
-                <div class="card-body">
+<div class="simfoni-header" style="margin-top: -10px;">
+    <h4>LAPORAN AKHIR TAHUN</h4>
+    <p>Kepala Sekolah/Madrasah</p>
+</div>
 
+<!-- Main Container -->
+<div class="form-container">
+    <!-- Success Alert -->
+    @if (session('success'))
+        <div class="success-alert">
+            ✓ {{ session('success') }}
+        </div>
+    @endif
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+    <!-- Info Alert -->
+    @if (session('info'))
+        <div class="info-alert">
+            ℹ {{ session('info') }}
+        </div>
+    @endif
 
-                    @if(session('info'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            {{ session('info') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+    <!-- Warning Alert -->
+    @if (session('warning'))
+        <div class="warning-alert">
+            ⚠ {{ session('warning') }}
+        </div>
+    @endif
 
-                    @if(session('warning'))
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            {{ session('warning') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <p class="text-muted mb-0">Daftar laporan akhir tahun yang telah Anda buat</p>
-                        {{-- <a href="{{ route('mobile.laporan-akhir-tahun.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Buat Laporan Baru
-                        </a> --}}
-                    </div>
-
-                    @if($laporans->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tahun</th>
-                                        <th>Nama Madrasah</th>
-                                        <th>Status</th>
-                                        <th>Tanggal Laporan</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($laporans as $laporan)
-                                        <tr>
-                                            <td>{{ $laporan->tahun_pelaporan }}</td>
-                                            <td>{{ $laporan->nama_madrasah }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $laporan->status === 'submitted' ? 'success' : ($laporan->status === 'approved' ? 'primary' : ($laporan->status === 'rejected' ? 'danger' : 'secondary')) }}">
-                                                    {{ ucfirst($laporan->status) }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $laporan->tanggal_laporan ? \Carbon\Carbon::parse($laporan->tanggal_laporan)->format('d/m/Y') : '-' }}</td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ route('mobile.laporan-akhir-tahun.show', $laporan->id) }}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="{{ route('mobile.laporan-akhir-tahun.edit', $laporan->id) }}" class="btn btn-sm btn-outline-warning">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Belum ada laporan</h5>
-                            <p class="text-muted">Anda belum membuat laporan akhir tahun. Klik tombol di atas untuk membuat laporan baru.</p>
-                            <a href="{{ route('mobile.laporan-akhir-tahun.create') }}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Buat Laporan Pertama
-                            </a>
-                        </div>
-                    @endif
-                </div>
+    <!-- Reports List Card -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="bx bx-list-ul"></i>
             </div>
+            <h6 class="section-title">DAFTAR LAPORAN</h6>
+        </div>
+
+        <div class="section-content">
+            @if($laporans->count() > 0)
+                <div class="reports-list">
+                    @foreach($laporans as $laporan)
+                        <div class="report-card">
+                            <div class="report-header">
+                                <div class="report-title">
+                                    <h6>{{ $laporan->nama_madrasah }}</h6>
+                                    <span>
+                                        Berhasil Terkirim
+                                    </span>
+                                </div>
+                                <div class="report-meta">
+                                    <span class="year">Tahun {{ $laporan->tahun_pelaporan }}</span>
+                                    <span class="date">{{ $laporan->created_at ? \Carbon\Carbon::parse($laporan->created_at)->format('d/m/Y') : '-' }}</span>
+                                </div>
+                            </div>
+                            <div class="report-actions">
+                                <a href="{{ route('mobile.laporan-akhir-tahun.show', $laporan->id) }}" class="btn btn-sm btn-outline-primary" title="Lihat Detail">
+                                    <i class="bx bx-show"></i>
+                                    Lihat
+                                </a>
+                                <a href="{{ route('mobile.laporan-akhir-tahun.edit', $laporan->id) }}" class="btn btn-sm btn-outline-warning" title="Edit Laporan">
+                                    <i class="bx bx-edit"></i>
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bx bx-file-blank"></i>
+                    </div>
+                    <h5>Belum Ada Laporan</h5>
+                    <p>Anda belum membuat laporan akhir tahun. Mulai buat laporan pertama Anda sekarang.</p>
+                    <a href="{{ route('mobile.laporan-akhir-tahun.create') }}" class="btn btn-primary">
+                        <i class="bx bx-plus"></i>
+                        Buat Laporan Baru
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </div>

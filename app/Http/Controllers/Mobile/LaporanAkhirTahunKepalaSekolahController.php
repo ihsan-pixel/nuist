@@ -31,9 +31,9 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new resource or editing existing one.
      */
-    public function create()
+    public function create($id = null)
     {
         $user = Auth::user();
 
@@ -42,29 +42,133 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
-        // Check if user already has a report for current year
-        $currentYear = Carbon::now()->year;
-        $existingReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
-            ->where('tahun_pelaporan', $currentYear)
-            ->first();
+        $laporan = null;
+        $isEditing = false;
 
-        if ($existingReport) {
-            return redirect()->route('mobile.laporan-akhir-tahun.edit', $existingReport->id)
-                ->with('info', 'Anda sudah memiliki laporan untuk tahun ' . $currentYear . '. Silakan edit laporan tersebut.');
+        // If ID is provided, we're editing an existing report
+        if ($id) {
+            $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+                ->findOrFail($id);
+            $isEditing = true;
+        } else {
+            // Check if user already has a report for current year
+            $currentYear = Carbon::now()->year;
+            $existingReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+                ->where('tahun_pelaporan', $currentYear)
+                ->first();
+
+            if ($existingReport) {
+                return redirect()->route('mobile.laporan-akhir-tahun.create', $existingReport->id)
+                    ->with('info', 'Anda sudah memiliki laporan untuk tahun ' . $currentYear . '. Silakan edit laporan tersebut.');
+            }
         }
 
-        // Pre-fill data from user and madrasah
-        $data = [
-            'nama_kepala_sekolah' => $user->name,
-            'nip' => $user->nip,
-            'nuptk' => $user->nuptk,
-            'nama_madrasah' => $user->madrasah->name ?? '',
-            'alamat_madrasah' => $user->madrasah->alamat ?? '',
-            'tahun_pelaporan' => $currentYear,
+        // Hitung jumlah guru berdasarkan status kepegawaian
+        $guruStats = [
+            'pns_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
+            'pns_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
+            'gty_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
+            'gty_sertifikasi_inpassing' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
+            'gty_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
+            'gtt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
+            'pty' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
+            'ptt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
         ];
 
-        return view('mobile.laporan-akhir-tahun.create', compact('data'));
+        // Get users with the same madrasah_id for talenta selection
+        $guruKaryawan = \App\Models\User::where('madrasah_id', $user->madrasah_id)
+            ->where('role', 'tenaga_pendidik')
+            ->get(['id', 'name'])
+            ->toArray();
+
+        // Pre-fill data from user and madrasah or existing report
+        $data = [
+            'nama_satpen' => $laporan ? $laporan->nama_satpen : ($user->madrasah->name ?? ''),
+            'alamat' => $laporan ? $laporan->alamat : '',
+            'nama_kepala_sekolah_madrasah' => $laporan ? $laporan->nama_kepala_sekolah_madrasah : $user->name,
+            'gelar' => $laporan ? $laporan->gelar : ($user->gelar ?? ''),
+            'tmt_ks_kamad_pertama' => $laporan ? $laporan->tmt_ks_kamad_pertama : '',
+            'tmt_ks_kamad_terakhir' => $laporan ? $laporan->tmt_ks_kamad_terakhir : '',
+            'tahun_pelaporan' => $laporan ? $laporan->tahun_pelaporan : Carbon::now()->year,
+            'nama_kepala_sekolah' => $laporan ? $laporan->nama_kepala_sekolah : $user->name,
+            'nama_madrasah' => $laporan ? $laporan->nama_madrasah : ($user->madrasah->name ?? ''),
+            'alamat_madrasah' => $laporan ? $laporan->alamat_madrasah : ($user->madrasah->alamat ?? ''),
+            // Step 2: Capaian Utama 3 Tahun Berjalan
+            'jumlah_siswa_2023' => $laporan ? $laporan->jumlah_siswa_2023 : 0,
+            'jumlah_siswa_2024' => $laporan ? $laporan->jumlah_siswa_2024 : 0,
+            'jumlah_siswa_2025' => $laporan ? $laporan->jumlah_siswa_2025 : 0,
+            'persentase_alumni_bekerja' => $laporan ? $laporan->persentase_alumni_bekerja . '%' : '',
+            'persentase_alumni_wirausaha' => $laporan ? $laporan->persentase_alumni_wirausaha . '%' : '',
+            'persentase_alumni_tidak_terdeteksi' => $laporan ? $laporan->persentase_alumni_tidak_terdeteksi . '%' : '',
+            'bosnas_2023' => $laporan ? $laporan->bosnas_2023 : '',
+            'bosnas_2024' => $laporan ? $laporan->bosnas_2024 : '',
+            'bosnas_2025' => $laporan ? $laporan->bosnas_2025 : '',
+            'bosda_2023' => $laporan ? $laporan->bosda_2023 : '',
+            'bosda_2024' => $laporan ? $laporan->bosda_2024 : '',
+            'bosda_2025' => $laporan ? $laporan->bosda_2025 : '',
+            'spp_bppp_lain_2023' => $laporan ? $laporan->spp_bppp_lain_2023 : '',
+            'spp_bppp_lain_2024' => $laporan ? $laporan->spp_bppp_lain_2024 : '',
+            'spp_bppp_lain_2025' => $laporan ? $laporan->spp_bppp_lain_2025 : '',
+            'pendapatan_unit_usaha_2023' => $laporan ? $laporan->pendapatan_unit_usaha_2023 : '',
+            'pendapatan_unit_usaha_2024' => $laporan ? $laporan->pendapatan_unit_usaha_2024 : '',
+            'pendapatan_unit_usaha_2025' => $laporan ? $laporan->pendapatan_unit_usaha_2025 : '',
+            'status_akreditasi' => $laporan ? $laporan->status_akreditasi : '',
+            'tanggal_akreditasi_mulai' => $laporan ? $laporan->tanggal_akreditasi_mulai : '',
+            'tanggal_akreditasi_berakhir' => $laporan ? $laporan->tanggal_akreditasi_berakhir : '',
+            // Step 3: Layanan Pendidikan
+            'model_layanan_pendidikan' => $laporan ? $laporan->model_layanan_pendidikan : '',
+            'capaian_layanan_menonjol' => $laporan ? $laporan->capaian_layanan_menonjol : '',
+            'masalah_layanan_utama' => $laporan ? $laporan->masalah_layanan_utama : '',
+            // Step 4: SDM
+            'pns_sertifikasi' => $laporan ? $laporan->pns_sertifikasi : $guruStats['pns_sertifikasi'],
+            'pns_non_sertifikasi' => $laporan ? $laporan->pns_non_sertifikasi : $guruStats['pns_non_sertifikasi'],
+            'gty_sertifikasi_inpassing' => $laporan ? $laporan->gty_sertifikasi_inpassing : $guruStats['gty_sertifikasi_inpassing'],
+            'gty_sertifikasi' => $laporan ? $laporan->gty_sertifikasi : $guruStats['gty_sertifikasi'],
+            'gty_non_sertifikasi' => $laporan ? $laporan->gty_non_sertifikasi : $guruStats['gty_non_sertifikasi'],
+            'gtt' => $laporan ? $laporan->gtt : $guruStats['gtt'],
+            'pty' => $laporan ? $laporan->pty : $guruStats['pty'],
+            'ptt' => $laporan ? $laporan->ptt : $guruStats['ptt'],
+            'jumlah_talenta' => $laporan ? $laporan->jumlah_talenta : 3,
+            'nama_talenta' => $laporan ? json_decode($laporan->nama_talenta, true) : [],
+            'alasan_talenta' => $laporan ? json_decode($laporan->alasan_talenta, true) : [],
+            'kondisi_guru' => $laporan ? json_decode($laporan->kondisi_guru, true) : [],
+            'masalah_sdm_utama' => $laporan ? json_decode($laporan->masalah_sdm_utama, true) : [],
+            // Step 5: Keuangan
+            'sumber_dana_utama' => $laporan ? $laporan->sumber_dana_utama : '',
+            'kondisi_keuangan_akhir_tahun' => $laporan ? $laporan->kondisi_keuangan_akhir_tahun : '',
+            'catatan_pengelolaan_keuangan' => $laporan ? $laporan->catatan_pengelolaan_keuangan : '',
+            // Step 6: PPDB
+            'metode_ppdb' => $laporan ? $laporan->metode_ppdb : '',
+            'hasil_ppdb_tahun_berjalan' => $laporan ? $laporan->hasil_ppdb_tahun_berjalan : '',
+            'masalah_utama_ppdb' => $laporan ? $laporan->masalah_utama_ppdb : '',
+            // Step 7: Unggulan
+            'nama_program_unggulan' => $laporan ? $laporan->nama_program_unggulan : '',
+            'alasan_pemilihan_program' => $laporan ? $laporan->alasan_pemilihan_program : '',
+            'target_unggulan' => $laporan ? $laporan->target_unggulan : '',
+            'kontribusi_unggulan' => $laporan ? $laporan->kontribusi_unggulan : '',
+            'sumber_biaya_program' => $laporan ? $laporan->sumber_biaya_program : '',
+            'tim_program_unggulan' => $laporan ? $laporan->tim_program_unggulan : '',
+            // Step 8: Refleksi
+            'keberhasilan_terbesar_tahun_ini' => $laporan ? $laporan->keberhasilan_terbesar_tahun_ini : '',
+            'masalah_paling_berat_dihadapi' => $laporan ? $laporan->masalah_paling_berat_dihadapi : '',
+            'keputusan_sulit_diambil' => $laporan ? $laporan->keputusan_sulit_diambil : '',
+            // Step 9: Risiko
+            'risiko_terbesar_satpen_tahun_depan' => $laporan ? $laporan->risiko_terbesar_satpen_tahun_depan : '',
+            'fokus_perbaikan_tahun_depan' => $laporan ? json_decode($laporan->fokus_perbaikan_tahun_depan, true) : [],
+            // Step 10: Pernyataan
+            'pernyataan_benar' => $laporan ? $laporan->pernyataan_benar : false,
+            'signature_data' => $laporan ? $laporan->signature_data : '',
+            'guru_karyawan' => $guruKaryawan,
+            'jumlah_guru' => $user->madrasah->jumlah_guru ?? 0,
+            'jumlah_siswa' => $user->madrasah->jumlah_siswa ?? 0,
+            'jumlah_kelas' => $user->madrasah->jumlah_kelas ?? 0,
+        ];
+
+        return view('mobile.laporan-akhir-tahun.create', compact('data', 'laporan', 'isEditing'));
     }
+
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -79,22 +183,86 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
         }
 
         $request->validate([
+            'nama_satpen' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'nama_kepala_sekolah_madrasah' => 'required|string|max:255',
+            'gelar' => 'nullable|string|max:255',
+            'tmt_ks_kamad_pertama' => 'required|date',
+            'tmt_ks_kamad_terakhir' => 'required|date',
             'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => 'required|string|max:255',
-            'nip' => 'nullable|string|max:255',
-            'nuptk' => 'nullable|string|max:255',
             'nama_madrasah' => 'required|string|max:255',
             'alamat_madrasah' => 'required|string',
-            'jumlah_guru' => 'required|integer|min:0',
-            'jumlah_siswa' => 'required|integer|min:0',
-            'jumlah_kelas' => 'required|integer|min:0',
-            'prestasi_madrasah' => 'required|string',
-            'kendala_utama' => 'required|string',
-            'program_kerja_tahun_depan' => 'required|string',
-            'anggaran_digunakan' => 'nullable|numeric|min:0',
-            'saran_dan_masukan' => 'nullable|string',
-            'tanggal_laporan' => 'required|date',
-            'pernyataan_setuju' => 'required|accepted',
+            // Step 2 validations
+            'jumlah_siswa_2023' => 'required|integer|min:0',
+            'jumlah_siswa_2024' => 'required|integer|min:0',
+            'jumlah_siswa_2025' => 'required|integer|min:0',
+            'persentase_alumni_bekerja' => 'required|string',
+            'persentase_alumni_wirausaha' => 'required|string',
+            'persentase_alumni_tidak_terdeteksi' => 'required|string',
+            'bosnas_2023' => 'required|string',
+            'bosnas_2024' => 'required|string',
+            'bosnas_2025' => 'required|string',
+            'bosda_2023' => 'required|string',
+            'bosda_2024' => 'required|string',
+            'bosda_2025' => 'required|string',
+            'spp_bppp_lain_2023' => 'required|string',
+            'spp_bppp_lain_2024' => 'required|string',
+            'spp_bppp_lain_2025' => 'required|string',
+            'pendapatan_unit_usaha_2023' => 'required|string',
+            'pendapatan_unit_usaha_2024' => 'required|string',
+            'pendapatan_unit_usaha_2025' => 'required|string',
+            'status_akreditasi' => 'required|string',
+            'tanggal_akreditasi_mulai' => 'required|date',
+            'tanggal_akreditasi_berakhir' => 'required|date',
+            // Step 3 validations
+            'model_layanan_pendidikan' => 'required|string',
+            'capaian_layanan_menonjol' => 'required|string',
+            'masalah_layanan_utama' => 'required|string',
+            // Step 4 validations
+            'pns_sertifikasi' => 'required|integer|min:0',
+            'pns_non_sertifikasi' => 'required|integer|min:0',
+            'gty_sertifikasi_inpassing' => 'required|integer|min:0',
+            'gty_sertifikasi' => 'required|integer|min:0',
+            'gty_non_sertifikasi' => 'required|integer|min:0',
+            'gtt' => 'required|integer|min:0',
+            'pty' => 'required|integer|min:0',
+            'ptt' => 'required|integer|min:0',
+            'jumlah_talenta' => 'required|integer|min:3|max:9',
+            'nama_talenta' => 'required|array|min:3|max:9',
+            'nama_talenta.*' => 'required|string',
+            'alasan_talenta' => 'required|array|min:3|max:9',
+            'alasan_talenta.*' => 'required|string',
+            'kondisi_guru' => 'required|array',
+            'kondisi_guru.*' => 'required|string|in:baik,cukup,bermasalah',
+            'masalah_sdm_utama' => 'required|array|min:3',
+            'masalah_sdm_utama.*' => 'required|string',
+            // Step 5 validations
+            'sumber_dana_utama' => 'required|string',
+            'kondisi_keuangan_akhir_tahun' => 'required|string|in:sehat,cukup,risiko,kritis',
+            'catatan_pengelolaan_keuangan' => 'required|string',
+            // Step 6 validations
+            'metode_ppdb' => 'required|string',
+            'hasil_ppdb_tahun_berjalan' => 'required|string',
+            'masalah_utama_ppdb' => 'required|string',
+            // Step 7 validations
+            'nama_program_unggulan' => 'required|string',
+            'alasan_pemilihan_program' => 'required|string',
+            'target_unggulan' => 'required|string',
+            'kontribusi_unggulan' => 'required|string',
+            'sumber_biaya_program' => 'required|string',
+            'tim_program_unggulan' => 'required|string',
+            // Step 8 validations
+            'keberhasilan_terbesar_tahun_ini' => 'required|string',
+            'masalah_paling_berat_dihadapi' => 'required|string',
+            'keputusan_sulit_diambil' => 'required|string',
+            // Step 9 validations
+            'risiko_terbesar_satpen_tahun_depan' => 'required|string',
+            'fokus_perbaikan_tahun_depan' => 'required|array|min:1',
+            'fokus_perbaikan_tahun_depan.*' => 'required|string',
+            // Step 10 validations
+            'pernyataan_benar' => 'required|boolean',
+            'signature_data' => 'required|string',
         ]);
 
         // Check if report already exists for this year
@@ -110,22 +278,81 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $laporan = LaporanAkhirTahunKepalaSekolah::create([
             'user_id' => $user->id,
+            'nama_satpen' => $request->nama_satpen,
+            'alamat' => $request->alamat,
+            'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
+            'gelar' => $request->gelar,
+            'tmt_ks_kamad_pertama' => $request->tmt_ks_kamad_pertama,
+            'tmt_ks_kamad_terakhir' => $request->tmt_ks_kamad_terakhir,
             'tahun_pelaporan' => $request->tahun_pelaporan,
             'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
-            'nip' => $request->nip,
-            'nuptk' => $request->nuptk,
             'nama_madrasah' => $request->nama_madrasah,
             'alamat_madrasah' => $request->alamat_madrasah,
-            'jumlah_guru' => $request->jumlah_guru,
-            'jumlah_siswa' => $request->jumlah_siswa,
-            'jumlah_kelas' => $request->jumlah_kelas,
-            'prestasi_madrasah' => $request->prestasi_madrasah,
-            'kendala_utama' => $request->kendala_utama,
-            'program_kerja_tahun_depan' => $request->program_kerja_tahun_depan,
-            'anggaran_digunakan' => $request->anggaran_digunakan,
-            'saran_dan_masukan' => $request->saran_dan_masukan,
-            'tanggal_laporan' => $request->tanggal_laporan,
-            'status' => 'submitted',
+            // Step 2: Capaian Utama 3 Tahun Berjalan
+            'jumlah_siswa_2023' => $request->jumlah_siswa_2023,
+            'jumlah_siswa_2024' => $request->jumlah_siswa_2024,
+            'jumlah_siswa_2025' => $request->jumlah_siswa_2025,
+            'persentase_alumni_bekerja' => str_replace('%', '', $request->persentase_alumni_bekerja),
+            'persentase_alumni_wirausaha' => str_replace('%', '', $request->persentase_alumni_wirausaha),
+            'persentase_alumni_tidak_terdeteksi' => str_replace('%', '', $request->persentase_alumni_tidak_terdeteksi),
+            'bosnas_2023' => $request->bosnas_2023,
+            'bosnas_2024' => $request->bosnas_2024,
+            'bosnas_2025' => $request->bosnas_2025,
+            'bosda_2023' => $request->bosda_2023,
+            'bosda_2024' => $request->bosda_2024,
+            'bosda_2025' => $request->bosda_2025,
+            'spp_bppp_lain_2023' => $request->spp_bppp_lain_2023,
+            'spp_bppp_lain_2024' => $request->spp_bppp_lain_2024,
+            'spp_bppp_lain_2025' => $request->spp_bppp_lain_2025,
+            'pendapatan_unit_usaha_2023' => $request->pendapatan_unit_usaha_2023,
+            'pendapatan_unit_usaha_2024' => $request->pendapatan_unit_usaha_2024,
+            'pendapatan_unit_usaha_2025' => $request->pendapatan_unit_usaha_2025,
+            'status_akreditasi' => $request->status_akreditasi,
+            'tanggal_akreditasi_mulai' => $request->tanggal_akreditasi_mulai,
+            'tanggal_akreditasi_berakhir' => $request->tanggal_akreditasi_berakhir,
+            // Step 3: Layanan Pendidikan
+            'model_layanan_pendidikan' => $request->model_layanan_pendidikan,
+            'capaian_layanan_menonjol' => $request->capaian_layanan_menonjol,
+            'masalah_layanan_utama' => $request->masalah_layanan_utama,
+            // Step 4: SDM
+            'pns_sertifikasi' => $request->pns_sertifikasi,
+            'pns_non_sertifikasi' => $request->pns_non_sertifikasi,
+            'gty_sertifikasi_inpassing' => $request->gty_sertifikasi_inpassing,
+            'gty_sertifikasi' => $request->gty_sertifikasi,
+            'gty_non_sertifikasi' => $request->gty_non_sertifikasi,
+            'gtt' => $request->gtt,
+            'pty' => $request->pty,
+            'ptt' => $request->ptt,
+            'jumlah_talenta' => $request->jumlah_talenta,
+            'nama_talenta' => json_encode($request->nama_talenta),
+            'alasan_talenta' => json_encode($request->alasan_talenta),
+            'kondisi_guru' => json_encode($request->kondisi_guru),
+            'masalah_sdm_utama' => json_encode($request->masalah_sdm_utama),
+            // Step 5: Keuangan
+            'sumber_dana_utama' => $request->sumber_dana_utama,
+            'kondisi_keuangan_akhir_tahun' => $request->kondisi_keuangan_akhir_tahun,
+            'catatan_pengelolaan_keuangan' => $request->catatan_pengelolaan_keuangan,
+            // Step 6: PPDB
+            'metode_ppdb' => $request->metode_ppdb,
+            'hasil_ppdb_tahun_berjalan' => $request->hasil_ppdb_tahun_berjalan,
+            'masalah_utama_ppdb' => $request->masalah_utama_ppdb,
+            // Step 7: Unggulan
+            'nama_program_unggulan' => $request->nama_program_unggulan,
+            'alasan_pemilihan_program' => $request->alasan_pemilihan_program,
+            'target_unggulan' => $request->target_unggulan,
+            'kontribusi_unggulan' => $request->kontribusi_unggulan,
+            'sumber_biaya_program' => $request->sumber_biaya_program,
+            'tim_program_unggulan' => $request->tim_program_unggulan,
+            // Step 8: Refleksi
+            'keberhasilan_terbesar_tahun_ini' => $request->keberhasilan_terbesar_tahun_ini,
+            'masalah_paling_berat_dihadapi' => $request->masalah_paling_berat_dihadapi,
+            'keputusan_sulit_diambil' => $request->keputusan_sulit_diambil,
+            // Step 9: Risiko
+            'risiko_terbesar_satpen_tahun_depan' => $request->risiko_terbesar_satpen_tahun_depan,
+            'fokus_perbaikan_tahun_depan' => json_encode($request->fokus_perbaikan_tahun_depan),
+            // Step 10: Pernyataan
+            'pernyataan_benar' => $request->pernyataan_benar,
+            'signature_data' => $request->signature_data,
         ]);
 
         return redirect()->route('mobile.laporan-akhir-tahun.index')
@@ -165,7 +392,108 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
         $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
             ->findOrFail($id);
 
-        return view('mobile.laporan-akhir-tahun.edit', compact('laporan'));
+        // Hitung jumlah guru berdasarkan status kepegawaian
+        $guruStats = [
+            'pns_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
+            'pns_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
+            'gty_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
+            'gty_sertifikasi_inpassing' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
+            'gty_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
+            'gtt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
+            'pty' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
+            'ptt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
+        ];
+
+        // Get users with the same madrasah_id for talenta selection
+        $guruKaryawan = \App\Models\User::where('madrasah_id', $user->madrasah_id)
+            ->where('role', 'tenaga_pendidik')
+            ->get(['id', 'name'])
+            ->toArray();
+
+        // Pre-fill data from existing report
+        $data = [
+            'nama_satpen' => $laporan->nama_satpen,
+            'alamat' => $laporan->alamat,
+            'nama_kepala_sekolah_madrasah' => $laporan->nama_kepala_sekolah_madrasah,
+            'gelar' => $laporan->gelar,
+            'tmt_ks_kamad_pertama' => $laporan->tmt_ks_kamad_pertama ? $laporan->tmt_ks_kamad_pertama->format('Y-m-d') : '',
+            'tmt_ks_kamad_terakhir' => $laporan->tmt_ks_kamad_terakhir ? $laporan->tmt_ks_kamad_terakhir->format('Y-m-d') : '',
+            'tahun_pelaporan' => $laporan->tahun_pelaporan,
+            'nama_kepala_sekolah' => $laporan->nama_kepala_sekolah,
+            'nama_madrasah' => $laporan->nama_madrasah,
+            'alamat_madrasah' => $laporan->alamat_madrasah,
+            // Step 2: Capaian Utama 3 Tahun Berjalan
+            'jumlah_siswa_2023' => $laporan->jumlah_siswa_2023,
+            'jumlah_siswa_2024' => $laporan->jumlah_siswa_2024,
+            'jumlah_siswa_2025' => $laporan->jumlah_siswa_2025,
+            'persentase_alumni_bekerja' => $laporan->persentase_alumni_bekerja . '%',
+            'persentase_alumni_wirausaha' => $laporan->persentase_alumni_wirausaha . '%',
+            'persentase_alumni_tidak_terdeteksi' => $laporan->persentase_alumni_tidak_terdeteksi . '%',
+            'bosnas_2023' => $laporan->bosnas_2023,
+            'bosnas_2024' => $laporan->bosnas_2024,
+            'bosnas_2025' => $laporan->bosnas_2025,
+            'bosda_2023' => $laporan->bosda_2023,
+            'bosda_2024' => $laporan->bosda_2024,
+            'bosda_2025' => $laporan->bosda_2025,
+            'spp_bppp_lain_2023' => $laporan->spp_bppp_lain_2023,
+            'spp_bppp_lain_2024' => $laporan->spp_bppp_lain_2024,
+            'spp_bppp_lain_2025' => $laporan->spp_bppp_lain_2025,
+            'pendapatan_unit_usaha_2023' => $laporan->pendapatan_unit_usaha_2023,
+            'pendapatan_unit_usaha_2024' => $laporan->pendapatan_unit_usaha_2024,
+            'pendapatan_unit_usaha_2025' => $laporan->pendapatan_unit_usaha_2025,
+            'status_akreditasi' => $laporan->status_akreditasi,
+            'tanggal_akreditasi_mulai' => $laporan->tanggal_akreditasi_mulai ? $laporan->tanggal_akreditasi_mulai->format('Y-m-d') : '',
+            'tanggal_akreditasi_berakhir' => $laporan->tanggal_akreditasi_berakhir ? $laporan->tanggal_akreditasi_berakhir->format('Y-m-d') : '',
+            // Step 3: Layanan Pendidikan
+            'model_layanan_pendidikan' => $laporan->model_layanan_pendidikan,
+            'capaian_layanan_menonjol' => $laporan->capaian_layanan_menonjol,
+            'masalah_layanan_utama' => $laporan->masalah_layanan_utama,
+            // Step 4: SDM
+            'pns_sertifikasi' => $laporan->pns_sertifikasi,
+            'pns_non_sertifikasi' => $laporan->pns_non_sertifikasi,
+            'gty_sertifikasi_inpassing' => $laporan->gty_sertifikasi_inpassing,
+            'gty_sertifikasi' => $laporan->gty_sertifikasi,
+            'gty_non_sertifikasi' => $laporan->gty_non_sertifikasi,
+            'gtt' => $laporan->gtt,
+            'pty' => $laporan->pty,
+            'ptt' => $laporan->ptt,
+            'jumlah_talenta' => $laporan->jumlah_talenta,
+            'nama_talenta' => json_decode($laporan->nama_talenta, true) ?? [],
+            'alasan_talenta' => json_decode($laporan->alasan_talenta, true) ?? [],
+            'kondisi_guru' => json_decode($laporan->kondisi_guru, true) ?? [],
+            'masalah_sdm_utama' => json_decode($laporan->masalah_sdm_utama, true) ?? [],
+            // Step 5: Keuangan
+            'sumber_dana_utama' => $laporan->sumber_dana_utama,
+            'kondisi_keuangan_akhir_tahun' => $laporan->kondisi_keuangan_akhir_tahun,
+            'catatan_pengelolaan_keuangan' => $laporan->catatan_pengelolaan_keuangan,
+            // Step 6: PPDB
+            'metode_ppdb' => $laporan->metode_ppdb,
+            'hasil_ppdb_tahun_berjalan' => $laporan->hasil_ppdb_tahun_berjalan,
+            'masalah_utama_ppdb' => $laporan->masalah_utama_ppdb,
+            // Step 7: Unggulan
+            'nama_program_unggulan' => $laporan->nama_program_unggulan,
+            'alasan_pemilihan_program' => $laporan->alasan_pemilihan_program,
+            'target_unggulan' => $laporan->target_unggulan,
+            'kontribusi_unggulan' => $laporan->kontribusi_unggulan,
+            'sumber_biaya_program' => $laporan->sumber_biaya_program,
+            'tim_program_unggulan' => $laporan->tim_program_unggulan,
+            // Step 8: Refleksi
+            'keberhasilan_terbesar_tahun_ini' => $laporan->keberhasilan_terbesar_tahun_ini,
+            'masalah_paling_berat_dihadapi' => $laporan->masalah_paling_berat_dihadapi,
+            'keputusan_sulit_diambil' => $laporan->keputusan_sulit_diambil,
+            // Step 9: Risiko
+            'risiko_terbesar_satpen_tahun_depan' => $laporan->risiko_terbesar_satpen_tahun_depan,
+            'fokus_perbaikan_tahun_depan' => json_decode($laporan->fokus_perbaikan_tahun_depan, true) ?? [],
+            // Step 10: Pernyataan
+            'pernyataan_benar' => $laporan->pernyataan_benar,
+            'signature_data' => $laporan->signature_data,
+            'guru_karyawan' => $guruKaryawan,
+            'jumlah_guru' => $user->madrasah->jumlah_guru ?? 0,
+            'jumlah_siswa' => $user->madrasah->jumlah_siswa ?? 0,
+            'jumlah_kelas' => $user->madrasah->jumlah_kelas ?? 0,
+        ];
+
+        return view('mobile.laporan-akhir-tahun.edit', compact('data', 'laporan', 'guruStats', 'guruKaryawan'));
     }
 
     /**
@@ -184,38 +512,162 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             ->findOrFail($id);
 
         $request->validate([
+            'nama_satpen' => 'required|string|max:255',
+            'alamat' => 'required|string',
+            'nama_kepala_sekolah_madrasah' => 'required|string|max:255',
+            'gelar' => 'nullable|string|max:255',
+            'tmt_ks_kamad_pertama' => 'required|date',
+            'tmt_ks_kamad_terakhir' => 'required|date',
             'nama_kepala_sekolah' => 'required|string|max:255',
-            'nip' => 'nullable|string|max:255',
-            'nuptk' => 'nullable|string|max:255',
             'nama_madrasah' => 'required|string|max:255',
             'alamat_madrasah' => 'required|string',
-            'jumlah_guru' => 'required|integer|min:0',
-            'jumlah_siswa' => 'required|integer|min:0',
-            'jumlah_kelas' => 'required|integer|min:0',
-            'prestasi_madrasah' => 'required|string',
-            'kendala_utama' => 'required|string',
-            'program_kerja_tahun_depan' => 'required|string',
-            'anggaran_digunakan' => 'nullable|numeric|min:0',
-            'saran_dan_masukan' => 'nullable|string',
-            'tanggal_laporan' => 'required|date',
-            'pernyataan_setuju' => 'required|accepted',
+            // Step 2 validations
+            'jumlah_siswa_2023' => 'required|integer|min:0',
+            'jumlah_siswa_2024' => 'required|integer|min:0',
+            'jumlah_siswa_2025' => 'required|integer|min:0',
+            'persentase_alumni_bekerja' => 'required|string',
+            'persentase_alumni_wirausaha' => 'required|string',
+            'persentase_alumni_tidak_terdeteksi' => 'required|string',
+            'bosnas_2023' => 'required|string',
+            'bosnas_2024' => 'required|string',
+            'bosnas_2025' => 'required|string',
+            'bosda_2023' => 'required|string',
+            'bosda_2024' => 'required|string',
+            'bosda_2025' => 'required|string',
+            'spp_bppp_lain_2023' => 'required|string',
+            'spp_bppp_lain_2024' => 'required|string',
+            'spp_bppp_lain_2025' => 'required|string',
+            'pendapatan_unit_usaha_2023' => 'required|string',
+            'pendapatan_unit_usaha_2024' => 'required|string',
+            'pendapatan_unit_usaha_2025' => 'required|string',
+            'status_akreditasi' => 'required|string',
+            'tanggal_akreditasi_mulai' => 'required|date',
+            'tanggal_akreditasi_berakhir' => 'required|date',
+            // Step 3 validations
+            'model_layanan_pendidikan' => 'required|string',
+            'capaian_layanan_menonjol' => 'required|string',
+            'masalah_layanan_utama' => 'required|string',
+            // Step 4 validations
+            'pns_sertifikasi' => 'required|integer|min:0',
+            'pns_non_sertifikasi' => 'required|integer|min:0',
+            'gty_sertifikasi_inpassing' => 'required|integer|min:0',
+            'gty_sertifikasi' => 'required|integer|min:0',
+            'gty_non_sertifikasi' => 'required|integer|min:0',
+            'gtt' => 'required|integer|min:0',
+            'pty' => 'required|integer|min:0',
+            'ptt' => 'required|integer|min:0',
+            'jumlah_talenta' => 'required|integer|min:3|max:9',
+            'nama_talenta' => 'required|array|min:3|max:9',
+            'nama_talenta.*' => 'required|string',
+            'alasan_talenta' => 'required|array|min:3|max:9',
+            'alasan_talenta.*' => 'required|string',
+            'kondisi_guru' => 'required|array',
+            'kondisi_guru.*' => 'required|string|in:baik,cukup,bermasalah',
+            'masalah_sdm_utama' => 'required|array|min:3',
+            'masalah_sdm_utama.*' => 'required|string',
+            // Step 5 validations
+            'sumber_dana_utama' => 'required|string',
+            'kondisi_keuangan_akhir_tahun' => 'required|string|in:sehat,cukup,risiko,kritis',
+            'catatan_pengelolaan_keuangan' => 'required|string',
+            // Step 6 validations
+            'metode_ppdb' => 'required|string',
+            'hasil_ppdb_tahun_berjalan' => 'required|string',
+            'masalah_utama_ppdb' => 'required|string',
+            // Step 7 validations
+            'nama_program_unggulan' => 'required|string',
+            'alasan_pemilihan_program' => 'required|string',
+            'target_unggulan' => 'required|string',
+            'kontribusi_unggulan' => 'required|string',
+            'sumber_biaya_program' => 'required|string',
+            'tim_program_unggulan' => 'required|string',
+            // Step 8 validations
+            'keberhasilan_terbesar_tahun_ini' => 'required|string',
+            'masalah_paling_berat_dihadapi' => 'required|string',
+            'keputusan_sulit_diambil' => 'required|string',
+            // Step 9 validations
+            'risiko_terbesar_satpen_tahun_depan' => 'required|string',
+            'fokus_perbaikan_tahun_depan' => 'required|array|min:1',
+            'fokus_perbaikan_tahun_depan.*' => 'required|string',
+            // Step 10 validations
+            'pernyataan_benar' => 'required|boolean',
+            'signature_data' => 'required|string',
         ]);
 
         $laporan->update([
+            'nama_satpen' => $request->nama_satpen,
+            'alamat' => $request->alamat,
+            'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
+            'gelar' => $request->gelar,
+            'tmt_ks_kamad_pertama' => $request->tmt_ks_kamad_pertama,
+            'tmt_ks_kamad_terakhir' => $request->tmt_ks_kamad_terakhir,
             'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
-            'nip' => $request->nip,
-            'nuptk' => $request->nuptk,
             'nama_madrasah' => $request->nama_madrasah,
             'alamat_madrasah' => $request->alamat_madrasah,
-            'jumlah_guru' => $request->jumlah_guru,
-            'jumlah_siswa' => $request->jumlah_siswa,
-            'jumlah_kelas' => $request->jumlah_kelas,
-            'prestasi_madrasah' => $request->prestasi_madrasah,
-            'kendala_utama' => $request->kendala_utama,
-            'program_kerja_tahun_depan' => $request->program_kerja_tahun_depan,
-            'anggaran_digunakan' => $request->anggaran_digunakan,
-            'saran_dan_masukan' => $request->saran_dan_masukan,
-            'tanggal_laporan' => $request->tanggal_laporan,
+            // Step 2: Capaian Utama 3 Tahun Berjalan
+            'jumlah_siswa_2023' => $request->jumlah_siswa_2023,
+            'jumlah_siswa_2024' => $request->jumlah_siswa_2024,
+            'jumlah_siswa_2025' => $request->jumlah_siswa_2025,
+            'persentase_alumni_bekerja' => str_replace('%', '', $request->persentase_alumni_bekerja),
+            'persentase_alumni_wirausaha' => str_replace('%', '', $request->persentase_alumni_wirausaha),
+            'persentase_alumni_tidak_terdeteksi' => str_replace('%', '', $request->persentase_alumni_tidak_terdeteksi),
+            'bosnas_2023' => $request->bosnas_2023,
+            'bosnas_2024' => $request->bosnas_2024,
+            'bosnas_2025' => $request->bosnas_2025,
+            'bosda_2023' => $request->bosda_2023,
+            'bosda_2024' => $request->bosda_2024,
+            'bosda_2025' => $request->bosda_2025,
+            'spp_bppp_lain_2023' => $request->spp_bppp_lain_2023,
+            'spp_bppp_lain_2024' => $request->spp_bppp_lain_2024,
+            'spp_bppp_lain_2025' => $request->spp_bppp_lain_2025,
+            'pendapatan_unit_usaha_2023' => $request->pendapatan_unit_usaha_2023,
+            'pendapatan_unit_usaha_2024' => $request->pendapatan_unit_usaha_2024,
+            'pendapatan_unit_usaha_2025' => $request->pendapatan_unit_usaha_2025,
+            'status_akreditasi' => $request->status_akreditasi,
+            'tanggal_akreditasi_mulai' => $request->tanggal_akreditasi_mulai,
+            'tanggal_akreditasi_berakhir' => $request->tanggal_akreditasi_berakhir,
+            // Step 3: Layanan Pendidikan
+            'model_layanan_pendidikan' => $request->model_layanan_pendidikan,
+            'capaian_layanan_menonjol' => $request->capaian_layanan_menonjol,
+            'masalah_layanan_utama' => $request->masalah_layanan_utama,
+            // Step 4: SDM
+            'pns_sertifikasi' => $request->pns_sertifikasi,
+            'pns_non_sertifikasi' => $request->pns_non_sertifikasi,
+            'gty_sertifikasi_inpassing' => $request->gty_sertifikasi_inpassing,
+            'gty_sertifikasi' => $request->gty_sertifikasi,
+            'gty_non_sertifikasi' => $request->gty_non_sertifikasi,
+            'gtt' => $request->gtt,
+            'pty' => $request->pty,
+            'ptt' => $request->ptt,
+            'jumlah_talenta' => $request->jumlah_talenta,
+            'nama_talenta' => json_encode($request->nama_talenta),
+            'alasan_talenta' => json_encode($request->alasan_talenta),
+            'kondisi_guru' => json_encode($request->kondisi_guru),
+            'masalah_sdm_utama' => json_encode($request->masalah_sdm_utama),
+            // Step 5: Keuangan
+            'sumber_dana_utama' => $request->sumber_dana_utama,
+            'kondisi_keuangan_akhir_tahun' => $request->kondisi_keuangan_akhir_tahun,
+            'catatan_pengelolaan_keuangan' => $request->catatan_pengelolaan_keuangan,
+            // Step 6: PPDB
+            'metode_ppdb' => $request->metode_ppdb,
+            'hasil_ppdb_tahun_berjalan' => $request->hasil_ppdb_tahun_berjalan,
+            'masalah_utama_ppdb' => $request->masalah_utama_ppdb,
+            // Step 7: Unggulan
+            'nama_program_unggulan' => $request->nama_program_unggulan,
+            'alasan_pemilihan_program' => $request->alasan_pemilihan_program,
+            'target_unggulan' => $request->target_unggulan,
+            'kontribusi_unggulan' => $request->kontribusi_unggulan,
+            'sumber_biaya_program' => $request->sumber_biaya_program,
+            'tim_program_unggulan' => $request->tim_program_unggulan,
+            // Step 8: Refleksi
+            'keberhasilan_terbesar_tahun_ini' => $request->keberhasilan_terbesar_tahun_ini,
+            'masalah_paling_berat_dihadapi' => $request->masalah_paling_berat_dihadapi,
+            'keputusan_sulit_diambil' => $request->keputusan_sulit_diambil,
+            // Step 9: Risiko
+            'risiko_terbesar_satpen_tahun_depan' => $request->risiko_terbesar_satpen_tahun_depan,
+            'fokus_perbaikan_tahun_depan' => json_encode($request->fokus_perbaikan_tahun_depan),
+            // Step 10: Pernyataan
+            'pernyataan_benar' => $request->pernyataan_benar,
+            'signature_data' => $request->signature_data,
         ]);
 
         return redirect()->route('mobile.laporan-akhir-tahun.index')
@@ -237,11 +689,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
         $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
             ->findOrFail($id);
 
-        // Only allow deletion of draft reports
-        if ($laporan->status !== 'draft') {
-            return redirect()->back()
-                ->withErrors(['error' => 'Hanya laporan dengan status draft yang dapat dihapus.']);
-        }
+        // Allow deletion of all reports since status field is removed
 
         $laporan->delete();
 

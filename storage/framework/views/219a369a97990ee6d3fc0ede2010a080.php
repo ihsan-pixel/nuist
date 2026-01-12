@@ -44,6 +44,9 @@
 
     <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Mobile-specific CSS -->
     <style>
         /* Mobile-first responsive design */
@@ -526,6 +529,27 @@
 
             // Update badge every 30 seconds
             setInterval(updateNotificationBadge, 30000);
+
+            // Show SweetAlert success message if present
+            const successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                const message = successMessage.getAttribute('data-message');
+                console.log('Success message found:', message);
+                if (message) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: message,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#004b4c',
+                        customClass: {
+                            popup: 'swal-mobile'
+                        }
+                    });
+                }
+            } else {
+                console.log('Success message element not found');
+            }
         });
     </script>
     <script>

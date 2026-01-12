@@ -1,142 +1,7 @@
 let currentStep = 1;
 const totalSteps = 10;
 
-// Auto-save functionality
-const AUTO_SAVE_KEY = 'laporan_akhir_tahun_draft';
-
-// Function to save form data to localStorage
-function saveFormData() {
-    const formData = {};
-    const form = document.querySelector('form');
-
-    if (!form) return;
-
-    // Get all form inputs, selects, and textareas
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        if (input.name && input.name !== '_token') { // Exclude CSRF token
-            if (input.type === 'checkbox') {
-                formData[input.name] = input.checked;
-            } else if (input.type === 'radio') {
-                if (input.checked) {
-                    formData[input.name] = input.value;
-                }
-            } else {
-                formData[input.name] = input.value;
-            }
-        }
-    });
-
-    // Save to localStorage
-    localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(formData));
-
-    // Show auto-save indicator
-    showAutoSaveIndicator();
-
-    console.log('Form data auto-saved');
-}
-
-// Function to show auto-save indicator
-function showAutoSaveIndicator() {
-    const indicator = document.getElementById('auto-save-indicator');
-    if (indicator) {
-        indicator.style.display = 'block';
-        // Hide after 3 seconds
-        setTimeout(() => {
-            indicator.style.display = 'none';
-        }, 3000);
-    }
-}
-
-// Function to load form data from localStorage
-function loadFormData() {
-    const savedData = localStorage.getItem(AUTO_SAVE_KEY);
-    if (!savedData) return;
-
-    try {
-        const formData = JSON.parse(savedData);
-        const form = document.querySelector('form');
-
-        if (!form) return;
-
-        // Populate form fields with saved data
-        Object.keys(formData).forEach(name => {
-            const inputs = form.querySelectorAll(`[name="${name}"]`);
-            inputs.forEach(input => {
-                if (input.type === 'checkbox') {
-                    input.checked = formData[name];
-                } else if (input.type === 'radio') {
-                    if (input.value === formData[name]) {
-                        input.checked = true;
-                    }
-                } else {
-                    input.value = formData[name];
-                }
-            });
-        });
-
-        // After loading data, reinitialize talenta fields based on loaded jumlah_talenta
-        initializeTalentaFields();
-
-        // Re-populate talenta fields after they are regenerated
-        setTimeout(() => {
-            Object.keys(formData).forEach(name => {
-                if (name.startsWith('nama_talenta[') || name.startsWith('alasan_talenta[')) {
-                    const inputs = form.querySelectorAll(`[name="${name}"]`);
-                    inputs.forEach(input => {
-                        input.value = formData[name];
-                    });
-                }
-            });
-        }, 100);
-
-        console.log('Form data loaded from auto-save');
-    } catch (error) {
-        console.error('Error loading saved form data:', error);
-    }
-}
-
-// Function to clear saved form data
-function clearSavedData() {
-    localStorage.removeItem(AUTO_SAVE_KEY);
-    console.log('Auto-saved data cleared');
-}
-
-// Function to set up auto-save on form changes
-function setupAutoSave() {
-    const form = document.querySelector('form');
-    if (!form) return;
-
-    // Auto-save on input changes (debounced)
-    let saveTimeout;
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveFormData();
-            }, 1000); // Save after 1 second of no typing
-        });
-
-        // Also save on change events for select elements and checkboxes
-        input.addEventListener('change', function() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveFormData();
-            }, 500); // Save after 0.5 seconds for change events
-        });
-    });
-
-    // Save data immediately when user leaves the page
-    window.addEventListener('beforeunload', function() {
-        saveFormData();
-    });
-
-    // Clear saved data on successful form submission
-    form.addEventListener('submit', function() {
-        clearSavedData();
-    });
-}
+// Draft functionality disabled for edit page
 
 // Navigation functions
 function showStep(step) {
@@ -237,13 +102,13 @@ function validateCurrentStep() {
         const jumlahTalenta = document.getElementById('jumlah_talenta');
         if (jumlahTalenta && jumlahTalenta.value) {
             const talentaCount = parseInt(jumlahTalenta.value);
-            const talentaContainers = currentStepElement.querySelectorAll('.talenta-group');
+            const talentaContainers = currentStepElement.querySelectorAll('.talenta-item');
 
             for (let i = 0; i < talentaCount; i++) {
                 const container = talentaContainers[i];
                 if (container) {
-                    const namaInput = container.querySelector('input[name="nama_talenta[]"]');
-                    const alasanTextarea = container.querySelector('textarea[name="alasan_talenta[]"]');
+                    const namaInput = container.querySelector('select[name="nama_talenta[' + i + ']"]');
+                    const alasanTextarea = container.querySelector('input[name="alasan_talenta[' + i + ']"]');
 
                     if (namaInput && !namaInput.value.trim()) {
                         isValid = false;
@@ -383,15 +248,9 @@ function setupRealTimeValidation() {
     });
 }
 
-// Initialize first step and auto-save functionality
+// Initialize first step functionality
 document.addEventListener('DOMContentLoaded', function() {
     showStep(1);
-
-    // Load saved data on page load
-    loadFormData();
-
-    // Set up auto-save on form changes
-    setupAutoSave();
 
     // Set up real-time validation clearing
     setupRealTimeValidation();
@@ -1082,6 +941,11 @@ function initializeTalentaFields() {
                 });
             }
 
+            // Set existing value if available
+            if (window.existingNamaTalenta && window.existingNamaTalenta[i]) {
+                namaSelect.value = window.existingNamaTalenta[i];
+            }
+
             namaGroup.appendChild(namaLabel);
             namaGroup.appendChild(namaSelect);
 
@@ -1097,6 +961,11 @@ function initializeTalentaFields() {
             alasanInput.name = `alasan_talenta[${i}]`;
             alasanInput.placeholder = 'Alasan...';
             alasanInput.required = true;
+
+            // Set existing value if available
+            if (window.existingAlasanTalenta && window.existingAlasanTalenta[i]) {
+                alasanInput.value = window.existingAlasanTalenta[i];
+            }
 
             alasanGroup.appendChild(alasanLabel);
             alasanGroup.appendChild(alasanInput);
