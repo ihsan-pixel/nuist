@@ -21,8 +21,6 @@ class LaporanAkhirTahunKepalaSekolah extends Model
         'tmt_ks_kamad_pertama',
         'tmt_ks_kamad_terakhir',
         'nama_kepala_sekolah',
-        'nama_madrasah',
-        'alamat_madrasah',
         // Step 2: Capaian Utama 3 Tahun Berjalan
         'jumlah_siswa_2023',
         'jumlah_siswa_2024',
