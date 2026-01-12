@@ -64,16 +64,31 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
         }
 
         // Hitung jumlah guru berdasarkan status kepegawaian
-        $guruStats = [
-            'pns_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
-            'pns_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
-            'gty_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
-            'gty_sertifikasi_inpassing' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
-            'gty_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
-            'gtt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
-            'pty' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
-            'ptt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
-        ];
+        $madrasah = $user->madrasah;
+        if ($madrasah) {
+            $guruStats = [
+                'pns_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
+                'pns_non_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
+                'gty_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
+                'gty_sertifikasi_inpassing' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
+                'gty_non_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
+                'gtt' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
+                'pty' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
+                'ptt' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
+            ];
+        } else {
+            // If user has no madrasah linked, default counts to 0 to avoid calling methods on null
+            $guruStats = [
+                'pns_sertifikasi' => 0,
+                'pns_non_sertifikasi' => 0,
+                'gty_sertifikasi' => 0,
+                'gty_sertifikasi_inpassing' => 0,
+                'gty_non_sertifikasi' => 0,
+                'gtt' => 0,
+                'pty' => 0,
+                'ptt' => 0,
+            ];
+        }
 
         // Get users with the same madrasah_id for talenta selection
         $guruKaryawan = \App\Models\User::where('madrasah_id', $user->madrasah_id)
@@ -393,16 +408,31 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             ->findOrFail($id);
 
         // Hitung jumlah guru berdasarkan status kepegawaian
-        $guruStats = [
-            'pns_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
-            'pns_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
-            'gty_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
-            'gty_sertifikasi_inpassing' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
-            'gty_non_sertifikasi' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
-            'gtt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
-            'pty' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
-            'ptt' => $user->madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
-        ];
+        $madrasah = $user->madrasah;
+        if ($madrasah) {
+            $guruStats = [
+                'pns_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 1)->count(),
+                'pns_non_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 2)->count(),
+                'gty_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 3)->count(),
+                'gty_sertifikasi_inpassing' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 4)->count(),
+                'gty_non_sertifikasi' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 5)->count(),
+                'gtt' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 6)->count(),
+                'pty' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 7)->count(),
+                'ptt' => $madrasah->tenagaPendidikUsers()->where('status_kepegawaian_id', 8)->count(),
+            ];
+        } else {
+            // If user has no madrasah linked, default counts to 0 to avoid calling methods on null
+            $guruStats = [
+                'pns_sertifikasi' => 0,
+                'pns_non_sertifikasi' => 0,
+                'gty_sertifikasi' => 0,
+                'gty_sertifikasi_inpassing' => 0,
+                'gty_non_sertifikasi' => 0,
+                'gtt' => 0,
+                'pty' => 0,
+                'ptt' => 0,
+            ];
+        }
 
         // Get users with the same madrasah_id for talenta selection
         $guruKaryawan = \App\Models\User::where('madrasah_id', $user->madrasah_id)
