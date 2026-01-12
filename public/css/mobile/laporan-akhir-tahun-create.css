@@ -981,7 +981,7 @@
 @media (max-width: 480px) {
     .report-card {
         padding: 16px;
-        margin: 0 8px;
+        margin: 0 16px;
     }
 
     .report-title h6 {
@@ -990,7 +990,7 @@
 
     .empty-state {
         padding: 40px 20px;
-        margin: 0 8px;
+        margin: 0 16px;
     }
 
     .empty-icon {
