@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('laporan_akhir_tahun_kepala_sekolah', function (Blueprint $table) {
-            //
+            $table->string('nama_madrasah')->nullable()->change();
+            $table->text('alamat_madrasah')->nullable()->change();
         });
     }
 
