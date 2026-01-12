@@ -69,8 +69,8 @@
         <!-- Hidden inputs for pre-filled required fields -->
         <input type="hidden" name="tahun_pelaporan" value="{{ $data['tahun_pelaporan'] }}">
         <input type="hidden" name="nama_kepala_sekolah" value="{{ $data['nama_kepala_sekolah'] }}">
-        <input type="hidden" name="nama_madrasah" value="{{ $data['nama_madrasah'] }}">
-        <input type="hidden" name="alamat_madrasah" value="{{ $data['alamat_madrasah'] }}">
+        {{-- <input type="hidden" name="nama_madrasah" value="{{ $data['nama_madrasah'] }}">
+        <input type="hidden" name="alamat_madrasah" value="{{ $data['alamat_madrasah'] }}"> --}}
 
         <!-- Step 1: A. IDENTITAS SATPEN -->
         <div class="step-content active" data-step="1">
