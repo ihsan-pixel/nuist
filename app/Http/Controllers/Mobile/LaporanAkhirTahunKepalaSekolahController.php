@@ -106,8 +106,8 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => $laporan ? $laporan->tmt_ks_kamad_terakhir : '',
             'tahun_pelaporan' => $laporan ? $laporan->tahun_pelaporan : Carbon::now()->year,
             'nama_kepala_sekolah' => $laporan ? $laporan->nama_kepala_sekolah : $user->name,
-            'nama_madrasah' => $laporan ? $laporan->nama_madrasah : ($user->madrasah->name ?? ''),
-            'alamat_madrasah' => $laporan ? $laporan->alamat_madrasah : ($user->madrasah->alamat ?? ''),
+            // 'nama_madrasah' => $laporan ? $laporan->nama_madrasah : ($user->madrasah->name ?? ''),
+            // 'alamat_madrasah' => $laporan ? $laporan->alamat_madrasah : ($user->madrasah->alamat ?? ''),
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $laporan ? $laporan->jumlah_siswa_2023 : 0,
             'jumlah_siswa_2024' => $laporan ? $laporan->jumlah_siswa_2024 : 0,
