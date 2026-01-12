@@ -62,7 +62,7 @@
             <h6 class="section-title">DAFTAR LAPORAN</h6>
         </div>
 
-        <div class="section-content" style="width: 1400px;">
+        <div class="section-content" style="width: 100%; margin-right: 2px; margin-left: 2px;">
             <?php if($laporans->count() > 0): ?>
                 <div class="reports-list">
                     <?php $__currentLoopData = $laporans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $laporan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
