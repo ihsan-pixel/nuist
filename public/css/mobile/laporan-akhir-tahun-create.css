@@ -988,16 +988,6 @@
         font-size: 14px;
     }
 
-    .report-actions {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .report-actions .btn {
-        justify-content: center;
-        width: 100%;
-    }
-
     .empty-state {
         padding: 40px 20px;
         margin: 0 8px;
