@@ -106,8 +106,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => $laporan ? $laporan->tmt_ks_kamad_terakhir : '',
             'tahun_pelaporan' => $laporan ? $laporan->tahun_pelaporan : Carbon::now()->year,
             'nama_kepala_sekolah' => $laporan ? $laporan->nama_kepala_sekolah : $user->name,
-            // 'nama_madrasah' => $laporan ? $laporan->nama_madrasah : ($user->madrasah->name ?? ''),
-            // 'alamat_madrasah' => $laporan ? $laporan->alamat_madrasah : ($user->madrasah->alamat ?? ''),
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $laporan ? $laporan->jumlah_siswa_2023 : 0,
             'jumlah_siswa_2024' => $laporan ? $laporan->jumlah_siswa_2024 : 0,
@@ -206,8 +204,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => 'required|date',
             'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => 'required|string|max:255',
-            'nama_madrasah' => 'nullable|string|max:255',
-            'alamat_madrasah' => 'nullable|string',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
@@ -301,8 +297,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => $request->tmt_ks_kamad_terakhir,
             'tahun_pelaporan' => $request->tahun_pelaporan,
             'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
-            'nama_madrasah' => $request->nama_madrasah,
-            'alamat_madrasah' => $request->alamat_madrasah,
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $request->jumlah_siswa_2023,
             'jumlah_siswa_2024' => $request->jumlah_siswa_2024,
@@ -450,8 +444,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => $laporan->tmt_ks_kamad_terakhir ? $laporan->tmt_ks_kamad_terakhir->format('Y-m-d') : '',
             'tahun_pelaporan' => $laporan->tahun_pelaporan,
             'nama_kepala_sekolah' => $laporan->nama_kepala_sekolah,
-            'nama_madrasah' => $laporan->nama_madrasah,
-            'alamat_madrasah' => $laporan->alamat_madrasah,
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $laporan->jumlah_siswa_2023,
             'jumlah_siswa_2024' => $laporan->jumlah_siswa_2024,
@@ -631,8 +623,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_pertama' => $request->tmt_ks_kamad_pertama,
             'tmt_ks_kamad_terakhir' => $request->tmt_ks_kamad_terakhir,
             'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
-            'nama_madrasah' => $request->nama_madrasah,
-            'alamat_madrasah' => $request->alamat_madrasah,
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $request->jumlah_siswa_2023,
             'jumlah_siswa_2024' => $request->jumlah_siswa_2024,
