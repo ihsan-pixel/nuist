@@ -452,35 +452,15 @@
         <span class="role-badge">{{ ucfirst($user->role) }}</span>
     </div> --}}
 
-    <!-- Personal Information -->
+    {{-- <!-- Personal Information -->
     <div class="info-section">
         <div class="info-header">
             <h6><i class="bx bx-user me-2"></i>Informasi Personal</h6>
         </div>
         <div class="info-content">
             <div class="info-item">
-                <span class="info-label">NUIST ID</span>
-                <span class="info-value">{{ $user->nuist_id ?? '-' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Nama Lengkap</span>
-                <span class="info-value">{{ $user->name }}</span>
-            </div>
-            <div class="info-item">
                 <span class="info-label">Email</span>
                 <span class="info-value">{{ $user->email }}</span>
-            </div>
-            {{-- <div class="info-item">
-                <span class="info-label">Role</span>
-                <span class="info-value">{{ ucfirst($user->role) }}</span>
-            </div> --}}
-            <div class="info-item">
-                <span class="info-label">Madrasah</span>
-                <span class="info-value">{{ $user->madrasah?->name ?? 'Belum diatur' }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Status Kepegawaian</span>
-                <span class="info-value">{{ $user->statusKepegawaian?->name ?? 'Belum diatur' }}</span>
             </div>
             <div class="info-item">
                 <span class="info-label">Ketugasan</span>
@@ -491,7 +471,7 @@
                 <span class="info-value">{{ $user->created_at ? $user->created_at->format('d M Y') : 'Tidak diketahui' }}</span>
             </div>
         </div>
-    </div>
+    </div> --}}
     <!-- Simfoni Data SK -->
     <div class="settings-section">
         <div class="settings-header">

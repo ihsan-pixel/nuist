@@ -455,25 +455,8 @@
         </div>
         <div class="info-content">
             <div class="info-item">
-                <span class="info-label">NUIST ID</span>
-                <span class="info-value"><?php echo e($user->nuist_id ?? '-'); ?></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Nama Lengkap</span>
-                <span class="info-value"><?php echo e($user->name); ?></span>
-            </div>
-            <div class="info-item">
                 <span class="info-label">Email</span>
                 <span class="info-value"><?php echo e($user->email); ?></span>
-            </div>
-            
-            <div class="info-item">
-                <span class="info-label">Madrasah</span>
-                <span class="info-value"><?php echo e($user->madrasah?->name ?? 'Belum diatur'); ?></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Status Kepegawaian</span>
-                <span class="info-value"><?php echo e($user->statusKepegawaian?->name ?? 'Belum diatur'); ?></span>
             </div>
             <div class="info-item">
                 <span class="info-label">Ketugasan</span>
