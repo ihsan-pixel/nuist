@@ -10,6 +10,11 @@
     font-family: 'Poppins', sans-serif;
     font-size: 13px;
 }
+
+    .report-actions .btn {
+        font-size: 10px;
+        padding: 0.2rem 0.4rem;
+    }
 </style>
 
 <!-- Header -->
@@ -27,12 +32,9 @@
 
 <!-- Main Container -->
 <div class="form-container">
-    <!-- Success Alert -->
+    <!-- Success Alert will be shown via SweetAlert -->
     <?php if(session('success')): ?>
-        <div class="success-alert">
-            ✓ <?php echo e(session('success')); ?>
-
-        </div>
+        <div id="success-message" data-message="<?php echo e(session('success')); ?>" style="display: none;"></div>
     <?php endif; ?>
 
     <!-- Info Alert -->
@@ -107,5 +109,17 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    <?php if(session('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '<?php echo e(session('success')); ?>',
+            confirmButtonText: 'OK'
+        });
+    <?php endif; ?>
+</script>
 
 <?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/laporan-akhir-tahun/index.blade.php ENDPATH**/ ?>

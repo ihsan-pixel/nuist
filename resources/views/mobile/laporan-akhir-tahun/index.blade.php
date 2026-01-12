@@ -12,6 +12,11 @@
     font-family: 'Poppins', sans-serif;
     font-size: 13px;
 }
+
+    .report-actions .btn {
+        font-size: 10px;
+        padding: 0.2rem 0.4rem;
+    }
 </style>
 
 <!-- Header -->
