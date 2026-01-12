@@ -1378,9 +1378,6 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="signature-area">
                             <p>Tanda Tangan</p>
-                            <div style="margin-bottom: 10px;">
-                                <p style="font-size: 11px; color: #666; font-style: italic;">Masukkan tanda tangan baru jika ingin memperbarui tanda tangan</p>
-                            </div>
                             <canvas id="signature-canvas" width="500" height="300" style="border: 1px solid #ccc; border-radius: 4px; background: #fff;"></canvas>
                             <div style="margin-top: 8px;">
                                 <button type="button" id="clear-signature" class="btn btn-sm btn-outline-secondary" style="font-size: 11px;">Hapus Tanda Tangan</button>
