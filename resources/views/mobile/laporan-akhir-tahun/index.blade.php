@@ -62,7 +62,7 @@
             <h6 class="section-title">DAFTAR LAPORAN</h6>
         </div>
 
-        <div class="section-content">
+        <div class="section-content" style="width: 1400px;">
             @if($laporans->count() > 0)
                 <div class="reports-list">
                     @foreach($laporans as $laporan)
