@@ -448,26 +448,7 @@
     <!-- Profile Avatar Section -->
     
 
-    <!-- Personal Information -->
-    <div class="info-section">
-        <div class="info-header">
-            <h6><i class="bx bx-user me-2"></i>Informasi Personal</h6>
-        </div>
-        <div class="info-content">
-            <div class="info-item">
-                <span class="info-label">Email</span>
-                <span class="info-value"><?php echo e($user->email); ?></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Ketugasan</span>
-                <span class="info-value"><?php echo e($user->ketugasan ?? 'Belum diatur'); ?></span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Bergabung Sejak</span>
-                <span class="info-value"><?php echo e($user->created_at ? $user->created_at->format('d M Y') : 'Tidak diketahui'); ?></span>
-            </div>
-        </div>
-    </div>
+    
     <!-- Simfoni Data SK -->
     <div class="settings-section">
         <div class="settings-header">
