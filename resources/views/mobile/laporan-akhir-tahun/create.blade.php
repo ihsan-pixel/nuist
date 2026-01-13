@@ -1074,18 +1074,7 @@
                             <p>{{ $data['nama_kepala_sekolah'] ?? 'Nama Kepala Sekolah' }}</p>
                         </div>
                     </div>
-                    <!-- File Upload Section -->
-                    <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_10" accept=".pdf" required>
-                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
-                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
-                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
-                        </div>
-                        @error('lampiran_step_10')
-                            <div class="form-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+
                 </div>
             </div>
 

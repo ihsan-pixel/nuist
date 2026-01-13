@@ -96,7 +96,6 @@ class LaporanAkhirTahunKepalaSekolah extends Model
         'lampiran_step_7',
         'lampiran_step_8',
         'lampiran_step_9',
-        'lampiran_step_10',
     ];
 
     protected $casts = [
