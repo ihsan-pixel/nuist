@@ -131,18 +131,18 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required">
+                        <label>Upload File Lampiran Pendukung</label>
+                        <input type="file" name="lampiran_step_1" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        @error('lampiran_step_1')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
-            <!-- File Upload Section -->
-            <div class="form-group required">
-                <label>Upload File Lampiran Pendukung</label>
-                <input type="file" name="lampiran_step_1" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
-                @error('lampiran_step_1')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
 
             <!-- Step Navigation -->
             <div class="step-navigation">
