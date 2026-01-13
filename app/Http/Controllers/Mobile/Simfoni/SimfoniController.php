@@ -131,6 +131,7 @@ class SimfoniController extends Controller
         // Parse currency fields (remove dots) before validation
         $currencyFields = [
             'gaji_sertifikasi',
+            'gaji_pemerintah',
             'gaji_pokok',
             'honor_lain',
             'penghasilan_lain',
@@ -185,6 +186,7 @@ class SimfoniController extends Controller
             'bank' => 'nullable|string|max:100',
             'nomor_rekening' => 'nullable|string|max:50',
             'gaji_sertifikasi' => 'nullable|numeric|min:0',
+            'gaji_pemerintah' => 'nullable|numeric|min:0',
             'gaji_pokok' => 'nullable|numeric|min:0',
             'honor_lain' => 'nullable|numeric|min:0',
             'penghasilan_lain' => 'nullable|numeric|min:0',

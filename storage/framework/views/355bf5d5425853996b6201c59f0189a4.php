@@ -762,6 +762,13 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="form-group">
+                            <label>Gaji dari Pemerintah</label>
+                            <div class="currency-prefix">
+                                <input type="text" name="gaji_pemerintah" value="<?php echo e(old('gaji_pemerintah', $simfoni->gaji_pemerintah ?? '')); ?>" placeholder="0" id="gajiPemerintahInput">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label>Gaji Pokok Perbulan dari Satpen</label>
                             <div class="currency-prefix">
                                 <input type="text" name="gaji_pokok" value="<?php echo e(old('gaji_pokok', $simfoni->gaji_pokok ?? '')); ?>" placeholder="0" id="gajiPokokInput">
@@ -1273,6 +1280,7 @@ unset($__errorArgs, $__bag); ?>
 
                     const total =
                         getValue('gaji_sertifikasi') +
+                        getValue('gaji_pemerintah') +
                         getValue('gaji_pokok') +
                         getValue('honor_lain') +
                         getValue('penghasilan_lain');

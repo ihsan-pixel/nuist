@@ -52,6 +52,7 @@ class Simfoni extends Model
         'bank',
         'nomor_rekening',
         'gaji_sertifikasi',
+        'gaji_pemerintah',
         'gaji_pokok',
         'honor_lain',
         'penghasilan_lain',
