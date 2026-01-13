@@ -107,31 +107,31 @@ function validateCurrentStep() {
             for (let i = 0; i < talentaCount; i++) {
                 const container = talentaContainers[i];
                 if (container) {
-                    const namaInput = container.querySelector('select[name="nama_talenta[' + i + ']"]');
-                    const alasanTextarea = container.querySelector('input[name="alasan_talenta[' + i + ']"]');
+                    const namaSelect = container.querySelector('select[name="nama_talenta[' + i + ']"]');
+                    const alasanInput = container.querySelector('input[name="alasan_talenta[' + i + ']"]');
 
-                    if (namaInput && !namaInput.value.trim()) {
+                    if (namaSelect && !namaSelect.value.trim()) {
                         isValid = false;
-                        if (!firstInvalidField) firstInvalidField = namaInput;
+                        if (!firstInvalidField) firstInvalidField = namaSelect;
 
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'form-error';
                         errorDiv.textContent = 'Nama talenta wajib diisi';
-                        namaInput.parentNode.insertBefore(errorDiv, namaInput.nextSibling);
-                        namaInput.style.borderColor = '#dc3545';
-                        namaInput.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+                        namaSelect.parentNode.insertBefore(errorDiv, namaSelect.nextSibling);
+                        namaSelect.style.borderColor = '#dc3545';
+                        namaSelect.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
                     }
 
-                    if (alasanTextarea && !alasanTextarea.value.trim()) {
+                    if (alasanInput && !alasanInput.value.trim()) {
                         isValid = false;
-                        if (!firstInvalidField) firstInvalidField = alasanTextarea;
+                        if (!firstInvalidField) firstInvalidField = alasanInput;
 
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'form-error';
                         errorDiv.textContent = 'Alasan talenta wajib diisi';
-                        alasanTextarea.parentNode.insertBefore(errorDiv, alasanTextarea.nextSibling);
-                        alasanTextarea.style.borderColor = '#dc3545';
-                        alasanTextarea.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+                        alasanInput.parentNode.insertBefore(errorDiv, alasanInput.nextSibling);
+                        alasanInput.style.borderColor = '#dc3545';
+                        alasanInput.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
                     }
                 }
             }
