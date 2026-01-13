@@ -174,7 +174,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_1" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_1" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -221,7 +221,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2023</label>
-                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023', $data['jumlah_siswa_2023'] ?? 0)); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023')); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -236,7 +236,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2024</label>
-                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024', $data['jumlah_siswa_2024'] ?? 0)); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024')); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -251,7 +251,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2025</label>
-                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025', $data['jumlah_siswa_2025'] ?? 0)); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025')); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -571,7 +571,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_2" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_2" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -662,7 +662,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_3" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_3" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -968,7 +968,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_4" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_4" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -1065,7 +1065,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_5" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_5" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -1157,7 +1157,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_6" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_6" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -1384,7 +1384,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_8" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_8" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
@@ -1490,7 +1490,7 @@ unset($__errorArgs, $__bag); ?>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
                         <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_9" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <input type="file" name="lampiran_step_9" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.

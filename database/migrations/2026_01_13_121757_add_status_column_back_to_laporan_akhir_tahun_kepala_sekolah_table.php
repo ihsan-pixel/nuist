@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('laporan_akhir_tahun_kepala_sekolah', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            //
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('laporan_akhir_tahun_kepala_sekolah', function (Blueprint $table) {
-            $table->dropColumn('status');
+            //
         });
     }
 };
