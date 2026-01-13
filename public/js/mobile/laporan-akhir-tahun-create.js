@@ -11,8 +11,8 @@ function saveFormData() {
 
     if (!form) return;
 
-    // Get all form inputs, selects, and textareas
-    const inputs = form.querySelectorAll('input, select, textarea');
+    // Get all form inputs, selects, and textareas, but exclude file inputs
+    const inputs = form.querySelectorAll('input:not([type="file"]), select, textarea');
     inputs.forEach(input => {
         if (input.name && input.name !== '_token') { // Exclude CSRF token
             if (input.type === 'checkbox') {

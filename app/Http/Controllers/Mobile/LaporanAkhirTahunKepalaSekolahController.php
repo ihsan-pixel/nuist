@@ -364,7 +364,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'lampiran_step_7' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_8' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_9' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_10' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            // 'lampiran_step_10' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
