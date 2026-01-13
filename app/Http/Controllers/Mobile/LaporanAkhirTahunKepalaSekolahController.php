@@ -213,19 +213,12 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
             // Handle file uploads
             $filePaths = [];
-            $uploadDir = public_path('uploads/laporan-akhir-tahun');
-
-            // Ensure directory exists
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
             for ($i = 1; $i <= 9; $i++) {
                 $fileKey = 'lampiran_step_' . $i;
                 if ($request->hasFile($fileKey)) {
                     // Delete old file if exists
                     if ($existingDraft && $existingDraft->$fileKey) {
-                        $oldFilePath = public_path($existingDraft->$fileKey);
+                        $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $existingDraft->$fileKey;
                         if (file_exists($oldFilePath)) {
                             unlink($oldFilePath);
                         }
@@ -233,7 +226,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
                     $file = $request->file($fileKey);
                     $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
-                    $file->move($uploadDir, $fileName);
+                    $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
                     $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
                 }
             }
@@ -736,19 +729,12 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         // Handle file uploads and delete old files if new ones are uploaded
         $filePaths = [];
-        $uploadDir = public_path('uploads/laporan-akhir-tahun');
-
-        // Ensure directory exists
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
         for ($i = 1; $i <= 9; $i++) {
             $fileKey = 'lampiran_step_' . $i;
             if ($request->hasFile($fileKey)) {
                 // Delete old file if exists
                 if ($laporan->$fileKey) {
-                    $oldFilePath = public_path($laporan->$fileKey);
+                    $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $laporan->$fileKey;
                     if (file_exists($oldFilePath)) {
                         unlink($oldFilePath);
                     }
@@ -756,7 +742,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
                 $file = $request->file($fileKey);
                 $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
-                $file->move($uploadDir, $fileName);
+                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
                 $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
             }
         }
@@ -852,7 +838,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'signature_data' => 'required|string',
         ]);
 
-        $updateData = [
+        $laporan->update([
             'nama_satpen' => $request->nama_satpen,
             'alamat' => $request->alamat,
             'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
@@ -925,12 +911,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             // Step 10: Pernyataan
             'pernyataan_benar' => $request->pernyataan_benar,
             'signature_data' => $request->signature_data,
-        ];
-
-        // Merge file paths into update data
-        $updateData = array_merge($updateData, $filePaths);
-
-        $laporan->update($updateData);
+        ]);
 
         return redirect()->route('mobile.laporan-akhir-tahun.index')
             ->with('success', 'Laporan akhir tahun berhasil diperbarui.');
