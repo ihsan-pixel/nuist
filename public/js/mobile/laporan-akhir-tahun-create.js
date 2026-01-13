@@ -1433,7 +1433,7 @@ function submitPublish() {
     // Confirm before publishing
     Swal.fire({
         title: 'Publikasikan Laporan?',
-        text: 'Apakah Anda yakin Laporan Data Sudah Sesuai?',
+        text: 'Setelah dipublikasikan, laporan tidak dapat diubah lagi. Apakah Anda yakin?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Ya, Publikasikan',
