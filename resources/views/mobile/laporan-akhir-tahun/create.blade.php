@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST">
+    <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- Hidden inputs for pre-filled required fields -->
@@ -132,6 +132,16 @@
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_1" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_1')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Step Navigation -->
@@ -364,6 +374,16 @@
                 </div>
             </div>
 
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_2')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Step Navigation -->
             <div class="step-navigation">
                 <button type="button" class="step-btn secondary" onclick="prevStep()">
@@ -414,6 +434,16 @@
                 </div>
             </div>
 
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_3" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_3')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Step Navigation -->
             <div class="step-navigation">
                 <button type="button" class="step-btn secondary" onclick="prevStep()">
@@ -427,7 +457,7 @@
             </div>
         </div>
 
-        <!-- Step 5: D. SUMBER DAYA MANUSIA (SDM) -->
+        <!-- Step 4: D. SUMBER DAYA MANUSIA (SDM) -->
         <div class="step-content" data-step="4">
             <div class="section-card">
                 <div class="section-header">
@@ -613,6 +643,16 @@
                 </div>
             </div>
 
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_4" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_4')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Step Navigation -->
             <div class="step-navigation">
                 <button type="button" class="step-btn secondary" onclick="prevStep()">
@@ -626,7 +666,7 @@
             </div>
         </div>
 
-        <!-- Step 4: E. KEUANGAN -->
+        <!-- Step 5: E. KEUANGAN -->
         <div class="step-content" data-step="5">
             <div class="section-card">
                 <div class="section-header">
@@ -667,6 +707,16 @@
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_5" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_5')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Step Navigation -->
@@ -718,6 +768,16 @@
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_6" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_6')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Step Navigation -->
@@ -794,6 +854,16 @@
                 </div>
             </div>
 
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_7" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_7')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
             <!-- Step Navigation -->
             <div class="step-navigation">
                 <button type="button" class="step-btn secondary" onclick="prevStep()">
@@ -842,6 +912,16 @@
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_8" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_8')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Step Navigation -->
@@ -959,6 +1039,16 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group required">
+                <label>Upload File Lampiran Pendukung</label>
+                <input type="file" name="lampiran_step_10" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                @error('lampiran_step_10')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Step Navigation -->

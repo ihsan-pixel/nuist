@@ -9,17 +9,15 @@ class LaporanAkhirTahunKepalaSekolah extends Model
 {
     use HasFactory;
 
-    protected $table = 'laporan_akhir_tahun_kepala_sekolah';
-
     protected $fillable = [
         'user_id',
-        'tahun_pelaporan',
         'nama_satpen',
         'alamat',
         'nama_kepala_sekolah_madrasah',
         'gelar',
         'tmt_ks_kamad_pertama',
         'tmt_ks_kamad_terakhir',
+        'tahun_pelaporan',
         'nama_kepala_sekolah',
         // Step 2: Capaian Utama 3 Tahun Berjalan
         'jumlah_siswa_2023',
@@ -86,11 +84,20 @@ class LaporanAkhirTahunKepalaSekolah extends Model
         // Step 10: Pernyataan
         'pernyataan_benar',
         'signature_data',
+        // File attachments
+        'lampiran_step_1',
+        'lampiran_step_2',
+        'lampiran_step_3',
+        'lampiran_step_4',
+        'lampiran_step_5',
+        'lampiran_step_6',
+        'lampiran_step_7',
+        'lampiran_step_8',
+        'lampiran_step_9',
+        'lampiran_step_10',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
         'tmt_ks_kamad_pertama' => 'date',
         'tmt_ks_kamad_terakhir' => 'date',
         'tanggal_akreditasi_mulai' => 'date',
@@ -103,9 +110,6 @@ class LaporanAkhirTahunKepalaSekolah extends Model
         'pernyataan_benar' => 'boolean',
     ];
 
-    /**
-     * Get the user that owns the laporan record
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

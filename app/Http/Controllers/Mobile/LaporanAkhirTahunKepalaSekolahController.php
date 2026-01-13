@@ -204,6 +204,16 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'tmt_ks_kamad_terakhir' => 'required|date',
             'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => 'required|string|max:255',
+            'lampiran_step_1' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_2' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_3' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_4' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_5' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_6' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_7' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_8' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_9' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'lampiran_step_10' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
@@ -285,6 +295,18 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['tahun_pelaporan' => 'Laporan untuk tahun ini sudah ada.']);
+        }
+
+        // Handle file uploads
+        $filePaths = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $fileKey = 'lampiran_step_' . $i;
+            if ($request->hasFile($fileKey)) {
+                $file = $request->file($fileKey);
+                $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/laporan-akhir-tahun'), $fileName);
+                $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
+            }
         }
 
         $laporan = LaporanAkhirTahunKepalaSekolah::create([
