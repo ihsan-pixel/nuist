@@ -455,7 +455,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             if ($request->hasFile($fileKey)) {
                 $file = $request->file($fileKey);
                 $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
-                $file->move($_SERVER['DOCUMENT_ROOT'] . '/public_html/uploads/laporan-akhir-tahun', $fileName);
+                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
                 $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
             }
         }
