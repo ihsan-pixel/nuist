@@ -134,8 +134,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_1" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_1" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_1')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -374,8 +377,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_2" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_2')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -434,8 +440,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_3" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_3" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_3')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -643,8 +652,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_4" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_4" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_4')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -709,8 +721,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_5" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_5" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_5')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -854,8 +869,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_7" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_7" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_7')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -914,8 +932,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_8" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_8" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_8')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -976,6 +997,18 @@
                         <label>Fokus Perbaikan Tahun Depan 3</label>
                         <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3...">{{ old('fokus_perbaikan_tahun_depan.2') }}</textarea>
                         @error('fokus_perbaikan_tahun_depan.2')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required">
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_9" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        @error('lampiran_step_9')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
@@ -1041,8 +1074,11 @@
                     <!-- File Upload Section -->
                     <div class="form-group required">
                         <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
-                        <input type="file" name="lampiran_step_10" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                        <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
+                        <input type="file" name="lampiran_step_10" accept=".pdf" required>
+                        <div class="form-hint">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 4px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
                         @error('lampiran_step_10')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
