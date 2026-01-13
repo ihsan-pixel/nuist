@@ -76,6 +76,16 @@
                 <span class="info-label">TMT KS/Kamad Terakhir</span>
                 <span class="info-value">{{ $laporan->tmt_ks_kamad_terakhir ? \Carbon\Carbon::parse($laporan->tmt_ks_kamad_terakhir)->format('d/m/Y') : '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_1)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_1) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 2: Capaian Utama 3 Tahun Berjalan -->
@@ -165,6 +175,16 @@
                 <span class="info-label">Tanggal Akreditasi Berakhir</span>
                 <span class="info-value">{{ $laporan->tanggal_akreditasi_berakhir ? \Carbon\Carbon::parse($laporan->tanggal_akreditasi_berakhir)->format('d/m/Y') : '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_2)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_2) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 3: Layanan Pendidikan -->
@@ -182,6 +202,16 @@
                 <span class="info-label">Masalah Layanan Utama</span>
                 <span class="info-value">{{ $laporan->masalah_layanan_utama ?? '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_3)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_3) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 4: SDM -->
@@ -288,6 +318,16 @@
                     <span class="info-value">{{ is_array(json_decode($laporan->masalah_sdm_utama, true)) ? implode(', ', json_decode($laporan->masalah_sdm_utama, true)) : $laporan->masalah_sdm_utama }}</span>
                 </div>
             @endif
+            @if($laporan->lampiran_step_4)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_4) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 5: Keuangan -->
@@ -305,6 +345,16 @@
                 <span class="info-label">Catatan Pengelolaan Keuangan</span>
                 <span class="info-value">{{ $laporan->catatan_pengelolaan_keuangan ?? '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_5)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_5) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 6: PPDB -->
@@ -351,6 +401,16 @@
                 <span class="info-label">Tim Program Unggulan</span>
                 <span class="info-value">{{ $laporan->tim_program_unggulan ?? '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_7)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_7) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 8: Refleksi -->
@@ -368,6 +428,16 @@
                 <span class="info-label">Keputusan Sulit Diambil</span>
                 <span class="info-value">{{ $laporan->keputusan_sulit_diambil ?? '-' }}</span>
             </div>
+            @if($laporan->lampiran_step_8)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_8) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Step 9: Risiko -->
@@ -381,6 +451,16 @@
                 <div class="info-row">
                     <span class="info-label">Fokus Perbaikan Tahun Depan</span>
                     <span class="info-value">{{ is_array(json_decode($laporan->fokus_perbaikan_tahun_depan, true)) ? implode(', ', json_decode($laporan->fokus_perbaikan_tahun_depan, true)) : $laporan->fokus_perbaikan_tahun_depan }}</span>
+                </div>
+            @endif
+            @if($laporan->lampiran_step_9)
+                <div class="info-row">
+                    <span class="info-label">Lampiran</span>
+                    <span class="info-value">
+                        <a href="{{ asset($laporan->lampiran_step_9) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bx bx-file"></i> Lihat File
+                        </a>
+                    </span>
                 </div>
             @endif
         </div>
