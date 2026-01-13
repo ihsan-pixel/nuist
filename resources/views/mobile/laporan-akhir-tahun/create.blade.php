@@ -1089,11 +1089,11 @@
                 <div class="submit-buttons">
                     <button type="button" class="step-btn draft-btn" onclick="submitDraft()">
                         <i class="bx bx-edit"></i>
-                        Simpan sebagai Draft
+                        Draft
                     </button>
                     <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
                         <i class="bx bx-save"></i>
-                        Simpan dan Publikasikan
+                        Simpan
                     </button>
                 </div>
             </div>
