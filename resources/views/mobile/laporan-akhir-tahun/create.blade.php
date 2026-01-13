@@ -175,7 +175,7 @@
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2023</label>
-                        <input type="number" name="jumlah_siswa_2023" value="{{ old('jumlah_siswa_2023') }}" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2023" value="{{ old('jumlah_siswa_2023', $data['jumlah_siswa_2023'] ?? 0) }}" min="0" placeholder="0" required>
                         @error('jumlah_siswa_2023')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -183,7 +183,7 @@
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2024</label>
-                        <input type="number" name="jumlah_siswa_2024" value="{{ old('jumlah_siswa_2024') }}" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2024" value="{{ old('jumlah_siswa_2024', $data['jumlah_siswa_2024'] ?? 0) }}" min="0" placeholder="0" required>
                         @error('jumlah_siswa_2024')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
@@ -191,7 +191,7 @@
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2025</label>
-                        <input type="number" name="jumlah_siswa_2025" value="{{ old('jumlah_siswa_2025') }}" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2025" value="{{ old('jumlah_siswa_2025', $data['jumlah_siswa_2025'] ?? 0) }}" min="0" placeholder="0" required>
                         @error('jumlah_siswa_2025')
                             <div class="form-error">{{ $message }}</div>
                         @enderror

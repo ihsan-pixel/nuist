@@ -221,7 +221,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2023</label>
-                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023', $data['jumlah_siswa_2023'] ?? 0)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -236,7 +236,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2024</label>
-                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024', $data['jumlah_siswa_2024'] ?? 0)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -251,7 +251,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2025</label>
-                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025')); ?>" min="0" placeholder="0" required>
+                        <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025', $data['jumlah_siswa_2025'] ?? 0)); ?>" min="0" placeholder="0" required>
                         <?php $__errorArgs = ['jumlah_siswa_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
