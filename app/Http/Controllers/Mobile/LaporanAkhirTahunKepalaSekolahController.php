@@ -194,6 +194,145 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
 
     /**
+     * Auto-save draft
+     */
+    public function autoSaveDraft(Request $request)
+    {
+        $user = Auth::user();
+
+        // Only kepala sekolah can access this
+        if ($user->role !== 'tenaga_pendidik' || $user->ketugasan !== 'kepala madrasah/sekolah') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            // Check if user already has a draft
+            $existingDraft = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+                ->where('status', 'draft')
+                ->first();
+
+            // Handle file uploads
+            $filePaths = [];
+            for ($i = 1; $i <= 9; $i++) {
+                $fileKey = 'lampiran_step_' . $i;
+                if ($request->hasFile($fileKey)) {
+                    $file = $request->file($fileKey);
+                    $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/laporan-akhir-tahun'), $fileName);
+                    $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
+                }
+            }
+
+            $data = [
+                'user_id' => $user->id,
+                'status' => 'draft',
+                'nama_satpen' => $request->nama_satpen,
+                'alamat' => $request->alamat,
+                'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
+                'gelar' => $request->gelar,
+                'tmt_ks_kamad_pertama' => $request->tmt_ks_kamad_pertama,
+                'tmt_ks_kamad_terakhir' => $request->tmt_ks_kamad_terakhir,
+                'tahun_pelaporan' => $request->tahun_pelaporan,
+                'nama_kepala_sekolah' => $request->nama_kepala_sekolah,
+                // Step 2: Capaian Utama 3 Tahun Berjalan
+                'jumlah_siswa_2023' => $request->jumlah_siswa_2023,
+                'jumlah_siswa_2024' => $request->jumlah_siswa_2024,
+                'jumlah_siswa_2025' => $request->jumlah_siswa_2025,
+                'persentase_alumni_bekerja' => str_replace('%', '', $request->persentase_alumni_bekerja),
+                'persentase_alumni_wirausaha' => str_replace('%', '', $request->persentase_alumni_wirausaha),
+                'persentase_alumni_tidak_terdeteksi' => str_replace('%', '', $request->persentase_alumni_tidak_terdeteksi),
+                'bosnas_2023' => $request->bosnas_2023,
+                'bosnas_2024' => $request->bosnas_2024,
+                'bosnas_2025' => $request->bosnas_2025,
+                'bosda_2023' => $request->bosda_2023,
+                'bosda_2024' => $request->bosda_2024,
+                'bosda_2025' => $request->bosda_2025,
+                'spp_bppp_lain_2023' => $request->spp_bppp_lain_2023,
+                'spp_bppp_lain_2024' => $request->spp_bppp_lain_2024,
+                'spp_bppp_lain_2025' => $request->spp_bppp_lain_2025,
+                'pendapatan_unit_usaha_2023' => $request->pendapatan_unit_usaha_2023,
+                'pendapatan_unit_usaha_2024' => $request->pendapatan_unit_usaha_2024,
+                'pendapatan_unit_usaha_2025' => $request->pendapatan_unit_usaha_2025,
+                'status_akreditasi' => $request->status_akreditasi,
+                'tanggal_akreditasi_mulai' => $request->tanggal_akreditasi_mulai,
+                'tanggal_akreditasi_berakhir' => $request->tanggal_akreditasi_berakhir,
+                // Step 3: Layanan Pendidikan
+                'model_layanan_pendidikan' => $request->model_layanan_pendidikan,
+                'capaian_layanan_menonjol' => $request->capaian_layanan_menonjol,
+                'masalah_layanan_utama' => $request->masalah_layanan_utama,
+                // Step 4: SDM
+                'pns_sertifikasi' => $request->pns_sertifikasi,
+                'pns_non_sertifikasi' => $request->pns_non_sertifikasi,
+                'gty_sertifikasi_inpassing' => $request->gty_sertifikasi_inpassing,
+                'gty_sertifikasi' => $request->gty_sertifikasi,
+                'gty_non_sertifikasi' => $request->gty_non_sertifikasi,
+                'gtt' => $request->gtt,
+                'pty' => $request->pty,
+                'ptt' => $request->ptt,
+                'jumlah_talenta' => $request->jumlah_talenta,
+                'nama_talenta' => json_encode($request->nama_talenta),
+                'alasan_talenta' => json_encode($request->alasan_talenta),
+                'kondisi_guru' => json_encode($request->kondisi_guru),
+                'masalah_sdm_utama' => json_encode($request->masalah_sdm_utama),
+                // Step 5: Keuangan
+                'sumber_dana_utama' => $request->sumber_dana_utama,
+                'kondisi_keuangan_akhir_tahun' => $request->kondisi_keuangan_akhir_tahun,
+                'catatan_pengelolaan_keuangan' => $request->catatan_pengelolaan_keuangan,
+                // Step 6: PPDB
+                'metode_ppdb' => $request->metode_ppdb,
+                'hasil_ppdb_tahun_berjalan' => $request->hasil_ppdb_tahun_berjalan,
+                'masalah_utama_ppdb' => $request->masalah_utama_ppdb,
+                // Step 7: Unggulan
+                'nama_program_unggulan' => $request->nama_program_unggulan,
+                'alasan_pemilihan_program' => $request->alasan_pemilihan_program,
+                'target_unggulan' => $request->target_unggulan,
+                'kontribusi_unggulan' => $request->kontribusi_unggulan,
+                'sumber_biaya_program' => $request->sumber_biaya_program,
+                'tim_program_unggulan' => $request->tim_program_unggulan,
+                // Step 8: Refleksi
+                'keberhasilan_terbesar_tahun_ini' => $request->keberhasilan_terbesar_tahun_ini,
+                'masalah_paling_berat_dihadapi' => $request->masalah_paling_berat_dihadapi,
+                'keputusan_sulit_diambil' => $request->keputusan_sulit_diambil,
+                // Step 9: Risiko
+                'risiko_terbesar_satpen_tahun_depan' => $request->risiko_terbesar_satpen_tahun_depan,
+                'fokus_perbaikan_tahun_depan' => json_encode($request->fokus_perbaikan_tahun_depan),
+                // Step 10: Pernyataan
+                'pernyataan_benar' => $request->pernyataan_benar,
+                'signature_data' => $request->signature_data,
+                // File attachments
+                'lampiran_step_1' => $filePaths['lampiran_step_1'] ?? $existingDraft->lampiran_step_1 ?? null,
+                'lampiran_step_2' => $filePaths['lampiran_step_2'] ?? $existingDraft->lampiran_step_2 ?? null,
+                'lampiran_step_3' => $filePaths['lampiran_step_3'] ?? $existingDraft->lampiran_step_3 ?? null,
+                'lampiran_step_4' => $filePaths['lampiran_step_4'] ?? $existingDraft->lampiran_step_4 ?? null,
+                'lampiran_step_5' => $filePaths['lampiran_step_5'] ?? $existingDraft->lampiran_step_5 ?? null,
+                'lampiran_step_6' => $filePaths['lampiran_step_6'] ?? $existingDraft->lampiran_step_6 ?? null,
+                'lampiran_step_7' => $filePaths['lampiran_step_7'] ?? $existingDraft->lampiran_step_7 ?? null,
+                'lampiran_step_8' => $filePaths['lampiran_step_8'] ?? $existingDraft->lampiran_step_8 ?? null,
+                'lampiran_step_9' => $filePaths['lampiran_step_9'] ?? $existingDraft->lampiran_step_9 ?? null,
+            ];
+
+            if ($existingDraft) {
+                $existingDraft->update($data);
+                $laporan = $existingDraft;
+            } else {
+                $laporan = LaporanAkhirTahunKepalaSekolah::create($data);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Draft saved successfully',
+                'laporan_id' => $laporan->id
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save draft: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)

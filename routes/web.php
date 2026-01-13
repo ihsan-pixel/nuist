@@ -204,6 +204,7 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->nam
 
     // Laporan Akhir Tahun Kepala Sekolah
     Route::resource('laporan-akhir-tahun', App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class);
+    Route::post('laporan-akhir-tahun/auto-save-draft', [App\Http\Controllers\Mobile\LaporanAkhirTahunKepalaSekolahController::class, 'autoSaveDraft'])->name('laporan-akhir-tahun.auto-save-draft');
 
     // Monitoring (kepala madrasah)
     Route::get('/monitor-presensi', [App\Http\Controllers\Mobile\Monitoring\MonitoringController::class, 'monitorPresensi'])->name('monitor-presensi');

@@ -118,7 +118,7 @@ function setupAutoSave() {
             }, 1000); // Save after 1 second of no typing
         });
 
-        // Also save on change events for select elements and checkboxes
+        // Also save on change events for select elements, checkboxes, and file inputs
         input.addEventListener('change', function() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
