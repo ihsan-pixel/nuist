@@ -131,6 +131,23 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_1" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        @if($laporan->lampiran_step_1)
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_1) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_1) }}</a>
+                            </div>
+                        @endif
+                        @error('lampiran_step_1')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -361,6 +378,23 @@
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_2" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        @if($laporan->lampiran_step_2)
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_2) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_2) }}</a>
+                            </div>
+                        @endif
+                        @error('lampiran_step_2')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -408,6 +442,23 @@
                         <label>Masalah Layanan Utama Tahun Ini</label>
                         <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required>{{ old('masalah_layanan_utama', $laporan->masalah_layanan_utama) }}</textarea>
                         @error('masalah_layanan_utama')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_3" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        @if($laporan->lampiran_step_3)
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_3) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_3) }}</a>
+                            </div>
+                        @endif
+                        @error('lampiran_step_3')
                             <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
