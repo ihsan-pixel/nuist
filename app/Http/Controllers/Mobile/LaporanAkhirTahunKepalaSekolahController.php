@@ -216,9 +216,17 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             for ($i = 1; $i <= 9; $i++) {
                 $fileKey = 'lampiran_step_' . $i;
                 if ($request->hasFile($fileKey)) {
+                    // Delete old file if exists
+                    if ($existingDraft && $existingDraft->$fileKey) {
+                        $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $existingDraft->$fileKey;
+                        if (file_exists($oldFilePath)) {
+                            unlink($oldFilePath);
+                        }
+                    }
+
                     $file = $request->file($fileKey);
                     $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
-                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
+                    $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
                     $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
                 }
             }
@@ -718,6 +726,26 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             ->findOrFail($id);
 
         $isDraft = $laporan->status === 'draft';
+
+        // Handle file uploads and delete old files if new ones are uploaded
+        $filePaths = [];
+        for ($i = 1; $i <= 9; $i++) {
+            $fileKey = 'lampiran_step_' . $i;
+            if ($request->hasFile($fileKey)) {
+                // Delete old file if exists
+                if ($laporan->$fileKey) {
+                    $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $laporan->$fileKey;
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                $file = $request->file($fileKey);
+                $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
+                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
+                $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
+            }
+        }
 
         $request->validate([
             'nama_satpen' => 'required|string|max:255',
