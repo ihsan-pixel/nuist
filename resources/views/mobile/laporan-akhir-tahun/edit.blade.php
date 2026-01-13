@@ -141,7 +141,7 @@
                         </div>
                         @if($laporan->lampiran_step_1)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_1) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_1) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_1) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_1) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_1')
@@ -388,7 +388,7 @@
                         </div>
                         @if($laporan->lampiran_step_2)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_2) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_2) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_2) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_2) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_2')
@@ -455,7 +455,7 @@
                         </div>
                         @if($laporan->lampiran_step_3)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_3) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_3) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_3) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_3) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_3')
@@ -660,7 +660,7 @@
                         </div>
                         @if($laporan->lampiran_step_4)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_4) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_4) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_4) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_4) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_4')
@@ -733,7 +733,7 @@
                         </div>
                         @if($laporan->lampiran_step_5)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_5) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_5) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_5) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_5) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_5')
@@ -800,7 +800,7 @@
                         </div>
                         @if($laporan->lampiran_step_6)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_6) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_6) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_6) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_6) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_6')
@@ -891,7 +891,7 @@
                         </div>
                         @if($laporan->lampiran_step_7)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_7) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_7) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_7) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_7) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_7')
@@ -958,7 +958,7 @@
                         </div>
                         @if($laporan->lampiran_step_8)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_8) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_8) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_8) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_8) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_8')
@@ -1033,7 +1033,7 @@
                         </div>
                         @if($laporan->lampiran_step_9)
                             <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
-                                <strong>File tersimpan:</strong> <a href="{{ asset('storage/' . $laporan->lampiran_step_9) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_9) }}</a>
+                                <strong>File tersimpan:</strong> <a href="{{ asset('/' . $laporan->lampiran_step_9) }}" target="_blank" style="color: #004b4c; text-decoration: underline;">{{ basename($laporan->lampiran_step_9) }}</a>
                             </div>
                         @endif
                         @error('lampiran_step_9')
