@@ -740,7 +740,7 @@
                     <div class="section-icon">
                         <i class="bx bx-star"></i>
                     </div>
-                    <h6 class="section-title">G. UNGGULAN SEKOLAH/MADRASAH</h6>
+                    <h6 class="section-title">G. PROGRAM UNGGULAN SEKOLAH/MADRASAH</h6>
                 </div>
 
                 <div class="section-content">
