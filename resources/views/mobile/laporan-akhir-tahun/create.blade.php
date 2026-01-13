@@ -871,9 +871,9 @@
                         @enderror
                     </div>
                     <!-- File Upload Section -->
-                    <div class="form-group" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
-                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini (Opsional)</label>
-                        <input type="file" name="lampiran_step_7" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_7" accept=".pdf" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                         <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
