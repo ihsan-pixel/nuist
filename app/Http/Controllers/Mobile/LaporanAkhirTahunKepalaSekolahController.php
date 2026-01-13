@@ -399,11 +399,11 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'gtt' => 'required|integer|min:0',
             'pty' => 'required|integer|min:0',
             'ptt' => 'required|integer|min:0',
-            'jumlah_talenta' => 'required|integer|min:3|max:9',
-            'nama_talenta' => 'required|array|min:3|max:9',
-            'nama_talenta.*' => 'required|string',
-            'alasan_talenta' => 'required|array|min:3|max:9',
-            'alasan_talenta.*' => 'required|string',
+            'jumlah_talenta' => $isDraft ? 'nullable|integer|min:3|max:9' : 'required|integer|min:3|max:9',
+            'nama_talenta' => $isDraft ? 'nullable|array|min:3|max:9' : 'required|array|min:3|max:9',
+            'nama_talenta.*' => $isDraft ? 'nullable|string' : 'required|string',
+            'alasan_talenta' => $isDraft ? 'nullable|array|min:3|max:9' : 'required|array|min:3|max:9',
+            'alasan_talenta.*' => $isDraft ? 'nullable|string' : 'required|string',
             'kondisi_guru' => 'required|array',
             'kondisi_guru.*' => 'required|string|in:baik,cukup,bermasalah',
             'masalah_sdm_utama' => 'required|array|min:3',
@@ -716,6 +716,8 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
         $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
             ->findOrFail($id);
 
+        $isDraft = $laporan->status === 'draft';
+
         $request->validate([
             'nama_satpen' => 'required|string|max:255',
             'alamat' => 'required|string',
@@ -761,11 +763,11 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'gtt' => 'required|integer|min:0',
             'pty' => 'required|integer|min:0',
             'ptt' => 'required|integer|min:0',
-            'jumlah_talenta' => 'required|integer|min:3|max:9',
-            'nama_talenta' => 'required|array|min:3|max:9',
-            'nama_talenta.*' => 'required|string',
-            'alasan_talenta' => 'required|array|min:3|max:9',
-            'alasan_talenta.*' => 'required|string',
+            'jumlah_talenta' => $isDraft ? 'nullable|integer|min:3|max:9' : 'required|integer|min:3|max:9',
+            'nama_talenta' => $isDraft ? 'nullable|array|min:3|max:9' : 'required|array|min:3|max:9',
+            'nama_talenta.*' => $isDraft ? 'nullable|string' : 'required|string',
+            'alasan_talenta' => $isDraft ? 'nullable|array|min:3|max:9' : 'required|array|min:3|max:9',
+            'alasan_talenta.*' => $isDraft ? 'nullable|string' : 'required|string',
             'kondisi_guru' => 'required|array',
             'kondisi_guru.*' => 'required|string|in:baik,cukup,bermasalah',
             'masalah_sdm_utama' => 'required|array|min:3',
