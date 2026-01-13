@@ -62,7 +62,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 <!-- Script halaman yang menggunakan <?php $__env->startSection('script'); ?> -->
-<?php echo $__env->yieldContent('script'); ?>
+<?php echo $__env->yieldContent('script'); ?>   
 
 <!-- App JS utama -->
 <script src="<?php echo e(asset('build/js/app.js')); ?>"></script>
