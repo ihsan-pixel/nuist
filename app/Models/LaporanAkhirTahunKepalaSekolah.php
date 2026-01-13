@@ -9,6 +9,8 @@ class LaporanAkhirTahunKepalaSekolah extends Model
 {
     use HasFactory;
 
+    protected $table = 'laporan_akhir_tahun_kepala_sekolah';
+
     protected $fillable = [
         'user_id',
         'nama_satpen',

@@ -30,8 +30,19 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('laporan_akhir_tahun_kepala_sekolahs', function (Blueprint $table) {
-            //
+        Schema::table('laporan_akhir_tahun_kepala_sekolah', function (Blueprint $table) {
+            $table->dropColumn([
+                'lampiran_step_1',
+                'lampiran_step_2',
+                'lampiran_step_3',
+                'lampiran_step_4',
+                'lampiran_step_5',
+                'lampiran_step_6',
+                'lampiran_step_7',
+                'lampiran_step_8',
+                'lampiran_step_9',
+                'lampiran_step_10',
+            ]);
         });
     }
 };
