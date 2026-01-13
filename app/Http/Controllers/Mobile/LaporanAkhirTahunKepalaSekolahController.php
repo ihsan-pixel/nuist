@@ -727,26 +727,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $isDraft = $laporan->status === 'draft';
 
-        // Handle file uploads and delete old files if new ones are uploaded
-        $filePaths = [];
-        for ($i = 1; $i <= 9; $i++) {
-            $fileKey = 'lampiran_step_' . $i;
-            if ($request->hasFile($fileKey)) {
-                // Delete old file if exists
-                if ($laporan->$fileKey) {
-                    $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $laporan->$fileKey;
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath);
-                    }
-                }
-
-                $file = $request->file($fileKey);
-                $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
-                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
-                $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
-            }
-        }
-
         $request->validate([
             'nama_satpen' => 'required|string|max:255',
             'alamat' => 'required|string',
@@ -838,6 +818,26 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'signature_data' => 'required|string',
         ]);
 
+        // Handle file uploads and delete old files if new ones are uploaded
+        $filePaths = [];
+        for ($i = 1; $i <= 9; $i++) {
+            $fileKey = 'lampiran_step_' . $i;
+            if ($request->hasFile($fileKey)) {
+                // Delete old file if exists
+                if ($laporan->$fileKey) {
+                    $oldFilePath = $_SERVER['DOCUMENT_ROOT'] . '/' . $laporan->$fileKey;
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                $file = $request->file($fileKey);
+                $fileName = time() . '_' . $user->id . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
+                $file->move($_SERVER['DOCUMENT_ROOT'] . '/uploads/laporan-akhir-tahun', $fileName);
+                $filePaths[$fileKey] = 'uploads/laporan-akhir-tahun/' . $fileName;
+            }
+        }
+
         $laporan->update([
             'nama_satpen' => $request->nama_satpen,
             'alamat' => $request->alamat,
@@ -911,6 +911,15 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             // Step 10: Pernyataan
             'pernyataan_benar' => $request->pernyataan_benar,
             'signature_data' => $request->signature_data,
+            'lampiran_step_1' => $filePaths['lampiran_step_1'] ?? $laporan->lampiran_step_1,
+            'lampiran_step_2' => $filePaths['lampiran_step_2'] ?? $laporan->lampiran_step_2,
+            'lampiran_step_3' => $filePaths['lampiran_step_3'] ?? $laporan->lampiran_step_3,
+            'lampiran_step_4' => $filePaths['lampiran_step_4'] ?? $laporan->lampiran_step_4,
+            'lampiran_step_5' => $filePaths['lampiran_step_5'] ?? $laporan->lampiran_step_5,
+            'lampiran_step_6' => $filePaths['lampiran_step_6'] ?? $laporan->lampiran_step_6,
+            'lampiran_step_7' => $filePaths['lampiran_step_7'] ?? $laporan->lampiran_step_7,
+            'lampiran_step_8' => $filePaths['lampiran_step_8'] ?? $laporan->lampiran_step_8,
+            'lampiran_step_9' => $filePaths['lampiran_step_9'] ?? $laporan->lampiran_step_9,
         ]);
 
         return redirect()->route('mobile.laporan-akhir-tahun.index')
