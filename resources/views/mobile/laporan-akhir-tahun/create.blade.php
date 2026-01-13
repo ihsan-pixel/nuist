@@ -1082,7 +1082,7 @@
 
             <!-- Step Navigation -->
             <div class="step-navigation">
-                <button type="button" class="step-btn secondary" onclick="prevStep()">
+                <button type="button" class="step-btn secondary full-width" onclick="prevStep()">
                     <i class="bx bx-chevron-left"></i>
                     Sebelumnya
                 </button>

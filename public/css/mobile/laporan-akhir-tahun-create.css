@@ -1004,6 +1004,32 @@
     .empty-state p {
         font-size: 12px;
     }
+
+    /* Step Navigation Mobile Layout */
+    .step-navigation {
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px 16px;
+    }
+
+    .step-btn.full-width {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .submit-buttons {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .submit-buttons .step-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+        font-size: 13px;
+    }
 }
 
 /* Show Page Styles */
