@@ -299,16 +299,16 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
                 // Step 10: Pernyataan
                 'pernyataan_benar' => $request->pernyataan_benar,
                 'signature_data' => $request->signature_data,
-                // File attachments
-                'lampiran_step_1' => $filePaths['lampiran_step_1'] ?? $existingDraft->lampiran_step_1 ?? null,
-                'lampiran_step_2' => $filePaths['lampiran_step_2'] ?? $existingDraft->lampiran_step_2 ?? null,
-                'lampiran_step_3' => $filePaths['lampiran_step_3'] ?? $existingDraft->lampiran_step_3 ?? null,
-                'lampiran_step_4' => $filePaths['lampiran_step_4'] ?? $existingDraft->lampiran_step_4 ?? null,
-                'lampiran_step_5' => $filePaths['lampiran_step_5'] ?? $existingDraft->lampiran_step_5 ?? null,
-                'lampiran_step_6' => $filePaths['lampiran_step_6'] ?? $existingDraft->lampiran_step_6 ?? null,
-                'lampiran_step_7' => $filePaths['lampiran_step_7'] ?? $existingDraft->lampiran_step_7 ?? null,
-                'lampiran_step_8' => $filePaths['lampiran_step_8'] ?? $existingDraft->lampiran_step_8 ?? null,
-                'lampiran_step_9' => $filePaths['lampiran_step_9'] ?? $existingDraft->lampiran_step_9 ?? null,
+            // File attachments
+            'lampiran_step_1' => $filePaths['lampiran_step_1'] ?? $existingDraft->lampiran_step_1 ?? null,
+            'lampiran_step_2' => $filePaths['lampiran_step_2'] ?? $existingDraft->lampiran_step_2 ?? null,
+            'lampiran_step_3' => $filePaths['lampiran_step_3'] ?? $existingDraft->lampiran_step_3 ?? null,
+            'lampiran_step_4' => $filePaths['lampiran_step_4'] ?? $existingDraft->lampiran_step_4 ?? null,
+            'lampiran_step_5' => $filePaths['lampiran_step_5'] ?? $existingDraft->lampiran_step_5 ?? null,
+            'lampiran_step_6' => $filePaths['lampiran_step_6'] ?? $existingDraft->lampiran_step_6 ?? null,
+            'lampiran_step_7' => $filePaths['lampiran_step_7'] ?? $existingDraft->lampiran_step_7 ?? null,
+            'lampiran_step_8' => $filePaths['lampiran_step_8'] ?? $existingDraft->lampiran_step_8 ?? null,
+            'lampiran_step_9' => $filePaths['lampiran_step_9'] ?? $existingDraft->lampiran_step_9 ?? null,
             ];
 
             if ($existingDraft) {
@@ -364,6 +364,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'lampiran_step_7' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_8' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_9' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_10' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
@@ -728,6 +729,15 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'nama_kepala_sekolah' => 'required|string|max:255',
             'nama_madrasah' => 'nullable|string|max:255',
             'alamat_madrasah' => 'nullable|string',
+            'lampiran_step_1' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_2' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_3' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_4' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_5' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_6' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_7' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_8' => 'nullable|file|mimes:pdf|max:10240',
+            'lampiran_step_9' => 'nullable|file|mimes:pdf|max:10240',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
