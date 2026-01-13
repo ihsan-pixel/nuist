@@ -1388,6 +1388,182 @@ function initializeSignaturePad() {
     window.addEventListener('resize', resizeCanvas);
 }
 
+// Submit as draft
+function submitDraft() {
+    const formStatus = document.getElementById('form-status');
+    if (formStatus) {
+        formStatus.value = 'draft';
+    }
+
+    // Show loading indicator
+    Swal.fire({
+        title: 'Menyimpan Draft...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Submit the form
+    const form = document.getElementById('laporan-form');
+    if (form) {
+        form.submit();
+    }
+}
+
+// Submit and publish
+function submitPublish() {
+    // Validate all required fields before publishing
+    if (!validateAllSteps()) {
+        Swal.fire({
+            title: 'Validasi Gagal',
+            text: 'Mohon lengkapi semua kolom yang wajib diisi sebelum mempublikasikan laporan.',
+            icon: 'warning',
+            confirmButtonText: 'Mengerti',
+            confirmButtonColor: '#004b4c',
+            customClass: {
+                popup: 'swal-mobile'
+            }
+        });
+        return;
+    }
+
+    // Confirm before publishing
+    Swal.fire({
+        title: 'Publikasikan Laporan?',
+        text: 'Setelah dipublikasikan, laporan tidak dapat diubah lagi. Apakah Anda yakin?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Publikasikan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#004b4c',
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            popup: 'swal-mobile'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const formStatus = document.getElementById('form-status');
+            if (formStatus) {
+                formStatus.value = 'published';
+            }
+
+            // Show loading indicator
+            Swal.fire({
+                title: 'Mempublikasikan...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Submit the form
+            const form = document.getElementById('laporan-form');
+            if (form) {
+                form.submit();
+            }
+        }
+    });
+}
+
+// Validate all steps before publishing
+function validateAllSteps() {
+    let isValid = true;
+    const totalSteps = 10;
+
+    // Clear previous validation messages
+    document.querySelectorAll('.form-error').forEach(error => error.remove());
+
+    for (let step = 1; step <= totalSteps; step++) {
+        const currentStepElement = document.querySelector(`.step-content[data-step="${step}"]`);
+        if (!currentStepElement) continue;
+
+        const requiredFields = currentStepElement.querySelectorAll('input[required], textarea[required], select[required]');
+        let firstInvalidField = null;
+
+        requiredFields.forEach(field => {
+            let fieldValue = '';
+
+            if (field.type === 'checkbox') {
+                fieldValue = field.checked ? 'checked' : '';
+            } else if (field.tagName === 'SELECT') {
+                fieldValue = field.value.trim();
+            } else {
+                fieldValue = field.value.trim();
+            }
+
+            if (!fieldValue) {
+                isValid = false;
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+
+                // Add error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'form-error';
+                errorDiv.textContent = 'Kolom ini wajib diisi';
+
+                // Insert error message after the field
+                field.parentNode.insertBefore(errorDiv, field.nextSibling);
+
+                // Add error styling to field
+                field.style.borderColor = '#dc3545';
+                field.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+            }
+        });
+
+        // Special validation for dynamic talenta fields in step 4
+        if (step === 4) {
+            const talentaContainers = currentStepElement.querySelectorAll('.talenta-group');
+
+            talentaContainers.forEach(container => {
+                const namaInput = container.querySelector('input[name="nama_talenta[]"]');
+                const alasanTextarea = container.querySelector('textarea[name="alasan_talenta[]"]');
+
+                if (namaInput && !namaInput.value.trim()) {
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = namaInput;
+
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'form-error';
+                    errorDiv.textContent = 'Nama talenta wajib diisi';
+                    namaInput.parentNode.insertBefore(errorDiv, namaInput.nextSibling);
+                    namaInput.style.borderColor = '#dc3545';
+                    namaInput.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+                }
+
+                if (alasanTextarea && !alasanTextarea.value.trim()) {
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = alasanTextarea;
+
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'form-error';
+                    errorDiv.textContent = 'Alasan talenta wajib diisi';
+                    alasanTextarea.parentNode.insertBefore(errorDiv, alasanTextarea.nextSibling);
+                    alasanTextarea.style.borderColor = '#dc3545';
+                    alasanTextarea.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+                }
+            });
+        }
+
+        // If validation failed, scroll to the step with error
+        if (!isValid && firstInvalidField) {
+            showStep(step);
+            setTimeout(() => {
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalidField.focus();
+            }, 100);
+            break;
+        }
+    }
+
+    return isValid;
+}
+
 // Initialize signature pad on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     initializeSignaturePad();
