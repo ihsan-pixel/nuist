@@ -67,7 +67,7 @@
         <!-- Hidden inputs -->
         <input type="hidden" name="tahun_pelaporan" value="{{ $data['tahun_pelaporan'] }}">
         <input type="hidden" name="nama_kepala_sekolah" value="{{ $data['nama_kepala_sekolah'] }}">
-        <input type="hidden" name="status" value="published" id="form-status">
+        <input type="hidden" name="status" value="draft" id="form-status">
         {{-- <input type="hidden" name="nama_madrasah" value="{{ $data['nama_madrasah'] }}">
         <input type="hidden" name="alamat_madrasah" value="{{ $data['alamat_madrasah'] }}"> --}}
 

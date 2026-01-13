@@ -51,15 +51,25 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
                 ->findOrFail($id);
             $isEditing = true;
         } else {
-            // Check if user already has a report for current year
+            // Check if user already has a published report for current year
             $currentYear = Carbon::now()->year;
-            $existingReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+            $existingPublishedReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
                 ->where('tahun_pelaporan', $currentYear)
+                ->where('status', 'published')
                 ->first();
 
-            if ($existingReport) {
-                return redirect()->route('mobile.laporan-akhir-tahun.create', $existingReport->id)
+            if ($existingPublishedReport) {
+                return redirect()->route('mobile.laporan-akhir-tahun.create', $existingPublishedReport->id)
                     ->with('info', 'Anda sudah memiliki laporan untuk tahun ' . $currentYear . '. Silakan edit laporan tersebut.');
+            }
+
+            // Load existing draft if exists
+            $laporan = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)
+                ->where('status', 'draft')
+                ->first();
+
+            if ($laporan) {
+                $isEditing = true;
             }
         }
 
@@ -312,7 +322,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $laporan = LaporanAkhirTahunKepalaSekolah::create([
             'user_id' => $user->id,
-            'status' => $request->input('status', 'published'),
+            'status' => $request->input('status', 'draft'),
             'nama_satpen' => $request->nama_satpen,
             'alamat' => $request->alamat,
             'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
