@@ -61,12 +61,13 @@
         </div>
     </div>
 
-    <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('mobile.laporan-akhir-tahun.store') }}" method="POST" enctype="multipart/form-data" id="laporan-form">
         @csrf
 
-        <!-- Hidden inputs for pre-filled required fields -->
+        <!-- Hidden inputs -->
         <input type="hidden" name="tahun_pelaporan" value="{{ $data['tahun_pelaporan'] }}">
         <input type="hidden" name="nama_kepala_sekolah" value="{{ $data['nama_kepala_sekolah'] }}">
+        <input type="hidden" name="status" value="published" id="form-status">
         {{-- <input type="hidden" name="nama_madrasah" value="{{ $data['nama_madrasah'] }}">
         <input type="hidden" name="alamat_madrasah" value="{{ $data['alamat_madrasah'] }}"> --}}
 
@@ -1085,10 +1086,16 @@
                     <i class="bx bx-chevron-left"></i>
                     Sebelumnya
                 </button>
-                <button type="submit" class="step-btn">
-                    <i class="bx bx-save"></i>
-                    Simpan Laporan
-                </button>
+                <div class="submit-buttons">
+                    <button type="button" class="step-btn draft-btn" onclick="submitDraft()">
+                        <i class="bx bx-edit"></i>
+                        Simpan sebagai Draft
+                    </button>
+                    <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
+                        <i class="bx bx-save"></i>
+                        Simpan dan Publikasikan
+                    </button>
+                </div>
             </div>
         </div>
 

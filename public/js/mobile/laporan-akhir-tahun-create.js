@@ -1388,6 +1388,28 @@ function initializeSignaturePad() {
     window.addEventListener('resize', resizeCanvas);
 }
 
+// Function to submit as draft
+function submitDraft() {
+    const form = document.getElementById('laporan-form');
+    const statusInput = document.getElementById('form-status');
+
+    if (form && statusInput) {
+        statusInput.value = 'draft';
+        form.submit();
+    }
+}
+
+// Function to submit and publish
+function submitPublish() {
+    const form = document.getElementById('laporan-form');
+    const statusInput = document.getElementById('form-status');
+
+    if (form && statusInput) {
+        statusInput.value = 'published';
+        form.submit();
+    }
+}
+
 // Initialize signature pad on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     initializeSignaturePad();

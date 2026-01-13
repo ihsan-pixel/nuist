@@ -195,24 +195,26 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             abort(403, 'Unauthorized. Only kepala sekolah can access this feature.');
         }
 
+        $isDraft = $request->input('status') === 'draft';
+
         $request->validate([
-            'nama_satpen' => 'required|string|max:255',
-            'alamat' => 'required|string',
-            'nama_kepala_sekolah_madrasah' => 'required|string|max:255',
+            'nama_satpen' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
+            'alamat' => $isDraft ? 'nullable|string' : 'required|string',
+            'nama_kepala_sekolah_madrasah' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
             'gelar' => 'nullable|string|max:255',
-            'tmt_ks_kamad_pertama' => 'required|date',
-            'tmt_ks_kamad_terakhir' => 'required|date',
-            'tahun_pelaporan' => 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
-            'nama_kepala_sekolah' => 'required|string|max:255',
-            'lampiran_step_1' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_2' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_3' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_4' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_5' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_6' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_7' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_8' => 'required|file|mimes:pdf|max:10240',
-            'lampiran_step_9' => 'required|file|mimes:pdf|max:10240',
+            'tmt_ks_kamad_pertama' => $isDraft ? 'nullable|date' : 'required|date',
+            'tmt_ks_kamad_terakhir' => $isDraft ? 'nullable|date' : 'required|date',
+            'tahun_pelaporan' => $isDraft ? 'nullable|integer|min:2020|max:' . (Carbon::now()->year + 1) : 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
+            'nama_kepala_sekolah' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
+            'lampiran_step_1' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_2' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_3' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_4' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_5' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_6' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_7' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_8' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
+            'lampiran_step_9' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             // Step 2 validations
             'jumlah_siswa_2023' => 'required|integer|min:0',
             'jumlah_siswa_2024' => 'required|integer|min:0',
@@ -310,6 +312,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $laporan = LaporanAkhirTahunKepalaSekolah::create([
             'user_id' => $user->id,
+            'status' => $request->input('status', 'published'),
             'nama_satpen' => $request->nama_satpen,
             'alamat' => $request->alamat,
             'nama_kepala_sekolah_madrasah' => $request->nama_kepala_sekolah_madrasah,
@@ -383,6 +386,16 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             // Step 10: Pernyataan
             'pernyataan_benar' => $request->pernyataan_benar,
             'signature_data' => $request->signature_data,
+            // File attachments
+            'lampiran_step_1' => $filePaths['lampiran_step_1'] ?? null,
+            'lampiran_step_2' => $filePaths['lampiran_step_2'] ?? null,
+            'lampiran_step_3' => $filePaths['lampiran_step_3'] ?? null,
+            'lampiran_step_4' => $filePaths['lampiran_step_4'] ?? null,
+            'lampiran_step_5' => $filePaths['lampiran_step_5'] ?? null,
+            'lampiran_step_6' => $filePaths['lampiran_step_6'] ?? null,
+            'lampiran_step_7' => $filePaths['lampiran_step_7'] ?? null,
+            'lampiran_step_8' => $filePaths['lampiran_step_8'] ?? null,
+            'lampiran_step_9' => $filePaths['lampiran_step_9'] ?? null,
         ]);
 
         return redirect()->route('mobile.laporan-akhir-tahun.index')
