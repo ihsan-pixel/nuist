@@ -133,7 +133,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_1" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_1')
@@ -373,7 +373,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_2" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_2')
@@ -433,7 +433,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_3" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_3')
@@ -642,7 +642,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_4" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_4')
@@ -708,7 +708,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_5" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_5')
@@ -769,7 +769,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_6" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_6')
@@ -853,7 +853,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_7" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_7')
@@ -913,7 +913,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_8" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_8')
@@ -1040,7 +1040,7 @@
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required">
-                        <label>Upload File Lampiran Pendukung</label>
+                        <label>Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
                         <input type="file" name="lampiran_step_10" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
                         <div class="form-hint">Format yang didukung: PDF, DOC, DOCX, JPG, JPEG, PNG. Maksimal 5MB.</div>
                         @error('lampiran_step_10')
