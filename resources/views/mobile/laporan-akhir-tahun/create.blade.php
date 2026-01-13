@@ -1090,12 +1090,12 @@
                     <i class="bx bx-edit"></i>
                     Draft
                 </button>
-                <div class="submit-buttons">
-                    <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
-                        <i class="bx bx-save"></i>
-                        Simpan
-                    </button>
-                </div>
+                <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
+                    <i class="bx bx-save"></i>
+                    Simpan
+                </button>
+                {{-- <div class="submit-buttons">
+                </div> --}}
             </div>
         </div>
 
