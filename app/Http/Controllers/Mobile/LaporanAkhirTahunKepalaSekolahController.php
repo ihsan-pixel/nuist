@@ -360,6 +360,9 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $isDraft = $request->input('status') === 'draft';
 
+        // Automatically set tahun_pelaporan to 2025 since there's no input field
+        $request->merge(['tahun_pelaporan' => 2025]);
+
         $request->validate([
             'nama_satpen' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
             'alamat' => $isDraft ? 'nullable|string' : 'required|string',
@@ -367,7 +370,6 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'gelar' => 'nullable|string|max:255',
             'tmt_ks_kamad_pertama' => $isDraft ? 'nullable|date' : 'required|date',
             'tmt_ks_kamad_terakhir' => $isDraft ? 'nullable|date' : 'required|date',
-            'tahun_pelaporan' => $isDraft ? 'nullable|integer|min:2025|max:' . (Carbon::now()->year + 1) : 'required|integer|min:2025|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
             'lampiran_step_1' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_2' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
