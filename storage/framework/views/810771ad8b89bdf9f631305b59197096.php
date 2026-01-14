@@ -1581,16 +1581,15 @@ unset($__errorArgs, $__bag); ?>
                     <i class="bx bx-chevron-left"></i>
                     Sebelumnya
                 </button>
-                <div class="submit-buttons">
-                    <button type="button" class="step-btn draft-btn" onclick="submitDraft()">
-                        <i class="bx bx-edit"></i>
-                        Simpan sebagai Draft
-                    </button>
-                    <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
-                        <i class="bx bx-save"></i>
-                        Simpan dan Publikasikan
-                    </button>
-                </div>
+                <button type="button" class="step-btn draft-btn" onclick="submitDraft()">
+                    <i class="bx bx-edit"></i>
+                    Draft
+                </button>
+                <button type="button" class="step-btn publish-btn" onclick="submitPublish()">
+                    <i class="bx bx-save"></i>
+                    Simpan
+                </button>
+                
             </div>
         </div>
 
