@@ -73,6 +73,10 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             }
         }
 
+        // Determine default year based on whether user has previous reports
+        $hasPreviousReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)->exists();
+        $defaultYear = $hasPreviousReport ? Carbon::now()->year : 2025;
+
         // Hitung jumlah guru berdasarkan status kepegawaian
         $madrasah = $user->madrasah;
         if ($madrasah) {
@@ -114,7 +118,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'gelar' => $laporan ? $laporan->gelar : ($user->gelar ?? ''),
             'tmt_ks_kamad_pertama' => $laporan ? $laporan->tmt_ks_kamad_pertama : '',
             'tmt_ks_kamad_terakhir' => $laporan ? $laporan->tmt_ks_kamad_terakhir : '',
-            'tahun_pelaporan' => $laporan ? $laporan->tahun_pelaporan : Carbon::now()->year,
+            'tahun_pelaporan' => $laporan ? $laporan->tahun_pelaporan : $defaultYear,
             'nama_kepala_sekolah' => $laporan ? $laporan->nama_kepala_sekolah : $user->name,
             // Step 2: Capaian Utama 3 Tahun Berjalan
             'jumlah_siswa_2023' => $laporan ? $laporan->jumlah_siswa_2023 : 0,
@@ -354,6 +358,10 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $isDraft = $request->input('status') === 'draft';
 
+        // Determine min year based on whether user has previous reports
+        $hasPreviousReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)->exists();
+        $minYear = $hasPreviousReport ? Carbon::now()->year : 2025;
+
         $request->validate([
             'nama_satpen' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
             'alamat' => $isDraft ? 'nullable|string' : 'required|string',
@@ -361,7 +369,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             'gelar' => 'nullable|string|max:255',
             'tmt_ks_kamad_pertama' => $isDraft ? 'nullable|date' : 'required|date',
             'tmt_ks_kamad_terakhir' => $isDraft ? 'nullable|date' : 'required|date',
-            'tahun_pelaporan' => $isDraft ? 'nullable|integer|min:2020|max:' . (Carbon::now()->year + 1) : 'required|integer|min:2020|max:' . (Carbon::now()->year + 1),
+            'tahun_pelaporan' => $isDraft ? 'nullable|integer|min:' . $minYear . '|max:' . (Carbon::now()->year + 1) : 'required|integer|min:' . $minYear . '|max:' . (Carbon::now()->year + 1),
             'nama_kepala_sekolah' => $isDraft ? 'nullable|string|max:255' : 'required|string|max:255',
             'lampiran_step_1' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
             'lampiran_step_2' => $isDraft ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240',
@@ -454,6 +462,14 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['tahun_pelaporan' => 'Laporan untuk tahun ini sudah ada.']);
+        }
+
+        // Additional validation: if user has no previous reports, force year to 2025
+        $hasPreviousReport = LaporanAkhirTahunKepalaSekolah::where('user_id', $user->id)->exists();
+        if (!$hasPreviousReport && $request->tahun_pelaporan != 2025) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['tahun_pelaporan' => 'Untuk laporan pertama, tahun pelaporan harus 2025.']);
         }
 
         // Handle file uploads
