@@ -121,47 +121,47 @@
             </div>
             <div class="info-row">
                 <span class="info-label">BOSNAS 2024</span>
-                <span class="info-value currency">{{ $laporan->bosnas_2024 ? 'Rp ' . number_format((float)$laporan->bosnas_2024, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosnas_2024 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">BOSNAS 2025</span>
-                <span class="info-value currency">{{ $laporan->bosnas_2025 ? 'Rp ' . number_format((float)$laporan->bosnas_2025, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosnas_2025 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">BOSDA 2023</span>
-                <span class="info-value currency">{{ $laporan->bosda_2023 ? 'Rp ' . number_format((float)$laporan->bosda_2023, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosda_2023 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">BOSDA 2024</span>
-                <span class="info-value currency">{{ $laporan->bosda_2024 ? 'Rp ' . number_format((float)$laporan->bosda_2024, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosda_2024 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">BOSDA 2025</span>
-                <span class="info-value currency">{{ $laporan->bosda_2025 ? 'Rp ' . number_format((float)$laporan->bosda_2025, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosda_2025 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">SPP/BPPP/Lain 2023</span>
-                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2023 ? 'Rp ' . number_format((float)$laporan->spp_bppp_lain_2023, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2023 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">SPP/BPPP/Lain 2024</span>
-                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2024 ? 'Rp ' . number_format((float)$laporan->spp_bppp_lain_2024, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2024 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">SPP/BPPP/Lain 2025</span>
-                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2025 ? 'Rp ' . number_format((float)$laporan->spp_bppp_lain_2025, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->spp_bppp_lain_2025 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Pendapatan Unit Usaha 2023</span>
-                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2023 ? 'Rp ' . number_format((float)$laporan->pendapatan_unit_usaha_2023, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2023 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Pendapatan Unit Usaha 2024</span>
-                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2024 ? 'Rp ' . number_format((float)$laporan->pendapatan_unit_usaha_2024, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2024 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Pendapatan Unit Usaha 2025</span>
-                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2025 ? 'Rp ' . number_format((float)$laporan->pendapatan_unit_usaha_2025, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->pendapatan_unit_usaha_2025 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Status Akreditasi</span>
