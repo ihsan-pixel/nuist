@@ -117,7 +117,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">BOSNAS 2023</span>
-                <span class="info-value currency">{{ $laporan->bosnas_2023 ? 'Rp ' . number_format((float)$laporan->bosnas_2023, 0, ',', '.') : '-' }}</span>
+                <span class="info-value currency">{{ $laporan->bosnas_2023 }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">BOSNAS 2024</span>
