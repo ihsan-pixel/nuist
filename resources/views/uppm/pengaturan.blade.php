@@ -73,40 +73,40 @@
                 </div>
             </div>
 
-            <!-- Edit Modal -->
-            <div class="modal fade" id="editSettingModal{{ $setting->id }}" tabindex="-1" aria-labelledby="editSettingModalLabel{{ $setting->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editSettingModal{{ $setting->id }}" tabindex="-1" aria-labelledby="editSettingModalLabel{{ $setting->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="editSettingForm{{ $setting->id }}" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data" data-original-year="{{ $setting->tahun_anggaran }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            @include('uppm.form', ['setting' => $setting])
                         </div>
-                        <form id="editSettingForm{{ $setting->id }}" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data" data-original-year="{{ $setting->tahun_anggaran }}">
-                            @csrf
-                            @method('PUT')
-                            <div class="modal-body">
-                                @include('uppm.form', ['setting' => $setting])
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bx bx-x"></i> Batal</button>
-                                <button type="submit" class="btn btn-primary"><i class="bx bx-save"></i> Simpan</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bx bx-x"></i> Batal</button>
+                            <button type="submit" class="btn btn-primary"><i class="bx bx-save"></i> Simpan</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        @empty
-            <div class="col-12">
-                <div class="card text-center py-5">
-                    <div class="card-body">
-                        <i class="bx bx-info-circle fs-1 text-muted mb-3"></i>
-                        <h5 class="card-title">Belum ada pengaturan UPPM</h5>
-                        <p class="card-text">Klik tombol "Tambah Pengaturan" untuk menambahkan pengaturan baru.</p>
-                    </div>
+        </div>
+    @empty
+        <div class="col-12">
+            <div class="card text-center py-5">
+                <div class="card-body">
+                    <i class="bx bx-info-circle fs-1 text-muted mb-3"></i>
+                    <h5 class="card-title">Belum ada pengaturan UPPM</h5>
+                    <p class="card-text">Klik tombol "Tambah Pengaturan" untuk menambahkan pengaturan baru.</p>
                 </div>
             </div>
-        @endforelse
-    </div>
+        </div>
+    @endforelse
 
     <!-- Add Modal -->
     <div class="modal fade" id="addSettingModal" tabindex="-1" aria-labelledby="addSettingModalLabel" aria-hidden="true">
