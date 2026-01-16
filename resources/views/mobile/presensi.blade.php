@@ -1358,10 +1358,10 @@ window.addEventListener('load', function() {
                 let reading4Lng = position.coords.longitude;
                 let reading4Timestamp = Date.now();
 
-                // Build location readings array - single reading only
-                let allReadings = [];
+                // Build location readings array - include multiple readings for validation
+                let allReadings = locationReadings.slice(); // Copy existing readings
 
-                // Use current location as the single reading
+                // Add final reading on button click
                 allReadings.push({
                     latitude: reading4Lat,
                     longitude: reading4Lng,

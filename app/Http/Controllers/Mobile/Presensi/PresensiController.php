@@ -389,6 +389,16 @@ class PresensiController extends \App\Http\Controllers\Controller
             }
         }
 
+        // Validate location for fake GPS detection
+        $locationValidation = $this->validateLocationForFakeGPS($request, $user, $isPresensiMasuk);
+
+        if ($locationValidation['is_fake']) {
+            return response()->json([
+                'success' => false,
+                'message' => $locationValidation['message']
+            ], 400);
+        }
+
         // Process and save selfie image
         $selfiePath = $this->processAndSaveSelfie($request->selfie_data, $user->id, $tanggal, $isPresensiMasuk);
 
@@ -479,6 +489,8 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'location_readings' => $request->location_readings,
                 'selfie_masuk_path' => $selfiePath,
                 'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                'is_fake_location' => $locationValidation['is_fake'] ?? false,
+                'fake_location_analysis' => $locationValidation['analysis'] ?? null,
             ]);
 
             $message = 'Presensi masuk berhasil dicatat!';
@@ -659,6 +671,171 @@ class PresensiController extends \App\Http\Controllers\Controller
             // If there's any error parsing readings, allow presensi for safety
             return ['valid' => true, 'message' => ''];
         }
+    }
+
+    /**
+     * Comprehensive fake GPS detection validation
+     * @param Request $request
+     * @param User $user
+     * @param bool $isPresensiMasuk
+     * @return array ['is_fake' => bool, 'message' => string, 'analysis' => array]
+     */
+    private function validateLocationForFakeGPS(Request $request, $user, bool $isPresensiMasuk): array
+    {
+        $analysis = [
+            'accuracy_check' => false,
+            'consistency_check' => false,
+            'speed_check' => false,
+            'location_history_check' => false,
+            'suspicious_indicators' => []
+        ];
+
+        $isFake = false;
+        $messages = [];
+
+        // 1. Check GPS accuracy - fake GPS often has unrealistically high accuracy
+        if ($request->accuracy && $request->accuracy < 1) {
+            // Accuracy better than 1 meter is suspicious (too perfect)
+            $analysis['accuracy_check'] = true;
+            $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
+            $isFake = true;
+            $messages[] = 'Akurasi GPS terlalu sempurna (kemungkinan fake GPS)';
+        }
+
+        // 2. Check location consistency from readings
+        if ($request->location_readings) {
+            $consistencyResult = $this->validateLocationConsistency($request->location_readings);
+            if (!$consistencyResult['valid']) {
+                $analysis['consistency_check'] = true;
+                $analysis['suspicious_indicators'][] = 'location_consistency';
+                $isFake = true;
+                $messages[] = $consistencyResult['message'];
+            }
+        }
+
+        // 3. Check for abnormal movement speed (teleportation detection)
+        if ($isPresensiMasuk) {
+            // For presensi masuk, check against last known location
+            $lastPresensi = Presensi::where('user_id', $user->id)
+                ->where('status', 'hadir')
+                ->whereDate('tanggal', '<', Carbon::today())
+                ->orderBy('tanggal', 'desc')
+                ->first();
+
+            if ($lastPresensi && $lastPresensi->latitude && $lastPresensi->longitude) {
+                $distance = $this->calculateDistance(
+                    $lastPresensi->latitude,
+                    $lastPresensi->longitude,
+                    $request->latitude,
+                    $request->longitude
+                );
+
+                // Calculate time difference in hours
+                $lastPresensiTime = $lastPresensi->waktu_keluar ?? $lastPresensi->waktu_masuk;
+                $timeDiffHours = $lastPresensiTime ? Carbon::now()->diffInHours($lastPresensiTime) : 24;
+
+                if ($timeDiffHours > 0) {
+                    $speedKmh = $distance / $timeDiffHours; // km/h
+
+                    // If speed > 200 km/h (impossible for human travel), flag as suspicious
+                    if ($speedKmh > 200) {
+                        $analysis['speed_check'] = true;
+                        $analysis['suspicious_indicators'][] = 'abnormal_speed';
+                        $isFake = true;
+                        $messages[] = 'Deteksi pergerakan tidak wajar (kemungkinan teleportasi GPS)';
+                    }
+                }
+            }
+        } else {
+            // For presensi keluar, check against presensi masuk location
+            $existingPresensi = Presensi::where('user_id', $user->id)
+                ->whereNotNull('waktu_masuk')
+                ->whereNull('waktu_keluar')
+                ->orderBy('tanggal', 'desc')
+                ->first();
+
+            if ($existingPresensi && $existingPresensi->latitude && $existingPresensi->longitude) {
+                $distance = $this->calculateDistance(
+                    $existingPresensi->latitude,
+                    $existingPresensi->longitude,
+                    $request->latitude,
+                    $request->longitude
+                );
+
+                // If distance > 5km between masuk and keluar, suspicious
+                if ($distance > 5) {
+                    $analysis['location_history_check'] = true;
+                    $analysis['suspicious_indicators'][] = 'location_jump';
+                    $isFake = true;
+                    $messages[] = 'Jarak lokasi masuk dan keluar terlalu jauh (kemungkinan fake GPS)';
+                }
+            }
+        }
+
+        // 4. Check for suspicious device info patterns
+        if ($request->device_info) {
+            $deviceInfo = strtolower($request->device_info);
+            $suspiciousApps = ['fake', 'mock', 'gps', 'location', 'spoof'];
+
+            foreach ($suspiciousApps as $app) {
+                if (strpos($deviceInfo, $app) !== false) {
+                    $analysis['suspicious_indicators'][] = 'device_info_suspicious';
+                    $isFake = true;
+                    $messages[] = 'Informasi device menunjukkan penggunaan aplikasi GPS palsu';
+                    break;
+                }
+            }
+        }
+
+        // 5. Check for perfect coordinates (common fake GPS pattern)
+        if ($request->latitude && $request->longitude) {
+            $latStr = (string)$request->latitude;
+            $lngStr = (string)$request->longitude;
+
+            // Check if coordinates have too many decimal places (suspicious precision)
+            if (strlen($latStr) > 10 && strlen($lngStr) > 10) {
+                $analysis['suspicious_indicators'][] = 'precision_too_high';
+                $isFake = true;
+                $messages[] = 'Presisi koordinat GPS tidak wajar';
+            }
+
+            // Check for exact round numbers (suspicious)
+            if (fmod($request->latitude, 1) == 0 || fmod($request->longitude, 1) == 0) {
+                $analysis['suspicious_indicators'][] = 'round_coordinates';
+                $isFake = true;
+                $messages[] = 'Koordinat GPS terlalu bulat (kemungkinan fake)';
+            }
+        }
+
+        return [
+            'is_fake' => $isFake,
+            'message' => !empty($messages) ? implode('. ', $messages) : 'Lokasi GPS valid',
+            'analysis' => $analysis
+        ];
+    }
+
+    /**
+     * Calculate distance between two coordinates using Haversine formula
+     * @param float $lat1
+     * @param float $lon1
+     * @param float $lat2
+     * @param float $lon2
+     * @return float Distance in kilometers
+     */
+    private function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
+    {
+        $earthRadius = 6371; // Earth's radius in kilometers
+
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($lonDelta / 2) * sin($lonDelta / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 
     /**
