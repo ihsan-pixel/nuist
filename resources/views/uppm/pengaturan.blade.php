@@ -15,16 +15,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        </div>
-    @endif
+
 
     <div class="row">
         @forelse($settings as $setting)
@@ -70,13 +61,9 @@
                             <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
                                 <i class="bx bx-edit"></i> Edit
                             </button>
-                            <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    <i class="bx bx-trash"></i> Hapus
-                                </button>
-                            </form>
+                            <a href="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="btn btn-outline-danger btn-sm delete-setting">
+                                <i class="bx bx-trash"></i> Hapus
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -90,7 +77,7 @@
                             <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
+                        <form class="editSettingForm" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="modal-body">
@@ -125,7 +112,7 @@
                     <h5 class="modal-title" id="addSettingModalLabel"><i class="bx bx-plus me-2"></i>Tambah Pengaturan UPPM</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('uppm.pengaturan.store') }}" enctype="multipart/form-data">
+                <form id="addSettingForm" method="POST" action="{{ route('uppm.pengaturan.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         @include('uppm.form')
