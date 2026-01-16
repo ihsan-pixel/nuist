@@ -502,13 +502,13 @@
                 <small><i class="bx bx-info-circle me-1"></i><strong>Wajib:</strong> Pastikan selfie diambil di lingkungan madrasah/sekolah.</small>
             </div>
             <div id="selfie-container" style="position: relative;">
-                <div class="text-center" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
+                <div class="text-center" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 2px dashed #dee2e6;">
                     <i class="bx bx-camera" style="font-size: 48px; color: #6c757d; margin-bottom: 8px;"></i>
                     <span style="color: #6c757d; font-size: 14px;">Kamera akan muncul di sini</span>
                 </div>
-                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
-                <canvas id="selfie-canvas" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; display: none;"></canvas>
-                <img id="selfie-preview" style="width: 100%; max-width: 300px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
+                <video id="selfie-video" autoplay playsinline style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none; object-fit: cover;"></video>
+                <canvas id="selfie-canvas" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; display: none;"></canvas>
+                <img id="selfie-preview" style="width: 100%; max-width: 400px; height: 400px; border-radius: 8px; object-fit: cover; display: none;" alt="Selfie Preview">
                 <button type="button" id="btn-capture-selfie" class="btn btn-primary-custom" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: none;">
                     <i class="bx bx-camera me-1"></i>Ambil Foto
                 </button>
