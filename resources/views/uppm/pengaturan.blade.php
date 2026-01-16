@@ -156,7 +156,7 @@ $(document).ready(function() {
     $('#addSettingForm').on('submit', function(e) {
         e.preventDefault();
 
-        var tahunAnggaran = $('#tahun_anggaran').val();
+        var tahunAnggaran = $('#addSettingForm input[name="tahun_anggaran"]').val();
         if (isYearDuplicate(tahunAnggaran)) {
             Swal.fire({
                 icon: 'error',
