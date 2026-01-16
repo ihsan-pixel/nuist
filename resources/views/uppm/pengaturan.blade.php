@@ -75,7 +75,7 @@
 
             <!-- Edit Modal -->
             <div class="modal fade" id="editSettingModal{{ $setting->id }}" tabindex="-1" aria-labelledby="editSettingModalLabel{{ $setting->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
@@ -110,7 +110,7 @@
 
     <!-- Add Modal -->
     <div class="modal fade" id="addSettingModal" tabindex="-1" aria-labelledby="addSettingModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addSettingModalLabel"><i class="bx bx-plus me-2"></i>Tambah Pengaturan UPPM</h5>
