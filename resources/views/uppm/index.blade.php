@@ -11,23 +11,8 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="alert alert-info">
-                            <h5>Deskripsi Umum</h5>
-                            <p>UPPM (Unit Pengembangan Pendidikan Ma'arif) adalah sistem pengelolaan dan pembayaran iuran yang dibayarkan oleh sekolah-sekolah di bawah naungan Yayasan/Lembaga Pendidikan Ma'arif.</p>
-                            <p>Iuran UPPM bersifat tahunan, dengan perhitungan nominal berdasarkan jumlah siswa, guru, dan karyawan sesuai status kepegawaiannya.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="alert alert-success">
-                            <h5>Tujuan Modul</h5>
-                            <ul>
-                                <li>Pengelolaan data sekolah dan SDM</li>
-                                <li>Pengaturan dan perhitungan iuran UPPM</li>
-                                <li>Penerbitan tagihan dan invoice UPPM</li>
-                                <li>Monitoring pembayaran UPPM secara tahunan dan transparan</li>
-                            </ul>
-                        </div>
+                    <div class="col-12">
+                        <p>Selamat datang di Dashboard UPPM. Gunakan menu di bawah ini untuk mengelola data sekolah, melakukan perhitungan iuran, melihat tagihan, dan mengatur preferensi Anda.</p>
                     </div>
                 </div>
 
