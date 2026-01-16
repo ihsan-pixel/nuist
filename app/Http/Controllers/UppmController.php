@@ -251,7 +251,7 @@ class UppmController extends Controller
 
         $setting->update($data);
 
-        return redirect()->back()->with('success', 'Pengaturan UPPM berhasil diperbarui');
+        return response()->json(['success' => true, 'message' => 'Pengaturan UPPM berhasil diperbarui']);
     }
 
     public function destroyPengaturan($id)
@@ -259,6 +259,6 @@ class UppmController extends Controller
         $setting = UppmSetting::findOrFail($id);
         $setting->delete();
 
-        return redirect()->back()->with('success', 'Pengaturan UPPM berhasil dihapus');
+        return response()->json(['success' => true, 'message' => 'Pengaturan UPPM berhasil dihapus']);
     }
 }

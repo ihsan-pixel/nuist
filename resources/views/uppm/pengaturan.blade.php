@@ -81,7 +81,7 @@
                             <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
+                        <form id="editSettingForm{{ $setting->id }}" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="modal-body">
@@ -126,6 +126,155 @@
                         <button type="submit" class="btn btn-primary"><i class="bx bx-save"></i> Simpan</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('script')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+$(document).ready(function() {
+    // Handle add setting form
+    $('#addSettingForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#addSettingModal').modal('hide');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Pengaturan UPPM berhasil disimpan',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan saat menyimpan data';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                });
+            }
+        });
+    });
+
+    // Handle edit setting forms
+    $('form[id^="editSettingForm"]').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('.modal').modal('hide');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Pengaturan UPPM berhasil diperbarui',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function(xhr) {
+                let errorMessage = 'Terjadi kesalahan saat memperbarui data';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                });
+            }
+        });
+    });
+
+    // Handle delete with SweetAlert confirmation
+    $('form.d-inline').on('submit', function(e) {
+        e.preventDefault();
+
+        let form = this;
+        let formData = new FormData(form);
+
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data pengaturan akan dihapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $(form).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Pengaturan UPPM berhasil dihapus',
+                            timer: 3000,
+                            showConfirmButton: false,
+                            timerProgressBar: true
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat menghapus data',
+                            timer: 3000,
+                            showConfirmButton: false,
+                            timerProgressBar: true
+                        });
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+@endsection
             </div>
         </div>
     </div>
