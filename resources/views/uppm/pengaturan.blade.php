@@ -61,7 +61,7 @@
                             <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
                                 <i class="bx bx-edit"></i> Edit
                             </button>
-                            <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
+                            <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-outline-danger btn-sm">
