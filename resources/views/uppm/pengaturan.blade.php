@@ -14,6 +14,7 @@
             </div>
         </div>
     </div>
+</div>
     <div class="row">
         @forelse($settings as $setting)
             <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
