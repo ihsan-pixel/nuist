@@ -258,7 +258,10 @@
                             <div class="status">{{ $p->user->statusKepegawaian?->name ?? '-' }}</div>
                             @if($p->selfie_masuk_path || $p->selfie_keluar_path)
                                 <button class="foto-btn"
-                                    onclick="showFoto('{{ asset('../nuist/storage/' . $p->selfie_masuk_path) }}', '{{ asset('../nuist/storage/' . $p->selfie_keluar_path) }}')">
+                                    onclick="showFoto(
+                                        '{{ url("/foto/masuk/".$p->id) }}',
+                                        '{{ url("/foto/keluar/".$p->id) }}'
+                                    )">
                                     📷 Lihat Foto
                                 </button>
                             @endif
