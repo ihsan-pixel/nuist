@@ -80,7 +80,7 @@ class UppmController extends Controller
         $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
 
         if (!$setting) {
-            return redirect()->back()->with('error', 'Pengaturan UPPM untuk tahun ' . $tahun . ' belum aktif');
+            return redirect()->back()->with('error', 'Pengaturan UPPM untuk tahun ' . $tahun . ' belum ada atau tidak aktif');
         }
 
         $madrasahs = Madrasah::all();
@@ -139,7 +139,7 @@ class UppmController extends Controller
     public function invoice($id)
     {
         $schoolData = UppmSchoolData::with('madrasah')->findOrFail($id);
-        $setting = UppmSetting::where('tahun_anggaran', $schoolData->tahun_anggaran)->where('aktif', true)->first();
+        $setting = UppmSetting::where('tahun_anggaran', $schoolData->tahun_anggaran)->first();
 
         $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
         $totalTahunan = $nominalBulanan * 12;
@@ -211,10 +211,6 @@ class UppmController extends Controller
 
         $data = $request->all();
 
-        if ($request->aktif) {
-            UppmSetting::where('aktif', true)->update(['aktif' => false]);
-        }
-
         UppmSetting::create($data);
 
         return redirect()->back()->with('success', 'Pengaturan UPPM berhasil disimpan');
@@ -244,10 +240,6 @@ class UppmController extends Controller
 
         $data = $request->all();
         $data['aktif'] = $request->has('aktif');
-
-        if ($data['aktif']) {
-            UppmSetting::where('aktif', true)->where('id', '!=', $id)->update(['aktif' => false]);
-        }
 
         $setting->update($data);
 
