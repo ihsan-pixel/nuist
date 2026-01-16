@@ -224,7 +224,7 @@ $(document).ready(function() {
                     icon: 'success',
                     title: 'Berhasil!',
                     text: 'Pengaturan UPPM berhasil diperbarui',
-                    timer: 3000,
+                    timer: 1500,
                     showConfirmButton: false,
                     timerProgressBar: true
                 }).then(() => {
@@ -240,7 +240,7 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Gagal!',
                     text: errorMessage,
-                    timer: 3000,
+                    timer: 1500,
                     showConfirmButton: false,
                     timerProgressBar: true
                 });
@@ -289,7 +289,7 @@ $(document).ready(function() {
                             icon: 'error',
                             title: 'Gagal!',
                             text: 'Terjadi kesalahan saat menghapus data',
-                            timer: 3000,
+                            timer: 1500,
                             showConfirmButton: false,
                             timerProgressBar: true
                         });
