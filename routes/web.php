@@ -377,7 +377,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // UPPM Routes
-Route::middleware(['auth', 'role:super_admin,admin'])->prefix('uppm')->name('uppm.')->group(function () {
+Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
     Route::get('/', [App\Http\Controllers\UppmController::class, 'index'])->name('index');
     Route::get('/data-sekolah', [App\Http\Controllers\UppmController::class, 'dataSekolah'])->name('data-sekolah');
     Route::get('/perhitungan-iuran', [App\Http\Controllers\UppmController::class, 'perhitunganIuran'])->name('perhitungan-iuran');
