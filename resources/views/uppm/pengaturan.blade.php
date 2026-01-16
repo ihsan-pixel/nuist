@@ -15,16 +15,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        </div>
-    @endif
+
 
     <div class="row">
         @forelse($settings as $setting)

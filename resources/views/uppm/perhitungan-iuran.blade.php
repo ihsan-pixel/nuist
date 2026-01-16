@@ -21,10 +21,6 @@
                 </div>
             </div>
             <div class="card-body">
-                @if(session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
-
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -32,14 +28,10 @@
                                 <th>No</th>
                                 <th>Nama Sekolah</th>
                                 <th>Jumlah Siswa</th>
-                                <th>Jumlah PNS Sertifikasi</th>
-                                <th>Jumlah PNS Non Sertifikasi</th>
-                                <th>Jumlah GTY Sertifikasi</th>
-                                <th>Jumlah GTY Sertifikasi Inpassing</th>
-                                <th>Jumlah GTY Non Sertifikasi</th>
-                                <th>Jumlah GTT</th>
-                                <th>Jumlah PTY</th>
-                                <th>Jumlah PTT</th>
+                                <th>Jumlah Guru Tetap</th>
+                                <th>Jumlah Guru Tidak Tetap</th>
+                                <th>Jumlah Guru PNS</th>
+                                <th>Jumlah Guru PPPK</th>
                                 <th>Jumlah Karyawan Tetap</th>
                                 <th>Jumlah Karyawan Tidak Tetap</th>
                                 <th>Nominal Bulanan</th>
@@ -63,33 +55,43 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="17" class="text-center">Tidak ada data sekolah untuk tahun ini</td>
+                                <td colspan="11" class="text-center">Tidak ada data perhitungan iuran untuk tahun ini</td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-
-                @if($perhitungan)
-                <div class="mt-3">
-                    <h5>Rincian Pengaturan Iuran Tahun {{ $tahun }}</h5>
-                    <ul>
-                        <li>Siswa: Rp {{ number_format($setting->nominal_siswa) }} per bulan</li>
-                        <li>PNS Sertifikasi: Rp {{ number_format($setting->nominal_pns_sertifikasi) }} per bulan</li>
-                        <li>PNS Non Sertifikasi: Rp {{ number_format($setting->nominal_pns_non_sertifikasi) }} per bulan</li>
-                        <li>GTY Sertifikasi: Rp {{ number_format($setting->nominal_gty_sertifikasi) }} per bulan</li>
-                        <li>GTY Sertifikasi Inpassing: Rp {{ number_format($setting->nominal_gty_sertifikasi_inpassing) }} per bulan</li>
-                        <li>GTY Non Sertifikasi: Rp {{ number_format($setting->nominal_gty_non_sertifikasi) }} per bulan</li>
-                        <li>GTT: Rp {{ number_format($setting->nominal_gtt) }} per bulan</li>
-                        <li>PTY: Rp {{ number_format($setting->nominal_pty) }} per bulan</li>
-                        <li>PTT: Rp {{ number_format($setting->nominal_ptt) }} per bulan</li>
-                        <li>Karyawan Tetap: Rp {{ number_format($setting->nominal_karyawan_tetap) }} per bulan</li>
-                        <li>Karyawan Tidak Tetap: Rp {{ number_format($setting->nominal_karyawan_tidak_tetap) }} per bulan</li>
-                    </ul>
-                </div>
-                @endif
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '{{ session('error') }}',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+@endif
+</script>
 @endsection
