@@ -192,7 +192,7 @@ class UppmController extends Controller
     public function storePengaturan(Request $request)
     {
         $request->validate([
-            'tahun_anggaran' => 'required|integer|min:2020|max:' . (date('Y') + 1),
+            'tahun_anggaran' => 'required|integer|min:2020|max:' . (date('Y') + 1) . '|unique:uppm_settings,tahun_anggaran',
             'nominal_siswa' => 'required|numeric|min:0',
             'nominal_pns_sertifikasi' => 'required|numeric|min:0',
             'nominal_pns_non_sertifikasi' => 'required|numeric|min:0',
