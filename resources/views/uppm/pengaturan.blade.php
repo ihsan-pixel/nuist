@@ -15,7 +15,16 @@
         </div>
     </div>
 
-
+    @if(session('success'))
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bx bx-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="row">
         @forelse($settings as $setting)
@@ -61,9 +70,13 @@
                             <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
                                 <i class="bx bx-edit"></i> Edit
                             </button>
-                            <a href="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="btn btn-outline-danger btn-sm delete-setting">
-                                <i class="bx bx-trash"></i> Hapus
-                            </a>
+                            <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bx bx-trash"></i> Hapus
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -77,7 +90,7 @@
                             <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form class="editSettingForm" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="modal-body">
@@ -128,31 +141,4 @@
 </div>
 @endsection
 
-@section('script')
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-@if(session('success'))
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '{{ session('success') }}',
-        timer: 3000,
-        showConfirmButton: false,
-        timerProgressBar: true
-    });
-@endif
-
-@if(session('error'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: '{{ session('error') }}',
-        timer: 3000,
-        showConfirmButton: false,
-        timerProgressBar: true
-    });
-@endif
-</script>
-@endsection
