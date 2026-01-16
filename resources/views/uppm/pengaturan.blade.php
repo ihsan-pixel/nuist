@@ -156,12 +156,12 @@ $(document).ready(function() {
                     icon: 'success',
                     title: 'Berhasil!',
                     text: 'Pengaturan UPPM berhasil disimpan',
-                    timer: 3000,
                     showConfirmButton: false,
-                    timerProgressBar: true
-                }).then(() => {
-                    location.reload();
+                    timer: 1500
                 });
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
             },
             error: function(xhr) {
                 let errorMessage = 'Terjadi kesalahan saat menyimpan data';
@@ -251,12 +251,12 @@ $(document).ready(function() {
                             icon: 'success',
                             title: 'Berhasil!',
                             text: 'Pengaturan UPPM berhasil dihapus',
-                            timer: 3000,
                             showConfirmButton: false,
-                            timerProgressBar: true
-                        }).then(() => {
-                            location.reload();
+                            timer: 1500
                         });
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
                     },
                     error: function(xhr) {
                         Swal.fire({
