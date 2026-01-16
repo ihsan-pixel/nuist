@@ -141,8 +141,8 @@
 </div>
 
 @section('script')
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Sweet Alerts js -->
+<script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <script>
 @if(session('success'))
