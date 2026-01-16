@@ -165,16 +165,16 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 let errorMessage = 'Terjadi kesalahan saat menyimpan data';
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
                     errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
                 }
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
                     text: errorMessage,
-                    timer: 3000,
-                    showConfirmButton: false,
-                    timerProgressBar: true
+                    showConfirmButton: true
                 });
             }
         });
