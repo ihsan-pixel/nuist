@@ -376,6 +376,20 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 
+// UPPM Routes
+Route::middleware(['auth', 'role:super_admin,admin'])->prefix('uppm')->name('uppm.')->group(function () {
+    Route::get('/', [App\Http\Controllers\UppmController::class, 'index'])->name('index');
+    Route::get('/data-sekolah', [App\Http\Controllers\UppmController::class, 'dataSekolah'])->name('data-sekolah');
+    Route::get('/perhitungan-iuran', [App\Http\Controllers\UppmController::class, 'perhitunganIuran'])->name('perhitungan-iuran');
+    Route::get('/tagihan', [App\Http\Controllers\UppmController::class, 'tagihan'])->name('tagihan');
+    Route::get('/invoice/{id}', [App\Http\Controllers\UppmController::class, 'invoice'])->name('invoice');
+    Route::get('/invoice/{id}/download', [App\Http\Controllers\UppmController::class, 'downloadInvoice'])->name('invoice.download');
+    Route::get('/pengaturan', [App\Http\Controllers\UppmController::class, 'pengaturan'])->name('pengaturan');
+    Route::post('/pengaturan', [App\Http\Controllers\UppmController::class, 'storePengaturan'])->name('pengaturan.store');
+    Route::put('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'updatePengaturan'])->name('pengaturan.update');
+    Route::delete('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'destroyPengaturan'])->name('pengaturan.destroy');
+});
+
 // fallback, jangan ganggu dashboard & lainnya
 Route::fallback([App\Http\Controllers\HomeController::class, 'index'])->name('index');
 // App Settings Routes - Super Admin Only

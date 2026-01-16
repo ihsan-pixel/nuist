@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <form action="<?php echo e(route('mobile.laporan-akhir-tahun.update', $laporan->id)); ?>" method="POST">
+    <form action="<?php echo e(route('mobile.laporan-akhir-tahun.update', $laporan->id)); ?>" method="POST" enctype="multipart/form-data">
         <?php echo csrf_field(); ?>
         <?php echo method_field('PUT'); ?>
 
@@ -162,6 +162,30 @@ unset($__errorArgs, $__bag); ?>
                         <label>TMT KS/Kamad Terakhir</label>
                         <input type="date" name="tmt_ks_kamad_terakhir" value="<?php echo e(old('tmt_ks_kamad_terakhir', $laporan->tmt_ks_kamad_terakhir ? $laporan->tmt_ks_kamad_terakhir->format('Y-m-d') : '')); ?>" required>
                         <?php $__errorArgs = ['tmt_ks_kamad_terakhir'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_1" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_1): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_1)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_1)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -549,6 +573,30 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_2" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_2): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_2)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_2)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_2'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
                 </div>
             </div>
 
@@ -610,6 +658,30 @@ unset($__errorArgs, $__bag); ?>
                         <label>Masalah Layanan Utama Tahun Ini</label>
                         <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required><?php echo e(old('masalah_layanan_utama', $laporan->masalah_layanan_utama)); ?></textarea>
                         <?php $__errorArgs = ['masalah_layanan_utama'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_3" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_3): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_3)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_3)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_3'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -906,6 +978,30 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_4" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_4): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_4)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_4)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_4'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
                 </div>
             </div>
 
@@ -983,6 +1079,30 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_5" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_5): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_5)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_5)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_5'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
                 </div>
             </div>
 
@@ -1044,6 +1164,30 @@ unset($__errorArgs, $__bag); ?>
                         <label>Masalah Utama PPDB</label>
                         <textarea name="masalah_utama_ppdb" placeholder="Jelaskan masalah utama PPDB..." required><?php echo e(old('masalah_utama_ppdb', $laporan->masalah_utama_ppdb)); ?></textarea>
                         <?php $__errorArgs = ['masalah_utama_ppdb'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_6" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_6): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_6)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_6)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_6'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1170,6 +1314,30 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_7" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_7): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_7)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_7)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_7'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
                 </div>
             </div>
 
@@ -1231,6 +1399,30 @@ unset($__errorArgs, $__bag); ?>
                         <label>Keputusan yang Sulit Diambil</label>
                         <textarea name="keputusan_sulit_diambil" placeholder="Jelaskan keputusan yang sulit diambil..." required><?php echo e(old('keputusan_sulit_diambil', $laporan->keputusan_sulit_diambil)); ?></textarea>
                         <?php $__errorArgs = ['keputusan_sulit_diambil'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_8" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_8): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_8)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_8)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_8'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1317,6 +1509,30 @@ unset($__errorArgs, $__bag); ?>
                         <label>Fokus Perbaikan Tahun Depan 3</label>
                         <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3..."><?php echo e(old('fokus_perbaikan_tahun_depan.2', json_decode($laporan->fokus_perbaikan_tahun_depan, true)[2] ?? '')); ?></textarea>
                         <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.2'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="form-error"><?php echo e($message); ?></div>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                    <!-- File Upload Section -->
+                    <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
+                        <label style="font-weight: 600; color: #004b4c; margin-bottom: 8px; display: block;">Upload File Lampiran Pendukung Sesuai Step Saat Ini</label>
+                        <input type="file" name="lampiran_step_9" accept=".pdf" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                        <div class="form-hint" style="margin-top: 6px; font-size: 12px; color: #666;">Format yang didukung: PDF. Maksimal 10MB.</div>
+                        <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
+                            File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
+                        </div>
+                        <?php if($laporan->lampiran_step_9): ?>
+                            <div class="form-note" style="margin-top: 8px; padding: 8px; background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 4px;">
+                                <strong>File tersimpan:</strong> <a href="<?php echo e(asset('/' . $laporan->lampiran_step_9)); ?>" target="_blank" style="color: #004b4c; text-decoration: underline;"><?php echo e(basename($laporan->lampiran_step_9)); ?></a>
+                            </div>
+                        <?php endif; ?>
+                        <?php $__errorArgs = ['lampiran_step_9'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }

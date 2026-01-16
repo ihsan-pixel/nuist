@@ -188,6 +188,14 @@ class PresensiController extends \App\Http\Controllers\Controller
 
         ]);
 
+        // Additional validation for selfie data
+        if (!$this->isValidBase64Image($request->selfie_data)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data foto selfie tidak valid atau corrupt. Silakan ambil foto lagi.'
+            ], 400);
+        }
+
         $tanggal = Carbon::today()->toDateString();
         $now = Carbon::now('Asia/Jakarta');
 
@@ -654,6 +662,54 @@ class PresensiController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Validates if the given string is a valid base64 encoded image
+     * @param string $data Base64 string to validate
+     * @return bool True if valid base64 image
+     */
+    private function isValidBase64Image(string $data): bool
+    {
+        // Check minimum length
+        if (strlen($data) < 100) {
+            return false;
+        }
+
+        // Check if it starts with data:image/ pattern
+        if (!preg_match('/^data:image\/(jpeg|jpg|png);base64,/', $data)) {
+            return false;
+        }
+
+        // Extract base64 part
+        $base64Data = preg_replace('/^data:image\/(jpeg|jpg|png);base64,/', '', $data);
+
+        // Check if it's valid base64
+        if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $base64Data)) {
+            return false;
+        }
+
+        // Try to decode and check if it's valid image data
+        $decoded = base64_decode($base64Data, true);
+        if ($decoded === false) {
+            return false;
+        }
+
+        // Check if decoded data looks like image (starts with image signature)
+        $imageSignatures = [
+            "\xFF\xD8\xFF", // JPEG
+            "\x89\x50\x4E\x47", // PNG
+        ];
+
+        $isValidImage = false;
+        foreach ($imageSignatures as $signature) {
+            if (strpos($decoded, $signature) === 0) {
+                $isValidImage = true;
+                break;
+            }
+        }
+
+        return $isValidImage;
+    }
+
+    /**
      * Process and save selfie image
      * @param string $selfieData Base64 image data
      * @param int $userId User ID
@@ -664,8 +720,8 @@ class PresensiController extends \App\Http\Controllers\Controller
     private function processAndSaveSelfie(string $selfieData, int $userId, string $tanggal, bool $isMasuk): string
     {
         try {
-            // Path to public_html/storage/surat_izin using DOCUMENT_ROOT for production compatibility
-            $path = $_SERVER['DOCUMENT_ROOT'] . '/storage/presensi-selfies';
+            // Path to storage/app/public for Laravel consistency
+            $path = storage_path('app/public/presensi-selfies');
 
             // Pastikan folder sudah ada
             if (!file_exists($path)) {
@@ -695,6 +751,25 @@ class PresensiController extends \App\Http\Controllers\Controller
 
             $file->move($path, $namaFile);
 
+            // Verify file was actually saved
+            $fullPath = $path . '/' . $namaFile;
+            if (!file_exists($fullPath) || filesize($fullPath) === 0) {
+                throw new \Exception('File was not saved successfully or is empty');
+            }
+
+            // Additional validation: check if file is readable and has valid image content
+            if (!is_readable($fullPath)) {
+                throw new \Exception('Saved file is not readable');
+            }
+
+            // Try to get image info to ensure it's a valid image
+            $imageInfo = getimagesize($fullPath);
+            if (!$imageInfo) {
+                // If getimagesize fails, delete the invalid file
+                unlink($fullPath);
+                throw new \Exception('Saved file is not a valid image');
+            }
+
             // Clean up temp file
             if (file_exists($tempFile)) {
                 unlink($tempFile);
@@ -704,9 +779,20 @@ class PresensiController extends \App\Http\Controllers\Controller
             return 'presensi-selfies/' . $namaFile;
 
         } catch (\Exception $e) {
-            // Log error and return empty string - presensi should still work even if image processing fails
-            Log::error('Selfie processing failed: ' . $e->getMessage());
-            return '';
+            // Log detailed error information
+            Log::error('Selfie processing failed', [
+                'user_id' => $userId,
+                'tanggal' => $tanggal,
+                'is_masuk' => $isMasuk,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'path_used' => $path ?? 'unknown',
+                'filename' => $namaFile ?? 'unknown'
+            ]);
+
+            // Throw exception instead of returning empty string to prevent blank photos
+            throw new \Exception('Gagal memproses foto selfie: ' . $e->getMessage());
         }
     }
 

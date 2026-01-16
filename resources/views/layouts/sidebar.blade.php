@@ -256,6 +256,24 @@
                 </li>
                 @endif
 
+                @if(in_array($userRole, ['super_admin']))
+                <li class="menu-title">UPPM</li>
+
+                <li>
+                    <a href="#uppmSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-money"></i>
+                        <span>UPPM</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="uppmSubmenu">
+                        <li><a href="{{ route('uppm.index') }}">Dashboard UPPM</a></li>
+                        <li><a href="{{ route('uppm.data-sekolah') }}">Data Sekolah</a></li>
+                        <li><a href="{{ route('uppm.perhitungan-iuran') }}">Perhitungan Iuran</a></li>
+                        <li><a href="{{ route('uppm.tagihan') }}">Tagihan</a></li>
+                        <li><a href="{{ route('uppm.pengaturan') }}">Pengaturan</a></li>
+                    </ul>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">ABOUT</li>
 
