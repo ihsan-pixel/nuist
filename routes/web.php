@@ -118,9 +118,6 @@ Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);
 });
 
-// Foto routes for accessing images from nuist folder
-Route::get('/foto/{type}/{id}', [App\Http\Controllers\FotoController::class, 'show'])->name('foto.show');
-
 // Clear cache endpoint (accessible without authentication)
 Route::post('/clear-cache', function () {
     try {
