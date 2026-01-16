@@ -390,7 +390,7 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Include external JS -->
-<script src="{{ asset('js/mobile-presensi.js') }}"></script>
+<script src="{{ asset('js/mobile/mobile-presensi.js') }}"></script>
 <script>
 window.addEventListener('load', function() {
     let latitude, longitude, lokasi;
