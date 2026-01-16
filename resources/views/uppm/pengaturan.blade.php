@@ -14,9 +14,6 @@
             </div>
         </div>
     </div>
-
-
-
     <div class="row">
         @forelse($settings as $setting)
             <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
@@ -72,8 +69,8 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
+
      <!-- Edit Modal -->
     <div class="modal fade" id="editSettingModal{{ $setting->id }}" tabindex="-1" aria-labelledby="editSettingModalLabel{{ $setting->id }}" aria-hidden="true">
         <div class="modal-dialog modal-xl">
