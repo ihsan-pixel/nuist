@@ -81,7 +81,7 @@
                             <h5 class="modal-title" id="editSettingModalLabel{{ $setting->id }}"><i class="bx bx-edit me-2"></i>Edit Pengaturan UPPM {{ $setting->tahun_anggaran }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form id="editSettingForm{{ $setting->id }}" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data">
+                        <form id="editSettingForm{{ $setting->id }}" method="POST" action="{{ route('uppm.pengaturan.update', $setting->id) }}" enctype="multipart/form-data" data-original-year="{{ $setting->tahun_anggaran }}">
                             @csrf
                             @method('PUT')
                             <div class="modal-body">
@@ -271,6 +271,56 @@ $(document).ready(function() {
                 });
             }
         });
+    });
+});
+
+// Validation for duplicate tahun_anggaran
+$(document).ready(function() {
+    // Collect existing tahun_anggaran into an array
+    var existingYears = [];
+    @foreach($settings as $setting)
+        existingYears.push({{ $setting->tahun_anggaran }});
+    @endforeach
+
+    // Function to check if year is duplicate
+    function isYearDuplicate(year, originalYear = null) {
+        if (originalYear && year == originalYear) {
+            return false; // Allow same year for edit
+        }
+        return existingYears.includes(parseInt(year));
+    }
+
+    // Validate add form
+    $('#addSettingForm').on('submit', function(e) {
+        var tahunAnggaran = $('#tahun_anggaran').val();
+        if (isYearDuplicate(tahunAnggaran)) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Tahun Anggaran Sudah Ada!',
+                text: 'Tahun anggaran ' + tahunAnggaran + ' sudah ada dalam database. Silakan pilih tahun yang berbeda.',
+                showConfirmButton: true
+            });
+            return false;
+        }
+    });
+
+    // Validate edit forms
+    $('form[id^="editSettingForm"]').on('submit', function(e) {
+        var form = $(this);
+        var originalYear = form.data('original-year');
+        var tahunAnggaran = form.find('#tahun_anggaran').val();
+
+        if (isYearDuplicate(tahunAnggaran, originalYear)) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Tahun Anggaran Sudah Ada!',
+                text: 'Tahun anggaran ' + tahunAnggaran + ' sudah ada dalam database. Silakan pilih tahun yang berbeda.',
+                showConfirmButton: true
+            });
+            return false;
+        }
     });
 });
 </script>
