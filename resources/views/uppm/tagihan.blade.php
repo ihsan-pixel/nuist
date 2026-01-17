@@ -432,28 +432,6 @@
                             </select>
                         </div>
 
-                        <!-- Tahun Anggaran -->
-                        <div class="col-md-4">
-                            <label for="tahun" class="form-label">Tahun Anggaran</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="">Semua Status</option>
-                                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                                <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
-                                <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
-                            </select>
-                        </div>
-
-                        <!-- Status Pembayaran -->
-                        <div class="col-md-4">
-                            <label for="status" class="form-label">Status Pembayaran</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="">Semua Status</option>
-                                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                                <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
-                                <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
-                            </select>
-                        </div>
-
                         <!-- Tombol -->
                         <div class="col-md-4">
                             <div class="d-flex gap-2">
