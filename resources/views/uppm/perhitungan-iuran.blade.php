@@ -347,7 +347,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Siswa</p>
-                        <h5 class="mb-0">{{ array_sum(array_column($perhitungan, 'data')) ? array_sum(array_map(function($item) { return $item['data']->jumlah_siswa ?? 0; }, $perhitungan)) : 0 }}</h5>
+                        <h5 class="mb-0">{{ array_sum(array_map(function($item) { return $item['data']->jumlah_siswa ?? 0; }, $perhitungan)) }}</h5>
                     </div>
                 </div>
             </div>
