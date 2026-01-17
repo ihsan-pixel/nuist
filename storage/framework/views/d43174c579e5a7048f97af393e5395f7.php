@@ -1,4 +1,4 @@
-<?php $__env->startSection('title'); ?>Dashboard Pembayaran UPPM@endsection
+<?php $__env->startSection('title'); ?>Dashboard Pembayaran UPPM <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('css'); ?>
 <style>
@@ -405,7 +405,6 @@
         </div>
     </div>
 </div>
-
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title')Dashboard Pembayaran UPPM@endsection
+@section('title')Dashboard Pembayaran UPPM @endsection
 
 @section('css')
 <style>
@@ -406,7 +406,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('script')
