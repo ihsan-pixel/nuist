@@ -16,6 +16,7 @@
             </div>
             <div class="card-body">
                 <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 2rem;">
+                <hr>
                 <div class="row">
                     <div class="col-md-6">
                         <h5>Identitas Sekolah</h5>
