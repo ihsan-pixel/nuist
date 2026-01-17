@@ -416,9 +416,9 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="action-buttons">
-            <h5 class="mb-3">
+            {{-- <h5 class="mb-3">
                 <i class="bx bx-plus-circle me-2"></i>Aksi Pengaturan
-            </h5>
+            </h5> --}}
             <div class="btn-group-custom">
                 <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addSettingModal">
                     <i class="bx bx-plus me-1"></i> Tambah Pengaturan Baru
