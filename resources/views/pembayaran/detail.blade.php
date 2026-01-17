@@ -178,8 +178,8 @@
 
                     <!-- Pay Button Section -->
                     <div class="row">
-                        <div class="col-12 text-center">
-                            <button type="button" class="btn btn-primary btn-lg">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
                                 <i class="bx bx-check me-2"></i>Bayar
                             </button>
                         </div>
@@ -191,15 +191,137 @@
 </div>
 @endsection
 
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Pilih Metode Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary text-center">
+                            <div class="card-body">
+                                <i class="bx bx-cash display-4 text-primary"></i>
+                                <h5 class="card-title">Cash</h5>
+                                <p class="card-text">Bayar langsung dengan uang tunai</p>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashModal">Pilih Cash</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success text-center">
+                            <div class="card-body">
+                                <i class="bx bx-credit-card display-4 text-success"></i>
+                                <h5 class="card-title">Online</h5>
+                                <p class="card-text">Bayar melalui Midtrans</p>
+                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cash Payment Modal -->
+<div class="modal fade" id="cashModal" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cashModalLabel">Pembayaran Cash</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('uppm.pembayaran.cash') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                    <div class="mb-3">
+                        <label for="nominal" class="form-label">Nominal Pembayaran</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" id="nominal" name="nominal" placeholder="0" required min="0" step="1000">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keterangan" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="keterangan" name="keterangan" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Bayar Sekarang</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('script')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Format number input with thousand separator
     const nominalInput = document.getElementById('nominal');
-    nominalInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^\d]/g, '');
-        e.target.value = value;
-    });
+    if (nominalInput) {
+        nominalInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value;
+        });
+    }
 });
+
+function payOnline() {
+    // Close the payment modal
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    paymentModal.hide();
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses...',
+        text: 'Menghubungkan ke Midtrans',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request to Midtrans endpoint
+    fetch('{{ route("uppm.pembayaran.midtrans") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            madrasah_id: '{{ $madrasah->id }}',
+            tahun: '{{ $tahun }}',
+            nominal: {{ $totalTahunan }}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            // Redirect to Midtrans payment page or handle success
+            window.location.href = data.payment_url; // Assuming Midtrans returns payment_url
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
 </script>
 @endsection
