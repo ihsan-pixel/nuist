@@ -96,7 +96,19 @@ class PembayaranController extends Controller
         $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
         $totalTahunan = $nominalBulanan * 12;
 
-        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun'));
+        $rincian = [
+            'siswa' => ($schoolData->jumlah_siswa * $setting->nominal_siswa) * 12,
+            'pns_sertifikasi' => ($schoolData->jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi) * 12,
+            'pns_non_sertifikasi' => ($schoolData->jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi) * 12,
+            'gty_sertifikasi' => ($schoolData->jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi) * 12,
+            'gty_sertifikasi_inpassing' => ($schoolData->jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing) * 12,
+            'gty_non_sertifikasi' => ($schoolData->jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi) * 12,
+            'gtt' => ($schoolData->jumlah_gtt * $setting->nominal_gtt) * 12,
+            'pty' => ($schoolData->jumlah_pty * $setting->nominal_pty) * 12,
+            'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
+        ];
+
+        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun', 'rincian'));
     }
 
     public function pembayaranCash(Request $request)
