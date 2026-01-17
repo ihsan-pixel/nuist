@@ -321,7 +321,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-primary">
-                        <i class="bx bx-school"></i>
+                        <i class="bx bx-buildings"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Sekolah</p>
