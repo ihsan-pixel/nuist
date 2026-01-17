@@ -8,12 +8,14 @@
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
-                        <td><strong>:</strong></td>
                     </tr>
                     <tr>
                         <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
+                    </tr>
+                    <tr>
                         <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
-                        <td><strong>:</strong></td>
+                    </tr>
+                    <tr>
                         <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
                     </tr>
                 </table>
@@ -22,12 +24,14 @@
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran</strong></td>
-                        <td><strong>:</strong></td>
+                    </tr>
+                    <tr>
                         <td style="padding: 0; vertical-align: top;">{{ $tahun }}</td>
                     </tr>
                     <tr>
                         <td style="padding: 0; vertical-align: top;"><strong>Jatuh Tempo</strong></td>
-                        <td><strong>:</strong></td>
+                    </tr>
+                    <tr>
                         <td style="padding: 0; vertical-align: top;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
                     </tr>
                 </table>
