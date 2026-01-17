@@ -79,15 +79,7 @@ class PembayaranController extends Controller
         $madrasah = Madrasah::findOrFail($madrasah_id);
         $dataSekolah = DataSekolah::where('madrasah_id', $madrasah_id)->where('tahun', $tahun)->first();
 
-        if (!$dataSekolah) {
-            return redirect()->back()->with('error', 'Data sekolah tidak ditemukan untuk tahun tersebut.');
-        }
-
         $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
-
-        if (!$setting) {
-            return redirect()->back()->with('error', 'Pengaturan UPPM tidak ditemukan untuk tahun tersebut.');
-        }
 
         $schoolData = (object) [
             'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
@@ -172,8 +164,6 @@ class PembayaranController extends Controller
         $nominal += $schoolData->jumlah_gtt * $setting->nominal_gtt;
         $nominal += $schoolData->jumlah_pty * $setting->nominal_pty;
         $nominal += $schoolData->jumlah_ptt * $setting->nominal_ptt;
-        $nominal += $schoolData->jumlah_karyawan_tetap * $setting->nominal_karyawan_tetap;
-        $nominal += $schoolData->jumlah_karyawan_tidak_tetap * $setting->nominal_karyawan_tidak_tetap;
 
         return $nominal;
     }

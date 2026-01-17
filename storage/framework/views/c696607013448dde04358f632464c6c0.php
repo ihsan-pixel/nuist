@@ -251,29 +251,9 @@
                             </div>
                             <h3 class="menu-title">Pengaturan</h3>
                             <p class="menu-description">Konfigurasi pengaturan iuran UPPM untuk setiap tahun anggaran</p>
-                            <a href="<?php echo e(route('uppm.pembayaran')); ?>" class="btn-modern">
-                                <i class="bx bx-money me-1"></i> Bayar
+                            <a href="<?php echo e(route('uppm.pengaturan')); ?>" class="btn-modern">
+                                <i class="bx bx-right-arrow-alt me-1"></i> Atur
                             </a>
-                            <p class="menu-description">Kelola pembayaran iuran UPPM dengan cash atau payment gateway</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card card-modern">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-info rounded">
-                                            <i class="bx bx-cog font-size-20"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <h5 class="card-title mb-0">Pengaturan</h5>
-                                    </div>
-                                </div>
-                                <p class="menu-description">Konfigurasi pengaturan iuran UPPM untuk setiap tahun anggaran</p>
-                                <a href="<?php echo e(route('uppm.pengaturan')); ?>" class="btn-modern">
-                                    <i class="bx bx-right-arrow-alt me-1"></i> Atur
-                                </a>
                         </div>
                     </div>
                 </div>

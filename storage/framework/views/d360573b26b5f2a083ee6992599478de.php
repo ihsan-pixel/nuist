@@ -1,8 +1,6 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Detail Pembayaran UPPM - ' . $madrasah->name); ?>
 
-@section('title', 'Detail Pembayaran UPPM - ' . $madrasah->name)
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -14,11 +12,12 @@
                                 <i class="bx bx-money me-2"></i>Detail Pembayaran
                             </h4>
                             <p class="card-title-desc mb-0">
-                                {{ $madrasah->name }} - Tahun {{ $tahun }}
+                                <?php echo e($madrasah->name); ?> - Tahun <?php echo e($tahun); ?>
+
                             </p>
                         </div>
                         <div>
-                            <a href="{{ route('uppm.pembayaran', ['tahun' => $tahun]) }}" class="btn btn-secondary">
+                            <a href="<?php echo e(route('pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary">
                                 <i class="bx bx-arrow-back me-1"></i>Kembali
                             </a>
                         </div>
@@ -34,15 +33,15 @@
                                     <table class="table table-sm">
                                         <tr>
                                             <td><strong>Nama Madrasah:</strong></td>
-                                            <td>{{ $madrasah->name }}</td>
+                                            <td><?php echo e($madrasah->name); ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Alamat:</strong></td>
-                                            <td>{{ $madrasah->address ?? '-' }}</td>
+                                            <td><?php echo e($madrasah->address ?? '-'); ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Kepala Madrasah:</strong></td>
-                                            <td>{{ $madrasah->kepala_madrasah ?? '-' }}</td>
+                                            <td><?php echo e($madrasah->kepala_madrasah ?? '-'); ?></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -55,11 +54,11 @@
                                     <table class="table table-sm">
                                         <tr>
                                             <td><strong>Nominal Bulanan:</strong></td>
-                                            <td>Rp {{ number_format($nominalBulanan, 0, ',', '.') }}</td>
+                                            <td>Rp <?php echo e(number_format($nominalBulanan, 0, ',', '.')); ?></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Total Tahunan:</strong></td>
-                                            <td><strong>Rp {{ number_format($totalTahunan, 0, ',', '.') }}</strong></td>
+                                            <td><strong>Rp <?php echo e(number_format($totalTahunan, 0, ',', '.')); ?></strong></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Status:</strong></td>
@@ -83,10 +82,10 @@
                                     </h5>
                                 </div>
                                 <div class="card-body">
-                                    <form action="{{ route('uppm.pembayaran.cash') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
-                                        <input type="hidden" name="tahun" value="{{ $tahun }}">
+                                    <form action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="madrasah_id" value="<?php echo e($madrasah->id); ?>">
+                                        <input type="hidden" name="tahun" value="<?php echo e($tahun); ?>">
 
                                         <div class="mb-3">
                                             <label for="nominal" class="form-label">Nominal Pembayaran</label>
@@ -122,9 +121,9 @@
                                     </div>
 
                                     <form id="midtrans-form">
-                                        <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
-                                        <input type="hidden" name="tahun" value="{{ $tahun }}">
-                                        <input type="hidden" name="nominal" value="{{ $totalTahunan }}">
+                                        <input type="hidden" name="madrasah_id" value="<?php echo e($madrasah->id); ?>">
+                                        <input type="hidden" name="tahun" value="<?php echo e($tahun); ?>">
+                                        <input type="hidden" name="nominal" value="<?php echo e($totalTahunan); ?>">
 
                                         <button type="button" class="btn btn-primary" disabled>
                                             <i class="bx bx-credit-card me-1"></i>Bayar via Midtrans
@@ -158,4 +157,6 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/detail.blade.php ENDPATH**/ ?>
