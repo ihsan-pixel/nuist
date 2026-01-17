@@ -314,7 +314,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-2">
+<div class="row">
     <div class="col-xl-2 col-md-4 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
