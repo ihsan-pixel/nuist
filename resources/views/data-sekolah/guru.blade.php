@@ -541,7 +541,6 @@
         </div>
     </div>
 </div>
-@endsection
 
 <!-- Modal Edit Guru -->
 <div class="modal fade" id="editGuruModal" tabindex="-1" aria-labelledby="editGuruModalLabel" aria-hidden="true">
