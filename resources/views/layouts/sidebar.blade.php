@@ -272,6 +272,15 @@
                         <li><a href="{{ route('uppm.pengaturan') }}">Pengaturan</a></li>
                     </ul>
                 </li>
+
+                <li class="menu-title">PEMBAYARAN</li>
+
+                <li>
+                    <a href="{{ route('pembayaran') }}" class="waves-effect">
+                        <i class="bx bx-credit-card"></i>
+                        <span>Pembayaran</span>
+                    </a>
+                </li>
                 @endif
 
                 @if(in_array($userRole, ['super_admin', 'admin']))

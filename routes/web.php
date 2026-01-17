@@ -399,6 +399,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->
     Route::post('/pengaturan', [App\Http\Controllers\UppmController::class, 'storePengaturan'])->name('pengaturan.store');
     Route::put('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'updatePengaturan'])->name('pengaturan.update');
     Route::delete('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'destroyPengaturan'])->name('pengaturan.destroy');
+
+    // Pembayaran Routes
+    Route::get('/pembayaran', [App\Http\Controllers\PembayaranController::class, 'index'])->name('pembayaran');
+    Route::get('/pembayaran/{madrasah_id}', [App\Http\Controllers\PembayaranController::class, 'detail'])->name('pembayaran.detail');
+    Route::post('/pembayaran/cash', [App\Http\Controllers\PembayaranController::class, 'pembayaranCash'])->name('pembayaran.cash');
+    Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans'])->name('pembayaran.midtrans');
 });
 
 // fallback, jangan ganggu dashboard & lainnya
