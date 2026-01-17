@@ -257,7 +257,10 @@
                             <div class="status"><?php echo e($p->user->statusKepegawaian?->name ?? '-'); ?></div>
                             <?php if($p->selfie_masuk_path || $p->selfie_keluar_path): ?>
                                 <button class="foto-btn"
-                                    onclick="showFoto('<?php echo e(asset('storage/' . $p->selfie_masuk_path)); ?>', '<?php echo e(asset('storage/' . $p->selfie_keluar_path)); ?>')">
+                                    onclick="showFoto(
+                                        '<?php echo e(url("/foto/masuk/".$p->id)); ?>',
+                                        '<?php echo e(url("/foto/keluar/".$p->id)); ?>'
+                                    )">
                                     📷 Lihat Foto
                                 </button>
                             <?php endif; ?>

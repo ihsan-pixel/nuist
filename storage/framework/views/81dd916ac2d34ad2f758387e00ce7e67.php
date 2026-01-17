@@ -1,4 +1,4 @@
-<?php $__env->startSection('title'); ?>Data Sekolah UPPM <?php $__env->stopSection(); ?>
+<?php $__env->startSection('title'); ?>Data Guru dan Karyawan per Tahun <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('css'); ?>
 <style>
@@ -344,8 +344,8 @@
 <?php $__env->startSection('content'); ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
-    <?php $__env->slot('li_2'); ?> UPPM <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Data Sekolah <?php $__env->endSlot(); ?>
+    <?php $__env->slot('li_2'); ?> Data Sekolah <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Data Guru dan Karyawan per Tahun <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
 <div class="row">
@@ -353,12 +353,11 @@
         <div class="card filter-card mb-4">
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
-                    <i class="bx bx-buildings"></i>
-                    Data Sekolah UPPM
+                    <i class="bx bx-user"></i>
+                    Data Guru dan Karyawan per Tahun
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Kelola dan pantau data sekolah beserta informasi pembayaran iuran UPPM untuk tahun <?php echo e(request('tahun', date('Y'))); ?>
-
+                    Kelola dan pantau data guru dan karyawan untuk setiap sekolah mulai dari tahun 2023
                 </p>
             </div>
         </div>
@@ -367,7 +366,7 @@
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -383,80 +382,48 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-success">
-                        <i class="bx bx-check-circle"></i>
+                        <i class="bx bx-user"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Lunas</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'lunas')->count()); ?></h5>
+                        <p class="text-muted mb-2">Total Guru <?php echo e(request('tahun', date('Y'))); ?></p>
+                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_guru')); ?></h5>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning">
-                        <i class="bx bx-time"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'sebagian')->count()); ?></h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-danger">
-                        <i class="bx bx-x-circle"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Belum Bayar</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'belum')->count()); ?></h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info">
-                        <i class="bx bx-group"></i>
+                        <i class="bx bx-briefcase"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Siswa</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
+                        <p class="text-muted mb-2">Total Karyawan <?php echo e(request('tahun', date('Y'))); ?></p>
+                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_karyawan')); ?></h5>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary">
-                        <i class="bx bx-money"></i>
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-calendar"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Nominal</p>
-                        <h5 class="mb-0">Rp <?php echo e(number_format(collect($data)->sum('total_nominal'))); ?></h5>
+                        <p class="text-muted mb-2">Tahun</p>
+                        <h5 class="mb-0"><?php echo e(request('tahun', date('Y'))); ?></h5>
                     </div>
                 </div>
             </div>
@@ -469,13 +436,13 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="GET" action="<?php echo e(route('uppm.data-sekolah')); ?>">
+                <form method="GET" action="<?php echo e(route('data-sekolah.guru')); ?>">
                     <div class="row g-3 align-items-end">
                         <!-- Tahun Anggaran -->
                         <div class="col-md-4">
-                            <label for="tahun" class="form-label">Tahun Anggaran</label>
+                            <label for="tahun" class="form-label">Tahun</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
+                                <?php for($i = 2023; $i <= date('Y') + 1; $i++): ?>
                                     <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>>
                                         <?php echo e($i); ?>
 
@@ -490,7 +457,7 @@
                                 <button type="submit" class="btn btn-success px-4">
                                     <i class="bx bx-search me-1"></i> Filter
                                 </button>
-                                <a href="<?php echo e(route('uppm.data-sekolah')); ?>" class="btn btn-secondary px-4">
+                                <a href="<?php echo e(route('data-sekolah.guru')); ?>" class="btn btn-secondary px-4">
                                     <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
                             </div>
@@ -514,17 +481,10 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Sekolah</th>
-                                    <th>Jumlah Siswa</th>
-                                    <th>Jumlah PNS Sertifikasi</th>
-                                    <th>Jumlah PNS Non Sertifikasi</th>
-                                    <th>Jumlah GTY Sertifikasi</th>
-                                    <th>Jumlah GTY Sertifikasi Inpassing</th>
-                                    <th>Jumlah GTY Non Sertifikasi</th>
-                                    <th>Jumlah GTT</th>
-                                    <th>Jumlah PTY</th>
-                                    <th>Jumlah PTT</th>
-                                    <th>Total Nominal UPPM per Tahun</th>
-                                    <th>Status Pembayaran</th>
+                                    <th>Jumlah Guru</th>
+                                    <th>Jumlah Karyawan</th>
+                                    <th>Total Tenaga Pendidik</th>
+                                    <th>Tahun</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -535,37 +495,21 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div>
-                                                <?php echo e($item->madrasah->name); ?>
+                                                <?php echo e($item['madrasah']->name); ?>
 
                                             </div>
                                         </div>
                                     </td>
-                                    <td><?php echo e(number_format($item->jumlah_siswa)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pns_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pns_non_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_sertifikasi_inpassing ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_non_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gtt ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pty ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_ptt ?? 0)); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_guru'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_karyawan'])); ?></td>
                                     <td>
-                                        <strong class="text-success">Rp <?php echo e(number_format($item->total_nominal)); ?></strong>
+                                        <strong class="text-primary"><?php echo e(number_format($item['jumlah_guru'] + $item['jumlah_karyawan'])); ?></strong>
                                     </td>
+                                    <td><?php echo e($item['tahun']); ?></td>
                                     <td>
-                                        <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
-                                            <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
-
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if(isset($item->id)): ?>
-                                            <a href="<?php echo e(route('uppm.invoice', $item->id)); ?>" class="btn-modern btn-sm">
-                                                <i class="bx bx-receipt me-1"></i> Invoice
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="text-muted">Belum ada data</span>
-                                        <?php endif; ?>
+                                        <button class="btn-modern btn-sm">
+                                            <i class="bx bx-edit me-1"></i> Edit
+                                        </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -575,10 +519,10 @@
                 <?php else: ?>
                     <div class="empty-state">
                         <div class="empty-icon">
-                            <i class="bx bx-school"></i>
+                            <i class="bx bx-user"></i>
                         </div>
-                        <h5>Tidak Ada Data Sekolah</h5>
-                        <p class="text-muted">Belum ada data sekolah untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
+                        <h5>Tidak Ada Data Guru & Karyawan</h5>
+                        <p class="text-muted">Belum ada data guru dan karyawan untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -616,4 +560,4 @@
 </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/uppm/data-sekolah.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/data-sekolah/guru.blade.php ENDPATH**/ ?>

@@ -274,6 +274,21 @@
                 </li>
                 @endif
 
+                @if(in_array($userRole, ['super_admin', 'admin']))
+                <li class="menu-title">DATA SEKOLAH</li>
+
+                <li>
+                    <a href="#dataSekolahSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
+                        <i class="bx bx-school"></i>
+                        <span>Data Sekolah</span>
+                    </a>
+                    <ul class="sub-menu collapse" id="dataSekolahSubmenu">
+                        <li><a href="{{ route('data-sekolah.siswa') }}">Data Jumlah Siswa per Tahun</a></li>
+                        <li><a href="{{ route('data-sekolah.guru') }}">Data Guru per Tahun</a></li>
+                    </ul>
+                </li>
+                @endif
+
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">ABOUT</li>
 

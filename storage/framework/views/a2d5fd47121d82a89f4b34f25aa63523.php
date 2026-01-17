@@ -1,4 +1,4 @@
-<?php $__env->startSection('title'); ?>Invoice UPPM@endsection
+<?php $__env->startSection('title'); ?>Invoice UPPM <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="row">
@@ -99,6 +99,35 @@
         </div>
     </div>
 </div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+<?php if(session('success')): ?>
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '<?php echo e(session('success')); ?>',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+<?php endif; ?>
+
+<?php if(session('error')): ?>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '<?php echo e(session('error')); ?>',
+        timer: 3000,
+        showConfirmButton: false,
+        timerProgressBar: true
+    });
+<?php endif; ?>
+</script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/uppm/invoice.blade.php ENDPATH**/ ?>

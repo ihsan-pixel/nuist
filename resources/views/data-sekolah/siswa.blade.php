@@ -1,6 +1,8 @@
-<?php $__env->startSection('title'); ?>Data Sekolah UPPM <?php $__env->stopSection(); ?>
+@extends('layouts.master')
 
-<?php $__env->startSection('css'); ?>
+@section('title')Data Jumlah Siswa per Tahun @endsection
+
+@section('css')
 <style>
 /* Modern Card Grid Design */
 .setting-card {
@@ -339,26 +341,25 @@
     padding: 2rem;
 }
 </style>
-<?php $__env->stopSection(); ?>
+@endsection
 
-<?php $__env->startSection('content'); ?>
-<?php $__env->startComponent('components.breadcrumb'); ?>
-    <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
-    <?php $__env->slot('li_2'); ?> UPPM <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Data Sekolah <?php $__env->endSlot(); ?>
-<?php echo $__env->renderComponent(); ?>
+@section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('li_2') Data Sekolah @endslot
+    @slot('title') Data Jumlah Siswa per Tahun @endslot
+@endcomponent
 
 <div class="row">
     <div class="col-12">
         <div class="card filter-card mb-4">
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
-                    <i class="bx bx-buildings"></i>
-                    Data Sekolah UPPM
+                    <i class="bx bx-group"></i>
+                    Data Jumlah Siswa per Tahun
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Kelola dan pantau data sekolah beserta informasi pembayaran iuran UPPM untuk tahun <?php echo e(request('tahun', date('Y'))); ?>
-
+                    Kelola dan pantau data jumlah siswa untuk setiap sekolah mulai dari tahun 2023
                 </p>
             </div>
         </div>
@@ -367,7 +368,7 @@
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -376,87 +377,55 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Sekolah</p>
-                        <h5 class="mb-0"><?php echo e(count($data)); ?></h5>
+                        <h5 class="mb-0">{{ count($data) }}</h5>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-success">
-                        <i class="bx bx-check-circle"></i>
+                        <i class="bx bx-group"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Lunas</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'lunas')->count()); ?></h5>
+                        <p class="text-muted mb-2">Total Siswa {{ request('tahun', date('Y')) }}</p>
+                        <h5 class="mb-0">{{ collect($data)->sum('jumlah_siswa') }}</h5>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning">
-                        <i class="bx bx-time"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'sebagian')->count()); ?></h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-md-4 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-danger">
-                        <i class="bx bx-x-circle"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Belum Bayar</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'belum')->count()); ?></h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info">
-                        <i class="bx bx-group"></i>
+                        <i class="bx bx-trending-up"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Siswa</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
+                        <p class="text-muted mb-2">Rata-rata per Sekolah</p>
+                        <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0 }}</h5>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-2 col-md-4 col-sm-6">
+    <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary">
-                        <i class="bx bx-money"></i>
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-calendar"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Nominal</p>
-                        <h5 class="mb-0">Rp <?php echo e(number_format(collect($data)->sum('total_nominal'))); ?></h5>
+                        <p class="text-muted mb-2">Tahun</p>
+                        <h5 class="mb-0">{{ request('tahun', date('Y')) }}</h5>
                     </div>
                 </div>
             </div>
@@ -469,18 +438,17 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="GET" action="<?php echo e(route('uppm.data-sekolah')); ?>">
+                <form method="GET" action="{{ route('data-sekolah.siswa') }}">
                     <div class="row g-3 align-items-end">
                         <!-- Tahun Anggaran -->
                         <div class="col-md-4">
-                            <label for="tahun" class="form-label">Tahun Anggaran</label>
+                            <label for="tahun" class="form-label">Tahun</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
-                                    <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>>
-                                        <?php echo e($i); ?>
-
+                                @for($i = 2023; $i <= date('Y') + 1; $i++)
+                                    <option value="{{ $i }}" {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>
+                                        {{ $i }}
                                     </option>
-                                <?php endfor; ?>
+                                @endfor
                             </select>
                         </div>
 
@@ -490,7 +458,7 @@
                                 <button type="submit" class="btn btn-success px-4">
                                     <i class="bx bx-search me-1"></i> Filter
                                 </button>
-                                <a href="<?php echo e(route('uppm.data-sekolah')); ?>" class="btn btn-secondary px-4">
+                                <a href="{{ route('data-sekolah.siswa') }}" class="btn btn-secondary px-4">
                                     <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
                             </div>
@@ -507,7 +475,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <?php if(count($data) > 0): ?>
+                @if(count($data) > 0)
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
@@ -515,105 +483,73 @@
                                     <th>No</th>
                                     <th>Nama Sekolah</th>
                                     <th>Jumlah Siswa</th>
-                                    <th>Jumlah PNS Sertifikasi</th>
-                                    <th>Jumlah PNS Non Sertifikasi</th>
-                                    <th>Jumlah GTY Sertifikasi</th>
-                                    <th>Jumlah GTY Sertifikasi Inpassing</th>
-                                    <th>Jumlah GTY Non Sertifikasi</th>
-                                    <th>Jumlah GTT</th>
-                                    <th>Jumlah PTY</th>
-                                    <th>Jumlah PTT</th>
-                                    <th>Total Nominal UPPM per Tahun</th>
-                                    <th>Status Pembayaran</th>
+                                    <th>Tahun</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                @foreach($data as $index => $item)
                                 <tr>
-                                    <td><?php echo e($index + 1); ?></td>
+                                    <td>{{ $index + 1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div>
-                                                <?php echo e($item->madrasah->name); ?>
-
+                                                {{ $item['madrasah']->name }}
                                             </div>
                                         </div>
                                     </td>
-                                    <td><?php echo e(number_format($item->jumlah_siswa)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pns_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pns_non_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_sertifikasi_inpassing ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gty_non_sertifikasi ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_gtt ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_pty ?? 0)); ?></td>
-                                    <td><?php echo e(number_format($item->jumlah_ptt ?? 0)); ?></td>
+                                    <td>{{ number_format($item['jumlah_siswa']) }}</td>
+                                    <td>{{ $item['tahun'] }}</td>
                                     <td>
-                                        <strong class="text-success">Rp <?php echo e(number_format($item->total_nominal)); ?></strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
-                                            <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
-
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if(isset($item->id)): ?>
-                                            <a href="<?php echo e(route('uppm.invoice', $item->id)); ?>" class="btn-modern btn-sm">
-                                                <i class="bx bx-receipt me-1"></i> Invoice
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="text-muted">Belum ada data</span>
-                                        <?php endif; ?>
+                                        <button class="btn-modern btn-sm">
+                                            <i class="bx bx-edit me-1"></i> Edit
+                                        </button>
                                     </td>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
-                <?php else: ?>
+                @else
                     <div class="empty-state">
                         <div class="empty-icon">
-                            <i class="bx bx-school"></i>
+                            <i class="bx bx-group"></i>
                         </div>
-                        <h5>Tidak Ada Data Sekolah</h5>
-                        <p class="text-muted">Belum ada data sekolah untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
+                        <h5>Tidak Ada Data Siswa</h5>
+                        <p class="text-muted">Belum ada data siswa untuk tahun {{ request('tahun', date('Y')) }}.</p>
                     </div>
-                <?php endif; ?>
+                @endif
             </div>
         </div>
     </div>
 </div>
-<?php $__env->stopSection(); ?>
+@endsection
 
-<?php $__env->startSection('script'); ?>
+@section('script')
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-<?php if(session('success')): ?>
+@if(session('success'))
     Swal.fire({
         icon: 'success',
         title: 'Berhasil!',
-        text: '<?php echo e(session('success')); ?>',
+        text: '{{ session('success') }}',
         timer: 3000,
         showConfirmButton: false,
         timerProgressBar: true
     });
-<?php endif; ?>
+@endif
 
-<?php if(session('error')): ?>
+@if(session('error'))
     Swal.fire({
         icon: 'error',
         title: 'Gagal!',
-        text: '<?php echo e(session('error')); ?>',
+        text: '{{ session('error') }}',
         timer: 3000,
         showConfirmButton: false,
         timerProgressBar: true
     });
-<?php endif; ?>
+@endif
 </script>
-<?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/uppm/data-sekolah.blade.php ENDPATH**/ ?>
+@endsection

@@ -207,7 +207,7 @@
 
 /* Export Section - More Visible */
 .export-section {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
     color: white;
     border-radius: 15px;
     padding: 2rem;
