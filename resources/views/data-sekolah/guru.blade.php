@@ -379,7 +379,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Total Sekolah</p>
-                            <h5 class="mb-0">{{ count($data) }}</h5>
+                            <h5 class="mb-0">{{ count($data) > 0 ? count($data) / 4 : 0 }}</h5>
                         </div>
                     </div>
                 </div>
@@ -395,7 +395,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Total Guru (2023-2026)</p>
-                            <h5 class="mb-0">{{ collect($data)->sum(function($item) { return $item[2023]['total_guru'] + $item[2024]['total_guru'] + $item[2025]['total_guru'] + $item[2026]['total_guru']; }) }}</h5>
+                            <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
                         </div>
                     </div>
                 </div>
@@ -411,7 +411,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Rata-rata per Tahun</p>
-                            <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->avg(function($item) { return ($item[2023]['total_guru'] + $item[2024]['total_guru'] + $item[2025]['total_guru'] + $item[2026]['total_guru']) / 4; })) : 0 }}</h5>
+                            <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->sum('total_guru') / 4) : 0 }}</h5>
                         </div>
                     </div>
                 </div>
@@ -595,22 +595,21 @@
                                     </td>
                                     @if(isset($tahunList))
                                         <!-- Data untuk Admin - kolom tahun 2023-2026 -->
-                                        @foreach($tahunList as $tahun)
-                                            <td>{{ number_format($item[$tahun]['jumlah_pns_sertifikasi']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_pns_non_sertifikasi']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_gty_sertifikasi']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_gty_sertifikasi_inpassing']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_gty_non_sertifikasi']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_gtt']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_pty']) }}</td>
-                                            <td>{{ number_format($item[$tahun]['jumlah_ptt']) }}</td>
-                                            <td><strong class="text-primary">{{ number_format($item[$tahun]['total_guru']) }}</strong></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $tahun }}, {{ $item[$tahun]['jumlah_pns_sertifikasi'] }}, {{ $item[$tahun]['jumlah_pns_non_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gty_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item[$tahun]['jumlah_gty_non_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gtt'] }}, {{ $item[$tahun]['jumlah_pty'] }}, {{ $item[$tahun]['jumlah_ptt'] }})" title="Edit {{ $tahun }}">
-                                                    {{ $tahun }}
-                                                </button>
-                                            </td>
-                                        @endforeach
+                                        <td>{{ number_format($item['jumlah_pns_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_pns_non_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_sertifikasi_inpassing']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_non_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gtt']) }}</td>
+                                        <td>{{ number_format($item['jumlah_pty']) }}</td>
+                                        <td>{{ number_format($item['jumlah_ptt']) }}</td>
+                                        <td><strong class="text-primary">{{ number_format($item['total_guru']) }}</strong></td>
+                                        <td>{{ $item['tahun'] }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_pns_sertifikasi'] }}, {{ $item['jumlah_pns_non_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item['jumlah_gty_non_sertifikasi'] }}, {{ $item['jumlah_gtt'] }}, {{ $item['jumlah_pty'] }}, {{ $item['jumlah_ptt'] }})" title="Edit {{ $item['tahun'] }}">
+                                                {{ $item['tahun'] }}
+                                            </button>
+                                        </td>
                                     @else
                                         <!-- Data untuk Super Admin - seperti sebelumnya -->
                                         <td>{{ number_format($item['jumlah_pns_sertifikasi']) }}</td>

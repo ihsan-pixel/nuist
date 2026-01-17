@@ -365,71 +365,141 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary">
-                        <i class="bx bx-buildings"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Sekolah</p>
-                        <h5 class="mb-0"><?php echo e(count($data)); ?></h5>
+<?php if(isset($tahunList)): ?>
+    <!-- Statistics untuk Admin - menampilkan data semua tahun -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-primary">
+                            <i class="bx bx-buildings"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Sekolah</p>
+                            <h5 class="mb-0"><?php echo e(count($data) / 4); ?></h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-success">
-                        <i class="bx bx-group"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Siswa <?php echo e(request('tahun', date('Y'))); ?></p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-success">
+                            <i class="bx bx-group"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Siswa (2023-2026)</p>
+                            <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-info">
-                        <i class="bx bx-trending-up"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Rata-rata per Sekolah</p>
-                        <h5 class="mb-0"><?php echo e(count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0); ?></h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-info">
+                            <i class="bx bx-trending-up"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Rata-rata per Tahun</p>
+                            <h5 class="mb-0"><?php echo e(count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0); ?></h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning">
-                        <i class="bx bx-calendar"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Tahun</p>
-                        <h5 class="mb-0"><?php echo e(request('tahun', date('Y'))); ?></h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-warning">
+                            <i class="bx bx-calendar"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Periode</p>
+                            <h5 class="mb-0">2023-2026</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+<?php else: ?>
+    <!-- Statistics untuk Super Admin - seperti sebelumnya -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-primary">
+                            <i class="bx bx-buildings"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Sekolah</p>
+                            <h5 class="mb-0"><?php echo e(count($data)); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-success">
+                            <i class="bx bx-group"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Siswa <?php echo e($tahun); ?></p>
+                            <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-info">
+                            <i class="bx bx-trending-up"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Rata-rata per Sekolah</p>
+                            <h5 class="mb-0"><?php echo e(count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-warning">
+                            <i class="bx bx-calendar"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Tahun</p>
+                            <h5 class="mb-0"><?php echo e($tahun); ?></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <!-- Filters -->
 <div class="row mb-4">
@@ -481,30 +551,61 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Sekolah</th>
-                                    <th>Jumlah Siswa</th>
-                                    <th>Tahun</th>
-                                    <th>Aksi</th>
+                                    <?php if(isset($tahunList)): ?>
+                                        <!-- Header untuk Admin - kolom tahun 2023-2026 -->
+                                        <?php $__currentLoopData = $tahunList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tahun): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <th>Jumlah Siswa <?php echo e($tahun); ?></th>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <th>Total Siswa</th>
+                                        <th>Aksi</th>
+                                    <?php else: ?>
+                                        <!-- Header untuk Super Admin - seperti sebelumnya -->
+                                        <th>Jumlah Siswa</th>
+                                        <th>Tahun</th>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td><?php echo e($index + 1); ?></td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <?php echo e($item['madrasah']->name); ?>
+                                    <?php if(isset($tahunList)): ?>
+                                        <!-- Data untuk Admin - kolom tahun 2023-2026 -->
+                                        <td><?php echo e($item['no']); ?></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <?php echo e($item['madrasah']->name); ?>
 
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td><?php echo e(number_format($item['jumlah_siswa'])); ?></td>
-                                    <td><?php echo e($item['tahun']); ?></td>
-                                    <td>
-                                        <button class="btn-modern btn-sm" onclick="editSiswa(<?php echo e($item['madrasah']->id); ?>, '<?php echo e(addslashes($item['madrasah']->name)); ?>', <?php echo e($item['tahun']); ?>, <?php echo e($item['jumlah_siswa']); ?>)">
-                                            <i class="bx bx-edit me-1"></i> Edit
-                                        </button>
-                                    </td>
+                                        </td>
+                                        <td><?php echo e($item['tahun']); ?></td>
+                                        <td><?php echo e(number_format($item['jumlah_siswa'])); ?></td>
+                                        <td>
+                                            <button class="btn-modern btn-sm" onclick="editSiswa(<?php echo e($item['madrasah']->id); ?>, '<?php echo e(addslashes($item['madrasah']->name)); ?>', <?php echo e($item['tahun']); ?>, <?php echo e($item['jumlah_siswa']); ?>)">
+                                                <i class="bx bx-edit me-1"></i> Edit
+                                            </button>
+                                        </td>
+                                    <?php else: ?>
+                                        <!-- Data untuk Super Admin - seperti sebelumnya -->
+                                        <td><?php echo e($index + 1); ?></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <?php echo e($item['madrasah']->name); ?>
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?php echo e(number_format($item['jumlah_siswa'])); ?></td>
+                                        <td><?php echo e($item['tahun']); ?></td>
+                                        <td>
+                                            <button class="btn-modern btn-sm" onclick="editSiswa(<?php echo e($item['madrasah']->id); ?>, '<?php echo e(addslashes($item['madrasah']->name)); ?>', <?php echo e($item['tahun']); ?>, <?php echo e($item['jumlah_siswa']); ?>)">
+                                                <i class="bx bx-edit me-1"></i> Edit
+                                            </button>
+                                        </td>
+                                    <?php endif; ?>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
@@ -516,15 +617,17 @@
                             <i class="bx bx-group"></i>
                         </div>
                         <h5>Tidak Ada Data Siswa</h5>
-                        <p class="text-muted">Belum ada data siswa untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
+                        <?php if(isset($tahunList)): ?>
+                            <p class="text-muted">Belum ada data siswa untuk periode 2023-2026.</p>
+                        <?php else: ?>
+                            <p class="text-muted">Belum ada data siswa untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
-<?php $__env->stopSection(); ?>
-
 <!-- Modal Edit Siswa -->
 <div class="modal fade" id="editSiswaModal" tabindex="-1" aria-labelledby="editSiswaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -564,6 +667,8 @@
         </div>
     </div>
 </div>
+<?php $__env->stopSection(); ?>
+
 
 <?php $__env->startSection('script'); ?>
 <!-- SweetAlert2 -->
