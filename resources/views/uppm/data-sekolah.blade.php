@@ -340,32 +340,6 @@
 .card-body {
     padding: 2rem;
 }
-
-/* Filter Section Styling */
-.filter-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border: 1px solid #e2e8f0;
-}
-
-.filter-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-bottom: none;
-    padding: 1.5rem 2rem;
-    border-radius: 15px 15px 0 0 !important;
-}
-
-.filter-header h5 {
-    color: white;
-    font-weight: 600;
-    margin: 0;
-}
-
-.filter-section .card-body {
-    padding: 2rem;
-    background: white;
-    border-radius: 0 0 15px 15px;
-}
 </style>
 @endsection
 
@@ -494,13 +468,7 @@
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card filter-section">
-            <div class="card-header filter-header">
-                <h5 class="mb-0">
-                    <i class="bx bx-filter-alt me-2"></i>
-                    Filter Data Sekolah
-                </h5>
-            </div>
+        <div class="card">
             <div class="card-body">
                 <form method="GET" action="{{ route('uppm.data-sekolah') }}">
                     <div class="row g-3">
