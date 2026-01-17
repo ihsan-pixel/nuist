@@ -6,6 +6,7 @@ use App\Models\UppmSetting;
 use App\Models\UppmSchoolData;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
+use App\Models\Tagihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -112,11 +113,17 @@ class UppmController extends Controller
                     $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
                     $totalTahunan = $nominalBulanan * 12;
 
+                    // Check if tagihan already exists
+                    $existingTagihan = Tagihan::where('madrasah_id', $madrasah->id)
+                        ->where('tahun_anggaran', $tahun)
+                        ->first();
+
                     $perhitungan[] = [
                         'madrasah' => $madrasah,
                         'data' => $schoolData,
                         'nominal_bulanan' => $nominalBulanan,
                         'total_tahunan' => $totalTahunan,
+                        'tagihan_exists' => $existingTagihan ? true : false,
                     ];
                 }
             }
@@ -461,5 +468,50 @@ class UppmController extends Controller
             'success' => false,
             'message' => 'Integrasi Midtrans belum diimplementasikan',
         ]);
+    }
+
+    public function storeTagihan(Request $request)
+    {
+        try {
+            $request->validate([
+                'madrasah_id' => 'required|exists:madrasahs,id',
+                'tahun_anggaran' => 'required|integer',
+                'nominal' => 'required|numeric|min:0',
+                'jatuh_tempo' => 'required|date',
+                'keterangan' => 'nullable|string',
+            ]);
+
+            // Check if tagihan already exists
+            $existingTagihan = Tagihan::where('madrasah_id', $request->madrasah_id)
+                ->where('tahun_anggaran', $request->tahun_anggaran)
+                ->first();
+
+            if ($existingTagihan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tagihan untuk madrasah ini pada tahun tersebut sudah ada.',
+                ]);
+            }
+
+            Tagihan::create([
+                'madrasah_id' => $request->madrasah_id,
+                'tahun_anggaran' => $request->tahun_anggaran,
+                'nominal' => $request->nominal,
+                'jatuh_tempo' => $request->jatuh_tempo,
+                'status' => 'belum_lunas',
+                'keterangan' => $request->keterangan,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tagihan berhasil dibuat.',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error creating tagihan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

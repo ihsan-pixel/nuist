@@ -288,9 +288,15 @@
                             </div>
                             <h3 class="menu-title">Data Pembayaran</h3>
                             <p class="menu-description">Lihat daftar pembayaran semua entitas dengan status terkini</p>
-                            <button type="button" class="btn-modern" onclick="toggleSection('payment-data')">
-                                <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
-                            </button>
+                            @if(count($data) > 0)
+                                <button type="button" class="btn-modern" onclick="toggleSection('payment-data')">
+                                    <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
+                                </button>
+                            @else
+                                <button type="button" class="btn-modern" onclick="showNoTagihanAlert()">
+                                    <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
+                                </button>
+                            @endif
                         </div>
                     </div>
 
@@ -377,10 +383,10 @@
                             </td>
                             <td>Rp {{ number_format($item->nominal_dibayar, 0, ',', '.') }}</td>
                             <td>
-                                <a href="{{ route('uppm.pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun]) }}"
-                                   class="btn btn-sm btn-primary">
+                                <button type="button" onclick="checkTagihan({{ $item->madrasah->id }}, {{ $tahun }}, '{{ $item->madrasah->name }}')"
+                                        class="btn btn-sm btn-primary">
                                     <i class="bx bx-detail me-1"></i>Detail
-                                </a>
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -409,6 +415,9 @@
 @endsection
 
 @section('script')
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
@@ -428,6 +437,64 @@ function toggleSection(sectionId) {
     if (section.classList.contains('show')) {
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+}
+
+function checkTagihan(madrasahId, tahun, madrasahName) {
+    // Show loading
+    Swal.fire({
+        title: 'Memeriksa Tagihan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // AJAX request to check tagihan
+    fetch(`/uppm/pembayaran/check-tagihan?madrasah_id=${madrasahId}&tahun=${tahun}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        credentials: 'same-origin'
+    })
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+
+            if (data.exists) {
+                // Redirect to detail page
+                window.location.href = `/uppm/pembayaran/${madrasahId}?tahun=${tahun}`;
+            } else {
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tagihan Tidak Ditemukan',
+                    text: `Tagihan belum dibuat untuk madrasah ${madrasahName} pada tahun ${tahun}. Silakan buat tagihan terlebih dahulu.`,
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: 'Gagal memeriksa tagihan. Silakan coba lagi.',
+                confirmButtonText: 'OK'
+            });
+        });
+}
+
+function showNoTagihanAlert() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Tidak Ada Data Tagihan',
+        text: 'Belum ada data tagihan untuk tahun ini.',
+        confirmButtonText: 'OK'
+    });
 }
 </script>
 @endsection

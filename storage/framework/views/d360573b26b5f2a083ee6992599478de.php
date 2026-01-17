@@ -1,28 +1,19 @@
 <?php $__env->startSection('title', 'Detail Pembayaran - ' . $madrasah->name); ?>
 
 <?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Detail Pembayaran <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
+
+
+
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h4 class="card-title mb-0">
-                                <i class="bx bx-money me-2"></i>Detail Pembayaran
-                            </h4>
-                            <p class="card-title-desc mb-0">
-                                <?php echo e($madrasah->name); ?> - Tahun <?php echo e($tahun); ?>
-
-                            </p>
-                        </div>
-                        <div>
-                            <a href="<?php echo e(route('uppm.pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary">
-                                <i class="bx bx-arrow-back me-1"></i>Kembali
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                
                 <div class="card-body">
                     <!-- Invoice Section -->
                     <div class="row mb-4">
@@ -30,7 +21,7 @@
                             <div class="card border">
                                 <div class="card-header bg-light">
                                     <h5 class="card-title mb-0">
-                                        <i class="bx bx-receipt me-2"></i>Invoice Pembayaran UPPM
+                                        <i class="bx bx-receipt me-2"></i>Invoice Pembayaran
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -38,13 +29,13 @@
                                     <div class="row mb-4">
                                         <div class="col-md-6">
                                             <h6 class="text-muted">Dari:</h6>
-                                            <h5 class="mb-1">LP Ma'arif NU Indonesia</h5>
-                                            <p class="text-muted mb-0">Jl. Kramat Raya No. 45<br>Jakarta Pusat 10450<br>Indonesia</p>
+                                            <h5 class="mb-1"><?php echo e($yayasan->name ?? 'LP Ma\'arif NU PWNU D.I. Yogyakarta'); ?></h5>
+                                            <p class="text-muted mb-0"><?php echo e($yayasan->alamat ?? 'Jl. Kramat Raya No. 45<br>Jakarta Pusat 10450<br>Indonesia'); ?></p>
                                         </div>
                                         <div class="col-md-6 text-end">
                                             <h6 class="text-muted">Kepada:</h6>
                                             <h5 class="mb-1"><?php echo e($madrasah->name); ?></h5>
-                                            <p class="text-muted mb-0"><?php echo e($madrasah->address ?? '-'); ?></p>
+                                            <p class="text-muted mb-0"><?php echo e($madrasah->alamat ?? '-'); ?></p>
                                         </div>
                                     </div>
 
@@ -54,7 +45,7 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <td><strong>Nomor Invoice:</strong></td>
-                                                    <td>INV-UPPM-<?php echo e($madrasah->id); ?>-<?php echo e($tahun); ?></td>
+                                                    <td>INV-<?php echo e($madrasah->scod); ?>-<?php echo e($tahun); ?>-<?php echo e($uniqueCode); ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Tanggal Invoice:</strong></td>
@@ -84,31 +75,76 @@
 
                                     <!-- Invoice Table -->
                                     <div class="table-responsive">
+                                        <h5 style="text-align: center; margin-bottom: 1rem;"><strong>RINCIAN PERHITUNGAN UPPM</strong></h5>
                                         <table class="table table-bordered">
-                                            <thead class="table-light">
+                                            <thead>
                                                 <tr>
-                                                    <th>No</th>
-                                                    <th>Deskripsi</th>
-                                                    <th class="text-center">Qty</th>
-                                                    <th class="text-end">Harga Satuan</th>
-                                                    <th class="text-end">Total</th>
+                                                    <th>Komponen</th>
+                                                    <th>Jumlah</th>
+                                                    <th>Nominal per Bulan</th>
+                                                    <th>Total per Tahun</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td>1</td>
-                                                    <td>Iuran Pengembangan Pendidikan Madrasah (UPPM)</td>
-                                                    <td class="text-center">12</td>
-                                                    <td class="text-end">Rp <?php echo e(number_format($nominalBulanan, 0, ',', '.')); ?></td>
-                                                    <td class="text-end">Rp <?php echo e(number_format($totalTahunan, 0, ',', '.')); ?></td>
+                                                    <td>Siswa</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_siswa ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_siswa ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['siswa'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>PNS Sertifikasi</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_pns_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_pns_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['pns_sertifikasi'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>PNS Non Sertifikasi</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_pns_non_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_pns_non_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['pns_non_sertifikasi'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>GTY Sertifikasi</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_gty_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_gty_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['gty_sertifikasi'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>GTY Sertifikasi Inpassing</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_gty_sertifikasi_inpassing ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['gty_sertifikasi_inpassing'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>GTY Non Sertifikasi</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_gty_non_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_gty_non_sertifikasi ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['gty_non_sertifikasi'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>GTT</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_gtt ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_gtt ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['gtt'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>PTY</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_pty ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_pty ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['pty'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>PTT</td>
+                                                    <td><?php echo e(number_format($dataSekolah->jumlah_ptt ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($setting->nominal_ptt ?? 0)); ?></td>
+                                                    <td>Rp <?php echo e(number_format($rincian['ptt'] ?? 0)); ?></td>
+                                                </tr>
+                                                <tr class="table-primary">
+                                                    <td colspan="3"><strong>Total Tagihan UPPM Tahunan</strong></td>
+                                                    <td><strong>Rp <?php echo e(number_format($totalTahunan)); ?></strong></td>
                                                 </tr>
                                             </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td colspan="4" class="text-end"><strong>Total Tagihan:</strong></td>
-                                                    <td class="text-end"><strong>Rp <?php echo e(number_format($totalTahunan, 0, ',', '.')); ?></strong></td>
-                                                </tr>
-                                            </tfoot>
                                         </table>
                                     </div>
 
@@ -130,84 +166,82 @@
                         </div>
                     </div>
 
-                    <!-- Payment Methods Section -->
+                    <!-- Pay Button Section -->
                     <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="bx bx-credit-card me-2"></i>Metode Pembayaran
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Cash Payment -->
-                                        <div class="col-md-6">
-                                            <div class="card border-primary">
-                                                <div class="card-body text-center">
-                                                    <div class="mb-3">
-                                                        <i class="bx bx-cash display-4 text-primary"></i>
-                                                    </div>
-                                                    <h5 class="card-title">Pembayaran Cash</h5>
-                                                    <p class="card-text text-muted">Bayar langsung dengan uang tunai</p>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                <i class="bx bx-check me-2"></i>Bayar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                                    <form action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST" class="mt-4">
-                                                        <?php echo csrf_field(); ?>
-                                                        <input type="hidden" name="madrasah_id" value="<?php echo e($madrasah->id); ?>">
-                                                        <input type="hidden" name="tahun" value="<?php echo e($tahun); ?>">
-
-                                                        <div class="mb-3">
-                                                            <label for="nominal" class="form-label">Nominal Pembayaran</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text">Rp</span>
-                                                                <input type="number" class="form-control" id="nominal" name="nominal"
-                                                                       placeholder="0" required min="0" step="1000">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label for="keterangan" class="form-label">Keterangan</label>
-                                                            <textarea class="form-control" id="keterangan" name="keterangan"
-                                                                      rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
-                                                        </div>
-
-                                                        <button type="submit" class="btn btn-primary btn-lg">
-                                                            <i class="bx bx-check me-2"></i>Bayar Sekarang
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Online Payment (Midtrans) -->
-                                        <div class="col-md-6">
-                                            <div class="card border-success">
-                                                <div class="card-body text-center">
-                                                    <div class="mb-3">
-                                                        <i class="bx bx-credit-card display-4 text-success"></i>
-                                                    </div>
-                                                    <h5 class="card-title">Pembayaran Online</h5>
-                                                    <p class="card-text text-muted">Bayar melalui Midtrans Payment Gateway</p>
-
-                                                    <div class="mt-4">
-                                                        <div class="alert alert-info">
-                                                            <i class="bx bx-info-circle me-2"></i>
-                                                            <small>Integrasi dengan Midtrans sedang dalam pengembangan.</small>
-                                                        </div>
-
-                                                        <button type="button" class="btn btn-success btn-lg" disabled>
-                                                            <i class="bx bx-credit-card me-2"></i>Bayar via Midtrans
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Pilih Metode Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary text-center">
+                            <div class="card-body">
+                                <i class="bx bx-money display-4 text-primary"></i>
+                                <h5 class="card-title">Cash</h5>
+                                <p class="card-text">Bayar langsung dengan uang tunai</p>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashModal">Pilih Cash</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success text-center">
+                            <div class="card-body">
+                                <i class="bx bx-credit-card display-4 text-success"></i>
+                                <h5 class="card-title">Online</h5>
+                                <p class="card-text">Bayar melalui Midtrans</p>
+                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cash Payment Modal -->
+<div class="modal fade" id="cashModal" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cashModalLabel">Pembayaran Cash</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="madrasah_id" value="<?php echo e($madrasah->id); ?>">
+                    <input type="hidden" name="tahun" value="<?php echo e($tahun); ?>">
+                    <div class="mb-3">
+                        <label for="nominal" class="form-label">Nominal Pembayaran</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" id="nominal" name="nominal" value="<?php echo e($totalTahunan); ?>" readonly required min="0" step="1000">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keterangan" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="keterangan" name="keterangan" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Bayar Sekarang</button>
+                </form>
             </div>
         </div>
     </div>
@@ -219,11 +253,67 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Format number input with thousand separator
     const nominalInput = document.getElementById('nominal');
-    nominalInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^\d]/g, '');
-        e.target.value = value;
-    });
+    if (nominalInput) {
+        nominalInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d]/g, '');
+            e.target.value = value;
+        });
+    }
 });
+
+function payOnline() {
+    // Close the payment modal
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    paymentModal.hide();
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses...',
+        text: 'Menghubungkan ke Midtrans',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request to Midtrans endpoint
+    fetch('<?php echo e(route("uppm.pembayaran.midtrans")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+        },
+        body: JSON.stringify({
+            madrasah_id: '<?php echo e($madrasah->id); ?>',
+            tahun: '<?php echo e($tahun); ?>',
+            nominal: <?php echo e($totalTahunan); ?>
+
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            // Redirect to Midtrans payment page or handle success
+            window.location.href = data.payment_url; // Assuming Midtrans returns payment_url
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
 </script>
 <?php $__env->stopSection(); ?>
 

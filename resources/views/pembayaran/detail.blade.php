@@ -3,11 +3,33 @@
 @section('title', 'Detail Pembayaran - ' . $madrasah->name)
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('title') Detail Pembayaran @endslot
+@endcomponent
+
+{{-- <div class="row">
+    <div class="col-12">
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-white mb-4">
+                    <i class="bx bx-credit-card me-2"></i>
+                    Dashboard Pembayaran
+                </h4>
+                <p class="text-white-50 mb-0">
+                    Sistem pembayaran terintegrasi dengan data. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
+                </p>
+            </div>
+        </div>
+    </div>
+</div> --}}
+
+{{-- @section('content') --}}
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                {{-- <div class="card-header">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
                             <h4 class="card-title mb-0">
@@ -23,7 +45,7 @@
                             </a>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <div class="card-body">
                     <!-- Invoice Section -->
                     <div class="row mb-4">
@@ -39,13 +61,13 @@
                                     <div class="row mb-4">
                                         <div class="col-md-6">
                                             <h6 class="text-muted">Dari:</h6>
-                                            <h5 class="mb-1">LP Ma'arif NU PWNU D.I. Yogyakarta</h5>
-                                            <p class="text-muted mb-0">Jl. Kramat Raya No. 45<br>Jakarta Pusat 10450<br>Indonesia</p>
+                                            <h5 class="mb-1">{{ $yayasan->name ?? 'LP Ma\'arif NU PWNU D.I. Yogyakarta' }}</h5>
+                                            <p class="text-muted mb-0">{{ $yayasan->alamat ?? 'Jl. Kramat Raya No. 45<br>Jakarta Pusat 10450<br>Indonesia' }}</p>
                                         </div>
                                         <div class="col-md-6 text-end">
                                             <h6 class="text-muted">Kepada:</h6>
                                             <h5 class="mb-1">{{ $madrasah->name }}</h5>
-                                            <p class="text-muted mb-0">{{ $madrasah->address ?? '-' }}</p>
+                                            <p class="text-muted mb-0">{{ $madrasah->alamat ?? '-' }}</p>
                                         </div>
                                     </div>
 
@@ -55,7 +77,7 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <td><strong>Nomor Invoice:</strong></td>
-                                                    <td>INV-{{ $madrasah->id }}-{{ $tahun }}</td>
+                                                    <td>INV-{{ $madrasah->scod }}-{{ $tahun }}-{{ $uniqueCode }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Tanggal Invoice:</strong></td>
@@ -243,7 +265,7 @@
                         <label for="nominal" class="form-label">Nominal Pembayaran</label>
                         <div class="input-group">
                             <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control" id="nominal" name="nominal" placeholder="0" required min="0" step="1000">
+                            <input type="number" class="form-control" id="nominal" name="nominal" value="{{ $totalTahunan }}" readonly required min="0" step="1000">
                         </div>
                     </div>
                     <div class="mb-3">

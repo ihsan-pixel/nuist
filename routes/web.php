@@ -387,6 +387,9 @@ Route::middleware(['auth', 'role:super_admin,admin'])->prefix('data-sekolah')->n
     Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru'])->name('update-guru');
 });
 
+// Check tagihan route outside middleware group to avoid authentication issues
+Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan'])->middleware(['auth', 'role:super_admin'])->name('pembayaran.check-tagihan');
+
 // UPPM Routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
     Route::get('/', [App\Http\Controllers\UppmController::class, 'index'])->name('index');
@@ -399,6 +402,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->
     Route::post('/pengaturan', [App\Http\Controllers\UppmController::class, 'storePengaturan'])->name('pengaturan.store');
     Route::put('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'updatePengaturan'])->name('pengaturan.update');
     Route::delete('/pengaturan/{id}', [App\Http\Controllers\UppmController::class, 'destroyPengaturan'])->name('pengaturan.destroy');
+    Route::post('/store-tagihan', [App\Http\Controllers\UppmController::class, 'storeTagihan'])->name('store-tagihan');
 
     // Pembayaran Routes
     Route::get('/pembayaran', [App\Http\Controllers\PembayaranController::class, 'index'])->name('pembayaran');

@@ -510,6 +510,15 @@
                                         <a href="<?php echo e(route('uppm.invoice', ['madrasah_id' => $item['madrasah']->id, 'tahun' => request('tahun', date('Y'))])); ?>" class="btn-modern btn-sm">
                                             <i class="bx bx-receipt me-1"></i> Invoice
                                         </a>
+                                        <?php if($item['tagihan_exists']): ?>
+                                            <span class="badge badge-modern bg-info ms-1">
+                                                <i class="bx bx-check me-1"></i> Tagihan Sudah Dibuat
+                                            </span>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-success btn-sm ms-1" onclick="openBuatTagihanModal(<?php echo e($item['madrasah']->id); ?>, '<?php echo e($item['madrasah']->name); ?>', <?php echo e($item['total_tahunan']); ?>)">
+                                                <i class="bx bx-plus me-1"></i> Buat Tagihan
+                                            </button>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -526,6 +535,66 @@
                     </div>
                 <?php endif; ?>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Buat Tagihan -->
+<div class="modal fade" id="buatTagihanModal" tabindex="-1" aria-labelledby="buatTagihanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buatTagihanModalLabel">Buat Tagihan UPPM</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="buatTagihanForm">
+                <?php echo csrf_field(); ?>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modal_madrasah_name" class="form-label">Nama Madrasah</label>
+                                <input type="text" class="form-control" id="modal_madrasah_name" readonly>
+                                <input type="hidden" id="modal_madrasah_id" name="madrasah_id">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modal_tahun_anggaran" class="form-label">Tahun Anggaran</label>
+                                <input type="number" class="form-control" id="modal_tahun_anggaran" name="tahun_anggaran"
+                                       value="<?php echo e(request('tahun', date('Y'))); ?>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modal_nominal" class="form-label">Nominal Tagihan</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="modal_nominal" name="nominal"
+                                           placeholder="0" required min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modal_jatuh_tempo" class="form-label">Jatuh Tempo</label>
+                                <input type="date" class="form-control" id="modal_jatuh_tempo" name="jatuh_tempo" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_keterangan" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="modal_keterangan" name="keterangan" rows="3"
+                                  placeholder="Keterangan tambahan (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Buat Tagihan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -557,6 +626,70 @@
         timerProgressBar: true
     });
 <?php endif; ?>
+
+function openBuatTagihanModal(madrasahId, madrasahName, nominal) {
+    document.getElementById('modal_madrasah_id').value = madrasahId;
+    document.getElementById('modal_madrasah_name').value = madrasahName;
+    document.getElementById('modal_nominal').value = nominal;
+
+    // Set default jatuh tempo to end of current year
+    const currentYear = new Date().getFullYear();
+    const defaultDueDate = `${currentYear}-12-31`;
+    document.getElementById('modal_jatuh_tempo').value = defaultDueDate;
+
+    // Reset form
+    document.getElementById('modal_keterangan').value = '';
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('buatTagihanModal'));
+    modal.show();
+}
+
+document.getElementById('buatTagihanForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch('<?php echo e(route("uppm.store-tagihan")); ?>', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: data.message,
+                timer: 3000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message,
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Terjadi Kesalahan',
+            text: 'Gagal membuat tagihan. Silakan coba lagi.',
+        });
+    });
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('buatTagihanModal'));
+    modal.hide();
+});
 </script>
 <?php $__env->stopSection(); ?>
 

@@ -7,6 +7,8 @@ use App\Models\UppmSchoolData;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\Payment;
+use App\Models\Tagihan;
+use App\Models\Yayasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,56 +19,18 @@ class PembayaranController extends Controller
     public function index(Request $request)
     {
         $tahun = $request->get('tahun', date('Y'));
-        $madrasahs = Madrasah::all();
+        $tagihans = Tagihan::where('tahun_anggaran', $tahun)->with('madrasah')->get();
         $data = [];
 
-        $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
-
-        foreach ($madrasahs as $madrasah) {
-            $dataSekolah = DataSekolah::where('madrasah_id', $madrasah->id)
-                ->where('tahun', $tahun)
-                ->first();
-
-            $jumlah_siswa = $dataSekolah->jumlah_siswa ?? 0;
-            $jumlah_pns_sertifikasi = $dataSekolah->jumlah_pns_sertifikasi ?? 0;
-            $jumlah_pns_non_sertifikasi = $dataSekolah->jumlah_pns_non_sertifikasi ?? 0;
-            $jumlah_gty_sertifikasi = $dataSekolah->jumlah_gty_sertifikasi ?? 0;
-            $jumlah_gty_sertifikasi_inpassing = $dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0;
-            $jumlah_gty_non_sertifikasi = $dataSekolah->jumlah_gty_non_sertifikasi ?? 0;
-            $jumlah_gtt = $dataSekolah->jumlah_gtt ?? 0;
-            $jumlah_pty = $dataSekolah->jumlah_pty ?? 0;
-            $jumlah_ptt = $dataSekolah->jumlah_ptt ?? 0;
-
-            $total_nominal = 0;
-            if ($setting) {
-                $monthly_nominal = ($jumlah_siswa * $setting->nominal_siswa) +
-                                   ($jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi) +
-                                   ($jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi) +
-                                   ($jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi) +
-                                   ($jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing) +
-                                   ($jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi) +
-                                   ($jumlah_gtt * $setting->nominal_gtt) +
-                                   ($jumlah_pty * $setting->nominal_pty) +
-                                   ($jumlah_ptt * $setting->nominal_ptt);
-                $total_nominal = $monthly_nominal * 12;
-            }
-
+        foreach ($tagihans as $tagihan) {
             $data[] = (object) [
-                'id' => null,
-                'madrasah' => $madrasah,
-                'tahun_anggaran' => $tahun,
-                'jumlah_siswa' => $jumlah_siswa,
-                'jumlah_pns_sertifikasi' => $jumlah_pns_sertifikasi,
-                'jumlah_pns_non_sertifikasi' => $jumlah_pns_non_sertifikasi,
-                'jumlah_gty_sertifikasi' => $jumlah_gty_sertifikasi,
-                'jumlah_gty_sertifikasi_inpassing' => $jumlah_gty_sertifikasi_inpassing,
-                'jumlah_gty_non_sertifikasi' => $jumlah_gty_non_sertifikasi,
-                'jumlah_gtt' => $jumlah_gtt,
-                'jumlah_pty' => $jumlah_pty,
-                'jumlah_ptt' => $jumlah_ptt,
-                'total_nominal' => $total_nominal,
-                'status_pembayaran' => 'belum_lunas',
-                'nominal_dibayar' => 0,
+                'id' => $tagihan->id,
+                'madrasah' => $tagihan->madrasah,
+                'tahun_anggaran' => $tagihan->tahun_anggaran,
+                'total_nominal' => $tagihan->nominal,
+                'status_pembayaran' => $tagihan->status,
+                'nominal_dibayar' => 0, // TODO: calculate from payments
+                'jatuh_tempo' => $tagihan->jatuh_tempo,
             ];
         }
 
@@ -78,6 +42,7 @@ class PembayaranController extends Controller
         $tahun = $request->get('tahun', date('Y'));
         $madrasah = Madrasah::findOrFail($madrasah_id);
         $dataSekolah = DataSekolah::where('madrasah_id', $madrasah_id)->where('tahun', $tahun)->first();
+        $yayasan = Yayasan::find(1);
 
         $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
 
@@ -108,7 +73,18 @@ class PembayaranController extends Controller
             'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun', 'rincian'));
+        $uniqueCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+
+        // Check if tagihan exists for this madrasah and tahun
+        $tagihan = Tagihan::where('madrasah_id', $madrasah->id)
+            ->where('tahun_anggaran', $tahun)
+            ->first();
+
+        if (!$tagihan) {
+            return redirect()->back()->with('error', 'Tagihan belum dibuat untuk madrasah ' . $madrasah->name . ' pada tahun ' . $tahun . '. Silakan buat tagihan terlebih dahulu.');
+        }
+
+        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun', 'rincian', 'yayasan', 'uniqueCode', 'tagihan'));
     }
 
     public function pembayaranCash(Request $request)
@@ -121,17 +97,14 @@ class PembayaranController extends Controller
         ]);
 
         // Simpan pembayaran cash ke database
-        // Untuk sekarang, kita akan update status di UppmSchoolData atau buat record baru
-        $uppmData = UppmSchoolData::updateOrCreate(
-            [
-                'madrasah_id' => $request->madrasah_id,
-                'tahun_anggaran' => $request->tahun,
-            ],
-            [
-                'nominal_dibayar' => $request->nominal,
-                'status_pembayaran' => 'lunas', // atau 'sebagian' tergantung logic
-            ]
-        );
+        $payment = Payment::create([
+            'madrasah_id' => $request->madrasah_id,
+            'tahun_anggaran' => $request->tahun,
+            'nominal' => $request->nominal,
+            'metode_pembayaran' => 'cash',
+            'status' => 'success',
+            'keterangan' => $request->keterangan,
+        ]);
 
         return redirect()->back()->with('success', 'Pembayaran cash berhasil dicatat');
     }
@@ -160,6 +133,20 @@ class PembayaranController extends Controller
             'success' => false,
             'message' => 'Integrasi Midtrans belum diimplementasikan',
             'payment_id' => $payment->id,
+        ]);
+    }
+
+    public function checkTagihan(Request $request)
+    {
+        $madrasahId = $request->get('madrasah_id');
+        $tahun = $request->get('tahun');
+
+        $tagihan = Tagihan::where('madrasah_id', $madrasahId)
+            ->where('tahun_anggaran', $tahun)
+            ->first();
+
+        return response()->json([
+            'exists' => $tagihan ? true : false
         ]);
     }
 
