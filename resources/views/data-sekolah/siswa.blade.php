@@ -557,6 +557,7 @@
                                         {{-- @foreach($tahunList as $tahun)
                                             <th>Jumlah Siswa {{ $tahun }}</th>
                                         @endforeach --}}
+                                        <th>Tahun</th>
                                         <th>Total Siswa</th>
                                         <th>Aksi</th>
                                     @else
