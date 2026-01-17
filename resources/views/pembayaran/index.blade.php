@@ -259,7 +259,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Tagihan</p>
-                        <h5 class="mb-0">Rp {{ number_format(collect($data)->sum('total_nominal'), 0, ',', '.') }}</h5>
+                        <h5 class="mb-0">Rp {{ number_format($totalTagihanNominal, 0, ',', '.') }}</h5>
                     </div>
                 </div>
             </div>

@@ -36,10 +36,13 @@ class PembayaranController extends Controller
             ];
         }
 
-        // Calculate total nominal lunas
-        $totalLunasNominal = $tagihans->where('status', 'lunas')->sum('nominal_dibayar');
+        // Calculate total nominal lunas from database
+        $totalLunasNominal = TagihanModel::where('tahun_anggaran', $tahun)->where('status', 'lunas')->sum('nominal');
 
-        return view('pembayaran.index', compact('data', 'tahun', 'totalLunasNominal'));
+        // Calculate total tagihan nominal for belum_lunas and pending
+        $totalTagihanNominal = TagihanModel::where('tahun_anggaran', $tahun)->whereIn('status', ['belum_lunas', 'pending'])->sum('nominal');
+
+        return view('pembayaran.index', compact('data', 'tahun', 'totalLunasNominal', 'totalTagihanNominal'));
     }
 
     public function detail(Request $request, $madrasah_id)
