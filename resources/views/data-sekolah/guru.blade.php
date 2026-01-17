@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title')Data Guru per Tahun @endsection
+@section('title') Data Guru per Tahun  @endsection
 
 @section('css')
 <style>
@@ -616,7 +616,6 @@
         </div>
     </div>
 </div>
-@endsection('content')
 
 @section('script')
 <!-- SweetAlert2 -->
