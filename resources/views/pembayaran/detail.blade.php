@@ -31,7 +31,7 @@
                             <div class="card border">
                                 <div class="card-header bg-light">
                                     <h5 class="card-title mb-0">
-                                        <i class="bx bx-receipt me-2"></i>Invoice Pembayaran UPPM
+                                        <i class="bx bx-receipt me-2"></i>Invoice Pembayaran
                                     </h5>
                                 </div>
                                 <div class="card-body">
