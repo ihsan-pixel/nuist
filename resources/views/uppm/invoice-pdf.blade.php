@@ -1,39 +1,43 @@
 <div class="card-body">
-    <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
-    <h1 style="text-align: right">INVOICE PEMBAYARAN IURAN</h1>
-    <hr style="border-top: 1px dotted #484747; margin: 1rem 0;">
-    <table style="width: 100%; border: none;">
-        {{-- <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5> --}}
+    <table style="width: 100%; border: none; margin-bottom: 1rem;">
         <tr>
             <td style="width: 50%; padding: 0; vertical-align: top;">
+                <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
+            </td>
+            <td style="width: 50%; padding: 0; vertical-align: top; text-align: right;">
+                <h1 style="margin: 0; font-size: 24px;">Invoice UPPM</h1>
+            </td>
+        </tr>
+    </table>
+    <hr style="border-top: 1px dotted #484747; margin: 1rem 0;">
+    <table style="width: 100%; border: none;">
+        <tr>
+            <td style="width: 50%; padding: 0; vertical-align: top;">
+                <h5 style="margin-bottom: 1rem; font-size: 14px;">Identitas Sekolah/Madrasah</h5>
                 <table style="width: 100%; border: none;">
                     <tr>
-                        <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Nama Sekolah/Madrasah</strong></td>
+                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name }}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;"><strong>Alamat</strong></td>
+                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->alamat ?? '-' }}</td>
                     </tr>
                 </table>
             </td>
             <td style="width: 50%; padding: 0; vertical-align: top;">
                 <table style="width: 100%; border: none;">
                     <tr>
-                        <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran</strong></td>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Tahun Anggaran</strong></td>
+                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tahun }}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0; vertical-align: top;">{{ $tahun }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0; vertical-align: top;"><strong>Jatuh Tempo</strong></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0; vertical-align: top;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;"><strong>Jatuh Tempo</strong></td>
+                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
                     </tr>
                 </table>
             </td>
