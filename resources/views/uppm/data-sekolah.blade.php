@@ -487,11 +487,8 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="card-icon school me-3">
-                                                <i class="bx bx-school"></i>
-                                            </div>
                                             <div>
-                                                <strong>{{ $item->madrasah->name }}</strong>
+                                                {{ $item->madrasah->name }}
                                             </div>
                                         </div>
                                     </td>
