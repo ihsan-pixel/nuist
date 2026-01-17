@@ -7,9 +7,9 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Invoice UPPM - {{ $schoolData->madrasah->name }}</h4>
+                <h4 class="card-title">Invoice UPPM - {{ $madrasah->name }}</h4>
                 <div class="card-tools">
-                    <a href="{{ route('uppm.invoice.download', $schoolData->id) }}" class="btn btn-primary">
+                    <a href="{{ route('uppm.invoice.download', ['madrasah_id' => $madrasah->id, 'tahun' => $tahun]) }}" class="btn btn-primary">
                         <i class="bx bx-download"></i> Download PDF
                     </a>
                 </div>
@@ -18,13 +18,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5>Identitas Sekolah</h5>
-                        <p><strong>Nama Sekolah:</strong> {{ $schoolData->madrasah->name }}</p>
-                        <p><strong>Alamat:</strong> {{ $schoolData->madrasah->address ?? '-' }}</p>
+                        <p><strong>Nama Sekolah:</strong> {{ $madrasah->name }}</p>
+                        <p><strong>Alamat:</strong> {{ $madrasah->address ?? '-' }}</p>
                     </div>
                     <div class="col-md-6">
                         <h5>Identitas UPPM</h5>
                         <p><strong>Unit Pengembangan Pendidikan Ma'arif</strong></p>
-                        <p><strong>Tahun Anggaran:</strong> {{ $schoolData->tahun_anggaran }}</p>
+                        <p><strong>Tahun Anggaran:</strong> {{ $tahun }}</p>
                         <p><strong>Jatuh Tempo:</strong> {{ $setting ? $setting->jatuh_tempo : '-' }}</p>
                     </div>
                 </div>
@@ -44,45 +44,57 @@
                     <tbody>
                         <tr>
                             <td>Siswa</td>
-                            <td>{{ number_format($schoolData->jumlah_siswa) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_siswa) }}</td>
-                            <td>Rp {{ number_format($rincian['siswa']) }}</td>
+                            <td>{{ number_format($dataSekolah->jumlah_siswa ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_siswa ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['siswa'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Guru Tetap</td>
-                            <td>{{ number_format($schoolData->jumlah_guru_tetap) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_guru_tetap) }}</td>
-                            <td>Rp {{ number_format($rincian['guru_tetap']) }}</td>
+                            <td>PNS Sertifikasi</td>
+                            <td>{{ number_format($dataSekolah->jumlah_pns_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_pns_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['pns_sertifikasi'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Guru Tidak Tetap</td>
-                            <td>{{ number_format($schoolData->jumlah_guru_tidak_tetap) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_guru_tidak_tetap) }}</td>
-                            <td>Rp {{ number_format($rincian['guru_tidak_tetap']) }}</td>
+                            <td>PNS Non Sertifikasi</td>
+                            <td>{{ number_format($dataSekolah->jumlah_pns_non_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_pns_non_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['pns_non_sertifikasi'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Guru PNS</td>
-                            <td>{{ number_format($schoolData->jumlah_guru_pns) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_guru_pns) }}</td>
-                            <td>Rp {{ number_format($rincian['guru_pns']) }}</td>
+                            <td>GTY Sertifikasi</td>
+                            <td>{{ number_format($dataSekolah->jumlah_gty_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_gty_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['gty_sertifikasi'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Guru PPPK</td>
-                            <td>{{ number_format($schoolData->jumlah_guru_pppk) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_guru_pppk) }}</td>
-                            <td>Rp {{ number_format($rincian['guru_pppk']) }}</td>
+                            <td>GTY Sertifikasi Inpassing</td>
+                            <td>{{ number_format($dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_gty_sertifikasi_inpassing ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['gty_sertifikasi_inpassing'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Karyawan Tetap</td>
-                            <td>{{ number_format($schoolData->jumlah_karyawan_tetap) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_karyawan_tetap) }}</td>
-                            <td>Rp {{ number_format($rincian['karyawan_tetap']) }}</td>
+                            <td>GTY Non Sertifikasi</td>
+                            <td>{{ number_format($dataSekolah->jumlah_gty_non_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_gty_non_sertifikasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['gty_non_sertifikasi'] ?? 0) }}</td>
                         </tr>
                         <tr>
-                            <td>Karyawan Tidak Tetap</td>
-                            <td>{{ number_format($schoolData->jumlah_karyawan_tidak_tetap) }}</td>
-                            <td>Rp {{ number_format($setting->nominal_karyawan_tidak_tetap) }}</td>
-                            <td>Rp {{ number_format($rincian['karyawan_tidak_tetap']) }}</td>
+                            <td>GTT</td>
+                            <td>{{ number_format($dataSekolah->jumlah_gtt ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_gtt ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['gtt'] ?? 0) }}</td>
+                        </tr>
+                        <tr>
+                            <td>PTY</td>
+                            <td>{{ number_format($dataSekolah->jumlah_pty ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_pty ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['pty'] ?? 0) }}</td>
+                        </tr>
+                        <tr>
+                            <td>PTT</td>
+                            <td>{{ number_format($dataSekolah->jumlah_ptt ?? 0) }}</td>
+                            <td>Rp {{ number_format($setting->nominal_ptt ?? 0) }}</td>
+                            <td>Rp {{ number_format($rincian['ptt'] ?? 0) }}</td>
                         </tr>
                         <tr class="table-primary">
                             <td colspan="3"><strong>Total Tagihan UPPM Tahunan</strong></td>
