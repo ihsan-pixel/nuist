@@ -17,7 +17,7 @@
                             </p>
                         </div>
                         <div>
-                            <a href="<?php echo e(route('pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary">
+                            <a href="<?php echo e(route('uppm.pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary">
                                 <i class="bx bx-arrow-back me-1"></i>Kembali
                             </a>
                         </div>
@@ -159,4 +159,4 @@
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/detail.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/detail.blade.php ENDPATH**/ ?>
