@@ -189,7 +189,7 @@
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Dashboard @endslot
-    @slot('title') Dashboard Pembayaran @endslot
+    @slot('title') Dashboard Pembayaran UPPM @endslot
 @endcomponent
 
 <div class="row">
@@ -198,10 +198,10 @@
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
                     <i class="bx bx-credit-card me-2"></i>
-                    Dashboard Pembayaran
+                    Dashboard Pembayaran UPPM
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Sistem pembayaran terintegrasi dengan data . Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
+                    Sistem pembayaran terintegrasi dengan data UPPM. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
                 </p>
             </div>
         </div>
@@ -377,7 +377,7 @@
                             </td>
                             <td>Rp {{ number_format($item->nominal_dibayar, 0, ',', '.') }}</td>
                             <td>
-                                <a href="{{ rou .pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun]) }}"
+                                <a href="{{ route('uppm.pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun]) }}"
                                    class="btn btn-sm btn-primary">
                                     <i class="bx bx-detail me-1"></i>Detail
                                 </a>
