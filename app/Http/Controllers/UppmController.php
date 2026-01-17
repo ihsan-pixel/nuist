@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UppmSetting;
 use App\Models\UppmSchoolData;
 use App\Models\Madrasah;
+use App\Models\DataSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -22,53 +23,57 @@ class UppmController extends Controller
         $madrasahs = Madrasah::all();
         $data = [];
 
+        // Ambil pengaturan UPPM untuk tahun ini
+        $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
+
         foreach ($madrasahs as $madrasah) {
-            // Hitung jumlah guru berdasarkan status kepegawaian dari tabel users
-            $guruCounts = \App\Models\User::where('madrasah_id', $madrasah->id)
-                ->whereNotNull('status_kepegawaian_id')
-                ->selectRaw('status_kepegawaian_id, COUNT(*) as count')
-                ->groupBy('status_kepegawaian_id')
-                ->pluck('count', 'status_kepegawaian_id')
-                ->toArray();
-
-            // Map status kepegawaian ke field yang sesuai
-            $jumlah_pns_sertifikasi = $guruCounts[1] ?? 0; // PNS Sertifikasi
-            $jumlah_pns_non_sertifikasi = $guruCounts[2] ?? 0; // PNS Non Sertifikasi
-            $jumlah_gty_sertifikasi = $guruCounts[3] ?? 0; // GTY Sertifikasi
-            $jumlah_gty_sertifikasi_inpassing = $guruCounts[4] ?? 0; // GTY Sertifikasi Inpassing
-            $jumlah_gty_non_sertifikasi = $guruCounts[5] ?? 0; // GTY Non Sertifikasi
-            $jumlah_gtt = $guruCounts[6] ?? 0; // GTT
-            $jumlah_pty = $guruCounts[7] ?? 0; // PTY
-            $jumlah_ptt = $guruCounts[8] ?? 0; // PTT
-
-            // Cek apakah ada data UPPM untuk tahun ini
-            $uppmData = UppmSchoolData::where('madrasah_id', $madrasah->id)
-                ->where('tahun_anggaran', $tahun)
+            // Ambil data dari tabel data_sekolah berdasarkan madrasah_id dan tahun
+            $dataSekolah = DataSekolah::where('madrasah_id', $madrasah->id)
+                ->where('tahun', $tahun)
                 ->first();
 
-            if ($uppmData) {
-                // Gunakan data dari tabel uppm_school_data jika ada
-                $data[] = $uppmData;
-            } else {
-                // Buat objek dengan data dari users
-                $data[] = (object) [
-                    'id' => null,
-                    'madrasah' => $madrasah,
-                    'tahun_anggaran' => $tahun,
-                    'jumlah_siswa' => 0, // Belum ada data siswa, set 0
-                    'jumlah_pns_sertifikasi' => $jumlah_pns_sertifikasi,
-                    'jumlah_pns_non_sertifikasi' => $jumlah_pns_non_sertifikasi,
-                    'jumlah_gty_sertifikasi' => $jumlah_gty_sertifikasi,
-                    'jumlah_gty_sertifikasi_inpassing' => $jumlah_gty_sertifikasi_inpassing,
-                    'jumlah_gty_non_sertifikasi' => $jumlah_gty_non_sertifikasi,
-                    'jumlah_gtt' => $jumlah_gtt,
-                    'jumlah_pty' => $jumlah_pty,
-                    'jumlah_ptt' => $jumlah_ptt,
-                    'total_nominal' => 0,
-                    'status_pembayaran' => 'belum_lunas',
-                    'nominal_dibayar' => 0,
-                ];
+            $jumlah_siswa = $dataSekolah->jumlah_siswa ?? 0;
+            $jumlah_pns_sertifikasi = $dataSekolah->jumlah_pns_sertifikasi ?? 0;
+            $jumlah_pns_non_sertifikasi = $dataSekolah->jumlah_pns_non_sertifikasi ?? 0;
+            $jumlah_gty_sertifikasi = $dataSekolah->jumlah_gty_sertifikasi ?? 0;
+            $jumlah_gty_sertifikasi_inpassing = $dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0;
+            $jumlah_gty_non_sertifikasi = $dataSekolah->jumlah_gty_non_sertifikasi ?? 0;
+            $jumlah_gtt = $dataSekolah->jumlah_gtt ?? 0;
+            $jumlah_pty = $dataSekolah->jumlah_pty ?? 0;
+            $jumlah_ptt = $dataSekolah->jumlah_ptt ?? 0;
+
+            // Hitung total nominal berdasarkan pengaturan UPPM
+            $total_nominal = 0;
+            if ($setting) {
+                $monthly_nominal = ($jumlah_siswa * $setting->nominal_siswa) +
+                                   ($jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi) +
+                                   ($jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi) +
+                                   ($jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi) +
+                                   ($jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing) +
+                                   ($jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi) +
+                                   ($jumlah_gtt * $setting->nominal_gtt) +
+                                   ($jumlah_pty * $setting->nominal_pty) +
+                                   ($jumlah_ptt * $setting->nominal_ptt);
+                $total_nominal = $monthly_nominal * 12;
             }
+
+            $data[] = (object) [
+                'id' => null,
+                'madrasah' => $madrasah,
+                'tahun_anggaran' => $tahun,
+                'jumlah_siswa' => $jumlah_siswa,
+                'jumlah_pns_sertifikasi' => $jumlah_pns_sertifikasi,
+                'jumlah_pns_non_sertifikasi' => $jumlah_pns_non_sertifikasi,
+                'jumlah_gty_sertifikasi' => $jumlah_gty_sertifikasi,
+                'jumlah_gty_sertifikasi_inpassing' => $jumlah_gty_sertifikasi_inpassing,
+                'jumlah_gty_non_sertifikasi' => $jumlah_gty_non_sertifikasi,
+                'jumlah_gtt' => $jumlah_gtt,
+                'jumlah_pty' => $jumlah_pty,
+                'jumlah_ptt' => $jumlah_ptt,
+                'total_nominal' => $total_nominal,
+                'status_pembayaran' => 'belum_lunas',
+                'nominal_dibayar' => 0,
+            ];
         }
 
         return view('uppm.data-sekolah', compact('data', 'tahun'));

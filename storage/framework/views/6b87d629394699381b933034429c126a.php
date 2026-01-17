@@ -367,71 +367,7 @@
 <!-- Statistics Cards -->
 <?php if(isset($tahunList)): ?>
     <!-- Statistics untuk Admin - menampilkan data semua tahun -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-primary">
-                            <i class="bx bx-buildings"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Total Sekolah</p>
-                            <h5 class="mb-0"><?php echo e(count($data) / 4); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-success">
-                            <i class="bx bx-group"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Total Siswa (2023-2026)</p>
-                            <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_siswa')); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-info">
-                            <i class="bx bx-trending-up"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Rata-rata per Tahun</p>
-                            <h5 class="mb-0"><?php echo e(count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-warning">
-                            <i class="bx bx-calendar"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Periode</p>
-                            <h5 class="mb-0">2023-2026</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 <?php else: ?>
     <!-- Statistics untuk Super Admin - seperti sebelumnya -->
     <div class="row mb-4">
@@ -501,6 +437,11 @@
     </div>
 <?php endif; ?>
 
+<?php
+    $userRole = auth()->user()->role;
+?>
+
+<?php if($userRole !== 'admin'): ?>
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
@@ -538,6 +479,7 @@
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Data Table -->
 <div class="row">
@@ -553,9 +495,8 @@
                                     <th>Nama Sekolah</th>
                                     <?php if(isset($tahunList)): ?>
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        <?php $__currentLoopData = $tahunList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tahun): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <th>Jumlah Siswa <?php echo e($tahun); ?></th>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        
+                                        <th>Tahun</th>
                                         <th>Total Siswa</th>
                                         <th>Aksi</th>
                                     <?php else: ?>

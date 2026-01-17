@@ -1,23 +1,13 @@
-# TODO: Redesign Pengaturan UPPM Page
+# TODO: Update UPPM Data Sekolah to Fetch from DataSekolah Table and Calculate Total Nominal
 
 ## Tasks
-- [x] Redesign pengaturan.blade.php: Replace table with card grid layout for professional look
-- [x] Improve form.blade.php: Better grouping, icons, and responsive design
-- [x] Test the updated views for functionality and responsiveness
-- [x] Ensure no errors in Blade syntax
-
-## Information Gathered
-- pengaturan.blade.php: Current layout uses a table with many columns, modals for add/edit/delete.
-- form.blade.php: Form with multiple input fields for nominals, grouped in rows.
-- Goal: Make it neat, professional, not tacky – use cards, better spacing, icons.
-
-## Plan
-- pengaturan.blade.php: Use Bootstrap grid with cards for each setting. Show key info (year, status, nominals summary), actions in card footer.
-- form.blade.php: Group fields into sections with headings, add icons to labels, improve input styling.
-- Dependent Files: pengaturan.blade.php, form.blade.php
-- Followup: Run the app to check display.
-
-## Next Steps
-- Edit pengaturan.blade.php first
-- Then edit form.blade.php
-- Confirm with user
+- [x] Add import for DataSekolah model in UppmController.php
+- [x] Update dataSekolah method to query DataSekolah instead of User model for teacher counts
+- [x] Update logic to fetch jumlah_siswa and teacher fields from DataSekolah for the selected year
+- [x] Set values to 0 if no DataSekolah record exists for the madrasah and year
+- [x] Test the changes to ensure data loads correctly and filtering by year works
+- [ ] Update dataSekolah method to automatically calculate Total Nominal UPPM per Tahun based on UppmSetting for the year
+- [ ] Fetch UppmSetting for the selected tahun_anggaran
+- [ ] Calculate total_nominal = 12 * (jumlah_siswa * nominal_siswa + jumlah_pns_sertifikasi * nominal_pns_sertifikasi + ...)
+- [ ] Set total_nominal to 0 if no setting exists
+- [ ] Test the calculation and display of total nominal
