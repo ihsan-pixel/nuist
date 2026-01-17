@@ -20,7 +20,7 @@
             </div>
             <div class="card-body">
                 <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 1rem;">
-                <hr>
+                <hr style="border-top: 1px dotted #000; margin: 1rem 0;">
                 <div class="row">
                     <div class="col-md-6">
                         <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
