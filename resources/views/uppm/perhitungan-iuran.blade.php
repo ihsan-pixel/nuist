@@ -347,7 +347,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Siswa</p>
-                        <h5 class="mb-0">{{ $perhitungan->sum('data.jumlah_siswa') }}</h5>
+                        <h5 class="mb-0">{{ array_sum(array_column($perhitungan, 'data')) ? array_sum(array_map(function($item) { return $item['data']->jumlah_siswa ?? 0; }, $perhitungan)) : 0 }}</h5>
                     </div>
                 </div>
             </div>
@@ -363,7 +363,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Guru</p>
-                        <h5 class="mb-0">{{ $perhitungan->sum('data.jumlah_guru_tetap') + $perhitungan->sum('data.jumlah_guru_tidak_tetap') }}</h5>
+                        <h5 class="mb-0">{{ array_sum(array_map(function($item) { return ($item['data']->jumlah_pns_sertifikasi ?? 0) + ($item['data']->jumlah_pns_non_sertifikasi ?? 0) + ($item['data']->jumlah_gty_sertifikasi ?? 0) + ($item['data']->jumlah_gty_sertifikasi_inpassing ?? 0) + ($item['data']->jumlah_gty_non_sertifikasi ?? 0) + ($item['data']->jumlah_gtt ?? 0); }, $perhitungan)) }}</h5>
                     </div>
                 </div>
             </div>
@@ -379,7 +379,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Karyawan</p>
-                        <h5 class="mb-0">{{ $perhitungan->sum('data.jumlah_karyawan_tetap') + $perhitungan->sum('data.jumlah_karyawan_tidak_tetap') }}</h5>
+                        <h5 class="mb-0">{{ array_sum(array_map(function($item) { return ($item['data']->jumlah_pty ?? 0) + ($item['data']->jumlah_ptt ?? 0); }, $perhitungan)) }}</h5>
                     </div>
                 </div>
             </div>
@@ -395,7 +395,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Bulanan</p>
-                        <h5 class="mb-0">Rp {{ number_format($perhitungan->sum('nominal_bulanan')) }}</h5>
+                        <h5 class="mb-0">Rp {{ number_format(array_sum(array_column($perhitungan, 'nominal_bulanan'))) }}</h5>
                     </div>
                 </div>
             </div>
