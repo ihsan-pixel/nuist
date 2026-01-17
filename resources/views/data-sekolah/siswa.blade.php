@@ -523,8 +523,6 @@
         </div>
     </div>
 </div>
-@endsection
-
 <!-- Modal Edit Siswa -->
 <div class="modal fade" id="editSiswaModal" tabindex="-1" aria-labelledby="editSiswaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -564,6 +562,8 @@
         </div>
     </div>
 </div>
+@endsection
+
 
 @section('script')
 <!-- SweetAlert2 -->
