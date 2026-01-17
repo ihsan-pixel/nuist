@@ -189,7 +189,6 @@
         </div>
     </div>
 </div>
-@endsection
 
 <!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -257,6 +256,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @section('script')
 <script>
