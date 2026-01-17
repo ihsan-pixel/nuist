@@ -474,15 +474,18 @@
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
-                            <select class="form-select" id="tahun" name="tahun">
+                            <select class="form-select w-100" id="tahun" name="tahun">
                                 @for($i = date('Y') - 2; $i <= date('Y') + 1; $i++)
-                                    <option value="{{ $i }}" {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    <option value="{{ $i }}" {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>
+                                        {{ $i }}
+                                    </option>
                                 @endfor
                             </select>
                         </div>
+
                         <div class="col-md-3">
                             <label for="status" class="form-label">Status Pembayaran</label>
-                            <select class="form-select" id="status" name="status">
+                            <select class="form-select w-100" id="status" name="status">
                                 <option value="">Semua Status</option>
                                 <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
                                 <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
