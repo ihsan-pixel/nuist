@@ -55,7 +55,7 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <td><strong>Nomor Invoice:</strong></td>
-                                                    <td>INV-UPPM-{{ $madrasah->id }}-{{ $tahun }}</td>
+                                                    <td>INV-{{ $madrasah->id }}-{{ $tahun }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Tanggal Invoice:</strong></td>
