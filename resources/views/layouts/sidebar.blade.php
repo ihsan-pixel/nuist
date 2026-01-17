@@ -279,7 +279,7 @@
 
                 <li>
                     <a href="#dataSekolahSubmenu" data-bs-toggle="collapse" class="has-arrow" aria-expanded="false">
-                        <i class="bx bx-school"></i>
+                        <i class="bx bx-buildings"></i>
                         <span>Data Sekolah</span>
                     </a>
                     <ul class="sub-menu collapse" id="dataSekolahSubmenu">
