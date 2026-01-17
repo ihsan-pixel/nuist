@@ -457,7 +457,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                @if($perhitungan->count() > 0)
+                @if(count($perhitungan) > 0)
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
