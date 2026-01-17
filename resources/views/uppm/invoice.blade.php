@@ -74,7 +74,7 @@
 
                 <hr>
 
-                <h5 style="text-align: center; margin-bottom: 2rem;"><strong>RICIAN PERHITUNGAN UPPM</strong></h5>
+                <h5 style="text-align: center; margin-bottom: 1rem;"><strong>RICIAN PERHITUNGAN UPPM</strong></h5>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
