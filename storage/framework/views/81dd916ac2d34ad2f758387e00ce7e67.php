@@ -551,11 +551,21 @@
                                 <tr>
                                     <th rowspan="2">No</th>
                                     <th rowspan="2">Nama Sekolah</th>
-                                    <?php if(isset($tahunList)): ?>
+<?php if(isset($tahunList)): ?>
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        <?php $__currentLoopData = $tahunList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tahun): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <th colspan="10" class="text-center"><?php echo e($tahun); ?></th>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <th rowspan="2">No</th>
+                                        <th rowspan="2">Nama Sekolah</th>
+                                        <th rowspan="2">Tahun</th>
+                                        <th rowspan="2">PNS Sertifikasi</th>
+                                        <th rowspan="2">PNS Non Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi Inpassing</th>
+                                        <th rowspan="2">GTY Non Sertifikasi</th>
+                                        <th rowspan="2">GTT</th>
+                                        <th rowspan="2">PTY</th>
+                                        <th rowspan="2">PTT</th>
+                                        <th rowspan="2">Total Guru</th>
+                                        <th rowspan="2">Aksi</th>
                                     <?php else: ?>
                                         <!-- Header untuk Super Admin - seperti sebelumnya -->
                                         <th rowspan="2">PNS Sertifikasi</th>
@@ -570,23 +580,6 @@
                                         <th rowspan="2">Tahun</th>
                                         <th rowspan="2">Aksi</th>
                                     <?php endif; ?>
-                                </tr>
-                                <?php if(isset($tahunList)): ?>
-                                <tr>
-                                    <?php $__currentLoopData = $tahunList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tahun): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <th>PNS Sert</th>
-                                        <th>PNS Non</th>
-                                        <th>GTY Sert</th>
-                                        <th>GTY Inpass</th>
-                                        <th>GTY Non</th>
-                                        <th>GTT</th>
-                                        <th>PTY</th>
-                                        <th>PTT</th>
-                                        <th>Total</th>
-                                        <th>Aksi</th>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </tr>
-                                <?php endif; ?>
                             </thead>
                             <tbody>
                                 <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>

@@ -379,7 +379,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Total Sekolah</p>
-                            <h5 class="mb-0">{{ count($data) }}</h5>
+                            <h5 class="mb-0">{{ count($data) / 4 }}</h5>
                         </div>
                     </div>
                 </div>
@@ -395,7 +395,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Total Siswa (2023-2026)</p>
-                            <h5 class="mb-0">{{ collect($data)->sum(function($item) { return $item[2023] + $item[2024] + $item[2025] + $item[2026]; }) }}</h5>
+                            <h5 class="mb-0">{{ collect($data)->sum('jumlah_siswa') }}</h5>
                         </div>
                     </div>
                 </div>
@@ -411,7 +411,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <p class="text-muted mb-2">Rata-rata per Tahun</p>
-                            <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->avg(function($item) { return ($item[2023] + $item[2024] + $item[2025] + $item[2026]) / 4; })) : 0 }}</h5>
+                            <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->avg('jumlah_siswa')) : 0 }}</h5>
                         </div>
                     </div>
                 </div>
@@ -570,33 +570,33 @@
                             <tbody>
                                 @foreach($data as $index => $item)
                                 <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                {{ $item['madrasah']->name }}
-                                            </div>
-                                        </div>
-                                    </td>
                                     @if(isset($tahunList))
                                         <!-- Data untuk Admin - kolom tahun 2023-2026 -->
-                                        @php $totalSiswa = 0; @endphp
-                                        @foreach($tahunList as $tahun)
-                                            <td>{{ number_format($item[$tahun]) }}</td>
-                                            @php $totalSiswa += $item[$tahun]; @endphp
-                                        @endforeach
-                                        <td><strong class="text-primary">{{ number_format($totalSiswa) }}</strong></td>
+                                        <td>{{ $item['no'] }}</td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                @foreach($tahunList as $tahun)
-                                                    <button class="btn btn-sm btn-outline-primary" onclick="editSiswa({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $tahun }}, {{ $item[$tahun] }})" title="Edit {{ $tahun }}">
-                                                        {{ $tahun }}
-                                                    </button>
-                                                @endforeach
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    {{ $item['madrasah']->name }}
+                                                </div>
                                             </div>
+                                        </td>
+                                        <td>{{ $item['tahun'] }}</td>
+                                        <td>{{ number_format($item['jumlah_siswa']) }}</td>
+                                        <td>
+                                            <button class="btn-modern btn-sm" onclick="editSiswa({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_siswa'] }})">
+                                                <i class="bx bx-edit me-1"></i> Edit
+                                            </button>
                                         </td>
                                     @else
                                         <!-- Data untuk Super Admin - seperti sebelumnya -->
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    {{ $item['madrasah']->name }}
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td>{{ number_format($item['jumlah_siswa']) }}</td>
                                         <td>{{ $item['tahun'] }}</td>
                                         <td>

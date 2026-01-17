@@ -21,16 +21,23 @@ class DataSekolahController extends Controller
             $dataSekolah = DataSekolah::whereIn('tahun', $tahunList)
                 ->where('madrasah_id', $user->madrasah_id)
                 ->get()
-                ->groupBy('tahun');
+                ->keyBy(function($item) {
+                    return $item->tahun . '-' . $item->madrasah_id;
+                });
 
             $data = [];
+            $no = 1;
             foreach ($madrasahs as $madrasah) {
-                $madrasahData = ['madrasah' => $madrasah];
                 foreach ($tahunList as $tahun) {
-                    $tahunData = $dataSekolah->get($tahun)?->firstWhere('madrasah_id', $madrasah->id);
-                    $madrasahData[$tahun] = $tahunData ? $tahunData->jumlah_siswa : 0;
+                    $key = $tahun . '-' . $madrasah->id;
+                    $tahunData = $dataSekolah->get($key);
+                    $data[] = [
+                        'no' => $no++,
+                        'madrasah' => $madrasah,
+                        'tahun' => $tahun,
+                        'jumlah_siswa' => $tahunData ? $tahunData->jumlah_siswa : 0,
+                    ];
                 }
-                $data[] = $madrasahData;
             }
 
             return view('data-sekolah.siswa', compact('data', 'tahunList'));
@@ -58,48 +65,92 @@ class DataSekolahController extends Controller
 
     public function guru(Request $request)
     {
-        $tahun = $request->get('tahun', date('Y'));
+        $user = auth()->user();
 
         // Filter madrasah berdasarkan role user
-        $user = auth()->user();
         if ($user->role === 'admin') {
             $madrasahs = Madrasah::where('id', $user->madrasah_id)->get();
+
+            // Untuk admin, tampilkan data untuk semua tahun 2023-2026
+            $tahunList = [2023, 2024, 2025, 2026];
+            $dataSekolah = DataSekolah::whereIn('tahun', $tahunList)
+                ->where('madrasah_id', $user->madrasah_id)
+                ->get()
+                ->keyBy(function($item) {
+                    return $item->tahun . '-' . $item->madrasah_id;
+                });
+
+            $data = [];
+            $no = 1;
+            foreach ($madrasahs as $madrasah) {
+                foreach ($tahunList as $tahun) {
+                    $key = $tahun . '-' . $madrasah->id;
+                    $tahunData = $dataSekolah->get($key);
+                    $data[] = [
+                        'no' => $no++,
+                        'madrasah' => $madrasah,
+                        'tahun' => $tahun,
+                        'jumlah_pns_sertifikasi' => $tahunData ? $tahunData->jumlah_pns_sertifikasi : 0,
+                        'jumlah_pns_non_sertifikasi' => $tahunData ? $tahunData->jumlah_pns_non_sertifikasi : 0,
+                        'jumlah_gty_sertifikasi' => $tahunData ? $tahunData->jumlah_gty_sertifikasi : 0,
+                        'jumlah_gty_sertifikasi_inpassing' => $tahunData ? $tahunData->jumlah_gty_sertifikasi_inpassing : 0,
+                        'jumlah_gty_non_sertifikasi' => $tahunData ? $tahunData->jumlah_gty_non_sertifikasi : 0,
+                        'jumlah_gtt' => $tahunData ? $tahunData->jumlah_gtt : 0,
+                        'jumlah_pty' => $tahunData ? $tahunData->jumlah_pty : 0,
+                        'jumlah_ptt' => $tahunData ? $tahunData->jumlah_ptt : 0,
+                        'total_guru' => $tahunData ? (
+                            $tahunData->jumlah_pns_sertifikasi +
+                            $tahunData->jumlah_pns_non_sertifikasi +
+                            $tahunData->jumlah_gty_sertifikasi +
+                            $tahunData->jumlah_gty_sertifikasi_inpassing +
+                            $tahunData->jumlah_gty_non_sertifikasi +
+                            $tahunData->jumlah_gtt +
+                            $tahunData->jumlah_pty +
+                            $tahunData->jumlah_ptt
+                        ) : 0,
+                    ];
+                }
+            }
+
+            return view('data-sekolah.guru', compact('data', 'tahunList'));
         } else {
+            // Untuk super_admin, tampilkan seperti sebelumnya dengan filter tahun
+            $tahun = $request->get('tahun', date('Y'));
             $madrasahs = Madrasah::all();
+
+            // Ambil data dari tabel data_sekolah
+            $dataSekolah = DataSekolah::where('tahun', $tahun)->get()->keyBy('madrasah_id');
+
+            $data = [];
+            foreach ($madrasahs as $madrasah) {
+                $dataSekolahItem = $dataSekolah->get($madrasah->id);
+
+                $data[] = [
+                    'madrasah' => $madrasah,
+                    'tahun' => $tahun,
+                    'jumlah_pns_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_pns_sertifikasi : 0,
+                    'jumlah_pns_non_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_pns_non_sertifikasi : 0,
+                    'jumlah_gty_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_sertifikasi : 0,
+                    'jumlah_gty_sertifikasi_inpassing' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_sertifikasi_inpassing : 0,
+                    'jumlah_gty_non_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_non_sertifikasi : 0,
+                    'jumlah_gtt' => $dataSekolahItem ? $dataSekolahItem->jumlah_gtt : 0,
+                    'jumlah_pty' => $dataSekolahItem ? $dataSekolahItem->jumlah_pty : 0,
+                    'jumlah_ptt' => $dataSekolahItem ? $dataSekolahItem->jumlah_ptt : 0,
+                    'total_guru' => $dataSekolahItem ? (
+                        $dataSekolahItem->jumlah_pns_sertifikasi +
+                        $dataSekolahItem->jumlah_pns_non_sertifikasi +
+                        $dataSekolahItem->jumlah_gty_sertifikasi +
+                        $dataSekolahItem->jumlah_gty_sertifikasi_inpassing +
+                        $dataSekolahItem->jumlah_gty_non_sertifikasi +
+                        $dataSekolahItem->jumlah_gtt +
+                        $dataSekolahItem->jumlah_pty +
+                        $dataSekolahItem->jumlah_ptt
+                    ) : 0,
+                ];
+            }
+
+            return view('data-sekolah.guru', compact('data', 'tahun'));
         }
-
-        // Ambil data dari tabel data_sekolah
-        $dataSekolah = DataSekolah::where('tahun', $tahun)->get()->keyBy('madrasah_id');
-
-        $data = [];
-        foreach ($madrasahs as $madrasah) {
-            $dataSekolahItem = $dataSekolah->get($madrasah->id);
-
-            $data[] = [
-                'madrasah' => $madrasah,
-                'tahun' => $tahun,
-                'jumlah_pns_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_pns_sertifikasi : 0,
-                'jumlah_pns_non_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_pns_non_sertifikasi : 0,
-                'jumlah_gty_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_sertifikasi : 0,
-                'jumlah_gty_sertifikasi_inpassing' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_sertifikasi_inpassing : 0,
-                'jumlah_gty_non_sertifikasi' => $dataSekolahItem ? $dataSekolahItem->jumlah_gty_non_sertifikasi : 0,
-                'jumlah_gtt' => $dataSekolahItem ? $dataSekolahItem->jumlah_gtt : 0,
-                'jumlah_pty' => $dataSekolahItem ? $dataSekolahItem->jumlah_pty : 0,
-                'jumlah_ptt' => $dataSekolahItem ? $dataSekolahItem->jumlah_ptt : 0,
-                'total_guru' => $dataSekolahItem ? (
-                    $dataSekolahItem->jumlah_pns_sertifikasi +
-                    $dataSekolahItem->jumlah_pns_non_sertifikasi +
-                    $dataSekolahItem->jumlah_gty_sertifikasi +
-                    $dataSekolahItem->jumlah_gty_sertifikasi_inpassing +
-                    $dataSekolahItem->jumlah_gty_non_sertifikasi +
-                    $dataSekolahItem->jumlah_gtt +
-                    $dataSekolahItem->jumlah_pty +
-                    $dataSekolahItem->jumlah_ptt
-                ) : 0,
-            ];
-        }
-
-        return view('data-sekolah.guru', compact('data', 'tahun'));
     }
 
     public function updateSiswa(Request $request, $madrasahId)

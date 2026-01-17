@@ -552,11 +552,21 @@
                                 <tr>
                                     <th rowspan="2">No</th>
                                     <th rowspan="2">Nama Sekolah</th>
-                                    @if(isset($tahunList))
+@if(isset($tahunList))
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        @foreach($tahunList as $tahun)
-                                            <th colspan="10" class="text-center">{{ $tahun }}</th>
-                                        @endforeach
+                                        <th rowspan="2">No</th>
+                                        <th rowspan="2">Nama Sekolah</th>
+                                        <th rowspan="2">Tahun</th>
+                                        <th rowspan="2">PNS Sertifikasi</th>
+                                        <th rowspan="2">PNS Non Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi Inpassing</th>
+                                        <th rowspan="2">GTY Non Sertifikasi</th>
+                                        <th rowspan="2">GTT</th>
+                                        <th rowspan="2">PTY</th>
+                                        <th rowspan="2">PTT</th>
+                                        <th rowspan="2">Total Guru</th>
+                                        <th rowspan="2">Aksi</th>
                                     @else
                                         <!-- Header untuk Super Admin - seperti sebelumnya -->
                                         <th rowspan="2">PNS Sertifikasi</th>
@@ -571,23 +581,6 @@
                                         <th rowspan="2">Tahun</th>
                                         <th rowspan="2">Aksi</th>
                                     @endif
-                                </tr>
-                                @if(isset($tahunList))
-                                <tr>
-                                    @foreach($tahunList as $tahun)
-                                        <th>PNS Sert</th>
-                                        <th>PNS Non</th>
-                                        <th>GTY Sert</th>
-                                        <th>GTY Inpass</th>
-                                        <th>GTY Non</th>
-                                        <th>GTT</th>
-                                        <th>PTY</th>
-                                        <th>PTT</th>
-                                        <th>Total</th>
-                                        <th>Aksi</th>
-                                    @endforeach
-                                </tr>
-                                @endif
                             </thead>
                             <tbody>
                                 @foreach($data as $index => $item)
