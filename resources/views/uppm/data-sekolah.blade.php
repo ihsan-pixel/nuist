@@ -288,6 +288,58 @@
     font-size: 2rem;
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
+
+/* Modern Form Select Styling */
+.form-select {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #2d3748;
+    background: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.form-select:hover {
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Filter Card Modern Styling */
+.card {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.card-body {
+    padding: 2rem;
+}
 </style>
 @endsection
 
