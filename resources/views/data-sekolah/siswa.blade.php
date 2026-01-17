@@ -564,6 +564,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @section('script')
 <!-- SweetAlert2 -->
