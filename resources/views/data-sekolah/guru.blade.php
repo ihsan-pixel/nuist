@@ -519,7 +519,7 @@
                                     </td>
                                     <td>{{ $item['tahun'] }}</td>
                                     <td>
-                                        <button class="btn-modern btn-sm">
+                                        <button class="btn-modern btn-sm" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_pns_sertifikasi'] }}, {{ $item['jumlah_pns_non_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item['jumlah_gty_non_sertifikasi'] }}, {{ $item['jumlah_gtt'] }}, {{ $item['jumlah_pty'] }}, {{ $item['jumlah_ptt'] }})">
                                             <i class="bx bx-edit me-1"></i> Edit
                                         </button>
                                     </td>
@@ -542,6 +542,80 @@
     </div>
 </div>
 @endsection
+
+<!-- Modal Edit Guru -->
+<div class="modal fade" id="editGuruModal" tabindex="-1" aria-labelledby="editGuruModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editGuruModalLabel">
+                    <i class="bx bx-edit me-2"></i>Edit Data Guru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editGuruForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="edit_guru_madrasah_name" class="form-label">Nama Madrasah/Sekolah</label>
+                            <input type="text" class="form-control" id="edit_guru_madrasah_name" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_guru_tahun" class="form-label">Tahun</label>
+                            <input type="text" class="form-control" id="edit_guru_tahun" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="edit_pns_sertifikasi" class="form-label">PNS Sertifikasi</label>
+                            <input type="number" class="form-control" id="edit_pns_sertifikasi" name="jumlah_pns_sertifikasi" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_pns_non_sertifikasi" class="form-label">PNS Non Sertifikasi</label>
+                            <input type="number" class="form-control" id="edit_pns_non_sertifikasi" name="jumlah_pns_non_sertifikasi" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="edit_gty_sertifikasi" class="form-label">GTY Sertifikasi</label>
+                            <input type="number" class="form-control" id="edit_gty_sertifikasi" name="jumlah_gty_sertifikasi" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_gty_sertifikasi_inpassing" class="form-label">GTY Sertifikasi Inpassing</label>
+                            <input type="number" class="form-control" id="edit_gty_sertifikasi_inpassing" name="jumlah_gty_sertifikasi_inpassing" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="edit_gty_non_sertifikasi" class="form-label">GTY Non Sertifikasi</label>
+                            <input type="number" class="form-control" id="edit_gty_non_sertifikasi" name="jumlah_gty_non_sertifikasi" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_gtt" class="form-label">GTT</label>
+                            <input type="number" class="form-control" id="edit_gtt" name="jumlah_gtt" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="edit_pty" class="form-label">PTY</label>
+                            <input type="number" class="form-control" id="edit_pty" name="jumlah_pty" min="0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_ptt" class="form-label">PTT</label>
+                            <input type="number" class="form-control" id="edit_ptt" name="jumlah_ptt" min="0" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section('script')
 <!-- SweetAlert2 -->
@@ -569,5 +643,102 @@
         timerProgressBar: true
     });
 @endif
+
+// Function to edit guru data
+function editGuru(madrasahId, madrasahName, tahun, pnsSert, pnsNonSert, gtySert, gtySertInpassing, gtyNonSert, gtt, pty, ptt) {
+    // Set modal data
+    document.getElementById('edit_guru_madrasah_name').value = madrasahName;
+    document.getElementById('edit_guru_tahun').value = tahun;
+    document.getElementById('edit_pns_sertifikasi').value = pnsSert;
+    document.getElementById('edit_pns_non_sertifikasi').value = pnsNonSert;
+    document.getElementById('edit_gty_sertifikasi').value = gtySert;
+    document.getElementById('edit_gty_sertifikasi_inpassing').value = gtySertInpassing;
+    document.getElementById('edit_gty_non_sertifikasi').value = gtyNonSert;
+    document.getElementById('edit_gtt').value = gtt;
+    document.getElementById('edit_pty').value = pty;
+    document.getElementById('edit_ptt').value = ptt;
+
+    // Store IDs for form submission
+    document.getElementById('editGuruForm').setAttribute('data-madrasah-id', madrasahId);
+    document.getElementById('editGuruForm').setAttribute('data-tahun', tahun);
+
+    // Show modal
+    new bootstrap.Modal(document.getElementById('editGuruModal')).show();
+}
+
+// Handle form submission
+document.getElementById('editGuruForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const madrasahId = this.getAttribute('data-madrasah-id');
+    const tahun = this.getAttribute('data-tahun');
+
+    const formData = {
+        tahun: tahun,
+        jumlah_pns_sertifikasi: document.getElementById('edit_pns_sertifikasi').value,
+        jumlah_pns_non_sertifikasi: document.getElementById('edit_pns_non_sertifikasi').value,
+        jumlah_gty_sertifikasi: document.getElementById('edit_gty_sertifikasi').value,
+        jumlah_gty_sertifikasi_inpassing: document.getElementById('edit_gty_sertifikasi_inpassing').value,
+        jumlah_gty_non_sertifikasi: document.getElementById('edit_gty_non_sertifikasi').value,
+        jumlah_gtt: document.getElementById('edit_gtt').value,
+        jumlah_pty: document.getElementById('edit_pty').value,
+        jumlah_ptt: document.getElementById('edit_ptt').value
+    };
+
+    // Show loading
+    Swal.fire({
+        title: 'Menyimpan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Send AJAX request
+    fetch(`{{ route('data-sekolah.update-guru', ':madrasahId') }}`.replace(':madrasahId', madrasahId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Data guru berhasil diperbarui',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message || 'Terjadi kesalahan saat menyimpan data'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan pada server'
+        });
+    });
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('editGuruModal')).hide();
+});
 </script>
 @endsection

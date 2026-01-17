@@ -501,7 +501,7 @@
                                     <td>{{ number_format($item['jumlah_siswa']) }}</td>
                                     <td>{{ $item['tahun'] }}</td>
                                     <td>
-                                        <button class="btn-modern btn-sm">
+                                        <button class="btn-modern btn-sm" onclick="editSiswa({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_siswa'] }})">
                                             <i class="bx bx-edit me-1"></i> Edit
                                         </button>
                                     </td>
@@ -524,6 +524,46 @@
     </div>
 </div>
 @endsection
+
+<!-- Modal Edit Siswa -->
+<div class="modal fade" id="editSiswaModal" tabindex="-1" aria-labelledby="editSiswaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSiswaModalLabel">
+                    <i class="bx bx-edit me-2"></i>Edit Data Siswa
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editSiswaForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="edit_madrasah_name" class="form-label">Nama Madrasah/Sekolah</label>
+                            <input type="text" class="form-control" id="edit_madrasah_name" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_tahun" class="form-label">Tahun</label>
+                            <input type="text" class="form-control" id="edit_tahun" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <label for="edit_jumlah_siswa" class="form-label">Jumlah Siswa</label>
+                            <input type="number" class="form-control" id="edit_jumlah_siswa" name="jumlah_siswa" min="0" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section('script')
 <!-- SweetAlert2 -->
@@ -551,5 +591,87 @@
         timerProgressBar: true
     });
 @endif
+
+// Function to edit siswa data
+function editSiswa(madrasahId, madrasahName, tahun, jumlahSiswa) {
+    // Set modal data
+    document.getElementById('edit_madrasah_name').value = madrasahName;
+    document.getElementById('edit_tahun').value = tahun;
+    document.getElementById('edit_jumlah_siswa').value = jumlahSiswa;
+
+    // Store IDs for form submission
+    document.getElementById('editSiswaForm').setAttribute('data-madrasah-id', madrasahId);
+    document.getElementById('editSiswaForm').setAttribute('data-tahun', tahun);
+
+    // Show modal
+    new bootstrap.Modal(document.getElementById('editSiswaModal')).show();
+}
+
+// Handle form submission
+document.getElementById('editSiswaForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const madrasahId = this.getAttribute('data-madrasah-id');
+    const tahun = this.getAttribute('data-tahun');
+    const jumlahSiswa = document.getElementById('edit_jumlah_siswa').value;
+
+    // Show loading
+    Swal.fire({
+        title: 'Menyimpan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Send AJAX request
+    fetch(`{{ route('data-sekolah.update-siswa', ':madrasahId') }}`.replace(':madrasahId', madrasahId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            tahun: tahun,
+            jumlah_siswa: jumlahSiswa
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Data siswa berhasil diperbarui',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message || 'Terjadi kesalahan saat menyimpan data'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan pada server'
+        });
+    });
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('editSiswaModal')).hide();
+});
 </script>
 @endsection

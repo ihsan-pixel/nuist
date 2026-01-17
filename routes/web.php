@@ -380,9 +380,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 // Data Sekolah Routes
-Route::middleware(['auth', 'role:super_admin'])->prefix('data-sekolah')->name('data-sekolah.')->group(function () {
+Route::middleware(['auth', 'role:super_admin,admin'])->prefix('data-sekolah')->name('data-sekolah.')->group(function () {
     Route::get('/siswa', [App\Http\Controllers\DataSekolahController::class, 'siswa'])->name('siswa');
     Route::get('/guru', [App\Http\Controllers\DataSekolahController::class, 'guru'])->name('guru');
+    Route::post('/update-siswa/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateSiswa'])->name('update-siswa');
+    Route::post('/update-guru/{madrasahId}', [App\Http\Controllers\DataSekolahController::class, 'updateGuru'])->name('update-guru');
 });
 
 // UPPM Routes
