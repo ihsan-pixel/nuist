@@ -187,7 +187,7 @@
 <?php $__env->startSection('content'); ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Dashboard Pembayaran <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Dashboard Pembayaran UPPM <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
 <div class="row">
@@ -196,10 +196,10 @@
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
                     <i class="bx bx-credit-card me-2"></i>
-                    Dashboard Pembayaran
+                    Dashboard Pembayaran UPPM
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Sistem pembayaran terintegrasi dengan data . Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
+                    Sistem pembayaran terintegrasi dengan data UPPM. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
                 </p>
             </div>
         </div>
@@ -376,7 +376,7 @@
                             </td>
                             <td>Rp <?php echo e(number_format($item->nominal_dibayar, 0, ',', '.')); ?></td>
                             <td>
-                                <a href="<?php echo e(rou .pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun])); ?>"
+                                <a href="<?php echo e(route('uppm.pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun])); ?>"
                                    class="btn btn-sm btn-primary">
                                     <i class="bx bx-detail me-1"></i>Detail
                                 </a>
@@ -431,4 +431,4 @@ function toggleSection(sectionId) {
 </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?> ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/index.blade.php ENDPATH**/ ?>
