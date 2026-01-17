@@ -483,23 +483,23 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-6">
                             <label for="status" class="form-label">Status Pembayaran</label>
-                            <select class="form-select w-100" id="status" name="status">
-                                <option value="">Semua Status</option>
-                                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                                <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
-                                <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-grid gap-2 d-md-flex">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bx bx-search me-1"></i> Filter
+
+                            <div class="input-group">
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">Semua Status</option>
+                                    <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                                    <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
+                                    <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
+                                </select>
+
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bx bx-search"></i> Filter
                                 </button>
+
                                 <a href="{{ route('uppm.data-sekolah') }}" class="btn btn-secondary">
-                                    <i class="bx bx-refresh me-1"></i> Reset
+                                    <i class="bx bx-refresh"></i> Reset
                                 </a>
                             </div>
                         </div>
