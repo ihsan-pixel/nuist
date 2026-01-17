@@ -7,7 +7,7 @@ use App\Models\UppmSchoolData;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\Payment;
-use App\Models\Tagihan;
+use App\Models\Tagihan as TagihanModel;
 use App\Models\Yayasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +19,7 @@ class PembayaranController extends Controller
     public function index(Request $request)
     {
         $tahun = $request->get('tahun', date('Y'));
-        $tagihans = Tagihan::where('tahun_anggaran', $tahun)->with('madrasah')->get();
+        $tagihans = TagihanModel::where('tahun_anggaran', $tahun)->with('madrasah')->get();
         $data = [];
 
         foreach ($tagihans as $tagihan) {
@@ -29,8 +29,10 @@ class PembayaranController extends Controller
                 'tahun_anggaran' => $tagihan->tahun_anggaran,
                 'total_nominal' => $tagihan->nominal,
                 'status_pembayaran' => $tagihan->status,
-                'nominal_dibayar' => 0, // TODO: calculate from payments
+                'nominal_dibayar' => $tagihan->nominal_dibayar ?? 0,
                 'jatuh_tempo' => $tagihan->jatuh_tempo,
+                'tanggal_pembayaran' => $tagihan->tanggal_pembayaran,
+                'nomor_invoice' => $tagihan->nomor_invoice,
             ];
         }
 
@@ -73,10 +75,8 @@ class PembayaranController extends Controller
             'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        $uniqueCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
-
         // Check if tagihan exists for this madrasah and tahun
-        $tagihan = Tagihan::where('madrasah_id', $madrasah->id)
+        $tagihan = TagihanModel::where('madrasah_id', $madrasah->id)
             ->where('tahun_anggaran', $tahun)
             ->first();
 
@@ -84,7 +84,17 @@ class PembayaranController extends Controller
             return redirect()->back()->with('error', 'Tagihan belum dibuat untuk madrasah ' . $madrasah->name . ' pada tahun ' . $tahun . '. Silakan buat tagihan terlebih dahulu.');
         }
 
-        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun', 'rincian', 'yayasan', 'uniqueCode', 'tagihan'));
+        // Generate unique invoice number if not exists
+        if (!$tagihan->nomor_invoice) {
+            $uniqueCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+            $nomorInvoice = 'INV-' . $madrasah->scod . '-' . $tahun . '-' . $uniqueCode;
+
+            $tagihan->update(['nomor_invoice' => $nomorInvoice]);
+        } else {
+            $nomorInvoice = $tagihan->nomor_invoice;
+        }
+
+        return view('pembayaran.detail', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'tahun', 'rincian', 'yayasan', 'nomorInvoice', 'tagihan'));
     }
 
     public function pembayaranCash(Request $request)
@@ -96,17 +106,39 @@ class PembayaranController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        // Simpan pembayaran cash ke database
-        $payment = Payment::create([
-            'madrasah_id' => $request->madrasah_id,
-            'tahun_anggaran' => $request->tahun,
-            'nominal' => $request->nominal,
-            'metode_pembayaran' => 'cash',
-            'status' => 'success',
-            'keterangan' => $request->keterangan,
-        ]);
+        // Update status pembayaran di tabel tagihans
+        $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
+            ->where('tahun_anggaran', $request->tahun)
+            ->first();
 
-        return redirect()->back()->with('success', 'Pembayaran cash berhasil dicatat');
+        if ($tagihan) {
+            $tagihan->update([
+                'status' => 'lunas',
+                'nominal_dibayar' => $request->nominal,
+                'keterangan' => $request->keterangan,
+                'tanggal_pembayaran' => now(),
+            ]);
+
+            // Simpan pembayaran cash ke database payments
+            $payment = Payment::create([
+                'madrasah_id' => $request->madrasah_id,
+                'tahun_anggaran' => $request->tahun,
+                'nominal' => $request->nominal,
+                'metode_pembayaran' => 'cash',
+                'status' => 'success',
+                'keterangan' => $request->keterangan,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran cash berhasil dicatat'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Tagihan tidak ditemukan'
+        ], 404);
     }
 
     public function pembayaranMidtrans(Request $request)
@@ -141,7 +173,7 @@ class PembayaranController extends Controller
         $madrasahId = $request->get('madrasah_id');
         $tahun = $request->get('tahun');
 
-        $tagihan = Tagihan::where('madrasah_id', $madrasahId)
+        $tagihan = TagihanModel::where('madrasah_id', $madrasahId)
             ->where('tahun_anggaran', $tahun)
             ->first();
 

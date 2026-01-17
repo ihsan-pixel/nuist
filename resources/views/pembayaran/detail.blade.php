@@ -4,8 +4,8 @@
 
 @section('content')
 @component('components.breadcrumb')
-    @slot('li_1') Dashboard @endslot
-    @slot('title') Detail Pembayaran @endslot
+@slot('li_1') Dashboard @endslot
+@slot('title') Detail Pembayaran @endslot
 @endcomponent
 
 {{-- <div class="row">
@@ -47,6 +47,43 @@
                     </div>
                 </div> --}}
                 <div class="card-body">
+                    <!-- Payment Status Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-info-circle me-2"></i>Status Pembayaran
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Status:</strong></p>
+                                            <span class="badge badge-modern bg-{{ $tagihan->status == 'lunas' ? 'success' : ($tagihan->status == 'sebagian' ? 'warning' : 'danger') }}">
+                                                {{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}
+                                            </span>
+                                        </div>
+                                        @if($tagihan->tanggal_pembayaran)
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Tanggal Pembayaran:</strong></p>
+                                            <p class="mb-0">{{ \Carbon\Carbon::parse($tagihan->updated_at)->format('d M Y H:i') }}</p>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    @if($tagihan->keterangan)
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <p class="mb-2"><strong>Keterangan:</strong></p>
+                                            <p class="mb-0">{{ $tagihan->keterangan }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Invoice Section -->
                     <div class="row mb-4">
                         <div class="col-12">
@@ -77,11 +114,11 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <td><strong>Nomor Invoice:</strong></td>
-                                                    <td>INV-{{ $madrasah->scod }}-{{ $tahun }}-{{ $uniqueCode }}</td>
+                                                    <td>{{ $nomorInvoice }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Tanggal Invoice:</strong></td>
-                                                    <td>{{ date('d/m/Y') }}</td>
+                                                    <td>{{ $tagihan->created_at->format('d/m/Y') }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Periode:</strong></td>
@@ -94,12 +131,14 @@
                                                 <tr>
                                                     <td><strong>Status Pembayaran:</strong></td>
                                                     <td>
-                                                        <span class="badge badge-modern bg-warning">Belum Dibayar</span>
+                                                        <span class="badge badge-modern bg-{{ $tagihan->status == 'lunas' ? 'success' : ($tagihan->status == 'sebagian' ? 'warning' : 'danger') }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $tagihan->status)) }}
+                                                        </span>
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Jatuh Tempo:</strong></td>
-                                                    <td>{{ $setting ? ($setting->jatuh_tempo ? date('d/m/Y', strtotime($setting->jatuh_tempo)) : '-') : '-' }}</td>
+                                                    <td><strong>Tanggal Pembayaran:</strong></td>
+                                                    <td>{{ $tagihan->status == 'lunas' ? ($tagihan->tanggal_pembayaran ? $tagihan->tanggal_pembayaran->format('d/m/Y') : '-') : '-' }}</td>
                                                 </tr>
                                             </table>
                                         </div>
@@ -198,12 +237,12 @@
                         </div>
                     </div>
 
-                    <!-- Pay Button Section -->
+                    <!-- Back Button Section -->
                     <div class="row">
-                        <div class="col-12 d-flex justify-content-end">
-                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                                <i class="bx bx-check me-2"></i>Bayar
-                            </button>
+                        <div class="col-12 text-center">
+                            <a href="{{ route('uppm.pembayaran', ['tahun' => $tahun]) }}" class="btn btn-secondary btn-lg">
+                                <i class="bx bx-arrow-back me-2"></i>Kembali
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -293,57 +332,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function payOnline() {
-    // Close the payment modal
-    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-    paymentModal.hide();
 
-    // Show loading
-    Swal.fire({
-        title: 'Memproses...',
-        text: 'Menghubungkan ke Midtrans',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        willOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    // Make AJAX request to Midtrans endpoint
-    fetch('{{ route("uppm.pembayaran.midtrans") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            madrasah_id: '{{ $madrasah->id }}',
-            tahun: '{{ $tahun }}',
-            nominal: {{ $totalTahunan }}
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        Swal.close();
-        if (data.success) {
-            // Redirect to Midtrans payment page or handle success
-            window.location.href = data.payment_url; // Assuming Midtrans returns payment_url
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
-            });
-        }
-    })
-    .catch(error => {
-        Swal.close();
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Terjadi kesalahan koneksi'
-        });
-    });
-}
 </script>
 @endsection

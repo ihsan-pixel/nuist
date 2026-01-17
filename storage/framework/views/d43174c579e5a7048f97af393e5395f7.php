@@ -149,15 +149,7 @@
     color: white;
 }
 
-/* Expandable Sections */
-.expandable-section {
-    display: none;
-    margin-top: 20px;
-}
 
-.expandable-section.show {
-    display: block;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -273,67 +265,110 @@
     </div>
 </div>
 
-<!-- Menu Cards Grid -->
+<!-- Data Tagihan Table -->
 <div class="row">
     <div class="col-12">
         <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="bx bx-list-ul me-2"></i>Data Tagihan Pembayaran
+                </h4>
+            </div>
             <div class="card-body">
-                <div class="row g-4">
-                    <div class="col-xl-3 col-lg-6 col-md-6">
-                        <div class="menu-card">
-                            <div class="menu-icon payment">
-                                <i class="bx bx-list-ul"></i>
-                            </div>
-                            <h3 class="menu-title">Data Pembayaran</h3>
-                            <p class="menu-description">Lihat daftar pembayaran semua entitas dengan status terkini</p>
-                            <?php if(count($data) > 0): ?>
-                                <button type="button" class="btn-modern" onclick="toggleSection('payment-data')">
-                                    <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
-                                </button>
-                            <?php else: ?>
-                                <button type="button" class="btn-modern" onclick="showNoTagihanAlert()">
-                                    <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
-                                </button>
+                <div class="table-responsive">
+                    <table class="table table-centered table-nowrap mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Madrasah</th>
+                                <th>Nomor Invoice</th>
+                                <th>Total Tagihan</th>
+                                <th>Status Pembayaran</th>
+                                <th>Nominal Dibayar</th>
+                                <th>Tanggal Pembayaran</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $__empty_1 = true; $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr>
+                                <td><?php echo e($index + 1); ?></td>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-0"><?php echo e($item->madrasah->name); ?></h6>
+                                        <small class="text-muted"><?php echo e($item->madrasah->address ?? '-'); ?></small>
+                                    </div>
+                                </td>
+                                <td><?php echo e($item->nomor_invoice ?? '-'); ?></td>
+                                <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
+                                <td>
+                                    <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
+                                        <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
+
+                                    </span>
+                                </td>
+                                <td>Rp <?php echo e(number_format($item->nominal_dibayar, 0, ',', '.')); ?></td>
+                                <td><?php echo e($item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-'); ?></td>
+                                <td>
+                                    <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>')"
+                                            class="btn btn-sm btn-primary me-1">
+                                        <i class="bx bx-detail me-1"></i>Detail
+                                    </button>
+                                    <?php if($item->status_pembayaran != 'lunas'): ?>
+                                    <button type="button" onclick="showPaymentModal(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>', <?php echo e($item->total_nominal); ?>)"
+                                            class="btn btn-sm btn-success">
+                                        <i class="bx bx-money me-1"></i>Bayar
+                                    </button>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    <div class="py-4">
+                                        <i class="bx bx-info-circle display-4 text-muted"></i>
+                                        <h5 class="mt-3">Tidak Ada Data Tagihan</h5>
+                                        <p class="text-muted">Belum ada data tagihan untuk tahun <?php echo e($tahun); ?></p>
+                                    </div>
+                                </td>
+                            </tr>
                             <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Pilih Metode Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary text-center">
+                            <div class="card-body">
+                                <i class="bx bx-money display-4 text-primary"></i>
+                                <h5 class="card-title">Manual</h5>
+                                <p class="card-text">Input data pembayaran manual</p>
+                                <button type="button" class="btn btn-primary" onclick="showManualPayment()">Pilih Manual</button>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="col-xl-3 col-lg-6 col-md-6">
-                        <div class="menu-card">
-                            <div class="menu-icon cash">
-                                <i class="bx bx-money"></i>
+                    <div class="col-md-6">
+                        <div class="card border-success text-center">
+                            <div class="card-body">
+                                <i class="bx bx-credit-card display-4 text-success"></i>
+                                <h5 class="card-title">Online</h5>
+                                <p class="card-text">Bayar melalui Midtrans</p>
+                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
                             </div>
-                            <h3 class="menu-title">Pembayaran Cash</h3>
-                            <p class="menu-description">Proses pembayaran tunai langsung untuk madrasah</p>
-                            <button type="button" class="btn-modern" onclick="toggleSection('cash-payment')">
-                                <i class="bx bx-right-arrow-alt me-1"></i> Bayar Cash
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-lg-6 col-md-6">
-                        <div class="menu-card">
-                            <div class="menu-icon gateway">
-                                <i class="bx bx-credit-card"></i>
-                            </div>
-                            <h3 class="menu-title">Payment Gateway</h3>
-                            <p class="menu-description">Integrasi dengan Midtrans untuk pembayaran online</p>
-                            <button type="button" class="btn-modern" disabled>
-                                <i class="bx bx-right-arrow-alt me-1"></i> Segera Hadir
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-lg-6 col-md-6">
-                        <div class="menu-card">
-                            <div class="menu-icon history">
-                                <i class="bx bx-history"></i>
-                            </div>
-                            <h3 class="menu-title">Riwayat Pembayaran</h3>
-                            <p class="menu-description">Lihat history pembayaran dan laporan transaksi</p>
-                            <button type="button" class="btn-modern" disabled>
-                                <i class="bx bx-right-arrow-alt me-1"></i> Segera Hadir
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -342,71 +377,32 @@
     </div>
 </div>
 
-<!-- Expandable Sections -->
-<div id="payment-data" class="expandable-section">
-    <div class="card dashboard-card">
-        <div class="card-header">
-            <h4 class="card-title mb-0">
-                <i class="bx bx-list-ul me-2"></i>Data Pembayaran Madrasah
-            </h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-centered table-nowrap mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Madrasah</th>
-                            <th>Total Tagihan</th>
-                            <th>Status Pembayaran</th>
-                            <th>Nominal Dibayar</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
-                            <td><?php echo e($index + 1); ?></td>
-                            <td>
-                                <div>
-                                    <h6 class="mb-0"><?php echo e($item->madrasah->name); ?></h6>
-                                    <small class="text-muted"><?php echo e($item->madrasah->address ?? '-'); ?></small>
-                                </div>
-                            </td>
-                            <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
-                            <td>
-                                <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
-                                    <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
-
-                                </span>
-                            </td>
-                            <td>Rp <?php echo e(number_format($item->nominal_dibayar, 0, ',', '.')); ?></td>
-                            <td>
-                                <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>')"
-                                        class="btn btn-sm btn-primary">
-                                    <i class="bx bx-detail me-1"></i>Detail
-                                </button>
-                            </td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </tbody>
-                </table>
+<!-- Manual Payment Modal -->
+<div class="modal fade" id="manualPaymentModal" tabindex="-1" aria-labelledby="manualPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="manualPaymentModalLabel">Pembayaran Manual</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="cash-payment" class="expandable-section">
-    <div class="card dashboard-card">
-        <div class="card-header">
-            <h4 class="card-title mb-0">
-                <i class="bx bx-cash me-2"></i>Pembayaran Cash
-            </h4>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info">
-                <i class="bx bx-info-circle me-2"></i>
-                Pilih entitas dari tabel di atas untuk melakukan pembayaran cash.
+            <div class="modal-body">
+                <form id="manualPaymentForm" action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST" onsubmit="return submitManualPayment(event)">
+                    <?php echo csrf_field(); ?>
+                    <input type="hidden" name="madrasah_id" id="manual_madrasah_id">
+                    <input type="hidden" name="tahun" id="manual_tahun">
+                    <div class="mb-3">
+                        <label for="manual_nominal" class="form-label">Nominal Pembayaran</label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input type="number" class="form-control" id="manual_nominal" name="nominal" required min="0" step="1000" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="manual_keterangan" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="manual_keterangan" name="keterangan" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Bayar Sekarang</button>
+                </form>
             </div>
         </div>
     </div>
@@ -418,26 +414,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-function toggleSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    const allSections = document.querySelectorAll('.expandable-section');
-
-    // Hide all sections
-    allSections.forEach(sec => {
-        if (sec.id !== sectionId) {
-            sec.classList.remove('show');
-        }
-    });
-
-    // Toggle current section
-    section.classList.toggle('show');
-
-    // Scroll to section if shown
-    if (section.classList.contains('show')) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
 function checkTagihan(madrasahId, tahun, madrasahName) {
     // Show loading
     Swal.fire({
@@ -493,6 +469,155 @@ function showNoTagihanAlert() {
         title: 'Tidak Ada Data Tagihan',
         text: 'Belum ada data tagihan untuk tahun ini.',
         confirmButtonText: 'OK'
+    });
+}
+
+let currentMadrasahId = null;
+let currentTahun = null;
+let currentMadrasahName = null;
+let currentTotalNominal = null;
+
+function showPaymentModal(madrasahId, tahun, madrasahName, totalNominal) {
+    currentMadrasahId = madrasahId;
+    currentTahun = tahun;
+    currentMadrasahName = madrasahName;
+    currentTotalNominal = totalNominal;
+
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+
+function showManualPayment() {
+    // Close the payment modal
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    paymentModal.hide();
+
+    // Set form values
+    document.getElementById('manual_madrasah_id').value = currentMadrasahId;
+    document.getElementById('manual_tahun').value = currentTahun;
+    document.getElementById('manual_nominal').value = currentTotalNominal;
+
+    // Show manual payment modal
+    const manualModal = new bootstrap.Modal(document.getElementById('manualPaymentModal'));
+    manualModal.show();
+}
+
+function payOnline() {
+    // Close the payment modal
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    paymentModal.hide();
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses...',
+        text: 'Menghubungkan ke Midtrans',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request to Midtrans endpoint
+    fetch('<?php echo e(route("uppm.pembayaran.midtrans")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+        },
+        body: JSON.stringify({
+            madrasah_id: currentMadrasahId,
+            tahun: currentTahun,
+            nominal: currentTotalNominal
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            // Redirect to Midtrans payment page or handle success
+            window.location.href = data.payment_url; // Assuming Midtrans returns payment_url
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
+
+function submitManualPayment(event) {
+    event.preventDefault();
+
+    // Show loading
+    Swal.fire({
+        title: 'Memproses Pembayaran...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Get form data
+    const formData = new FormData(document.getElementById('manualPaymentForm'));
+
+    // Make AJAX request
+    fetch('<?php echo e(route("uppm.pembayaran.cash")); ?>', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Close modal
+            const manualModal = bootstrap.Modal.getInstance(document.getElementById('manualPaymentModal'));
+            manualModal.hide();
+
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Berhasil!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to update status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Pembayaran Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
     });
 }
 </script>

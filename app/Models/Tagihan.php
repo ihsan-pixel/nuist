@@ -13,6 +13,8 @@ class Tagihan extends Model
         'status',
         'jatuh_tempo',
         'keterangan',
+        'nomor_invoice',
+        'tanggal_pembayaran',
     ];
 
     protected $casts = [

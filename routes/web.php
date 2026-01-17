@@ -388,7 +388,7 @@ Route::middleware(['auth', 'role:super_admin,admin'])->prefix('data-sekolah')->n
 });
 
 // Check tagihan route outside middleware group to avoid authentication issues
-Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan'])->middleware(['auth', 'role:super_admin'])->name('pembayaran.check-tagihan');
+Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan'])->name('pembayaran.check-tagihan');
 
 // UPPM Routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
