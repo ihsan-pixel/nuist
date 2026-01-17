@@ -125,7 +125,7 @@
 }
 
 .nominal-info {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
     color: white;
     border-radius: 8px;
     padding: 12px 15px;
@@ -188,12 +188,12 @@
 
 /* Action Buttons */
 .action-buttons {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
     border-radius: 15px;
     padding: 2rem;
     margin-bottom: 1.5rem;
     color: white;
-    box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
+    box-shadow: 0 8px 30px rgba(72, 187, 120, 0.3);
 }
 
 .action-buttons h5 {
