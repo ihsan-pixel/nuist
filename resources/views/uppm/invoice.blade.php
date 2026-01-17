@@ -31,6 +31,16 @@
                                 <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
                             </tr>
                             <tr>
+                                <td style="width: 40%; padding: 0; vertical-align: top;"><strong>SCOD</strong></td>
+                                <td><strong>:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $madrasah->scod }}</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Asal Kabupaten</strong></td>
+                                <td><strong>:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $madrasah->kabupaten }}</td>
+                            </tr>
+                            <tr>
                                 <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
                                 <td><strong>:</strong></td>
                                 <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
