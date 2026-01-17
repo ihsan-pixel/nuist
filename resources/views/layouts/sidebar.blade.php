@@ -276,7 +276,7 @@
                 <li class="menu-title">PEMBAYARAN</li>
 
                 <li>
-                    <a href="{{ route('pembayaran') }}" class="waves-effect">
+                    <a href="{{ route('uppm.pembayaran') }}" class="waves-effect">
                         <i class="bx bx-credit-card"></i>
                         <span>Pembayaran</span>
                     </a>
