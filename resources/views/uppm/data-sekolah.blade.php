@@ -355,7 +355,7 @@
         <div class="card filter-card mb-4">
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
-                    <i class="bx bx-school me-2"></i>
+                    <i class="bx bx-buildings"></i>
                     Data Sekolah UPPM
                 </h4>
                 <p class="text-white-50 mb-0">
