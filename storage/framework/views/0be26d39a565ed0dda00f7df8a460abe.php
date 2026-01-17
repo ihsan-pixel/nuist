@@ -215,7 +215,7 @@
                 </li>
                 <?php endif; ?>
 
-                <?php if($userRole === 'super_admin'): ?>
+                <?php if(in_array($userRole, ['super_admin', 'admin'])): ?>
                 <li class="menu-title">DATA SEKOLAH</li>
 
                 <li>
@@ -225,7 +225,7 @@
                     </a>
                     <ul class="sub-menu collapse" id="dataSekolahSubmenu">
                         <li><a href="<?php echo e(route('data-sekolah.siswa')); ?>">Data Jumlah Siswa per Tahun</a></li>
-                        <li><a href="<?php echo e(route('data-sekolah.guru')); ?>">Data Guru dan Karyawan per Tahun</a></li>
+                        <li><a href="<?php echo e(route('data-sekolah.guru')); ?>">Data Guru per Tahun</a></li>
                     </ul>
                 </li>
                 <?php endif; ?>

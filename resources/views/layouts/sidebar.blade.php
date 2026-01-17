@@ -283,7 +283,7 @@
                         <span>Data Sekolah</span>
                     </a>
                     <ul class="sub-menu collapse" id="dataSekolahSubmenu">
-                        <li><a href="{{ route('data-sekolah.siswa') }}">Data Jumlah Siswa per Tahun</a></li>
+                        <li><a href="{{ route('data-sekolah.siswa') }}">Data Siswa per Tahun</a></li>
                         <li><a href="{{ route('data-sekolah.guru') }}">Data Guru per Tahun</a></li>
                     </ul>
                 </li>

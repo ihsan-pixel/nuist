@@ -1,4 +1,4 @@
-<?php $__env->startSection('title'); ?>Data Guru dan Karyawan per Tahun <?php $__env->stopSection(); ?>
+<?php $__env->startSection('title'); ?>Data Guru per Tahun <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('css'); ?>
 <style>
@@ -345,7 +345,7 @@
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
     <?php $__env->slot('li_2'); ?> Data Sekolah <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Data Guru dan Karyawan per Tahun <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Data Guru per Tahun <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
 <div class="row">
@@ -354,10 +354,10 @@
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
                     <i class="bx bx-user"></i>
-                    Data Guru dan Karyawan per Tahun
+                    Data Guru per Tahun
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Kelola dan pantau data guru dan karyawan untuk setiap sekolah mulai dari tahun 2023
+                    Kelola dan pantau data guru berdasarkan status kepegawaian untuk setiap sekolah mulai dari tahun 2023
                 </p>
             </div>
         </div>
@@ -391,7 +391,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Guru <?php echo e(request('tahun', date('Y'))); ?></p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_guru')); ?></h5>
+                        <h5 class="mb-0"><?php echo e(collect($data)->sum('total_guru')); ?></h5>
                     </div>
                 </div>
             </div>
@@ -403,11 +403,11 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="stats-icon bg-info">
-                        <i class="bx bx-briefcase"></i>
+                        <i class="bx bx-user-check"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Karyawan <?php echo e(request('tahun', date('Y'))); ?></p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->sum('jumlah_karyawan')); ?></h5>
+                        <p class="text-muted mb-2">Total Status Kepegawaian <?php echo e(request('tahun', date('Y'))); ?></p>
+                        <h5 class="mb-0"><?php echo e(collect($data)->sum('total_guru')); ?></h5>
                     </div>
                 </div>
             </div>
@@ -481,9 +481,15 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Sekolah</th>
-                                    <th>Jumlah Guru</th>
-                                    <th>Jumlah Karyawan</th>
-                                    <th>Total Tenaga Pendidik</th>
+                                    <th>PNS Sertifikasi</th>
+                                    <th>PNS Non Sertifikasi</th>
+                                    <th>GTY Sertifikasi</th>
+                                    <th>GTY Sertifikasi Inpassing</th>
+                                    <th>GTY Non Sertifikasi</th>
+                                    <th>GTT</th>
+                                    <th>PTY</th>
+                                    <th>PTT</th>
+                                    <th>Total Guru</th>
                                     <th>Tahun</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -500,10 +506,16 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td><?php echo e(number_format($item['jumlah_guru'])); ?></td>
-                                    <td><?php echo e(number_format($item['jumlah_karyawan'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_pns_sertifikasi'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_pns_non_sertifikasi'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_gty_sertifikasi'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_gty_sertifikasi_inpassing'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_gty_non_sertifikasi'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_gtt'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_pty'])); ?></td>
+                                    <td><?php echo e(number_format($item['jumlah_ptt'])); ?></td>
                                     <td>
-                                        <strong class="text-primary"><?php echo e(number_format($item['jumlah_guru'] + $item['jumlah_karyawan'])); ?></strong>
+                                        <strong class="text-primary"><?php echo e(number_format($item['total_guru'])); ?></strong>
                                     </td>
                                     <td><?php echo e($item['tahun']); ?></td>
                                     <td>
@@ -518,11 +530,11 @@
                     </div>
                 <?php else: ?>
                     <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="bx bx-user"></i>
-                        </div>
-                        <h5>Tidak Ada Data Guru & Karyawan</h5>
-                        <p class="text-muted">Belum ada data guru dan karyawan untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
+                    <div class="empty-icon">
+                        <i class="bx bx-user"></i>
+                    </div>
+                    <h5>Tidak Ada Data Guru</h5>
+                    <p class="text-muted">Belum ada data guru berdasarkan status kepegawaian untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
                     </div>
                 <?php endif; ?>
             </div>
