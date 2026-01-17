@@ -77,7 +77,7 @@
 .menu-icon.school { background: linear-gradient(135deg, #667eea, #764ba2); }
 .menu-icon.calculator { background: linear-gradient(135deg, #4299e1, #3182ce); }
 .menu-icon.receipt { background: linear-gradient(135deg, #ed8936, #dd6b20); }
-.menu-icon.settings { background: linear-gradient(135deg, #48bb78, #38a169); }
+.menu-icon.settings { background: linear-gradient(135deg, #004b4c, #0e8549); }
 
 .menu-card:hover .menu-icon {
     transform: scale(1.1);
