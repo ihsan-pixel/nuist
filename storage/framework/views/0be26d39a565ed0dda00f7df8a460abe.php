@@ -219,7 +219,7 @@
                 <li>
                     <a href="<?php echo e(route('uppm.pembayaran')); ?>" class="waves-effect">
                         <i class="bx bx-credit-card"></i>
-                        <span>Pembayaran UPPM</span>
+                        <span>Pembayaran</span>
                     </a>
                 </li>
                 <?php endif; ?>

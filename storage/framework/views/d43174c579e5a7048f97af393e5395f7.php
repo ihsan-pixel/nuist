@@ -1,8 +1,6 @@
-@extends('layouts.master')
+<?php $__env->startSection('title'); ?>Dashboard Pembayaran UPPM@endsection
 
-@section('title')Dashboard Pembayaran UPPM@endsection
-
-@section('css')
+<?php $__env->startSection('css'); ?>
 <style>
 /* Modern Card Grid Design */
 .dashboard-card {
@@ -184,13 +182,13 @@
     }
 }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
-@component('components.breadcrumb')
-    @slot('li_1') Dashboard @endslot
-    @slot('title') Dashboard Pembayaran UPPM @endslot
-@endcomponent
+<?php $__env->startSection('content'); ?>
+<?php $__env->startComponent('components.breadcrumb'); ?>
+    <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Dashboard Pembayaran UPPM <?php $__env->endSlot(); ?>
+<?php echo $__env->renderComponent(); ?>
 
 <div class="row">
     <div class="col-12">
@@ -219,7 +217,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Lunas</p>
-                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'lunas')->count() }}</h5>
+                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'lunas')->count()); ?></h5>
                     </div>
                 </div>
             </div>
@@ -235,7 +233,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'sebagian')->count() }}</h5>
+                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'sebagian')->count()); ?></h5>
                     </div>
                 </div>
             </div>
@@ -251,7 +249,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Belum Bayar</p>
-                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'belum_lunas')->count() }}</h5>
+                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'belum_lunas')->count()); ?></h5>
                     </div>
                 </div>
             </div>
@@ -267,7 +265,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Tagihan</p>
-                        <h5 class="mb-0">Rp {{ number_format(collect($data)->sum('total_nominal'), 0, ',', '.') }}</h5>
+                        <h5 class="mb-0">Rp <?php echo e(number_format(collect($data)->sum('total_nominal'), 0, ',', '.')); ?></h5>
                     </div>
                 </div>
             </div>
@@ -360,30 +358,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($data as $index => $item)
+                        <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $index + 1 }}</td>
+                            <td><?php echo e($index + 1); ?></td>
                             <td>
                                 <div>
-                                    <h6 class="mb-0">{{ $item->madrasah->name }}</h6>
-                                    <small class="text-muted">{{ $item->madrasah->address ?? '-' }}</small>
+                                    <h6 class="mb-0"><?php echo e($item->madrasah->name); ?></h6>
+                                    <small class="text-muted"><?php echo e($item->madrasah->address ?? '-'); ?></small>
                                 </div>
                             </td>
-                            <td>Rp {{ number_format($item->total_nominal, 0, ',', '.') }}</td>
+                            <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
                             <td>
-                                <span class="badge badge-modern bg-{{ $item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger') }}">
-                                    {{ ucfirst(str_replace('_', ' ', $item->status_pembayaran)) }}
+                                <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">
+                                    <?php echo e(ucfirst(str_replace('_', ' ', $item->status_pembayaran))); ?>
+
                                 </span>
                             </td>
-                            <td>Rp {{ number_format($item->nominal_dibayar, 0, ',', '.') }}</td>
+                            <td>Rp <?php echo e(number_format($item->nominal_dibayar, 0, ',', '.')); ?></td>
                             <td>
-                                <a href="{{ route('uppm.pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun]) }}"
+                                <a href="<?php echo e(route('uppm.pembayaran.detail', ['madrasah_id' => $item->madrasah->id, 'tahun' => $tahun])); ?>"
                                    class="btn btn-sm btn-primary">
                                     <i class="bx bx-detail me-1"></i>Detail
                                 </a>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
@@ -407,9 +406,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
 <script>
 function toggleSection(sectionId) {
     const section = document.getElementById(sectionId);
@@ -431,4 +430,6 @@ function toggleSection(sectionId) {
     }
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/pembayaran/index.blade.php ENDPATH**/ ?>
