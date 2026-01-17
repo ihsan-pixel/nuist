@@ -5,7 +5,7 @@
                 <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
             </td>
             <td style="width: 50%; padding: 0; vertical-align: top; text-align: right;">
-                <h1 style="margin: 0; font-size: 24px;">INVOICE PEMBAYARAN UPPM</h1>
+                <h1 style="margin: 0; font-size: 24px;">INVOICE UPPM</h1>
             </td>
         </tr>
     </table>

@@ -19,11 +19,20 @@
                 </a>
             </div>
             <div class="card-body">
-                <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
+                <table style="width: 100%; border: none; margin-bottom: 1rem;">
+                    <tr>
+                        <td style="width: 50%; padding: 0; vertical-align: top;">
+                            <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
+                        </td>
+                        <td style="width: 50%; padding: 0; vertical-align: top; text-align: right;">
+                            <h1 style="margin: 0; font-size: 24px;">INVOICE UPPM</h1>
+                        </td>
+                    </tr>
+                </table>
                 <hr style="border-top: 1px dotted #484747; margin: 1rem 0;">
                 <div class="row">
                     <div class="col-md-6">
-                        <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
+                        {{-- <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5> --}}
                         <table style="width: 100%; border: none;">
                             <tr>
                                 <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
@@ -65,7 +74,7 @@
 
                 <hr>
 
-                <h5>Rincian Perhitungan Iuran</h5>
+                <h5 style="text-align: center">Rincian Perhitungan Iuran</h5>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
