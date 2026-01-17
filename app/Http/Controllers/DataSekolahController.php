@@ -11,7 +11,14 @@ class DataSekolahController extends Controller
     public function siswa(Request $request)
     {
         $tahun = $request->get('tahun', date('Y'));
-        $madrasahs = Madrasah::all();
+
+        // Filter madrasah berdasarkan role user
+        $user = auth()->user();
+        if ($user->role === 'admin') {
+            $madrasahs = Madrasah::where('id', $user->madrasah_id)->get();
+        } else {
+            $madrasahs = Madrasah::all();
+        }
 
         // Ambil data siswa dari database atau default 0
         $dataSekolah = DataSekolah::where('tahun', $tahun)->get()->keyBy('madrasah_id');
@@ -32,7 +39,14 @@ class DataSekolahController extends Controller
     public function guru(Request $request)
     {
         $tahun = $request->get('tahun', date('Y'));
-        $madrasahs = Madrasah::all();
+
+        // Filter madrasah berdasarkan role user
+        $user = auth()->user();
+        if ($user->role === 'admin') {
+            $madrasahs = Madrasah::where('id', $user->madrasah_id)->get();
+        } else {
+            $madrasahs = Madrasah::all();
+        }
 
         // Ambil data dari tabel data_sekolah
         $dataSekolah = DataSekolah::where('tahun', $tahun)->get()->keyBy('madrasah_id');
@@ -66,5 +80,63 @@ class DataSekolahController extends Controller
         }
 
         return view('data-sekolah.guru', compact('data', 'tahun'));
+    }
+
+    public function updateSiswa(Request $request, $madrasahId)
+    {
+        // Cek apakah user admin hanya bisa update madrasah_id nya sendiri
+        $user = auth()->user();
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk mengupdate data sekolah ini'], 403);
+        }
+
+        $request->validate([
+            'tahun' => 'required|integer|min:2023|max:' . (date('Y') + 1),
+            'jumlah_siswa' => 'required|integer|min:0',
+        ]);
+
+        $dataSekolah = DataSekolah::updateOrCreate(
+            ['madrasah_id' => $madrasahId, 'tahun' => $request->tahun],
+            ['jumlah_siswa' => $request->jumlah_siswa]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Data siswa berhasil diperbarui']);
+    }
+
+    public function updateGuru(Request $request, $madrasahId)
+    {
+        // Cek apakah user admin hanya bisa update madrasah_id nya sendiri
+        $user = auth()->user();
+        if ($user->role === 'admin' && $user->madrasah_id != $madrasahId) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk mengupdate data sekolah ini'], 403);
+        }
+
+        $request->validate([
+            'tahun' => 'required|integer|min:2023|max:' . (date('Y') + 1),
+            'jumlah_pns_sertifikasi' => 'required|integer|min:0',
+            'jumlah_pns_non_sertifikasi' => 'required|integer|min:0',
+            'jumlah_gty_sertifikasi' => 'required|integer|min:0',
+            'jumlah_gty_sertifikasi_inpassing' => 'required|integer|min:0',
+            'jumlah_gty_non_sertifikasi' => 'required|integer|min:0',
+            'jumlah_gtt' => 'required|integer|min:0',
+            'jumlah_pty' => 'required|integer|min:0',
+            'jumlah_ptt' => 'required|integer|min:0',
+        ]);
+
+        $dataSekolah = DataSekolah::updateOrCreate(
+            ['madrasah_id' => $madrasahId, 'tahun' => $request->tahun],
+            [
+                'jumlah_pns_sertifikasi' => $request->jumlah_pns_sertifikasi,
+                'jumlah_pns_non_sertifikasi' => $request->jumlah_pns_non_sertifikasi,
+                'jumlah_gty_sertifikasi' => $request->jumlah_gty_sertifikasi,
+                'jumlah_gty_sertifikasi_inpassing' => $request->jumlah_gty_sertifikasi_inpassing,
+                'jumlah_gty_non_sertifikasi' => $request->jumlah_gty_non_sertifikasi,
+                'jumlah_gtt' => $request->jumlah_gtt,
+                'jumlah_pty' => $request->jumlah_pty,
+                'jumlah_ptt' => $request->jumlah_ptt,
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Data guru berhasil diperbarui']);
     }
 }
