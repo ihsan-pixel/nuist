@@ -9,9 +9,9 @@
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
                         <td><strong>:</strong></td>
-                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
                     </tr>
                     <tr>
+                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
                         <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
                         <td><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
