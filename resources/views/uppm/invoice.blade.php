@@ -24,12 +24,28 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
-                        <p><strong>Nama Sekolah/Madrasah:</strong> {{ $madrasah->name }}</p>
-                        <p><strong>Alamat:</strong> {{ $madrasah->alamat ?? '-' }}</p>
+                        <table style="width: 100%; border: none;">
+                            <tr>
+                                <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0; vertical-align: top;"><strong>Alamat:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="col-md-6" style="text-align: right">
-                        <p><strong>Tahun Anggaran:</strong> {{ $tahun }}</p>
-                        <p><strong>Jatuh Tempo:</strong> {{ $setting ? $setting->jatuh_tempo : '-' }}</p>
+                    <div class="col-md-6">
+                        <table style="width: 100%; border: none; margin-top: 2.5rem;">
+                            <tr>
+                                <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $tahun }}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0; vertical-align: top;"><strong>Jatuh Tempo:</strong></td>
+                                <td style="padding: 0; vertical-align: top;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
