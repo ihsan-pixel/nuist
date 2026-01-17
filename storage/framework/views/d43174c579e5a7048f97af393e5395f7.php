@@ -285,7 +285,7 @@
                                 <i class="bx bx-list-ul"></i>
                             </div>
                             <h3 class="menu-title">Data Pembayaran</h3>
-                            <p class="menu-description">Lihat daftar pembayaran semua madrasah dengan status terkini</p>
+                            <p class="menu-description">Lihat daftar pembayaran semua entitas dengan status terkini</p>
                             <button type="button" class="btn-modern" onclick="toggleSection('payment-data')">
                                 <i class="bx bx-right-arrow-alt me-1"></i> Lihat Data
                             </button>
