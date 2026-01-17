@@ -308,7 +308,7 @@
                                         {{ ucfirst(str_replace('_', ' ', $item->status_pembayaran)) }}
                                     </span>
                                 </td>
-                                <td>Rp {{ number_format($item->nominal_dibayar, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($item->nominal, 0, ',', '.') }}</td>
                                 <td>{{ $item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-' }}</td>
                                 <td>
                                     <button type="button" onclick="checkTagihan({{ $item->madrasah->id }}, {{ $tahun }}, '{{ $item->madrasah->name }}')"
