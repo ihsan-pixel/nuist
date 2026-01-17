@@ -224,8 +224,8 @@
                         <i class="bx bx-time"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'sebagian')->count()); ?></h5>
+                        <p class="text-muted mb-2">Total Lunas</p>
+                        <h5 class="mb-0">Rp <?php echo e(number_format($totalLunasNominal, 0, ',', '.')); ?></h5>
                     </div>
                 </div>
             </div>

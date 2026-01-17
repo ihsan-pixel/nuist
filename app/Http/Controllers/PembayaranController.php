@@ -36,7 +36,10 @@ class PembayaranController extends Controller
             ];
         }
 
-        return view('pembayaran.index', compact('data', 'tahun'));
+        // Calculate total nominal lunas
+        $totalLunasNominal = $tagihans->where('status', 'lunas')->sum('nominal_dibayar');
+
+        return view('pembayaran.index', compact('data', 'tahun', 'totalLunasNominal'));
     }
 
     public function detail(Request $request, $madrasah_id)
