@@ -21,6 +21,16 @@
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name }}</td>
                     </tr>
                     <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>SCOD</strong></td>
+                        <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->scod }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Asal Kabupaten</strong></td>
+                        <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->kabupaten }}</td>
+                    </tr>
+                    <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Alamat</strong></td>
                         <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->alamat ?? '-' }}</td>
@@ -46,7 +56,9 @@
 
     <hr>
 
-    <h5 style="text-align: center; margin: 1rem 0;">Rincian Perhitungan Iuran</h5>
+    <div style="text-align: center; margin: 1rem 0;">
+        <h5 style="margin: 0; display: inline;">RINCIAN PERHITUNGAN UPPM</h5>
+    </div>
     <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
         <thead>
             <tr style="background-color: #f8f9fa;">
