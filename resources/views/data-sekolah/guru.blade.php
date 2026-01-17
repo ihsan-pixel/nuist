@@ -563,6 +563,7 @@
                                         <th rowspan="2">PTY</th>
                                         <th rowspan="2">PTT</th>
                                         <th rowspan="2">Total Guru</th>
+                                        <th rowspan="2">Tahun</th>
                                         <th rowspan="2">Aksi</th>
                                     @else
                                         <!-- Header untuk Super Admin - seperti sebelumnya -->
