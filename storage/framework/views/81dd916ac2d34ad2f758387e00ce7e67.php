@@ -367,71 +367,7 @@
 <!-- Statistics Cards -->
 <?php if(isset($tahunList)): ?>
     <!-- Statistics untuk Admin - menampilkan data semua tahun -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-primary">
-                            <i class="bx bx-buildings"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Total Sekolah</p>
-                            <h5 class="mb-0"><?php echo e(count($data) > 0 ? count($data) / 4 : 0); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-success">
-                            <i class="bx bx-user"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Total Guru (2023-2026)</p>
-                            <h5 class="mb-0"><?php echo e(collect($data)->sum('total_guru')); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-info">
-                            <i class="bx bx-user-check"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Rata-rata per Tahun</p>
-                            <h5 class="mb-0"><?php echo e(count($data) > 0 ? round(collect($data)->sum('total_guru') / 4) : 0); ?></h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 col-sm-6">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-warning">
-                            <i class="bx bx-calendar"></i>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <p class="text-muted mb-2">Periode</p>
-                            <h5 class="mb-0">2023-2026</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 <?php else: ?>
     <!-- Statistics untuk Super Admin - seperti sebelumnya -->
     <div class="row mb-4">
@@ -553,7 +489,6 @@
                                     <th rowspan="2">Nama Sekolah</th>
 <?php if(isset($tahunList)): ?>
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        <th rowspan="2">Tahun</th>
                                         <th rowspan="2">PNS Sertifikasi</th>
                                         <th rowspan="2">PNS Non Sertifikasi</th>
                                         <th rowspan="2">GTY Sertifikasi</th>
@@ -563,6 +498,7 @@
                                         <th rowspan="2">PTY</th>
                                         <th rowspan="2">PTT</th>
                                         <th rowspan="2">Total Guru</th>
+                                        <th rowspan="2">Tahun</th>
                                         <th rowspan="2">Aksi</th>
                                     <?php else: ?>
                                         <!-- Header untuk Super Admin - seperti sebelumnya -->
