@@ -187,7 +187,7 @@
 <?php $__env->startSection('content'); ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Dashboard <?php $__env->endSlot(); ?>
-    <?php $__env->slot('title'); ?> Dashboard Pembayaran UPPM <?php $__env->endSlot(); ?>
+    <?php $__env->slot('title'); ?> Dashboard Pembayaran <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
 <div class="row">
@@ -196,10 +196,10 @@
             <div class="card-body">
                 <h4 class="card-title text-white mb-4">
                     <i class="bx bx-credit-card me-2"></i>
-                    Dashboard Pembayaran UPPM
+                    Dashboard Pembayaran
                 </h4>
                 <p class="text-white-50 mb-0">
-                    Sistem pembayaran terintegrasi dengan data UPPM. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
+                    Sistem pembayaran terintegrasi dengan data. Kelola pembayaran iuran, pantau status pembayaran, dan proses transaksi dengan mudah.
                 </p>
             </div>
         </div>
@@ -295,7 +295,7 @@
                     <div class="col-xl-3 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon cash">
-                                <i class="bx bx-cash"></i>
+                                <i class="bx bx-money"></i>
                             </div>
                             <h3 class="menu-title">Pembayaran Cash</h3>
                             <p class="menu-description">Proses pembayaran tunai langsung untuk madrasah</p>
