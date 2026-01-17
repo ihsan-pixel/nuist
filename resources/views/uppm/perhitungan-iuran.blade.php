@@ -507,7 +507,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="#" class="btn-modern btn-sm">
+                                        <a href="{{ route('uppm.invoice', ['madrasah_id' => $item['madrasah']->id, 'tahun' => request('tahun', date('Y'))]) }}" class="btn-modern btn-sm">
                                             <i class="bx bx-receipt me-1"></i> Invoice
                                         </a>
                                     </td>

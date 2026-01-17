@@ -154,51 +154,107 @@ class UppmController extends Controller
         return view('uppm.tagihan', compact('data', 'tahun'));
     }
 
-    public function invoice($id)
+    public function invoice(Request $request)
     {
-        $schoolData = UppmSchoolData::with('madrasah')->findOrFail($id);
-        $setting = UppmSetting::where('tahun_anggaran', $schoolData->tahun_anggaran)->first();
+        $madrasah_id = $request->get('madrasah_id');
+        $tahun = $request->get('tahun', date('Y'));
+
+        $madrasah = Madrasah::findOrFail($madrasah_id);
+        $dataSekolah = DataSekolah::where('madrasah_id', $madrasah_id)->where('tahun', $tahun)->first();
+
+        if (!$dataSekolah) {
+            return redirect()->back()->with('error', 'Data sekolah tidak ditemukan untuk tahun tersebut.');
+        }
+
+        $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
+
+        if (!$setting) {
+            return redirect()->back()->with('error', 'Pengaturan UPPM tidak ditemukan untuk tahun tersebut.');
+        }
+
+        // Buat objek data untuk perhitungan
+        $schoolData = (object) [
+            'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
+            'jumlah_pns_sertifikasi' => $dataSekolah->jumlah_pns_sertifikasi ?? 0,
+            'jumlah_pns_non_sertifikasi' => $dataSekolah->jumlah_pns_non_sertifikasi ?? 0,
+            'jumlah_gty_sertifikasi' => $dataSekolah->jumlah_gty_sertifikasi ?? 0,
+            'jumlah_gty_sertifikasi_inpassing' => $dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0,
+            'jumlah_gty_non_sertifikasi' => $dataSekolah->jumlah_gty_non_sertifikasi ?? 0,
+            'jumlah_gtt' => $dataSekolah->jumlah_gtt ?? 0,
+            'jumlah_pty' => $dataSekolah->jumlah_pty ?? 0,
+            'jumlah_ptt' => $dataSekolah->jumlah_ptt ?? 0,
+            'jumlah_karyawan_tetap' => 0,
+            'jumlah_karyawan_tidak_tetap' => 0,
+        ];
 
         $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
         $totalTahunan = $nominalBulanan * 12;
 
         $rincian = [
-            'siswa' => $schoolData->jumlah_siswa * $setting->nominal_siswa * 12,
-            'guru_tetap' => $schoolData->jumlah_guru_tetap * $setting->nominal_guru_tetap * 12,
-            'guru_tidak_tetap' => $schoolData->jumlah_guru_tidak_tetap * $setting->nominal_guru_tidak_tetap * 12,
-            'guru_pns' => $schoolData->jumlah_guru_pns * $setting->nominal_guru_pns * 12,
-            'guru_pppk' => $schoolData->jumlah_guru_pppk * $setting->nominal_guru_pppk * 12,
-            'karyawan_tetap' => $schoolData->jumlah_karyawan_tetap * $setting->nominal_karyawan_tetap * 12,
-            'karyawan_tidak_tetap' => $schoolData->jumlah_karyawan_tidak_tetap * $setting->nominal_karyawan_tidak_tetap * 12,
+            'siswa' => ($schoolData->jumlah_siswa * $setting->nominal_siswa) * 12,
+            'pns_sertifikasi' => ($schoolData->jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi) * 12,
+            'pns_non_sertifikasi' => ($schoolData->jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi) * 12,
+            'gty_sertifikasi' => ($schoolData->jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi) * 12,
+            'gty_sertifikasi_inpassing' => ($schoolData->jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing) * 12,
+            'gty_non_sertifikasi' => ($schoolData->jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi) * 12,
+            'gtt' => ($schoolData->jumlah_gtt * $setting->nominal_gtt) * 12,
+            'pty' => ($schoolData->jumlah_pty * $setting->nominal_pty) * 12,
+            'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        return view('uppm.invoice', compact('schoolData', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian'));
+        return view('uppm.invoice', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun'));
     }
 
-    public function downloadInvoice($id)
+    public function downloadInvoice(Request $request)
     {
-        $schoolData = UppmSchoolData::with('madrasah')->findOrFail($id);
-        $setting = UppmSetting::where('tahun_anggaran', $schoolData->tahun_anggaran)->where('aktif', true)->first();
+        $madrasah_id = $request->get('madrasah_id');
+        $tahun = $request->get('tahun', date('Y'));
+
+        $madrasah = Madrasah::findOrFail($madrasah_id);
+        $dataSekolah = DataSekolah::where('madrasah_id', $madrasah_id)->where('tahun', $tahun)->first();
+
+        if (!$dataSekolah) {
+            return redirect()->back()->with('error', 'Data sekolah tidak ditemukan untuk tahun tersebut.');
+        }
+
+        $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
+
+        if (!$setting) {
+            return redirect()->back()->with('error', 'Pengaturan UPPM tidak ditemukan untuk tahun tersebut.');
+        }
+
+        // Buat objek data untuk perhitungan
+        $schoolData = (object) [
+            'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
+            'jumlah_pns_sertifikasi' => $dataSekolah->jumlah_pns_sertifikasi ?? 0,
+            'jumlah_pns_non_sertifikasi' => $dataSekolah->jumlah_pns_non_sertifikasi ?? 0,
+            'jumlah_gty_sertifikasi' => $dataSekolah->jumlah_gty_sertifikasi ?? 0,
+            'jumlah_gty_sertifikasi_inpassing' => $dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0,
+            'jumlah_gty_non_sertifikasi' => $dataSekolah->jumlah_gty_non_sertifikasi ?? 0,
+            'jumlah_gtt' => $dataSekolah->jumlah_gtt ?? 0,
+            'jumlah_pty' => $dataSekolah->jumlah_pty ?? 0,
+            'jumlah_ptt' => $dataSekolah->jumlah_ptt ?? 0,
+            'jumlah_karyawan_tetap' => 0,
+            'jumlah_karyawan_tidak_tetap' => 0,
+        ];
 
         $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
         $totalTahunan = $nominalBulanan * 12;
 
         $rincian = [
-            'siswa' => $schoolData->jumlah_siswa * $setting->nominal_siswa * 12,
-            'pns_sertifikasi' => $schoolData->jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi * 12,
-            'pns_non_sertifikasi' => $schoolData->jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi * 12,
-            'gty_sertifikasi' => $schoolData->jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi * 12,
-            'gty_sertifikasi_inpassing' => $schoolData->jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing * 12,
-            'gty_non_sertifikasi' => $schoolData->jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi * 12,
-            'gtt' => $schoolData->jumlah_gtt * $setting->nominal_gtt * 12,
-            'pty' => $schoolData->jumlah_pty * $setting->nominal_pty * 12,
-            'ptt' => $schoolData->jumlah_ptt * $setting->nominal_ptt * 12,
-            'karyawan_tetap' => $schoolData->jumlah_karyawan_tetap * $setting->nominal_karyawan_tetap * 12,
-            'karyawan_tidak_tetap' => $schoolData->jumlah_karyawan_tidak_tetap * $setting->nominal_karyawan_tidak_tetap * 12,
+            'siswa' => ($schoolData->jumlah_siswa * $setting->nominal_siswa) * 12,
+            'pns_sertifikasi' => ($schoolData->jumlah_pns_sertifikasi * $setting->nominal_pns_sertifikasi) * 12,
+            'pns_non_sertifikasi' => ($schoolData->jumlah_pns_non_sertifikasi * $setting->nominal_pns_non_sertifikasi) * 12,
+            'gty_sertifikasi' => ($schoolData->jumlah_gty_sertifikasi * $setting->nominal_gty_sertifikasi) * 12,
+            'gty_sertifikasi_inpassing' => ($schoolData->jumlah_gty_sertifikasi_inpassing * $setting->nominal_gty_sertifikasi_inpassing) * 12,
+            'gty_non_sertifikasi' => ($schoolData->jumlah_gty_non_sertifikasi * $setting->nominal_gty_non_sertifikasi) * 12,
+            'gtt' => ($schoolData->jumlah_gtt * $setting->nominal_gtt) * 12,
+            'pty' => ($schoolData->jumlah_pty * $setting->nominal_pty) * 12,
+            'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('schoolData', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian'));
-        return $pdf->download('invoice-uppm-' . $schoolData->madrasah->name . '-' . $schoolData->tahun_anggaran . '.pdf');
+        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun'));
+        return $pdf->download('invoice-uppm-' . $madrasah->name . '-' . $tahun . '.pdf');
     }
 
     public function pengaturan()
