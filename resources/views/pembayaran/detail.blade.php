@@ -176,81 +176,12 @@
                         </div>
                     </div>
 
-                    <!-- Payment Methods Section -->
+                    <!-- Pay Button Section -->
                     <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="bx bx-credit-card me-2"></i>Metode Pembayaran
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <!-- Cash Payment -->
-                                        <div class="col-md-6">
-                                            <div class="card border-primary">
-                                                <div class="card-body text-center">
-                                                    <div class="mb-3">
-                                                        <i class="bx bx-cash display-4 text-primary"></i>
-                                                    </div>
-                                                    <h5 class="card-title">Pembayaran Cash</h5>
-                                                    <p class="card-text text-muted">Bayar langsung dengan uang tunai</p>
-
-                                                    <form action="{{ route('uppm.pembayaran.cash') }}" method="POST" class="mt-4">
-                                                        @csrf
-                                                        <input type="hidden" name="madrasah_id" value="{{ $madrasah->id }}">
-                                                        <input type="hidden" name="tahun" value="{{ $tahun }}">
-
-                                                        <div class="mb-3">
-                                                            <label for="nominal" class="form-label">Nominal Pembayaran</label>
-                                                            <div class="input-group">
-                                                                <span class="input-group-text">Rp</span>
-                                                                <input type="number" class="form-control" id="nominal" name="nominal"
-                                                                       placeholder="0" required min="0" step="1000">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="mb-3">
-                                                            <label for="keterangan" class="form-label">Keterangan</label>
-                                                            <textarea class="form-control" id="keterangan" name="keterangan"
-                                                                      rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
-                                                        </div>
-
-                                                        <button type="submit" class="btn btn-primary btn-lg">
-                                                            <i class="bx bx-check me-2"></i>Bayar Sekarang
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Online Payment (Midtrans) -->
-                                        <div class="col-md-6">
-                                            <div class="card border-success">
-                                                <div class="card-body text-center">
-                                                    <div class="mb-3">
-                                                        <i class="bx bx-credit-card display-4 text-success"></i>
-                                                    </div>
-                                                    <h5 class="card-title">Pembayaran Online</h5>
-                                                    <p class="card-text text-muted">Bayar melalui Midtrans Payment Gateway</p>
-
-                                                    <div class="mt-4">
-                                                        <div class="alert alert-info">
-                                                            <i class="bx bx-info-circle me-2"></i>
-                                                            <small>Integrasi dengan Midtrans sedang dalam pengembangan.</small>
-                                                        </div>
-
-                                                        <button type="button" class="btn btn-success btn-lg" disabled>
-                                                            <i class="bx bx-credit-card me-2"></i>Bayar via Midtrans
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-primary btn-lg">
+                                <i class="bx bx-check me-2"></i>Bayar
+                            </button>
                         </div>
                     </div>
                 </div>
