@@ -15,73 +15,96 @@
         </div>
     </div>
 
-    <div class="row">
-        @forelse($settings as $setting)
-            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0"><i class="bx bx-calendar me-2"></i>{{ $setting->tahun_anggaran }}</h5>
-                            <span class="badge {{ $setting->aktif ? 'bg-success' : 'bg-secondary' }}">
-                                <i class="bx {{ $setting->aktif ? 'bx-check' : 'bx-x' }}"></i> {{ $setting->aktif ? 'Aktif' : 'Tidak Aktif' }}
-                            </span>
+<!-- Settings Cards Grid -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                @if($settings->count() > 0)
+                    <div class="row g-4">
+                        @foreach($settings as $setting)
+                        <div class="col-xl-4 col-lg-6 col-md-6">
+                            <div class="setting-card {{ $setting->aktif ? 'active' : 'inactive' }}">
+                                <div class="card-icon {{ $setting->aktif ? 'active' : 'inactive' }}">
+                                    <i class="bx bx-cog"></i>
+                                </div>
+
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        {{ $setting->tahun_anggaran }}
+                                    </h3>
+                                    <div class="card-meta">
+                                        <div class="card-date">
+                                            <i class="bx bx-calendar me-1"></i>
+                                            Tahun Anggaran
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card-description">
+                                    Pengaturan pembayaran iuran UPPM untuk tahun {{ $setting->tahun_anggaran }}
+                                </div>
+
+                                <div class="card-badges mb-3">
+                                    <span class="badge badge-modern {{ $setting->aktif ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $setting->aktif ? 'Aktif' : 'Tidak Aktif' }}
+                                    </span>
+                                    <span class="badge badge-modern bg-info">
+                                        {{ ucfirst($setting->skema_pembayaran) }}
+                                    </span>
+                                </div>
+
+                                <div class="card-details">
+                                    <small>
+                                        <i class="bx bx-time me-1"></i>
+                                        <strong>Jatuh Tempo:</strong> {{ $setting->jatuh_tempo ?: 'Tidak ditentukan' }}
+                                    </small>
+                                </div>
+
+                                <div class="nominal-info">
+                                    <div class="nominal-item">
+                                        <span class="nominal-label">Siswa</span>
+                                        <span class="nominal-value">Rp {{ number_format($setting->nominal_siswa) }}</span>
+                                    </div>
+                                    <div class="nominal-item">
+                                        <span class="nominal-label">PNS Sertifikasi</span>
+                                        <span class="nominal-value">Rp {{ number_format($setting->nominal_pns_sertifikasi) }}</span>
+                                    </div>
+                                    <div class="nominal-item">
+                                        <span class="nominal-label">Lihat detail lainnya</span>
+                                        <span class="nominal-value"><i class="bx bx-edit"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
+                                        <i class="bx bx-edit me-1"></i> Edit
+                                    </button>
+                                    <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="bx bx-trash me-1"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
+                        @endforeach
                     </div>
-                    <div class="card-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <small class="text-muted">Jatuh Tempo</small>
-                                <p class="mb-1">{{ $setting->jatuh_tempo ?: '-' }}</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Skema</small>
-                                <p class="mb-1">{{ ucfirst($setting->skema_pembayaran) }}</p>
-                            </div>
+                @else
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="bx bx-cog"></i>
                         </div>
-                        <hr>
-                        <h6 class="text-primary mb-2"><i class="bx bx-money me-1"></i>Nominal Utama</h6>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <small class="text-muted">Siswa</small>
-                                <p class="mb-1 fw-bold">Rp {{ number_format($setting->nominal_siswa) }}</p>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">PNS Sertifikasi</small>
-                                <p class="mb-1 fw-bold">Rp {{ number_format($setting->nominal_pns_sertifikasi) }}</p>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <small class="text-muted">Lihat detail nominal lainnya di edit</small>
-                        </div>
+                        <h5>Belum Ada Pengaturan UPPM</h5>
+                        <p class="text-muted">Klik tombol "Tambah Pengaturan Baru" untuk menambahkan pengaturan baru.</p>
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editSettingModal{{ $setting->id }}">
-                                <i class="bx bx-edit"></i> Edit
-                            </button>
-                            <form method="POST" action="{{ route('uppm.pengaturan.destroy', $setting->id) }}" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    <i class="bx bx-trash"></i> Hapus
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                @endif
             </div>
-        @empty
-            <div class="col-12">
-                <div class="card text-center py-5">
-                    <div class="card-body">
-                        <i class="bx bx-info-circle fs-1 text-muted mb-3"></i>
-                        <h5 class="card-title">Belum ada pengaturan UPPM</h5>
-                        <p class="card-text">Klik tombol "Tambah Pengaturan" untuk menambahkan pengaturan baru.</p>
-                    </div>
-                </div>
-            </div>
-        @endforelse
+        </div>
     </div>
+</div>
 
     <!-- Edit Modals -->
     @forelse($settings as $setting)
