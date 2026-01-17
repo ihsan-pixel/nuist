@@ -125,7 +125,7 @@
 }
 
 .nominal-info {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
     color: white;
     border-radius: 8px;
     padding: 12px 15px;
@@ -179,7 +179,7 @@
 
 /* Filter Card */
 .filter-card {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
     color: white;
     border-radius: 15px;
     border: none;
@@ -188,7 +188,7 @@
 
 /* Action Buttons */
 .action-buttons {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
     border-radius: 15px;
     padding: 2rem;
     margin-bottom: 1.5rem;
