@@ -274,7 +274,7 @@
                     <div class="col-xl-3 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon school">
-                                <i class="bx bx-boarding"></i>
+                                <i class="bx bx-buildings"></i>
                             </div>
                             <h3 class="menu-title">Data Sekolah</h3>
                             <p class="menu-description">Kelola data sekolah, informasi siswa, dan data administrasi sekolah</p>
