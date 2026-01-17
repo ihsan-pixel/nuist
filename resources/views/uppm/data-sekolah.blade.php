@@ -494,7 +494,13 @@
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card">
+        <div class="card filter-section">
+            <div class="card-header filter-header">
+                <h5 class="mb-0">
+                    <i class="bx bx-filter-alt me-2"></i>
+                    Filter Data Sekolah
+                </h5>
+            </div>
             <div class="card-body">
                 <form method="GET" action="{{ route('uppm.data-sekolah') }}">
                     <div class="row g-3">
