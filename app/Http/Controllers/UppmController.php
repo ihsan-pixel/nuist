@@ -79,28 +79,26 @@ class UppmController extends Controller
         $tahun = $request->get('tahun', date('Y'));
         $setting = UppmSetting::where('tahun_anggaran', $tahun)->where('aktif', true)->first();
 
-        if (!$setting) {
-            return redirect()->back()->with('error', 'Pengaturan UPPM untuk tahun ' . $tahun . ' belum ada atau tidak aktif');
-        }
-
         $madrasahs = Madrasah::all();
         $perhitungan = [];
 
-        foreach ($madrasahs as $madrasah) {
-            $schoolData = UppmSchoolData::where('madrasah_id', $madrasah->id)
-                ->where('tahun_anggaran', $tahun)
-                ->first();
+        if ($setting) {
+            foreach ($madrasahs as $madrasah) {
+                $schoolData = UppmSchoolData::where('madrasah_id', $madrasah->id)
+                    ->where('tahun_anggaran', $tahun)
+                    ->first();
 
-            if ($schoolData) {
-                $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
-                $totalTahunan = $nominalBulanan * 12;
+                if ($schoolData) {
+                    $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
+                    $totalTahunan = $nominalBulanan * 12;
 
-                $perhitungan[] = [
-                    'madrasah' => $madrasah,
-                    'data' => $schoolData,
-                    'nominal_bulanan' => $nominalBulanan,
-                    'total_tahunan' => $totalTahunan,
-                ];
+                    $perhitungan[] = [
+                        'madrasah' => $madrasah,
+                        'data' => $schoolData,
+                        'nominal_bulanan' => $nominalBulanan,
+                        'total_tahunan' => $totalTahunan,
+                    ];
+                }
             }
         }
 
