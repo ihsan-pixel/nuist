@@ -1,37 +1,39 @@
 <div class="card-body">
     <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
     <hr style="border-top: 1px dotted #484747; margin: 1rem 0;">
-    <div class="row">
-        <div class="col-md-6">
-            <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
-            <table style="width: 100%; border: none;">
-                <tr>
-                    <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
-                    <td><strong>:</strong></td>
-                    <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
-                    <td><strong>:</strong></td>
-                    <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
-                </tr>
-            </table>
-        {{-- </div>
-        <div class="col-md-6"> --}}
-            <table style="width: 100%; border: none; margin-top: 2.5rem;">
-                <tr>
-                    <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran</strong></td>
-                    <td><strong>:</strong></td>
-                    <td style="padding: 0; vertical-align: top;">{{ $tahun }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 0; vertical-align: top;"><strong>Jatuh Tempo</strong></td>
-                    <td><strong>:</strong></td>
-                    <td style="padding: 0; vertical-align: top;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
-                </tr>
-            </table>
-        </div>
-    </div>
+    <table style="width: 100%; border: none;">
+        <tr>
+            <td style="width: 50%; padding: 0; vertical-align: top;">
+                <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
+                <table style="width: 100%; border: none;">
+                    <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
+                        <td><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0; vertical-align: top;"><strong>Alamat</strong></td>
+                        <td><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top;">{{ $madrasah->alamat ?? '-' }}</td>
+                    </tr>
+                </table>
+            </td>
+            <td style="width: 50%; padding: 0; vertical-align: top;">
+                <table style="width: 100%; border: none;">
+                    <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran</strong></td>
+                        <td><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top;">{{ $tahun }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0; vertical-align: top;"><strong>Jatuh Tempo</strong></td>
+                        <td><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
     <hr>
 
