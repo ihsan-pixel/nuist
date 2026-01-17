@@ -16,7 +16,7 @@
                 {{-- <h5 style="margin-bottom: 1rem; font-size: 14px;">Identitas Sekolah/Madrasah</h5> --}}
                 <table style="width: 100%; border: none;">
                     <tr>
-                        <td style="width: 25%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Nama Sekolah/Madrasah</strong></td>
+                        <td style="width: 30%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Nama Sekolah/Madrasah</strong></td>
                         <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name }}</td>
                     </tr>
