@@ -471,10 +471,11 @@
         <div class="card">
             <div class="card-body">
                 <form method="GET" action="{{ route('uppm.data-sekolah') }}">
-                    <div class="row g-3">
-                        <div class="col-md-3">
+                    <div class="row g-3 align-items-end">
+                        <!-- Tahun Anggaran -->
+                        <div class="col-md-4">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
-                            <select class="form-select w-100" id="tahun" name="tahun">
+                            <select class="form-select" id="tahun" name="tahun">
                                 @for($i = date('Y') - 2; $i <= date('Y') + 1; $i++)
                                     <option value="{{ $i }}" {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>
                                         {{ $i }}
@@ -483,22 +484,24 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <!-- Status Pembayaran -->
+                        <div class="col-md-4">
                             <label for="status" class="form-label">Status Pembayaran</label>
-                            <select class="form-select w-100" id="status" name="status">
+                            <select class="form-select" id="status" name="status">
                                 <option value="">Semua Status</option>
                                 <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
                                 <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
                                 <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
                             </select>
                         </div>
+
+                        <!-- Tombol -->
                         <div class="col-md-4">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-grid gap-2 d-md-flex">
-                                <button type="submit" class="btn btn-primary">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success px-4">
                                     <i class="bx bx-search me-1"></i> Filter
                                 </button>
-                                <a href="{{ route('uppm.data-sekolah') }}" class="btn btn-secondary">
+                                <a href="{{ route('uppm.data-sekolah') }}" class="btn btn-secondary px-4">
                                     <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
                             </div>
