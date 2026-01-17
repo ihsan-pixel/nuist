@@ -177,43 +177,150 @@
 @endsection
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('title') Dashboard UPPM @endslot
+@endcomponent
+
+<div class="row">
+    <div class="col-12">
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-white mb-4">
+                    <i class="bx bx-home me-2"></i>
+                    Dashboard UPPM (Unit Pengembangan Pendidikan Ma'arif)
+                </h4>
+                <p class="text-white-50 mb-0">
+                    Selamat datang di Dashboard UPPM. Gunakan menu di bawah ini untuk mengelola data sekolah, melakukan perhitungan iuran, melihat tagihan, dan mengatur preferensi Anda.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-primary">
+                        <i class="bx bx-school"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Data Sekolah</p>
+                        <h5 class="mb-0">{{ $schoolCount ?? 0 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success">
+                        <i class="bx bx-calculator"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Perhitungan Iuran</p>
+                        <h5 class="mb-0">{{ $calculationCount ?? 0 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-receipt"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Tagihan</p>
+                        <h5 class="mb-0">{{ $billingCount ?? 0 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-info">
+                        <i class="bx bx-cog"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Pengaturan</p>
+                        <h5 class="mb-0">{{ $settingsCount ?? 0 }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Menu Cards Grid -->
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">Dashboard UPPM (Unit Pengembangan Pendidikan Ma'arif)</h4>
-            </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-12">
-                        <p>Selamat datang di Dashboard UPPM. Gunakan menu di bawah ini untuk mengelola data sekolah, melakukan perhitungan iuran, melihat tagihan, dan mengatur preferensi Anda.</p>
+                <div class="row g-4">
+                    <div class="col-xl-3 col-lg-6 col-md-6">
+                        <div class="menu-card">
+                            <div class="menu-icon school">
+                                <i class="bx bx-school"></i>
+                            </div>
+                            <h3 class="menu-title">Data Sekolah</h3>
+                            <p class="menu-description">Kelola data sekolah, informasi siswa, dan data administrasi sekolah</p>
+                            <a href="{{ route('uppm.data-sekolah') }}" class="btn-modern">
+                                <i class="bx bx-right-arrow-alt me-1"></i> Akses
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-                <div class="row mt-4">
-                    <div class="col-md-3">
-                        <a href="{{ route('uppm.data-sekolah') }}" class="btn btn-primary btn-lg w-100">
-                            <i class="bx bx-school"></i><br>
-                            Data Sekolah
-                        </a>
+                    <div class="col-xl-3 col-lg-6 col-md-6">
+                        <div class="menu-card">
+                            <div class="menu-icon calculator">
+                                <i class="bx bx-calculator"></i>
+                            </div>
+                            <h3 class="menu-title">Perhitungan Iuran</h3>
+                            <p class="menu-description">Hitung iuran UPPM berdasarkan kategori siswa dan pengaturan yang berlaku</p>
+                            <a href="{{ route('uppm.perhitungan-iuran') }}" class="btn-modern">
+                                <i class="bx bx-right-arrow-alt me-1"></i> Hitung
+                            </a>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <a href="{{ route('uppm.perhitungan-iuran') }}" class="btn btn-info btn-lg w-100">
-                            <i class="bx bx-calculator"></i><br>
-                            Perhitungan Iuran
-                        </a>
+
+                    <div class="col-xl-3 col-lg-6 col-md-6">
+                        <div class="menu-card">
+                            <div class="menu-icon receipt">
+                                <i class="bx bx-receipt"></i>
+                            </div>
+                            <h3 class="menu-title">Tagihan</h3>
+                            <p class="menu-description">Lihat dan kelola tagihan iuran UPPM untuk setiap sekolah</p>
+                            <a href="{{ route('uppm.tagihan') }}" class="btn-modern">
+                                <i class="bx bx-right-arrow-alt me-1"></i> Lihat
+                            </a>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <a href="{{ route('uppm.tagihan') }}" class="btn btn-warning btn-lg w-100">
-                            <i class="bx bx-receipt"></i><br>
-                            Tagihan
-                        </a>
-                    </div>
-                    <div class="col-md-3">
-                        <a href="{{ route('uppm.pengaturan') }}" class="btn btn-secondary btn-lg w-100">
-                            <i class="bx bx-cog"></i><br>
-                            Pengaturan
-                        </a>
+
+                    <div class="col-xl-3 col-lg-6 col-md-6">
+                        <div class="menu-card">
+                            <div class="menu-icon settings">
+                                <i class="bx bx-cog"></i>
+                            </div>
+                            <h3 class="menu-title">Pengaturan</h3>
+                            <p class="menu-description">Konfigurasi pengaturan iuran UPPM untuk setiap tahun anggaran</p>
+                            <a href="{{ route('uppm.pengaturan') }}" class="btn-modern">
+                                <i class="bx bx-right-arrow-alt me-1"></i> Atur
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
