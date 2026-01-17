@@ -3,6 +3,12 @@
 @section('title')Invoice UPPM @endsection
 
 @section('content')
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('li_2') Data Sekolah @endslot
+    @slot('title') Data Jumlah Siswa per Tahun @endslot
+@endcomponent
+
 <div class="row">
     <div class="col-12">
         <div class="card">
