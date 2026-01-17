@@ -89,11 +89,26 @@ class UppmController extends Controller
 
         if ($setting) {
             foreach ($madrasahs as $madrasah) {
-                $schoolData = UppmSchoolData::where('madrasah_id', $madrasah->id)
-                    ->where('tahun_anggaran', $tahun)
+                $dataSekolah = DataSekolah::where('madrasah_id', $madrasah->id)
+                    ->where('tahun', $tahun)
                     ->first();
 
-                if ($schoolData) {
+                if ($dataSekolah) {
+                    // Buat objek data dengan field yang diperlukan untuk perhitungan
+                    $schoolData = (object) [
+                        'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
+                        'jumlah_pns_sertifikasi' => $dataSekolah->jumlah_pns_sertifikasi ?? 0,
+                        'jumlah_pns_non_sertifikasi' => $dataSekolah->jumlah_pns_non_sertifikasi ?? 0,
+                        'jumlah_gty_sertifikasi' => $dataSekolah->jumlah_gty_sertifikasi ?? 0,
+                        'jumlah_gty_sertifikasi_inpassing' => $dataSekolah->jumlah_gty_sertifikasi_inpassing ?? 0,
+                        'jumlah_gty_non_sertifikasi' => $dataSekolah->jumlah_gty_non_sertifikasi ?? 0,
+                        'jumlah_gtt' => $dataSekolah->jumlah_gtt ?? 0,
+                        'jumlah_pty' => $dataSekolah->jumlah_pty ?? 0,
+                        'jumlah_ptt' => $dataSekolah->jumlah_ptt ?? 0,
+                        'jumlah_karyawan_tetap' => 0, // Tidak ada di DataSekolah, set 0
+                        'jumlah_karyawan_tidak_tetap' => 0, // Tidak ada di DataSekolah, set 0
+                    ];
+
                     $nominalBulanan = $this->hitungNominalBulanan($schoolData, $setting);
                     $totalTahunan = $nominalBulanan * 12;
 
