@@ -84,7 +84,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Belum Bayar</p>
-                        <h5 class="mb-0">{{ $data->where('status_pembayaran', 'belum')->count() }}</h5>
+                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'belum')->count() }}</h5>
                     </div>
                 </div>
             </div>
