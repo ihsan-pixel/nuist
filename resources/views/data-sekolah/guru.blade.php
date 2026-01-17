@@ -616,7 +616,7 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection('content')
 
 @section('script')
 <!-- SweetAlert2 -->
