@@ -331,7 +331,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Perhitungan</p>
-                        <h5 class="mb-0">{{ $perhitungan->count() }}</h5>
+                        <h5 class="mb-0">{{ count($perhitungan) }}</h5>
                     </div>
                 </div>
             </div>
