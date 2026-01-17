@@ -565,47 +565,6 @@
     </div>
 </div>
 
-<!-- Modal Edit Siswa -->
-<div class="modal fade" id="editSiswaModal" tabindex="-1" aria-labelledby="editSiswaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editSiswaModalLabel">
-                    <i class="bx bx-edit me-2"></i>Edit Data Siswa
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="editSiswaForm">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="edit_madrasah_name" class="form-label">Nama Madrasah/Sekolah</label>
-                            <input type="text" class="form-control" id="edit_madrasah_name" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_tahun" class="form-label">Tahun</label>
-                            <input type="text" class="form-control" id="edit_tahun" readonly>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-12">
-                            <label for="edit_jumlah_siswa" class="form-label">Jumlah Siswa</label>
-                            <input type="number" class="form-control" id="edit_jumlah_siswa" name="jumlah_siswa" min="0" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bx bx-save me-1"></i>Simpan Perubahan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endsection
-
 @section('script')
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
