@@ -20,6 +20,7 @@ class Payment extends Model
         'keterangan',
         'payment_data',
         'paid_at',
+        'tanggal_pembayaran',
     ];
 
     protected $casts = [
