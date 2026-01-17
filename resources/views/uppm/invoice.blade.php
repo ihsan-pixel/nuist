@@ -25,7 +25,7 @@
                     <div class="col-md-6">
                         <h5>Identitas Sekolah</h5>
                         <p><strong>Nama Sekolah:</strong> {{ $madrasah->name }}</p>
-                        <p><strong>Alamat:</strong> {{ $madrasah->address ?? '-' }}</p>
+                        <p><strong>Alamat:</strong> {{ $madrasah->alamat ?? '-' }}</p>
                     </div>
                     <div class="col-md-6" style="text-align: right">
                         <p><strong>Tahun Anggaran:</strong> {{ $tahun }}</p>
