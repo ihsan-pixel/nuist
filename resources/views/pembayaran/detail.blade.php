@@ -204,7 +204,7 @@
                     <div class="col-md-6">
                         <div class="card border-primary text-center">
                             <div class="card-body">
-                                <i class="bx bx-cash display-4 text-primary"></i>
+                                <i class="bx bx-money display-4 text-primary"></i>
                                 <h5 class="card-title">Cash</h5>
                                 <p class="card-text">Bayar langsung dengan uang tunai</p>
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashModal">Pilih Cash</button>
