@@ -5,8 +5,8 @@
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Dashboard @endslot
-    @slot('li_2') Data Sekolah @endslot
-    @slot('title') Data Jumlah Siswa per Tahun @endslot
+    @slot('li_2') Invoice UPPM @endslot
+    @slot('title') Invoice @endslot
 @endcomponent
 
 <div class="row">
