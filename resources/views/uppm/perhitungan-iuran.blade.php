@@ -411,7 +411,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Tahunan</p>
-                        <h5 class="mb-0">Rp {{ number_format($perhitungan->sum('total_tahunan')) }}</h5>
+                        <h5 class="mb-0">Rp {{ number_format(array_sum(array_column($perhitungan, 'total_tahunan'))) }}</h5>
                     </div>
                 </div>
             </div>
