@@ -2,9 +2,9 @@
     <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
     <hr style="border-top: 1px dotted #484747; margin: 1rem 0;">
     <table style="width: 100%; border: none;">
+        <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
         <tr>
             <td style="width: 50%; padding: 0; vertical-align: top;">
-                <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah</strong></td>
