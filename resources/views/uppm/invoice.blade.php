@@ -27,6 +27,7 @@
                         <table style="width: 100%; border: none;">
                             <tr>
                                 <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Nama Sekolah/Madrasah:</strong></td>
+                                <td><strong>:</strong></td>
                                 <td style="padding: 0; vertical-align: top;">{{ $madrasah->name }}</td>
                             </tr>
                             <tr>
