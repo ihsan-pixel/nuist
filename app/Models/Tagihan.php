@@ -20,6 +20,7 @@ class Tagihan extends Model
     protected $casts = [
         'nominal' => 'decimal:2',
         'jatuh_tempo' => 'date',
+        'tanggal_pembayaran' => 'date',
     ];
 
     public function madrasah()
