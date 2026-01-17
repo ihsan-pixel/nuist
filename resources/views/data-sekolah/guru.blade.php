@@ -367,71 +367,141 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-primary">
-                        <i class="bx bx-buildings"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Sekolah</p>
-                        <h5 class="mb-0">{{ count($data) }}</h5>
+@if(isset($tahunList))
+    <!-- Statistics untuk Admin - menampilkan data semua tahun -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-primary">
+                            <i class="bx bx-buildings"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Sekolah</p>
+                            <h5 class="mb-0">{{ count($data) }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-success">
-                        <i class="bx bx-user"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Guru {{ request('tahun', date('Y')) }}</p>
-                        <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-success">
+                            <i class="bx bx-user"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Guru (2023-2026)</p>
+                            <h5 class="mb-0">{{ collect($data)->sum(function($item) { return $item[2023]['total_guru'] + $item[2024]['total_guru'] + $item[2025]['total_guru'] + $item[2026]['total_guru']; }) }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-info">
-                        <i class="bx bx-user-check"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Total Status Kepegawaian {{ request('tahun', date('Y')) }}</p>
-                        <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-info">
+                            <i class="bx bx-user-check"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Rata-rata per Tahun</p>
+                            <h5 class="mb-0">{{ count($data) > 0 ? round(collect($data)->avg(function($item) { return ($item[2023]['total_guru'] + $item[2024]['total_guru'] + $item[2025]['total_guru'] + $item[2026]['total_guru']) / 4; })) : 0 }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6 col-sm-6">
-        <div class="card stats-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning">
-                        <i class="bx bx-calendar"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Tahun</p>
-                        <h5 class="mb-0">{{ request('tahun', date('Y')) }}</h5>
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-warning">
+                            <i class="bx bx-calendar"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Periode</p>
+                            <h5 class="mb-0">2023-2026</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+@else
+    <!-- Statistics untuk Super Admin - seperti sebelumnya -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-primary">
+                            <i class="bx bx-buildings"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Sekolah</p>
+                            <h5 class="mb-0">{{ count($data) }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-success">
+                            <i class="bx bx-user"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Guru {{ $tahun }}</p>
+                            <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-info">
+                            <i class="bx bx-user-check"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Total Status Kepegawaian {{ $tahun }}</p>
+                            <h5 class="mb-0">{{ collect($data)->sum('total_guru') }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-sm-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon bg-warning">
+                            <i class="bx bx-calendar"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-muted mb-2">Tahun</p>
+                            <h5 class="mb-0">{{ $tahun }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 
 <!-- Filters -->
 <div class="row mb-4">
@@ -480,20 +550,44 @@
                         <table class="table-modern table">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Nama Sekolah</th>
-                                    <th>PNS Sertifikasi</th>
-                                    <th>PNS Non Sertifikasi</th>
-                                    <th>GTY Sertifikasi</th>
-                                    <th>GTY Sertifikasi Inpassing</th>
-                                    <th>GTY Non Sertifikasi</th>
-                                    <th>GTT</th>
-                                    <th>PTY</th>
-                                    <th>PTT</th>
-                                    <th>Total Guru</th>
-                                    <th>Tahun</th>
-                                    <th>Aksi</th>
+                                    <th rowspan="2">No</th>
+                                    <th rowspan="2">Nama Sekolah</th>
+                                    @if(isset($tahunList))
+                                        <!-- Header untuk Admin - kolom tahun 2023-2026 -->
+                                        @foreach($tahunList as $tahun)
+                                            <th colspan="10" class="text-center">{{ $tahun }}</th>
+                                        @endforeach
+                                    @else
+                                        <!-- Header untuk Super Admin - seperti sebelumnya -->
+                                        <th rowspan="2">PNS Sertifikasi</th>
+                                        <th rowspan="2">PNS Non Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi</th>
+                                        <th rowspan="2">GTY Sertifikasi Inpassing</th>
+                                        <th rowspan="2">GTY Non Sertifikasi</th>
+                                        <th rowspan="2">GTT</th>
+                                        <th rowspan="2">PTY</th>
+                                        <th rowspan="2">PTT</th>
+                                        <th rowspan="2">Total Guru</th>
+                                        <th rowspan="2">Tahun</th>
+                                        <th rowspan="2">Aksi</th>
+                                    @endif
                                 </tr>
+                                @if(isset($tahunList))
+                                <tr>
+                                    @foreach($tahunList as $tahun)
+                                        <th>PNS Sert</th>
+                                        <th>PNS Non</th>
+                                        <th>GTY Sert</th>
+                                        <th>GTY Inpass</th>
+                                        <th>GTY Non</th>
+                                        <th>GTT</th>
+                                        <th>PTY</th>
+                                        <th>PTT</th>
+                                        <th>Total</th>
+                                        <th>Aksi</th>
+                                    @endforeach
+                                </tr>
+                                @endif
                             </thead>
                             <tbody>
                                 @foreach($data as $index => $item)
@@ -506,23 +600,44 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ number_format($item['jumlah_pns_sertifikasi']) }}</td>
-                                    <td>{{ number_format($item['jumlah_pns_non_sertifikasi']) }}</td>
-                                    <td>{{ number_format($item['jumlah_gty_sertifikasi']) }}</td>
-                                    <td>{{ number_format($item['jumlah_gty_sertifikasi_inpassing']) }}</td>
-                                    <td>{{ number_format($item['jumlah_gty_non_sertifikasi']) }}</td>
-                                    <td>{{ number_format($item['jumlah_gtt']) }}</td>
-                                    <td>{{ number_format($item['jumlah_pty']) }}</td>
-                                    <td>{{ number_format($item['jumlah_ptt']) }}</td>
-                                    <td>
-                                        <strong class="text-primary">{{ number_format($item['total_guru']) }}</strong>
-                                    </td>
-                                    <td>{{ $item['tahun'] }}</td>
-                                    <td>
-                                        <button class="btn-modern btn-sm" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_pns_sertifikasi'] }}, {{ $item['jumlah_pns_non_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item['jumlah_gty_non_sertifikasi'] }}, {{ $item['jumlah_gtt'] }}, {{ $item['jumlah_pty'] }}, {{ $item['jumlah_ptt'] }})">
-                                            <i class="bx bx-edit me-1"></i> Edit
-                                        </button>
-                                    </td>
+                                    @if(isset($tahunList))
+                                        <!-- Data untuk Admin - kolom tahun 2023-2026 -->
+                                        @foreach($tahunList as $tahun)
+                                            <td>{{ number_format($item[$tahun]['jumlah_pns_sertifikasi']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_pns_non_sertifikasi']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_gty_sertifikasi']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_gty_sertifikasi_inpassing']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_gty_non_sertifikasi']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_gtt']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_pty']) }}</td>
+                                            <td>{{ number_format($item[$tahun]['jumlah_ptt']) }}</td>
+                                            <td><strong class="text-primary">{{ number_format($item[$tahun]['total_guru']) }}</strong></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $tahun }}, {{ $item[$tahun]['jumlah_pns_sertifikasi'] }}, {{ $item[$tahun]['jumlah_pns_non_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gty_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item[$tahun]['jumlah_gty_non_sertifikasi'] }}, {{ $item[$tahun]['jumlah_gtt'] }}, {{ $item[$tahun]['jumlah_pty'] }}, {{ $item[$tahun]['jumlah_ptt'] }})" title="Edit {{ $tahun }}">
+                                                    {{ $tahun }}
+                                                </button>
+                                            </td>
+                                        @endforeach
+                                    @else
+                                        <!-- Data untuk Super Admin - seperti sebelumnya -->
+                                        <td>{{ number_format($item['jumlah_pns_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_pns_non_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_sertifikasi_inpassing']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gty_non_sertifikasi']) }}</td>
+                                        <td>{{ number_format($item['jumlah_gtt']) }}</td>
+                                        <td>{{ number_format($item['jumlah_pty']) }}</td>
+                                        <td>{{ number_format($item['jumlah_ptt']) }}</td>
+                                        <td>
+                                            <strong class="text-primary">{{ number_format($item['total_guru']) }}</strong>
+                                        </td>
+                                        <td>{{ $item['tahun'] }}</td>
+                                        <td>
+                                            <button class="btn-modern btn-sm" onclick="editGuru({{ $item['madrasah']->id }}, '{{ addslashes($item['madrasah']->name) }}', {{ $item['tahun'] }}, {{ $item['jumlah_pns_sertifikasi'] }}, {{ $item['jumlah_pns_non_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi'] }}, {{ $item['jumlah_gty_sertifikasi_inpassing'] }}, {{ $item['jumlah_gty_non_sertifikasi'] }}, {{ $item['jumlah_gtt'] }}, {{ $item['jumlah_pty'] }}, {{ $item['jumlah_ptt'] }})">
+                                                <i class="bx bx-edit me-1"></i> Edit
+                                            </button>
+                                        </td>
+                                    @endif
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -534,7 +649,11 @@
                         <i class="bx bx-user"></i>
                     </div>
                     <h5>Tidak Ada Data Guru</h5>
-                    <p class="text-muted">Belum ada data guru berdasarkan status kepegawaian untuk tahun {{ request('tahun', date('Y')) }}.</p>
+                    @if(isset($tahunList))
+                        <p class="text-muted">Belum ada data guru berdasarkan status kepegawaian untuk periode 2023-2026.</p>
+                    @else
+                        <p class="text-muted">Belum ada data guru berdasarkan status kepegawaian untuk tahun {{ request('tahun', date('Y')) }}.</p>
+                    @endif
                     </div>
                 @endif
             </div>
