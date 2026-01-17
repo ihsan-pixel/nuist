@@ -36,7 +36,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Sekolah</p>
-                        <h5 class="mb-0">{{ $data->count() }}</h5>
+                        <h5 class="mb-0">{{ count($data) }}</h5>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Lunas</p>
-                        <h5 class="mb-0">{{ $data->where('status_pembayaran', 'lunas')->count() }}</h5>
+                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'lunas')->count() }}</h5>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0">{{ $data->where('status_pembayaran', 'sebagian')->count() }}</h5>
+                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'sebagian')->count() }}</h5>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Siswa</p>
-                        <h5 class="mb-0">{{ $data->sum('jumlah_siswa') }}</h5>
+                        <h5 class="mb-0">{{ collect($data)->sum('jumlah_siswa') }}</h5>
                     </div>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Nominal</p>
-                        <h5 class="mb-0">Rp {{ number_format($data->sum('total_nominal')) }}</h5>
+                        <h5 class="mb-0">Rp {{ number_format(collect($data)->sum('total_nominal')) }}</h5>
                     </div>
                 </div>
             </div>
@@ -171,7 +171,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                @if($data->count() > 0)
+                @if(count($data) > 0)
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
