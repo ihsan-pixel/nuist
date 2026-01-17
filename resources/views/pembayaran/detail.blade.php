@@ -39,7 +39,7 @@
                                     <div class="row mb-4">
                                         <div class="col-md-6">
                                             <h6 class="text-muted">Dari:</h6>
-                                            <h5 class="mb-1">LP Ma'arif NU Indonesia</h5>
+                                            <h5 class="mb-1">LP Ma'arif NU PWNU D.I. Yogyakarta</h5>
                                             <p class="text-muted mb-0">Jl. Kramat Raya No. 45<br>Jakarta Pusat 10450<br>Indonesia</p>
                                         </div>
                                         <div class="col-md-6 text-end">
