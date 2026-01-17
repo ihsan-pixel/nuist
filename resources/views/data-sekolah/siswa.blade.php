@@ -554,9 +554,9 @@
                                     <th>Nama Sekolah</th>
                                     @if(isset($tahunList))
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        @foreach($tahunList as $tahun)
+                                        {{-- @foreach($tahunList as $tahun)
                                             <th>Jumlah Siswa {{ $tahun }}</th>
-                                        @endforeach
+                                        @endforeach --}}
                                         <th>Total Siswa</th>
                                         <th>Aksi</th>
                                     @else
