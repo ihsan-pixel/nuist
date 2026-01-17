@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 2rem;">
+                <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 1rem;">
                 <hr>
                 <div class="row">
                     <div class="col-md-6">
