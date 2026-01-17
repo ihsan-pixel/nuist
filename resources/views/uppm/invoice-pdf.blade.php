@@ -21,8 +21,8 @@
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name }}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0; vertical-align: top; font-size: 12px;"><strong>Alamat</strong></td>
-                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Alamat</strong></td>
+                        <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->alamat ?? '-' }}</td>
                     </tr>
                 </table>
@@ -31,12 +31,12 @@
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Tahun Anggaran</strong></td>
-                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tahun }}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0; vertical-align: top; font-size: 12px;"><strong>Jatuh Tempo</strong></td>
-                        <td style="font-size: 12px;"><strong>:</strong></td>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Jatuh Tempo</strong></td>
+                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $setting ? $setting->jatuh_tempo : '-' }}</td>
                     </tr>
                 </table>
