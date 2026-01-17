@@ -15,8 +15,8 @@
                 </div>
             </div>
             <div class="card-body">
-                <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
-                <div class="row" margin-top="20px">
+                <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 2rem;">
+                <div class="row">
                     <div class="col-md-6">
                         <h5>Identitas Sekolah</h5>
                         <p><strong>Nama Sekolah:</strong> {{ $madrasah->name }}</p>
