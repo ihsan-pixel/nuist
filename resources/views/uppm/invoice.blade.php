@@ -12,16 +12,14 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">Invoice UPPM - {{ $madrasah->name }}</h4>
-                <div class="card-tools">
-                    <a href="{{ route('uppm.invoice.download', ['madrasah_id' => $madrasah->id, 'tahun' => $tahun]) }}" class="btn btn-primary">
-                        <i class="bx bx-download"></i> Download PDF
-                    </a>
-                </div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">Invoice UPPM - {{ $madrasah->name }}</h4>
+                <a href="{{ route('uppm.invoice.download', ['madrasah_id' => $madrasah->id, 'tahun' => $tahun]) }}" class="btn btn-primary">
+                    <i class="bx bx-download"></i> Download PDF
+                </a>
             </div>
-            <div class="card-body">
-                <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 1rem;">
+            <div class-m="card-body">
+                <img src="{{ asset('images/logo1.png') }}" alt="" height="50" style="margin-bottom: 2rem;">
                 <hr>
                 <div class="row">
                     <div class="col-md-6">
