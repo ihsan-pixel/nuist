@@ -199,7 +199,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
+{{-- <div class="row mb-4">
     <div class="col-xl-3 col-md-6 col-sm-6">
         <div class="card stats-card">
             <div class="card-body">
@@ -263,7 +263,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <!-- Menu Cards Grid -->
 <div class="row">
