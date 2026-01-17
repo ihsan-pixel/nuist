@@ -119,7 +119,7 @@
 
 /* Filter Card */
 .filter-card {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
     color: white;
     border-radius: 15px;
     border: none;
