@@ -554,8 +554,6 @@
                                     <th rowspan="2">Nama Sekolah</th>
 @if(isset($tahunList))
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
-                                        <th rowspan="2">No</th>
-                                        <th rowspan="2">Nama Sekolah</th>
                                         <th rowspan="2">Tahun</th>
                                         <th rowspan="2">PNS Sertifikasi</th>
                                         <th rowspan="2">PNS Non Sertifikasi</th>
