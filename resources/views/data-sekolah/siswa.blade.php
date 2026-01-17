@@ -369,7 +369,7 @@
 <!-- Statistics Cards -->
 @if(isset($tahunList))
     <!-- Statistics untuk Admin - menampilkan data semua tahun -->
-    <div class="row mb-4">
+    {{-- <div class="row mb-4">
         <div class="col-xl-3 col-md-6 col-sm-6">
             <div class="card stats-card">
                 <div class="card-body">
@@ -433,7 +433,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 @else
     <!-- Statistics untuk Super Admin - seperti sebelumnya -->
     <div class="row mb-4">
