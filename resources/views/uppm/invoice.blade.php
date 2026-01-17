@@ -24,8 +24,6 @@
                         <p><strong>Alamat:</strong> {{ $madrasah->address ?? '-' }}</p>
                     </div>
                     <div class="col-md-6" style="text-align: right">
-                        <h5>Identitas UPPM</h5>
-                        <p><strong>Unit Pengembangan Pendidikan Ma'arif</strong></p>
                         <p><strong>Tahun Anggaran:</strong> {{ $tahun }}</p>
                         <p><strong>Jatuh Tempo:</strong> {{ $setting ? $setting->jatuh_tempo : '-' }}</p>
                     </div>
