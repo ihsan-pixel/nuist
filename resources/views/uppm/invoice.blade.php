@@ -23,7 +23,7 @@
                 <hr>
                 <div class="row">
                     <div class="col-md-6">
-                        <h5 style="margin-bottom: 2rem">Identitas Sekolah/Madrasah</h5>
+                        <h5 style="margin-bottom: 1rem">Identitas Sekolah/Madrasah</h5>
                         <p><strong>Nama Sekolah/Madrasah:</strong> {{ $madrasah->name }}</p>
                         <p><strong>Alamat:</strong> {{ $madrasah->alamat ?? '-' }}</p>
                     </div>
