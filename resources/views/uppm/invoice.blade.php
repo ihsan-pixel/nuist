@@ -57,7 +57,7 @@
                         </table>
                     </div>
                     <div class="col-md-6">
-                        <table style="width: 100%; border: none; margin-top: 2.5rem;">
+                        <table style="width: 100%; border: none;">
                             <tr>
                                 <td style="width: 40%; padding: 0; vertical-align: top;"><strong>Tahun Anggaran</strong></td>
                                 <td><strong>:</strong></td>
