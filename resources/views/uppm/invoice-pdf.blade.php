@@ -13,7 +13,7 @@
     <table style="width: 100%; border: none;">
         <tr>
             <td style="width: 50%; padding: 0; vertical-align: top;">
-                <h5 style="margin-bottom: 1rem; font-size: 14px;">Identitas Sekolah/Madrasah</h5>
+                {{-- <h5 style="margin-bottom: 1rem; font-size: 14px;">Identitas Sekolah/Madrasah</h5> --}}
                 <table style="width: 100%; border: none;">
                     <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Nama Sekolah/Madrasah</strong></td>
