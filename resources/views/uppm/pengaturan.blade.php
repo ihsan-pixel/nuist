@@ -3,17 +3,141 @@
 @section('title')Pengaturan UPPM @endsection
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="mb-0"><i class="bx bx-cog me-2"></i>Pengaturan UPPM</h2>
-                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addSettingModal">
-                    <i class="bx bx-plus"></i> Tambah Pengaturan
+@component('components.breadcrumb')
+    @slot('li_1') Dashboard @endslot
+    @slot('title') Pengaturan UPPM @endslot
+@endcomponent
+
+<div class="row">
+    <div class="col-12">
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <h4 class="card-title text-white mb-4">
+                    <i class="bx bx-cog me-2"></i>
+                    Pengaturan UPPM
+                </h4>
+                <p class="text-white-50 mb-0">
+                    Kelola pengaturan pembayaran iuran UPPM untuk setiap tahun anggaran
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-primary">
+                        <i class="bx bx-data"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Total</p>
+                        <h5 class="mb-0">{{ $settings->count() }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-success">
+                        <i class="bx bx-check-circle"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Aktif</p>
+                        <h5 class="mb-0">{{ $settings->where('aktif', true)->count() }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-secondary">
+                        <i class="bx bx-x-circle"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Tidak Aktif</p>
+                        <h5 class="mb-0">{{ $settings->where('aktif', false)->count() }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-info">
+                        <i class="bx bx-calendar"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Tahun Terbaru</p>
+                        <h5 class="mb-0">{{ $settings->max('tahun_anggaran') ?: '-' }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-warning">
+                        <i class="bx bx-money"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Lunas</p>
+                        <h5 class="mb-0">{{ $settings->where('skema_pembayaran', 'lunas')->count() }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-primary">
+                        <i class="bx bx-time"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-2">Cicilan</p>
+                        <h5 class="mb-0">{{ $settings->where('skema_pembayaran', 'cicilan')->count() }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="action-buttons">
+            <h5 class="mb-3">
+                <i class="bx bx-plus-circle me-2"></i>Aksi Pengaturan
+            </h5>
+            <div class="btn-group-custom">
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addSettingModal">
+                    <i class="bx bx-plus me-1"></i> Tambah Pengaturan Baru
                 </button>
             </div>
         </div>
     </div>
+</div>
 
 <!-- Settings Cards Grid -->
 <div class="row">
