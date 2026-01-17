@@ -503,6 +503,12 @@
     </div>
 @endif
 
+@php
+    $userRole = auth()->user()->role;
+@endphp
+
+@if($userRole !== 'admin')
+
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
@@ -539,6 +545,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Data Table -->
 <div class="row">
