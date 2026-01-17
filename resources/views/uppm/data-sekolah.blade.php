@@ -340,6 +340,32 @@
 .card-body {
     padding: 2rem;
 }
+
+/* Filter Section Styling */
+.filter-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #e2e8f0;
+}
+
+.filter-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem 2rem;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.filter-header h5 {
+    color: white;
+    font-weight: 600;
+    margin: 0;
+}
+
+.filter-section .card-body {
+    padding: 2rem;
+    background: white;
+    border-radius: 0 0 15px 15px;
+}
 </style>
 @endsection
 
@@ -483,23 +509,23 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label for="status" class="form-label">Status Pembayaran</label>
-
-                            <div class="input-group">
-                                <select class="form-select" id="status" name="status">
-                                    <option value="">Semua Status</option>
-                                    <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                                    <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
-                                    <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
-                                </select>
-
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bx bx-search"></i> Filter
+                            <select class="form-select w-100" id="status" name="status">
+                                <option value="">Semua Status</option>
+                                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                                <option value="sebagian" {{ request('status') == 'sebagian' ? 'selected' : '' }}>Sebagian</option>
+                                <option value="belum" {{ request('status') == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bx bx-search me-1"></i> Filter
                                 </button>
-
                                 <a href="{{ route('uppm.data-sekolah') }}" class="btn btn-secondary">
-                                    <i class="bx bx-refresh"></i> Reset
+                                    <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
                             </div>
                         </div>
