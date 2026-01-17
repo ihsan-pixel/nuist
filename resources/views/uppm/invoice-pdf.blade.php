@@ -4,8 +4,8 @@
             <td style="width: 30%; padding: 0; vertical-align: top;">
                 <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
             </td>
-            <td style="width: 80%; padding: 0; vertical-align: top; text-align: right;">
-                <h1 style="margin: 0; font-size: 24px;">INVOICE PEMBAYARAN UPPM</h1>
+            <td style="width: 70%; padding: 0; vertical-align: top; text-align: right;">
+                <h1 style="margin-top: 1rem; font-size: 24px;">INVOICE PEMBAYARAN UPPM</h1>
             </td>
         </tr>
     </table>
