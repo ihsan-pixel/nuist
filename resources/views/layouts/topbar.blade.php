@@ -13,9 +13,9 @@
                 </a>
 
                 <a href="" class="logo logo-light">
-<span class="logo-sm">
-<img src="{{ asset('images/logo favicon 1.png') }}" alt="" height="30">
-</span>
+                    <span class="logo-sm">
+                        <img src="{{ asset('images/logo favicon 1.png') }}" alt="" height="30">
+                    </span>
                     <span class="logo-lg">
                         <img src="{{ asset('images/logo1.png') }}" alt="" height="50">
                     </span>
