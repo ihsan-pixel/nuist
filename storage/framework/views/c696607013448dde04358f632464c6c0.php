@@ -82,12 +82,12 @@
     box-shadow: 0 12px 35px rgba(0,0,0,0.3);
 }
 
-.menu-title {
+/* .menu-title {
     font-size: 1.25rem;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 10px;
-}
+} */
 
 .menu-description {
     color: #4a5568;

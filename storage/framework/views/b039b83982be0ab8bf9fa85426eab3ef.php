@@ -418,7 +418,7 @@
         <div class="card">
             <div class="card-body">
                 <form method="GET" action="<?php echo e(route('uppm.tagihan')); ?>">
-                    <div class="row g-4 align-items-end">
+                    <div class="row g-3 align-items-end">
                         <!-- Tahun Anggaran -->
                         <div class="col-md-4">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
@@ -429,6 +429,17 @@
 
                                     </option>
                                 <?php endfor; ?>
+                            </select>
+                        </div>
+
+                        <!-- Status Pembayaran -->
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Status Pembayaran</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Semua Status</option>
+                                <option value="lunas" <?php echo e(request('status') == 'lunas' ? 'selected' : ''); ?>>Lunas</option>
+                                <option value="sebagian" <?php echo e(request('status') == 'sebagian' ? 'selected' : ''); ?>>Sebagian</option>
+                                <option value="belum" <?php echo e(request('status') == 'belum' ? 'selected' : ''); ?>>Belum Bayar</option>
                             </select>
                         </div>
 
