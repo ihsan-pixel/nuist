@@ -237,33 +237,35 @@ class PembayaranController extends Controller
             ], 500);
         }
 
-            // Prepare transaction data for Midtrans API
-            $transactionData = [
-                'transaction_details' => [
-                    'order_id' => $orderId,
-                    'gross_amount' => $amount,
-                ],
-                'customer_details' => [
-                    'first_name' => $madrasah->name,
-                    'email' => 'admin@example.com', // Email yang valid dan aman
-                    'phone' => '081234567890',
-                ],
-                'item_details' => [
-                    [
-                        'id' => 'UPPM-' . $request->tahun,
-                        'price' => $amount,
-                        'quantity' => 1,
-                        'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
-                    ]
-                ],
-                'notification_url' => url('/midtrans/callback'),
-                'callbacks' => [
-                    'finish' => url('/uppm/pembayaran'),
-                    'error' => url('/uppm/pembayaran'),
-                    'pending' => url('/uppm/pembayaran'),
-                ],
-                'notification_url' => secure_url('/midtrans/callback'), // Pastikan HTTPS
-            ];
+        // Set notification URL based on environment
+        $notificationUrl = $appSetting->midtrans_is_production ? secure_url('/midtrans/callback') : url('/midtrans/callback');
+
+        // Prepare transaction data for Midtrans API
+        $transactionData = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => $amount,
+            ],
+            'customer_details' => [
+                'first_name' => $madrasah->name,
+                'email' => 'admin@example.com', // Email yang valid dan aman
+                'phone' => '081234567890',
+            ],
+            'item_details' => [
+                [
+                    'id' => 'UPPM-' . $request->tahun,
+                    'price' => $amount,
+                    'quantity' => 1,
+                    'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
+                ]
+            ],
+            'callbacks' => [
+                'finish' => url('/uppm/pembayaran'),
+                'error' => url('/uppm/pembayaran'),
+                'pending' => url('/uppm/pembayaran'),
+            ],
+            'notification_url' => $notificationUrl,
+        ];
 
         try {
             // Use curl to create transaction via Midtrans API
