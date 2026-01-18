@@ -58,8 +58,13 @@ class UppmController extends Controller
                 $total_nominal = $monthly_nominal * 12;
             }
 
+            // Check if tagihan exists
+            $tagihan = Tagihan::where('madrasah_id', $madrasah->id)
+                ->where('tahun_anggaran', $tahun)
+                ->first();
+
             $data[] = (object) [
-                'id' => null,
+                'id' => $tagihan ? $tagihan->id : null,
                 'madrasah' => $madrasah,
                 'tahun_anggaran' => $tahun,
                 'jumlah_siswa' => $jumlah_siswa,
@@ -72,12 +77,20 @@ class UppmController extends Controller
                 'jumlah_pty' => $jumlah_pty,
                 'jumlah_ptt' => $jumlah_ptt,
                 'total_nominal' => $total_nominal,
-                'status_pembayaran' => 'belum_lunas',
-                'nominal_dibayar' => 0,
+                'status_pembayaran' => $tagihan ? $tagihan->status : 'belum',
             ];
         }
 
-        return view('uppm.data-sekolah', compact('data', 'tahun'));
+        // Calculate total nominal lunas
+        $totalNominalLunas = collect($data)->where('status_pembayaran', 'lunas')->sum('total_nominal');
+
+        // Calculate total nominal belum lunas
+        $totalNominalBelumLunas = collect($data)->whereIn('status_pembayaran', ['belum', 'belum_lunas'])->sum('total_nominal');
+
+        // Get active years from UPPM settings
+        $activeYears = UppmSetting::where('aktif', true)->orderBy('tahun_anggaran', 'desc')->pluck('tahun_anggaran')->toArray();
+
+        return view('uppm.data-sekolah', compact('data', 'tahun', 'totalNominalLunas', 'totalNominalBelumLunas', 'activeYears'));
     }
 
     public function perhitunganIuran(Request $request)
@@ -124,6 +137,7 @@ class UppmController extends Controller
                         'nominal_bulanan' => $nominalBulanan,
                         'total_tahunan' => $totalTahunan,
                         'tagihan_exists' => $existingTagihan ? true : false,
+                        'tagihan' => $existingTagihan,
                     ];
                 }
             }

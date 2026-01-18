@@ -284,6 +284,7 @@
                                 <th>No</th>
                                 <th>Nama Madrasah</th>
                                 <th>Nomor Invoice</th>
+                                <th>Jenis Tagihan</th>
                                 <th>Total Tagihan</th>
                                 <th>Status Pembayaran</th>
                                 <th>Nominal Dibayar</th>
@@ -302,6 +303,7 @@
                                     </div>
                                 </td>
                                 <td>{{ $item->nomor_invoice ?? '-' }}</td>
+                                <td>{{ $item->jenis_tagihan ?? '-'}}</td>
                                 <td>Rp {{ number_format($item->total_nominal, 0, ',', '.') }}</td>
                                 <td>
                                     <span class="badge badge-modern bg-{{ $item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger') }}">

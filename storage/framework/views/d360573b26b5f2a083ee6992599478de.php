@@ -93,6 +93,10 @@
                                                     <td><strong>Periode:</strong></td>
                                                     <td>Januari - Desember <?php echo e($tahun); ?></td>
                                                 </tr>
+                                                <tr>
+                                                    <td><strong>Jenis Tagihan:</strong></td>
+                                                    <td><?php echo e($tagihan->jenis_tagihan ?? 'UPPM'); ?></td>
+                                                </tr>
                                             </table>
                                         </div>
                                         <div class="col-md-6">

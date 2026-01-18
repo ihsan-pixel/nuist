@@ -502,9 +502,15 @@
                                         <strong class="text-success">Rp {{ number_format($item['total_tahunan']) }}</strong>
                                     </td>
                                     <td>
-                                        <span class="badge badge-modern bg-success">
-                                            Lunas
-                                        </span>
+                                        @if($item['tagihan'])
+                                            <span class="badge badge-modern bg-{{ $item['tagihan']->status == 'lunas' ? 'success' : ($item['tagihan']->status == 'sebagian' ? 'warning' : 'danger') }}">
+                                                {{ ucfirst(str_replace('_', ' ', $item['tagihan']->status)) }}
+                                            </span>
+                                        @else
+                                            <span class="badge badge-modern bg-secondary">
+                                                Belum Dibuat
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         <a href="{{ route('uppm.invoice', ['madrasah_id' => $item['madrasah']->id, 'tahun' => request('tahun', date('Y'))]) }}" class="btn-modern btn-sm">

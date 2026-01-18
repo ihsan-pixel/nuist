@@ -403,12 +403,12 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <div class="stats-icon bg-warning">
-                        <i class="bx bx-time"></i>
+                    <div class="stats-icon bg-success">
+                        <i class="bx bx-money"></i>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <p class="text-muted mb-2">Sebagian</p>
-                        <h5 class="mb-0"><?php echo e(collect($data)->where('status_pembayaran', 'sebagian')->count()); ?></h5>
+                        <p class="text-muted mb-2">Total Lunas</p>
+                        <h5 class="mb-0">Rp <?php echo e(number_format($totalNominalLunas)); ?></h5>
                     </div>
                 </div>
             </div>
@@ -456,7 +456,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Total Nominal</p>
-                        <h5 class="mb-0">Rp <?php echo e(number_format(collect($data)->sum('total_nominal'))); ?></h5>
+                        <h5 class="mb-0">Rp <?php echo e(number_format($totalNominalBelumLunas)); ?></h5>
                     </div>
                 </div>
             </div>
@@ -475,12 +475,12 @@
                         <div class="col-md-4">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
-                                    <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>>
-                                        <?php echo e($i); ?>
+                                <?php $__currentLoopData = $activeYears; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $year): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($year); ?>" <?php echo e(request('tahun', date('Y')) == $year ? 'selected' : ''); ?>>
+                                        <?php echo e($year); ?>
 
                                     </option>
-                                <?php endfor; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
 

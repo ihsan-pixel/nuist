@@ -33,6 +33,7 @@ class PembayaranController extends Controller
                 'jatuh_tempo' => $tagihan->jatuh_tempo,
                 'tanggal_pembayaran' => $tagihan->tanggal_pembayaran,
                 'nomor_invoice' => $tagihan->nomor_invoice,
+                'jenis_tagihan' => $tagihan->jenis_tagihan,
             ];
         }
 

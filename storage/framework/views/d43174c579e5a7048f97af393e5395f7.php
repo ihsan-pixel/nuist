@@ -282,6 +282,7 @@
                                 <th>No</th>
                                 <th>Nama Madrasah</th>
                                 <th>Nomor Invoice</th>
+                                <th>Jenis Tagihan</th>
                                 <th>Total Tagihan</th>
                                 <th>Status Pembayaran</th>
                                 <th>Nominal Dibayar</th>
@@ -300,6 +301,7 @@
                                     </div>
                                 </td>
                                 <td><?php echo e($item->nomor_invoice ?? '-'); ?></td>
+                                <td><?php echo e($item->jenis_tagihan ?? '-'); ?></td>
                                 <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
                                 <td>
                                     <span class="badge badge-modern bg-<?php echo e($item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger')); ?>">

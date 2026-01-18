@@ -15,6 +15,7 @@ class Tagihan extends Model
         'keterangan',
         'nomor_invoice',
         'tanggal_pembayaran',
+        'jenis_tagihan',
     ];
 
     protected $casts = [

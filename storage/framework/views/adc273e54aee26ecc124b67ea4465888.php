@@ -502,9 +502,16 @@
                                         <strong class="text-success">Rp <?php echo e(number_format($item['total_tahunan'])); ?></strong>
                                     </td>
                                     <td>
-                                        <span class="badge badge-modern bg-success">
-                                            Lunas
-                                        </span>
+                                        <?php if($item['tagihan']): ?>
+                                            <span class="badge badge-modern bg-<?php echo e($item['tagihan']->status == 'lunas' ? 'success' : ($item['tagihan']->status == 'sebagian' ? 'warning' : 'danger')); ?>">
+                                                <?php echo e(ucfirst(str_replace('_', ' ', $item['tagihan']->status))); ?>
+
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge badge-modern bg-secondary">
+                                                Belum Dibuat
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <a href="<?php echo e(route('uppm.invoice', ['madrasah_id' => $item['madrasah']->id, 'tahun' => request('tahun', date('Y'))])); ?>" class="btn-modern btn-sm">

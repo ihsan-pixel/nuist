@@ -124,6 +124,10 @@
                                                     <td><strong>Periode:</strong></td>
                                                     <td>Januari - Desember {{ $tahun }}</td>
                                                 </tr>
+                                                <tr>
+                                                    <td><strong>Jenis Tagihan:</strong></td>
+                                                    <td>{{ $tagihan->jenis_tagihan ?? 'UPPM' }}</td>
+                                                </tr>
                                             </table>
                                         </div>
                                         <div class="col-md-6">
