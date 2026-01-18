@@ -419,20 +419,17 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
-<?php
-    $appSetting = App\Models\AppSetting::find(1);
-    $clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
-    $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
-?>
-
-<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>"
-    data-client-key="<?php echo e($clientKey); ?>"></script>
-
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<?php
+$appSetting = App\Models\AppSetting::find(1);
+$clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
+$isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+?>
+
 <!-- Midtrans Snap.js -->
-<script src="<?php echo e(App\Models\AppSetting::getSettings()->midtrans_is_production ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>" data-client-key="<?php echo e(App\Models\AppSetting::getSettings()->midtrans_client_key ?? config('services.midtrans.client_key')); ?>"></script>
+<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>" data-client-key="<?php echo e($clientKey); ?>"></script>
 
 <script>
 function checkTagihan(madrasahId, tahun, madrasahName) {
@@ -524,6 +521,22 @@ function showManualPayment() {
 }
 
 function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
+    // Check if Midtrans Snap.js is loaded
+    if (typeof snap === 'undefined') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Midtrans Tidak Tersedia',
+            text: 'Client key Midtrans belum dikonfigurasi. Silakan hubungi administrator.'
+        });
+        return;
+    }
+
+    // Close the payment modal first
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    if (paymentModal) {
+        paymentModal.hide();
+    }
+
     // Show loading
     Swal.fire({
         title: 'Memproses...',
@@ -552,7 +565,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     .then(data => {
         Swal.close();
         if (data.success) {
-            // Open Midtrans Snap popup
+            // Open Midtrans Snap popup directly
             snap.pay(data.snap_token, {
                 onSuccess: function(result) {
                     sendResultToBackend(result);
@@ -586,7 +599,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 }
 
 function sendResultToBackend(result) {
-    fetch('<?php echo e(route("pembayaran.midtrans.result")); ?>', {
+    fetch('<?php echo e(route("uppm.pembayaran.midtrans.result")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
