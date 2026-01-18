@@ -272,7 +272,7 @@ class PembayaranController extends Controller
 
             $headers = [
                 'Content-Type: application/json',
-                'Authorization: Basic ' . base64_encode($serverKey),
+                'Authorization: Basic ' . base64_encode($serverKey . ':'),
             ];
 
             $ch = curl_init();

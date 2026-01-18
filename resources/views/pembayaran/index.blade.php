@@ -583,10 +583,12 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 function bayarMidtrans(token) {
     snap.pay(token, {
         onSuccess: function (result) {
-            kirimKeBackend(result);
+            console.log('Payment success, redirecting to payment page');
+            window.location.href = "/uppm/pembayaran";
         },
         onPending: function (result) {
-            kirimKeBackend(result);
+            console.log('Payment pending, redirecting to payment page');
+            window.location.href = "/uppm/pembayaran";
         },
         onError: function () {
             Swal.fire('Gagal', 'Pembayaran gagal', 'error');
