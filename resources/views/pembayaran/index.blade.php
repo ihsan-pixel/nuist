@@ -306,14 +306,7 @@
                                 <td>{{ $item->jenis_tagihan ?? '-'}}</td>
                                 <td>Rp {{ number_format($item->total_nominal, 0, ',', '.') }}</td>
                                 <td>
-                                    @php
-                                    $statusColor = match($item->status_pembayaran) {
-                                        'lunas' => 'success',
-                                        'pending' => 'warning',
-                                        default => 'danger'
-                                    };
-                                    @endphp
-                                    <span class="badge badge-modern bg-{{ $statusColor }}">
+                                    <span class="badge badge-modern bg-{{ $item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger') }}">
                                         {{ ucfirst(str_replace('_', ' ', $item->status_pembayaran)) }}
                                     </span>
                                 </td>
@@ -553,20 +546,17 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 
     // Make AJAX request to Midtrans endpoint to get snap token
-    fetch('{{ route("uppm.pembayaran.midtrans") }}', {
+    fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
             madrasah_id: madrasahId,
             tahun: tahun,
             nominal: totalNominal
-        }),
-        credentials: 'same-origin'
+        })
     })
     .then(response => response.json())
     .then(data => {
