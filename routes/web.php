@@ -519,7 +519,7 @@ Route::get('/test-dummy-payment', function() {
         'metode_pembayaran' => 'midtrans',
         'status' => 'pending',
         'tagihan_id' => 3, // pastikan id tagihan ada
-        'order_id' => 'TEST-123',
+        'order_id' => 'UPPM-DEFAULT-2026-1768749308',
     ]);
 
     return response()->json($payment);
