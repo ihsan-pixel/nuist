@@ -198,10 +198,8 @@ class PembayaranController extends Controller
 
         $amount = (int) $tagihan->nominal;
 
-        // Buat order_id berdasarkan tagihan_id
-        $scod = trim($madrasah->scod) ?: 'DEFAULT';
-        $scod = preg_replace('/[^A-Za-z0-9\-]/', '', $scod);
-        $orderId = 'UPPM-' . $scod . '-' . $request->tahun . '-' . $tagihan->id;
+        // Buat order_id berdasarkan tagihan_id - simplified format
+        $orderId = 'UPPM-' . $request->tahun . '-' . $tagihan->id;
 
         // Inisialisasi Midtrans
         $this->initMidtrans();
@@ -457,48 +455,7 @@ class PembayaranController extends Controller
         ]);
     }
 
-    public function updatePaymentStatus(Request $request)
-    {
-        $request->validate([
-            'order_id' => 'required|string',
-        ]);
 
-        $payment = Payment::where('order_id', $request->order_id)->first();
-
-        if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment not found'
-            ], 404);
-        }
-
-        if ($payment->status === 'success') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment already processed'
-            ]);
-        }
-
-        $payment->update([
-            'status' => 'success',
-            'paid_at' => now(),
-        ]);
-
-        if ($payment->tagihan_id) {
-            $tagihan = TagihanModel::find($payment->tagihan_id);
-            if ($tagihan) {
-                $tagihan->update([
-                    'status' => 'lunas',
-                    'tanggal_pembayaran' => now(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment status updated successfully'
-        ]);
-    }
 
 
 
