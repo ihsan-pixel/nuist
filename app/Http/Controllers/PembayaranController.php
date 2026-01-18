@@ -385,6 +385,16 @@ class PembayaranController extends Controller
 
             Log::info('MIDTRANS CALLBACK HIT', $notification);
 
+            // Validasi field wajib dari Midtrans
+            if (!isset(
+                $notification['order_id'],
+                $notification['transaction_status'],
+                $notification['signature_key']
+            )) {
+                Log::error('Invalid callback payload - missing required fields', $notification);
+                return response()->json(['status' => 'invalid payload'], 400);
+            }
+
             // Validasi signature (penting untuk security)
             $signature = hash('sha512',
                 $notification['order_id'] .

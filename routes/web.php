@@ -506,5 +506,5 @@ if (env('APP_DEBUG') === true) {
     })->name('debug.ppdb-status');
 }
 
-// Midtrans Webhook Callback
+// Midtrans Webhook Callback - TANPA AUTH & CSRF
 Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
