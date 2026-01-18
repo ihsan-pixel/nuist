@@ -11,19 +11,11 @@ use App\Models\Tagihan as TagihanModel;
 use App\Models\Yayasan;
 use App\Models\AppSetting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Midtrans\Config;
-use Midtrans\Snap;
 
 class PembayaranController extends Controller
 {
-    public function __construct()
-    {
-        // Midtrans config will be initialized only when needed
-    }
-
     private function initMidtrans()
     {
         $appSetting = AppSetting::findOrFail(1);
@@ -32,20 +24,7 @@ class PembayaranController extends Controller
             throw new \Exception('Midtrans server key not configured');
         }
 
-        // Validate key matches environment
-        $isSandbox = !$appSetting->midtrans_is_production;
-        $isSandboxKey = str_contains($appSetting->midtrans_server_key, 'Mid-server-');
-
-        if ($isSandbox && !$isSandboxKey) {
-            Log::error('Midtrans key does not match sandbox environment');
-            throw new \Exception('Midtrans key mismatch: expected sandbox key for sandbox environment');
-        }
-
-        if (!$isSandbox && $isSandboxKey) {
-            Log::error('Midtrans key does not match production environment');
-            throw new \Exception('Midtrans key mismatch: expected production key for production environment');
-        }
-
+        // Set config Midtrans
         Config::$serverKey = trim($appSetting->midtrans_server_key);
         Config::$isProduction = (bool) $appSetting->midtrans_is_production;
         Config::$isSanitized = true;
@@ -61,7 +40,6 @@ class PembayaranController extends Controller
         Log::info('Midtrans config initialized', [
             'server_key_set' => !empty(Config::$serverKey),
             'is_production' => Config::$isProduction,
-            'environment' => Config::$isProduction ? 'PRODUCTION' : 'SANDBOX'
         ]);
     }
 
@@ -378,17 +356,14 @@ class PembayaranController extends Controller
     public function midtransCallback(Request $request)
     {
         try {
-            // Set Midtrans config
             $this->initMidtrans();
-            $serverKey = Config::$serverKey;
-
-            // Get raw POST data dari Midtrans
             $notification = $request->all();
+            $serverKey = Config::$serverKey;
 
             Log::info('MIDTRANS CALLBACK HIT', $notification);
 
-            $skipSignature = config('app.env') !== 'production'
-                || env('MIDTRANS_SKIP_SIGNATURE', false);
+            // Skip signature validation untuk testing (sandbox)
+            $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', false);
 
             if (!$skipSignature) {
                 $signature = hash('sha512',
@@ -402,7 +377,6 @@ class PembayaranController extends Controller
                     Log::error('Invalid signature key', [
                         'order_id' => $notification['order_id'] ?? null,
                     ]);
-
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Invalid signature'
@@ -412,24 +386,7 @@ class PembayaranController extends Controller
                 Log::warning('⚠️ Signature validation skipped (TEST MODE)', $notification);
             }
 
-            // Validasi signature (penting untuk security)
-            // $signature = hash('sha512',
-            //     $notification['order_id'] .
-            //     $notification['status_code'] .
-            //     $notification['gross_amount'] .
-            //     $serverKey
-            // );
-
-            // if ($signature !== $notification['signature_key']) {
-            //     Log::error('Invalid signature key', [
-            //         'order_id' => $notification['order_id'],
-            //         'expected' => $signature,
-            //         'received' => $notification['signature_key']
-            //     ]);
-            //     return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
-            // }
-
-            // Cari payment berdasarkan order_id
+            // Cari payment
             $payment = Payment::where('order_id', $notification['order_id'])->first();
 
             if (!$payment) {
@@ -437,28 +394,26 @@ class PembayaranController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
             }
 
-            // Proteksi idempotent - Midtrans bisa kirim callback berkali-kali
+            // Idempotency: jika sudah success, skip
             if ($payment->status === 'success') {
-                Log::info('Payment already processed, skipping duplicate callback', [
-                    'order_id' => $notification['order_id']
-                ]);
+                Log::info('Payment already processed, skipping duplicate callback', ['order_id' => $notification['order_id']]);
                 return response()->json(['status' => 'already processed']);
             }
 
-            // Map status Midtrans ke status aplikasi
+            // Map status Midtrans ke aplikasi
             $statusMapping = [
-                'capture' => 'success',    // Pembayaran berhasil
-                'settlement' => 'success', // Dana sudah diterima
-                'pending' => 'pending',    // Menunggu pembayaran
-                'deny' => 'failed',        // Ditolak
-                'cancel' => 'failed',      // Dibatalkan
-                'expire' => 'failed',      // Kadaluarsa
-                'failure' => 'failed'      // Gagal
+                'capture' => 'success',
+                'settlement' => 'success',
+                'pending' => 'pending',
+                'deny' => 'failed',
+                'cancel' => 'failed',
+                'expire' => 'failed',
+                'failure' => 'failed'
             ];
 
             $newStatus = $statusMapping[$notification['transaction_status']] ?? 'failed';
 
-            // Update payment status
+            // Update payment
             $payment->update([
                 'status' => $newStatus,
                 'transaction_id' => $notification['transaction_id'] ?? null,
@@ -467,29 +422,20 @@ class PembayaranController extends Controller
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ]);
 
-            // Jika status berubah ke success, update tagihan juga
-            if ($newStatus === 'success') {
-                if ($payment->tagihan_id) {
-                    TagihanModel::where('id', $payment->tagihan_id)->update([
-                        'status' => 'lunas',
-                        // 'nominal_dibayar' => $payment->nominal,
-                        'tanggal_pembayaran' => now(),
-                    ]);
+            // Update tagihan jika success
+            if ($newStatus === 'success' && $payment->tagihan_id) {
+                TagihanModel::where('id', $payment->tagihan_id)->update([
+                    'status' => 'lunas',
+                    'nominal_dibayar' => $payment->nominal, // wajib ada di tabel tagihans
+                    'tanggal_pembayaran' => now(),
+                ]);
 
-                    Log::info('Tagihan updated to lunas', [
-                        'tagihan_id' => $payment->tagihan_id,
-                        'nominal' => $payment->nominal
-                    ]);
-                }
+                Log::info('Tagihan updated to lunas', [
+                    'tagihan_id' => $payment->tagihan_id,
+                    'nominal' => $payment->nominal
+                ]);
             }
 
-            Log::info('Payment callback processed', [
-                'order_id' => $notification['order_id'],
-                'status' => $newStatus,
-                'transaction_status' => $notification['transaction_status']
-            ]);
-
-            // Response ke Midtrans (harus 200 OK)
             return response()->json(['status' => 'success']);
 
         } catch (\Exception $e) {
