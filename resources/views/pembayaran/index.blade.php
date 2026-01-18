@@ -553,17 +553,20 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 
     // Make AJAX request to Midtrans endpoint to get snap token
-    fetch('/uppm/pembayaran/midtrans', {
+    fetch('{{ route("uppm.pembayaran.midtrans") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
         },
         body: JSON.stringify({
             madrasah_id: madrasahId,
             tahun: tahun,
             nominal: totalNominal
-        })
+        }),
+        credentials: 'same-origin'
     })
     .then(response => response.json())
     .then(data => {
