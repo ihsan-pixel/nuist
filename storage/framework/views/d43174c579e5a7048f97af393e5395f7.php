@@ -425,8 +425,7 @@
     $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 ?>
 
-<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>"
-    data-client-key="<?php echo e($clientKey); ?>"></script>
+<script type="text/javascript" src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>" data-client-key="<?php echo e($clientKey); ?>"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

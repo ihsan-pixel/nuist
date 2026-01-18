@@ -425,8 +425,7 @@
     $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 @endphp
 
-<script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-    data-client-key="{{ $clientKey }}"></script>
+<script type="text/javascript" src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -552,7 +551,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 
     // Make AJAX request to Midtrans endpoint
-    fetch('{{ route("uppm.pembayaran.midtrans") }}', {
+    fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
