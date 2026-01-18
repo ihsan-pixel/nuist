@@ -455,6 +455,52 @@ class PembayaranController extends Controller
         ]);
     }
 
+    public function checkPaymentStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|string',
+        ]);
+
+        $payment = Payment::where('order_id', $request->order_id)->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not found'
+            ], 404);
+        }
+
+        // Check if payment is already successful
+        if ($payment->status === 'success') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment already processed'
+            ]);
+        }
+
+        // For sandbox testing, we'll simulate success
+        // In production, you might want to check with Midtrans API
+        $payment->update([
+            'status' => 'success',
+            'paid_at' => now(),
+        ]);
+
+        if ($payment->tagihan_id) {
+            $tagihan = TagihanModel::find($payment->tagihan_id);
+            if ($tagihan) {
+                $tagihan->update([
+                    'status' => 'lunas',
+                    'tanggal_pembayaran' => now(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment status updated successfully'
+        ]);
+    }
+
 
 
 

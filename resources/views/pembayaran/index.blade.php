@@ -603,14 +603,33 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 function bayarMidtrans(token, paymentId) {
     snap.pay(token, {
         onSuccess: function (result) {
-            console.log('Payment success, status will be updated via callback');
+            console.log('Payment success, showing status check prompt');
+            // Show SweetAlert asking user to check payment status
             Swal.fire({
-                icon: 'success',
-                title: 'Pembayaran Diproses',
-                text: 'Pembayaran berhasil. Status akan diperbarui otomatis.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = "/uppm/pembayaran";
+                icon: 'info',
+                title: 'Pembayaran Berhasil!',
+                text: 'Silakan klik "Update Pembayaran" untuk mengecek dan memperbarui status pembayaran Anda.',
+                showCancelButton: true,
+                confirmButtonText: 'Update Pembayaran',
+                cancelButtonText: 'Nanti Saja',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Get order_id from sessionStorage and update status
+                    const orderId = sessionStorage.getItem('midtrans_order_id');
+                    if (orderId) {
+                        updatePaymentStatus(orderId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Order ID tidak ditemukan. Silakan refresh halaman.'
+                        });
+                    }
+                } else {
+                    // User chose to do it later
+                    window.location.href = "/uppm/pembayaran";
+                }
             });
         },
         onPending: function (result) {
