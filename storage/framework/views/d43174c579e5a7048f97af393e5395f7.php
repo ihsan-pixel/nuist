@@ -307,7 +307,14 @@
 
                                     </span>
                                 </td>
-                                <td>Rp <?php echo e(number_format($item->nominal_dibayar, 0, ',', '.')); ?></td>
+                                <td>
+                                    <?php if($item->status_pembayaran == 'lunas'): ?>
+                                        Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?>
+
+                                    <?php else: ?>
+                                        Rp 0
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo e($item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-'); ?></td>
                                 <td>
                                     <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>')"
