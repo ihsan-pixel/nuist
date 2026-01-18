@@ -245,7 +245,7 @@ class PembayaranController extends Controller
                 ],
                 'customer_details' => [
                     'first_name' => $madrasah->name,
-                    'email' => $madrasah->email ?? 'billing@yourdomain.com', // Email dari madrasah atau fallback
+                    'email' => 'admin@example.com', // Email yang valid dan aman
                     'phone' => '081234567890',
                 ],
                 'item_details' => [
@@ -266,28 +266,80 @@ class PembayaranController extends Controller
             ];
 
         try {
-            // Gunakan Snap SDK resmi untuk konsistensi
-            $this->initMidtrans();
-            $snapToken = Snap::getSnapToken($transactionData);
+            // Use curl to create transaction via Midtrans API
+            $url = $appSetting->midtrans_is_production
+                ? 'https://app.midtrans.com/snap/v1/transactions'
+                : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
-            // Create payment record
-            $payment = Payment::create([
-                'madrasah_id' => $request->madrasah_id,
-                'tahun_anggaran' => $request->tahun,
-                'nominal' => $tagihan->nominal,
-                'metode_pembayaran' => 'midtrans',
-                'status' => 'pending',
-                'keterangan' => 'Pembayaran via Midtrans',
-                'tagihan_id' => $tagihan->id,
-                'order_id' => $orderId,
+            $headers = [
+                'Content-Type: application/json',
+                'Authorization: Basic ' . base64_encode($serverKey . ':'),
+            ];
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($transactionData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Add timeout
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            Log::info('Midtrans API Call', [
+                'url' => $url,
+                'headers' => $headers,
+                'transaction_data' => $transactionData,
+                'http_code' => $httpCode,
+                'curl_error' => $curlError,
+                'result' => $result,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'snap_token' => $snapToken,
-                'order_id' => $orderId,
-                'payment_id' => $payment->id,
-            ]);
+            if ($curlError) {
+                Log::error('Curl Error', ['error' => $curlError]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Curl error: ' . $curlError,
+                ], 500);
+            }
+
+            $response = json_decode($result, true);
+
+            if ($httpCode == 201 && isset($response['token'])) {
+                // Create payment record
+                $payment = Payment::create([
+                    'madrasah_id' => $request->madrasah_id,
+                    'tahun_anggaran' => $request->tahun,
+                    'nominal' => $tagihan->nominal,
+                    'metode_pembayaran' => 'midtrans',
+                    'status' => 'pending',
+                    'keterangan' => 'Pembayaran via Midtrans',
+                    'tagihan_id' => $tagihan->id,
+                    'order_id' => $orderId,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'snap_token' => $response['token'],
+                    'order_id' => $orderId,
+                    'payment_id' => $payment->id,
+                ]);
+            } else {
+                Log::error('Midtrans API Error', [
+                    'http_code' => $httpCode,
+                    'response' => $response,
+                    'transaction_data' => $transactionData,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat transaksi Midtrans: ' . ($response['error_messages'][0] ?? 'Unknown error'),
+                ], 500);
+            }
         } catch (\Exception $e) {
             Log::error('Midtrans Transaction Failed', [
                 'error' => $e->getMessage(),
@@ -333,16 +385,6 @@ class PembayaranController extends Controller
 
             Log::info('MIDTRANS CALLBACK HIT', $notification);
 
-            // Validasi field wajib dari Midtrans
-            if (!isset(
-                $notification['order_id'],
-                $notification['transaction_status'],
-                $notification['signature_key']
-            )) {
-                Log::error('Invalid callback payload - missing required fields', $notification);
-                return response()->json(['status' => 'invalid payload'], 400);
-            }
-
             // Validasi signature (penting untuk security)
             $signature = hash('sha512',
                 $notification['order_id'] .
@@ -376,28 +418,18 @@ class PembayaranController extends Controller
                 return response()->json(['status' => 'already processed']);
             }
 
-            // Map status Midtrans ke status aplikasi dengan cek fraud_status
-            $transactionStatus = $notification['transaction_status'];
-            $fraudStatus = $notification['fraud_status'] ?? null;
+            // Map status Midtrans ke status aplikasi
+            $statusMapping = [
+                'capture' => 'success',    // Pembayaran berhasil
+                'settlement' => 'success', // Dana sudah diterima
+                'pending' => 'pending',    // Menunggu pembayaran
+                'deny' => 'failed',        // Ditolak
+                'cancel' => 'failed',      // Dibatalkan
+                'expire' => 'failed',      // Kadaluarsa
+                'failure' => 'failed'      // Gagal
+            ];
 
-            if ($transactionStatus === 'capture') {
-                // Untuk capture, cek fraud_status
-                if ($fraudStatus === 'accept') {
-                    $newStatus = 'success';
-                } elseif ($fraudStatus === 'challenge') {
-                    $newStatus = 'pending'; // Tunggu manual review
-                } else {
-                    $newStatus = 'failed';
-                }
-            } elseif ($transactionStatus === 'settlement') {
-                $newStatus = 'success'; // Dana sudah diterima
-            } elseif ($transactionStatus === 'pending') {
-                $newStatus = 'pending'; // Menunggu pembayaran
-            } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire', 'failure'])) {
-                $newStatus = 'failed';
-            } else {
-                $newStatus = 'failed';
-            }
+            $newStatus = $statusMapping[$notification['transaction_status']] ?? 'failed';
 
             // Update payment status
             $payment->update([
@@ -408,38 +440,19 @@ class PembayaranController extends Controller
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ]);
 
-            // Jika status berubah ke success, update tagihan juga dengan cek nominal
+            // Jika status berubah ke success, update tagihan juga
             if ($newStatus === 'success') {
                 if ($payment->tagihan_id) {
-                    $tagihan = TagihanModel::find($payment->tagihan_id);
-                    if ($tagihan) {
-                        // Cek apakah pembayaran mencukupi nominal tagihan
-                        if ($payment->nominal >= $tagihan->nominal) {
-                            $tagihan->update([
-                                'status' => 'lunas',
-                                'nominal_dibayar' => $payment->nominal,
-                                'tanggal_pembayaran' => now(),
-                            ]);
+                    TagihanModel::where('id', $payment->tagihan_id)->update([
+                        'status' => 'lunas',
+                        'nominal_dibayar' => $payment->nominal,
+                        'tanggal_pembayaran' => now(),
+                    ]);
 
-                            Log::info('Tagihan updated to lunas', [
-                                'tagihan_id' => $payment->tagihan_id,
-                                'nominal_bayar' => $payment->nominal,
-                                'nominal_tagihan' => $tagihan->nominal
-                            ]);
-                        } else {
-                            // Pembayaran kurang, tetap pending
-                            $tagihan->update([
-                                'status' => 'pending',
-                                'nominal_dibayar' => $payment->nominal,
-                            ]);
-
-                            Log::info('Tagihan partial payment', [
-                                'tagihan_id' => $payment->tagihan_id,
-                                'nominal_bayar' => $payment->nominal,
-                                'nominal_tagihan' => $tagihan->nominal
-                            ]);
-                        }
-                    }
+                    Log::info('Tagihan updated to lunas', [
+                        'tagihan_id' => $payment->tagihan_id,
+                        'nominal' => $payment->nominal
+                    ]);
                 }
             }
 
