@@ -409,6 +409,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->
     Route::get('/pembayaran/{madrasah_id}', [App\Http\Controllers\PembayaranController::class, 'detail'])->name('pembayaran.detail');
     Route::post('/pembayaran/cash', [App\Http\Controllers\PembayaranController::class, 'pembayaranCash'])->name('pembayaran.cash');
     Route::post('/pembayaran/midtrans', [App\Http\Controllers\PembayaranController::class, 'pembayaranMidtrans'])->name('pembayaran.midtrans');
+    Route::post('/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])->name('pembayaran.midtrans.result');
 });
 
 // fallback, jangan ganggu dashboard & lainnya

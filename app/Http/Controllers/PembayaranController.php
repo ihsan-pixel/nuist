@@ -380,6 +380,55 @@ class PembayaranController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
+    public function paymentResult(Request $request)
+    {
+        $dataMidtrans = json_decode($request->result_data);
+
+        if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data Midtrans tidak valid'
+            ], 400);
+        }
+
+        $payment = Payment::where('order_id', $dataMidtrans->order_id)->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment tidak ditemukan'
+            ], 404);
+        }
+
+        // Update payment
+        $payment->update([
+            'status' => $dataMidtrans->transaction_status == 'settlement'
+                ? 'success'
+                : 'pending',
+            'payment_type' => $dataMidtrans->payment_type ?? null,
+            'transaction_id' => $dataMidtrans->transaction_id ?? null,
+            'pdf_url' => $dataMidtrans->pdf_url ?? null,
+            'response_midtrans' => json_encode($dataMidtrans),
+        ]);
+
+        // Update tagihan jika sukses
+        if (
+            in_array($dataMidtrans->transaction_status, ['capture', 'settlement'])
+            && $payment->tagihan_id
+        ) {
+            TagihanModel::where('id', $payment->tagihan_id)->update([
+                'status' => 'lunas',
+                'nominal_dibayar' => $payment->nominal,
+                'tanggal_pembayaran' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran berhasil diproses'
+        ]);
+    }
+
     private function hitungNominalBulanan($schoolData, $setting)
     {
         $nominal = 0;

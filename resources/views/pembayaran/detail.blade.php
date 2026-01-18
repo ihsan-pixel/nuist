@@ -223,19 +223,7 @@
                                         </table>
                                     </div>
 
-                                    <!-- Invoice Footer -->
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <div class="border-top pt-3">
-                                                <p class="text-muted mb-0">
-                                                    <small>
-                                                        Pembayaran dapat dilakukan melalui transfer bank atau payment gateway yang tersedia.
-                                                        Silakan pilih metode pembayaran di bawah ini.
-                                                    </small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -244,9 +232,6 @@
                     <!-- Action Buttons Section -->
                     <div class="row">
                         <div class="col-12 text-center">
-                            <button type="button" id="pay-button" class="btn btn-primary btn-lg me-2">
-                                <i class="bx bx-check me-2"></i>Bayar
-                            </button>
                             <a href="{{ route('uppm.pembayaran', ['tahun' => $tahun]) }}" class="btn btn-secondary btn-lg">
                                 <i class="bx bx-arrow-back me-2"></i>Kembali
                             </a>
