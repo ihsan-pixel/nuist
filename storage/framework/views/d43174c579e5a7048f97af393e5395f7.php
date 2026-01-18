@@ -376,7 +376,7 @@
                                 <i class="bx bx-credit-card display-4 text-success"></i>
                                 <h5 class="card-title">Online</h5>
                                 <p class="card-text">Bayar melalui Midtrans</p>
-                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
+                                <button type="button" class="btn btn-success" onclick="payOnline(currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
                             </div>
                         </div>
                     </div>
@@ -419,6 +419,15 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+<?php
+    $appSetting = App\Models\AppSetting::find(1);
+    $clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
+    $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+?>
+
+<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>"
+    data-client-key="<?php echo e($clientKey); ?>"></script>
+
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -514,11 +523,7 @@ function showManualPayment() {
     manualModal.show();
 }
 
-function payOnline() {
-    // Close the payment modal
-    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-    paymentModal.hide();
-
+function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     // Show loading
     Swal.fire({
         title: 'Memproses...',
@@ -538,9 +543,9 @@ function payOnline() {
             'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify({
-            madrasah_id: currentMadrasahId,
-            tahun: currentTahun,
-            nominal: currentTotalNominal
+            madrasah_id: madrasahId,
+            tahun: tahun,
+            nominal: totalNominal
         })
     })
     .then(response => response.json())
@@ -550,34 +555,16 @@ function payOnline() {
             // Open Midtrans Snap popup
             snap.pay(data.snap_token, {
                 onSuccess: function(result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pembayaran Berhasil!',
-                        text: 'Pembayaran Anda telah berhasil diproses'
-                    }).then(() => {
-                        location.reload();
-                    });
+                    sendResultToBackend(result);
                 },
                 onPending: function(result) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Pembayaran Pending',
-                        text: 'Pembayaran Anda sedang diproses'
-                    });
+                    sendResultToBackend(result);
                 },
                 onError: function(result) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Pembayaran Gagal',
-                        text: 'Terjadi kesalahan dalam proses pembayaran'
-                    });
+                    console.log(result);
                 },
                 onClose: function() {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Pembayaran Dibatalkan',
-                        text: 'Anda menutup popup pembayaran'
-                    });
+                    console.log('Payment popup closed');
                 }
             });
         } else {
@@ -594,6 +581,45 @@ function payOnline() {
             icon: 'error',
             title: 'Error',
             text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
+
+function sendResultToBackend(result) {
+    fetch('<?php echo e(route("pembayaran.midtrans.result")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+        },
+        body: JSON.stringify({
+            result_data: JSON.stringify(result)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Berhasil!',
+                text: 'Pembayaran Anda telah berhasil diproses'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pembayaran Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error sending result to backend:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan saat menyimpan data pembayaran'
         });
     });
 }
