@@ -163,48 +163,40 @@ class PembayaranController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        // Cek apakah tagihan sudah lunas
+        // Update status pembayaran di tabel tagihans
         $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
             ->where('tahun_anggaran', $request->tahun)
             ->first();
 
-        if (!$tagihan) {
+        if ($tagihan) {
+            $tagihan->update([
+                'status' => 'lunas',
+                'nominal_dibayar' => $request->nominal,
+                'keterangan' => $request->keterangan,
+                'tanggal_pembayaran' => now(),
+            ]);
+
+            // Simpan pembayaran cash ke database payments
+            $payment = Payment::create([
+                'madrasah_id' => $request->madrasah_id,
+                'tahun_anggaran' => $request->tahun,
+                'nominal' => $request->nominal,
+                'metode_pembayaran' => 'cash',
+                'status' => 'success',
+                'keterangan' => $request->keterangan,
+                'tagihan_id' => $tagihan->id,
+            ]);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Tagihan tidak ditemukan'
-            ], 404);
+                'success' => true,
+                'message' => 'Pembayaran cash berhasil dicatat'
+            ]);
         }
-
-        if ($tagihan->status === 'lunas') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tagihan sudah lunas'
-            ], 400);
-        }
-
-        // Update status pembayaran di tabel tagihans
-        $tagihan->update([
-            'status' => 'lunas',
-            'nominal_dibayar' => $request->nominal,
-            'keterangan' => $request->keterangan,
-            'tanggal_pembayaran' => now(),
-        ]);
-
-        // Simpan pembayaran cash ke database payments
-        $payment = Payment::create([
-            'madrasah_id' => $request->madrasah_id,
-            'tahun_anggaran' => $request->tahun,
-            'nominal' => $request->nominal,
-            'metode_pembayaran' => 'cash',
-            'status' => 'success',
-            'keterangan' => $request->keterangan,
-            'tagihan_id' => $tagihan->id,
-        ]);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran cash berhasil dicatat'
-        ]);
+            'success' => false,
+            'message' => 'Tagihan tidak ditemukan'
+        ], 404);
     }
 
     public function pembayaranMidtrans(Request $request)
@@ -264,7 +256,7 @@ class PembayaranController extends Controller
                         'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
                     ]
                 ],
-                // 'notification_url' => url('/midtrans/callback'),
+                'notification_url' => url('/midtrans/callback'),
                 'callbacks' => [
                     'finish' => url('/uppm/pembayaran'),
                     'error' => url('/uppm/pembayaran'),
@@ -407,52 +399,49 @@ class PembayaranController extends Controller
                 $newStatus = 'failed';
             }
 
-            // Update payment dan tagihan dalam DB transaction untuk konsistensi
-            DB::transaction(function () use ($payment, $newStatus, $notification) {
-                // Update payment status
-                $payment->update([
-                    'status' => $newStatus,
-                    'transaction_id' => $notification['transaction_id'] ?? null,
-                    'payment_type' => $notification['payment_type'] ?? null,
-                    'pdf_url' => $notification['pdf_url'] ?? null,
-                    'paid_at' => ($newStatus === 'success') ? now() : null, // Hanya isi jika benar-benar success
-                ]);
+            // Update payment status
+            $payment->update([
+                'status' => $newStatus,
+                'transaction_id' => $notification['transaction_id'] ?? null,
+                'payment_type' => $notification['payment_type'] ?? null,
+                'pdf_url' => $notification['pdf_url'] ?? null,
+                'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
+            ]);
 
-                // Jika status berubah ke success, update tagihan juga dengan cek nominal
-                if ($newStatus === 'success') {
-                    if ($payment->tagihan_id) {
-                        $tagihan = TagihanModel::find($payment->tagihan_id);
-                        if ($tagihan) {
-                            // Cek apakah pembayaran mencukupi nominal tagihan
-                            if ($payment->nominal >= $tagihan->nominal) {
-                                $tagihan->update([
-                                    'status' => 'lunas',
-                                    'nominal_dibayar' => $payment->nominal,
-                                    'tanggal_pembayaran' => now(),
-                                ]);
+            // Jika status berubah ke success, update tagihan juga dengan cek nominal
+            if ($newStatus === 'success') {
+                if ($payment->tagihan_id) {
+                    $tagihan = TagihanModel::find($payment->tagihan_id);
+                    if ($tagihan) {
+                        // Cek apakah pembayaran mencukupi nominal tagihan
+                        if ($payment->nominal >= $tagihan->nominal) {
+                            $tagihan->update([
+                                'status' => 'lunas',
+                                'nominal_dibayar' => $payment->nominal,
+                                'tanggal_pembayaran' => now(),
+                            ]);
 
-                                Log::info('Tagihan updated to lunas', [
-                                    'tagihan_id' => $payment->tagihan_id,
-                                    'nominal_bayar' => $payment->nominal,
-                                    'nominal_tagihan' => $tagihan->nominal
-                                ]);
-                            } else {
-                                // Pembayaran kurang, tetap pending
-                                $tagihan->update([
-                                    'status' => 'pending',
-                                    'nominal_dibayar' => $payment->nominal,
-                                ]);
+                            Log::info('Tagihan updated to lunas', [
+                                'tagihan_id' => $payment->tagihan_id,
+                                'nominal_bayar' => $payment->nominal,
+                                'nominal_tagihan' => $tagihan->nominal
+                            ]);
+                        } else {
+                            // Pembayaran kurang, tetap pending
+                            $tagihan->update([
+                                'status' => 'pending',
+                                'nominal_dibayar' => $payment->nominal,
+                            ]);
 
-                                Log::info('Tagihan partial payment', [
-                                    'tagihan_id' => $payment->tagihan_id,
-                                    'nominal_bayar' => $payment->nominal,
-                                    'nominal_tagihan' => $tagihan->nominal
-                                ]);
-                            }
+                            Log::info('Tagihan partial payment', [
+                                'tagihan_id' => $payment->tagihan_id,
+                                'nominal_bayar' => $payment->nominal,
+                                'nominal_tagihan' => $tagihan->nominal
+                            ]);
                         }
                     }
                 }
-            });
+            }
 
             Log::info('Payment callback processed', [
                 'order_id' => $notification['order_id'],
