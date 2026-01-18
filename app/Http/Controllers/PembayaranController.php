@@ -133,6 +133,7 @@ class PembayaranController extends Controller
                 'metode_pembayaran' => 'cash',
                 'status' => 'success',
                 'keterangan' => $request->keterangan,
+                'tagihan_id' => $tagihan->id,
             ]);
 
             return response()->json([
@@ -156,6 +157,10 @@ class PembayaranController extends Controller
         ]);
 
         // Buat record pembayaran dengan status pending
+        $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
+            ->where('tahun_anggaran', $request->tahun)
+            ->first();
+
         $payment = Payment::create([
             'madrasah_id' => $request->madrasah_id,
             'tahun_anggaran' => $request->tahun,
@@ -163,6 +168,7 @@ class PembayaranController extends Controller
             'metode_pembayaran' => 'midtrans',
             'status' => 'pending',
             'keterangan' => 'Pembayaran via Midtrans',
+            'tagihan_id' => $tagihan ? $tagihan->id : null,
         ]);
 
         // TODO: Implementasi Midtrans API

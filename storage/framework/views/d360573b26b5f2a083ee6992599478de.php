@@ -207,9 +207,12 @@
                         </div>
                     </div>
 
-                    <!-- Back Button Section -->
+                    <!-- Action Buttons Section -->
                     <div class="row">
                         <div class="col-12 text-center">
+                            <button type="button" class="btn btn-primary btn-lg me-3" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                <i class="bx bx-check me-2"></i>Bayar
+                            </button>
                             <a href="<?php echo e(route('uppm.pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary btn-lg">
                                 <i class="bx bx-arrow-back me-2"></i>Kembali
                             </a>
@@ -221,72 +224,7 @@
     </div>
 </div>
 
-<!-- Payment Modal -->
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="paymentModalLabel">Pilih Metode Pembayaran</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card border-primary text-center">
-                            <div class="card-body">
-                                <i class="bx bx-money display-4 text-primary"></i>
-                                <h5 class="card-title">Cash</h5>
-                                <p class="card-text">Bayar langsung dengan uang tunai</p>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cashModal">Pilih Cash</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card border-success text-center">
-                            <div class="card-body">
-                                <i class="bx bx-credit-card display-4 text-success"></i>
-                                <h5 class="card-title">Online</h5>
-                                <p class="card-text">Bayar melalui Midtrans</p>
-                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Cash Payment Modal -->
-<div class="modal fade" id="cashModal" tabindex="-1" aria-labelledby="cashModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cashModalLabel">Pembayaran Cash</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST">
-                    <?php echo csrf_field(); ?>
-                    <input type="hidden" name="madrasah_id" value="<?php echo e($madrasah->id); ?>">
-                    <input type="hidden" name="tahun" value="<?php echo e($tahun); ?>">
-                    <div class="mb-3">
-                        <label for="nominal" class="form-label">Nominal Pembayaran</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control" id="nominal" name="nominal" value="<?php echo e($totalTahunan); ?>" readonly required min="0" step="1000">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="keterangan" class="form-label">Keterangan</label>
-                        <textarea class="form-control" id="keterangan" name="keterangan" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Bayar Sekarang</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

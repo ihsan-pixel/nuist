@@ -9,8 +9,6 @@ class Payment extends Model
 {
     use HasFactory;
 
-    protected $table = 'payments';
-
     protected $fillable = [
         'madrasah_id',
         'tahun_anggaran',
@@ -18,21 +16,11 @@ class Payment extends Model
         'metode_pembayaran',
         'status',
         'keterangan',
-        'payment_data',
-        'paid_at',
+        'tagihan_id',
     ];
 
-    protected $casts = [
-        'nominal' => 'decimal:2',
-        'payment_data' => 'array',
-        'paid_at' => 'datetime',
-    ];
-
-    /**
-     * Relationship with Madrasah
-     */
-    public function madrasah()
+    public function tagihan()
     {
-        return $this->belongsTo(Madrasah::class);
+        return $this->belongsTo(Tagihan::class);
     }
 }
