@@ -580,17 +580,55 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 }
 
-function bayarMidtrans(token) {
+function bayarMidtrans(token, paymentId) {
     snap.pay(token, {
         onSuccess: function (result) {
-            console.log('Payment success, showing success message and redirecting');
-            Swal.fire({
-                icon: 'success',
-                title: 'Pembayaran Berhasil!',
-                text: 'Pembayaran online telah berhasil diproses.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = "/uppm/pembayaran";
+            console.log('Payment success, updating payment status and showing success message');
+            // Update payment status to success
+            fetch('/uppm/pembayaran/success', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    payment_id: paymentId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Payment update response:', data);
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        text: 'Pembayaran online telah berhasil diproses.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = "/uppm/pembayaran";
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Pembayaran Diproses',
+                        text: data.message || 'Pembayaran sedang diproses.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = "/uppm/pembayaran";
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error updating payment:', error);
+                // Still show success since Midtrans confirmed payment
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pembayaran Berhasil!',
+                    text: 'Pembayaran online telah berhasil diproses.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = "/uppm/pembayaran";
+                });
             });
         },
         onPending: function (result) {
