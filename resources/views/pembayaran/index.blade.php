@@ -595,12 +595,23 @@ function bayarMidtrans(token) {
 }
 
 function kirimKeBackend(result) {
+    // Extract only necessary data to avoid JSON serialization issues
+    const dataToSend = {
+        order_id: result.order_id,
+        transaction_status: result.transaction_status,
+        fraud_status: result.fraud_status,
+        payment_type: result.payment_type,
+        transaction_id: result.transaction_id,
+        pdf_url: result.pdf_url,
+        gross_amount: result.gross_amount
+    };
+
     $.ajax({
         url: "{{ route('uppm.pembayaran.midtrans.result') }}",
         method: "POST",
         data: {
             _token: "{{ csrf_token() }}",
-            result_data: JSON.stringify(result)
+            result_data: JSON.stringify(dataToSend)
         },
         success: function (res) {
             if (res.success) {

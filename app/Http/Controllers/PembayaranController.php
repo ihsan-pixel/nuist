@@ -435,6 +435,11 @@ class PembayaranController extends Controller
         try {
             $dataMidtrans = json_decode($request->result_data);
 
+            Log::info('Raw payment result data', [
+                'raw_data' => $request->result_data,
+                'decoded_data' => $dataMidtrans
+            ]);
+
             if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
                 Log::error('Invalid Midtrans data', ['data' => $request->result_data]);
                 return response()->json([
@@ -465,9 +470,17 @@ class PembayaranController extends Controller
             $transactionStatus = $dataMidtrans->transaction_status;
             $fraudStatus = $dataMidtrans->fraud_status ?? null;
 
-            // Accept 'capture', 'settlement', 'success' as successful
-            // Don't accept pending as success - let webhook handle it
-            $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']);
+            // For sandbox testing, accept more statuses as success
+            $appSetting = AppSetting::find(1);
+            $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+
+            if (!$isProduction) {
+                // In sandbox, accept these statuses as successful
+                $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success', '200']);
+            } else {
+                // In production, be strict
+                $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']);
+            }
 
             $paymentStatus = $isSuccess ? 'success' : ($transactionStatus == 'pending' ? 'pending' : 'failed');
 
@@ -477,7 +490,8 @@ class PembayaranController extends Controller
                 'fraud_status' => $fraudStatus,
                 'is_success' => $isSuccess,
                 'payment_status' => $paymentStatus,
-                'current_payment_status' => $payment->status
+                'current_payment_status' => $payment->status,
+                'is_production' => $isProduction
             ]);
 
             // Update payment record
