@@ -318,8 +318,14 @@ class PembayaranController extends Controller
                 'url' => $request->fullUrl()
             ]);
 
-            // Skip signature untuk sandbox
+            // Skip signature untuk sandbox atau production jika diperlukan
             $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', true);
+
+            Log::info('Signature validation check', [
+                'skip_signature' => $skipSignature,
+                'environment' => app()->environment(),
+                'midtrans_skip_env' => env('MIDTRANS_SKIP_SIGNATURE', 'not_set')
+            ]);
 
             if (!$skipSignature) {
                 $signature = hash('sha512',
@@ -329,7 +335,21 @@ class PembayaranController extends Controller
                     Config::$serverKey
                 );
 
+                Log::info('Signature validation details', [
+                    'received_signature' => $notification['signature_key'] ?? 'not_provided',
+                    'calculated_signature' => $signature,
+                    'order_id' => $notification['order_id'] ?? '',
+                    'status_code' => $notification['status_code'] ?? '',
+                    'gross_amount' => $notification['gross_amount'] ?? '',
+                    'server_key_length' => strlen(Config::$serverKey)
+                ]);
+
                 if (($notification['signature_key'] ?? '') !== $signature) {
+                    Log::warning('Invalid signature in callback', [
+                        'received_signature' => $notification['signature_key'] ?? '',
+                        'calculated_signature' => $signature,
+                        'order_id' => $notification['order_id'] ?? ''
+                    ]);
                     return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
                 }
             }
