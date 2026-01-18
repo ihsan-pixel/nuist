@@ -253,7 +253,7 @@
     $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 @endphp
 
-<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+<script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
     data-client-key="{{ $clientKey }}"></script>
 
 <script>

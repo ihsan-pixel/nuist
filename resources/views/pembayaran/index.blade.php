@@ -376,7 +376,7 @@
                                 <i class="bx bx-credit-card display-4 text-success"></i>
                                 <h5 class="card-title">Online</h5>
                                 <p class="card-text">Bayar melalui Midtrans</p>
-                                <button type="button" class="btn btn-success" onclick="payOnline()">Pilih Online</button>
+                                <button type="button" class="btn btn-success" onclick="payOnline(currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
                             </div>
                         </div>
                     </div>
