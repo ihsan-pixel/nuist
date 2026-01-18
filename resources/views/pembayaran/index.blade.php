@@ -649,6 +649,65 @@ function bayarMidtrans(token, paymentId) {
     });
 }
 
+function updatePaymentStatus(orderId) {
+    // Show loading
+    Swal.fire({
+        title: 'Updating Payment Status...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request
+    fetch('{{ route("uppm.pembayaran.check-status") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Show success message and reload page
+            Swal.fire({
+                icon: 'success',
+                title: 'Status Updated!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to show updated status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Terjadi kesalahan saat update status'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
+    });
+}
+
 
 
 
