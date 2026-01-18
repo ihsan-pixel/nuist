@@ -378,16 +378,18 @@ class PembayaranController extends Controller
             ]);
 
             if ($newStatus === 'success' && $payment->tagihan_id) {
-                TagihanModel::where('id', $payment->tagihan_id)->update([
-                    'status' => 'lunas',
-                    'nominal_dibayar' => $payment->nominal,
-                    'tanggal_pembayaran' => now(),
-                ]);
+                $tagihan = TagihanModel::find($payment->tagihan_id);
+                if ($tagihan) {
+                    $tagihan->update([
+                        'status' => 'lunas',
+                        'tanggal_pembayaran' => now(),
+                    ]);
 
-                Log::info('Tagihan updated to lunas', [
-                    'tagihan_id' => $payment->tagihan_id,
-                    'payment_id' => $payment->id
-                ]);
+                    Log::info('Tagihan updated to lunas', [
+                        'tagihan_id' => $payment->tagihan_id,
+                        'payment_id' => $payment->id
+                    ]);
+                }
             }
 
             return response()->json(['status' => 'success']);
