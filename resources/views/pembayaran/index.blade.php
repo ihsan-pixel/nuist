@@ -425,20 +425,12 @@
     $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 @endphp
 
-<script type="text/javascript" src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@php
-$appSetting = App\Models\AppSetting::find(1);
-$clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
-$isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
-@endphp
-
 <!-- Midtrans Snap.js -->
 <script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
         data-client-key="{{ $clientKey }}"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 function checkTagihan(madrasahId, tahun, madrasahName) {
@@ -629,33 +621,7 @@ function kirimKeBackend(result) {
     });
 }
 
-function prosesResult(result) {
-    $.ajax({
-        url: "{{ route('uppm.pembayaran.midtrans.result') }}",
-        method: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            result_data: JSON.stringify(result)
-        },
-        success: function (res) {
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pembayaran Berhasil',
-                    text: 'Terima kasih, pembayaran berhasil',
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Info', res.message, 'info');
-            }
-        }
-    });
-}
 
-function sendResultToBackend(result) {
-    prosesResult(result);
-}
 
 function submitManualPayment(event) {
     event.preventDefault();
