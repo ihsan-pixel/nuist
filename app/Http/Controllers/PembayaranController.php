@@ -474,12 +474,28 @@ class PembayaranController extends Controller
             $appSetting = AppSetting::find(1);
             $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 
+            Log::info('Environment check', [
+                'is_production' => $isProduction,
+                'transaction_status' => $transactionStatus,
+                'transaction_status_type' => gettype($transactionStatus)
+            ]);
+
             if (!$isProduction) {
                 // In sandbox, accept these statuses as successful
                 $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success', '200']);
+                Log::info('Sandbox success check', [
+                    'transaction_status' => $transactionStatus,
+                    'is_success' => $isSuccess,
+                    'accepted_statuses' => ['capture', 'settlement', 'success', '200']
+                ]);
             } else {
                 // In production, be strict
                 $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']);
+                Log::info('Production success check', [
+                    'transaction_status' => $transactionStatus,
+                    'is_success' => $isSuccess,
+                    'accepted_statuses' => ['capture', 'settlement', 'success']
+                ]);
             }
 
             $paymentStatus = $isSuccess ? 'success' : ($transactionStatus == 'pending' ? 'pending' : 'failed');
