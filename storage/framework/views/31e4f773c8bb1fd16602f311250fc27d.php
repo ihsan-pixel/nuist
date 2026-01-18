@@ -341,6 +341,46 @@
                         </div>
                     </div>
 
+                    <!-- Midtrans Settings -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-success mb-3">
+                                <i class="bx bx-credit-card me-1"></i>
+                                Pengaturan Midtrans Payment Gateway
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="midtrans_server_key" class="form-label">Midtrans Server Key</label>
+                                <input type="text" class="form-control" id="midtrans_server_key" name="midtrans_server_key"
+                                       value="<?php echo e(old('midtrans_server_key', $settings['midtrans_server_key'])); ?>"
+                                       placeholder="SB-Mid-server-...">
+                                <div class="form-text">Server key dari Midtrans dashboard</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="midtrans_client_key" class="form-label">Midtrans Client Key</label>
+                                <input type="text" class="form-control" id="midtrans_client_key" name="midtrans_client_key"
+                                       value="<?php echo e(old('midtrans_client_key', $settings['midtrans_client_key'])); ?>"
+                                       placeholder="SB-Mid-client-...">
+                                <div class="form-text">Client key dari Midtrans dashboard</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="midtrans_is_production" name="midtrans_is_production" value="1"
+                                           <?php echo e(old('midtrans_is_production', $settings['midtrans_is_production']) ? 'checked' : ''); ?>>
+                                    <label class="form-check-label" for="midtrans_is_production">
+                                        Production Mode
+                                    </label>
+                                </div>
+                                <div class="form-text">Centang untuk menggunakan mode production, kosongkan untuk sandbox</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <button type="button" class="btn btn-secondary" onclick="resetSettings()">
                             <i class="bx bx-refresh me-1"></i>

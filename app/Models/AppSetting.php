@@ -21,6 +21,9 @@ class AppSetting extends Model
         'debug_mode',
         'cache_enabled',
         'session_lifetime',
+        'midtrans_server_key',
+        'midtrans_client_key',
+        'midtrans_is_production',
     ];
 
     protected $casts = [

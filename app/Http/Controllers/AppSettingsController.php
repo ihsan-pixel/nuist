@@ -38,6 +38,9 @@ class AppSettingsController extends Controller
             'debug_mode' => $appSettings->debug_mode,
             'cache_enabled' => $appSettings->cache_enabled,
             'session_lifetime' => $appSettings->session_lifetime,
+            'midtrans_server_key' => $appSettings->midtrans_server_key,
+            'midtrans_client_key' => $appSettings->midtrans_client_key,
+            'midtrans_is_production' => $appSettings->midtrans_is_production,
             'max_upload_size' => ini_get('upload_max_filesize'),
             'memory_limit' => ini_get('memory_limit'),
         ];
@@ -65,6 +68,9 @@ class AppSettingsController extends Controller
             'debug_mode' => 'boolean',
             'cache_enabled' => 'boolean',
             'session_lifetime' => 'required|integer|min:1|max:525600',
+            'midtrans_server_key' => 'nullable|string|max:255',
+            'midtrans_client_key' => 'nullable|string|max:255',
+            'midtrans_is_production' => 'boolean',
         ]);
 
         // Get or create app settings
@@ -92,6 +98,9 @@ class AppSettingsController extends Controller
             'debug_mode' => $request->boolean('debug_mode'),
             'cache_enabled' => $request->boolean('cache_enabled'),
             'session_lifetime' => $request->session_lifetime,
+            'midtrans_server_key' => $request->midtrans_server_key,
+            'midtrans_client_key' => $request->midtrans_client_key,
+            'midtrans_is_production' => $request->boolean('midtrans_is_production'),
         ]);
 
         // Update app name in cache for immediate effect

@@ -9,12 +9,62 @@ use App\Models\DataSekolah;
 use App\Models\Payment;
 use App\Models\Tagihan as TagihanModel;
 use App\Models\Yayasan;
+use App\Models\AppSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class PembayaranController extends Controller
 {
+    public function __construct()
+    {
+        // Midtrans config will be initialized only when needed
+    }
+
+    private function initMidtrans()
+    {
+        $appSetting = AppSetting::findOrFail(1);
+
+        if (!$appSetting->midtrans_server_key) {
+            throw new \Exception('Midtrans server key not configured');
+        }
+
+        // Validate key matches environment
+        $isSandbox = !$appSetting->midtrans_is_production;
+        $isSandboxKey = str_contains($appSetting->midtrans_server_key, 'Mid-server-');
+
+        if ($isSandbox && !$isSandboxKey) {
+            Log::error('Midtrans key does not match sandbox environment');
+            throw new \Exception('Midtrans key mismatch: expected sandbox key for sandbox environment');
+        }
+
+        if (!$isSandbox && $isSandboxKey) {
+            Log::error('Midtrans key does not match production environment');
+            throw new \Exception('Midtrans key mismatch: expected production key for production environment');
+        }
+
+        Config::$serverKey = trim($appSetting->midtrans_server_key);
+        Config::$isProduction = (bool) $appSetting->midtrans_is_production;
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        if (app()->environment('local')) {
+            Config::$curlOptions = [
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+            ];
+        }
+
+        Log::info('Midtrans config initialized', [
+            'server_key_set' => !empty(Config::$serverKey),
+            'is_production' => Config::$isProduction,
+            'environment' => Config::$isProduction ? 'PRODUCTION' : 'SANDBOX'
+        ]);
+    }
+
     // Pembayaran Methods
     public function index(Request $request)
     {
@@ -157,28 +207,99 @@ class PembayaranController extends Controller
             'nominal' => 'required|numeric|min:0',
         ]);
 
-        // Buat record pembayaran dengan status pending
+        $madrasah = Madrasah::findOrFail($request->madrasah_id);
         $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
             ->where('tahun_anggaran', $request->tahun)
             ->first();
 
-        $payment = Payment::create([
-            'madrasah_id' => $request->madrasah_id,
-            'tahun_anggaran' => $request->tahun,
-            'nominal' => $request->nominal,
-            'metode_pembayaran' => 'midtrans',
-            'status' => 'pending',
-            'keterangan' => 'Pembayaran via Midtrans',
-            'tagihan_id' => $tagihan ? $tagihan->id : null,
-        ]);
+        if (!$tagihan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tagihan tidak ditemukan'
+            ], 404);
+        }
 
-        // TODO: Implementasi Midtrans API
-        // Untuk sekarang, return placeholder response
-        return response()->json([
-            'success' => false,
-            'message' => 'Integrasi Midtrans belum diimplementasikan',
-            'payment_id' => $payment->id,
-        ]);
+        $amount = (int) $tagihan->nominal;
+
+        // Generate unique order ID
+        $orderId = 'UPPM-' . $madrasah->scod . '-' . $request->tahun . '-' . time();
+
+        // Prepare Midtrans transaction data
+        $transaction_details = [
+            'order_id' => $orderId,
+            'gross_amount' => $amount,
+        ];
+
+        $customer_details = [
+            'first_name' => $madrasah->name,
+            'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
+            'phone' => '081234567890', // Default phone, can be updated later
+        ];
+
+        $item_details = [
+            [
+                'id' => 'UPPM-' . $request->tahun,
+                'price' => $amount,
+                'quantity' => 1,
+                'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
+            ]
+        ];
+
+        $transaction = [
+            'transaction_details' => $transaction_details,
+            'customer_details' => $customer_details,
+            'item_details' => $item_details,
+        ];
+
+        try {
+            // Initialize Midtrans config only when needed
+            $this->initMidtrans();
+
+            // Log the transaction attempt with current config
+            Log::info('Midtrans Transaction Attempt', [
+                'serverKey' => Config::$serverKey ? substr(Config::$serverKey, 0, 10) . '...' : 'NOT SET',
+                'isProduction' => Config::$isProduction,
+                'orderId' => $orderId,
+                'amount' => $amount,
+                'transaction' => $transaction,
+            ]);
+
+            // Get Snap Token
+            $snapToken = Snap::getSnapToken($transaction);
+
+            // Only create payment record if Midtrans transaction creation is successful
+            $payment = Payment::create([
+                'madrasah_id' => $request->madrasah_id,
+                'tahun_anggaran' => $request->tahun,
+                'nominal' => $tagihan->nominal,
+                'metode_pembayaran' => 'midtrans',
+                'status' => 'pending',
+                'keterangan' => 'Pembayaran via Midtrans',
+                'tagihan_id' => $tagihan ? $tagihan->id : null,
+                'order_id' => $orderId,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $snapToken,
+                'order_id' => $orderId,
+                'payment_id' => $payment->id,
+            ]);
+        } catch (\Exception $e) {
+            // Log the full exception for debugging
+            Log::error('Midtrans Transaction Failed', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // If Midtrans transaction creation fails, do not create payment record
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat transaksi Midtrans: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function checkTagihan(Request $request)
@@ -193,6 +314,70 @@ class PembayaranController extends Controller
         return response()->json([
             'exists' => $tagihan ? true : false
         ]);
+    }
+
+    public function midtransCallback(Request $request)
+    {
+        // Initialize Midtrans config for consistent key usage
+        $this->initMidtrans();
+        $serverKey = Config::$serverKey;
+
+        $hashed = hash(
+            'sha512',
+            $request->order_id .
+            $request->status_code .
+            $request->gross_amount .
+            $serverKey
+        );
+
+        if ($hashed !== $request->signature_key) {
+            Log::warning('Midtrans Callback Invalid Signature', [
+                'order_id' => $request->order_id
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid signature'
+            ], 403);
+        }
+
+        $payment = Payment::where('order_id', $request->order_id)->first();
+
+        if (!$payment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment not found'
+            ], 404);
+        }
+
+        switch ($request->transaction_status) {
+            case 'capture':
+            case 'settlement':
+                $payment->update([
+                    'status' => 'success',
+                    'transaction_id' => $request->transaction_id,
+                    'payment_type' => $request->payment_type,
+                ]);
+
+                if ($payment->tagihan_id) {
+                    TagihanModel::where('id', $payment->tagihan_id)->update([
+                        'status' => 'lunas',
+                        'nominal_dibayar' => $payment->nominal,
+                        'tanggal_pembayaran' => now(),
+                    ]);
+                }
+                break;
+
+            case 'pending':
+                $payment->update(['status' => 'pending']);
+                break;
+
+            default:
+                $payment->update(['status' => 'failed']);
+                break;
+        }
+
+        return response()->json(['status' => 'ok']);
     }
 
     private function hitungNominalBulanan($schoolData, $setting)

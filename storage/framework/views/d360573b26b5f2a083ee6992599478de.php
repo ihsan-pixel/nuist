@@ -214,6 +214,9 @@
                     <!-- Action Buttons Section -->
                     <div class="row">
                         <div class="col-12 text-center">
+                            <button type="button" id="pay-button" class="btn btn-primary btn-lg me-2">
+                                <i class="bx bx-check me-2"></i>Bayar
+                            </button>
                             <a href="<?php echo e(route('uppm.pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary btn-lg">
                                 <i class="bx bx-arrow-back me-2"></i>Kembali
                             </a>
@@ -229,6 +232,15 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+<?php
+    $appSetting = App\Models\AppSetting::find(1);
+    $clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
+    $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+?>
+
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="<?php echo e($clientKey); ?>"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Format number input with thousand separator
@@ -239,9 +251,104 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.value = value;
         });
     }
+
+    // Midtrans payment
+    const payButton = document.getElementById('pay-button');
+    if (payButton) {
+        payButton.addEventListener('click', function() {
+            const nominal = <?php echo e($totalTahunan); ?>;
+
+            if (!nominal || nominal <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Nominal pembayaran tidak valid'
+                });
+                return;
+            }
+
+            // Show loading
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Create Midtrans transaction
+            fetch('<?php echo e(route("uppm.pembayaran.midtrans")); ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                },
+                body: JSON.stringify({
+                    madrasah_id: '<?php echo e($madrasah->id); ?>',
+                    tahun: '<?php echo e($tahun); ?>',
+                    nominal: nominal
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+
+                if (data.success) {
+                    // Open Midtrans Snap popup
+                    snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pembayaran Berhasil!',
+                                text: 'Pembayaran Anda telah berhasil diproses'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        onPending: function(result) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Pembayaran Pending',
+                                text: 'Pembayaran Anda sedang diproses'
+                            });
+                        },
+                        onError: function(result) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Pembayaran Gagal',
+                                text: 'Terjadi kesalahan dalam proses pembayaran'
+                            });
+                        },
+                        onClose: function() {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Pembayaran Dibatalkan',
+                                text: 'Anda menutup popup pembayaran'
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message || 'Gagal membuat transaksi'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat memproses pembayaran'
+                });
+            });
+        });
+    }
 });
-
-
 </script>
 <?php $__env->stopSection(); ?>
 

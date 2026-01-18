@@ -422,6 +422,9 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<!-- Midtrans Snap.js -->
+<script src="{{ App\Models\AppSetting::getSettings()->midtrans_is_production ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ App\Models\AppSetting::getSettings()->midtrans_client_key ?? config('services.midtrans.client_key') }}"></script>
+
 <script>
 function checkTagihan(madrasahId, tahun, madrasahName) {
     // Show loading
@@ -544,8 +547,39 @@ function payOnline() {
     .then(data => {
         Swal.close();
         if (data.success) {
-            // Redirect to Midtrans payment page or handle success
-            window.location.href = data.payment_url; // Assuming Midtrans returns payment_url
+            // Open Midtrans Snap popup
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        text: 'Pembayaran Anda telah berhasil diproses'
+                    }).then(() => {
+                        location.reload();
+                    });
+                },
+                onPending: function(result) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Pembayaran Pending',
+                        text: 'Pembayaran Anda sedang diproses'
+                    });
+                },
+                onError: function(result) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Pembayaran Gagal',
+                        text: 'Terjadi kesalahan dalam proses pembayaran'
+                    });
+                },
+                onClose: function() {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Pembayaran Dibatalkan',
+                        text: 'Anda menutup popup pembayaran'
+                    });
+                }
+            });
         } else {
             Swal.fire({
                 icon: 'error',
