@@ -426,51 +426,77 @@ class PembayaranController extends Controller
 
     public function paymentResult(Request $request)
     {
-        $dataMidtrans = json_decode($request->result_data);
+        try {
+            $dataMidtrans = json_decode($request->result_data);
 
-        if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data Midtrans tidak valid'
-            ], 400);
-        }
+            if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
+                Log::error('Invalid Midtrans data', ['data' => $request->result_data]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data Midtrans tidak valid'
+                ], 400);
+            }
 
-        $payment = Payment::where('order_id', $dataMidtrans->order_id)->first();
-
-        if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Payment tidak ditemukan'
-            ], 404);
-        }
-
-        // Update payment
-        $payment->update([
-            'status' => $dataMidtrans->transaction_status == 'settlement'
-                ? 'success'
-                : 'pending',
-            'payment_type' => $dataMidtrans->payment_type ?? null,
-            'transaction_id' => $dataMidtrans->transaction_id ?? null,
-            'pdf_url' => $dataMidtrans->pdf_url ?? null,
-            'response_midtrans' => json_encode($dataMidtrans),
-        ]);
-
-        // Update tagihan jika sukses
-        if (
-            in_array($dataMidtrans->transaction_status, ['capture', 'settlement'])
-            && $payment->tagihan_id
-        ) {
-            TagihanModel::where('id', $payment->tagihan_id)->update([
-                'status' => 'lunas',
-                'nominal_dibayar' => $payment->nominal,
-                'tanggal_pembayaran' => now(),
+            Log::info('Payment result received', [
+                'order_id' => $dataMidtrans->order_id,
+                'transaction_status' => $dataMidtrans->transaction_status,
+                'payment_type' => $dataMidtrans->payment_type ?? null
             ]);
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran berhasil diproses'
-        ]);
+            $payment = Payment::where('order_id', $dataMidtrans->order_id)->first();
+
+            if (!$payment) {
+                Log::error('Payment not found', ['order_id' => $dataMidtrans->order_id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment tidak ditemukan'
+                ], 404);
+            }
+
+            // Determine payment status
+            $isSuccess = in_array($dataMidtrans->transaction_status, ['capture', 'settlement']);
+            $paymentStatus = $isSuccess ? 'success' : ($dataMidtrans->transaction_status == 'pending' ? 'pending' : 'failed');
+
+            // Update payment
+            $payment->update([
+                'status' => $paymentStatus,
+                'payment_type' => $dataMidtrans->payment_type ?? null,
+                'transaction_id' => $dataMidtrans->transaction_id ?? null,
+                'pdf_url' => $dataMidtrans->pdf_url ?? null,
+                'response_midtrans' => json_encode($dataMidtrans),
+            ]);
+
+            // Update tagihan jika sukses
+            if ($isSuccess && $payment->tagihan_id) {
+                TagihanModel::where('id', $payment->tagihan_id)->update([
+                    'status' => 'lunas',
+                    'nominal_dibayar' => $payment->nominal,
+                    'tanggal_pembayaran' => now(),
+                ]);
+
+                Log::info('Tagihan updated to lunas', [
+                    'tagihan_id' => $payment->tagihan_id,
+                    'nominal' => $payment->nominal
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil diproses'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Payment result processing error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memproses pembayaran'
+            ], 500);
+        }
     }
 
     private function hitungNominalBulanan($schoolData, $setting)

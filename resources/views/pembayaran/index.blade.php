@@ -577,9 +577,15 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
                 },
                 onError: function(result) {
                     console.log(result);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Pembayaran Gagal',
+                        text: 'Terjadi kesalahan saat memproses pembayaran'
+                    });
                 },
                 onClose: function() {
                     console.log('Payment popup closed');
+                    // Optional: Show message when user closes popup without completing payment
                 }
             });
         } else {
@@ -601,7 +607,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 }
 
 function sendResultToBackend(result) {
-    fetch('{{ route("uppm.pembayaran.midtrans.result") }}', {
+    fetch('/uppm/pembayaran/midtrans/result', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

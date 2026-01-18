@@ -551,7 +551,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 
     // Make AJAX request to Midtrans endpoint
-    fetch('<?php echo e(route("uppm.pembayaran.midtrans")); ?>', {
+    fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
