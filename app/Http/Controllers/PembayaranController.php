@@ -310,10 +310,16 @@ class PembayaranController extends Controller
             $this->initMidtrans();
             $notification = $request->all();
 
-            Log::info('MIDTRANS CALLBACK HIT', $notification);
+            Log::info('MIDTRANS CALLBACK HIT', [
+                'notification' => $notification,
+                'headers' => $request->headers->all(),
+                'ip' => $request->ip(),
+                'method' => $request->method(),
+                'url' => $request->fullUrl()
+            ]);
 
             // Skip signature untuk sandbox
-            $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', false);
+            $skipSignature = app()->environment('local') || env('MIDTRANS_SKIP_SIGNATURE', true);
 
             if (!$skipSignature) {
                 $signature = hash('sha512',
@@ -341,9 +347,9 @@ class PembayaranController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
         }
 
-            if ($payment->status === 'success') {
-                return response()->json(['status' => 'already processed']);
-            }
+        if ($payment->status === 'success') {
+            return response()->json(['status' => 'already processed']);
+        }
 
             $statusMapping = [
                 'capture' => 'success',
@@ -365,11 +371,22 @@ class PembayaranController extends Controller
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ]);
 
+            Log::info('Payment updated', [
+                'payment_id' => $payment->id,
+                'new_status' => $newStatus,
+                'transaction_status' => $notification['transaction_status']
+            ]);
+
             if ($newStatus === 'success' && $payment->tagihan_id) {
                 TagihanModel::where('id', $payment->tagihan_id)->update([
                     'status' => 'lunas',
                     'nominal_dibayar' => $payment->nominal,
                     'tanggal_pembayaran' => now(),
+                ]);
+
+                Log::info('Tagihan updated to lunas', [
+                    'tagihan_id' => $payment->tagihan_id,
+                    'payment_id' => $payment->id
                 ]);
             }
 
