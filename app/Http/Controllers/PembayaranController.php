@@ -465,14 +465,10 @@ class PembayaranController extends Controller
             $fraudStatus = $dataMidtrans->fraud_status ?? null;
 
             // For sandbox testing, be more permissive with success detection
-            $isSuccess = false;
-            if (in_array($transactionStatus, ['capture', 'settlement', 'success'])) {
-                // Accept these as successful
-                $isSuccess = true;
-            } elseif ($transactionStatus === 'pending' && $fraudStatus === 'accept') {
-                // Sometimes sandbox shows pending but fraud status is accept
-                $isSuccess = true;
-            }
+            // Accept 'capture', 'settlement', 'success' as successful
+            // Also accept 'pending' with 'accept' fraud status as successful (sandbox behavior)
+            $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']) ||
+                        ($transactionStatus === 'pending' && $fraudStatus === 'accept');
 
             $paymentStatus = $isSuccess ? 'success' : ($transactionStatus == 'pending' ? 'pending' : 'failed');
 
