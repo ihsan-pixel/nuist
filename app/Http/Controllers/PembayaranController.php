@@ -426,7 +426,13 @@ class PembayaranController extends Controller
             return response()->json(['status' => 'success']);
 
         } catch (\Exception $e) {
-            Log::error('Callback failed', ['error' => $e->getMessage()]);
+            Log::error('Callback failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'notification' => $notification ?? null,
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
