@@ -368,78 +368,71 @@ class PembayaranController extends Controller
         ]);
     }
 
+    /**
+     * Handle Midtrans Payment Notification Callback
+     * URL: POST /midtrans/callback
+     */
     public function midtransCallback(Request $request)
     {
-        Log::info('MIDTRANS CALLBACK HIT', $request->all());
+        try {
+            // Set Midtrans config
+            $this->initMidtrans();
+            $serverKey = Config::$serverKey;
 
-        // Initialize Midtrans config for consistent key usage
-        $this->initMidtrans();
-        $serverKey = Config::$serverKey;
+            // Get raw POST data dari Midtrans
+            $notification = $request->all();
 
-        // Skip signature check for local development
-        if (!app()->environment('local')) {
-            $hashed = hash(
-                'sha512',
-                $request->order_id .
-                $request->status_code .
-                $request->gross_amount .
+            Log::info('MIDTRANS CALLBACK HIT', $notification);
+
+            // Validasi signature (penting untuk security)
+            $signature = hash('sha512',
+                $notification['order_id'] .
+                $notification['status_code'] .
+                $notification['gross_amount'] .
                 $serverKey
             );
 
-            if ($hashed !== $request->signature_key) {
-                Log::warning('Midtrans Callback Invalid Signature', [
-                    'order_id' => $request->order_id
+            if ($signature !== $notification['signature_key']) {
+                Log::error('Invalid signature key', [
+                    'order_id' => $notification['order_id'],
+                    'expected' => $signature,
+                    'received' => $notification['signature_key']
                 ]);
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Invalid signature'
-                ], 403);
+                return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
             }
-        }
 
-        $payment = Payment::where('order_id', $request->order_id)->first();
+            // Cari payment berdasarkan order_id
+            $payment = Payment::where('order_id', $notification['order_id'])->first();
 
-        if (!$payment) {
-            Log::error('Payment not found for callback', ['order_id' => $request->order_id]);
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Payment not found'
-            ], 404);
-        }
+            if (!$payment) {
+                Log::error('Payment not found', ['order_id' => $notification['order_id']]);
+                return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+            }
 
-        Log::info('Processing Midtrans callback', [
-            'order_id' => $request->order_id,
-            'transaction_status' => $request->transaction_status,
-            'payment_type' => $request->payment_type,
-            'fraud_status' => $request->fraud_status,
-            'status_code' => $request->status_code,
-            'gross_amount' => $request->gross_amount,
-        ]);
+            // Map status Midtrans ke status aplikasi
+            $statusMapping = [
+                'capture' => 'success',    // Pembayaran berhasil
+                'settlement' => 'success', // Dana sudah diterima
+                'pending' => 'pending',    // Menunggu pembayaran
+                'deny' => 'failed',        // Ditolak
+                'cancel' => 'failed',      // Dibatalkan
+                'expire' => 'failed',      // Kadaluarsa
+                'failure' => 'failed'      // Gagal
+            ];
 
-        // Idempotent guard - prevent duplicate processing
-        if ($payment->status === 'success') {
-            Log::info('Payment already processed, skipping duplicate callback', [
-                'order_id' => $request->order_id
+            $newStatus = $statusMapping[$notification['transaction_status']] ?? 'failed';
+
+            // Update payment status
+            $payment->update([
+                'status' => $newStatus,
+                'transaction_id' => $notification['transaction_id'] ?? null,
+                'payment_type' => $notification['payment_type'] ?? null,
+                'pdf_url' => $notification['pdf_url'] ?? null,
+                'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ]);
-            return response()->json(['status' => 'ok']);
-        }
 
-        switch ($request->transaction_status) {
-            case 'capture':
-            case 'settlement':
-                Log::info('Payment successful - updating to success', [
-                    'order_id' => $request->order_id,
-                    'tagihan_id' => $payment->tagihan_id
-                ]);
-
-                $payment->update([
-                    'status' => 'success',
-                    'transaction_id' => $request->transaction_id,
-                    'payment_type' => $request->payment_type,
-                    'paid_at' => now(),
-                ]);
-
+            // Jika status berubah ke success, update tagihan juga
+            if ($newStatus === 'success') {
                 if ($payment->tagihan_id) {
                     TagihanModel::where('id', $payment->tagihan_id)->update([
                         'status' => 'lunas',
@@ -452,34 +445,26 @@ class PembayaranController extends Controller
                         'nominal' => $payment->nominal
                     ]);
                 }
-                break;
+            }
 
-            case 'pending':
-                Log::info('Payment pending', ['order_id' => $request->order_id]);
-                $payment->update(['status' => 'pending']);
-                break;
+            Log::info('Payment callback processed', [
+                'order_id' => $notification['order_id'],
+                'status' => $newStatus,
+                'transaction_status' => $notification['transaction_status']
+            ]);
 
-            case 'deny':
-            case 'cancel':
-            case 'expire':
-            case 'failure':
-                Log::info('Payment failed', [
-                    'order_id' => $request->order_id,
-                    'status' => $request->transaction_status
-                ]);
-                $payment->update(['status' => 'failed']);
-                break;
+            // Response ke Midtrans (harus 200 OK)
+            return response()->json(['status' => 'success']);
 
-            default:
-                Log::warning('Unknown transaction status', [
-                    'order_id' => $request->order_id,
-                    'status' => $request->transaction_status
-                ]);
-                $payment->update(['status' => 'failed']);
-                break;
+        } catch (\Exception $e) {
+            Log::error('Callback processing failed', [
+                'error' => $e->getMessage(),
+                'order_id' => $request->order_id ?? 'unknown',
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        return response()->json(['status' => 'ok']);
     }
 
     public function paymentResult(Request $request)
