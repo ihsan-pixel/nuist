@@ -570,13 +570,15 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
             // Open Midtrans Snap popup
             snap.pay(data.snap_token, {
                 onSuccess: function(result) {
+                    console.log('Payment success:', result);
                     sendResultToBackend(result);
                 },
                 onPending: function(result) {
+                    console.log('Payment pending:', result);
                     sendResultToBackend(result);
                 },
                 onError: function(result) {
-                    console.log(result);
+                    console.log('Payment error:', result);
                     Swal.fire({
                         icon: 'error',
                         title: 'Pembayaran Gagal',
@@ -607,6 +609,8 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 }
 
 function sendResultToBackend(result) {
+    console.log('Sending result to backend:', result);
+
     fetch('/uppm/pembayaran/midtrans/result', {
         method: 'POST',
         headers: {
@@ -619,19 +623,39 @@ function sendResultToBackend(result) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        console.log('Backend response:', data);
+
+        // Check transaction status from the Midtrans result
+        const transactionStatus = result.transaction_status;
+        console.log('Transaction status:', transactionStatus);
+
+        if (transactionStatus === 'settlement' || transactionStatus === 'capture') {
+            // Payment successful
             Swal.fire({
                 icon: 'success',
                 title: 'Pembayaran Berhasil!',
-                text: 'Pembayaran Anda telah berhasil diproses'
+                text: 'Pembayaran Anda telah berhasil diproses',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload();
+            });
+        } else if (transactionStatus === 'pending') {
+            // Payment pending
+            Swal.fire({
+                icon: 'info',
+                title: 'Pembayaran Diproses',
+                text: 'Pembayaran Anda sedang diproses. Status akan diperbarui secara otomatis.',
+                confirmButtonText: 'OK'
             }).then(() => {
                 location.reload();
             });
         } else {
+            // Payment failed or other status
             Swal.fire({
                 icon: 'error',
                 title: 'Pembayaran Gagal',
-                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+                text: 'Pembayaran tidak berhasil diproses',
+                confirmButtonText: 'OK'
             });
         }
     })
@@ -640,7 +664,8 @@ function sendResultToBackend(result) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Terjadi kesalahan saat menyimpan data pembayaran'
+            text: 'Terjadi kesalahan saat menyimpan data pembayaran',
+            confirmButtonText: 'OK'
         });
     });
 }

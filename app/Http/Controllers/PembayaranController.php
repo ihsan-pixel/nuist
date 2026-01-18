@@ -235,26 +235,31 @@ class PembayaranController extends Controller
             ], 500);
         }
 
-        // Prepare transaction data for Midtrans API
-        $transactionData = [
-            'transaction_details' => [
-                'order_id' => $orderId,
-                'gross_amount' => $amount,
-            ],
-            'customer_details' => [
-                'first_name' => $madrasah->name,
-                'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
-                'phone' => '081234567890',
-            ],
-            'item_details' => [
-                [
-                    'id' => 'UPPM-' . $request->tahun,
-                    'price' => $amount,
-                    'quantity' => 1,
-                    'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
-                ]
-            ],
-        ];
+            // Prepare transaction data for Midtrans API
+            $transactionData = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $amount,
+                ],
+                'customer_details' => [
+                    'first_name' => $madrasah->name,
+                    'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
+                    'phone' => '081234567890',
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'UPPM-' . $request->tahun,
+                        'price' => $amount,
+                        'quantity' => 1,
+                        'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
+                    ]
+                ],
+                'callbacks' => [
+                    'finish' => url('/uppm/pembayaran'),
+                    'error' => url('/uppm/pembayaran'),
+                    'pending' => url('/uppm/pembayaran'),
+                ],
+            ];
 
         try {
             // Use curl to create transaction via Midtrans API
@@ -480,10 +485,23 @@ class PembayaranController extends Controller
                 ]);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran berhasil diproses'
-            ]);
+            // Return appropriate response based on payment status
+            if ($isSuccess) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pembayaran berhasil diproses'
+                ]);
+            } elseif ($dataMidtrans->transaction_status == 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pembayaran sedang diproses'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pembayaran gagal diproses'
+                ]);
+            }
 
         } catch (\Exception $e) {
             Log::error('Payment result processing error', [
