@@ -391,7 +391,7 @@ Route::middleware(['auth', 'role:super_admin,admin'])->prefix('data-sekolah')->n
 Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranController::class, 'checkTagihan'])->name('pembayaran.check-tagihan');
 
 // Payment result route outside middleware to handle Midtrans callbacks
-Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])->name('pembayaran.midtrans.result');
+Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])->name('uppm.pembayaran.midtrans.result');
 
 // UPPM Routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
