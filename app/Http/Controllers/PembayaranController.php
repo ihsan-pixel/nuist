@@ -224,69 +224,114 @@ class PembayaranController extends Controller
         // Generate unique order ID
         $orderId = 'UPPM-' . $madrasah->scod . '-' . $request->tahun . '-' . time();
 
-        // Prepare Midtrans transaction data
-        $transaction_details = [
-            'order_id' => $orderId,
-            'gross_amount' => $amount,
-        ];
+        // Get Midtrans server key from app settings
+        $appSetting = AppSetting::findOrFail(1);
+        $serverKey = $appSetting->midtrans_server_key;
 
-        $customer_details = [
-            'first_name' => $madrasah->name,
-            'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
-            'phone' => '081234567890', // Default phone, can be updated later
-        ];
+        if (!$serverKey) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Midtrans server key tidak dikonfigurasi'
+            ], 500);
+        }
 
-        $item_details = [
-            [
-                'id' => 'UPPM-' . $request->tahun,
-                'price' => $amount,
-                'quantity' => 1,
-                'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
-            ]
-        ];
-
-        $transaction = [
-            'transaction_details' => $transaction_details,
-            'customer_details' => $customer_details,
-            'item_details' => $item_details,
+        // Prepare transaction data for Midtrans API
+        $transactionData = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => $amount,
+            ],
+            'customer_details' => [
+                'first_name' => $madrasah->name,
+                'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
+                'phone' => '081234567890',
+            ],
+            'item_details' => [
+                [
+                    'id' => 'UPPM-' . $request->tahun,
+                    'price' => $amount,
+                    'quantity' => 1,
+                    'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
+                ]
+            ],
         ];
 
         try {
-            // Initialize Midtrans config only when needed
-            $this->initMidtrans();
+            // Use curl to create transaction via Midtrans API
+            $url = $appSetting->midtrans_is_production
+                ? 'https://app.midtrans.com/snap/v1/transactions'
+                : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
-            // Log the transaction attempt with current config
-            Log::info('Midtrans Transaction Attempt', [
-                'serverKey' => Config::$serverKey ? substr(Config::$serverKey, 0, 10) . '...' : 'NOT SET',
-                'isProduction' => Config::$isProduction,
-                'orderId' => $orderId,
-                'amount' => $amount,
-                'transaction' => $transaction,
+            $headers = [
+                'Content-Type: application/json',
+                'Authorization: Basic ' . base64_encode($serverKey),
+            ];
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($transactionData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Add timeout
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            Log::info('Midtrans API Call', [
+                'url' => $url,
+                'headers' => $headers,
+                'transaction_data' => $transactionData,
+                'http_code' => $httpCode,
+                'curl_error' => $curlError,
+                'result' => $result,
             ]);
 
-            // Get Snap Token
-            $snapToken = Snap::getSnapToken($transaction);
+            if ($curlError) {
+                Log::error('Curl Error', ['error' => $curlError]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Curl error: ' . $curlError,
+                ], 500);
+            }
 
-            // Only create payment record if Midtrans transaction creation is successful
-            $payment = Payment::create([
-                'madrasah_id' => $request->madrasah_id,
-                'tahun_anggaran' => $request->tahun,
-                'nominal' => $tagihan->nominal,
-                'metode_pembayaran' => 'midtrans',
-                'status' => 'pending',
-                'keterangan' => 'Pembayaran via Midtrans',
-                'tagihan_id' => $tagihan ? $tagihan->id : null,
-                'order_id' => $orderId,
-            ]);
+            $response = json_decode($result, true);
 
-            return response()->json([
-                'success' => true,
-                'snap_token' => $snapToken,
-                'order_id' => $orderId,
-                'payment_id' => $payment->id,
-            ]);
+            if ($httpCode == 201 && isset($response['token'])) {
+                // Create payment record
+                $payment = Payment::create([
+                    'madrasah_id' => $request->madrasah_id,
+                    'tahun_anggaran' => $request->tahun,
+                    'nominal' => $tagihan->nominal,
+                    'metode_pembayaran' => 'midtrans',
+                    'status' => 'pending',
+                    'keterangan' => 'Pembayaran via Midtrans',
+                    'tagihan_id' => $tagihan->id,
+                    'order_id' => $orderId,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'snap_token' => $response['token'],
+                    'order_id' => $orderId,
+                    'payment_id' => $payment->id,
+                ]);
+            } else {
+                Log::error('Midtrans API Error', [
+                    'http_code' => $httpCode,
+                    'response' => $response,
+                    'transaction_data' => $transactionData,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat transaksi Midtrans: ' . ($response['error_messages'][0] ?? 'Unknown error'),
+                ], 500);
+            }
         } catch (\Exception $e) {
-            // Log the full exception for debugging
             Log::error('Midtrans Transaction Failed', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -294,7 +339,6 @@ class PembayaranController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // If Midtrans transaction creation fails, do not create payment record
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal membuat transaksi Midtrans: ' . $e->getMessage(),
