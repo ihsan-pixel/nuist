@@ -221,8 +221,9 @@ class PembayaranController extends Controller
 
         $amount = (int) $tagihan->nominal;
 
-        // Generate unique order ID
-        $orderId = 'UPPM-' . $madrasah->scod . '-' . $request->tahun . '-' . time();
+        // Generate unique order ID - ensure scod is not empty
+        $scod = $madrasah->scod ?: 'DEFAULT';
+        $orderId = 'UPPM-' . $scod . '-' . $request->tahun . '-' . time();
 
         // Get Midtrans server key from app settings
         $appSetting = AppSetting::findOrFail(1);
@@ -433,15 +434,25 @@ class PembayaranController extends Controller
     public function paymentResult(Request $request)
     {
         try {
+            Log::info('Payment result request received', [
+                'all_data' => $request->all(),
+                'result_data' => $request->result_data
+            ]);
+
             $dataMidtrans = json_decode($request->result_data);
 
             Log::info('Raw payment result data', [
                 'raw_data' => $request->result_data,
-                'decoded_data' => $dataMidtrans
+                'decoded_data' => $dataMidtrans,
+                'json_error' => json_last_error_msg()
             ]);
 
             if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
-                Log::error('Invalid Midtrans data', ['data' => $request->result_data]);
+                Log::error('Invalid Midtrans data', [
+                    'data' => $request->result_data,
+                    'decoded' => $dataMidtrans,
+                    'has_order_id' => isset($dataMidtrans->order_id) ? 'yes' : 'no'
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Data Midtrans tidak valid'
@@ -458,8 +469,19 @@ class PembayaranController extends Controller
 
             $payment = Payment::where('order_id', $dataMidtrans->order_id)->first();
 
+            Log::info('Payment lookup result', [
+                'order_id' => $dataMidtrans->order_id,
+                'payment_found' => $payment ? 'yes' : 'no',
+                'payment_id' => $payment ? $payment->id : null,
+                'payment_status' => $payment ? $payment->status : null
+            ]);
+
             if (!$payment) {
-                Log::error('Payment not found', ['order_id' => $dataMidtrans->order_id]);
+                Log::error('Payment not found', [
+                    'order_id' => $dataMidtrans->order_id,
+                    'all_payments_count' => Payment::count(),
+                    'recent_payments' => Payment::latest()->take(5)->pluck('order_id')->toArray()
+                ]);
                 return response()->json([
                     'success' => false,
                     'message' => 'Payment tidak ditemukan'
