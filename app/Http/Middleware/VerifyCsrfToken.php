@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'midtrans/callback',
         'uppm/pembayaran/success',
+        'uppm/pembayaran/add-proses',
     ];
 }

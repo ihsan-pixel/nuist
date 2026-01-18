@@ -543,7 +543,46 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         }
     });
 
-    // Make AJAX request to Midtrans endpoint
+    // Make AJAX request to paymentAddProses endpoint
+    fetch('/uppm/pembayaran/add-proses', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            madrasah_id: madrasahId,
+            tahun: tahun,
+            nominal: totalNominal,
+            metode_pembayaran: 'midtrans'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+        if (data.success) {
+            // Get snap token from Midtrans API
+            getSnapToken(data.payment_id, madrasahId, tahun, totalNominal);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi'
+        });
+    });
+}
+
+function getSnapToken(paymentId, madrasahId, tahun, totalNominal) {
+    // Make AJAX request to Midtrans endpoint to get snap token
     fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
@@ -558,7 +597,6 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     })
     .then(response => response.json())
     .then(data => {
-        Swal.close();
         if (data.success) {
             // Open Midtrans Snap popup
             bayarMidtrans(data.snap_token, data.payment_id);
@@ -571,7 +609,6 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         }
     })
     .catch(error => {
-        Swal.close();
         Swal.fire({
             icon: 'error',
             title: 'Error',
