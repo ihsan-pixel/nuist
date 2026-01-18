@@ -425,19 +425,12 @@
     $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
 ?>
 
-<script type="text/javascript" src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>" data-client-key="<?php echo e($clientKey); ?>"></script>
+<!-- Midtrans Snap.js -->
+<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>"
+        data-client-key="<?php echo e($clientKey); ?>"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<?php
-$appSetting = App\Models\AppSetting::find(1);
-$clientKey = $appSetting ? $appSetting->midtrans_client_key : config('services.midtrans.client_key');
-$isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
-?>
-
-<!-- Midtrans Snap.js -->
-<script src="<?php echo e($isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js'); ?>" data-client-key="<?php echo e($clientKey); ?>"></script>
 
 <script>
 function checkTagihan(madrasahId, tahun, madrasahName) {
@@ -568,20 +561,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         Swal.close();
         if (data.success) {
             // Open Midtrans Snap popup
-            snap.pay(data.snap_token, {
-                onSuccess: function(result) {
-                    sendResultToBackend(result);
-                },
-                onPending: function(result) {
-                    sendResultToBackend(result);
-                },
-                onError: function(result) {
-                    console.log(result);
-                },
-                onClose: function() {
-                    console.log('Payment popup closed');
-                }
-            });
+            bayarMidtrans(data.snap_token);
         } else {
             Swal.fire({
                 icon: 'error',
@@ -600,44 +580,72 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 }
 
-function sendResultToBackend(result) {
-    fetch('<?php echo e(route("uppm.pembayaran.midtrans.result")); ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+function bayarMidtrans(token) {
+    snap.pay(token, {
+        onSuccess: function (result) {
+            console.log('Payment success, redirecting to payment page');
+            window.location.href = "/uppm/pembayaran";
         },
-        body: JSON.stringify({
-            result_data: JSON.stringify(result)
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Pembayaran Berhasil!',
-                text: 'Pembayaran Anda telah berhasil diproses'
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Pembayaran Gagal',
-                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
-            });
+        onPending: function (result) {
+            console.log('Payment pending, redirecting to payment page');
+            window.location.href = "/uppm/pembayaran";
+        },
+        onError: function () {
+            Swal.fire('Gagal', 'Pembayaran gagal', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Error sending result to backend:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Terjadi kesalahan saat menyimpan data pembayaran'
-        });
     });
 }
+
+function kirimKeBackend(result) {
+    console.log('Sending to backend:', result);
+
+    // Extract only necessary data to avoid JSON serialization issues
+    const dataToSend = {
+        order_id: result.order_id,
+        transaction_status: result.transaction_status,
+        fraud_status: result.fraud_status,
+        payment_type: result.payment_type,
+        transaction_id: result.transaction_id,
+        pdf_url: result.pdf_url,
+        gross_amount: result.gross_amount
+    };
+
+    console.log('Data to send:', dataToSend);
+
+    $.ajax({
+        url: "<?php echo e(route('uppm.pembayaran.midtrans.result')); ?>",
+        method: "POST",
+        data: {
+            _token: "<?php echo e(csrf_token()); ?>",
+            result_data: JSON.stringify(dataToSend)
+        },
+        success: function (res) {
+            console.log('Backend response:', res);
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pembayaran Berhasil',
+                    text: 'Terima kasih, pembayaran berhasil'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Info', res.message || 'Pembayaran sedang diproses', 'info');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('AJAX Error:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+            });
+            Swal.fire('Error', 'Gagal memproses pembayaran: ' + error, 'error');
+        }
+    });
+}
+
+
 
 function submitManualPayment(event) {
     event.preventDefault();
