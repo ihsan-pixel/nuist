@@ -387,22 +387,47 @@ class PembayaranController extends Controller
 
             Log::info('MIDTRANS CALLBACK HIT', $notification);
 
-            // Validasi signature (penting untuk security)
-            $signature = hash('sha512',
-                $notification['order_id'] .
-                $notification['status_code'] .
-                $notification['gross_amount'] .
-                $serverKey
-            );
+            $skipSignature = config('app.env') !== 'production'
+                || env('MIDTRANS_SKIP_SIGNATURE', false);
 
-            if ($signature !== $notification['signature_key']) {
-                Log::error('Invalid signature key', [
-                    'order_id' => $notification['order_id'],
-                    'expected' => $signature,
-                    'received' => $notification['signature_key']
-                ]);
-                return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
+            if (!$skipSignature) {
+                $signature = hash('sha512',
+                    ($notification['order_id'] ?? '') .
+                    ($notification['status_code'] ?? '') .
+                    ($notification['gross_amount'] ?? '') .
+                    $serverKey
+                );
+
+                if (($notification['signature_key'] ?? '') !== $signature) {
+                    Log::error('Invalid signature key', [
+                        'order_id' => $notification['order_id'] ?? null,
+                    ]);
+
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid signature'
+                    ], 400);
+                }
+            } else {
+                Log::warning('⚠️ Signature validation skipped (TEST MODE)', $notification);
             }
+
+            // Validasi signature (penting untuk security)
+            // $signature = hash('sha512',
+            //     $notification['order_id'] .
+            //     $notification['status_code'] .
+            //     $notification['gross_amount'] .
+            //     $serverKey
+            // );
+
+            // if ($signature !== $notification['signature_key']) {
+            //     Log::error('Invalid signature key', [
+            //         'order_id' => $notification['order_id'],
+            //         'expected' => $signature,
+            //         'received' => $notification['signature_key']
+            //     ]);
+            //     return response()->json(['status' => 'error', 'message' => 'Invalid signature'], 400);
+            // }
 
             // Cari payment berdasarkan order_id
             $payment = Payment::where('order_id', $notification['order_id'])->first();
