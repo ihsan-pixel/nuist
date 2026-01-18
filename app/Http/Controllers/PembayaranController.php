@@ -399,49 +399,52 @@ class PembayaranController extends Controller
                 $newStatus = 'failed';
             }
 
-            // Update payment status
-            $payment->update([
-                'status' => $newStatus,
-                'transaction_id' => $notification['transaction_id'] ?? null,
-                'payment_type' => $notification['payment_type'] ?? null,
-                'pdf_url' => $notification['pdf_url'] ?? null,
-                'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
-            ]);
+            // Update payment dan tagihan dalam DB transaction untuk konsistensi
+            DB::transaction(function () use ($payment, $newStatus, $notification) {
+                // Update payment status
+                $payment->update([
+                    'status' => $newStatus,
+                    'transaction_id' => $notification['transaction_id'] ?? null,
+                    'payment_type' => $notification['payment_type'] ?? null,
+                    'pdf_url' => $notification['pdf_url'] ?? null,
+                    'paid_at' => ($newStatus === 'success') ? now() : null, // Hanya isi jika benar-benar success
+                ]);
 
-            // Jika status berubah ke success, update tagihan juga dengan cek nominal
-            if ($newStatus === 'success') {
-                if ($payment->tagihan_id) {
-                    $tagihan = TagihanModel::find($payment->tagihan_id);
-                    if ($tagihan) {
-                        // Cek apakah pembayaran mencukupi nominal tagihan
-                        if ($payment->nominal >= $tagihan->nominal) {
-                            $tagihan->update([
-                                'status' => 'lunas',
-                                'nominal_dibayar' => $payment->nominal,
-                                'tanggal_pembayaran' => now(),
-                            ]);
+                // Jika status berubah ke success, update tagihan juga dengan cek nominal
+                if ($newStatus === 'success') {
+                    if ($payment->tagihan_id) {
+                        $tagihan = TagihanModel::find($payment->tagihan_id);
+                        if ($tagihan) {
+                            // Cek apakah pembayaran mencukupi nominal tagihan
+                            if ($payment->nominal >= $tagihan->nominal) {
+                                $tagihan->update([
+                                    'status' => 'lunas',
+                                    'nominal_dibayar' => $payment->nominal,
+                                    'tanggal_pembayaran' => now(),
+                                ]);
 
-                            Log::info('Tagihan updated to lunas', [
-                                'tagihan_id' => $payment->tagihan_id,
-                                'nominal_bayar' => $payment->nominal,
-                                'nominal_tagihan' => $tagihan->nominal
-                            ]);
-                        } else {
-                            // Pembayaran kurang, tetap pending
-                            $tagihan->update([
-                                'status' => 'pending',
-                                'nominal_dibayar' => $payment->nominal,
-                            ]);
+                                Log::info('Tagihan updated to lunas', [
+                                    'tagihan_id' => $payment->tagihan_id,
+                                    'nominal_bayar' => $payment->nominal,
+                                    'nominal_tagihan' => $tagihan->nominal
+                                ]);
+                            } else {
+                                // Pembayaran kurang, tetap pending
+                                $tagihan->update([
+                                    'status' => 'pending',
+                                    'nominal_dibayar' => $payment->nominal,
+                                ]);
 
-                            Log::info('Tagihan partial payment', [
-                                'tagihan_id' => $payment->tagihan_id,
-                                'nominal_bayar' => $payment->nominal,
-                                'nominal_tagihan' => $tagihan->nominal
-                            ]);
+                                Log::info('Tagihan partial payment', [
+                                    'tagihan_id' => $payment->tagihan_id,
+                                    'nominal_bayar' => $payment->nominal,
+                                    'nominal_tagihan' => $tagihan->nominal
+                                ]);
+                            }
                         }
                     }
                 }
-            }
+            });
 
             Log::info('Payment callback processed', [
                 'order_id' => $notification['order_id'],
