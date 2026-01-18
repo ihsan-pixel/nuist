@@ -521,41 +521,7 @@ class PembayaranController extends Controller
         ]);
     }
 
-    public function paymentAddProses(Request $request)
-    {
-        $dataMidtrans = json_decode($request->result_data ?? '{}');
 
-        $data = [
-            'madrasah_id' => $request->madrasah_id,
-            'tahun_anggaran' => $request->tahun,
-            'nominal' => $request->nominal,
-            'metode_pembayaran' => $request->metode_pembayaran,
-            'status' => $request->metode_pembayaran == "midtrans" ? "pending" : 'success',
-            'tagihan_id' => $request->tagihan_id,
-            'order_id' => $dataMidtrans->order_id ?? null,
-            'pdf_url' => $dataMidtrans->pdf_url ?? null,
-            'created_at' => now(),
-        ];
-
-        $payment = Payment::create($data);
-
-        if ($request->metode_pembayaran == "cash") {
-            // For manual payment, update tagihan immediately
-            if ($request->tagihan_id) {
-                TagihanModel::where('id', $request->tagihan_id)->update([
-                    'status' => 'lunas',
-                    'nominal_dibayar' => $request->nominal,
-                    'tanggal_pembayaran' => now(),
-                ]);
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'payment_id' => $payment->id,
-            'message' => 'Pembayaran berhasil diproses'
-        ]);
-    }
 
     private function hitungNominalBulanan($schoolData, $setting)
     {

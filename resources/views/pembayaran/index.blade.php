@@ -543,8 +543,8 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         }
     });
 
-    // Make AJAX request to paymentAddProses endpoint
-    fetch('/uppm/pembayaran/add-proses', {
+    // Make AJAX request to Midtrans endpoint to get snap token
+    fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -553,16 +553,15 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         body: JSON.stringify({
             madrasah_id: madrasahId,
             tahun: tahun,
-            nominal: totalNominal,
-            metode_pembayaran: 'midtrans'
+            nominal: totalNominal
         })
     })
     .then(response => response.json())
     .then(data => {
         Swal.close();
         if (data.success) {
-            // Get snap token from Midtrans API
-            getSnapToken(data.payment_id, madrasahId, tahun, totalNominal);
+            // Open Midtrans Snap popup
+            bayarMidtrans(data.snap_token, data.payment_id);
         } else {
             Swal.fire({
                 icon: 'error',
@@ -581,41 +580,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 }
 
-function getSnapToken(paymentId, madrasahId, tahun, totalNominal) {
-    // Make AJAX request to Midtrans endpoint to get snap token
-    fetch('/uppm/pembayaran/midtrans', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            madrasah_id: madrasahId,
-            tahun: tahun,
-            nominal: totalNominal
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Open Midtrans Snap popup
-            bayarMidtrans(data.snap_token, data.payment_id);
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
-            });
-        }
-    })
-    .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Terjadi kesalahan koneksi'
-        });
-    });
-}
+
 
 function bayarMidtrans(token, paymentId) {
     snap.pay(token, {
@@ -635,25 +600,15 @@ function bayarMidtrans(token, paymentId) {
             .then(response => response.json())
             .then(data => {
                 console.log('Payment update response:', data);
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pembayaran Berhasil!',
-                        text: 'Pembayaran online telah berhasil diproses.',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.location.href = "/uppm/pembayaran";
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Pembayaran Diproses',
-                        text: data.message || 'Pembayaran sedang diproses.',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.location.href = "/uppm/pembayaran";
-                    });
-                }
+                // Always show success since Midtrans confirmed payment
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pembayaran Berhasil!',
+                    text: 'Pembayaran online telah berhasil diproses.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = "/uppm/pembayaran";
+                });
             })
             .catch(error => {
                 console.error('Error updating payment:', error);
@@ -678,44 +633,7 @@ function bayarMidtrans(token, paymentId) {
     });
 }
 
-function kirimKeBackend(result) {
-    console.log('Sending to backend:', result);
 
-    // Extract only necessary data to avoid JSON serialization issues
-    const dataToSend = {
-        order_id: result.order_id,
-        transaction_status: result.transaction_status,
-        fraud_status: result.fraud_status,
-        payment_type: result.payment_type,
-        transaction_id: result.transaction_id,
-        pdf_url: result.pdf_url,
-        gross_amount: result.gross_amount
-    };
-
-    console.log('Data to send:', dataToSend);
-
-    $.ajax({
-        url: "{{ route('uppm.pembayaran.midtrans.result') }}",
-        method: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            result_data: JSON.stringify(dataToSend)
-        },
-        success: function (res) {
-            console.log('Backend response:', res);
-            // Don't show success message here as it's handled by the callback
-        },
-        error: function (xhr, status, error) {
-            console.error('AJAX Error:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-            });
-            // Don't show error message here as it's handled by the callback
-        }
-    });
-}
 
 
 

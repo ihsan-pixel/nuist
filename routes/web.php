@@ -393,7 +393,7 @@ Route::get('/uppm/pembayaran/check-tagihan', [App\Http\Controllers\PembayaranCon
 // Payment result route outside middleware to handle Midtrans callbacks
 Route::post('/uppm/pembayaran/midtrans/result', [App\Http\Controllers\PembayaranController::class, 'paymentResult'])->name('uppm.pembayaran.midtrans.result');
 Route::post('/uppm/pembayaran/success', [App\Http\Controllers\PembayaranController::class, 'paymentSuccess'])->name('uppm.pembayaran.success');
-Route::post('/uppm/pembayaran/add-proses', [App\Http\Controllers\PembayaranController::class, 'paymentAddProses'])->name('uppm.pembayaran.add-proses');
+
 
 // UPPM Routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('uppm')->name('uppm.')->group(function () {
