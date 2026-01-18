@@ -635,18 +635,25 @@ function sendResultToBackend(result) {
         const isSuccess = ['settlement', 'capture', 'success'].includes(transactionStatus) ||
                          (transactionStatus === 'pending' && fraudStatus === 'accept');
 
-        if (isSuccess) {
-            // Payment successful
+        console.log('Is success:', isSuccess);
+
+        // Check both Midtrans result and backend response
+        if (isSuccess && data.success) {
+            // Payment successful - show success SweetAlert
+            console.log('Showing success SweetAlert');
             Swal.fire({
                 icon: 'success',
                 title: 'Pembayaran Berhasil!',
                 text: 'Pembayaran Anda telah berhasil diproses',
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                allowEscapeKey: false
             }).then(() => {
                 location.reload();
             });
         } else if (transactionStatus === 'pending') {
             // Payment pending
+            console.log('Showing pending SweetAlert');
             Swal.fire({
                 icon: 'info',
                 title: 'Pembayaran Diproses',
@@ -657,10 +664,11 @@ function sendResultToBackend(result) {
             });
         } else {
             // Payment failed or other status
+            console.log('Showing error SweetAlert');
             Swal.fire({
                 icon: 'error',
                 title: 'Pembayaran Gagal',
-                text: 'Pembayaran tidak berhasil diproses',
+                text: data.message || 'Pembayaran tidak berhasil diproses',
                 confirmButtonText: 'OK'
             });
         }
