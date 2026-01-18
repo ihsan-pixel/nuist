@@ -221,8 +221,9 @@ class PembayaranController extends Controller
 
         $amount = (int) $tagihan->nominal;
 
-        // Generate unique order ID - ensure scod is not empty
-        $scod = $madrasah->scod ?: 'DEFAULT';
+        // Generate unique order ID - ensure scod is not empty and clean
+        $scod = trim($madrasah->scod) ?: 'DEFAULT';
+        $scod = preg_replace('/[^A-Za-z0-9\-]/', '', $scod); // Remove special characters
         $orderId = 'UPPM-' . $scod . '-' . $request->tahun . '-' . time();
 
         // Get Midtrans server key from app settings
