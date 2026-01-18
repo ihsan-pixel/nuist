@@ -539,8 +539,25 @@ class PembayaranController extends Controller
                 'payment_type' => $dataMidtrans->payment_type ?? null,
                 'transaction_id' => $dataMidtrans->transaction_id ?? null,
                 'pdf_url' => $dataMidtrans->pdf_url ?? null,
-                'response_midtrans' => json_encode($dataMidtrans),
             ];
+
+            // Safely encode response_midtrans to avoid JSON serialization issues
+            try {
+                $updateData['response_midtrans'] = json_encode($dataMidtrans);
+            } catch (\Exception $e) {
+                Log::warning('Failed to encode Midtrans response', [
+                    'error' => $e->getMessage(),
+                    'order_id' => $dataMidtrans->order_id
+                ]);
+                // Store a simplified version if full encoding fails
+                $updateData['response_midtrans'] = json_encode([
+                    'order_id' => $dataMidtrans->order_id ?? null,
+                    'transaction_status' => $dataMidtrans->transaction_status ?? null,
+                    'payment_type' => $dataMidtrans->payment_type ?? null,
+                    'gross_amount' => $dataMidtrans->gross_amount ?? null,
+                    'encoding_error' => 'Full response could not be encoded'
+                ]);
+            }
 
             $payment->update($updateData);
 
