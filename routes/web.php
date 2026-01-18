@@ -513,7 +513,7 @@ use App\Models\Payment;
 
 Route::get('/test-dummy-payment', function() {
     $payment = Payment::create([
-        'madrasah_id' => 1,
+        'madrasah_id' => 48,
         'tahun_anggaran' => 2026,
         'nominal' => 10000,
         'metode_pembayaran' => 'midtrans',
