@@ -632,7 +632,7 @@ function sendResultToBackend(result) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Terjadi kesalahan saat menyimpan data pembayaran'
+            text: 'Terjadi Kesalahan saat menyimpan data pembayaran'
         });
     });
 }
