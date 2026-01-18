@@ -595,6 +595,8 @@ function bayarMidtrans(token) {
 }
 
 function kirimKeBackend(result) {
+    console.log('Sending to backend:', result);
+
     // Extract only necessary data to avoid JSON serialization issues
     const dataToSend = {
         order_id: result.order_id,
@@ -606,6 +608,8 @@ function kirimKeBackend(result) {
         gross_amount: result.gross_amount
     };
 
+    console.log('Data to send:', dataToSend);
+
     $.ajax({
         url: "{{ route('uppm.pembayaran.midtrans.result') }}",
         method: "POST",
@@ -614,6 +618,7 @@ function kirimKeBackend(result) {
             result_data: JSON.stringify(dataToSend)
         },
         success: function (res) {
+            console.log('Backend response:', res);
             if (res.success) {
                 Swal.fire({
                     icon: 'success',
@@ -623,11 +628,17 @@ function kirimKeBackend(result) {
                     location.reload();
                 });
             } else {
-                Swal.fire('Info', res.message, 'info');
+                Swal.fire('Info', res.message || 'Pembayaran sedang diproses', 'info');
             }
         },
-        error: function () {
-            Swal.fire('Error', 'Gagal memproses pembayaran', 'error');
+        error: function (xhr, status, error) {
+            console.error('AJAX Error:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error: error
+            });
+            Swal.fire('Error', 'Gagal memproses pembayaran: ' + error, 'error');
         }
     });
 }
