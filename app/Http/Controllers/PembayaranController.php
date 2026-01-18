@@ -411,6 +411,14 @@ class PembayaranController extends Controller
             'gross_amount' => $request->gross_amount,
         ]);
 
+        // Idempotent guard - prevent duplicate processing
+        if ($payment->status === 'success') {
+            Log::info('Payment already processed, skipping duplicate callback', [
+                'order_id' => $request->order_id
+            ]);
+            return response()->json(['status' => 'ok']);
+        }
+
         switch ($request->transaction_status) {
             case 'capture':
             case 'settlement':
@@ -470,199 +478,10 @@ class PembayaranController extends Controller
 
     public function paymentResult(Request $request)
     {
-        try {
-            if (!$request->has('result_data')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'result_data tidak ditemukan'
-                ], 400);
-            }
-
-            $dataMidtrans = json_decode($request->result_data, false);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('JSON decode failed', [
-                    'error' => json_last_error_msg(),
-                    'raw' => $request->result_data
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Format data Midtrans tidak valid'
-                ], 400);
-            }
-
-            if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
-                Log::error('Invalid Midtrans data', [
-                    'data' => $request->result_data,
-                    'decoded' => $dataMidtrans,
-                    'has_order_id' => isset($dataMidtrans->order_id) ? 'yes' : 'no'
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data Midtrans tidak valid'
-                ], 400);
-            }
-
-            Log::info('Payment result received', [
-                'order_id' => $dataMidtrans->order_id,
-                'transaction_status' => $dataMidtrans->transaction_status,
-                'fraud_status' => $dataMidtrans->fraud_status ?? null,
-                'payment_type' => $dataMidtrans->payment_type ?? null,
-                'gross_amount' => $dataMidtrans->gross_amount ?? null
-            ]);
-
-            $payment = Payment::where('order_id', $dataMidtrans->order_id)->first();
-
-            Log::info('Payment lookup result', [
-                'order_id' => $dataMidtrans->order_id,
-                'payment_found' => $payment ? 'yes' : 'no',
-                'payment_id' => $payment ? $payment->id : null,
-                'payment_status' => $payment ? $payment->status : null
-            ]);
-
-            if (!$payment) {
-                Log::error('Payment not found', [
-                    'order_id' => $dataMidtrans->order_id,
-                    'all_payments_count' => Payment::count(),
-                    'recent_payments' => Payment::latest()->take(5)->pluck('order_id')->toArray()
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Payment tidak ditemukan'
-                ], 404);
-            }
-
-            // Determine payment status - handle sandbox vs production differences
-            $transactionStatus = $dataMidtrans->transaction_status;
-            $fraudStatus = $dataMidtrans->fraud_status ?? null;
-
-            // For sandbox testing, accept more statuses as success
-            $appSetting = AppSetting::find(1);
-            $isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
-
-            Log::info('Environment check', [
-                'is_production' => $isProduction,
-                'transaction_status' => $transactionStatus,
-                'transaction_status_type' => gettype($transactionStatus)
-            ]);
-
-            if (!$isProduction) {
-                // In sandbox, accept these statuses as successful
-                $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success', '200']);
-                Log::info('Sandbox success check', [
-                    'transaction_status' => $transactionStatus,
-                    'is_success' => $isSuccess,
-                    'accepted_statuses' => ['capture', 'settlement', 'success', '200']
-                ]);
-            } else {
-                // In production, be strict
-                $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']);
-                Log::info('Production success check', [
-                    'transaction_status' => $transactionStatus,
-                    'is_success' => $isSuccess,
-                    'accepted_statuses' => ['capture', 'settlement', 'success']
-                ]);
-            }
-
-            $paymentStatus = $isSuccess ? 'success' : ($transactionStatus == 'pending' ? 'pending' : 'failed');
-
-            Log::info('Processing payment result', [
-                'order_id' => $dataMidtrans->order_id,
-                'transaction_status' => $transactionStatus,
-                'fraud_status' => $fraudStatus,
-                'is_success' => $isSuccess,
-                'payment_status' => $paymentStatus,
-                'current_payment_status' => $payment->status,
-                'is_production' => $isProduction
-            ]);
-
-            // Update payment record
-            $updateData = [
-                'status' => $paymentStatus,
-                'payment_type' => $dataMidtrans->payment_type ?? null,
-                'transaction_id' => $dataMidtrans->transaction_id ?? null,
-                'pdf_url' => $dataMidtrans->pdf_url ?? null,
-            ];
-
-            // Safely encode response_midtrans to avoid JSON serialization issues
-            try {
-                $updateData['response_midtrans'] = json_encode($dataMidtrans);
-            } catch (\Exception $e) {
-                Log::warning('Failed to encode Midtrans response', [
-                    'error' => $e->getMessage(),
-                    'order_id' => $dataMidtrans->order_id
-                ]);
-                // Store a simplified version if full encoding fails
-                $updateData['response_midtrans'] = json_encode([
-                    'order_id' => $dataMidtrans->order_id ?? null,
-                    'transaction_status' => $dataMidtrans->transaction_status ?? null,
-                    'payment_type' => $dataMidtrans->payment_type ?? null,
-                    'gross_amount' => $dataMidtrans->gross_amount ?? null,
-                    'encoding_error' => 'Full response could not be encoded'
-                ]);
-            }
-
-            $payment->update($updateData);
-
-            Log::info('Payment record updated', [
-                'payment_id' => $payment->id,
-                'new_status' => $paymentStatus,
-                'tagihan_id' => $payment->tagihan_id
-            ]);
-
-            // Update tagihan jika sukses
-            if ($isSuccess && $payment->tagihan_id) {
-                $tagihan = TagihanModel::find($payment->tagihan_id);
-                if ($tagihan) {
-                    $oldStatus = $tagihan->status;
-                    $tagihan->update([
-                        'status' => 'lunas',
-                        'nominal_dibayar' => $payment->nominal,
-                        'tanggal_pembayaran' => now(),
-                    ]);
-
-                    Log::info('Tagihan updated to lunas', [
-                        'tagihan_id' => $payment->tagihan_id,
-                        'nominal' => $payment->nominal,
-                        'old_status' => $oldStatus,
-                        'new_status' => 'lunas'
-                    ]);
-                } else {
-                    Log::error('Tagihan not found for update', ['tagihan_id' => $payment->tagihan_id]);
-                }
-            }
-
-            // Return appropriate response based on payment status
-            if ($isSuccess) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Pembayaran berhasil diproses'
-                ]);
-            } elseif ($transactionStatus == 'pending') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pembayaran sedang diproses'
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pembayaran gagal diproses'
-                ]);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Payment result processing error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat memproses pembayaran'
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Result diterima. Status pembayaran diproses otomatis.'
+        ]);
     }
 
     private function hitungNominalBulanan($schoolData, $setting)
