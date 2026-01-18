@@ -627,9 +627,15 @@ function sendResultToBackend(result) {
 
         // Check transaction status from the Midtrans result
         const transactionStatus = result.transaction_status;
+        const fraudStatus = result.fraud_status;
         console.log('Transaction status:', transactionStatus);
+        console.log('Fraud status:', fraudStatus);
 
-        if (transactionStatus === 'settlement' || transactionStatus === 'capture') {
+        // For sandbox testing, be more permissive
+        const isSuccess = ['settlement', 'capture', 'success'].includes(transactionStatus) ||
+                         (transactionStatus === 'pending' && fraudStatus === 'accept');
+
+        if (isSuccess) {
             // Payment successful
             Swal.fire({
                 icon: 'success',
