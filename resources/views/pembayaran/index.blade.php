@@ -569,28 +569,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         Swal.close();
         if (data.success) {
             // Open Midtrans Snap popup
-            snap.pay(data.snap_token, {
-                onSuccess: function(result) {
-                    console.log('Payment success:', result);
-                    sendResultToBackend(result);
-                },
-                onPending: function(result) {
-                    console.log('Payment pending:', result);
-                    sendResultToBackend(result);
-                },
-                onError: function(result) {
-                    console.log('Payment error:', result);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Pembayaran Gagal',
-                        text: 'Terjadi kesalahan saat memproses pembayaran'
-                    });
-                },
-                onClose: function() {
-                    console.log('Payment popup closed');
-                    // Optional: Show message when user closes popup without completing payment
-                }
-            });
+            bayarMidtrans(data.snap_token);
         } else {
             Swal.fire({
                 icon: 'error',
@@ -606,6 +585,47 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
             title: 'Error',
             text: 'Terjadi kesalahan koneksi'
         });
+    });
+}
+
+function bayarMidtrans(token) {
+    snap.pay(token, {
+        onSuccess: function (result) {
+            kirimKeBackend(result);
+        },
+        onPending: function (result) {
+            kirimKeBackend(result);
+        },
+        onError: function () {
+            Swal.fire('Gagal', 'Pembayaran gagal', 'error');
+        }
+    });
+}
+
+function kirimKeBackend(result) {
+    $.ajax({
+        url: "{{ route('uppm.pembayaran.midtrans.result') }}",
+        method: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            result_data: JSON.stringify(result)
+        },
+        success: function (res) {
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pembayaran Berhasil',
+                    text: 'Terima kasih, pembayaran berhasil'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Info', res.message, 'info');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Gagal memproses pembayaran', 'error');
+        }
     });
 }
 
