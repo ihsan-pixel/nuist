@@ -518,7 +518,7 @@ Route::get('/test-dummy-payment', function() {
         'nominal' => 10000,
         'metode_pembayaran' => 'midtrans',
         'status' => 'pending',
-        'tagihan_id' => 1, // pastikan id tagihan ada
+        'tagihan_id' => 3, // pastikan id tagihan ada
         'order_id' => 'TEST-123',
     ]);
 
