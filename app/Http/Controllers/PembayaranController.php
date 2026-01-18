@@ -328,12 +328,18 @@ class PembayaranController extends Controller
                 }
             }
 
-            // Cari payment berdasarkan order_id
-            $payment = Payment::where('order_id', $notification['order_id'])->first();
+        // Cari payment berdasarkan order_id
+        $payment = Payment::where('order_id', $notification['order_id'])->first();
 
-            if (!$payment) {
-                return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
-            }
+        Log::info('Midtrans Callback Received', [
+            'payload' => $notification,
+            'payment_found' => $payment ? true : false,
+            'payment_status' => $payment->status ?? null
+        ]);
+
+        if (!$payment) {
+            return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+        }
 
             if ($payment->status === 'success') {
                 return response()->json(['status' => 'already processed']);
