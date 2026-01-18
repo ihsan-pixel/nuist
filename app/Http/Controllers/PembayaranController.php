@@ -472,7 +472,7 @@ class PembayaranController extends Controller
                 if ($payment->tagihan_id) {
                     TagihanModel::where('id', $payment->tagihan_id)->update([
                         'status' => 'lunas',
-                        'nominal_dibayar' => $payment->nominal,
+                        // 'nominal_dibayar' => $payment->nominal,
                         'tanggal_pembayaran' => now(),
                     ]);
 
