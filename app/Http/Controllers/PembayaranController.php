@@ -464,11 +464,9 @@ class PembayaranController extends Controller
             $transactionStatus = $dataMidtrans->transaction_status;
             $fraudStatus = $dataMidtrans->fraud_status ?? null;
 
-            // For sandbox testing, be more permissive with success detection
             // Accept 'capture', 'settlement', 'success' as successful
-            // Also accept 'pending' with 'accept' fraud status as successful (sandbox behavior)
-            $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']) ||
-                        ($transactionStatus === 'pending' && $fraudStatus === 'accept');
+            // Don't accept pending as success - let webhook handle it
+            $isSuccess = in_array($transactionStatus, ['capture', 'settlement', 'success']);
 
             $paymentStatus = $isSuccess ? 'success' : ($transactionStatus == 'pending' ? 'pending' : 'failed');
 

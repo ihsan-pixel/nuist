@@ -503,3 +503,6 @@ if (env('APP_DEBUG') === true) {
         ], 200);
     })->name('debug.ppdb-status');
 }
+
+// Midtrans Webhook Callback
+Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
