@@ -609,7 +609,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 }
 
-function prosesResult(result, status) {
+function prosesResult(result) {
     $.ajax({
         url: "{{ route('uppm.pembayaran.midtrans.result') }}",
         method: "POST",
@@ -631,6 +631,10 @@ function prosesResult(result, status) {
             }
         }
     });
+}
+
+function sendResultToBackend(result) {
+    prosesResult(result);
 }
 
 function submitManualPayment(event) {

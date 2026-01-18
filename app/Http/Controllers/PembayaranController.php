@@ -254,6 +254,7 @@ class PembayaranController extends Controller
                         'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
                     ]
                 ],
+                'notification_url' => route('midtrans.callback'),
                 'callbacks' => [
                     'finish' => url('/uppm/pembayaran'),
                     'error' => url('/uppm/pembayaran'),
