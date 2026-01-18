@@ -17,6 +17,11 @@ class Payment extends Model
         'status',
         'keterangan',
         'tagihan_id',
+        'order_id',
+        'transaction_id',
+        'payment_type',
+        'response_midtrans',
+        'pdf_url',
     ];
 
     public function tagihan()

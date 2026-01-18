@@ -423,6 +423,7 @@ class PembayaranController extends Controller
                     'status' => 'success',
                     'transaction_id' => $request->transaction_id,
                     'payment_type' => $request->payment_type,
+                    'paid_at' => now(),
                 ]);
 
                 if ($payment->tagihan_id) {
