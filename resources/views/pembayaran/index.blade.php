@@ -200,6 +200,15 @@
     </div>
 </div>
 
+<!-- Test Button -->
+<div class="row mb-3">
+    <div class="col-12">
+        <button type="button" class="btn btn-warning" onclick="showTestUpdateModal()">
+            <i class="bx bx-test-tube me-1"></i>Test Update Payment Status
+        </button>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 col-sm-6">
@@ -345,6 +354,27 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Update Status Modal -->
+<div class="modal fade" id="testUpdateModal" tabindex="-1" aria-labelledby="testUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testUpdateModalLabel">Test Update Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testUpdateForm" onsubmit="return testUpdateStatus(event)">
+                    <div class="mb-3">
+                        <label for="test_order_id" class="form-label">Order ID</label>
+                        <input type="text" class="form-control" id="test_order_id" name="order_id" required placeholder="Masukkan Order ID">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </form>
             </div>
         </div>
     </div>
@@ -672,6 +702,78 @@ function submitManualPayment(event) {
                 icon: 'error',
                 title: 'Pembayaran Gagal',
                 text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
+    });
+}
+
+function showTestUpdateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('testUpdateModal'));
+    modal.show();
+}
+
+function testUpdateStatus(event) {
+    event.preventDefault();
+
+    const orderId = document.getElementById('test_order_id').value;
+
+    // Show loading
+    Swal.fire({
+        title: 'Updating Payment Status...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Make AJAX request
+    fetch('{{ route("uppm.pembayaran.update-status") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Close modal
+            const testModal = bootstrap.Modal.getInstance(document.getElementById('testUpdateModal'));
+            testModal.hide();
+
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'Status Updated!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to update status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Terjadi kesalahan saat update status'
             });
         }
     })
