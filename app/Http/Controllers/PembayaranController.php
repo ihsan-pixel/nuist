@@ -435,18 +435,26 @@ class PembayaranController extends Controller
     public function paymentResult(Request $request)
     {
         try {
-            Log::info('Payment result request received', [
-                'all_data' => $request->all(),
-                'result_data' => $request->result_data
-            ]);
+            if (!$request->has('result_data')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'result_data tidak ditemukan'
+                ], 400);
+            }
 
-            $dataMidtrans = json_decode($request->result_data);
+            $dataMidtrans = json_decode($request->result_data, false);
 
-            Log::info('Raw payment result data', [
-                'raw_data' => $request->result_data,
-                'decoded_data' => $dataMidtrans,
-                'json_error' => json_last_error_msg()
-            ]);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('JSON decode failed', [
+                    'error' => json_last_error_msg(),
+                    'raw' => $request->result_data
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Format data Midtrans tidak valid'
+                ], 400);
+            }
 
             if (!$dataMidtrans || !isset($dataMidtrans->order_id)) {
                 Log::error('Invalid Midtrans data', [
