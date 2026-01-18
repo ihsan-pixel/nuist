@@ -509,19 +509,4 @@ if (env('APP_DEBUG') === true) {
 // Midtrans Webhook Callback - TANPA AUTH & CSRF
 Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
 
-use App\Models\Payment;
-
-Route::get('/test-dummy-payment', function() {
-    $payment = Payment::create([
-        'madrasah_id' => 48,
-        'tahun_anggaran' => 2026,
-        'nominal' => 10000,
-        'metode_pembayaran' => 'midtrans',
-        'status' => 'pending',
-        'tagihan_id' => 3, // pastikan id tagihan ada
-        'order_id' => 'UPPM-DEFAULT-2026-1768749308',
-    ]);
-
-    return response()->json($payment);
-});
 
