@@ -585,47 +585,26 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 function bayarMidtrans(token, paymentId) {
     snap.pay(token, {
         onSuccess: function (result) {
-            console.log('Payment success, updating payment status and showing success message');
-            // Update payment status to success
-            fetch('/uppm/pembayaran/success', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    payment_id: paymentId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Payment update response:', data);
-                // Always show success since Midtrans confirmed payment
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pembayaran Berhasil!',
-                    text: 'Pembayaran online telah berhasil diproses.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = "/uppm/pembayaran";
-                });
-            })
-            .catch(error => {
-                console.error('Error updating payment:', error);
-                // Still show success since Midtrans confirmed payment
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pembayaran Berhasil!',
-                    text: 'Pembayaran online telah berhasil diproses.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = "/uppm/pembayaran";
-                });
+            console.log('Payment success, status will be updated via callback');
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Diproses',
+                text: 'Pembayaran berhasil. Status akan diperbarui otomatis.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/uppm/pembayaran";
             });
         },
         onPending: function (result) {
-            console.log('Payment pending, redirecting to payment page');
-            window.location.href = "/uppm/pembayaran";
+            console.log('Payment pending');
+            Swal.fire({
+                icon: 'info',
+                title: 'Menunggu Pembayaran',
+                text: 'Silakan selesaikan pembayaran.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/uppm/pembayaran";
+            });
         },
         onError: function () {
             Swal.fire('Gagal', 'Pembayaran gagal', 'error');

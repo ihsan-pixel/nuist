@@ -370,6 +370,8 @@ class PembayaranController extends Controller
 
     public function midtransCallback(Request $request)
     {
+        Log::info('MIDTRANS CALLBACK HIT', $request->all());
+
         // Initialize Midtrans config for consistent key usage
         $this->initMidtrans();
         $serverKey = Config::$serverKey;
@@ -399,6 +401,7 @@ class PembayaranController extends Controller
         $payment = Payment::where('order_id', $request->order_id)->first();
 
         if (!$payment) {
+            Log::error('Payment not found for callback', ['order_id' => $request->order_id]);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Payment not found'
@@ -487,39 +490,7 @@ class PembayaranController extends Controller
         ]);
     }
 
-    public function paymentSuccess(Request $request)
-    {
-        $request->validate([
-            'payment_id' => 'required|exists:payments,id',
-        ]);
 
-        $payment = Payment::find($request->payment_id);
-
-        if ($payment && $payment->status === 'pending') {
-            $payment->update([
-                'status' => 'success',
-                'paid_at' => now(),
-            ]);
-
-            if ($payment->tagihan_id) {
-                TagihanModel::where('id', $payment->tagihan_id)->update([
-                    'status' => 'lunas',
-                    'nominal_dibayar' => $payment->nominal,
-                    'tanggal_pembayaran' => now(),
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran berhasil diperbarui'
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Pembayaran sudah diproses atau tidak ditemukan'
-        ]);
-    }
 
 
 
