@@ -468,21 +468,7 @@ class UppmController extends Controller
         return redirect()->back()->with('success', 'Pembayaran cash berhasil dicatat');
     }
 
-    public function pembayaranMidtrans(Request $request)
-    {
-        $request->validate([
-            'madrasah_id' => 'required|exists:madrasahs,id',
-            'tahun' => 'required|integer',
-            'nominal' => 'required|numeric|min:0',
-        ]);
 
-        // Implementasi Midtrans akan ditambahkan nanti
-        // Untuk sekarang, return placeholder response
-        return response()->json([
-            'success' => false,
-            'message' => 'Integrasi Midtrans belum diimplementasikan',
-        ]);
-    }
 
     public function storeTagihan(Request $request)
     {
