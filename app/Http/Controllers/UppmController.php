@@ -500,6 +500,7 @@ class UppmController extends Controller
                 'jatuh_tempo' => $request->jatuh_tempo,
                 'status' => 'belum_lunas',
                 'keterangan' => $request->keterangan,
+                'jenis_tagihan' => 'UPPM',
             ]);
 
             return response()->json([

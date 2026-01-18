@@ -210,9 +210,6 @@
                     <!-- Action Buttons Section -->
                     <div class="row">
                         <div class="col-12 text-center">
-                            <button type="button" class="btn btn-primary btn-lg me-3" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                                <i class="bx bx-check me-2"></i>Bayar
-                            </button>
                             <a href="<?php echo e(route('uppm.pembayaran', ['tahun' => $tahun])); ?>" class="btn btn-secondary btn-lg">
                                 <i class="bx bx-arrow-back me-2"></i>Kembali
                             </a>
