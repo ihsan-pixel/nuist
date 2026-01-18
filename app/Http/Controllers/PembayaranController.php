@@ -306,6 +306,17 @@ class PembayaranController extends Controller
 
     public function midtransCallback(Request $request)
     {
+        // Log callback attempt immediately
+        Log::info('MIDTRANS CALLBACK ATTEMPT', [
+            'timestamp' => now(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'has_content' => $request->hasContent(),
+            'content_length' => $request->header('Content-Length')
+        ]);
+
         try {
             $this->initMidtrans();
             $notification = $request->all();
