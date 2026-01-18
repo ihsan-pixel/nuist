@@ -431,8 +431,16 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@php
+$appSetting = App\Models\AppSetting::find(1);
+$clientKey = $appSetting ? $appSetting->midtrans_client_key : null;
+$isProduction = $appSetting ? $appSetting->midtrans_is_production : false;
+@endphp
+
 <!-- Midtrans Snap.js -->
-<script src="{{ App\Models\AppSetting::getSettings()->midtrans_is_production ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ App\Models\AppSetting::getSettings()->midtrans_client_key ?? config('services.midtrans.client_key') }}"></script>
+@if($clientKey)
+<script src="{{ $isProduction ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
+@endif
 
 <script>
 function checkTagihan(madrasahId, tahun, madrasahName) {
@@ -524,6 +532,16 @@ function showManualPayment() {
 }
 
 function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
+    // Check if Midtrans Snap.js is loaded
+    if (typeof snap === 'undefined') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Midtrans Tidak Tersedia',
+            text: 'Client key Midtrans belum dikonfigurasi. Silakan hubungi administrator.'
+        });
+        return;
+    }
+
     // Show loading
     Swal.fire({
         title: 'Memproses...',
