@@ -251,11 +251,23 @@ class PembayaranController extends Controller
             curl_close($ch);
 
             if (!isset($response['token'])) {
+                Log::error('Midtrans transaction creation failed', [
+                    'response' => $response,
+                    'transaction_data' => $transactionData,
+                    'http_code' => $httpCode ?? null
+                ]);
+
                 return response()->json([
                     'success' => false,
                     'message' => $response['error_messages'][0] ?? 'Gagal membuat transaksi Midtrans'
                 ], 500);
             }
+
+            Log::info('Midtrans transaction created successfully', [
+                'token' => $response['token'],
+                'redirect_url' => $response['redirect_url'] ?? null,
+                'order_id' => $orderId
+            ]);
 
             // Buat payment record jika belum ada
             $payment = Payment::firstOrCreate(
