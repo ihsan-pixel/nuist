@@ -560,6 +560,9 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     .then(data => {
         Swal.close();
         if (data.success) {
+            // Simpan order_id di sessionStorage untuk digunakan nanti (misal testing callback)
+            sessionStorage.setItem('midtrans_order_id', data.order_id);
+
             // Open Midtrans Snap popup
             bayarMidtrans(data.snap_token, data.payment_id);
         } else {
