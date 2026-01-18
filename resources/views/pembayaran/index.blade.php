@@ -624,6 +624,45 @@ function sendResultToBackend(result) {
     });
 }
 
+function sendResultToBackend(result) {
+    fetch('{{ route("pembayaran.midtrans.result") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            result_data: JSON.stringify(result)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Berhasil!',
+                text: 'Pembayaran Anda telah berhasil diproses'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Pembayaran Gagal',
+                text: data.message || 'Terjadi kesalahan saat memproses pembayaran'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error sending result to backend:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan saat menyimpan data pembayaran'
+        });
+    });
+}
+
 function submitManualPayment(event) {
     event.preventDefault();
 
