@@ -256,7 +256,7 @@ class PembayaranController extends Controller
                         'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
                     ]
                 ],
-                'notification_url' => route('midtrans.callback'),
+                'notification_url' => url('/midtrans/callback'),
                 'callbacks' => [
                     'finish' => url('/uppm/pembayaran'),
                     'error' => url('/uppm/pembayaran'),
@@ -402,9 +402,23 @@ class PembayaranController extends Controller
             ], 404);
         }
 
+        Log::info('Processing Midtrans callback', [
+            'order_id' => $request->order_id,
+            'transaction_status' => $request->transaction_status,
+            'payment_type' => $request->payment_type,
+            'fraud_status' => $request->fraud_status,
+            'status_code' => $request->status_code,
+            'gross_amount' => $request->gross_amount,
+        ]);
+
         switch ($request->transaction_status) {
             case 'capture':
             case 'settlement':
+                Log::info('Payment successful - updating to success', [
+                    'order_id' => $request->order_id,
+                    'tagihan_id' => $payment->tagihan_id
+                ]);
+
                 $payment->update([
                     'status' => 'success',
                     'transaction_id' => $request->transaction_id,
@@ -417,14 +431,35 @@ class PembayaranController extends Controller
                         'nominal_dibayar' => $payment->nominal,
                         'tanggal_pembayaran' => now(),
                     ]);
+
+                    Log::info('Tagihan updated to lunas', [
+                        'tagihan_id' => $payment->tagihan_id,
+                        'nominal' => $payment->nominal
+                    ]);
                 }
                 break;
 
             case 'pending':
+                Log::info('Payment pending', ['order_id' => $request->order_id]);
                 $payment->update(['status' => 'pending']);
                 break;
 
+            case 'deny':
+            case 'cancel':
+            case 'expire':
+            case 'failure':
+                Log::info('Payment failed', [
+                    'order_id' => $request->order_id,
+                    'status' => $request->transaction_status
+                ]);
+                $payment->update(['status' => 'failed']);
+                break;
+
             default:
+                Log::warning('Unknown transaction status', [
+                    'order_id' => $request->order_id,
+                    'status' => $request->transaction_status
+                ]);
                 $payment->update(['status' => 'failed']);
                 break;
         }
