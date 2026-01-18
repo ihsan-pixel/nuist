@@ -495,7 +495,7 @@ class PembayaranController extends Controller
 
         $payment = Payment::find($request->payment_id);
 
-        if ($payment && $payment->status === 'pending') {
+        if ($payment && $payment->status !== 'success') {
             $payment->update([
                 'status' => 'success',
                 'paid_at' => now(),
