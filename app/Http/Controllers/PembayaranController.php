@@ -245,7 +245,7 @@ class PembayaranController extends Controller
                 ],
                 'customer_details' => [
                     'first_name' => $madrasah->name,
-                    'email' => 'admin@' . strtolower(str_replace(' ', '', $madrasah->name)) . '.com',
+                    'email' => 'admin@example.com', // Email yang valid dan aman
                     'phone' => '081234567890',
                 ],
                 'item_details' => [
@@ -262,6 +262,7 @@ class PembayaranController extends Controller
                     'error' => url('/uppm/pembayaran'),
                     'pending' => url('/uppm/pembayaran'),
                 ],
+                'notification_url' => secure_url('/midtrans/callback'), // Pastikan HTTPS
             ];
 
         try {
@@ -407,6 +408,14 @@ class PembayaranController extends Controller
             if (!$payment) {
                 Log::error('Payment not found', ['order_id' => $notification['order_id']]);
                 return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+            }
+
+            // Proteksi idempotent - Midtrans bisa kirim callback berkali-kali
+            if ($payment->status === 'success') {
+                Log::info('Payment already processed, skipping duplicate callback', [
+                    'order_id' => $notification['order_id']
+                ]);
+                return response()->json(['status' => 'already processed']);
             }
 
             // Map status Midtrans ke status aplikasi
