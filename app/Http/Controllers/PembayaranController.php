@@ -57,7 +57,7 @@ class PembayaranController extends Controller
                 'tahun_anggaran' => $tagihan->tahun_anggaran,
                 'total_nominal' => $tagihan->nominal,
                 'status_pembayaran' => $tagihan->status,
-                'nominal_dibayar' => $tagihan->nominal_dibayar ?? 0,
+                'nominal_dibayar' => $tagihan->status === 'lunas' ? $tagihan->nominal : 0,
                 'jatuh_tempo' => $tagihan->jatuh_tempo,
                 'tanggal_pembayaran' => $tagihan->tanggal_pembayaran,
                 'nomor_invoice' => $tagihan->nomor_invoice,
@@ -426,7 +426,7 @@ class PembayaranController extends Controller
             if ($newStatus === 'success' && $payment->tagihan_id) {
                 TagihanModel::where('id', $payment->tagihan_id)->update([
                     'status' => 'lunas',
-                    'nominal_dibayar' => $payment->nominal, // wajib ada di tabel tagihans
+                    // 'nominal_dibayar' => $payment->nominal, // wajib ada di tabel tagihans
                     'tanggal_pembayaran' => now(),
                 ]);
 
