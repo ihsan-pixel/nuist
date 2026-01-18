@@ -243,7 +243,7 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <p class="text-muted mb-2">Belum Bayar</p>
-                        <h5 class="mb-0">{{ collect($data)->where('status_pembayaran', 'belum_lunas')->count() }}</h5>
+                        <h5 class="mb-0">{{ collect($data)->whereIn('status_pembayaran', ['belum_lunas','pending'])->count() }}</h5>
                     </div>
                 </div>
             </div>
@@ -306,16 +306,19 @@
                                 <td>{{ $item->jenis_tagihan ?? '-'}}</td>
                                 <td>Rp {{ number_format($item->total_nominal, 0, ',', '.') }}</td>
                                 <td>
-                                    <span class="badge badge-modern bg-{{ $item->status_pembayaran == 'lunas' ? 'success' : ($item->status_pembayaran == 'sebagian' ? 'warning' : 'danger') }}">
+                                    @php
+                                    $statusColor = match($item->status_pembayaran) {
+                                        'lunas' => 'success',
+                                        'pending' => 'warning',
+                                        default => 'danger'
+                                    };
+                                    @endphp
+                                    <span class="badge badge-modern bg-{{ $statusColor }}">
                                         {{ ucfirst(str_replace('_', ' ', $item->status_pembayaran)) }}
                                     </span>
                                 </td>
                                 <td>
-                                    @if($item->status_pembayaran == 'lunas')
-                                        Rp {{ number_format($item->total_nominal, 0, ',', '.') }}
-                                    @else
-                                        Rp 0
-                                    @endif
+                                    Rp {{ number_format($item->nominal_dibayar ?? 0, 0, ',', '.') }}
                                 </td>
                                 <td>{{ $item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-' }}</td>
                                 <td>
@@ -522,6 +525,12 @@ function showManualPayment() {
 }
 
 function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
+    // Close payment modal first
+    const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+    if (paymentModal) {
+        paymentModal.hide();
+    }
+
     // Check if Midtrans Snap.js is loaded
     if (typeof snap === 'undefined') {
         Swal.fire({

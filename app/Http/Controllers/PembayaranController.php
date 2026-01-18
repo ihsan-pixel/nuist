@@ -163,40 +163,48 @@ class PembayaranController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        // Update status pembayaran di tabel tagihans
+        // Cek apakah tagihan sudah lunas
         $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
             ->where('tahun_anggaran', $request->tahun)
             ->first();
 
-        if ($tagihan) {
-            $tagihan->update([
-                'status' => 'lunas',
-                'nominal_dibayar' => $request->nominal,
-                'keterangan' => $request->keterangan,
-                'tanggal_pembayaran' => now(),
-            ]);
-
-            // Simpan pembayaran cash ke database payments
-            $payment = Payment::create([
-                'madrasah_id' => $request->madrasah_id,
-                'tahun_anggaran' => $request->tahun,
-                'nominal' => $request->nominal,
-                'metode_pembayaran' => 'cash',
-                'status' => 'success',
-                'keterangan' => $request->keterangan,
-                'tagihan_id' => $tagihan->id,
-            ]);
-
+        if (!$tagihan) {
             return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran cash berhasil dicatat'
-            ]);
+                'success' => false,
+                'message' => 'Tagihan tidak ditemukan'
+            ], 404);
         }
 
+        if ($tagihan->status === 'lunas') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tagihan sudah lunas'
+            ], 400);
+        }
+
+        // Update status pembayaran di tabel tagihans
+        $tagihan->update([
+            'status' => 'lunas',
+            'nominal_dibayar' => $request->nominal,
+            'keterangan' => $request->keterangan,
+            'tanggal_pembayaran' => now(),
+        ]);
+
+        // Simpan pembayaran cash ke database payments
+        $payment = Payment::create([
+            'madrasah_id' => $request->madrasah_id,
+            'tahun_anggaran' => $request->tahun,
+            'nominal' => $request->nominal,
+            'metode_pembayaran' => 'cash',
+            'status' => 'success',
+            'keterangan' => $request->keterangan,
+            'tagihan_id' => $tagihan->id,
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'Tagihan tidak ditemukan'
-        ], 404);
+            'success' => true,
+            'message' => 'Pembayaran cash berhasil dicatat'
+        ]);
     }
 
     public function pembayaranMidtrans(Request $request)
@@ -256,7 +264,7 @@ class PembayaranController extends Controller
                         'name' => 'Iuran Pengembangan Pendidikan Madrasah (UPPM) ' . $request->tahun,
                     ]
                 ],
-                'notification_url' => url('/midtrans/callback'),
+                // 'notification_url' => url('/midtrans/callback'),
                 'callbacks' => [
                     'finish' => url('/uppm/pembayaran'),
                     'error' => url('/uppm/pembayaran'),
