@@ -374,23 +374,26 @@ class PembayaranController extends Controller
         $this->initMidtrans();
         $serverKey = Config::$serverKey;
 
-        $hashed = hash(
-            'sha512',
-            $request->order_id .
-            $request->status_code .
-            $request->gross_amount .
-            $serverKey
-        );
+        // Skip signature check for local development
+        if (!app()->environment('local')) {
+            $hashed = hash(
+                'sha512',
+                $request->order_id .
+                $request->status_code .
+                $request->gross_amount .
+                $serverKey
+            );
 
-        if ($hashed !== $request->signature_key) {
-            Log::warning('Midtrans Callback Invalid Signature', [
-                'order_id' => $request->order_id
-            ]);
+            if ($hashed !== $request->signature_key) {
+                Log::warning('Midtrans Callback Invalid Signature', [
+                    'order_id' => $request->order_id
+                ]);
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid signature'
-            ], 403);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid signature'
+                ], 403);
+            }
         }
 
         $payment = Payment::where('order_id', $request->order_id)->first();
@@ -481,6 +484,40 @@ class PembayaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Result diterima. Status pembayaran diproses otomatis.'
+        ]);
+    }
+
+    public function paymentSuccess(Request $request)
+    {
+        $request->validate([
+            'payment_id' => 'required|exists:payments,id',
+        ]);
+
+        $payment = Payment::find($request->payment_id);
+
+        if ($payment && $payment->status === 'pending') {
+            $payment->update([
+                'status' => 'success',
+                'paid_at' => now(),
+            ]);
+
+            if ($payment->tagihan_id) {
+                TagihanModel::where('id', $payment->tagihan_id)->update([
+                    'status' => 'lunas',
+                    'nominal_dibayar' => $payment->nominal,
+                    'tanggal_pembayaran' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil diperbarui'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Pembayaran sudah diproses atau tidak ditemukan'
         ]);
     }
 

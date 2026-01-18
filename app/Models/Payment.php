@@ -22,6 +22,7 @@ class Payment extends Model
         'payment_type',
         'response_midtrans',
         'pdf_url',
+        'paid_at',
     ];
 
     public function tagihan()

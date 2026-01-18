@@ -561,7 +561,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         Swal.close();
         if (data.success) {
             // Open Midtrans Snap popup
-            bayarMidtrans(data.snap_token);
+            bayarMidtrans(data.snap_token, data.payment_id);
         } else {
             Swal.fire({
                 icon: 'error',
@@ -583,8 +583,15 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
 function bayarMidtrans(token) {
     snap.pay(token, {
         onSuccess: function (result) {
-            console.log('Payment success, redirecting to payment page');
-            window.location.href = "/uppm/pembayaran";
+            console.log('Payment success, showing success message and redirecting');
+            Swal.fire({
+                icon: 'success',
+                title: 'Pembayaran Berhasil!',
+                text: 'Pembayaran online telah berhasil diproses.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/uppm/pembayaran";
+            });
         },
         onPending: function (result) {
             console.log('Payment pending, redirecting to payment page');
@@ -621,17 +628,7 @@ function kirimKeBackend(result) {
         },
         success: function (res) {
             console.log('Backend response:', res);
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pembayaran Berhasil',
-                    text: 'Terima kasih, pembayaran berhasil'
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Info', res.message || 'Pembayaran sedang diproses', 'info');
-            }
+            // Don't show success message here as it's handled by the callback
         },
         error: function (xhr, status, error) {
             console.error('AJAX Error:', {
@@ -640,7 +637,7 @@ function kirimKeBackend(result) {
                 responseText: xhr.responseText,
                 error: error
             });
-            Swal.fire('Error', 'Gagal memproses pembayaran: ' + error, 'error');
+            // Don't show error message here as it's handled by the callback
         }
     });
 }
