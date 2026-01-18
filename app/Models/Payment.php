@@ -22,7 +22,15 @@ class Payment extends Model
         'payment_type',
         'response_midtrans',
         'pdf_url',
+        'payment_data',
         'paid_at',
+    ];
+
+    protected $casts = [
+        'nominal' => 'decimal:2',
+        'paid_at' => 'datetime',
+        'payment_data' => 'array',
+        'response_midtrans' => 'array',
     ];
 
     public function tagihan()

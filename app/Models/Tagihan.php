@@ -10,6 +10,7 @@ class Tagihan extends Model
         'madrasah_id',
         'tahun_anggaran',
         'nominal',
+        'nominal_dibayar',
         'status',
         'jatuh_tempo',
         'keterangan',
@@ -20,6 +21,7 @@ class Tagihan extends Model
 
     protected $casts = [
         'nominal' => 'decimal:2',
+        'nominal_dibayar' => 'decimal:2',
         'jatuh_tempo' => 'date',
         'tanggal_pembayaran' => 'date',
     ];
