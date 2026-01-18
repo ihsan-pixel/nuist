@@ -149,7 +149,7 @@ class PembayaranController extends Controller
         if ($tagihan) {
             $tagihan->update([
                 'status' => 'lunas',
-                'nominal_dibayar' => $request->nominal,
+                // 'nominal_dibayar' => $request->nominal,
                 'keterangan' => $request->keterangan,
                 'tanggal_pembayaran' => now(),
             ]);
