@@ -150,8 +150,10 @@ class TeachingProgressController extends Controller
                         'scod' => $madrasah->scod,
                         'nama' => $madrasah->name,
                         'hari_kbm' => $madrasah->hari_kbm,
-                        'jumlah_tenaga_pendidik' => 'Sudah: 0, Belum: 0',
-                        'presensi' => array_fill(0, 6, ['hadir' => 0, 'izin' => 0, 'alpha' => $totalTeachers]),
+                        'sudah' => 0,
+                        'belum' => 0,
+                        'total' => 0,
+                        'presensi' => array_fill(0, 6, ['hadir' => 0, 'alpha' => 0]),
                         'persentase_kehadiran' => 0
                     ];
                     continue;
