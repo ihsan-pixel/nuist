@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PresensiSettings;
 use App\Models\Presensi;
 use App\Models\User;
+use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -989,28 +990,34 @@ class PresensiAdminController extends Controller
                 $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
 
                 for ($i = 0; $i < $daysToCount; $i++) {
-                    $hadir = 0;
-                    $izin = 0;
-                    $alpha = 0;
+                    $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
-                    foreach ($tenagaPendidik as $guru) {
-                        $presensi = Presensi::where('user_id', $guru->id)
-                            ->whereDate('tanggal', $currentDate)
-                            ->first();
+                    if ($isHoliday) {
+                        $presensiMingguan[] = ['hadir' => '-', 'izin' => '-', 'alpha' => '-'];
+                    } else {
+                        $hadir = 0;
+                        $izin = 0;
+                        $alpha = 0;
 
-                        if ($presensi) {
-                            if ($presensi->status === 'hadir') $hadir++;
-                            elseif ($presensi->status === 'izin') $izin++;
-                            else $alpha++;
-                        } else {
-                            $alpha++;
+                        foreach ($tenagaPendidik as $guru) {
+                            $presensi = Presensi::where('user_id', $guru->id)
+                                ->whereDate('tanggal', $currentDate)
+                                ->first();
+
+                            if ($presensi) {
+                                if ($presensi->status === 'hadir') $hadir++;
+                                elseif ($presensi->status === 'izin') $izin++;
+                                else $alpha++;
+                            } else {
+                                $alpha++;
+                            }
                         }
+
+                        $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
+
+                        $totalHadir += $hadir;
+                        $totalPresensi += ($hadir + $izin + $alpha);
                     }
-
-                    $presensiMingguan[] = compact('hadir', 'izin', 'alpha');
-
-                    $totalHadir += $hadir;
-                    $totalPresensi += ($hadir + $izin + $alpha);
 
                     $currentDate->addDay();
                 }
@@ -1096,34 +1103,42 @@ class PresensiAdminController extends Controller
                 $daysToCount = $madrasah->hari_kbm == 5 ? 5 : 6; // Jika 5 hari kerja, jangan hitung Sabtu
 
                 for ($i = 0; $i < $daysToCount; $i++) {
-                    $hadir = 0;
-                    $izin = 0;
-                    $alpha = 0;
+                    $isHoliday = Holiday::where('date', $currentDate->toDateString())->exists();
 
-                    foreach ($tenagaPendidik as $guru) {
-                        $presensi = Presensi::where('user_id', $guru->id)
-                            ->whereDate('tanggal', $currentDate)
-                            ->first();
+                    if ($isHoliday) {
+                        $row[] = '-';
+                        $row[] = '-';
+                        $row[] = '-';
+                    } else {
+                        $hadir = 0;
+                        $izin = 0;
+                        $alpha = 0;
 
-                        if ($presensi) {
-                            if ($presensi->status === 'hadir') {
-                                $hadir++;
-                            } elseif ($presensi->status === 'izin') {
-                                $izin++;
+                        foreach ($tenagaPendidik as $guru) {
+                            $presensi = Presensi::where('user_id', $guru->id)
+                                ->whereDate('tanggal', $currentDate)
+                                ->first();
+
+                            if ($presensi) {
+                                if ($presensi->status === 'hadir') {
+                                    $hadir++;
+                                } elseif ($presensi->status === 'izin') {
+                                    $izin++;
+                                } else {
+                                    $alpha++;
+                                }
                             } else {
                                 $alpha++;
                             }
-                        } else {
-                            $alpha++;
                         }
+
+                        $row[] = $hadir;
+                        $row[] = $izin;
+                        $row[] = $alpha;
+
+                        $totalHadir += $hadir;
+                        $totalPresensi += $hadir + $izin + $alpha;
                     }
-
-                    $row[] = $hadir;
-                    $row[] = $izin;
-                    $row[] = $alpha;
-
-                    $totalHadir += $hadir;
-                    $totalPresensi += $hadir + $izin + $alpha;
 
                     $currentDate->addDay();
                 }

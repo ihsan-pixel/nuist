@@ -184,6 +184,13 @@ class PembayaranController extends Controller
 
         $amount = (int) $tagihan->nominal;
 
+        if ($amount <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nominal tagihan harus lebih besar dari 0.'
+            ], 400);
+        }
+
         // Buat order_id berdasarkan tagihan_id - simplified format
         $baseOrderId = 'UPPM-' . $request->tahun . '-' . $tagihan->id;
 
