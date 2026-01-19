@@ -36,7 +36,7 @@ class PaymentConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Konfirmasi Pembayaran UPPM - ' . $this->tagihan->nomor_invoice,
+            subject: 'Konfirmasi Pembayaran - ' . $this->tagihan->nomor_invoice,
         );
     }
 

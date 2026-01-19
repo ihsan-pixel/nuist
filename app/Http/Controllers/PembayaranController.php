@@ -512,6 +512,48 @@ class PembayaranController extends Controller
 
 
 
+    private function sendPaymentConfirmationEmail($payment, $tagihan, $madrasah = null)
+    {
+        try {
+            if (!$madrasah) {
+                $madrasah = Madrasah::find($tagihan->madrasah_id);
+            }
+
+            // Find admin user for this madrasah
+            $adminUser = \App\Models\User::where('madrasah_id', $tagihan->madrasah_id)
+                ->where('role', 'admin')
+                ->first();
+
+            if (!$adminUser || !$adminUser->email) {
+                Log::warning('Cannot send payment confirmation email: Admin user email not found', [
+                    'tagihan_id' => $tagihan->id,
+                    'madrasah_id' => $tagihan->madrasah_id,
+                    'madrasah_name' => $madrasah ? $madrasah->name : 'Unknown',
+                    'admin_user_found' => $adminUser ? true : false
+                ]);
+                return;
+            }
+
+            Mail::to($adminUser->email)->send(new PaymentConfirmation($payment, $tagihan, $madrasah));
+
+            Log::info('Payment confirmation email sent successfully', [
+                'tagihan_id' => $tagihan->id,
+                'admin_email' => $adminUser->email,
+                'admin_name' => $adminUser->name,
+                'madrasah_name' => $madrasah ? $madrasah->name : 'Unknown',
+                'order_id' => $payment->order_id
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send payment confirmation email', [
+                'tagihan_id' => $tagihan->id,
+                'madrasah_name' => $madrasah ? $madrasah->name : 'Unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
     private function hitungNominalBulanan($schoolData, $setting)
     {
         $nominal = 0;

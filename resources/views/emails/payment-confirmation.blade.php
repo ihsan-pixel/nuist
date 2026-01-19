@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konfirmasi Pembayaran UPPM</title>
+    <title>Konfirmasi Pembayaran</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,7 +55,7 @@
     <div class="content">
         <p>Yth. <strong>{{ $madrasah->name }}</strong>,</p>
 
-        <p>Kami dengan senang hati menginformasikan bahwa pembayaran Iuran Pengembangan Pendidikan Madrasah (UPPM) Anda telah berhasil diproses.</p>
+        <p>Kami dengan senang hati menginformasikan bahwa pembayaran Anda telah berhasil diproses.</p>
 
         <div class="payment-details">
             <h3>Detail Pembayaran:</h3>
@@ -94,7 +94,7 @@
         <p>Terima kasih atas partisipasi dan dukungan Anda dalam pengembangan pendidikan madrasah.</p>
 
         <p>Hormat kami,<br>
-        <strong>Tim NU IST NUI</strong></p>
+        <strong>Nuist LP. Ma'arif NU PWNU DIY</strong></p>
     </div>
 
     <div class="footer">
