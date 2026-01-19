@@ -210,6 +210,55 @@
         </div>
     </div>
 </div>
+
+<!-- Simfoni Completion Report -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Laporan Pengisian Simfoni per Madrasah</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-light">
+                <tr>
+                    <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
+                    <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
+                    <th colspan="3" class="text-center">Jumlah Tenaga Pendidik</th>
+                    <th rowspan="2" class="text-center align-middle">Persentase Pengisian (%)</th>
+                </tr>
+                <tr>
+                    <th class="text-center">Sudah Isi</th>
+                    <th class="text-center">Belum Isi</th>
+                    <th class="text-center">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($laporanData as $kabupaten)
+                <tr class="bg-info">
+                    <td colspan="6" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                </tr>
+                @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
+                <tr>
+                    <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
+                    <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
+                    <td class="text-center">{{ $madrasah['sudah'] }}</td>
+                    <td class="text-center">{{ $madrasah['belum'] }}</td>
+                    <td class="text-center">{{ $madrasah['total'] }}</td>
+                    <td class="text-center font-weight-bold">{{ number_format($madrasah['persentase'], 2) }}%</td>
+                </tr>
+                @endforeach
+                <tr class="bg-warning font-weight-bold">
+                    <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
+                    <td class="text-center">{{ $kabupaten['total_sudah'] }}</td>
+                    <td class="text-center">{{ $kabupaten['total_belum'] }}</td>
+                    <td class="text-center">{{ $kabupaten['total_tenaga_pendidik'] }}</td>
+                    <td class="text-center">{{ number_format($kabupaten['persentase'], 2) }}%</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
 @else
 <div class="alert alert-danger text-center">
     <h4>Akses Ditolak</h4>
