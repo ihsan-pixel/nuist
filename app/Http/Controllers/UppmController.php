@@ -493,6 +493,10 @@ class UppmController extends Controller
                 ]);
             }
 
+            $madrasah = Madrasah::findOrFail($request->madrasah_id);
+            $uniqueCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+            $nomorInvoice = 'INV-' . $madrasah->scod . '-' . $request->tahun_anggaran . '-' . $uniqueCode;
+
             Tagihan::create([
                 'madrasah_id' => $request->madrasah_id,
                 'tahun_anggaran' => $request->tahun_anggaran,
@@ -501,6 +505,7 @@ class UppmController extends Controller
                 'status' => 'belum_lunas',
                 'keterangan' => $request->keterangan,
                 'jenis_tagihan' => 'UPPM',
+                'nomor_invoice' => $nomorInvoice,
             ]);
 
             return response()->json([

@@ -26,6 +26,21 @@ class Tagihan extends Model
         'tanggal_pembayaran' => 'date',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($tagihan) {
+            if (!$tagihan->nomor_invoice) {
+                $madrasah = Madrasah::find($tagihan->madrasah_id);
+                if ($madrasah) {
+                    $uniqueCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+                    $tagihan->nomor_invoice = 'INV-' . $madrasah->scod . '-' . $tagihan->tahun_anggaran . '-' . $uniqueCode;
+                }
+            }
+        });
+    }
+
     public function madrasah()
     {
         return $this->belongsTo(Madrasah::class);
