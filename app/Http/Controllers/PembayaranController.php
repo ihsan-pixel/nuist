@@ -185,18 +185,23 @@ class PembayaranController extends Controller
         $amount = (int) $tagihan->nominal;
 
         // Buat order_id berdasarkan tagihan_id - simplified format
-        $orderId = 'UPPM-' . $request->tahun . '-' . $tagihan->id;
+        $baseOrderId = 'UPPM-' . $request->tahun . '-' . $tagihan->id;
 
         // Check if payment already exists and is pending
-        $existingPayment = Payment::where('order_id', $orderId)->first();
+        $existingPayment = Payment::where('tagihan_id', $tagihan->id)
+            ->where('status', 'pending')
+            ->first();
 
-        if ($existingPayment && $existingPayment->status === 'pending') {
-            // If payment exists and is pending, try to get new snap token
-            // This allows retrying payment for pending transactions
-            Log::info('Retrying payment for existing pending order', [
-                'order_id' => $orderId,
-                'payment_id' => $existingPayment->id
+        if ($existingPayment) {
+            // If payment exists and is pending, create new order_id for retry
+            $orderId = $baseOrderId . '-' . time();
+            Log::info('Retrying payment for existing pending payment, creating new order_id', [
+                'existing_payment_id' => $existingPayment->id,
+                'new_order_id' => $orderId,
+                'tagihan_id' => $tagihan->id
             ]);
+        } else {
+            $orderId = $baseOrderId;
         }
 
         // Inisialisasi Midtrans
