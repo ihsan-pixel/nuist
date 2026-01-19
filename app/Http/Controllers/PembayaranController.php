@@ -174,26 +174,30 @@ class PembayaranController extends Controller
     public function pembayaranMidtrans(Request $request)
     {
         $request->validate([
+            'tagihan_id' => 'required|exists:tagihans,id',
             'madrasah_id' => 'required|exists:madrasahs,id',
             'tahun' => 'required|integer',
         ]);
 
         $madrasah = Madrasah::findOrFail($request->madrasah_id);
-        $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
-            ->where('tahun_anggaran', $request->tahun)
-            ->first();
-
-        if (!$tagihan) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tagihan tidak ditemukan'
-            ], 404);
-        }
+        $tagihan = TagihanModel::findOrFail($request->tagihan_id);
 
         $amount = (int) $tagihan->nominal;
 
         // Buat order_id berdasarkan tagihan_id - simplified format
         $orderId = 'UPPM-' . $request->tahun . '-' . $tagihan->id;
+
+        // Check if payment already exists and is pending
+        $existingPayment = Payment::where('order_id', $orderId)->first();
+
+        if ($existingPayment && $existingPayment->status === 'pending') {
+            // If payment exists and is pending, try to get new snap token
+            // This allows retrying payment for pending transactions
+            Log::info('Retrying payment for existing pending order', [
+                'order_id' => $orderId,
+                'payment_id' => $existingPayment->id
+            ]);
+        }
 
         // Inisialisasi Midtrans
         $this->initMidtrans();
@@ -261,7 +265,7 @@ class PembayaranController extends Controller
                 'order_id' => $orderId
             ]);
 
-            // Buat payment record jika belum ada
+            // Buat payment record jika belum ada, atau update jika sudah ada
             $payment = Payment::firstOrCreate(
                 ['order_id' => $orderId],
                 [
