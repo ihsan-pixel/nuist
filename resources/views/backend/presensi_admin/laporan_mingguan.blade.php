@@ -77,6 +77,7 @@
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
+                                <th rowspan="2" class="text-center align-middle">Total Tenaga Pendidik</th>
                                 <th colspan="3" class="text-center">Senin</th>
                                 <th colspan="3" class="text-center">Selasa</th>
                                 <th colspan="3" class="text-center">Rabu</th>
@@ -96,13 +97,14 @@
                         <tbody>
                             @foreach($laporanData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="21" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                                <td colspan="22" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
                                 <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
                                 <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
                                 <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
+                                <td class="text-center">{{ $madrasah['total_tenaga_pendidik'] }}</td>
                                 @foreach($madrasah['presensi'] as $presensi)
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
                                 <td class="text-center">{{ $presensi['izin'] }}</td>
@@ -114,6 +116,7 @@
                             <tr class="bg-warning font-weight-bold">
                                 <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
                                 <td></td>
+                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total_tenaga_pendidik') }}</td>
                                 @for($i = 0; $i < 6; $i++)
                                 <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
                                 <td class="text-center">{{ $kabupaten['total_izin'] }}</td>

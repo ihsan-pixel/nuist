@@ -1035,6 +1035,7 @@ class PresensiAdminController extends Controller
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
+                    'total_tenaga_pendidik' => $tenagaPendidik->count(),
                     'presensi' => $presensiMingguan,
                     'persentase_kehadiran' => $persentase
                 ];
