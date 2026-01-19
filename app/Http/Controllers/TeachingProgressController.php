@@ -204,7 +204,9 @@ class TeachingProgressController extends Controller
                     'scod' => $madrasah->scod,
                     'nama' => $madrasah->name,
                     'hari_kbm' => $madrasah->hari_kbm,
-                    'jumlah_tenaga_pendidik' => "Sudah: {$teachersWithSchedule}, Belum: {$teachersWithoutSchedule}",
+                    'sudah' => $teachersWithSchedule,
+                    'belum' => $teachersWithoutSchedule,
+                    'total' => $totalTeachers,
                     'presensi' => $presensiMingguan,
                     'persentase_kehadiran' => $persentase
                 ];

@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Laporan Presensi Mengajar Mingguan')
+@section('title', 'Teaching Progress')
 
 @section('content')
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Laporan Presensi Mengajar Mingguan</h3>
+                    <h3 class="card-title">Teaching Progress</h3>
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
@@ -28,8 +28,8 @@
                             <tr>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
-                                <th rowspan="2" class="text-center align-middle">Jumlah Tenaga Pendidik</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
+                                <th colspan="3" class="text-center">Jumlah Tenaga Pendidik</th>
                                 <th colspan="2" class="text-center">Senin</th>
                                 <th colspan="2" class="text-center">Selasa</th>
                                 <th colspan="2" class="text-center">Rabu</th>
@@ -39,6 +39,9 @@
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
                             <tr>
+                                <th class="text-center">Sudah</th>
+                                <th class="text-center">Belum</th>
+                                <th class="text-center">Total</th>
                                 @for($i = 0; $i < 6; $i++)
                                 <th class="text-center">Hadir</th>
                                 <th class="text-center">Alpha</th>
@@ -48,14 +51,16 @@
                         <tbody>
                             @foreach($laporanData as $kabupaten)
                             <tr class="bg-info">
-                                <td colspan="21" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
+                                <td colspan="22" class="font-weight-bold text-center">{{ $kabupaten['kabupaten'] }}</td>
                             </tr>
                             @foreach(collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }) as $madrasah)
                             <tr>
                                 <td class="text-center" style="position: sticky; left: 0; background: white;">{{ $madrasah['scod'] }}</td>
                                 <td style="position: sticky; left: 60px; background: white;">{{ $madrasah['nama'] }}</td>
-                                <td class="text-center">{{ $madrasah['jumlah_tenaga_pendidik'] }}</td>
                                 <td class="text-center">{{ $madrasah['hari_kbm'] }}</td>
+                                <td class="text-center">{{ $madrasah['sudah'] }}</td>
+                                <td class="text-center">{{ $madrasah['belum'] }}</td>
+                                <td class="text-center">{{ $madrasah['total'] }}</td>
                                 @foreach($madrasah['presensi'] as $presensi)
                                 <td class="text-center">{{ $presensi['hadir'] }}</td>
                                 <td class="text-center">{{ $presensi['alpha'] }}</td>
@@ -64,8 +69,10 @@
                             </tr>
                             @endforeach
                             <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
-                                <td></td>
+                                <td colspan="3" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL {{ $kabupaten['kabupaten'] }}</td>
+                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('sudah') }}</td>
+                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('belum') }}</td>
+                                <td class="text-center">{{ collect($kabupaten['madrasahs'])->sum('total') }}</td>
                                 @for($i = 0; $i < 6; $i++)
                                 <td class="text-center">{{ $kabupaten['total_hadir'] }}</td>
                                 <td class="text-center">{{ $kabupaten['total_alpha'] }}</td>
