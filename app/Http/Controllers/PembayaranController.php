@@ -137,6 +137,7 @@ class PembayaranController extends Controller
     public function pembayaranCash(Request $request)
     {
         $request->validate([
+            'tagihan_id' => 'required|exists:tagihans,id',
             'madrasah_id' => 'required|exists:madrasahs,id',
             'tahun' => 'required|integer',
             'nominal' => 'required|numeric|min:0',
@@ -144,39 +145,30 @@ class PembayaranController extends Controller
         ]);
 
         // Update status pembayaran di tabel tagihans
-        $tagihan = TagihanModel::where('madrasah_id', $request->madrasah_id)
-            ->where('tahun_anggaran', $request->tahun)
-            ->first();
+        $tagihan = TagihanModel::findOrFail($request->tagihan_id);
 
-        if ($tagihan) {
-            $tagihan->update([
-                'status' => 'lunas',
-                // 'nominal_dibayar' => $request->nominal,
-                'keterangan' => $request->keterangan,
-                'tanggal_pembayaran' => now(),
-            ]);
+        $tagihan->update([
+            'status' => 'lunas',
+            // 'nominal_dibayar' => $request->nominal,
+            'keterangan' => $request->keterangan,
+            'tanggal_pembayaran' => now(),
+        ]);
 
-            // Simpan pembayaran cash ke database payments
-            $payment = Payment::create([
-                'madrasah_id' => $request->madrasah_id,
-                'tahun_anggaran' => $request->tahun,
-                'nominal' => $request->nominal,
-                'metode_pembayaran' => 'cash',
-                'status' => 'success',
-                'keterangan' => $request->keterangan,
-                'tagihan_id' => $tagihan->id,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran cash berhasil dicatat'
-            ]);
-        }
+        // Simpan pembayaran cash ke database payments
+        $payment = Payment::create([
+            'madrasah_id' => $request->madrasah_id,
+            'tahun_anggaran' => $request->tahun,
+            'nominal' => $request->nominal,
+            'metode_pembayaran' => 'cash',
+            'status' => 'success',
+            'keterangan' => $request->keterangan,
+            'tagihan_id' => $tagihan->id,
+        ]);
 
         return response()->json([
-            'success' => false,
-            'message' => 'Tagihan tidak ditemukan'
-        ], 404);
+            'success' => true,
+            'message' => 'Pembayaran cash berhasil dicatat'
+        ]);
     }
 
     public function pembayaranMidtrans(Request $request)

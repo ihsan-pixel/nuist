@@ -337,7 +337,7 @@
                                         <i class="bx bx-detail me-1"></i>Detail
                                     </button>
                                     @if($item->status_pembayaran != 'lunas')
-                                    <button type="button" onclick="showPaymentModal({{ $item->madrasah->id }}, {{ $tahun }}, '{{ $item->madrasah->name }}', {{ $item->total_nominal }})"
+                                    <button type="button" onclick="showPaymentModal({{ $item->id }}, {{ $item->madrasah->id }}, {{ $item->tahun_anggaran }}, '{{ $item->madrasah->name }}', {{ $item->total_nominal }})"
                                             class="btn btn-sm btn-success">
                                         <i class="bx bx-money me-1"></i>Bayar
                                     </button>
@@ -391,7 +391,7 @@
                                 <i class="bx bx-credit-card display-4 text-success"></i>
                                 <h5 class="card-title">Online</h5>
                                 <p class="card-text">Bayar melalui Midtrans</p>
-                                <button type="button" class="btn btn-success" onclick="payOnline(currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
+                                <button type="button" class="btn btn-success" onclick="payOnline(currentTagihanId, currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
                             </div>
                         </div>
                     </div>
@@ -412,6 +412,7 @@
             <div class="modal-body">
                 <form id="manualPaymentForm" action="{{ route('uppm.pembayaran.cash') }}" method="POST" onsubmit="return submitManualPayment(event)">
                     @csrf
+                    <input type="hidden" name="tagihan_id" id="manual_tagihan_id">
                     <input type="hidden" name="madrasah_id" id="manual_madrasah_id">
                     <input type="hidden" name="tahun" id="manual_tahun">
                     <div class="mb-3">
@@ -506,12 +507,14 @@ function showNoTagihanAlert() {
     });
 }
 
+let currentTagihanId = null;
 let currentMadrasahId = null;
 let currentTahun = null;
 let currentMadrasahName = null;
 let currentTotalNominal = null;
 
-function showPaymentModal(madrasahId, tahun, madrasahName, totalNominal) {
+function showPaymentModal(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
+    currentTagihanId = tagihanId;
     currentMadrasahId = madrasahId;
     currentTahun = tahun;
     currentMadrasahName = madrasahName;
@@ -527,6 +530,7 @@ function showManualPayment() {
     paymentModal.hide();
 
     // Set form values
+    document.getElementById('manual_tagihan_id').value = currentTagihanId;
     document.getElementById('manual_madrasah_id').value = currentMadrasahId;
     document.getElementById('manual_tahun').value = currentTahun;
     document.getElementById('manual_nominal').value = currentTotalNominal;
@@ -536,7 +540,7 @@ function showManualPayment() {
     manualModal.show();
 }
 
-function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
+function payOnline(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
     // Check if Midtrans Snap.js is loaded
     if (typeof snap === 'undefined') {
         Swal.fire({
@@ -566,6 +570,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
+            tagihan_id: tagihanId,
             madrasah_id: madrasahId,
             tahun: tahun,
             nominal: totalNominal
