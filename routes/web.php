@@ -511,3 +511,14 @@ if (env('APP_DEBUG') === true) {
 Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
 
 
+Route::get('/test-email', function () {
+
+    $payment = Payment::first();
+    $tagihan = Tagihan::first();
+    $madrasah = Madrasah::first();
+
+    Mail::to($madrasah->email)
+        ->send(new PaymentConfirmation($payment, $tagihan, $madrasah));
+
+    return 'EMAIL BERHASIL DIKIRIM';
+});

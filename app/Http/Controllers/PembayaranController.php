@@ -12,6 +12,8 @@ use App\Models\Yayasan;
 use App\Models\AppSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentConfirmation;
 use Midtrans\Config;
 
 class PembayaranController extends Controller
@@ -492,6 +494,9 @@ class PembayaranController extends Controller
                     'status' => 'lunas',
                     'tanggal_pembayaran' => now(),
                 ]);
+
+                // Send email confirmation with PDF invoice
+                $this->sendPaymentConfirmationEmail($payment, $tagihan);
             }
         }
 
