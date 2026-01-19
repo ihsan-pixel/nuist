@@ -523,7 +523,7 @@ Route::get('/test-email', function () {
     $tagihan = Tagihan::first();
     $madrasah = Madrasah::first();
 
-    Mail::to($madrasah->email)
+    Mail::to('muhamadihsan06381@gmail.com')
         ->send(new PaymentConfirmation($payment, $tagihan, $madrasah));
 
     return 'EMAIL BERHASIL DIKIRIM';
