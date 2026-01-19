@@ -49,7 +49,7 @@ class PembayaranController extends Controller
     public function index(Request $request)
     {
         $tahun = $request->get('tahun', date('Y'));
-        $tagihans = TagihanModel::where('tahun_anggaran', $tahun)->with('madrasah')->get();
+        $tagihans = TagihanModel::with('madrasah')->get();
         $data = [];
 
         foreach ($tagihans as $tagihan) {
@@ -67,11 +67,11 @@ class PembayaranController extends Controller
             ];
         }
 
-        // Calculate total nominal lunas from database
-        $totalLunasNominal = TagihanModel::where('tahun_anggaran', $tahun)->where('status', 'lunas')->sum('nominal');
+        // Calculate total nominal lunas from database (all years)
+        $totalLunasNominal = TagihanModel::where('status', 'lunas')->sum('nominal');
 
-        // Calculate total tagihan nominal for belum_lunas and pending
-        $totalTagihanNominal = TagihanModel::where('tahun_anggaran', $tahun)->whereIn('status', ['belum_lunas', 'pending'])->sum('nominal');
+        // Calculate total tagihan nominal for belum_lunas and pending (all years)
+        $totalTagihanNominal = TagihanModel::whereIn('status', ['belum_lunas', 'pending'])->sum('nominal');
 
         return view('pembayaran.index', compact('data', 'tahun', 'totalLunasNominal', 'totalTagihanNominal'));
     }
