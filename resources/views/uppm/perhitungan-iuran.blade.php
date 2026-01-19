@@ -429,7 +429,7 @@
                         <div class="col-md-3">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                @for($i = date('Y') - 2; $i <= date('Y') + 1; $i++)
+                                @for($i = date('Y') - 3; $i <= date('Y') + 1; $i++)
                                     <option value="{{ $i }}" {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                 @endfor
                             </select>
