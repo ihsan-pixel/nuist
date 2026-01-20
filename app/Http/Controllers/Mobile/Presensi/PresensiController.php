@@ -701,7 +701,7 @@ class PresensiController extends \App\Http\Controllers\Controller
             $analysis['accuracy_check'] = true;
             $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
             $isFake = true;
-            $messages[] = 'Akurasi GPS terlalu sempurna (kemungkinan fake GPS)';
+            $messages[] = 'Akurasi GPS terlalu sempurna (Terindikasi Lokasi Palsu)';
         }
 
         // 2. Check location consistency from readings
