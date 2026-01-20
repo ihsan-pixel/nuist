@@ -696,7 +696,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         $messages = [];
 
         // 1. Check GPS accuracy - fake GPS often has unrealistically high accuracy
-        if ($request->accuracy && $request->accuracy < 0.1) {
+        if ($request->accuracy && $request->accuracy < 1) {
             // Accuracy better than 1 meter is suspicious (too perfect)
             $analysis['accuracy_check'] = true;
             $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
