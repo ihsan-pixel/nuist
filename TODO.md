@@ -1,18 +1,41 @@
-# TODO: Update UPPM Data Sekolah and Perhitungan Iuran to Use DataSekolah Table
+# TODO - Fake GPS Detection Implementation
 
-## Tasks
-- [x] Add import for DataSekolah model in UppmController.php
-- [x] Update dataSekolah method to query DataSekolah instead of User model for teacher counts
-- [x] Update logic to fetch jumlah_siswa and teacher fields from DataSekolah for the selected year
-- [x] Set values to 0 if no DataSekolah record exists for the madrasah and year
-- [x] Test the changes to ensure data loads correctly and filtering by year works
-- [x] Update dataSekolah method to automatically calculate Total Nominal UPPM per Tahun based on UppmSetting for the year
-- [x] Fetch UppmSetting for the selected tahun_anggaran
-- [x] Calculate total_nominal = 12 * (jumlah_siswa * nominal_siswa + jumlah_pns_sertifikasi * nominal_pns_sertifikasi + ...)
-- [x] Set total_nominal to 0 if no setting exists
-- [x] Test the calculation and display of total nominal
-- [x] Update perhitunganIuran method to use data from DataSekolah table instead of UppmSchoolData
-- [x] For each madrasah, fetch DataSekolah record for the year
-- [x] If DataSekolah exists, use its counts for calculation; else skip or set to 0
-- [x] Ensure calculation uses UppmSetting as before
-- [x] Test the perhitungan iuran page to verify it uses data sekolah data
+## Completed Tasks
+- [x] Add comprehensive fake GPS validation method (`validateLocationForFakeGPS`)
+- [x] Implement accuracy checking (detect unrealistically high accuracy < 0.1m)
+- [x] Add location consistency validation (existing method enhanced)
+- [x] Implement speed/movement validation (teleportation detection)
+- [x] Add device info pattern checking for suspicious apps
+- [x] Implement coordinate precision validation (adjusted for iOS high precision)
+- [x] Add distance calculation helper method
+- [x] Update presensi creation to store fake GPS analysis for both masuk and keluar
+- [x] Update presensi keluar to store fake GPS analysis
+- [x] Modify frontend to send multiple location readings for validation
+- [x] Add validation call before selfie processing
+
+## Testing Tasks
+- [ ] Test with real GPS data to ensure no false positives
+- [ ] Test with fake GPS apps to verify detection works
+- [ ] Test edge cases (poor GPS signal, indoor locations)
+- [ ] Test multi-device (Android, iOS) - especially iOS high precision GPS
+- [ ] Test performance - ensure validation doesn't slow down presensi
+- [ ] Test error handling - handle validation errors gracefully
+
+## Potential Improvements
+- [ ] Add mock location flag detection (Android API)
+- [ ] Implement machine learning for anomaly detection
+- [ ] Add WiFi/cell tower triangulation cross-validation
+- [ ] Add time-based pattern analysis
+- [ ] Implement user appeal system for false positives
+
+## Monitoring & Maintenance
+- [ ] Add logging for fake GPS detection events
+- [ ] Create admin dashboard for monitoring fake GPS attempts
+- [ ] Set up alerts for high fake GPS detection rates
+- [ ] Regular review and adjustment of detection thresholds
+
+## Recent Fixes
+- [x] Adjusted GPS accuracy threshold from <1m to <0.1m to prevent false positives with iOS high-precision GPS
+- [x] Modified coordinate precision check to only flag >15 decimal places instead of >10
+- [x] Added proper handling for iOS GPS precision (up to 12-14 decimal places is normal)
+- [x] Fixed presensi keluar to also store fake GPS analysis data

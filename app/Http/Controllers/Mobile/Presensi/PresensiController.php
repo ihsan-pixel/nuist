@@ -545,6 +545,8 @@ class PresensiController extends \App\Http\Controllers\Controller
                 'device_info_keluar' => $request->device_info,
                 'location_readings_keluar' => $request->location_readings,
                 'selfie_keluar_path' => $selfiePath,
+                'is_fake_location_keluar' => $locationValidation['is_fake'] ?? false,
+                'fake_location_analysis_keluar' => $locationValidation['analysis'] ?? null,
             ]);
 
             $presensi = $existingPresensi;
@@ -694,7 +696,7 @@ class PresensiController extends \App\Http\Controllers\Controller
         $messages = [];
 
         // 1. Check GPS accuracy - fake GPS often has unrealistically high accuracy
-        if ($request->accuracy && $request->accuracy < 1) {
+        if ($request->accuracy && $request->accuracy < 0.1) {
             // Accuracy better than 1 meter is suspicious (too perfect)
             $analysis['accuracy_check'] = true;
             $analysis['suspicious_indicators'][] = 'accuracy_too_perfect';
@@ -792,8 +794,16 @@ class PresensiController extends \App\Http\Controllers\Controller
             $latStr = (string)$request->latitude;
             $lngStr = (string)$request->longitude;
 
-            // Check if coordinates have too many decimal places (suspicious precision)
-            if (strlen($latStr) > 10 && strlen($lngStr) > 10) {
+            // Check if coordinates have unrealistically high precision (>15 decimal places)
+            // Normal GPS precision is around 6-8 decimal places, iOS can provide up to 12-14
+            $latParts = explode('.', $latStr);
+            $lngParts = explode('.', $lngStr);
+
+            $latDecimals = isset($latParts[1]) ? strlen($latParts[1]) : 0;
+            $lngDecimals = isset($lngParts[1]) ? strlen($lngParts[1]) : 0;
+
+            // Only flag as suspicious if precision is extremely high (>15 decimal places)
+            if ($latDecimals > 15 || $lngDecimals > 15) {
                 $analysis['suspicious_indicators'][] = 'precision_too_high';
                 $isFake = true;
                 $messages[] = 'Presisi koordinat GPS tidak wajar';
