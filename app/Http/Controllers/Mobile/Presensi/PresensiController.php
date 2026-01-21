@@ -587,13 +587,29 @@ class PresensiController extends \App\Http\Controllers\Controller
         $selectedMonth = $request->input('month') ? Carbon::parse($request->input('month')) : Carbon::now();
 
         // Fetch presensi for the selected month for the authenticated user
-        $presensiHistory = Presensi::with('madrasah')
+        $presensiRecords = Presensi::with('madrasah')
             ->where('user_id', $user->id)
             ->whereYear('tanggal', $selectedMonth->year)
             ->whereMonth('tanggal', $selectedMonth->month)
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('waktu_masuk', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->model_type = 'presensi';
+                return $item;
+            });
+
+        // Fetch izin records for the selected month for the authenticated user
+        $izinRecords = \App\Models\Izin::with('user')
+            ->where('user_id', $user->id)
+            ->whereYear('tanggal', $selectedMonth->year)
+            ->whereMonth('tanggal', $selectedMonth->month)
+            ->get()
+            ->map(function ($item) {
+                $item->model_type = 'izin';
+                return $item;
+            });
+
+        // Combine presensi and izin records, sort by tanggal desc
+        $presensiHistory = $presensiRecords->concat($izinRecords)->sortByDesc('tanggal');
 
         return view('mobile.riwayat-presensi', compact('presensiHistory'));
     }
