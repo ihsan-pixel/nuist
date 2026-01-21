@@ -137,19 +137,30 @@
                 @foreach($presensis as $presensi)
                     <div class="history-details mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
                         <div class="time-info">
-                            <small class="fw-bold text-primary">{{ $presensi->madrasah->name ?? 'Madrasah' }}</small>
-                            @if($presensi->waktu_masuk)
-                                <div>Masuk: {{ \Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i') }}</div>
-                            @endif
-                            @if($presensi->waktu_keluar)
-                                <div>Keluar: {{ \Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i') }}</div>
-                            @endif
-                            @if($presensi->keterangan)
-                                <div class="text-muted small">{{ $presensi->keterangan }}</div>
+                            @if($presensi->model_type == 'presensi')
+                                <small class="fw-bold text-primary">{{ $presensi->madrasah->name ?? 'Madrasah' }}</small>
+                                @if($presensi->waktu_masuk)
+                                    <div>Masuk: {{ \Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i') }}</div>
+                                @endif
+                                @if($presensi->waktu_keluar)
+                                    <div>Keluar: {{ \Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i') }}</div>
+                                @endif
+                                @if($presensi->keterangan)
+                                    <div class="text-muted small">{{ $presensi->keterangan }}</div>
+                                @endif
+                            @else
+                                <div>Jenis Izin: {{ ucfirst(str_replace('_', ' ', $presensi->type)) }}</div>
+                                @if($presensi->deskripsi_tugas)
+                                    <div class="text-muted small">{{ $presensi->deskripsi_tugas }}</div>
+                                @endif
                             @endif
                         </div>
-                        <div class="status-badge status-{{ $presensi->status }}">
-                            {{ ucfirst($presensi->status) }}
+                        <div class="status-badge status-{{ $presensi->model_type == 'presensi' ? $presensi->status : $presensi->status }}">
+                            @if($presensi->model_type == 'presensi')
+                                {{ ucfirst($presensi->status) }}
+                            @else
+                                {{ ucfirst($presensi->status) }}
+                            @endif
                         </div>
                     </div>
                 @endforeach
