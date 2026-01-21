@@ -148,6 +148,19 @@ class IzinController extends \App\Http\Controllers\Controller
                 break;
 
             case 'tugas_luar':
+                // Check for duplicate tugas_luar on the same date
+                $existingTugasLuar = \App\Models\Izin::where('user_id', $user->id)
+                    ->where('tanggal', $tanggal)
+                    ->where('type', 'tugas_luar')
+                    ->first();
+                if ($existingTugasLuar) {
+                    $msg = 'Anda sudah memiliki pengajuan izin tugas luar pada tanggal ini.';
+                    if ($request->wantsJson() || $request->ajax()) {
+                        return response()->json(['success' => false, 'message' => $msg], 400);
+                    }
+                    return redirect()->back()->with('error', $msg);
+                }
+
                 $request->validate([
                     'tanggal' => 'required|date',
                     'deskripsi_tugas' => 'required|string',
