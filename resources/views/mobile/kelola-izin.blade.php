@@ -245,13 +245,19 @@
             @if($izin->status === 'pending')
             <div class="izin-actions">
                 <!-- Izin dari tabel izins -->
-                <button type="button" class="btn-approve approve-btn" data-id="{{ $izin->id }}" data-action="approve">
-                    <i class="bx bx-check"></i> Setujui
-                </button>
+                <form action="{{ route('izin.model.approve', $izin->id) }}" method="POST" style="flex: 1;">
+                    @csrf
+                    <button type="submit" class="btn-approve">
+                        <i class="bx bx-check"></i> Setujui
+                    </button>
+                </form>
 
-                <button type="button" class="btn-reject reject-btn" data-id="{{ $izin->id }}" data-action="reject">
-                    <i class="bx bx-x"></i> Tolak
-                </button>
+                <form action="{{ route('izin.model.reject', $izin->id) }}" method="POST" style="flex: 1;">
+                    @csrf
+                    <button type="submit" class="btn-reject">
+                        <i class="bx bx-x"></i> Tolak
+                    </button>
+                </form>
             </div>
             @endif
         </div>
