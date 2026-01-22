@@ -42,7 +42,7 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
 
             <!-- Welcome Text (Right-aligned) -->
-            <div class="text-start flex-grow-1">
+            <div class="text-start grow">
                 <small class="text-dark fw-medium" style="font-size: 11px;">{{ $congrat }}</small>
                 <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
             </div>

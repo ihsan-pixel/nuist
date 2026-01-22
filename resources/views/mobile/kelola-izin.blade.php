@@ -218,7 +218,7 @@
                     <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
                     <strong>Waktu:</strong> {{ $izin->waktu_masuk }} - {{ $izin->waktu_keluar }}
                 @else
-                    {{ $izin->keterangan }}
+                    {{ $izin->deskripsi_tugas ?? 'Tidak ada deskripsi.' }}
                 @endif
             </div>
 
