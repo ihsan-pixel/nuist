@@ -336,42 +336,32 @@ class IzinController extends \App\Http\Controllers\Controller
 
         // Kepala madrasah: show requests for the whole madrasah
         if ((($user->role === 'tenaga_pendidik') || ($user->role === 'admin')) && $user->ketugasan === 'kepala madrasah/sekolah') {
-            // Get izin requests from both presensis and izins tables
+            // Get izin requests from presensis table only
             $presensiIzinQuery = Presensi::with('user')
                 ->where('status', 'izin')
                 ->whereHas('user', function ($q) use ($user) {
                     $q->where('madrasah_id', $user->madrasah_id);
                 });
 
-            $izinTableQuery = \App\Models\Izin::with('user')
-                ->whereHas('user', function ($q) use ($user) {
-                    $q->where('madrasah_id', $user->madrasah_id);
-                });
-
             if ($status !== 'all') {
                 $presensiIzinQuery->where('status_izin', $status);
-                $izinTableQuery->where('status', $status);
             }
 
             $presensiIzinRequests = $presensiIzinQuery->get()->map(function ($item) {
                 $item->model_type = 'presensi';
                 return $item;
             });
-            $izinTableRequests = $izinTableQuery->get()->map(function ($item) {
-                $item->model_type = 'izin';
-                return $item;
-            });
 
-            // Combine and sort by tanggal desc
-            $combinedRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');
+            // Sort by tanggal desc
+            $sortedRequests = $presensiIzinRequests->sortByDesc('tanggal');
 
-            // Manual pagination for combined collection
+            // Manual pagination for collection
             $perPage = 10;
             $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
-            $items = $combinedRequests->forPage($currentPage, $perPage);
+            $items = $sortedRequests->forPage($currentPage, $perPage);
             $izinRequests = new \Illuminate\Pagination\LengthAwarePaginator(
                 $items,
-                $combinedRequests->count(),
+                $sortedRequests->count(),
                 $perPage,
                 $currentPage,
                 ['path' => request()->url(), 'pageName' => 'page']
@@ -382,32 +372,27 @@ class IzinController extends \App\Http\Controllers\Controller
 
         // Regular tenaga_pendidik: show only their own izin requests
         if ($user->role === 'tenaga_pendidik') {
-            // Get izin requests from both tables
+            // Get izin requests from presensis table only
             $presensiIzinQuery = Presensi::with('user')
                 ->where('user_id', $user->id)
                 ->where('status', 'izin');
 
-            $izinTableQuery = \App\Models\Izin::with('user')
-                ->where('user_id', $user->id);
-
             if ($status !== 'all') {
                 $presensiIzinQuery->where('status_izin', $status);
-                $izinTableQuery->where('status', $status);
             }
 
             $presensiIzinRequests = $presensiIzinQuery->get();
-            $izinTableRequests = $izinTableQuery->get();
 
-            // Combine and sort by tanggal desc
-            $combinedRequests = $presensiIzinRequests->concat($izinTableRequests)->sortByDesc('tanggal');
+            // Sort by tanggal desc
+            $sortedRequests = $presensiIzinRequests->sortByDesc('tanggal');
 
-            // Manual pagination for combined collection
+            // Manual pagination for collection
             $perPage = 10;
             $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
-            $items = $combinedRequests->forPage($currentPage, $perPage);
+            $items = $sortedRequests->forPage($currentPage, $perPage);
             $izinRequests = new \Illuminate\Pagination\LengthAwarePaginator(
                 $items,
-                $combinedRequests->count(),
+                $sortedRequests->count(),
                 $perPage,
                 $currentPage,
                 ['path' => request()->url(), 'pageName' => 'page']
