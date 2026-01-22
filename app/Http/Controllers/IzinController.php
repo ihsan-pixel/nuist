@@ -99,22 +99,17 @@ class IzinController extends Controller
             // Handle presensi-based izin approval
             $this->authorize('approve', $presensi);
 
-            // For terlambat in presensis table, reject instead of approve to keep data only in izins
-            if (str_contains($presensi->keterangan, 'terlambat')) {
-                $presensi->update([
-                    'status_izin' => 'rejected',
-                    'status' => 'alpha',
-                    'approved_by' => Auth::id(),
-                ]);
+            // For terlambat in presensis table, delete the record to keep data only in izins
+            if (str_contains(strtolower($presensi->keterangan), 'terlambat')) {
+                $presensi->delete();
 
-                // Create notification for rejection
+                // Create notification for deletion
                 Notification::create([
                     'user_id' => $presensi->user_id,
                     'type' => 'izin_rejected',
                     'title' => 'Izin Ditolak',
-                    'message' => 'Pengajuan izin terlambat Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak. Silakan ajukan ulang melalui aplikasi mobile.',
+                    'message' => 'Pengajuan izin terlambat Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah dihapus. Silakan ajukan ulang melalui aplikasi mobile.',
                     'data' => [
-                        'presensi_id' => $presensi->id,
                         'tanggal' => $presensi->tanggal,
                         'rejected_by' => Auth::user()->name
                     ]
@@ -124,6 +119,7 @@ class IzinController extends Controller
                     'status_izin' => 'approved',
                     'approved_by' => Auth::id(),
                 ]);
+            }
 
                 // If this is a tugas_luar approval from presensis table, auto-fill waktu_keluar
                 if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
