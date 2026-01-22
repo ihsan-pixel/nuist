@@ -212,7 +212,7 @@
                 </div>
             </div>
 
-            <div class="izin-description">
+            {{-- <div class="izin-description">
                 @if(isset($izin->type) && $izin->type === 'tugas_luar')
                     <strong>Tugas Luar:</strong> {{ $izin->deskripsi_tugas }}<br>
                     <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
@@ -220,7 +220,7 @@
                 @else
                     {{ $izin->deskripsi_tugas ?? 'Tidak ada deskripsi.' }}
                 @endif
-            </div>
+            </div> --}}
 
             @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
             <div class="mb-3">
