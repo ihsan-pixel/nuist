@@ -56,7 +56,7 @@
                 </li>
                 @endif
 
-                @if($userRole === 'super_admin')
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li>
                     <a href="{{ route('admin.teaching_progress') }}" class="waves-effect">
                         <i class="bx bx-trending-up"></i>
@@ -256,7 +256,7 @@
                 </li>
                 @endif
 
-                @if(in_array($userRole, ['super_admin']))
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">UPPM</li>
 
                 <li>
@@ -283,7 +283,7 @@
                 </li>
                 @endif
 
-                @if(in_array($userRole, ['super_admin', 'admin']))
+                @if(in_array($userRole, ['super_admin', 'admin', 'pengurus']))
                 <li class="menu-title">DATA SEKOLAH</li>
 
                 <li>

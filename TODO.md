@@ -1,2 +1,6 @@
-- [x] Move pending izin check from before switch to inside cases for sakit, tidak_masuk, terlambat, cuti
-- [x] Ensure tugas_luar can be submitted without pending check
+# TODO: Update Sidebar Menus for Pengurus Role
+
+- [x] Update UPPM menu condition to include 'pengurus'
+- [x] Update Progres Mengajar menu condition to include 'pengurus'
+- [x] Update Data Sekolah menu condition to include 'pengurus'
+- [x] Update Simfoni menu condition to include 'pengurus'
