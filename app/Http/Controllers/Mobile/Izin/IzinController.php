@@ -70,33 +70,28 @@ class IzinController extends \App\Http\Controllers\Controller
             }
         }
 
+        // Check for pending izin across all types
+        $pendingIzin = \App\Models\Izin::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($pendingIzin) {
+            $msg = 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         switch ($type) {
             case 'sakit':
-                // Check if user has pending izin that hasn't been approved yet (both in presensis and izins tables)
-                $pendingIzinPresensi = Presensi::where('user_id', $user->id)
-                    ->where('status', 'izin')
-                    ->where('status_izin', 'pending')
-                    ->first();
-
-                $pendingIzinTable = \App\Models\Izin::where('user_id', $user->id)
-                    ->where('status', 'pending')
-                    ->first();
-
-                if ($pendingIzinPresensi || $pendingIzinTable) {
-                    $msg = 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.';
-                    if ($request->wantsJson() || $request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $msg], 400);
-                    }
-                    return redirect()->back()->with('error', $msg);
-                }
-
                 $request->validate([
                     'tanggal' => 'required|date',
                     'keterangan' => 'required|string',
                     'surat_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
 
-                $keterangan = $request->input('keterangan');
+                $alasan = $request->input('keterangan');
                 if ($request->hasFile('surat_izin')) {
                     $filePath = $this->uploadSuratIzin($request->file('surat_izin'));
                 }
@@ -109,31 +104,13 @@ class IzinController extends \App\Http\Controllers\Controller
                     'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
 
-                $keterangan = $request->input('alasan');
+                $alasan = $request->input('alasan');
                 if ($request->hasFile('file_izin')) {
                     $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
                 break;
 
             case 'terlambat':
-                // Check if user has pending izin that hasn't been approved yet (both in presensis and izins tables)
-                $pendingIzinPresensi = Presensi::where('user_id', $user->id)
-                    ->where('status', 'izin')
-                    ->where('status_izin', 'pending')
-                    ->first();
-
-                $pendingIzinTable = \App\Models\Izin::where('user_id', $user->id)
-                    ->where('status', 'pending')
-                    ->first();
-
-                if ($pendingIzinPresensi || $pendingIzinTable) {
-                    $msg = 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.';
-                    if ($request->wantsJson() || $request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $msg], 400);
-                    }
-                    return redirect()->back()->with('error', $msg);
-                }
-
                 $request->validate([
                     'tanggal' => 'required|date',
                     'alasan' => 'required|string',
@@ -141,7 +118,8 @@ class IzinController extends \App\Http\Controllers\Controller
                     'file_izin' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
 
-                $keterangan = $request->input('alasan') . ' (Waktu masuk: ' . $request->input('waktu_masuk') . ')';
+                $alasan = $request->input('alasan');
+                $waktuMasuk = $request->input('waktu_masuk');
                 if ($request->hasFile('file_izin')) {
                     $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
@@ -170,68 +148,17 @@ class IzinController extends \App\Http\Controllers\Controller
                     'file_tugas' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 ]);
 
-                $keterangan = $request->input('deskripsi_tugas') . '\nLokasi: ' . $request->input('lokasi_tugas') . '\n' . 'Waktu: ' . $request->input('waktu_masuk') . ' - ' . $request->input('waktu_keluar');
+                $alasan = $request->input('deskripsi_tugas');
+                $deskripsiTugas = $request->input('deskripsi_tugas');
+                $lokasiTugas = $request->input('lokasi_tugas');
+                $waktuMasuk = $request->input('waktu_masuk');
+                $waktuKeluar = $request->input('waktu_keluar');
                 if ($request->hasFile('file_tugas')) {
                     $filePath = $this->uploadSuratIzin($request->file('file_tugas'));
                 }
-
-                // For tugas_luar, use the separate izins table instead of presensis to avoid unique constraint violation
-                $izin = \App\Models\Izin::create([
-                    'user_id' => $user->id,
-                    'tanggal' => $tanggal,
-                    'type' => 'tugas_luar',
-                    'deskripsi_tugas' => $request->input('deskripsi_tugas'),
-                    'lokasi_tugas' => $request->input('lokasi_tugas'),
-                    'waktu_masuk' => $request->input('waktu_masuk'),
-                    'waktu_keluar' => $request->input('waktu_keluar'),
-                    'file_path' => $filePath,
-                    'status' => 'pending',
-                ]);
-
-                // Notify user
-                \App\Models\Notification::create([
-                    'user_id' => $user->id,
-                    'type' => 'izin_submitted',
-                    'title' => 'Izin Tugas Luar Diajukan',
-                    'message' => 'Pengajuan izin tugas luar Anda telah dikirim dan menunggu persetujuan.',
-                    'data' => [
-                        'izin_id' => $izin->id,
-                        'tanggal' => $tanggal,
-                        'type' => $type,
-                    ]
-                ]);
-
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Izin berhasil diajukan!',
-                        'type' => $type,
-                        'tanggal' => $tanggal
-                    ]);
-                }
-
-                return redirect()->route('mobile.riwayat-presensi')->with('success', 'Izin berhasil diajukan!');
                 break;
 
             case 'cuti':
-                // Check if user has pending izin that hasn't been approved yet (both in presensis and izins tables)
-                $pendingIzinPresensi = Presensi::where('user_id', $user->id)
-                    ->where('status', 'izin')
-                    ->where('status_izin', 'pending')
-                    ->first();
-
-                $pendingIzinTable = \App\Models\Izin::where('user_id', $user->id)
-                    ->where('status', 'pending')
-                    ->first();
-
-                if ($pendingIzinPresensi || $pendingIzinTable) {
-                    $msg = 'Anda masih memiliki pengajuan izin yang belum disetujui. Harap tunggu persetujuan kepala sekolah terlebih dahulu.';
-                    if ($request->wantsJson() || $request->ajax()) {
-                        return response()->json(['success' => false, 'message' => $msg], 400);
-                    }
-                    return redirect()->back()->with('error', $msg);
-                }
-
                 $request->validate([
                     'tanggal_mulai' => 'required|date',
                     'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
@@ -240,7 +167,8 @@ class IzinController extends \App\Http\Controllers\Controller
                 ]);
 
                 $tanggal = $request->input('tanggal_mulai');
-                $keterangan = $request->input('alasan') . '\nTanggal: ' . $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai');
+                $alasan = $request->input('alasan') . ' (Tanggal: ' . $request->input('tanggal_mulai') . ' sampai ' . $request->input('tanggal_selesai') . ')';
+                $tanggalSelesai = $request->input('tanggal_selesai');
                 if ($request->hasFile('file_izin')) {
                     $filePath = $this->uploadSuratIzin($request->file('file_izin'));
                 }
@@ -253,42 +181,47 @@ class IzinController extends \App\Http\Controllers\Controller
                 return redirect()->back()->with('error', 'Tipe izin tidak dikenali.');
         }
 
-        // Create Presensi record with status 'izin' (only for non-tugas_luar types)
-        if ($type !== 'tugas_luar') {
-            $presensi = Presensi::create([
-                'user_id' => $user->id,
+        // Create Izin record for all types
+        $izinData = [
+            'user_id' => $user->id,
+            'tanggal' => $tanggal,
+            'type' => $type,
+            'alasan' => $alasan ?? '',
+            'file_path' => $filePath,
+            'status' => 'pending',
+        ];
+
+        if (isset($deskripsiTugas)) $izinData['deskripsi_tugas'] = $deskripsiTugas;
+        if (isset($lokasiTugas)) $izinData['lokasi_tugas'] = $lokasiTugas;
+        if (isset($waktuMasuk)) $izinData['waktu_masuk'] = $waktuMasuk;
+        if (isset($waktuKeluar)) $izinData['waktu_keluar'] = $waktuKeluar;
+        if (isset($tanggalSelesai)) $izinData['tanggal_selesai'] = $tanggalSelesai; // Assuming we add this field or store in alasan
+
+        $izin = \App\Models\Izin::create($izinData);
+
+        // Notify user
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'izin_submitted',
+            'title' => 'Izin Diajukan',
+            'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
+            'data' => [
+                'izin_id' => $izin->id,
                 'tanggal' => $tanggal,
-                'status' => 'izin',
-                'keterangan' => $keterangan,
-                'surat_izin_path' => $filePath,
-                'status_izin' => 'pending',
-                'status_kepegawaian_id' => $user->status_kepegawaian_id,
+                'type' => $type,
+            ]
+        ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Izin berhasil diajukan dan menunggu persetujuan.',
+                'type' => $type,
+                'tanggal' => $tanggal
             ]);
-
-            // Notify user
-            \App\Models\Notification::create([
-                'user_id' => $user->id,
-                'type' => 'izin_submitted',
-                'title' => 'Izin Diajukan',
-                'message' => 'Pengajuan izin Anda telah dikirim dan menunggu persetujuan.',
-                'data' => [
-                    'presensi_id' => $presensi->id,
-                    'tanggal' => $tanggal,
-                    'type' => $type,
-                ]
-            ]);
-
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Izin berhasil diajukan dan menunggu persetujuan.',
-                    'type' => $type,
-                    'tanggal' => $tanggal
-                ]);
-            }
-
-            return redirect()->route('mobile.riwayat-presensi')->with('success', 'Izin berhasil diajukan dan menunggu persetujuan.');
         }
+
+        return redirect()->route('mobile.riwayat-presensi')->with('success', 'Izin berhasil diajukan dan menunggu persetujuan.');
     }
 
     public function izin()
@@ -420,48 +353,7 @@ class IzinController extends \App\Http\Controllers\Controller
         abort(403, 'Unauthorized.');
     }
 
-    /**
-     * Approve the izin request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function approve(Request $request, $id)
-    {
-        // Approve hanya untuk presensi
-        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
 
-        if (!$presensi) {
-            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
-        }
-
-        $presensi->status_izin = 'approved';
-        $presensi->save();
-
-        return redirect()->back()->with('success', 'Pengajuan izin berhasil disetujui.');
-    }
-
-    /**
-     * Reject the izin request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function reject(Request $request, $id)
-    {
-        $presensi = \App\Models\Presensi::where('id', $id)->where('status', 'izin')->first();
-
-        if (!$presensi) {
-            return redirect()->back()->with('error', 'Pengajuan izin tidak ditemukan.');
-        }
-
-        $presensi->status_izin = 'rejected';
-        $presensi->save();
-
-        return redirect()->back()->with('success', 'Pengajuan izin berhasil ditolak.');
-    }
 
     /**
      * Approve Izin model (tugas_luar) request.
@@ -483,36 +375,34 @@ class IzinController extends \App\Http\Controllers\Controller
         $izin->approved_at = now();
         $izin->save();
 
-        // For tugas_luar, auto-fill presensi record
-        if ($izin->type === 'tugas_luar') {
-            $existingPresensi = Presensi::where('user_id', $izin->user_id)
-                ->where('tanggal', $izin->tanggal)
-                ->first();
+        // Auto-fill presensi record for all approved izin types
+        $existingPresensi = Presensi::where('user_id', $izin->user_id)
+            ->where('tanggal', $izin->tanggal)
+            ->first();
 
-            if ($existingPresensi) {
-                // If presensi exists, update waktu_keluar if not set, status remains unchanged
-                if (!$existingPresensi->waktu_keluar) {
-                    $existingPresensi->update([
-                        'waktu_keluar' => $izin->waktu_keluar,
-                        'status_izin' => 'approved',
-                    ]);
-                }
-            } else {
-                // If no presensi exists, create new presensi with izin
-                Presensi::create([
-                    'user_id' => $izin->user_id,
-                    'madrasah_id' => $izin->user->madrasah_id,
-                    'tanggal' => $izin->tanggal,
-                    'waktu_masuk' => $izin->waktu_masuk,
+        if ($existingPresensi) {
+            // If presensi exists, update waktu_keluar if not set, status remains unchanged
+            if (!$existingPresensi->waktu_keluar) {
+                $existingPresensi->update([
                     'waktu_keluar' => $izin->waktu_keluar,
-                    'status' => 'izin',
-                    'keterangan' => $izin->alasan,
                     'status_izin' => 'approved',
-                    'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
-                    'approved_by' => $user->id,
-                    'surat_izin_path' => $izin->file_path,
                 ]);
             }
+        } else {
+            // If no presensi exists, create new presensi with izin
+            Presensi::create([
+                'user_id' => $izin->user_id,
+                'madrasah_id' => $izin->user->madrasah_id,
+                'tanggal' => $izin->tanggal,
+                'waktu_masuk' => $izin->waktu_masuk,
+                'waktu_keluar' => $izin->waktu_keluar,
+                'status' => 'izin',
+                'keterangan' => $izin->alasan,
+                'status_izin' => 'approved',
+                'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
+                'approved_by' => $user->id,
+                'surat_izin_path' => $izin->file_path,
+            ]);
         }
 
         // Create notification for user about approval
@@ -520,7 +410,7 @@ class IzinController extends \App\Http\Controllers\Controller
             'user_id' => $izin->user_id,
             'type' => 'izin_approved',
             'title' => 'Izin Disetujui',
-            'message' => 'Pengajuan izin tugas luar Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah disetujui.',
             'data' => [
                 'izin_id' => $izin->id,
                 'tanggal' => $izin->tanggal,
@@ -528,11 +418,11 @@ class IzinController extends \App\Http\Controllers\Controller
             ]
         ]);
 
-        return redirect()->back()->with('success', 'Izin tugas luar berhasil disetujui.');
+        return redirect()->back()->with('success', 'Izin berhasil disetujui.');
     }
 
     /**
-     * Reject Izin model (tugas_luar) request.
+     * Reject Izin model request.
      *
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Izin $izin
@@ -547,10 +437,23 @@ class IzinController extends \App\Http\Controllers\Controller
         }
 
         $izin->status = 'rejected';
+        $izin->approved_by = $user->id;
+        $izin->approved_at = now();
         $izin->save();
 
-        // Optionally create notification here
+        // Create notification for user about rejection
+        \App\Models\Notification::create([
+            'user_id' => $izin->user_id,
+            'type' => 'izin_rejected',
+            'title' => 'Izin Ditolak',
+            'message' => 'Pengajuan izin Anda pada tanggal ' . $izin->tanggal->format('d F Y') . ' telah ditolak.',
+            'data' => [
+                'izin_id' => $izin->id,
+                'tanggal' => $izin->tanggal,
+                'rejected_by' => $user->name
+            ]
+        ]);
 
-        return redirect()->back()->with('success', 'Izin tugas luar berhasil ditolak.');
+        return redirect()->back()->with('success', 'Izin berhasil ditolak.');
     }
 }

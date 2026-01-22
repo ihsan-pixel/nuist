@@ -200,46 +200,40 @@
                     <div class="izin-date">{{ $izin->tanggal->format('d M Y') }}</div>
                     @php
                         $jenisIzin = 'Izin';
-                        if (str_contains($izin->keterangan, 'Lokasi:') && str_contains($izin->keterangan, 'Waktu:')) {
-                            $jenisIzin = 'Izin Tugas Luar';
-                        } elseif (str_contains($izin->keterangan, 'Waktu masuk:')) {
-                            $jenisIzin = 'Izin Terlambat';
-                        } elseif (str_contains($izin->keterangan, 'Tanggal:') && str_contains($izin->keterangan, 'sampai')) {
-                            $jenisIzin = 'Izin Cuti';
-                        } elseif (str_contains($izin->keterangan, 'sakit') || str_contains($izin->keterangan, 'Sakit')) {
+                        if ($izin->type === 'sakit') {
                             $jenisIzin = 'Izin Sakit';
-                        } elseif (str_contains($izin->keterangan, 'tidak masuk') || str_contains($izin->keterangan, 'Tidak masuk')) {
+                        } elseif ($izin->type === 'tidak_masuk') {
                             $jenisIzin = 'Izin Tidak Masuk';
+                        } elseif ($izin->type === 'terlambat') {
+                            $jenisIzin = 'Izin Terlambat';
+                        } elseif ($izin->type === 'tugas_luar') {
+                            $jenisIzin = 'Izin Tugas Luar';
+                        } elseif ($izin->type === 'cuti') {
+                            $jenisIzin = 'Izin Cuti';
                         }
                     @endphp
                     <div class="izin-type">{{ $jenisIzin }}</div>
                 </div>
                 <div>
-                    @if(isset($izin->status_izin))
-                        <span class="status-badge status-{{ $izin->status_izin }}">
-                            {{ ucfirst($izin->status_izin) }}
-                        </span>
-                    @else
-                        <span class="status-badge status-{{ $izin->status }}">
-                            {{ ucfirst($izin->status) }}
-                        </span>
-                    @endif
+                    <span class="status-badge status-{{ $izin->status }}">
+                        {{ ucfirst($izin->status) }}
+                    </span>
                 </div>
             </div>
 
-            {{-- <div class="izin-description">
-                @if(isset($izin->type) && $izin->type === 'tugas_luar')
-                    <strong>Tugas Luar:</strong> {{ $izin->deskripsi_tugas }}<br>
+            <div class="izin-description">
+                @if($izin->type === 'tugas_luar')
+                    <strong>Deskripsi:</strong> {{ $izin->deskripsi_tugas }}<br>
                     <strong>Lokasi:</strong> {{ $izin->lokasi_tugas }}<br>
                     <strong>Waktu:</strong> {{ $izin->waktu_masuk }} - {{ $izin->waktu_keluar }}
                 @else
-                    {{ $izin->deskripsi_tugas ?? 'Tidak ada deskripsi.' }}
+                    {{ $izin->alasan }}
                 @endif
-            </div> --}}
+            </div>
 
-            @if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path))
+            @if($izin->file_path)
             <div class="mb-3">
-                <a href="{{ asset('storage/' . ($izin->surat_izin_path ?? $izin->file_path)) }}"
+                <a href="{{ asset('storage/' . $izin->file_path) }}"
                    target="_blank"
                    class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
@@ -248,40 +242,22 @@
             </div>
             @endif
 
-            @if((isset($izin->status_izin) && $izin->status_izin === 'pending') || (isset($izin->status) && $izin->status === 'pending'))
+            @if($izin->status === 'pending')
             <div class="izin-actions">
-                @if($izin->model_type === 'presensi')
-                    <!-- Izin dari tabel presensis -->
-                    <form action="{{ route('izin.approve', $izin->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <button type="submit" class="btn-approve">
-                            <i class="bx bx-check"></i> Setujui
-                        </button>
-                    </form>
+                <!-- Izin dari tabel izins -->
+                <form action="{{ route('izin.model.approve', $izin->id) }}" method="POST" style="flex: 1;">
+                    @csrf
+                    <button type="submit" class="btn-approve">
+                        <i class="bx bx-check"></i> Setujui
+                    </button>
+                </form>
 
-                    <form action="{{ route('izin.reject', $izin->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <button type="submit" class="btn-reject">
-                            <i class="bx bx-x"></i> Tolak
-                        </button>
-                    </form>
-
-                @elseif($izin->model_type === 'izin')
-                    <!-- Izin tugas luar dari tabel izins -->
-                    <form action="{{ route('izin.model.approve', $izin->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <button type="submit" class="btn-approve">
-                            <i class="bx bx-check"></i> Setujui
-                        </button>
-                    </form>
-
-                    <form action="{{ route('izin.model.reject', $izin->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <button type="submit" class="btn-reject">
-                            <i class="bx bx-x"></i> Tolak
-                        </button>
-                    </form>
-                @endif
+                <form action="{{ route('izin.model.reject', $izin->id) }}" method="POST" style="flex: 1;">
+                    @csrf
+                    <button type="submit" class="btn-reject">
+                        <i class="bx bx-x"></i> Tolak
+                    </button>
+                </form>
             </div>
             @endif
         </div>
