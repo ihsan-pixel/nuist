@@ -198,6 +198,21 @@
                 <div>
                     <div class="izin-user">{{ $izin->user->name }}</div>
                     <div class="izin-date">{{ $izin->tanggal->format('d M Y') }}</div>
+                    @php
+                        $jenisIzin = 'Izin';
+                        if (str_contains($izin->keterangan, 'Lokasi:') && str_contains($izin->keterangan, 'Waktu:')) {
+                            $jenisIzin = 'Izin Tugas Luar';
+                        } elseif (str_contains($izin->keterangan, 'Waktu masuk:')) {
+                            $jenisIzin = 'Izin Terlambat';
+                        } elseif (str_contains($izin->keterangan, 'Tanggal:') && str_contains($izin->keterangan, 'sampai')) {
+                            $jenisIzin = 'Izin Cuti';
+                        } elseif (str_contains($izin->keterangan, 'sakit') || str_contains($izin->keterangan, 'Sakit')) {
+                            $jenisIzin = 'Izin Sakit';
+                        } elseif (str_contains($izin->keterangan, 'tidak masuk') || str_contains($izin->keterangan, 'Tidak masuk')) {
+                            $jenisIzin = 'Izin Tidak Masuk';
+                        }
+                    @endphp
+                    <div class="izin-type">{{ $jenisIzin }}</div>
                 </div>
                 <div>
                     @if(isset($izin->status_izin))
