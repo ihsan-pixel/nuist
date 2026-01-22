@@ -339,34 +339,36 @@ class IzinController extends \App\Http\Controllers\Controller
         $izin->approved_at = now();
         $izin->save();
 
-        // Auto-fill presensi record for all approved izin types
-        $existingPresensi = Presensi::where('user_id', $izin->user_id)
-            ->where('tanggal', $izin->tanggal)
-            ->first();
+        // Auto-fill presensi record for approved izin types except 'terlambat'
+        if ($izin->type !== 'terlambat') {
+            $existingPresensi = Presensi::where('user_id', $izin->user_id)
+                ->where('tanggal', $izin->tanggal)
+                ->first();
 
-        if ($existingPresensi) {
-            // If presensi exists, update waktu_keluar if not set, status remains unchanged
-            if (!$existingPresensi->waktu_keluar) {
-                $existingPresensi->update([
+            if ($existingPresensi) {
+                // If presensi exists, update waktu_keluar if not set, status remains unchanged
+                if (!$existingPresensi->waktu_keluar) {
+                    $existingPresensi->update([
+                        'waktu_keluar' => $izin->waktu_keluar,
+                        'status_izin' => 'approved',
+                    ]);
+                }
+            } else {
+                // If no presensi exists, create new presensi with izin
+                Presensi::create([
+                    'user_id' => $izin->user_id,
+                    'madrasah_id' => $izin->user->madrasah_id,
+                    'tanggal' => $izin->tanggal,
+                    'waktu_masuk' => $izin->waktu_masuk,
                     'waktu_keluar' => $izin->waktu_keluar,
+                    'status' => 'izin',
+                    'keterangan' => $izin->alasan,
                     'status_izin' => 'approved',
+                    'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
+                    'approved_by' => $user->id,
+                    'surat_izin_path' => $izin->file_path,
                 ]);
             }
-        } else {
-            // If no presensi exists, create new presensi with izin
-            Presensi::create([
-                'user_id' => $izin->user_id,
-                'madrasah_id' => $izin->user->madrasah_id,
-                'tanggal' => $izin->tanggal,
-                'waktu_masuk' => $izin->waktu_masuk,
-                'waktu_keluar' => $izin->waktu_keluar,
-                'status' => 'izin',
-                'keterangan' => $izin->alasan,
-                'status_izin' => 'approved',
-                'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
-                'approved_by' => $user->id,
-                'surat_izin_path' => $izin->file_path,
-            ]);
         }
 
         // Create notification for user about approval

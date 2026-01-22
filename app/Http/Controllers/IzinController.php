@@ -119,7 +119,6 @@ class IzinController extends Controller
                     'status_izin' => 'approved',
                     'approved_by' => Auth::id(),
                 ]);
-            }
 
                 // If this is a tugas_luar approval from presensis table, auto-fill waktu_keluar
                 if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
