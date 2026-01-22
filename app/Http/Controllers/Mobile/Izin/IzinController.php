@@ -83,6 +83,20 @@ class IzinController extends \App\Http\Controllers\Controller
             return redirect()->back()->with('error', $msg);
         }
 
+        // Check for existing izin on the same date and type to prevent double submission
+        $existingIzin = \App\Models\Izin::where('user_id', $user->id)
+            ->where('tanggal', $tanggal)
+            ->where('type', $type)
+            ->first();
+
+        if ($existingIzin) {
+            $msg = 'Anda sudah mengajukan izin untuk tanggal ini.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         switch ($type) {
             case 'sakit':
                 $request->validate([
