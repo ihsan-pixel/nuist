@@ -205,7 +205,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row g-4">
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon school">
                                 <i class="bx bx-buildings"></i>
@@ -218,7 +218,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon calculator">
                                 <i class="bx bx-calculator"></i>
@@ -231,20 +231,9 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
-                        <div class="menu-card">
-                            <div class="menu-icon receipt">
-                                <i class="bx bx-receipt"></i>
-                            </div>
-                            <h3 class="menu-title">Tagihan</h3>
-                            <p class="menu-description">Lihat dan kelola tagihan iuran UPPM untuk setiap sekolah</p>
-                            <a href="<?php echo e(route('uppm.tagihan')); ?>" class="btn-modern">
-                                <i class="bx bx-right-arrow-alt me-1"></i> Lihat
-                            </a>
-                        </div>
-                    </div>
+                    
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon settings">
                                 <i class="bx bx-cog"></i>

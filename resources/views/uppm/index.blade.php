@@ -271,7 +271,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="row g-4">
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon school">
                                 <i class="bx bx-buildings"></i>
@@ -284,7 +284,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon calculator">
                                 <i class="bx bx-calculator"></i>
@@ -310,7 +310,7 @@
                         </div>
                     </div> --}}
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="col-xl-4 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon settings">
                                 <i class="bx bx-cog"></i>

@@ -428,9 +428,9 @@
                         <div class="col-md-3">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = date('Y') - 3; $i <= date('Y') + 1; $i++): ?>
                                     <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>><?php echo e($i); ?></option>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -456,7 +456,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <?php if(count($perhitungan) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($perhitungan) > 0): ?>
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
@@ -478,7 +478,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $perhitungan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $perhitungan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td><?php echo e($index + 1); ?></td>
                                     <td>
@@ -502,7 +502,7 @@
                                         <strong class="text-success">Rp <?php echo e(number_format($item['total_tahunan'])); ?></strong>
                                     </td>
                                     <td>
-                                        <?php if($item['tagihan']): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item['tagihan']): ?>
                                             <span class="badge badge-modern bg-<?php echo e($item['tagihan']->status == 'lunas' ? 'success' : ($item['tagihan']->status == 'sebagian' ? 'warning' : 'danger')); ?>">
                                                 <?php echo e(ucfirst(str_replace('_', ' ', $item['tagihan']->status))); ?>
 
@@ -511,13 +511,13 @@
                                             <span class="badge badge-modern bg-secondary">
                                                 Belum Dibuat
                                             </span>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                     <td>
                                         <a href="<?php echo e(route('uppm.invoice', ['madrasah_id' => $item['madrasah']->id, 'tahun' => request('tahun', date('Y'))])); ?>" class="btn-modern btn-sm">
                                             <i class="bx bx-receipt me-1"></i> Invoice
                                         </a>
-                                        <?php if($item['tagihan_exists']): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item['tagihan_exists']): ?>
                                             <span class="badge badge-modern bg-info ms-1">
                                                 <i class="bx bx-check me-1"></i> Tagihan Sudah Dibuat
                                             </span>
@@ -525,10 +525,10 @@
                                             <button type="button" class="btn btn-success btn-sm ms-1" onclick="openBuatTagihanModal(<?php echo e($item['madrasah']->id); ?>, '<?php echo e($item['madrasah']->name); ?>', <?php echo e($item['total_tahunan']); ?>)">
                                                 <i class="bx bx-plus me-1"></i> Buat Tagihan
                                             </button>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -540,7 +540,7 @@
                         <h5>Tidak Ada Data Perhitungan</h5>
                         <p class="text-muted">Belum ada data perhitungan iuran untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
