@@ -150,6 +150,7 @@ class IzinController extends Controller
                     if (!$existingPresensi->waktu_keluar) {
                         $existingPresensi->update([
                             'waktu_keluar' => $izin->waktu_keluar,
+                            'status_izin' => 'approved',
                         ]);
                     }
                 } else {
@@ -162,8 +163,10 @@ class IzinController extends Controller
                         'waktu_keluar' => $izin->waktu_keluar,
                         'status' => 'izin',
                         'keterangan' => $izin->alasan,
+                        'status_izin' => 'approved',
                         'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
                         'approved_by' => Auth::id(),
+                        'surat_izin_path' => $izin->file_path,
                     ]);
                 }
             }
