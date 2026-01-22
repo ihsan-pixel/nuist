@@ -139,16 +139,31 @@ class IzinController extends Controller
                 'approved_at' => now(),
             ]);
 
-            // For tugas_luar, auto-fill waktu_keluar on existing presensi record
+            // For tugas_luar, auto-fill presensi record
             if ($izin->type === 'tugas_luar') {
                 $existingPresensi = Presensi::where('user_id', $izin->user_id)
                     ->where('tanggal', $izin->tanggal)
-                    ->where('status', 'hadir')
                     ->first();
 
-                if ($existingPresensi && !$existingPresensi->waktu_keluar) {
-                    $existingPresensi->update([
+                if ($existingPresensi) {
+                    // If presensi exists, update waktu_keluar if not set, status remains unchanged
+                    if (!$existingPresensi->waktu_keluar) {
+                        $existingPresensi->update([
+                            'waktu_keluar' => $izin->waktu_keluar,
+                        ]);
+                    }
+                } else {
+                    // If no presensi exists, create new presensi with izin
+                    Presensi::create([
+                        'user_id' => $izin->user_id,
+                        'madrasah_id' => $izin->user->madrasah_id,
+                        'tanggal' => $izin->tanggal,
+                        'waktu_masuk' => $izin->waktu_masuk,
                         'waktu_keluar' => $izin->waktu_keluar,
+                        'status' => 'izin',
+                        'keterangan' => $izin->alasan,
+                        'status_kepegawaian_id' => $izin->user->status_kepegawaian_id,
+                        'approved_by' => Auth::id(),
                     ]);
                 }
             }
