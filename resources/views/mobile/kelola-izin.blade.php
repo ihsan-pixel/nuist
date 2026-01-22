@@ -245,19 +245,13 @@
             @if($izin->status === 'pending')
             <div class="izin-actions">
                 <!-- Izin dari tabel izins -->
-                <form action="{{ route('izin.model.approve', $izin->id) }}" method="POST" style="flex: 1;">
-                    @csrf
-                    <button type="submit" class="btn-approve">
-                        <i class="bx bx-check"></i> Setujui
-                    </button>
-                </form>
+                <button type="button" class="btn-approve approve-btn" data-id="{{ $izin->id }}" data-action="approve">
+                    <i class="bx bx-check"></i> Setujui
+                </button>
 
-                <form action="{{ route('izin.model.reject', $izin->id) }}" method="POST" style="flex: 1;">
-                    @csrf
-                    <button type="submit" class="btn-reject">
-                        <i class="bx bx-x"></i> Tolak
-                    </button>
-                </form>
+                <button type="button" class="btn-reject reject-btn" data-id="{{ $izin->id }}" data-action="reject">
+                    <i class="bx bx-x"></i> Tolak
+                </button>
             </div>
             @endif
         </div>
@@ -274,9 +268,10 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle approve/reject actions with confirmation
+    // Handle approve/reject actions with SweetAlert confirmation
     document.querySelectorAll('form[action*="approve"], form[action*="reject"]').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -285,19 +280,52 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmMessage = isApprove ?
                 'Apakah Anda yakin ingin menyetujui pengajuan izin ini?' :
                 'Apakah Anda yakin ingin menolak pengajuan izin ini?';
+            const confirmTitle = isApprove ? 'Setujui Izin' : 'Tolak Izin';
 
-            if (confirm(confirmMessage)) {
-                // Show loading state
-                const button = this.querySelector('button');
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
-                button.disabled = true;
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmMessage,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: isApprove ? '#0e8549' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    const button = this.querySelector('button');
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
+                    button.disabled = true;
 
-                // Submit form
-                this.submit();
-            }
+                    // Submit form
+                    this.submit();
+                }
+            });
         });
     });
+
+    // Show success/error alerts from session
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '{{ session("success") }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: '{{ session("error") }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
 });
 </script>
 @endsection
