@@ -273,6 +273,9 @@
                     </ul>
                 </li>
 
+                @endif
+
+                @if(in_array($userRole, ['super_admin']))
                 <li class="menu-title">PEMBAYARAN</li>
 
                 <li>
