@@ -99,34 +99,56 @@ class IzinController extends Controller
             // Handle presensi-based izin approval
             $this->authorize('approve', $presensi);
 
-            $presensi->update([
-                'status_izin' => 'approved',
-                'approved_by' => Auth::id(),
-            ]);
+            // For terlambat in presensis table, reject instead of approve to keep data only in izins
+            if (str_contains($presensi->keterangan, 'terlambat')) {
+                $presensi->update([
+                    'status_izin' => 'rejected',
+                    'status' => 'alpha',
+                    'approved_by' => Auth::id(),
+                ]);
 
-            // If this is a tugas_luar approval from presensis table, auto-fill waktu_keluar
-            if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
-                // Find existing presensi record for the same date and user with status 'hadir'
-                $existingPresensi = Presensi::where('user_id', $presensi->user_id)
-                    ->where('tanggal', $presensi->tanggal)
-                    ->where('status', 'hadir')
-                    ->first();
+                // Create notification for rejection
+                Notification::create([
+                    'user_id' => $presensi->user_id,
+                    'type' => 'izin_rejected',
+                    'title' => 'Izin Ditolak',
+                    'message' => 'Pengajuan izin terlambat Anda pada tanggal ' . $presensi->tanggal->format('d F Y') . ' telah ditolak. Silakan ajukan ulang melalui aplikasi mobile.',
+                    'data' => [
+                        'presensi_id' => $presensi->id,
+                        'tanggal' => $presensi->tanggal,
+                        'rejected_by' => Auth::user()->name
+                    ]
+                ]);
+            } else {
+                $presensi->update([
+                    'status_izin' => 'approved',
+                    'approved_by' => Auth::id(),
+                ]);
 
-                if ($existingPresensi && !$existingPresensi->waktu_keluar) {
-                    // Extract waktu_keluar from izin keterangan (format: "deskripsi\nLokasi: lokasi\nWaktu: masuk - keluar")
-                    $lines = explode('\n', $presensi->keterangan);
-                    $waktuLine = collect($lines)->first(function ($line) {
-                        return str_starts_with($line, 'Waktu:');
-                    });
+                // If this is a tugas_luar approval from presensis table, auto-fill waktu_keluar
+                if (str_contains($presensi->keterangan, 'Lokasi:') && str_contains($presensi->keterangan, 'Waktu:')) {
+                    // Find existing presensi record for the same date and user with status 'hadir'
+                    $existingPresensi = Presensi::where('user_id', $presensi->user_id)
+                        ->where('tanggal', $presensi->tanggal)
+                        ->where('status', 'hadir')
+                        ->first();
 
-                    if ($waktuLine) {
-                        $waktuParts = explode(' - ', str_replace('Waktu: ', '', $waktuLine));
-                        if (count($waktuParts) === 2) {
-                            $waktuKeluar = trim($waktuParts[1]);
-                            // Update existing presensi with waktu_keluar
-                            $existingPresensi->update([
-                                'waktu_keluar' => $presensi->tanggal . ' ' . $waktuKeluar . ':00',
-                            ]);
+                    if ($existingPresensi && !$existingPresensi->waktu_keluar) {
+                        // Extract waktu_keluar from izin keterangan (format: "deskripsi\nLokasi: lokasi\nWaktu: masuk - keluar")
+                        $lines = explode('\n', $presensi->keterangan);
+                        $waktuLine = collect($lines)->first(function ($line) {
+                            return str_starts_with($line, 'Waktu:');
+                        });
+
+                        if ($waktuLine) {
+                            $waktuParts = explode(' - ', str_replace('Waktu: ', '', $waktuLine));
+                            if (count($waktuParts) === 2) {
+                                $waktuKeluar = trim($waktuParts[1]);
+                                // Update existing presensi with waktu_keluar
+                                $existingPresensi->update([
+                                    'waktu_keluar' => $presensi->tanggal . ' ' . $waktuKeluar . ':00',
+                                ]);
+                            }
                         }
                     }
                 }
