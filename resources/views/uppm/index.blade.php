@@ -207,7 +207,7 @@
                     <div class="stats-icon bg-primary">
                         <i class="bx bx-school"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
+                    <div class="grow ms-3">
                         <p class="text-muted mb-2">Data Sekolah</p>
                         <h5 class="mb-0">{{ $schoolCount ?? 0 }}</h5>
                     </div>
@@ -223,7 +223,7 @@
                     <div class="stats-icon bg-success">
                         <i class="bx bx-calculator"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
+                    <div class="grow ms-3">
                         <p class="text-muted mb-2">Perhitungan Iuran</p>
                         <h5 class="mb-0">{{ $calculationCount ?? 0 }}</h5>
                     </div>
@@ -239,7 +239,7 @@
                     <div class="stats-icon bg-warning">
                         <i class="bx bx-receipt"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
+                    <div class="grow ms-3">
                         <p class="text-muted mb-2">Tagihan</p>
                         <h5 class="mb-0">{{ $billingCount ?? 0 }}</h5>
                     </div>
@@ -255,7 +255,7 @@
                     <div class="stats-icon bg-info">
                         <i class="bx bx-cog"></i>
                     </div>
-                    <div class="flex-grow-1 ms-3">
+                    <div class="grow ms-3">
                         <p class="text-muted mb-2">Pengaturan</p>
                         <h5 class="mb-0">{{ $settingsCount ?? 0 }}</h5>
                     </div>
