@@ -268,7 +268,7 @@
                         <li><a href="{{ route('uppm.index') }}">Dashboard UPPM</a></li>
                         <li><a href="{{ route('uppm.data-sekolah') }}">Data Sekolah</a></li>
                         <li><a href="{{ route('uppm.perhitungan-iuran') }}">Perhitungan Iuran</a></li>
-                        <li><a href="{{ route('uppm.tagihan') }}">Tagihan</a></li>
+                        {{-- <li><a href="{{ route('uppm.tagihan') }}">Tagihan</a></li> --}}
                         <li><a href="{{ route('uppm.pengaturan') }}">Pengaturan</a></li>
                     </ul>
                 </li>

@@ -297,7 +297,7 @@
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-lg-6 col-md-6">
+                    {{-- <div class="col-xl-3 col-lg-6 col-md-6">
                         <div class="menu-card">
                             <div class="menu-icon receipt">
                                 <i class="bx bx-receipt"></i>
@@ -308,7 +308,7 @@
                                 <i class="bx bx-right-arrow-alt me-1"></i> Lihat
                             </a>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="col-xl-3 col-lg-6 col-md-6">
                         <div class="menu-card">
