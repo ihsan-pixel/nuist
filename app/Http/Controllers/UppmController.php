@@ -278,7 +278,7 @@ class UppmController extends Controller
             'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun'));
+        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'tagihan'));
         return $pdf->download('invoice-uppm-' . $madrasah->name . '-' . $tahun . '.pdf');
     }
 
