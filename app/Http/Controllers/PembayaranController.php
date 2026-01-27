@@ -163,7 +163,11 @@ class PembayaranController extends Controller
             'status' => 'success',
             'keterangan' => $request->keterangan,
             'tagihan_id' => $tagihan->id,
+            'paid_at' => now(),
         ]);
+
+        // Send email confirmation with PDF invoice
+        $this->sendPaymentConfirmationEmail($payment, $tagihan);
 
         return response()->json([
             'success' => true,

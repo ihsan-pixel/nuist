@@ -332,7 +332,7 @@
                                 </td>
                                 <td>{{ $item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-' }}</td>
                                 <td>
-                                    <button type="button" onclick="checkTagihan({{ $item->madrasah->id }}, {{ $tahun }}, '{{ $item->madrasah->name }}')"
+                                    <button type="button" onclick="checkTagihan({{ $item->madrasah->id }}, {{ $item->tahun_anggaran }}, '{{ $item->madrasah->name }}')"
                                             class="btn btn-sm btn-primary me-1">
                                         <i class="bx bx-detail me-1"></i>Detail
                                     </button>
