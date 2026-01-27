@@ -275,7 +275,7 @@
 
                 @endif
 
-                @if(in_array($userRole, ['super_admin']))
+                @if(in_array($userRole, ['super_admin', 'pengurus']))
                 <li class="menu-title">PEMBAYARAN</li>
 
                 <li>
