@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tagihans', function (Blueprint $table) {
-            $table->enum('jenis_pembayaran', ['online', 'cash'])->nullable();
-            $table->string('metode_pembayaran')->nullable(); // e.g., 'qris', 'va', etc.
+            $table->enum('jenis_pembayaran', ['online', 'cash'])->nullable()->change();
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tagihans', function (Blueprint $table) {
-            $table->dropColumn(['jenis_pembayaran', 'metode_pembayaran']);
+            //
         });
     }
 };
