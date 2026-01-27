@@ -419,14 +419,20 @@ class PembayaranController extends Controller
 
             $newStatus = $statusMapping[$notification['transaction_status']] ?? 'failed';
 
-            $payment->update([
+            $updateData = [
                 'status' => $newStatus,
                 'transaction_id' => $notification['transaction_id'] ?? null,
                 'payment_type' => $notification['payment_type'] ?? null,
-                'metode_transaksi' => $notification['payment_type'] ?? null,
                 'pdf_url' => $notification['pdf_url'] ?? null,
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
-            ]);
+            ];
+
+            // Set metode_transaksi only for successful transactions
+            if ($newStatus === 'success') {
+                $updateData['metode_transaksi'] = $notification['payment_type'] ?? null;
+            }
+
+            $payment->update($updateData);
 
             Log::info('Payment updated', [
                 'payment_id' => $payment->id,
