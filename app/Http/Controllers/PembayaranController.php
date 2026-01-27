@@ -471,9 +471,6 @@ class PembayaranController extends Controller
                         'tagihan_id' => $payment->tagihan_id,
                         'payment_id' => $payment->id
                     ]);
-
-                    // Send email confirmation with PDF invoice
-                    $this->sendPaymentConfirmationEmail($payment, $tagihan);
                 }
             }
 
