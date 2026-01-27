@@ -156,4 +156,11 @@
         <p>{{ $setting->catatan }}</p>
     </div>
     @endif
+
+    @if($tagihan && $tagihan->status == 'lunas')
+    <div style="margin-top: 1rem; text-align: center;">
+        <p>Terima kasih atas pembayarannya.</p>
+        <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
+    </div>
+    @endif
 </div>
