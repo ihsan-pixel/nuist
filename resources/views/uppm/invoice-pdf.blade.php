@@ -153,6 +153,11 @@
                 <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->tanggal_pembayaran ? \Carbon\Carbon::parse($tagihan->tanggal_pembayaran)->format('d-m-Y') : '-' }}</td>
             </tr>
             <tr>
+                <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Metode Pembayaran</strong></td>
+                <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $payment && ($payment->metode_pembayaran == 'midtrans' || $payment->payment_type) ? 'Online' : ($payment->metode_pembayaran ?? '-') }}</td>
+            </tr>
+            <tr>
                 <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Pembayaran Dari</strong></td>
                 <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
                 <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name ?? '-' }}</td>
