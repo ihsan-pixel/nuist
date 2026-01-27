@@ -139,6 +139,7 @@
     </table>
 
 
+    @if($tagihan)
     <div style="margin-top: 1rem;">
         <h5 style="margin-bottom: 1rem;">Informasi Pembayaran</h5>
         <table style="width: 100%; border: none;">
@@ -174,6 +175,7 @@
             </tr>
         </table>
     </div>
+    @endif
     @if($setting && $setting->catatan)
     <div style="margin-top: 1rem;">
         <h6>Catatan:</h6>

@@ -249,7 +249,7 @@ class UppmController extends Controller
         $tagihan = Tagihan::where('madrasah_id', $madrasah_id)->where('tahun_anggaran', $tahun)->first();
 
         // Get payment if exists
-        $payment = \App\Models\Payment::where('tagihan_id', $tagihan->id ?? null)->first();
+        $payment = $tagihan ? \App\Models\Payment::where('tagihan_id', $tagihan->id)->first() : null;
 
         // Buat objek data untuk perhitungan
         $schoolData = (object) [
