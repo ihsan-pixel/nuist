@@ -393,11 +393,13 @@ class PembayaranController extends Controller
         // Cari payment berdasarkan order_id
         $payment = Payment::where('order_id', $notification['order_id'])->first();
 
-        Log::info('Midtrans Callback Received', [
-            'payload' => $notification,
-            'payment_found' => $payment ? true : false,
-            'payment_status' => $payment->status ?? null
-        ]);
+            Log::info('Midtrans Callback Received', [
+                'payload' => $notification,
+                'payment_found' => $payment ? true : false,
+                'payment_status' => $payment->status ?? null,
+                'payment_type_in_notification' => $notification['payment_type'] ?? 'not_present',
+                'transaction_status' => $notification['transaction_status'] ?? 'not_present'
+            ]);
 
         if (!$payment) {
             return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
@@ -427,9 +429,9 @@ class PembayaranController extends Controller
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ];
 
-            // Set metode_transaksi only for successful transactions
-            if ($newStatus === 'success') {
-                $updateData['metode_transaksi'] = $notification['payment_type'] ?? null;
+            // Set metode_transaksi for midtrans payments when payment_type is available
+            if ($payment->metode_pembayaran === 'midtrans' && isset($notification['payment_type'])) {
+                $updateData['metode_transaksi'] = $notification['payment_type'];
             }
 
             $payment->update($updateData);
