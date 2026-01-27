@@ -429,20 +429,20 @@ class PembayaranController extends Controller
                 'paid_at' => in_array($notification['transaction_status'], ['capture', 'settlement']) ? now() : null,
             ];
 
-            // Set metode_transaksi for midtrans payments when payment_type is available
-            if ($payment->metode_pembayaran === 'midtrans' && isset($notification['payment_type'])) {
-                $updateData['metode_transaksi'] = $notification['payment_type'];
-                Log::info('Setting metode_transaksi', [
+            // Set metode_transaksi for midtrans payments when channel is available
+            if ($payment->metode_pembayaran === 'midtrans' && isset($notification['channel'])) {
+                $updateData['metode_transaksi'] = $notification['channel'];
+                Log::info('Setting metode_transaksi from channel', [
                     'payment_id' => $payment->id,
-                    'metode_transaksi_value' => $notification['payment_type'],
+                    'metode_transaksi_value' => $notification['channel'],
                     'metode_pembayaran' => $payment->metode_pembayaran
                 ]);
             } else {
                 Log::info('Not setting metode_transaksi', [
                     'payment_id' => $payment->id,
                     'metode_pembayaran' => $payment->metode_pembayaran,
-                    'payment_type_exists' => isset($notification['payment_type']),
-                    'payment_type_value' => $notification['payment_type'] ?? 'not_set'
+                    'channel_exists' => isset($notification['channel']),
+                    'channel_value' => $notification['channel'] ?? 'not_set'
                 ]);
             }
 
