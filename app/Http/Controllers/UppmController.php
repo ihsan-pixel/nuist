@@ -469,6 +469,17 @@ class UppmController extends Controller
             ]
         );
 
+        // Update Tagihan jika ada
+        $tagihan = Tagihan::where('madrasah_id', $request->madrasah_id)->where('tahun_anggaran', $request->tahun)->first();
+        if ($tagihan) {
+            $tagihan->update([
+                'status' => 'lunas',
+                'tanggal_pembayaran' => now(),
+                'jenis_pembayaran' => 'cash',
+                'metode_pembayaran' => null,
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Pembayaran cash berhasil dicatat');
     }
 
