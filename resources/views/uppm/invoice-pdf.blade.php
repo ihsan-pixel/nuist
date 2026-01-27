@@ -138,14 +138,6 @@
         </tbody>
     </table>
 
-    @if($setting && $setting->catatan)
-    <div style="margin-top: 1rem;">
-        <h6>Catatan:</h6>
-        <p>{{ $setting->catatan }}</p>
-    </div>
-    @endif
-
-    <hr>
 
     <div style="margin-top: 1rem;">
         <h5 style="margin-bottom: 1rem;">Informasi Pembayaran</h5>
@@ -172,9 +164,17 @@
             </tr>
         </table>
     </div>
+    @if($setting && $setting->catatan)
+    <div style="margin-top: 1rem;">
+        <h6>Catatan:</h6>
+        <p>{{ $setting->catatan }}</p>
+    </div>
+    @endif
 
-        <div style="margin-top: 1rem; text-align: center;">
-            <p>Terima kasih atas pembayarannya.</p>
-            <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
+    <hr>
+
+    <div style="margin-top: 1rem; text-align: center;">
+        <p>Terima kasih atas pembayarannya.</p>
+        <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
         </div>
 </div>
