@@ -432,7 +432,24 @@ class PembayaranController extends Controller
             // Set metode_transaksi for midtrans payments when payment_type is available
             if ($payment->metode_pembayaran === 'midtrans' && isset($notification['payment_type'])) {
                 $updateData['metode_transaksi'] = $notification['payment_type'];
+                Log::info('Setting metode_transaksi', [
+                    'payment_id' => $payment->id,
+                    'metode_transaksi_value' => $notification['payment_type'],
+                    'metode_pembayaran' => $payment->metode_pembayaran
+                ]);
+            } else {
+                Log::info('Not setting metode_transaksi', [
+                    'payment_id' => $payment->id,
+                    'metode_pembayaran' => $payment->metode_pembayaran,
+                    'payment_type_exists' => isset($notification['payment_type']),
+                    'payment_type_value' => $notification['payment_type'] ?? 'not_set'
+                ]);
             }
+
+            Log::info('Update data before payment update', [
+                'payment_id' => $payment->id,
+                'update_data' => $updateData
+            ]);
 
             $payment->update($updateData);
 
