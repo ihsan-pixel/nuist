@@ -507,7 +507,7 @@ class PembayaranController extends Controller
                     'status' => 'lunas',
                     'tanggal_pembayaran' => now(),
                     'jenis_pembayaran' => 'online',
-                    'metode_pembayaran' => $payment->payment_type ?? null,
+                    'metode_pembayaran' => $notification['payment_type'] ?? null,
                 ]);
 
                 // Send email confirmation with PDF invoice

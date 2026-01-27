@@ -510,6 +510,8 @@ class UppmController extends Controller
                 'keterangan' => $request->keterangan,
                 'jenis_tagihan' => 'UPPM',
                 'nomor_invoice' => $nomorInvoice,
+                'jenis_pembayaran' => null,
+                'metode_pembayaran' => null,
             ]);
 
             return response()->json([
