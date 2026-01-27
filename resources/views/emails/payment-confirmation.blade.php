@@ -14,14 +14,14 @@
             padding: 20px;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             padding: 30px;
             text-align: center;
             border-radius: 10px 10px 0 0;
         }
         .content {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f0f9f0 100%);
             padding: 30px;
             border-radius: 0 0 10px 10px;
         }
@@ -30,11 +30,15 @@
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #48bb78;
+            box-shadow: 0 2px 10px rgba(72, 187, 120, 0.1);
         }
         .status-success {
-            color: #28a745;
+            color: #38a169;
             font-weight: bold;
+            background: rgba(72, 187, 120, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
         }
         .footer {
             text-align: center;
@@ -98,8 +102,8 @@
     </div>
 
     <div class="footer">
-        <p>Email ini dikirim secara otomatis oleh sistem NU IST NUI<br>
-        Jl. KH. Hasyim Asy'ari No.50, Kauman, Kec. Tulungagung, Kabupaten Tulungagung, Jawa Timur 66231</p>
+        <p>Email ini dikirim secara otomatis oleh sistem Nuist LP. Ma'arif NU PWNU DIY <br>
+       Jl. Ibu Ruswo No.60, Prawirodirjan, Kec. Gondomanan, Kota Yogyakarta, Daerah Istimewa Yogyakarta 55121</p>
     </div>
 </body>
 </html>
