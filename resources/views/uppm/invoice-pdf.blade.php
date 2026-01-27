@@ -57,7 +57,7 @@
                         <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tahun }}</td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Status Pembayaran</strong></td>
                         <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan ? ($tagihan->status == 'lunas' ? 'Lunas' : 'Belum Lunas') : 'Belum Dibuat' }}</td>
@@ -68,7 +68,7 @@
                         <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->tanggal_pembayaran ? $tagihan->tanggal_pembayaran->format('d-m-Y') : '-' }}</td>
                     </tr>
-                    @endif
+                    @endif --}}
                 </table>
             </td>
         </tr>
