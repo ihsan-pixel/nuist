@@ -176,12 +176,6 @@
         </table>
     </div>
     @endif
-    @if($setting && $setting->catatan)
-    <div style="margin-top: 1rem;">
-        <h6>Catatan:</h6>
-        <p>{{ $setting->catatan }}</p>
-    </div>
-    @endif
 
     <hr>
 
