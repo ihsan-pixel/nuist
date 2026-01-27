@@ -152,6 +152,7 @@ class PembayaranController extends Controller
             // 'nominal_dibayar' => $request->nominal,
             'keterangan' => $request->keterangan,
             'tanggal_pembayaran' => now(),
+            'jenis_pembayaran' => 'cash',
         ]);
 
         // Simpan pembayaran cash ke database payments
@@ -505,6 +506,8 @@ class PembayaranController extends Controller
                 $tagihan->update([
                     'status' => 'lunas',
                     'tanggal_pembayaran' => now(),
+                    'jenis_pembayaran' => 'online',
+                    'metode_pembayaran' => $payment->payment_type ?? null,
                 ]);
 
                 // Send email confirmation with PDF invoice
