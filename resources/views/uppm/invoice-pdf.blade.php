@@ -57,18 +57,6 @@
                         <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tahun }}</td>
                     </tr>
-                    {{-- <tr>
-                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Status Pembayaran</strong></td>
-                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
-                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan ? ($tagihan->status == 'lunas' ? 'Lunas' : 'Belum Lunas') : 'Belum Dibuat' }}</td>
-                    </tr>
-                    @if($tagihan && $tagihan->status == 'lunas')
-                    <tr>
-                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Tanggal Pembayaran</strong></td>
-                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
-                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->tanggal_pembayaran ? $tagihan->tanggal_pembayaran->format('d-m-Y') : '-' }}</td>
-                    </tr>
-                    @endif --}}
                 </table>
             </td>
         </tr>
@@ -160,5 +148,33 @@
     <div style="margin-top: 1rem; text-align: center;">
         <p>Terima kasih atas pembayarannya.</p>
         <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
+    </div>
+
+    <hr>
+
+    <div style="margin-top: 1rem;">
+        <h5 style="margin-bottom: 1rem;">Informasi Pembayaran</h5>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Status Pembayaran</strong></td>
+                <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $payment->status ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Pembayaran Dari</strong></td>
+                <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $madrasah->name ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Pembayaran Ditujukan Kepada</strong></td>
+                <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">LP. Ma'arif NU PWNU DIY</td>
+            </tr>
+            <tr>
+                <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Total Pembayaran</strong></td>
+                <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">Rp {{ number_format($payment->nominal ?? 0) }}</td>
+            </tr>
+        </table>
     </div>
 </div>
