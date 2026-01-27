@@ -145,11 +145,6 @@
     </div>
     @endif
 
-    <div style="margin-top: 1rem; text-align: center;">
-        <p>Terima kasih atas pembayarannya.</p>
-        <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
-    </div>
-
     <hr>
 
     <div style="margin-top: 1rem;">
@@ -158,7 +153,7 @@
             <tr>
                 <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Status Pembayaran</strong></td>
                 <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
-                <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $payment->status ?? '-' }}</td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->status ?? '-' }}</td>
             </tr>
             <tr>
                 <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Pembayaran Dari</strong></td>
@@ -173,8 +168,13 @@
             <tr>
                 <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Total Pembayaran</strong></td>
                 <td style="width: 5%; font-size: 12px;"><strong>:</strong></td>
-                <td style="padding: 0; vertical-align: top; font-size: 12px;">Rp {{ number_format($payment->nominal ?? 0) }}</td>
+                <td style="padding: 0; vertical-align: top; font-size: 12px;">Rpp {{ number_format($totalTahunan) }}</td>
             </tr>
         </table>
     </div>
+
+        <div style="margin-top: 1rem; text-align: center;">
+            <p>Terima kasih atas pembayarannya.</p>
+            <p style="font-size: 10px; color: #666;">Invoice ini resmi dari aplikasi NUIST.</p>
+        </div>
 </div>
