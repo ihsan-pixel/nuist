@@ -68,6 +68,18 @@
                         <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
                         <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->tanggal_pembayaran ? $tagihan->tanggal_pembayaran->format('d-m-Y') : '-' }}</td>
                     </tr>
+                    <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Jenis Pembayaran</strong></td>
+                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->jenis_pembayaran == 'online' ? 'Online' : 'Cash' }}</td>
+                    </tr>
+                    @if($tagihan->jenis_pembayaran == 'online')
+                    <tr>
+                        <td style="width: 40%; padding: 0; vertical-align: top; font-size: 12px;"><strong>Metode Pembayaran</strong></td>
+                        <td style="width: 5%;font-size: 12px;"><strong>:</strong></td>
+                        <td style="padding: 0; vertical-align: top; font-size: 12px;">{{ $tagihan->metode_pembayaran ? ucfirst($tagihan->metode_pembayaran) : '-' }}</td>
+                    </tr>
+                    @endif
                     @endif
                 </table>
             </td>
