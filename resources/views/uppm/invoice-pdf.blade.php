@@ -2,7 +2,14 @@
     <table style="width: 100%; border: none; margin-bottom: 1rem;">
         <tr>
             <td style="width: 30%; padding: 0; vertical-align: top;">
-                <img src="{{ public_path('images/logo1.png') }}" height="50">
+                @php
+                    $path = public_path('images/logo1.png');
+                    $type = pathinfo($path, PATHINFO_EXTENSION);
+                    $data = file_get_contents($path);
+                    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                @endphp
+
+                <img src="{{ $base64 }}" height="50">
             </td>
             <td style="width: 70%; padding: 0; vertical-align: top; text-align: right;">
                 <h1 style="margin-top: 1rem; font-size: 24px;">INVOICE PEMBAYARAN UPPM</h1>
