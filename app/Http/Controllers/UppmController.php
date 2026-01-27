@@ -244,6 +244,8 @@ class UppmController extends Controller
             return redirect()->back()->with('error', 'Pengaturan UPPM tidak ditemukan untuk tahun tersebut.');
         }
 
+        $tagihan = Tagihan::where('madrasah_id', $madrasah_id)->where('tahun_anggaran', $tahun)->first();
+
         // Buat objek data untuk perhitungan
         $schoolData = (object) [
             'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
