@@ -248,6 +248,9 @@ class UppmController extends Controller
 
         $tagihan = Tagihan::where('madrasah_id', $madrasah_id)->where('tahun_anggaran', $tahun)->first();
 
+        // Get payment if exists
+        $payment = \App\Models\Payment::where('tagihan_id', $tagihan->id ?? null)->first();
+
         // Buat objek data untuk perhitungan
         $schoolData = (object) [
             'jumlah_siswa' => $dataSekolah->jumlah_siswa ?? 0,
@@ -278,7 +281,7 @@ class UppmController extends Controller
             'ptt' => ($schoolData->jumlah_ptt * $setting->nominal_ptt) * 12,
         ];
 
-        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'tagihan'));
+        $pdf = Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'tagihan', 'payment'));
         return $pdf->download('invoice-uppm-' . $madrasah->name . '-' . $tahun . '.pdf');
     }
 

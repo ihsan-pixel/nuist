@@ -124,7 +124,7 @@ class PaymentConfirmation extends Mailable
 
             $yayasan = \App\Models\Yayasan::find(1);
 
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'yayasan'));
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'yayasan', 'tagihan', 'payment'));
             return $pdf->output();
         } catch (\Exception $e) {
             \Log::error('Error generating PDF: ' . $e->getMessage());
