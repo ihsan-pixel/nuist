@@ -123,6 +123,8 @@ class PaymentConfirmation extends Mailable
             ];
 
             $yayasan = \App\Models\Yayasan::find(1);
+            $tagihan = $this->tagihan;
+            $payment = $this->payment;
 
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('uppm.invoice-pdf', compact('madrasah', 'dataSekolah', 'setting', 'nominalBulanan', 'totalTahunan', 'rincian', 'tahun', 'yayasan', 'tagihan', 'payment'));
             return $pdf->output();
