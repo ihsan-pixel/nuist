@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.master')
 
 @section('title', 'CMS Profesional - Kelola Konten dengan Mudah')
 @section('description', 'Platform CMS modern untuk mengelola konten website dengan mudah dan profesional.')
