@@ -44,7 +44,7 @@
         <h1 class="hero-title animate fade-up">
             Nuist - Sistem Informasi Digital
         </h1>
-        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma\'arif NU PWNU DIY</h1>
+        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma'arif NU PWNU DIY</h1>
         <p class="animate fade-up delay-2">{{ $landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.' }}</p>
          <img src="{{ asset('images/image 2.png') }}" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
     </div>
@@ -220,7 +220,7 @@
     .navbar {
         background: rgb(255, 255, 255);
         backdrop-filter: blur(10px);
-        /* box-shadow: 0 4px 20px rgba(0,0,0,0.1); */
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         position: fixed;
         top: 20px;
         width: 1400px;
