@@ -40,21 +40,13 @@
 <!-- HERO -->
 <section id="home" class="hero">
     <div class="container">
-        @if($landing->image_1_hero)
-            <img src="{{ asset('images/image 1.png' . $landing->image_1_hero) }}" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        @else
-            <img src="{{ asset('images/image-hero-1.png') }}" alt="Logo" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        @endif
+        <img src="{{ asset('images/image 1.png') }}" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
         <h1 class="hero-title animate fade-up">
-            {{ $landing->title_hero ?? 'Nuist - Sistem Informasi Digital' }}
+            Nuist - Sistem Informasi Digital
         </h1>
-        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">{{ $landing->sub_title_hero ?? 'LP. Ma\'arif NU PWNU DIY' }}</h1>
+        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma\'arif NU PWNU DIY</h1>
         <p class="animate fade-up delay-2">{{ $landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.' }}</p>
-        @if($landing->image_2_hero)
-            <img src="{{ asset('images/image 2.png' . $landing->image_2_hero) }}" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
-        @else
-            <img src="{{ asset('images/hero-2.png') }}" alt="Logo" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
-        @endif
+         <img src="{{ asset('images/image 2.png') }}" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
     </div>
 </section>
 
