@@ -1219,7 +1219,7 @@
     overflow: hidden;
     width: 1800px;
     margin: 80px auto 0;
-    margin-left: -440px;
+    margin-left: -400px;
     display: flex;
     justify-content: center;
 }

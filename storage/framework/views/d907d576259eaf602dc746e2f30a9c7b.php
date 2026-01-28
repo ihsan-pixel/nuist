@@ -82,16 +82,8 @@
         </div>
     </div>
     <div class="container profile-flex animate fade-up delay-2" style="margin-top: 50px;">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->image_1_profile): ?>
-            <img src="<?php echo e(asset('storage/' . $landing->image_1_profile)); ?>" alt="Profile Image 1" class="hero-image animate fade-left delay-1" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        <?php else: ?>
-            <img src="<?php echo e(asset('images/profile-1.png')); ?>" alt="Logo" class="hero-image animate fade-left delay-1" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->image_2_profile): ?>
-            <img src="<?php echo e(asset('storage/' . $landing->image_2_profile)); ?>" alt="Profile Image 2" class="hero-image animate fade-right delay-2" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        <?php else: ?>
-            <img src="<?php echo e(asset('images/profile-2.png')); ?>" alt="Logo" class="hero-image animate fade-right delay-2" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <img src="<?php echo e(asset('images/image 3.png')); ?>" alt="Profile Image 1" class="hero-image animate fade-left delay-1" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
+            <img src="<?php echo e(asset('images/image 4.png')); ?>" alt="Profile Image 2" class="hero-image animate fade-right delay-2" style="height: 230px; margin-top: 0px; margin-bottom: -0px;">
     </div>
     <div class="container profile-flex animate fade-up delay-3" style="margin-top: 50px;">
         <div class="profile-content animate fade-left">
@@ -1214,9 +1206,9 @@
 
 .carousel-container {
     overflow: hidden;
-    width: 2000px;
+    width: 1800px;
     margin: 80px auto 0;
-    margin-left: -440px;
+    margin-left: -400px;
     display: flex;
     justify-content: center;
 }
