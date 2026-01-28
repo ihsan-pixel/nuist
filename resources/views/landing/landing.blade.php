@@ -38,7 +38,7 @@
 </nav>
 
 <!-- HERO -->
-<section id="hero" class="hero">
+<section id="home" class="hero">
     <div class="container">
         <img src="{{ asset('images/image 1.png') }}" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
         <h1 class="hero-title animate fade-up">
