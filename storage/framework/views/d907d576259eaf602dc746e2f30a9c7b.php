@@ -6,7 +6,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="<?php echo e(asset('images/logo-long-1.png')); ?>" alt="Logo" style="height: 50px;">
+            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
@@ -23,7 +23,7 @@
                 </li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
-                <li class="login-mobile"><a href="#" class="btn-primary">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a></li>
+                
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
@@ -1030,9 +1030,6 @@
         }
     }
 
-/* ===== CLOUDLY STYLE OVERRIDE ===== */
-
-/* Navbar lebih clean & modern */
 .navbar {
     background: #ffffff;
     border-radius: 40px;
@@ -1471,23 +1468,178 @@
     }
 }
 </style>
-<?php $__env->stopPush(); ?>
-
-<?php $__env->startPush('scripts'); ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function animateCounter(element, target, duration, suffix) {
-        let start = 1;
-        const increment = (target - 1) / (duration / 16);
-        const timer = setInterval(() => {
-            start += increment;
-            if (start >= target) {
-                start = target;
-                clearInterval(timer);
-            }
-            element.textContent = Math.floor(start) + suffix;
-        }, 16);
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function smoothScrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function toggleSubmenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dropdown = e.target.closest('.dropdown');
+    const isOpen = dropdown.classList.contains('open');
+
+    document.querySelectorAll('.dropdown').forEach(drop => {
+        drop.classList.remove('open');
+    });
+
+    if (!isOpen) {
+        dropdown.classList.add('open');
+    }
+}
+
+function toggleMobileMenu() {
+    const navMenu = document.getElementById('nav-menu');
+    const hamburger = document.getElementById('hamburger');
+    navMenu.classList.toggle('show');
+    hamburger.classList.toggle('open');
+}
+
+// Close submenu when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown').forEach(drop => {
+            drop.classList.remove('open');
+        });
     }
 
+    // Close mobile menu when clicking outside
+    if (!e.target.closest('.nav-left') && !e.target.closest('.hamburger')) {
+        const navMenu = document.getElementById('nav-menu');
+        const hamburger = document.getElementById('hamburger');
+        if (navMenu && hamburger) {
+            navMenu.classList.remove('show');
+            hamburger.classList.remove('open');
+        }
+    }
+});
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing.blade.php ENDPATH**/ ?>
+// Navbar scroll effect
+let ticking = false;
+window.addEventListener('scroll', function() {
+    if (!ticking) {
+        requestAnimationFrame(function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('transparent');
+                navbar.classList.add('full-width');
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('transparent');
+                navbar.classList.remove('full-width');
+                navbar.classList.remove('scrolled');
+            }
+            ticking = false;
+        });
+        ticking = true;
+    }
+});
+
+// Custom Cursor Effect
+document.addEventListener('DOMContentLoaded', function() {
+    // Create cursor elements
+    const cursorSmall = document.createElement('div');
+    cursorSmall.className = 'cursor-small';
+    document.body.appendChild(cursorSmall);
+
+    const cursorLarge = document.createElement('div');
+    cursorLarge.className = 'cursor-large';
+    document.body.appendChild(cursorLarge);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let cursorSmallX = 0;
+    let cursorSmallY = 0;
+    let cursorLargeX = 0;
+    let cursorLargeY = 0;
+
+    // Track mouse movement
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Animate cursor positions
+    function animateCursor() {
+        // Smooth follow for small cursor
+        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
+        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
+
+        // Slower follow for large cursor
+        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
+        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
+
+        cursorSmall.style.left = cursorSmallX - 5 + 'px';
+        cursorSmall.style.top = cursorSmallY - 5 + 'px';
+
+        cursorLarge.style.left = cursorLargeX - 15 + 'px';
+        cursorLarge.style.top = cursorLargeY - 15 + 'px';
+
+        requestAnimationFrame(animateCursor);
+    }
+
+    animateCursor();
+
+    // Hide cursors on mobile devices
+    if ('ontouchstart' in window) {
+        cursorSmall.style.display = 'none';
+        cursorLarge.style.display = 'none';
+    }
+});
+
+// Section active on scroll and animation trigger
+document.addEventListener('DOMContentLoaded', function () {
+    // Section titles observer
+    const titles = document.querySelectorAll('.section-title');
+    if (titles.length > 0) {
+        const titleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active');
+                }
+            });
+        }, { threshold: 0.5 });
+
+        titles.forEach(title => {
+            if (title instanceof Element) {
+                titleObserver.observe(title);
+            }
+        });
+    }
+
+    // Animation elements observer
+    const animateElements = document.querySelectorAll('.animate');
+    if (animateElements.length > 0) {
+        const animateObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                    }
+                });
+            },
+            {
+                threshold: 0.15
+            }
+        );
+
+        animateElements.forEach(el => {
+            if (el instanceof Element) {
+                animateObserver.observe(el);
+            }
+        });
+    }
+});
+</script>
+
+<?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/landing.blade.php ENDPATH**/ ?>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Landing;
+use App\Models\Madrasah;
 
 class LandingController extends Controller
 {
@@ -13,6 +15,9 @@ class LandingController extends Controller
      */
     public function index()
     {
-        return view('landing.landing');
+        $landing = Landing::getLanding();
+        $madrasahs = Madrasah::all();
+
+        return view('landing.landing', compact('landing', 'madrasahs'));
     }
 }
