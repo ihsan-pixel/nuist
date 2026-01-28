@@ -1027,7 +1027,7 @@
 .navbar {
     background: #ffffff;
     border-radius: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    /* box-shadow: 0 10px 30px rgba(0,0,0,0.00); */
     width: 1400px;
     position: sticky;
     margin: 0 auto;

@@ -1038,7 +1038,7 @@
 .navbar {
     background: #ffffff;
     border-radius: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    /* box-shadow: 0 10px 30px rgba(0,0,0,0.00); */
     width: 1400px;
     position: sticky;
     margin: 0 auto;
@@ -1124,7 +1124,7 @@
     margin-top: -20px;
     margin-bottom: 40px;
     padding: 60px 20px 160px;
-    background: linear-gradient(135deg, #00393a, #005555, #00393a);
+    background: #ffffff;
     border-radius: 48px;
     max-width: 1600px;
     margin-left: auto;
@@ -1141,6 +1141,7 @@
     font-size: 56px;
     font-weight: 800;
     line-height: 1.15;
+    color: #004b4c;
 }
 
 /* Deskripsi */
@@ -1148,7 +1149,7 @@
     font-size: 18px;
     max-width: 720px;
     margin: 0 auto 40px;
-    opacity: 0.9;
+    color: #333;
 }
 
 /* Tombol hero */
