@@ -38,22 +38,13 @@
 <!-- HERO -->
 <section id="home" class="hero">
     <div class="container">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->image_1_hero): ?>
-            <img src="<?php echo e(asset('storage/' . $landing->image_1_hero)); ?>" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        <?php else: ?>
-            <img src="<?php echo e(asset('images/image-hero-1.png')); ?>" alt="Logo" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <img src="<?php echo e(asset('images/image 1.png')); ?>" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
         <h1 class="hero-title animate fade-up">
-            <?php echo e($landing->title_hero ?? 'Nuist - Sistem Informasi Digital'); ?>
-
+            Nuist - Sistem Informasi Digital
         </h1>
-        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711"><?php echo e($landing->sub_title_hero ?? 'LP. Ma\'arif NU PWNU DIY'); ?></h1>
+        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma'arif NU PWNU DIY</h1>
         <p class="animate fade-up delay-2"><?php echo e($landing->content_hero ?? 'Kelola data kelembagaan, aktivitas, sistem informasi dan layanan dalam satu aplikasi yang modern, aman, dan mudah digunakan.'); ?></p>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->image_2_hero): ?>
-            <img src="<?php echo e(asset('storage/' . $landing->image_2_hero)); ?>" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
-        <?php else: ?>
-            <img src="<?php echo e(asset('images/hero-2.png')); ?>" alt="Logo" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+         <img src="<?php echo e(asset('images/image 2.png')); ?>" alt="Hero Image 2" class="hero-image animate zoom-soft delay-3" style="height: 500px; margin-top: 0px; margin-bottom: -350px;">
     </div>
 </section>
 
@@ -224,8 +215,9 @@
         width: 1400px;
         margin: 0 auto;
         z-index: 1000;
-        border-radius: 40px;
+        border-radius: 50px;
         transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
+        margin-top: -20px;
     }
 
     .navbar.transparent {
@@ -277,6 +269,8 @@
         list-style: none;
         display: flex;
         gap: 20px;
+        align-items: center;
+        margin-top: 20px;
     }
 
     .nav-menu a {
@@ -1033,7 +1027,7 @@
 .navbar {
     background: #ffffff;
     border-radius: 40px;
-    /* box-shadow: 0 10px 30px rgba(0,0,0,0.08); */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     width: 1400px;
     position: sticky;
     margin: 0 auto;
@@ -1053,7 +1047,7 @@
 
 .navbar.transparent .container {
     max-width: 1400px;
-}
+} */
 
 /* Menu spacing & typography */
 .nav-menu a {
@@ -1396,65 +1390,6 @@
 .fade-right {
     transform: translateX(40px);
 }
-
-.zoom-soft {
-    transform: scale(0.95);
-}
-
-.show.fade-left,
-.show.fade-right {
-    transform: translateX(0);
-}
-
-.show.zoom-soft {
-    transform: scale(1);
-}
-
-/* DELAY UTIL */
-.delay-1 { transition-delay: 0.15s; }
-.delay-2 { transition-delay: 0.3s; }
-.delay-3 { transition-delay: 0.45s; }
-.delay-4 { transition-delay: 0.6s; }
-
-/* === BASE ANIMATION === */
-.animate {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease;
-}
-
-.animate.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* VARIANTS */
-.fade-left {
-    transform: translateX(-40px);
-}
-
-.fade-right {
-    transform: translateX(40px);
-}
-
-.zoom-soft {
-    transform: scale(0.95);
-}
-
-.show.fade-left,
-.show.fade-right {
-    transform: translateX(0);
-}
-
-.show.zoom-soft {
-    transform: scale(1);
-}
-
-/* DELAY UTIL */
-.delay-1 { transition-delay: 0.15s; }
-.delay-2 { transition-delay: 0.3s; }
-.delay-3 { transition-delay: 0.45s; }
-.delay-4 { transition-delay: 0.6s; }
 
 /* Responsive */
 @media (max-width: 768px) {
