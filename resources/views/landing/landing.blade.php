@@ -1032,7 +1032,7 @@
         }
     }
 
-.navbar {
+/* .navbar {
     background: #ffffff;
     border-radius: 40px;
     /* box-shadow: 0 10px 30px rgba(0,0,0,0.08); */
@@ -1055,7 +1055,7 @@
 
 .navbar.transparent .container {
     max-width: 1400px;
-}
+} */
 
 /* Menu spacing & typography */
 .nav-menu a {
