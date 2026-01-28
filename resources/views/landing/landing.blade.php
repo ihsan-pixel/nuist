@@ -1048,6 +1048,7 @@
     width: 100%;
     margin: 0;
     border-radius: 0 0 28px 28px;
+    position: sticky;
 }
 
 /* Container navbar lebih lebar */

@@ -6,7 +6,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px;">
+            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
@@ -1037,6 +1037,7 @@
     width: 100%;
     margin: 0;
     border-radius: 0 0 28px 28px;
+    position: sticky;
 }
 
 /* Container navbar lebih lebar */
