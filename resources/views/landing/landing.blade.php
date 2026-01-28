@@ -293,24 +293,7 @@
         box-shadow: 0 0 0 rgba(0, 75, 76, 0);
     }
 
-    .nav-menu a:hover {
-        color: #eda711;
-        background: rgba(255, 95, 95, 0.1);
-    }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #004b4c, #004b4c);
-        color: white;
-        padding: 12px 24px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        /* transition: transform 0.3s; */
-    }
-
-    .btn-primary:hover {
-        /* transform: translateY(-2px); */
-    }
 
     /* DROPDOWN SUBMENU */
     .dropdown {
@@ -380,30 +363,7 @@
         padding-left: 18px;
     }
 
-    /* HERO */
-    .hero {
-        padding: 120px 0 80px;
-        color: white;
-        text-align: center;
-    }
 
-    .hero h1 {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .hero p {
-        font-size: 20px;
-        margin-bottom: 40px;
-        opacity: 0.9;
-    }
-
-    .hero .btn-primary {
-        display: inline-block;
-        margin-top: 20px;
-    }
 
     /* FEATURES */
     .features {
@@ -1114,78 +1074,7 @@
     /* No position animation */
 }
 
-/* Hero container */
-.hero {
-    position: relative;
-    margin-top: -20px;
-    margin-bottom: 40px;
-    padding: 60px 20px 160px;
-    background: linear-gradient(135deg, #00393a, #005555, #00393a);
-    border-radius: 48px;
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
-    min-height: 87vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
 
-/* Judul hero */
-.hero h1 {
-    font-size: 56px;
-    font-weight: 800;
-    line-height: 1.15;
-}
-
-/* Deskripsi */
-.hero p {
-    font-size: 18px;
-    max-width: 720px;
-    margin: 0 auto 40px;
-    opacity: 0.9;
-}
-
-/* Tombol hero */
-.hero .btn-primary {
-    background: #ffffff;
-    color: #004b4c;
-    padding: 14px 30px;
-    border-radius: 999px;
-    font-weight: 700;
-    box-shadow: none;
-}
-
-/* Efek hover tombol hero */
-.hero .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(255,255,255,0.35);
-}
-
-/* Background grid halus seperti Cloudly */
-.hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
-    background-size: 60px 60px;
-    border-radius: 48px;
-    pointer-events: none;
-}
-
-/* Hero image hover effect */
-.hero-image {
-    transition: transform 0.3s ease, filter 0.3s ease;
-    cursor: pointer;
-}
-
-.hero-image:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
 
 /* Custom Cursor Effect */
 .cursor-small {
@@ -1377,46 +1266,6 @@
 }
 
 
-
-/* === BASE ANIMATION === */
-.animate {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease;
-}
-
-.animate.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* VARIANTS */
-.fade-left {
-    transform: translateX(-40px);
-}
-
-.fade-right {
-    transform: translateX(40px);
-}
-
-.zoom-soft {
-    transform: scale(0.95);
-}
-
-.show.fade-left,
-.show.fade-right {
-    transform: translateX(0);
-}
-
-.show.zoom-soft {
-    transform: scale(1);
-}
-
-/* DELAY UTIL */
-.delay-1 { transition-delay: 0.15s; }
-.delay-2 { transition-delay: 0.3s; }
-.delay-3 { transition-delay: 0.45s; }
-.delay-4 { transition-delay: 0.6s; }
 
 /* === BASE ANIMATION === */
 .animate {
