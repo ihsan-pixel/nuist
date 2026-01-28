@@ -8,7 +8,7 @@
 <nav class="navbar">
     <div class="container nav-flex">
         <div class="nav-left">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px;">
+            <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
@@ -33,7 +33,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="#" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="#" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
@@ -286,7 +286,8 @@
     .nav-menu a {
         text-decoration: none;
         color: #004b4c;
-        font-weight: 300;
+        font-weight: 500;
+        font-size: 18px;
         padding: 8px 16px;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0);

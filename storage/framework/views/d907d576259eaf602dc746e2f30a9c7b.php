@@ -31,7 +31,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="#" class="btn-primary desktop-login">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="#" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
@@ -217,7 +217,6 @@
         z-index: 1000;
         border-radius: 50px;
         transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
-        margin-top: -20px;
     }
 
     .navbar.transparent {
@@ -276,7 +275,8 @@
     .nav-menu a {
         text-decoration: none;
         color: #004b4c;
-        font-weight: 300;
+        font-weight: 500;
+        font-size: 18px;
         padding: 8px 16px;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0);
