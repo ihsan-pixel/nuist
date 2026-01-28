@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<?php if(isset($history) && $history->isEmpty()): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($history) && $history->isEmpty()): ?>
     <div class="card empty-state shadow-sm border-0">
         <div class="card-body text-center py-5">
             <div class="avatar-xl mx-auto mb-4">
@@ -50,7 +50,7 @@
             </div>
         </div>
     </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php $__env->stopSection(); ?>
 

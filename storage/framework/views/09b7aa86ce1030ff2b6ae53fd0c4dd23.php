@@ -383,7 +383,7 @@
         }
     ?>
 
-    <?php if($isHoliday && !$isPenjagaSekolah): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isHoliday && !$isPenjagaSekolah): ?>
     <div class="alert-custom warning">
         <div class="d-flex align-items-center">
             <div class="status-icon">
@@ -404,7 +404,7 @@
             </div>
             <div>
                 <h6 class="mb-1">Presensi Sudah Dicatat</h6>
-                <?php if($isPenjagaSekolah && isset($openPresensi)): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah && isset($openPresensi)): ?>
                     <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
                         <small class="text-white-50"><?php echo e($openPresensi->madrasah?->name ?? 'Madrasah'); ?></small>
                         <p class="mb-1">Masuk: <strong><?php echo e($openPresensi->waktu_masuk->format('H:i')); ?></strong> (<?php echo e(\Carbon\Carbon::parse($openPresensi->tanggal)->format('d/m/Y')); ?>)</p>
@@ -412,34 +412,34 @@
                     </div>
                     <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
                 <?php else: ?>
-                    <?php $__currentLoopData = $presensiHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $presensiHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
                         <small class="text-white-50"><?php echo e($presensi->madrasah?->name ?? 'Madrasah'); ?> (<?php echo e(\Carbon\Carbon::parse($presensi->tanggal)->format('d/m/Y')); ?>)</small>
-                        <?php if($presensi->waktu_masuk): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
                         <p class="mb-1">Masuk: <strong><?php echo e($presensi->waktu_masuk->format('H:i')); ?></strong></p>
-                        <?php if($presensi->waktu_keluar): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
                         <p class="mb-0">Keluar: <strong><?php echo e($presensi->waktu_keluar->format('H:i')); ?></strong></p>
                         <?php else: ?>
                         <p class="mb-0 text-muted">Belum presensi keluar</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <?php else: ?>
                         <p class="mb-1">Masuk: <strong>-</strong></p>
                         <p class="mb-0 text-muted">Belum presensi masuk</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    <?php if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()): ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiHariIni->where('waktu_keluar', '!=', null)->count() == $presensiHariIni->count()): ?>
                     <div class="alert-custom success" style="margin-top: 6px; padding: 4px;">
                         <small><i class="bx bx-check me-1"></i> Semua presensi hari ini lengkap!</small>
                     </div>
                     <?php else: ?>
                     <p class="mb-0 text-muted">Lakukan presensi keluar jika sudah selesai.</p>
-                    <?php endif; ?>
-                <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Presensi Form -->
     <div class="presensi-form">
@@ -568,7 +568,7 @@
     </div>
 
     <!-- Time Information -->
-    <?php if($isPenjagaSekolah): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isPenjagaSekolah): ?>
     <div class="schedule-section">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
@@ -602,22 +602,22 @@
                 <i class="bx bx-log-out-circle text-success"></i>
                 <h6 class="text-success">Pulang</h6>
                 <p><?php echo e($timeRanges['pulang_start']); ?> - <?php echo e($timeRanges['pulang_end']); ?></p>
-                <?php if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5): ?>
                 <small>Jumat khusus: mulai 14:30</small>
                 <?php else: ?>
                 <small>Mulai pukul <?php echo e($timeRanges['pulang_start']); ?></small>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
         <div class="alert-custom info" style="margin-top: 6px;">
             <small>
                 <i class="bx bx-info-circle me-1"></i>
                 <strong>Catatan:</strong>
-                <?php if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->madrasah && $user->madrasah->hari_kbm == '6' && \Carbon\Carbon::parse($selectedDate)->dayOfWeek == 5): ?>
                 Pulang dapat dilakukan mulai pukul 14:30 hingga 22:00 (khusus Jumat).
                 <?php else: ?>
                 Pulang dapat dilakukan mulai pukul 15:00 hingga 22:00.
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </small>
         </div>
     </div>
@@ -626,7 +626,7 @@
         <i class="bx bx-info-circle me-1"></i>
         <strong>Pengaturan Presensi:</strong> Hari KBM belum diatur. Hubungi admin.
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 
 
@@ -658,17 +658,17 @@
     </div>
 
     <!-- Monitor Map: dedicated button for kepala madrasah -->
-    <?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
     <div class="presensi-form">
         <a href="<?php echo e(route('mobile.monitor-map')); ?>" class="presensi-btn" style="display: block; text-decoration: none; color: #fff; text-align: center;">
             <i class="bx bx-map me-1"></i>
             Monitor Map Presensi
         </a>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Monitoring Presensi: Map View -->
-    <?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
     <div class="presensi-form">
         <div class="d-flex align-items-center mb-2">
             <div class="status-icon">
@@ -704,7 +704,7 @@
             </div>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 

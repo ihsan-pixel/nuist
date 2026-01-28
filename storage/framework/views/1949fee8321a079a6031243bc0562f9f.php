@@ -100,7 +100,7 @@
     </div>
 </div>
 
-<?php if(in_array($userRole, ['super_admin', 'admin'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($userRole, ['super_admin', 'admin'])): ?>
 <!-- Master Data -->
 <div class="row">
     <div class="col-12">
@@ -136,7 +136,7 @@
                     <li>Pastikan data lengkap termasuk NIP, status kepegawaian, dll.</li>
                 </ol>
 
-                <?php if($userRole === 'super_admin'): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
                 <h6>Data Status Kepegawaian:</h6>
                 <ol class="step-list">
                     <li>Klik "Master Data" > "Data Status Kepegawaian".</li>
@@ -148,14 +148,14 @@
                     <li>Klik "Master Data" > "Data Tahun Pelajaran".</li>
                     <li>Tambahkan tahun ajaran aktif.</li>
                 </ol>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-<?php if($userRole === 'tenaga_pendidik'): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'tenaga_pendidik'): ?>
 <!-- Presensi -->
 <div class="row">
     <div class="col-12">
@@ -182,9 +182,9 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-<?php if($userRole === 'super_admin'): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
 <!-- Presensi Admin -->
 <div class="row">
     <div class="col-12">
@@ -259,7 +259,7 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php $__env->stopSection(); ?>
 

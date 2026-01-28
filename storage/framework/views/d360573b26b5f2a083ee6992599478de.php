@@ -33,21 +33,21 @@
 
                                             </span>
                                         </div>
-                                        <?php if($tagihan->tanggal_pembayaran): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tagihan->tanggal_pembayaran): ?>
                                         <div class="col-md-6">
                                             <p class="mb-2"><strong>Tanggal Pembayaran:</strong></p>
                                             <p class="mb-0"><?php echo e(\Carbon\Carbon::parse($tagihan->updated_at)->format('d M Y H:i')); ?></p>
                                         </div>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
-                                    <?php if($tagihan->keterangan): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tagihan->keterangan): ?>
                                     <div class="row mt-3">
                                         <div class="col-12">
                                             <p class="mb-2"><strong>Keterangan:</strong></p>
                                             <p class="mb-0"><?php echo e($tagihan->keterangan); ?></p>
                                         </div>
                                     </div>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
                         </div>

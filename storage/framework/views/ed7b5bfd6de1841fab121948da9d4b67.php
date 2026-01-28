@@ -9,34 +9,34 @@
             </h2>
             <p class="text-muted mb-0">Konfigurasi pengaturan PPDB untuk <?php echo e($madrasah->name); ?></p>
         </div>
-        <?php if($userRole === 'super_admin'): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
         <a href="<?php echo e(route('ppdb.lp.dashboard')); ?>" class="btn btn-secondary">
             <i class="mdi mdi-arrow-left me-1"></i>Kembali ke Dashboard
         </a>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     <!-- Success/Error Messages -->
-    <?php if(session('success')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="mdi mdi-check-circle me-2"></i><?php echo e(session('success')); ?>
 
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if($errors->any()): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="mdi mdi-alert-circle me-2"></i>
             <strong>Terjadi kesalahan:</strong>
             <ul class="mb-0 mt-2">
-                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li><?php echo e($error); ?></li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <form action="<?php echo e(route('ppdb.lp.update-ppdb-settings', $madrasah->id)); ?>" method="POST">
         <?php echo csrf_field(); ?>
@@ -104,7 +104,7 @@ unset($__errorArgs, $__bag); ?>" id="ppdb_status" name="ppdb_status" style="max-
                             </div>
                         </div>
                     </div>
-                    <?php $__errorArgs = ['ppdb_status'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_status'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -113,7 +113,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -140,7 +140,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                                    id="ppdb_jadwal_buka" name="ppdb_jadwal_buka"
                                    value="<?php echo e(old('ppdb_jadwal_buka', $ppdbSetting ? ($ppdbSetting->ppdb_jadwal_buka ? $ppdbSetting->ppdb_jadwal_buka->format('Y-m-d\TH:i') : '') : '')); ?>">
-                            <?php $__errorArgs = ['ppdb_jadwal_buka'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_jadwal_buka'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -149,7 +149,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
@@ -166,7 +166,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                                    id="ppdb_jadwal_tutup" name="ppdb_jadwal_tutup"
                                    value="<?php echo e(old('ppdb_jadwal_tutup', $ppdbSetting ? ($ppdbSetting->ppdb_jadwal_tutup ? $ppdbSetting->ppdb_jadwal_tutup->format('Y-m-d\TH:i') : '') : '')); ?>">
-                            <?php $__errorArgs = ['ppdb_jadwal_tutup'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_jadwal_tutup'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -175,7 +175,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -194,7 +194,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                                    id="ppdb_jadwal_pengumuman" name="ppdb_jadwal_pengumuman"
                                    value="<?php echo e(old('ppdb_jadwal_pengumuman', $ppdbSetting ? ($ppdbSetting->ppdb_jadwal_pengumuman ? $ppdbSetting->ppdb_jadwal_pengumuman->format('Y-m-d\TH:i') : '') : '')); ?>">
-                            <?php $__errorArgs = ['ppdb_jadwal_pengumuman'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_jadwal_pengumuman'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -203,7 +203,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -231,7 +231,7 @@ unset($__errorArgs, $__bag); ?>"
                                    id="ppdb_kuota_total" name="ppdb_kuota_total"
                                    value="<?php echo e(old('ppdb_kuota_total', $ppdbSetting ? ($ppdbSetting->ppdb_kuota_total ?? '') : '')); ?>" readonly>
                     <small class="text-muted">Total kuota pendaftar untuk semua jurusan (otomatis dihitung dari kuota jurusan)</small>
-                    <?php $__errorArgs = ['ppdb_kuota_total'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_kuota_total'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -240,7 +240,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
                 <div class="form-group">
@@ -251,8 +251,8 @@ unset($__errorArgs, $__bag); ?>
                             $jurusanArray = old('jurusan', $ppdbSetting ? ($ppdbSetting->jurusan ?? []) : []);
                             $kuotaJurusan = old('ppdb_kuota_jurusan', $ppdbSetting ? ($ppdbSetting->ppdb_kuota_jurusan ?? []) : []);
                         ?>
-                        <?php if(is_array($jurusanArray) && count($jurusanArray) > 0): ?>
-                            <?php $__currentLoopData = $jurusanArray; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($jurusanArray) && count($jurusanArray) > 0): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $jurusanArray; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="row mb-2">
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" value="<?php echo e(is_array($jurusan) ? $jurusan['nama'] : $jurusan); ?>" readonly>
@@ -261,12 +261,12 @@ unset($__errorArgs, $__bag); ?>
                                         <input type="number" class="form-control kuota-jurusan-input" name="ppdb_kuota_jurusan[<?php echo e(is_array($jurusan) ? $jurusan['nama'] : $jurusan); ?>]" value="<?php echo e($kuotaJurusan[ is_array($jurusan) ? $jurusan['nama'] : $jurusan ] ?? ''); ?>" placeholder="Kuota" min="0" onchange="updateKuotaTotal()">
                                     </div>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <?php else: ?>
                             <div class="alert alert-info">
                                 <i class="mdi mdi-information me-2"></i>Isi jurusan terlebih dahulu di profil madrasah untuk mengatur kuota per jurusan.
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <script>
                     function updateKuotaTotal() {
@@ -285,7 +285,7 @@ unset($__errorArgs, $__bag); ?>
                         });
                     });
                     </script>
-                    <?php $__errorArgs = ['ppdb_kuota_jurusan.*'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_kuota_jurusan.*'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -294,7 +294,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -322,9 +322,9 @@ unset($__errorArgs, $__bag); ?>
                         }
                     ?>
 
-                    <?php if($availableJalur->count() > 0): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($availableJalur->count() > 0): ?>
                         <div class="row">
-                            <?php $__currentLoopData = $availableJalur; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jalur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $availableJalur; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jalur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col-md-6 mb-3">
                                     <div class="form-check d-flex align-items-start">
                                         <input class="form-check-input me-2 mt-1" type="checkbox"
@@ -334,7 +334,7 @@ unset($__errorArgs, $__bag); ?>
                                         <div class="flex-grow-1">
                                             <label class="form-check-label d-flex align-items-center" for="jalur_<?php echo e($jalur->id); ?>">
                                                 <span class="me-2"><?php echo e($jalur->nama_jalur); ?></span>
-                                                <?php if(in_array($jalur->id, $selectedJalurIds)): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($jalur->id, $selectedJalurIds)): ?>
                                                     <span class="badge bg-success">
                                                         <i class="mdi mdi-check-circle me-1"></i>Aktif
                                                     </span>
@@ -342,23 +342,23 @@ unset($__errorArgs, $__bag); ?>
                                                     <span class="badge bg-secondary">
                                                         <i class="mdi mdi-close-circle me-1"></i>Tidak Aktif
                                                     </span>
-                                                <?php endif; ?>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </label>
-                                            <?php if($jalur->keterangan): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($jalur->keterangan): ?>
                                                 <small class="text-muted d-block"><?php echo e($jalur->keterangan); ?></small>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="alert alert-info">
                             <i class="mdi mdi-information me-2"></i>Belum ada jalur pendaftaran yang tersedia. Silakan tambahkan jalur terlebih dahulu.
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    <?php $__errorArgs = ['ppdb_jalur_active'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_jalur_active'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -367,7 +367,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -392,7 +392,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                               id="ppdb_biaya_pendaftaran" name="ppdb_biaya_pendaftaran" rows="3"
                               placeholder="Informasi biaya pendaftaran PPDB"><?php echo e(old('ppdb_biaya_pendaftaran', $ppdbSetting ? ($ppdbSetting->ppdb_biaya_pendaftaran ?? '') : '')); ?></textarea>
-                    <?php $__errorArgs = ['ppdb_biaya_pendaftaran'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_biaya_pendaftaran'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -401,7 +401,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -426,7 +426,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                               id="ppdb_catatan_pengumuman" name="ppdb_catatan_pengumuman" rows="3"
                               placeholder="Catatan tambahan untuk pengumuman hasil PPDB"><?php echo e(old('ppdb_catatan_pengumuman', $ppdbSetting ? ($ppdbSetting->ppdb_catatan_pengumuman ?? '') : '')); ?></textarea>
-                    <?php $__errorArgs = ['ppdb_catatan_pengumuman'];
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ppdb_catatan_pengumuman'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -435,7 +435,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>

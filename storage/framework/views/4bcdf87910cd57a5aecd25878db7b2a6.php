@@ -652,7 +652,7 @@
     <?php $__env->slot('title'); ?> Data Presensi <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
-<?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
     <!-- Header Section - Modern PPDB Style -->
     <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
         <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
@@ -810,7 +810,7 @@
         $kabupatenIndex = 0;
     ?>
 
-    <?php $__currentLoopData = $kabupatenOrder; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $kabupatenOrder; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <?php
             $kabupatenMadrasahData = collect($madrasahData)->filter(function($data) use ($kabupaten) {
                 return $data['madrasah']->kabupaten === $kabupaten;
@@ -818,7 +818,7 @@
             $madrasahIndex = 0;
         ?>
 
-        <?php if($kabupatenMadrasahData->count() > 0): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kabupatenMadrasahData->count() > 0): ?>
             <!-- Kabupaten Header - Modern PPDB Style -->
             <div class="kabupaten-group" style="background: white !important; border: 1px solid #dee2e6 !important; border-radius: 15px !important; margin-bottom: 1.5rem !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;">
                 <div class="kabupaten-header" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; color: white !important; padding: 1rem 1.5rem !important; font-weight: 600 !important; font-size: 1.1rem !important; display: flex !important; align-items: center !important; justify-content: space-between !important;">
@@ -844,7 +844,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $kabupatenMadrasahData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $kabupatenMadrasahData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $data): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td>
                                         <div class="sekolah-name">
@@ -875,28 +875,28 @@
                                             <a href="<?php echo e(route('presensi_admin.show_detail', $data['madrasah']->id)); ?>?date=<?php echo e($selectedDate->format('Y-m-d')); ?>" class="btn btn-outline-info btn-sm">
                                                 <i class="mdi mdi-eye me-1"></i>Lihat Detail
                                             </a>
-                                            <?php if($user->role === 'super_admin'): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->role === 'super_admin'): ?>
                                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal" data-madrasah-id="<?php echo e($data['madrasah']->id); ?>" data-madrasah-name="<?php echo e($data['madrasah']->name); ?>">
                                                 <i class="bx bx-download me-1"></i>Export
                                             </button>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>
                                 <?php
                                     $madrasahIndex++;
                                 ?>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <?php
             $kabupatenIndex++;
         ?>
-    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- User Detail Modal - Modern PPDB Style -->
     <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
@@ -1035,21 +1035,21 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <?php if(session('success')): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
 
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    <?php if(session('error')): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
 
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="mb-3 d-flex justify-content-end">
                         <a href="<?php echo e(route('izin.index')); ?>" class="btn btn-info">
@@ -1073,7 +1073,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__empty_1 = true; $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr>
                                     <td><?php echo e($loop->iteration); ?></td>
                                     <td><?php echo e($presensi->user->name ?? '-'); ?></td>
@@ -1081,23 +1081,23 @@
                                     <td><?php echo e($presensi->statusKepegawaian->name ?? '-'); ?></td>
                                         <td><?php echo e($presensi->tanggal); ?></td>
                                         <td>
-                                            <?php if($presensi->waktu_masuk): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
                                                 <?php echo e($presensi->tanggal->copy()->setTimeFromTimeString($presensi->waktu_masuk->format('H:i:s'))->format('Y-m-d H:i')); ?>
 
                                             <?php else: ?>
                                                 -
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                         <td>
-                                            <?php if($presensi->waktu_keluar): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
                                                 <?php echo e($presensi->tanggal->copy()->setTimeFromTimeString($presensi->waktu_keluar->format('H:i:s'))->format('Y-m-d H:i')); ?>
 
                                             <?php else: ?>
                                                 -
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                     <td>
-                                        <?php if($presensi->status == 'hadir'): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->status == 'hadir'): ?>
                                             <span class="badge bg-success">Hadir</span>
                                         <?php elseif($presensi->status == 'terlambat'): ?>
                                             <span class="badge bg-warning">Terlambat</span>
@@ -1105,15 +1105,15 @@
                                             <span class="badge bg-info">Izin</span>
                                         <?php else: ?>
                                             <span class="badge bg-secondary"><?php echo e(ucfirst($presensi->status)); ?></span>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if($presensi->keterangan && str_contains($presensi->keterangan, 'Terlambat')): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->keterangan && str_contains($presensi->keterangan, 'Terlambat')): ?>
                                             <span class="text-danger"><?php echo e($presensi->keterangan); ?></span>
                                         <?php else: ?>
                                             <?php echo e($presensi->keterangan); ?>
 
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -1126,7 +1126,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -1154,19 +1154,19 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-<?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
                                     <th>Madrasah</th>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__empty_1 = true; $__currentLoopData = $belumPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $userBelum): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $belumPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $userBelum): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <tr>
                                     <td><?php echo e($loop->iteration); ?></td>
                                     <td><?php echo e($userBelum->name); ?></td>
-<?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus'])): ?>
                                     <td><?php echo e($userBelum->madrasah->name ?? '-'); ?></td>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
@@ -1179,7 +1179,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -1187,7 +1187,7 @@
             </div>
         </div>
     </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

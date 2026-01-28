@@ -27,43 +27,43 @@
                 </h4>
             </div>
             <div class="card-body">
-                <?php if(session('success')): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
 
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php if(session('error')): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
 
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <!-- Data Madrasah -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <?php if($madrasah->logo): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
                         <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" class="rounded mx-auto d-block mb-3" alt="<?php echo e($madrasah->name); ?>" style="width: 150px; height: 150px; object-fit: cover;">
                         <?php else: ?>
                         <div class="rounded mx-auto d-block mb-3 bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
                             <i class="bx bx-school bx-lg text-muted"></i>
                         </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <div class="col-md-8">
                         <h3 class="fw-bold"><?php echo e($madrasah->name); ?></h3>
                         <p class="text-muted"><?php echo e($madrasah->kabupaten ? 'Kabupaten ' . $madrasah->kabupaten : ''); ?></p>
                         <p class="text-muted"><?php echo e($madrasah->alamat ?? 'Alamat tidak tersedia'); ?></p>
                         <p class="text-muted"><strong>Hari KBM:</strong> <?php echo e($madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : 'Tidak ditentukan'); ?></p>
-                        <?php if($madrasah->map_link): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->map_link): ?>
                         <a href="<?php echo e($madrasah->map_link); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="bx bx-map me-1"></i> Lihat di Peta
                         </a>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
 
@@ -71,17 +71,17 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <h5 class="fw-semibold mb-2">Kepala Sekolah/Madrasah</h5>
-                        <?php if($kepalaSekolah): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah): ?>
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
-                                <?php if($kepalaSekolah->avatar): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah->avatar): ?>
                                 <img src="<?php echo e(asset('storage/' . $kepalaSekolah->avatar)); ?>" class="rounded-circle" alt="<?php echo e($kepalaSekolah->name); ?>" style="width: 50px; height: 50px; object-fit: cover;">
                                 <?php else: ?>
                                 <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                     <?php echo e(substr($kepalaSekolah->name, 0, 1)); ?>
 
                                 </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-0"><?php echo e($kepalaSekolah->name); ?></h6>
@@ -90,7 +90,7 @@
                         </div>
                         <?php else: ?>
                         <p class="text-muted">Kepala sekolah belum ditetapkan.</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@
                     <div class="col-12">
                         <h5 class="fw-semibold mb-3">Jumlah Tenaga Pendidik berdasarkan Status Kepegawaian</h5>
                         <div class="row">
-                            <?php $__empty_1 = true; $__currentLoopData = $tpByStatus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status => $count): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tpByStatus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status => $count): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <div class="col-md-3 mb-2">
                                 <div class="card border-0 bg-light">
                                     <div class="card-body text-center">
@@ -112,7 +112,7 @@
                             <div class="col-12">
                                 <p class="text-muted">Belum ada data tenaga pendidik.</p>
                             </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $__empty_1 = true; $__currentLoopData = $madrasah->tenagaPendidikUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $madrasah->tenagaPendidikUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr>
                                         <td><?php echo e($loop->iteration); ?></td>
                                         <td><?php echo e($tp->name); ?></td>
@@ -162,7 +162,7 @@
                                                     data-jabatan="<?php echo e($tp->jabatan ?? '-'); ?>">
                                                 <i class="bx bx-show"></i> View
                                             </button>
-                                            <?php if(auth()->user()->role == 'super_admin'): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role == 'super_admin'): ?>
                                             <button class="btn btn-sm btn-warning edit-btn ms-1"
                                                     data-id="<?php echo e($tp->id); ?>"
                                                     data-name="<?php echo e($tp->name); ?>"
@@ -187,7 +187,7 @@
                                                     data-madrasah_id_tambahan="<?php echo e($tp->madrasah_id_tambahan); ?>">
                                                 <i class="bx bx-edit"></i> Edit
                                             </button>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -199,7 +199,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -283,9 +283,9 @@
                         <label>Madrasah</label>
                         <select name="madrasah_id" class="form-control" id="edit-madrasah_id">
                             <option value="">-- Pilih Madrasah --</option>
-                            <?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($madrasah->id); ?>"><?php echo e($madrasah->name); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
 
@@ -293,9 +293,9 @@
                         <label>Status Kepegawaian</label>
                         <select name="status_kepegawaian_id" class="form-control" id="edit-status_kepegawaian_id">
                             <option value="">-- Pilih Status Kepegawaian --</option>
-                            <?php $__currentLoopData = $statusKepegawaian; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $statusKepegawaian; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($status->id); ?>"><?php echo e($status->name); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
 
@@ -353,9 +353,9 @@
                         <label>Madrasah Tambahan</label>
                         <select name="madrasah_id_tambahan" class="form-control" id="edit-madrasah_id_tambahan">
                             <option value="">-- Pilih Madrasah --</option>
-                            <?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($madrasah->id); ?>"><?php echo e($madrasah->name); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
 

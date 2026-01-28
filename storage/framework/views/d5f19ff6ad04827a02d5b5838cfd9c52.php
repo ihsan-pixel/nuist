@@ -518,12 +518,12 @@
                         <label for="kabupaten" class="form-label">Filter Kabupaten</label>
                         <select name="kabupaten" id="kabupaten" class="form-select">
                             <option value="">Semua Kabupaten</option>
-                            <?php $__currentLoopData = $kabupatenList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $kabupatenList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($kabupaten); ?>" <?php echo e(request('kabupaten') == $kabupaten ? 'selected' : ''); ?>>
                                     <?php echo e($kabupaten); ?>
 
                                 </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -538,7 +538,7 @@
             </div>
         </div>
 
-        <?php $__empty_1 = true; $__currentLoopData = $sekolahGrouped; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten => $sekolahList): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $sekolahGrouped; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten => $sekolahList): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <div class="kabupaten-section mb-3">
                 <h3 class="kabupaten-title" onclick="window.toggleSchools(this)" style="color: #004b4c; font-weight: 600; cursor: pointer; border-bottom: 2px solid #004b4c; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
                     <?php echo e($kabupaten ?: 'Kabupaten Belum Diisi'); ?>
@@ -547,7 +547,7 @@
                 </h3>
                 <div class="kabupaten-schools" style="display: none; margin-top: 15px;">
                     <div class="row g-3">
-                        <?php $__currentLoopData = $sekolahList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sekolahList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <?php
                                 $ppdb = $madrasah->ppdbSettings->where('tahun', now()->year)->first(); // Ambil PPDB setting untuk tahun ini
                             ?>
@@ -558,13 +558,13 @@
                                              class="card-img-top"
                                              alt="<?php echo e($madrasah->name); ?>"
                                              style="height: 120px; object-fit: cover;">
-                                        <?php if($ppdb && $ppdb->isPembukaan()): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb && $ppdb->isPembukaan()): ?>
                                             <span class="badge bg-success status-badge">Buka</span>
                                         <?php elseif($ppdb && $ppdb->isStarted()): ?>
                                             <span class="badge bg-warning status-badge">Segera</span>
                                         <?php else: ?>
                                             <span class="badge bg-danger status-badge">Tutup</span>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                     <div class="school-info">
                                         <h6 class="school-title mb-1" style="font-size: 0.9rem; color: #004b4c;"><?php echo e($madrasah->name); ?></h6>
@@ -573,18 +573,18 @@
                                             <small>Pendaftar: <?php echo e($ppdb ? $ppdb->totalPendaftar() : 0); ?></small>
                                         </div>
                                         <div class="mt-1 text-center">
-                                            <?php if($ppdb): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb): ?>
                                                 <a href="<?php echo e(route('ppdb.sekolah', $ppdb->slug)); ?>" class="btn btn-outline-primary btn-sm w-100 mb-1" style="font-size: 0.7rem; padding: 3px 6px;">Lihat Halaman Sekolah</a>
                                                 <a href="<?php echo e(route('ppdb.daftar', $ppdb->slug)); ?>" class="btn btn-primary btn-sm w-100" style="font-size: 0.75rem; padding: 4px 8px;">Daftar</a>
                                             <?php else: ?>
                                                 <a href="<?php echo e(route('ppdb.sekolah', $madrasah->id)); ?>" class="btn btn-outline-primary btn-sm w-100 mb-1" style="font-size: 0.7rem; padding: 3px 6px;">Lihat Halaman Sekolah</a>
                                                 <button class="btn btn-secondary btn-sm w-100 disabled" style="font-size: 0.75rem; padding: 4px 8px;">Ditutup</button>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -595,7 +595,7 @@
                     <p class="mb-0" style="color: #64748b;">Coba ubah filter atau pencarian Anda.</p>
                 </div>
             </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </section>
 

@@ -36,7 +36,7 @@
                                     <div class="timeline-icon <?php echo e($pendaftar->status == 'lulus' ? 'bg-success text-white' : ($pendaftar->status == 'tidak_lulus' ? 'bg-danger text-white' : 'bg-light text-secondary')); ?> mb-1">
                                         <i class="mdi mdi-<?php echo e($pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : 'clock-outline')); ?>"></i>
                                     </div>
-                                    <div class="small"><?php if($pendaftar->status == 'lulus'): ?> Lulus <?php elseif($pendaftar->status == 'tidak_lulus'): ?> Tidak Lulus <?php else: ?> Seleksi <?php endif; ?></div>
+                                    <div class="small"><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status == 'lulus'): ?> Lulus <?php elseif($pendaftar->status == 'tidak_lulus'): ?> Tidak Lulus <?php else: ?> Seleksi <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></div>
                                     <div class="timeline-dot <?php echo e($pendaftar->status == 'lulus' || $pendaftar->status == 'tidak_lulus' ? 'active' : ''); ?>"></div>
                                 </div>
                                 <div class="timeline-line"></div>
@@ -50,7 +50,7 @@
                             <div class="text-center mt-2">
                                 <span class="badge fs-6 px-3 py-2 bg-<?php echo e($pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning'))); ?>">
                                     <i class="mdi mdi-<?php echo e($pendaftar->status == 'lulus' ? 'check-circle' : ($pendaftar->status == 'tidak_lulus' ? 'close-circle' : ($pendaftar->status == 'verifikasi' ? 'magnify' : 'clock-outline'))); ?> me-1"></i>
-                                    <?php if($pendaftar->status == 'lulus'): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status == 'lulus'): ?>
                                         Lulus Seleksi
                                     <?php elseif($pendaftar->status == 'tidak_lulus'): ?>
                                         Tidak Lulus
@@ -58,11 +58,11 @@
                                         Dalam Verifikasi
                                     <?php else: ?>
                                         Menunggu Verifikasi
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </span>
-                                <?php if($pendaftar->ranking): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->ranking): ?>
                                     <span class="badge bg-secondary ms-2">Ranking #<?php echo e($pendaftar->ranking); ?></span>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -225,7 +225,7 @@
                                 <div class="col-sm-5"><strong>Status</strong></div>
                                 <div class="col-sm-7">:
                                     <span class="badge bg-<?php echo e($pendaftar->status == 'lulus' ? 'success' : ($pendaftar->status == 'tidak_lulus' ? 'danger' : ($pendaftar->status == 'verifikasi' ? 'info' : 'warning'))); ?>">
-                                        <?php if($pendaftar->status == 'lulus'): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status == 'lulus'): ?>
                                             Lulus
                                         <?php elseif($pendaftar->status == 'tidak_lulus'): ?>
                                             Tidak Lulus
@@ -233,7 +233,7 @@
                                             Dalam Verifikasi
                                         <?php else: ?>
                                             Menunggu Verifikasi
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </span>
                                 </div>
 
@@ -378,7 +378,7 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
-                        <?php if($pendaftar->berkas_kk): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_kk): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-file-document-outline me-2 text-primary"></i>
@@ -388,9 +388,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_ijazah): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ijazah): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-certificate me-2 text-success"></i>
@@ -400,9 +400,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_akta_kelahiran): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_akta_kelahiran): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-baby-face-outline me-2 text-info"></i>
@@ -412,9 +412,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_ktp_ayah): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ktp_ayah): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
@@ -424,9 +424,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_ktp_ibu): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ktp_ibu): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-card-account-details-outline me-2 text-warning"></i>
@@ -436,18 +436,18 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 
 
-                        <?php if($pendaftar->berkas_sertifikat_prestasi): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_sertifikat_prestasi): ?>
                             <?php
                                 $sertifikatFiles = is_array($pendaftar->berkas_sertifikat_prestasi) ? $pendaftar->berkas_sertifikat_prestasi : json_decode($pendaftar->berkas_sertifikat_prestasi, true);
                                 if (!is_array($sertifikatFiles)) {
                                     $sertifikatFiles = [$pendaftar->berkas_sertifikat_prestasi];
                                 }
                             ?>
-                            <?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="list-group-item d-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center">
                                         <i class="mdi mdi-trophy-outline me-2 text-warning"></i>
@@ -457,10 +457,10 @@
                                         <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                     </a>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_kip_pkh): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_kip_pkh): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-hand-heart me-2 text-danger"></i>
@@ -470,9 +470,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_bukti_domisili): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_bukti_domisili): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-map-marker-outline me-2 text-info"></i>
@@ -482,9 +482,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_surat_mutasi): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_surat_mutasi): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-file-move-outline me-2 text-secondary"></i>
@@ -494,9 +494,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_surat_keterangan_lulus): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_surat_keterangan_lulus): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-school-outline me-2 text-success"></i>
@@ -506,9 +506,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if($pendaftar->berkas_skl): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_skl): ?>
                             <div class="list-group-item d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center">
                                     <i class="mdi mdi-certificate-outline me-2 text-success"></i>
@@ -518,9 +518,9 @@
                                     <i class="mdi mdi-eye me-1"></i>Lihat Dokumen
                                 </a>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                        <?php if(empty(array_filter([
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty(array_filter([
                             $pendaftar->berkas_kk, $pendaftar->berkas_ijazah, $pendaftar->berkas_akta_kelahiran,
                             $pendaftar->berkas_ktp_ayah, $pendaftar->berkas_ktp_ibu, $pendaftar->berkas_raport,
                             $pendaftar->berkas_sertifikat_prestasi, $pendaftar->berkas_kip_pkh, $pendaftar->berkas_bukti_domisili,
@@ -530,13 +530,13 @@
                                 <i class="mdi mdi-file-document-multiple-outline fs-1"></i>
                                 <p class="mb-0">Belum ada berkas yang diupload</p>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
 
             <!-- Verifikasi Info -->
-            <?php if($pendaftar->diverifikasi_oleh || $pendaftar->diseleksi_oleh): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->diverifikasi_oleh || $pendaftar->diseleksi_oleh): ?>
             <div class="card mt-3">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
@@ -545,30 +545,30 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <?php if($pendaftar->diverifikasi_oleh): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->diverifikasi_oleh): ?>
                         <div class="mb-2">
                             <small class="text-muted">Diverifikasi oleh:</small><br>
                             <strong><?php echo e($pendaftar->verifikator->name ?? 'Unknown'); ?></strong><br>
                             <small class="text-muted"><?php echo e($pendaftar->diverifikasi_tanggal ? $pendaftar->diverifikasi_tanggal->format('d/m/Y H:i') : '-'); ?></small>
                         </div>
-                        <?php if($pendaftar->catatan_verifikasi): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->catatan_verifikasi): ?>
                             <div class="mb-2">
                                 <small class="text-muted">Catatan Verifikasi:</small><br>
                                 <p class="mb-0 small"><?php echo e($pendaftar->catatan_verifikasi); ?></p>
                             </div>
-                        <?php endif; ?>
-                    <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    <?php if($pendaftar->diseleksi_oleh): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->diseleksi_oleh): ?>
                         <div>
                             <small class="text-muted">Diseleksi oleh:</small><br>
                             <strong><?php echo e($pendaftar->penyeleksi->name ?? 'Unknown'); ?></strong><br>
                             <small class="text-muted"><?php echo e($pendaftar->diseleksi_tanggal ? $pendaftar->diseleksi_tanggal->format('d/m/Y H:i') : '-'); ?></small>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <!-- Action Buttons -->
             <div class="card mt-3">
@@ -582,7 +582,7 @@
                         <button onclick="window.print()" class="btn btn-secondary">
                             <i class="mdi mdi-printer me-1"></i>Print
                         </button>
-                        <?php if($pendaftar->status == 'pending'): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status == 'pending'): ?>
                             <button onclick="verifikasiData(<?php echo e($pendaftar->id); ?>)" class="btn btn-info">
                                 <i class="mdi mdi-check-circle-outline me-1"></i>Verifikasi Data
                             </button>
@@ -603,7 +603,7 @@
                             <div class="alert alert-danger mb-0">
                                 <i class="mdi mdi-close-circle me-1"></i>Siswa tidak lulus seleksi
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>

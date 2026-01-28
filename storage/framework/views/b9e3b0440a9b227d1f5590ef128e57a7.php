@@ -74,7 +74,7 @@
                 <span class="info-label">TMT KS/Kamad Terakhir</span>
                 <span class="info-value"><?php echo e($laporan->tmt_ks_kamad_terakhir ? \Carbon\Carbon::parse($laporan->tmt_ks_kamad_terakhir)->format('d/m/Y') : '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_1): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_1): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -83,7 +83,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 2: Capaian Utama 3 Tahun Berjalan -->
@@ -173,7 +173,7 @@
                 <span class="info-label">Tanggal Akreditasi Berakhir</span>
                 <span class="info-value"><?php echo e($laporan->tanggal_akreditasi_berakhir ? \Carbon\Carbon::parse($laporan->tanggal_akreditasi_berakhir)->format('d/m/Y') : '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_2): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_2): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -182,7 +182,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 3: Layanan Pendidikan -->
@@ -200,7 +200,7 @@
                 <span class="info-label">Masalah Layanan Utama</span>
                 <span class="info-value"><?php echo e($laporan->masalah_layanan_utama ?? '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_3): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_3): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -209,7 +209,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 4: SDM -->
@@ -251,7 +251,7 @@
                 <span class="info-label">Jumlah Talenta</span>
                 <span class="info-value"><?php echo e($laporan->jumlah_talenta ?? 0); ?></span>
             </div>
-            <?php if($laporan->nama_talenta && $laporan->alasan_talenta): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->nama_talenta && $laporan->alasan_talenta): ?>
                 <div class="info-row">
                     
                     <span class="info-value">
@@ -268,18 +268,18 @@
                                     $alasanTalenta = is_array(json_decode($laporan->alasan_talenta, true)) ? json_decode($laporan->alasan_talenta, true) : [$laporan->alasan_talenta];
                                     $maxCount = max(count($namaTalenta), count($alasanTalenta));
                                 ?>
-                                <?php for($i = 0; $i < $maxCount; $i++): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < $maxCount; $i++): ?>
                                     <tr>
                                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;"><?php echo e($namaTalenta[$i] ?? '-'); ?></td>
                                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align: left;"><?php echo e($alasanTalenta[$i] ?? '-'); ?></td>
                                     </tr>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </span>
                 </div>
-            <?php endif; ?>
-            <?php if($laporan->kondisi_guru): ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->kondisi_guru): ?>
                 <div class="info-row">
                     <span class="info-label">Kondisi Guru & Karyawan</span>
                 </div>
@@ -299,24 +299,24 @@
                                     $userIds = array_keys($kondisiGuru);
                                     $users = \App\Models\User::whereIn('id', $userIds)->pluck('name', 'id');
                                 ?>
-                                <?php $__currentLoopData = $kondisiGuru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $userId => $kondisi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $kondisiGuru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $userId => $kondisi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr>
                                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align:left;"><?php echo e($users[$userId] ?? 'User ID: ' . $userId); ?></td>
                                         <td style="border: 1px solid #dee2e6; padding: 8px; text-align:left;"><?php echo e($kondisi); ?></td>
                                     </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </span>
                 </div>
-            <?php endif; ?>
-            <?php if($laporan->masalah_sdm_utama): ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->masalah_sdm_utama): ?>
                 <div class="info-row">
                     <span class="info-label">Masalah SDM Utama</span>
                     <span class="info-value"><?php echo e(is_array(json_decode($laporan->masalah_sdm_utama, true)) ? implode(', ', json_decode($laporan->masalah_sdm_utama, true)) : $laporan->masalah_sdm_utama); ?></span>
                 </div>
-            <?php endif; ?>
-            <?php if($laporan->lampiran_step_4): ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_4): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -325,7 +325,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 5: Keuangan -->
@@ -343,7 +343,7 @@
                 <span class="info-label">Catatan Pengelolaan Keuangan</span>
                 <span class="info-value"><?php echo e($laporan->catatan_pengelolaan_keuangan ?? '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_5): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_5): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -352,7 +352,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 6: PPDB -->
@@ -399,7 +399,7 @@
                 <span class="info-label">Tim Program Unggulan</span>
                 <span class="info-value"><?php echo e($laporan->tim_program_unggulan ?? '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_7): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_7): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -408,7 +408,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 8: Refleksi -->
@@ -426,7 +426,7 @@
                 <span class="info-label">Keputusan Sulit Diambil</span>
                 <span class="info-value"><?php echo e($laporan->keputusan_sulit_diambil ?? '-'); ?></span>
             </div>
-            <?php if($laporan->lampiran_step_8): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_8): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -435,7 +435,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 9: Risiko -->
@@ -445,13 +445,13 @@
                 <span class="info-label">Risiko Terbesar Satpen Tahun Depan</span>
                 <span class="info-value"><?php echo e($laporan->risiko_terbesar_satpen_tahun_depan ?? '-'); ?></span>
             </div>
-            <?php if($laporan->fokus_perbaikan_tahun_depan): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->fokus_perbaikan_tahun_depan): ?>
                 <div class="info-row">
                     <span class="info-label">Fokus Perbaikan Tahun Depan</span>
                     <span class="info-value"><?php echo e(is_array(json_decode($laporan->fokus_perbaikan_tahun_depan, true)) ? implode(', ', json_decode($laporan->fokus_perbaikan_tahun_depan, true)) : $laporan->fokus_perbaikan_tahun_depan); ?></span>
                 </div>
-            <?php endif; ?>
-            <?php if($laporan->lampiran_step_9): ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->lampiran_step_9): ?>
                 <div class="info-row">
                     <span class="info-label">Lampiran</span>
                     <span class="info-value">
@@ -460,7 +460,7 @@
                         </a>
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
 
         <!-- Step 10: Pernyataan -->
@@ -470,14 +470,14 @@
                 <span class="info-label">Pernyataan Benar</span>
                 <span class="info-value"><?php echo e($laporan->pernyataan_benar ? 'Ya' : 'Tidak'); ?></span>
             </div>
-            <?php if($laporan->signature_data): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($laporan->signature_data): ?>
                 <div class="info-row">
                     <span class="info-label">Tanda Tangan</span>
                     <span class="info-value">
                         <img src="<?php echo e($laporan->signature_data); ?>" alt="Tanda Tangan" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">
                     </span>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 

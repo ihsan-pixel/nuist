@@ -44,7 +44,7 @@
         </div>
 
         
-        <?php if(Auth::user()->role === 'admin' && isset($madrasahData)): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role === 'admin' && isset($madrasahData)): ?>
         <div class="row">
             
             <div class="col-12">
@@ -73,12 +73,12 @@
                                     <p class="mb-0 fw-medium"><?php echo e($madrasahData->alamat ?? 'Alamat belum diisi'); ?></p>
                                 </div>
                             </div>
-                            <?php if($madrasahData->map_link): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahData->map_link): ?>
                             <a href="<?php echo e($madrasahData->map_link); ?>" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center">
                                 <i class="mdi mdi-google-maps me-1"></i>
                                 Lihat di Google Maps
                             </a>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -103,7 +103,7 @@
                             </div>
                         </div>
                         <div id="map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
-                            <?php if($madrasahData->latitude && $madrasahData->longitude): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahData->latitude && $madrasahData->longitude): ?>
                                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d<?php echo e($madrasahData->longitude); ?>!3d<?php echo e($madrasahData->latitude); ?>!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s<?php echo e(urlencode($madrasahData->name)); ?>!2z<?php echo e($madrasahData->latitude); ?>,<?php echo e($madrasahData->longitude); ?>!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid&q=<?php echo e($madrasahData->latitude); ?>,<?php echo e($madrasahData->longitude); ?>"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
@@ -122,23 +122,23 @@
                                     <p class="text-muted text-center small px-3">
                                         Latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
-                                    <?php if($madrasahData->map_link): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasahData->map_link): ?>
                                     <a href="<?php echo e($madrasahData->map_link); ?>" target="_blank" class="btn btn-primary btn-sm mt-2">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Lihat di Google Maps
                                     </a>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         
-        <?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData)): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($foundationData)): ?>
         <div class="row">
             
             <div class="col-12">
@@ -167,12 +167,12 @@
                                     <p class="mb-0 fw-medium"><?php echo e($foundationData->alamat ?? 'Alamat belum diisi'); ?></p>
                                 </div>
                             </div>
-                            <?php if($foundationData->map_link): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($foundationData->map_link): ?>
                             <a href="<?php echo e($foundationData->map_link); ?>" target="_blank" class="btn btn-primary btn-sm d-inline-flex align-items-center">
                                 <i class="mdi mdi-google-maps me-1"></i>
                                 Lihat di Google Maps
                             </a>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -197,21 +197,21 @@
                             </div>
                         </div>
                         <div id="foundation-map-container" style="height: 300px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative;">
-                            <?php if($foundationData->latitude && $foundationData->longitude): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($foundationData->latitude && $foundationData->longitude): ?>
                                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3168.639!2d<?php echo e($foundationData->longitude); ?>!3d<?php echo e($foundationData->latitude); ?>!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s<?php echo e(urlencode($foundationData->name)); ?>!2z<?php echo e($foundationData->latitude); ?>,<?php echo e($foundationData->longitude); ?>!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid&q=<?php echo e($foundationData->latitude); ?>,<?php echo e($foundationData->longitude); ?>"
                                         style="height: 100%; width: 100%; border-radius: 12px; border: none;"
                                         allowfullscreen=""
                                         loading="lazy"
                                         referrerpolicy="no-referrer-when-downgrade">
                                 </iframe>
-                                <?php if($foundationData->map_link): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($foundationData->map_link): ?>
                                 <div class="position-absolute top-0 end-0 p-2">
                                     <a href="<?php echo e($foundationData->map_link); ?>" target="_blank" class="btn btn-success btn-sm shadow-sm">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Buka Peta Lengkap
                                     </a>
                                 </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             <?php else: ?>
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 bg-light rounded">
                                     <div class="avatar-lg mb-3">
@@ -223,20 +223,20 @@
                                     <p class="text-muted text-center small px-3">
                                         Latitude dan longitude belum diisi untuk menampilkan peta
                                     </p>
-                                    <?php if($foundationData->map_link): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($foundationData->map_link): ?>
                                     <a href="<?php echo e($foundationData->map_link); ?>" target="_blank" class="btn btn-primary btn-sm mt-2">
                                         <i class="mdi mdi-google-maps me-1"></i>
                                         Lihat di Google Maps
                                     </a>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <?php if(Auth::user()->role === 'tenaga_pendidik'): ?>
         <!-- Attendance Card - Mobile Optimized -->
@@ -315,7 +315,7 @@
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     
@@ -370,13 +370,13 @@
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <?php if($schoolPrincipal): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schoolPrincipal): ?>
                                     <h4 class="text-white mb-1"><?php echo e($schoolPrincipal->name); ?></h4>
                                     <p class="text-white-75 mb-0 small">Kepala Sekolah</p>
                                 <?php else: ?>
                                     <h4 class="text-white mb-1">-</h4>
                                     <p class="text-white-75 mb-0 small">Kepala Sekolah</p>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="avatar-sm">
                                 <div class="avatar-title bg-white bg-opacity-25 text-white rounded-circle">
@@ -423,8 +423,8 @@
                     </div>
                 </div>
                 <div class="row g-3">
-                    <?php if($adminStats['total_by_status']->count() > 0): ?>
-                        <?php $__currentLoopData = $adminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminStats['total_by_status']->count() > 0): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $adminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-lg-6 col-xl-4">
                             <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                 <div class="card-body p-3 text-center">
@@ -449,7 +449,7 @@
                                 </div>
                             </div>
                         </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php else: ?>
                         <div class="col-12">
                             <div class="text-center py-5">
@@ -462,7 +462,7 @@
                                 <p class="text-muted small">Data akan muncul setelah ada tenaga pendidik terdaftar</p>
                             </div>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -491,8 +491,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if($adminStats['total_by_status']->count() > 0): ?>
-                                <?php $__currentLoopData = $adminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminStats['total_by_status']->count() > 0): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $adminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr class="border-bottom border-light">
                                     <td class="py-3 ps-4">
                                         <div class="d-flex align-items-center">
@@ -525,7 +525,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <tr class="table-primary bg-primary bg-opacity-10">
                                     <td class="py-3 ps-4 fw-bold text-primary">
                                         <div class="d-flex align-items-center">
@@ -554,14 +554,14 @@
                                         <p class="text-muted small">Data statistik akan muncul setelah ada tenaga pendidik terdaftar</p>
                                     </td>
                                 </tr>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
     <?php if(in_array(Auth::user()->role, ['super_admin', 'pengurus']) && isset($superAdminStats)): ?>
@@ -577,7 +577,7 @@
                             <h4 class="text-white mb-1">Dashboard Pengurus</h4>
                         <?php elseif(Auth::user()->role === 'admin'): ?>
                             <h4 class="text-white mb-1">Dashboard Admin</h4>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <p class="text-white-50 mb-0">Ringkasan Sistem Informasi NUIST</p>
                     </div>
                     <div class="avatar-lg">
@@ -739,8 +739,8 @@
                     </div>
                 </div>
                 <div class="row g-3">
-                    <?php if($superAdminStats['total_by_status']->count() > 0): ?>
-                        <?php $__currentLoopData = $superAdminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($superAdminStats['total_by_status']->count() > 0): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $superAdminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-lg-6 col-xl-4">
                             <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 12px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                 <div class="card-body p-3 text-center">
@@ -765,7 +765,7 @@
                                 </div>
                             </div>
                         </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <?php else: ?>
                         <div class="col-12">
                             <div class="text-center py-5">
@@ -778,7 +778,7 @@
                                 <p class="text-muted small">Data akan muncul setelah ada tenaga pendidik terdaftar</p>
                             </div>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -807,8 +807,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if($superAdminStats['total_by_status']->count() > 0): ?>
-                                <?php $__currentLoopData = $superAdminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($superAdminStats['total_by_status']->count() > 0): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $superAdminStats['total_by_status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr class="border-bottom border-light">
                                     <td class="py-3 ps-4">
                                         <div class="d-flex align-items-center">
@@ -841,7 +841,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <tr class="table-primary bg-primary bg-opacity-10">
                                     <td class="py-3 ps-4 fw-bold text-primary">
                                         <div class="d-flex align-items-center">
@@ -870,16 +870,16 @@
                                         <p class="text-muted small">Data statistik akan muncul setelah ada tenaga pendidik terdaftar</p>
                                     </td>
                                 </tr>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus'])): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!in_array(Auth::user()->role, ['admin', 'super_admin', 'pengurus'])): ?>
     <div class="col-12">
         <!-- User Information Card - Mobile Optimized -->
         <div class="card mb-3">
@@ -977,7 +977,7 @@
         </div>
 
         
-        <?php if($showUsers): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showUsers): ?>
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title mb-3">
@@ -987,7 +987,7 @@
 
                 <!-- Mobile-friendly list view -->
                 <div class="list-group list-group-flush">
-                    <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="list-group-item px-0 py-3">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0 me-3">
@@ -1009,21 +1009,21 @@
                             </div>
                         </div>
                     </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
 
                 <!-- Pagination -->
-                <?php if($users->hasPages()): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($users->hasPages()): ?>
                 <div class="d-flex justify-content-center mt-3">
                     <?php echo e($users->links()); ?>
 
                 </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 
 

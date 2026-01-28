@@ -358,7 +358,7 @@
             }
         }
     ?>
-    <?php if($showNav): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
     
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
@@ -392,7 +392,7 @@
         </div>
     </nav>
 
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- JAVASCRIPT -->
     <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

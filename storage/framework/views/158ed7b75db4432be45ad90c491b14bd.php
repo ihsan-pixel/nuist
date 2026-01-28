@@ -189,11 +189,11 @@
             <p class="text-muted mb-0"><?php echo e($ppdbSetting->nama_sekolah); ?> - Tahun <?php echo e($ppdbSetting->tahun); ?></p>
         </div>
         <div class="d-flex gap-2">
-            <?php if($userRole === 'super_admin'): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'super_admin'): ?>
             <a href="<?php echo e(route('ppdb.lp.dashboard')); ?>" class="btn btn-outline-secondary">
                 <i class="mdi mdi-arrow-left me-1"></i>Kembali
             </a>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             
             <button onclick="window.print()" class="btn btn-outline-primary">
                 <i class="mdi mdi-printer me-1"></i>Cetak
@@ -316,9 +316,9 @@
                 <label for="jalur_filter" class="form-label">Filter Jalur</label>
                 <select id="jalur_filter" class="form-select">
                     <option value="">Semua Jalur</option>
-                    <?php $__currentLoopData = $jalarList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jalur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $jalarList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jalur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <option value="<?php echo e($jalur); ?>"><?php echo e($jalur); ?></option>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </select>
             </div>
             <div class="col-md-4">
@@ -350,7 +350,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
 </script>
 
     <!-- Pendaftar List -->
-    <?php if($pendaftars->count() > 0): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftars->count() > 0): ?>
         <!-- Table View (Default) -->
         <div id="table-view" class="table-responsive">
             <table class="table table-hover mb-0">
@@ -370,7 +370,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr data-status="<?php echo e($pendaftar->status); ?>" data-jalur="<?php echo e($pendaftar->ppdbJalur->nama_jalur ?? ''); ?>" data-nama="<?php echo e($pendaftar->nama_lengkap); ?>" data-nisn="<?php echo e($pendaftar->nisn); ?>" data-sudah-berkas="<?php echo e(($pendaftar->berkas_kk || $pendaftar->berkas_ijazah || $pendaftar->berkas_akta_kelahiran || $pendaftar->berkas_ktp_ayah || $pendaftar->berkas_ktp_ibu || $pendaftar->berkas_raport || $pendaftar->berkas_sertifikat_prestasi || $pendaftar->berkas_kip_pkh || $pendaftar->berkas_bukti_domisili || $pendaftar->berkas_surat_mutasi || $pendaftar->berkas_surat_keterangan_lulus || $pendaftar->berkas_skl) ? '1' : '0'); ?>">
                         <td><?php echo e($loop->iteration); ?></td>
                         <td>
@@ -391,7 +391,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                         </td>
                         <td>
                             <span class="status-badge status-<?php echo e($pendaftar->status); ?>">
-                                <?php if($pendaftar->status == 'pending'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status == 'pending'): ?>
                                     Menunggu Verifikasi
                                 <?php elseif($pendaftar->status == 'verifikasi'): ?>
                                     Dalam Verifikasi
@@ -399,7 +399,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                                     Lulus
                                 <?php else: ?>
                                     Tidak Lulus
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </span>
                         </td>
                         <td><?php echo e($pendaftar->created_at->format('d/m/Y H:i')); ?></td>
@@ -408,34 +408,34 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
                                 <button onclick="showDetail(<?php echo e($pendaftar->id); ?>)" class="btn btn-sm btn-outline-info" title="Lihat Detail">
                                     <i class="mdi mdi-eye"></i>
                                 </button>
-                                <?php if($pendaftar->berkas_kk): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_kk): ?>
                                     <a href="<?php echo e(asset($pendaftar->berkas_kk)); ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat KK">
                                         <i class="mdi mdi-file-document"></i>
                                     </a>
-                                <?php endif; ?>
-                                <?php if($pendaftar->berkas_ijazah): ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ijazah): ?>
                                     <a href="<?php echo e(asset($pendaftar->berkas_ijazah)); ?>" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
                                         <i class="mdi mdi-file-document-outline"></i>
                                     </a>
-                                <?php endif; ?>
-                                <?php if($pendaftar->berkas_sertifikat_prestasi): ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_sertifikat_prestasi): ?>
                                     <?php
                                         $sertifikatFiles = is_array($pendaftar->berkas_sertifikat_prestasi) ? $pendaftar->berkas_sertifikat_prestasi : json_decode($pendaftar->berkas_sertifikat_prestasi, true);
                                         if (!is_array($sertifikatFiles)) {
                                             $sertifikatFiles = [$pendaftar->berkas_sertifikat_prestasi];
                                         }
                                     ?>
-                                    <?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <a href="<?php echo e(asset($file)); ?>" target="_blank" class="btn btn-sm btn-outline-warning" title="Lihat Sertifikat <?php echo e(count($sertifikatFiles) > 1 ? ($index + 1) : ''); ?>">
                                             <i class="mdi mdi-trophy-outline"></i><?php echo e(count($sertifikatFiles) > 1 ? ($index + 1) : ''); ?>
 
                                         </a>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </td>
                     </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -451,7 +451,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
             <h5>Belum ada pendaftar</h5>
             <p class="mb-0">Belum ada siswa yang mendaftar di sekolah ini.</p>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 
 <!-- Detail Modal -->
@@ -543,7 +543,7 @@ document.getElementById('berkas_filter').addEventListener('change', function() {
 
 <?php $__env->startPush('scripts'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<?php if(session('warning')): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('warning')): ?>
 <script>
 Swal.fire({
     icon: 'warning',
@@ -552,7 +552,7 @@ Swal.fire({
     confirmButtonText: 'OK'
 });
 </script>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <script>
 function showDetail(pendaftarId) {
     // Load detail content via AJAX

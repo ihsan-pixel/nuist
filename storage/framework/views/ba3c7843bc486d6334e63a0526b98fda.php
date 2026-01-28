@@ -21,7 +21,7 @@
     $userRole = trim(strtolower(auth()->user()->role));
     $isAllowed = in_array($userRole, ['super_admin', 'admin', 'pengurus']);
 ?>
-<?php if($isAllowed): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAllowed): ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Admin <?php $__env->endSlot(); ?>
     <?php $__env->slot('title'); ?> Data Simfoni <?php $__env->endSlot(); ?>
@@ -30,21 +30,21 @@
 <div class="card mb-4">
     <div class="card-body">
 
-        <?php if(session('success')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
 
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if(session('error')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
 
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <div class="table-responsive">
             <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
@@ -122,7 +122,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $__empty_1 = true; $__currentLoopData = $simfonis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $simfoni): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $simfonis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $simfoni): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td><?php echo e($index + 1); ?></td>
                         <td><?php echo e($simfoni->nama_lengkap_gelar); ?></td>
@@ -204,18 +204,67 @@
                             </div>
                         </td>
                     </tr>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<!-- Simfoni Completion Report -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Laporan Pengisian Simfoni per Madrasah</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-light">
+                <tr>
+                    <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
+                    <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
+                    <th colspan="3" class="text-center">Jumlah Tenaga Pendidik</th>
+                    <th rowspan="2" class="text-center align-middle">Persentase Pengisian (%)</th>
+                </tr>
+                <tr>
+                    <th class="text-center">Sudah Isi</th>
+                    <th class="text-center">Belum Isi</th>
+                    <th class="text-center">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $laporanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <tr class="bg-info">
+                    <td colspan="6" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                </tr>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <tr>
+                    <td class="text-center" style="position: sticky; left: 0; background: white;"><?php echo e($madrasah['scod']); ?></td>
+                    <td style="position: sticky; left: 60px; background: white;"><?php echo e($madrasah['nama']); ?></td>
+                    <td class="text-center"><?php echo e($madrasah['sudah']); ?></td>
+                    <td class="text-center"><?php echo e($madrasah['belum']); ?></td>
+                    <td class="text-center"><?php echo e($madrasah['total']); ?></td>
+                    <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase'], 2)); ?>%</td>
+                </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <tr class="bg-warning font-weight-bold">
+                    <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL <?php echo e($kabupaten['kabupaten']); ?></td>
+                    <td class="text-center"><?php echo e($kabupaten['total_sudah']); ?></td>
+                    <td class="text-center"><?php echo e($kabupaten['total_belum']); ?></td>
+                    <td class="text-center"><?php echo e($kabupaten['total_tenaga_pendidik']); ?></td>
+                    <td class="text-center"><?php echo e(number_format($kabupaten['persentase'], 2)); ?>%</td>
+                </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <?php else: ?>
 <div class="alert alert-danger text-center">
     <h4>Akses Ditolak</h4>
     <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

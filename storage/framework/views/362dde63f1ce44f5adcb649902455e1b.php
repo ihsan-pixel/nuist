@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <?php $__currentLoopData = $roleLabels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $roleLabels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card">
                 <div class="card-body">
@@ -37,12 +37,12 @@
                 </div>
             </div>
         </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     
     <div class="row">
-        <?php $__currentLoopData = $activeUsersByRole; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role => $users): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $activeUsersByRole; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role => $users): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="col-lg-6 col-xl-4 mb-4">
             <div class="card user-card">
                 <div class="role-header">
@@ -55,7 +55,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="user-list">
-                        <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <div class="user-item">
                             <div class="d-flex align-items-center">
                                 <img src="<?php echo e($user['avatar']); ?>"
@@ -66,12 +66,12 @@
                                         <i class="bx bx-envelope me-1"></i><?php echo e($user['email']); ?>
 
                                     </p>
-                                    <?php if($user['madrasah']): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user['madrasah']): ?>
                                         <p class="text-muted mb-0 small">
                                             <i class="bx bx-building me-1"></i><?php echo e($user['madrasah']); ?>
 
                                         </p>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <p class="text-muted mb-0 small">
                                         <i class="bx bx-time me-1"></i>Terakhir aktif: <?php echo e($user['last_seen']); ?>
 
@@ -86,12 +86,12 @@
                         <div class="text-center py-4">
                             <p class="text-muted mb-0">Tidak ada pengguna aktif</p>
                         </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     <style>

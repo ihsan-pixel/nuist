@@ -285,16 +285,16 @@
 <!-- Status Container -->
 <div class="container status-container">
     <!-- Alert Messages -->
-    <?php if(session('error')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
         <div class="alert alert-danger alert-custom animate-fade-in-up">
             <h5 class="alert-heading">
                 <i class="fas fa-exclamation-triangle me-2"></i>Data Tidak Ditemukan
             </h5>
             <p class="mb-0"><?php echo e(session('error')); ?></p>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(!isset($pendaftar)): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!isset($pendaftar)): ?>
         <!-- Form Section -->
         <div class="status-form-section">
             <div class="text-center mb-4">
@@ -324,7 +324,7 @@ unset($__errorArgs, $__bag); ?>"
                                    id="nisn" name="nisn" value="<?php echo e(old('nisn')); ?>"
                                    placeholder="Masukkan NISN (10-20 digit)" required
                                    pattern="[0-9]{10,20}" maxlength="20">
-                            <?php $__errorArgs = ['nisn'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nisn'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -333,7 +333,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
                         <button type="submit" class="btn btn-check-status">
@@ -371,14 +371,14 @@ unset($__errorArgs, $__bag); ?>
             </div>
 
             <!-- Show OTP form if OTP was sent -->
-            <?php if(session('otp_sent')): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('otp_sent')): ?>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('cekStatusForm').style.display = 'none';
                     document.getElementById('otpForm').style.display = 'block';
                 });
             </script>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     <?php else: ?>
         <!-- Result Section -->
@@ -439,12 +439,12 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                             <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Diverifikasi</div>
                             <div style="font-size: 0.8rem; color: #666;">
-                                <?php if($pendaftar->diverifikasi_tanggal): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->diverifikasi_tanggal): ?>
                                     <?php echo e($pendaftar->diverifikasi_tanggal->format('d/m/Y')); ?>
 
                                 <?php else: ?>
                                     Dalam proses...
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="badge <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? 'bg-success' : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
                                 <?php echo e(in_array($pendaftar->status, ['verifikasi', 'lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...'); ?>
@@ -461,21 +461,21 @@ unset($__errorArgs, $__bag); ?>
                                 <i class="fas <?php echo e($pendaftar->status === 'lulus' ? 'fa-smile' : ($pendaftar->status === 'tidak_lulus' ? 'fa-frown' : 'fa-hourglass-half')); ?>"></i>
                             </div>
                             <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">
-                                <?php if($pendaftar->status === 'lulus'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status === 'lulus'): ?>
                                     Lulus
                                 <?php elseif($pendaftar->status === 'tidak_lulus'): ?>
                                     Tidak Lulus
                                 <?php else: ?>
                                     Seleksi
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div style="font-size: 0.8rem; color: #666;">
-                                <?php if($pendaftar->diseleksi_tanggal): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->diseleksi_tanggal): ?>
                                     <?php echo e($pendaftar->diseleksi_tanggal->format('d/m/Y')); ?>
 
                                 <?php else: ?>
                                     Dalam proses...
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="badge <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? ($pendaftar->status === 'lulus' ? 'bg-success' : 'bg-danger') : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
                                 <?php echo e(in_array($pendaftar->status, ['lulus', 'tidak_lulus']) ? '✓ Selesai' : 'Proses...'); ?>
@@ -493,11 +493,11 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                             <div style="font-weight: 600; color: #004b4c; margin-bottom: 5px;">Daftar Ulang</div>
                             <div style="font-size: 0.8rem; color: #666;">
-                                <?php if($pendaftar->status === 'lulus'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status === 'lulus'): ?>
                                     Segera
                                 <?php else: ?>
                                     Menunggu
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="badge <?php echo e($pendaftar->status === 'lulus' ? 'bg-warning' : 'bg-secondary'); ?> mt-2" style="font-size: 0.7rem;">
                                 <?php echo e($pendaftar->status === 'lulus' ? 'Selanjutnya' : 'Pending'); ?>
@@ -512,7 +512,7 @@ unset($__errorArgs, $__bag); ?>
                     <strong class="text-primary">Status Saat Ini:</strong>
                     <div class="mt-2">
                         <span class="status-badge status-<?php echo e($pendaftar->status); ?>" style="font-size: 1rem; padding: 8px 16px;">
-                            <?php if($pendaftar->status === 'pending'): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status === 'pending'): ?>
                                 <i class="fas fa-clock me-2"></i>Menunggu Verifikasi
                             <?php elseif($pendaftar->status === 'verifikasi'): ?>
                                 <i class="fas fa-magnifying-glass me-2"></i>Dalam Verifikasi
@@ -520,7 +520,7 @@ unset($__errorArgs, $__bag); ?>
                                 <i class="fas fa-check-circle me-2"></i>Lulus Seleksi
                             <?php else: ?>
                                 <i class="fas fa-times-circle me-2"></i>Tidak Lulus
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </span>
                     </div>
                 </div>
@@ -710,39 +710,39 @@ unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Dokumen Pokok yang Sudah Dikirim -->
-                <?php if(count($uploadedMainFiles) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($uploadedMainFiles) > 0): ?>
                     <div class="mb-3">
                         <h6 class="text-success mb-2">
                             <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
                         </h6>
                         <div class="row">
-                            <?php $__currentLoopData = $uploadedMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $uploadedMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col-md-6 col-lg-4 mb-2">
                                     <div class="badge bg-success text-white w-100 p-2 text-start">
                                         <i class="fas <?php echo e($info['icon']); ?> me-1"></i><?php echo e($info['label']); ?>
 
                                     </div>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <!-- Dokumen Pokok yang Belum Dikirim -->
-                <?php if(count($missingMainFiles) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($missingMainFiles) > 0): ?>
                     <div>
                         <h6 class="text-warning mb-2">
                             <i class="fas fa-exclamation-circle me-1"></i>Dokumen Belum Dikirim
                         </h6>
                         <div class="row">
-                            <?php $__currentLoopData = $missingMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $missingMainFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="col-md-6 col-lg-4 mb-2">
                                     <div class="badge bg-light text-dark border border-warning w-100 p-2 text-start">
                                         <i class="fas <?php echo e($info['icon']); ?> me-1 text-warning"></i><?php echo e($info['label']); ?>
 
                                     </div>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <button type="button" class="btn btn-warning btn-sm mt-3" onclick="toggleUpdateForm()">
                             <i class="fas fa-upload me-1"></i>Upload Dokumen Sekarang
@@ -753,7 +753,7 @@ unset($__errorArgs, $__bag); ?>
                         <i class="fas fa-check-circle me-2"></i>
                         <strong>Sempurna!</strong> Semua dokumen wajib sudah dikirim.
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             <!-- Document Submission Status - Dokumen Tambahan -->
@@ -767,20 +767,20 @@ unset($__errorArgs, $__bag); ?>
                             Jika Anda memiliki dokumen tambahan seperti Sertifikat Prestasi atau PIP/PKH, silakan upload dokumen ini:
                         </p>
 
-                        <?php if(count($uploadedAdditionalFiles) > 0): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($uploadedAdditionalFiles) > 0): ?>
                             <div class="mb-3">
                                 <h6 class="text-success mb-2">
                                     <i class="fas fa-check-circle me-1"></i>Dokumen Sudah Dikirim
                                 </h6>
                                 <div class="row">
-                                    <?php $__currentLoopData = $uploadedAdditionalFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $uploadedAdditionalFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $info): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <div class="col-md-6 col-lg-4 mb-2">
                                             <div class="badge bg-success text-white w-100 p-2 text-start">
                                                 <i class="fas <?php echo e($info['icon']); ?> me-1"></i><?php echo e($info['label']); ?>
 
                                             </div>
                                         </div>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
                         <?php else: ?>
@@ -788,7 +788,7 @@ unset($__errorArgs, $__bag); ?>
                                 <i class="fas fa-info-circle me-2"></i>
                                 Dokumen tambahan bersifat opsional. Upload dokumen tambahan Anda jika memiliki untuk meningkatkan peluang seleksi.
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <button type="button" class="btn btn-success btn-sm" onclick="toggleUpdateForm()" style="white-space: nowrap; margin-left: 10px;">
                         <i class="fas fa-upload me-1"></i>Upload Dokumen
@@ -796,7 +796,7 @@ unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
-            <?php if(count($incompleteFields) > 0): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($incompleteFields) > 0): ?>
                 <div class="info-card border-warning mb-4" style="border-left-color: #ffc107; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
@@ -811,14 +811,14 @@ unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="row">
-                        <?php $__currentLoopData = $incompleteFields; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $incompleteFields; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $field => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="col-md-6 col-lg-4 mb-2">
                                 <span class="badge bg-light text-dark border">
                                     <i class="fas fa-times-circle text-danger me-1"></i><?php echo e($label); ?>
 
                                 </span>
                             </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
 
@@ -834,14 +834,14 @@ unset($__errorArgs, $__bag); ?>
 
                         <div class="row">
                             <!-- Personal Data -->
-                            <?php if(empty($pendaftar->nik)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->nik)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">NIK <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="nik" maxlength="16" pattern="[0-9]{16}" placeholder="16 digit NIK">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->agama)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->agama)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Agama <span class="text-danger">*</span></label>
                                     <select class="form-control" name="agama">
@@ -854,24 +854,24 @@ unset($__errorArgs, $__bag); ?>
                                         <option value="Konghucu">Konghucu</option>
                                     </select>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             
 
                             <!-- Parent Data -->
-                            <?php if(empty($pendaftar->nama_ayah)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->nama_ayah)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nama Ayah</label>
                                     <input type="text" class="form-control" name="nama_ayah" placeholder="Nama lengkap ayah">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->nama_ibu)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->nama_ibu)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nama Ibu</label>
                                     <input type="text" class="form-control" name="nama_ibu" placeholder="Nama lengkap ibu">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Pekerjaan Ayah</label>
@@ -923,29 +923,29 @@ unset($__errorArgs, $__bag); ?>
 
 
                             <!-- Academic Data -->
-                            <?php if(empty($pendaftar->tahun_lulus)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->tahun_lulus)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Tahun Lulus</label>
                                     <input type="number" class="form-control" name="tahun_lulus" min="2000" max="<?php echo e(date('Y') + 1); ?>" placeholder="2024">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->npsn_sekolah_asal)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->npsn_sekolah_asal)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">NPSN Sekolah Asal</label>
                                     <input type="text" class="form-control" name="npsn_sekolah_asal" maxlength="20" placeholder="Masukkan NPSN sekolah asal">
                                     <small class="text-muted">Nomor Pokok Sekolah Nasional (NPSN) sekolah asal</small>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 
 
                             <!-- Semester Grades -->
-                            <?php if(empty($pendaftar->rata_rata_nilai_raport)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->rata_rata_nilai_raport)): ?>
                                 <div class="col-12 mb-3">
                                     <label class="form-label fw-bold">Nilai Raport per Semester</label>
                                     <div class="row">
-                                        <?php for($i = 1; $i <= 5; $i++): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 1; $i <= 5; $i++): ?>
                                             <div class="col-md-2 col-sm-4 mb-2">
                                                 <label class="form-label small">Semester <?php echo e($i); ?></label>
                                                 <input type="number"
@@ -958,7 +958,7 @@ unset($__errorArgs, $__bag); ?>
                                                        value="<?php echo e(old('nilai_semester_' . $i, $pendaftar->{'nilai_semester_' . $i} ?? '')); ?>"
                                                        onchange="calculateAverage()">
                                             </div>
-                                        <?php endfor; ?>
+                                        <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                     <div class="mt-2">
                                         <label class="form-label small fw-bold">Rata-rata Nilai Raport (Otomatis)</label>
@@ -974,38 +974,38 @@ unset($__errorArgs, $__bag); ?>
                                         <small class="text-muted">Rata-rata dihitung otomatis dari 5 semester</small>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->nomor_ijazah)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->nomor_ijazah)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nomor Ijazah (Opsional jika sudah memiliki)</label>
                                     <input type="text" class="form-control" name="nomor_ijazah" placeholder="DN-XX-XXXX-XXXX">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->nomor_skhun)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->nomor_skhun)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nomor SKHUN (Opsional jika sudah memiliki)</label>
                                     <input type="text" class="form-control" name="nomor_skhun" placeholder="DN-XX-XXXX-XXXX">
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             <!-- File Uploads -->
-                            <?php if(empty($pendaftar->berkas_kk)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->berkas_kk)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Kartu Keluarga <span class="text-danger">*</span></label>
                                     <input type="file" class="form-control" name="berkas_kk" accept=".pdf,.jpg,.jpeg,.png">
                                     <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                            <?php if(empty($pendaftar->berkas_ijazah)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($pendaftar->berkas_ijazah)): ?>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Ijazah <span class="text-danger">*</span></label>
                                     <input type="file" class="form-control" name="berkas_ijazah" accept=".pdf,.jpg,.jpeg,.png">
                                     <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             <!-- Additional Document Uploads -->
                             <div class="col-md-6 mb-3">
@@ -1019,27 +1019,27 @@ unset($__errorArgs, $__bag); ?>
                                         $sertifikatFiles = [];
                                     }
                                 ?>
-                                <?php if(!empty($sertifikatFiles)): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($sertifikatFiles)): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
                                             <i class="fas fa-check-circle me-1"></i><?php echo e(count($sertifikatFiles)); ?> file sudah diupload
                                         </small>
                                         <br>
-                                        <?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sertifikatFiles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <a href="<?php echo e(asset('storage/' . $file)); ?>" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">
                                                 <i class="fas fa-eye me-1"></i>Lihat File <?php echo e($index + 1); ?>
 
                                             </a>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_sertifikat_prestasi[]" accept=".pdf,.jpg,.jpeg,.png" multiple>
                                 <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB per file. Pilih multiple file jika memiliki lebih dari 1 sertifikat</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">PIP/PKH</label>
-                                <?php if($pendaftar->berkas_kip_pkh): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_kip_pkh): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
                                             <i class="fas fa-check-circle me-1"></i>File sudah diupload
@@ -1049,14 +1049,14 @@ unset($__errorArgs, $__bag); ?>
                                             <i class="fas fa-eye me-1"></i>Lihat File
                                         </a>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_kip_pkh" accept=".pdf,.jpg,.jpeg,.png">
                                 <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Akta Kelahiran</label>
-                                <?php if($pendaftar->berkas_akta_kelahiran): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_akta_kelahiran): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
                                             <i class="fas fa-check-circle me-1"></i>File sudah diupload
@@ -1066,14 +1066,14 @@ unset($__errorArgs, $__bag); ?>
                                             <i class="fas fa-eye me-1"></i>Lihat File
                                         </a>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_akta_kelahiran" accept=".pdf,.jpg,.jpeg,.png">
                                 <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">KTP Ayah</label>
-                                <?php if($pendaftar->berkas_ktp_ayah): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ktp_ayah): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
                                             <i class="fas fa-check-circle me-1"></i>File sudah diupload
@@ -1083,14 +1083,14 @@ unset($__errorArgs, $__bag); ?>
                                             <i class="fas fa-eye me-1"></i>Lihat File
                                         </a>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_ktp_ayah" accept=".pdf,.jpg,.jpeg,.png">
                                 <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">KTP Ibu</label>
-                                <?php if($pendaftar->berkas_ktp_ibu): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ktp_ibu): ?>
                                     <div class="mb-2">
                                         <small class="text-success">
                                             <i class="fas fa-check-circle me-1"></i>File sudah diupload
@@ -1100,7 +1100,7 @@ unset($__errorArgs, $__bag); ?>
                                             <i class="fas fa-eye me-1"></i>Lihat File
                                         </a>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <input type="file" class="form-control" name="berkas_ktp_ibu" accept=".pdf,.jpg,.jpeg,.png">
                                 <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Upload file baru untuk mengganti yang lama</small>
                             </div>
@@ -1116,10 +1116,10 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                     </form>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <!-- Next Steps -->
-            <?php if($pendaftar->status === 'lulus'): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->status === 'lulus'): ?>
                 <div class="info-card border-success">
                     <h6 class="info-title text-success mb-3">
                         <i class="fas fa-check-circle me-2"></i>Langkah Selanjutnya
@@ -1141,7 +1141,7 @@ unset($__errorArgs, $__bag); ?>
                         Tetap semangat dan jangan menyerah dalam mengejar cita-cita!
                     </p>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <div class="text-center mt-4">
                 <a href="<?php echo e(route('ppdb.cek-status')); ?>" class="btn btn-back">
@@ -1149,7 +1149,7 @@ unset($__errorArgs, $__bag); ?>
                 </a>
             </div>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 
 <script>

@@ -28,9 +28,9 @@
 <!-- Form Container -->
 <div class="form-container">
     <!-- Success Alert will be shown via SweetAlert -->
-    <?php if(session('success')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div id="success-message" data-message="<?php echo e(session('success')); ?>" style="display: none;"></div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Auto-save Indicator -->
     <div id="auto-save-indicator" class="auto-save-indicator" style="display: none;">
@@ -38,15 +38,15 @@
     </div>
 
     <!-- Error Messages -->
-    <?php if($errors->any()): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
         <div class="error-container">
             <ul class="error-list">
-                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li><?php echo e($error); ?></li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </ul>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Progress Bar -->
     <div class="progress-container">
@@ -82,7 +82,7 @@
                     <div class="form-group required">
                         <label>Nama Satpen</label>
                         <input type="text" name="nama_satpen" value="<?php echo e(old('nama_satpen', $data['nama_madrasah'] ?? '')); ?>" placeholder="Nama Satpen" required>
-                        <?php $__errorArgs = ['nama_satpen'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_satpen'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -91,13 +91,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Alamat</label>
                         <textarea name="alamat" placeholder="Alamat lengkap" required><?php echo e(old('alamat', $data['alamat_madrasah'] ?? '')); ?></textarea>
-                        <?php $__errorArgs = ['alamat'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['alamat'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -106,13 +106,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Nama Kepala Sekolah/Madrasah</label>
                         <input type="text" name="nama_kepala_sekolah_madrasah" value="<?php echo e(old('nama_kepala_sekolah_madrasah', $data['nama_kepala_sekolah'] ?? '')); ?>" placeholder="Nama Lengkap" required>
-                        <?php $__errorArgs = ['nama_kepala_sekolah_madrasah'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_kepala_sekolah_madrasah'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -121,7 +121,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <div class="info-note" style="font-style: italic">
                         <strong>*</strong>Nama Lengkap Tanpa Gelar
@@ -130,7 +130,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Gelar</label>
                         <input type="text" name="gelar" value="<?php echo e(old('gelar', $data['gelar'] ?? '')); ?>" placeholder="S.Pd., M.Pd., dll" required>
-                        <?php $__errorArgs = ['gelar'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['gelar'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -139,13 +139,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TMT KS/Kamad Pertama</label>
                         <input type="date" name="tmt_ks_kamad_pertama" value="<?php echo e(old('tmt_ks_kamad_pertama')); ?>" required>
-                        <?php $__errorArgs = ['tmt_ks_kamad_pertama'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tmt_ks_kamad_pertama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -154,13 +154,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TMT KS/Kamad Terakhir</label>
                         <input type="date" name="tmt_ks_kamad_terakhir" value="<?php echo e(old('tmt_ks_kamad_terakhir')); ?>" required>
-                        <?php $__errorArgs = ['tmt_ks_kamad_terakhir'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tmt_ks_kamad_terakhir'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -169,7 +169,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -179,7 +179,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_1'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -188,7 +188,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -222,7 +222,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Jumlah Siswa 2023</label>
                         <input type="number" name="jumlah_siswa_2023" value="<?php echo e(old('jumlah_siswa_2023')); ?>" min="0" placeholder="0" required>
-                        <?php $__errorArgs = ['jumlah_siswa_2023'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jumlah_siswa_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -231,13 +231,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2024</label>
                         <input type="number" name="jumlah_siswa_2024" value="<?php echo e(old('jumlah_siswa_2024')); ?>" min="0" placeholder="0" required>
-                        <?php $__errorArgs = ['jumlah_siswa_2024'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jumlah_siswa_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -246,13 +246,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Jumlah Siswa 2025</label>
                         <input type="number" name="jumlah_siswa_2025" value="<?php echo e(old('jumlah_siswa_2025')); ?>" min="0" placeholder="0" required>
-                        <?php $__errorArgs = ['jumlah_siswa_2025'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jumlah_siswa_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -261,7 +261,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="divider">
@@ -274,7 +274,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="text" name="persentase_alumni_bekerja" value="<?php echo e(old('persentase_alumni_bekerja')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
-                        <?php $__errorArgs = ['persentase_alumni_bekerja'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['persentase_alumni_bekerja'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -283,7 +283,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
@@ -292,7 +292,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="text" name="persentase_alumni_wirausaha" value="<?php echo e(old('persentase_alumni_wirausaha')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
-                        <?php $__errorArgs = ['persentase_alumni_wirausaha'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['persentase_alumni_wirausaha'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -301,7 +301,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
@@ -310,7 +310,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="text" name="persentase_alumni_tidak_terdeteksi" value="<?php echo e(old('persentase_alumni_tidak_terdeteksi')); ?>" placeholder="0.00" required>
                             <span class="input-symbol">%</span>
                         </div>
-                        <?php $__errorArgs = ['persentase_alumni_tidak_terdeteksi'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['persentase_alumni_tidak_terdeteksi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -319,7 +319,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="divider">
@@ -331,7 +331,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
                         <input type="text" name="bosnas_2023" value="<?php echo e(old('bosnas_2023')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosnas_2023'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosnas_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -340,13 +340,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
                         <input type="text" name="bosnas_2024" value="<?php echo e(old('bosnas_2024')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosnas_2024'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosnas_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -355,13 +355,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
                         <input type="text" name="bosnas_2025" value="<?php echo e(old('bosnas_2025')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosnas_2025'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosnas_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -370,7 +370,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <h6 class="mb-2">b. BOSDA</h6>
@@ -378,7 +378,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
                         <input type="text" name="bosda_2023" value="<?php echo e(old('bosda_2023')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosda_2023'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosda_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -387,13 +387,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
                         <input type="text" name="bosda_2024" value="<?php echo e(old('bosda_2024')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosda_2024'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosda_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -402,13 +402,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
                         <input type="text" name="bosda_2025" value="<?php echo e(old('bosda_2025')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['bosda_2025'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['bosda_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -417,7 +417,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <h6 class="mb-2">c. SPP, BPPP, Sumbangan Lain</h6>
@@ -425,7 +425,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>TAHUN 2023</label>
                         <input type="text" name="spp_bppp_lain_2023" value="<?php echo e(old('spp_bppp_lain_2023')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['spp_bppp_lain_2023'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['spp_bppp_lain_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -434,13 +434,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2024</label>
                         <input type="text" name="spp_bppp_lain_2024" value="<?php echo e(old('spp_bppp_lain_2024')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['spp_bppp_lain_2024'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['spp_bppp_lain_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -449,13 +449,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>TAHUN 2025</label>
                         <input type="text" name="spp_bppp_lain_2025" value="<?php echo e(old('spp_bppp_lain_2025')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['spp_bppp_lain_2025'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['spp_bppp_lain_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -464,7 +464,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <h6 class="mb-2">d. Pendapatan Unit Usaha</h6>
@@ -472,7 +472,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Tahun 2023</label>
                         <input type="text" name="pendapatan_unit_usaha_2023" value="<?php echo e(old('pendapatan_unit_usaha_2023')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['pendapatan_unit_usaha_2023'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pendapatan_unit_usaha_2023'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -481,13 +481,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Tahun 2024</label>
                         <input type="text" name="pendapatan_unit_usaha_2024" value="<?php echo e(old('pendapatan_unit_usaha_2024')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['pendapatan_unit_usaha_2024'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pendapatan_unit_usaha_2024'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -496,13 +496,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Tahun 2025</label>
                         <input type="text" name="pendapatan_unit_usaha_2025" value="<?php echo e(old('pendapatan_unit_usaha_2025')); ?>" placeholder="Rp 0" required>
-                        <?php $__errorArgs = ['pendapatan_unit_usaha_2025'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pendapatan_unit_usaha_2025'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -511,7 +511,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="divider">
@@ -527,7 +527,7 @@ unset($__errorArgs, $__bag); ?>
                             <option value="B" <?php echo e(old('status_akreditasi') == 'B' ? 'selected' : ''); ?>>B</option>
                             <option value="A" <?php echo e(old('status_akreditasi') == 'A' ? 'selected' : ''); ?>>A</option>
                         </select>
-                        <?php $__errorArgs = ['status_akreditasi'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['status_akreditasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -536,13 +536,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Tanggal Akreditasi Mulai Berlaku</label>
                         <input type="date" name="tanggal_akreditasi_mulai" value="<?php echo e(old('tanggal_akreditasi_mulai')); ?>" required>
-                        <?php $__errorArgs = ['tanggal_akreditasi_mulai'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tanggal_akreditasi_mulai'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -551,13 +551,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Tanggal Akreditasi Berakhir</label>
                         <input type="date" name="tanggal_akreditasi_berakhir" value="<?php echo e(old('tanggal_akreditasi_berakhir')); ?>" required>
-                        <?php $__errorArgs = ['tanggal_akreditasi_berakhir'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tanggal_akreditasi_berakhir'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -566,7 +566,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -576,7 +576,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_2'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_2'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -585,7 +585,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -618,7 +618,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Model Layanan Pendidikan yang Diterapkan</label>
                         <textarea name="model_layanan_pendidikan" placeholder="Jelaskan model layanan pendidikan yang diterapkan..." required><?php echo e(old('model_layanan_pendidikan')); ?></textarea>
-                        <?php $__errorArgs = ['model_layanan_pendidikan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['model_layanan_pendidikan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -627,13 +627,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Capaian Layanan yang Paling Menonjol</label>
                         <textarea name="capaian_layanan_menonjol" placeholder="Jelaskan capaian layanan yang paling menonjol..." required><?php echo e(old('capaian_layanan_menonjol')); ?></textarea>
-                        <?php $__errorArgs = ['capaian_layanan_menonjol'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['capaian_layanan_menonjol'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -642,13 +642,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Masalah Layanan Utama Tahun Ini</label>
                         <textarea name="masalah_layanan_utama" placeholder="Jelaskan masalah layanan utama tahun ini..." required><?php echo e(old('masalah_layanan_utama')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_layanan_utama'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_layanan_utama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -657,7 +657,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -667,7 +667,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_3'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_3'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -676,7 +676,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -714,7 +714,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-group required">
                             <label>PNS Sertifikasi</label>
                             <input type="number" name="pns_sertifikasi" value="<?php echo e(old('pns_sertifikasi', $data['pns_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['pns_sertifikasi'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pns_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -723,12 +723,12 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="form-group required">
                             <label>PNS Non Sertifikasi</label>
                             <input type="number" name="pns_non_sertifikasi" value="<?php echo e(old('pns_non_sertifikasi', $data['pns_non_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['pns_non_sertifikasi'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pns_non_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -737,7 +737,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
@@ -745,7 +745,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-group required">
                             <label>GTY Sertifikasi Inpassing</label>
                             <input type="number" name="gty_sertifikasi_inpassing" value="<?php echo e(old('gty_sertifikasi_inpassing', $data['gty_sertifikasi_inpassing'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['gty_sertifikasi_inpassing'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['gty_sertifikasi_inpassing'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -754,12 +754,12 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="form-group required">
                             <label>GTY Sertifikasi</label>
                             <input type="number" name="gty_sertifikasi" value="<?php echo e(old('gty_sertifikasi', $data['gty_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['gty_sertifikasi'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['gty_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -768,7 +768,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
@@ -776,7 +776,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-group required">
                             <label>GTY Non Sertifikasi</label>
                             <input type="number" name="gty_non_sertifikasi" value="<?php echo e(old('gty_non_sertifikasi', $data['gty_non_sertifikasi'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['gty_non_sertifikasi'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['gty_non_sertifikasi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -785,12 +785,12 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="form-group required">
                             <label>GTT</label>
                             <input type="number" name="gtt" value="<?php echo e(old('gtt', $data['gtt'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['gtt'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['gtt'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -799,7 +799,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
@@ -807,7 +807,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-group required">
                             <label>PTY</label>
                             <input type="number" name="pty" value="<?php echo e(old('pty', $data['pty'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['pty'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pty'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -816,12 +816,12 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="form-group required">
                             <label>PTT</label>
                             <input type="number" name="ptt" value="<?php echo e(old('ptt', $data['ptt'] ?? 0)); ?>" min="0" placeholder="0" required>
-                            <?php $__errorArgs = ['ptt'];
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['ptt'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -830,7 +830,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
 
@@ -851,7 +851,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Jumlah (Minimal 3 Maksimal 9)</label>
                         <input type="number" name="jumlah_talenta" id="jumlah_talenta" value="<?php echo e(old('jumlah_talenta', 3)); ?>" min="3" max="9" placeholder="3" required>
-                        <?php $__errorArgs = ['jumlah_talenta'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jumlah_talenta'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -860,7 +860,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
@@ -868,7 +868,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="dynamic-inputs" data-category="talenta">
                             <!-- Talenta fields will be dynamically generated by JavaScript -->
                         </div>
-                        <?php $__errorArgs = ['nama_talenta'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_talenta'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -877,8 +877,8 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
-                        <?php $__errorArgs = ['alasan_talenta'];
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['alasan_talenta'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -887,7 +887,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <script>
@@ -902,8 +902,8 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="form-group required">
                         <label>Nama Guru dan Karyawan dengan Kondisi secara umum</label>
-                        <?php if(isset($data['guru_karyawan']) && is_array($data['guru_karyawan'])): ?>
-                            <?php $__currentLoopData = $data['guru_karyawan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($data['guru_karyawan']) && is_array($data['guru_karyawan'])): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $data['guru_karyawan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <div class="form-group">
                                     <label><?php echo e($guru['name']); ?></label>
                                     <select name="kondisi_guru[<?php echo e($guru['id']); ?>]" required>
@@ -913,8 +913,8 @@ unset($__errorArgs, $__bag); ?>
                                         <option value="bermasalah" <?php echo e(old('kondisi_guru.' . $guru['id']) == 'bermasalah' ? 'selected' : ''); ?>>Bermasalah</option>
                                     </select>
                                 </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="divider">
@@ -924,7 +924,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Masalah SDM Utama 1</label>
                         <textarea name="masalah_sdm_utama[]" placeholder="Masalah 1..." required><?php echo e(old('masalah_sdm_utama.0')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_sdm_utama.0'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_sdm_utama.0'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -933,13 +933,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Masalah SDM Utama 2</label>
                         <textarea name="masalah_sdm_utama[]" placeholder="Masalah 2..." required><?php echo e(old('masalah_sdm_utama.1')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_sdm_utama.1'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_sdm_utama.1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -948,13 +948,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Masalah SDM Utama 3</label>
                         <textarea name="masalah_sdm_utama[]" placeholder="Masalah 3..." required><?php echo e(old('masalah_sdm_utama.2')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_sdm_utama.2'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_sdm_utama.2'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -963,7 +963,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -973,7 +973,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_4'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_4'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -982,7 +982,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1015,7 +1015,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Sumber Dana Utama</label>
                         <textarea name="sumber_dana_utama" placeholder="Jelaskan sumber dana utama..." required><?php echo e(old('sumber_dana_utama')); ?></textarea>
-                        <?php $__errorArgs = ['sumber_dana_utama'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['sumber_dana_utama'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1024,7 +1024,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
@@ -1036,7 +1036,7 @@ unset($__errorArgs, $__bag); ?>
                             <option value="risiko" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'risiko' ? 'selected' : ''); ?>>Risiko</option>
                             <option value="kritis" <?php echo e(old('kondisi_keuangan_akhir_tahun') == 'kritis' ? 'selected' : ''); ?>>Kritis</option>
                         </select>
-                        <?php $__errorArgs = ['kondisi_keuangan_akhir_tahun'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['kondisi_keuangan_akhir_tahun'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1045,13 +1045,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Catatan Penting Terkait Pengelolaan Keuangan</label>
                         <textarea name="catatan_pengelolaan_keuangan" placeholder="Jelaskan catatan penting terkait pengelolaan keuangan..." required><?php echo e(old('catatan_pengelolaan_keuangan')); ?></textarea>
-                        <?php $__errorArgs = ['catatan_pengelolaan_keuangan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['catatan_pengelolaan_keuangan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1060,7 +1060,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -1070,7 +1070,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_5'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_5'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1079,7 +1079,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1113,7 +1113,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Metode PPDB yang Digunakan</label>
                         <textarea name="metode_ppdb" placeholder="Jelaskan metode PPDB yang digunakan..." required><?php echo e(old('metode_ppdb')); ?></textarea>
-                        <?php $__errorArgs = ['metode_ppdb'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['metode_ppdb'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1122,13 +1122,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Hasil PPDB Tahun Berjalan</label>
                         <textarea name="hasil_ppdb_tahun_berjalan" placeholder="Jelaskan hasil PPDB tahun berjalan..." required><?php echo e(old('hasil_ppdb_tahun_berjalan')); ?></textarea>
-                        <?php $__errorArgs = ['hasil_ppdb_tahun_berjalan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['hasil_ppdb_tahun_berjalan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1137,13 +1137,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Masalah Utama PPDB</label>
                         <textarea name="masalah_utama_ppdb" placeholder="Jelaskan masalah utama PPDB..." required><?php echo e(old('masalah_utama_ppdb')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_utama_ppdb'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_utama_ppdb'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1152,7 +1152,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -1162,7 +1162,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_6'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_6'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1171,7 +1171,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1204,7 +1204,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Nama Program Unggulan</label>
                         <textarea name="nama_program_unggulan" placeholder="Jelaskan nama program unggulan..." required><?php echo e(old('nama_program_unggulan')); ?></textarea>
-                        <?php $__errorArgs = ['nama_program_unggulan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['nama_program_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1213,13 +1213,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Alasan Pemilihan Program</label>
                         <textarea name="alasan_pemilihan_program" placeholder="Jelaskan alasan pemilihan program..." required><?php echo e(old('alasan_pemilihan_program')); ?></textarea>
-                        <?php $__errorArgs = ['alasan_pemilihan_program'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['alasan_pemilihan_program'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1228,13 +1228,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Target Unggulan</label>
                         <textarea name="target_unggulan" placeholder="Jelaskan target unggulan..." required><?php echo e(old('target_unggulan')); ?></textarea>
-                        <?php $__errorArgs = ['target_unggulan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['target_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1243,13 +1243,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Kontribusi Unggulan</label>
                         <textarea name="kontribusi_unggulan" placeholder="Jelaskan kontribusi unggulan..." required><?php echo e(old('kontribusi_unggulan')); ?></textarea>
-                        <?php $__errorArgs = ['kontribusi_unggulan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['kontribusi_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1258,13 +1258,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Sumber Biaya Program</label>
                         <textarea name="sumber_biaya_program" placeholder="Jelaskan sumber biaya program..." required><?php echo e(old('sumber_biaya_program')); ?></textarea>
-                        <?php $__errorArgs = ['sumber_biaya_program'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['sumber_biaya_program'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1273,13 +1273,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Tim Program Unggulan</label>
                         <textarea name="tim_program_unggulan" placeholder="Jelaskan tim program unggulan..." required><?php echo e(old('tim_program_unggulan')); ?></textarea>
-                        <?php $__errorArgs = ['tim_program_unggulan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['tim_program_unggulan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1288,7 +1288,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -1298,7 +1298,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_7'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_7'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1307,7 +1307,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1340,7 +1340,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Keberhasilan Terbesar Tahun Ini</label>
                         <textarea name="keberhasilan_terbesar_tahun_ini" placeholder="Jelaskan keberhasilan terbesar tahun ini..." required><?php echo e(old('keberhasilan_terbesar_tahun_ini')); ?></textarea>
-                        <?php $__errorArgs = ['keberhasilan_terbesar_tahun_ini'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['keberhasilan_terbesar_tahun_ini'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1349,13 +1349,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Masalah Paling Berat yang Dihadapi</label>
                         <textarea name="masalah_paling_berat_dihadapi" placeholder="Jelaskan masalah paling berat yang dihadapi..." required><?php echo e(old('masalah_paling_berat_dihadapi')); ?></textarea>
-                        <?php $__errorArgs = ['masalah_paling_berat_dihadapi'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['masalah_paling_berat_dihadapi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1364,13 +1364,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Keputusan yang Sulit Diambil</label>
                         <textarea name="keputusan_sulit_diambil" placeholder="Jelaskan keputusan yang sulit diambil..." required><?php echo e(old('keputusan_sulit_diambil')); ?></textarea>
-                        <?php $__errorArgs = ['keputusan_sulit_diambil'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['keputusan_sulit_diambil'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1379,7 +1379,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -1389,7 +1389,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_8'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_8'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1398,7 +1398,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1431,7 +1431,7 @@ unset($__errorArgs, $__bag); ?>
                     <div class="form-group required">
                         <label>Risiko Terbesar Satpen Tahun Depan</label>
                         <textarea name="risiko_terbesar_satpen_tahun_depan" placeholder="Jelaskan risiko terbesar satpen tahun depan..." required><?php echo e(old('risiko_terbesar_satpen_tahun_depan')); ?></textarea>
-                        <?php $__errorArgs = ['risiko_terbesar_satpen_tahun_depan'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['risiko_terbesar_satpen_tahun_depan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1440,13 +1440,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group required">
                         <label>Fokus Perbaikan Tahun Depan 1</label>
                         <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 1..." required><?php echo e(old('fokus_perbaikan_tahun_depan.0')); ?></textarea>
-                        <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.0'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fokus_perbaikan_tahun_depan.0'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1455,13 +1455,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label>Fokus Perbaikan Tahun Depan 2</label>
                         <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 2..."><?php echo e(old('fokus_perbaikan_tahun_depan.1')); ?></textarea>
-                        <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.1'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fokus_perbaikan_tahun_depan.1'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1470,13 +1470,13 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label>Fokus Perbaikan Tahun Depan 3</label>
                         <textarea name="fokus_perbaikan_tahun_depan[]" placeholder="Fokus perbaikan 3..."><?php echo e(old('fokus_perbaikan_tahun_depan.2')); ?></textarea>
-                        <?php $__errorArgs = ['fokus_perbaikan_tahun_depan.2'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['fokus_perbaikan_tahun_depan.2'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1485,7 +1485,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                     <!-- File Upload Section -->
                     <div class="form-group required" style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #004b4c;">
@@ -1495,7 +1495,7 @@ unset($__errorArgs, $__bag); ?>
                         <div class="form-note" style="font-size: 12px; color: #666; margin-top: 6px; line-height: 1.4;">
                             File harus berupa format PDF. Apabila terdapat foto atau dokumentasi pendukung lainnya, dapat digabungkan ke dalam satu file PDF.
                         </div>
-                        <?php $__errorArgs = ['lampiran_step_9'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['lampiran_step_9'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1504,7 +1504,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1540,7 +1540,7 @@ unset($__errorArgs, $__bag); ?>
                             <input type="checkbox" name="pernyataan_benar" value="1" id="pernyataan_benar" required <?php echo e(old('pernyataan_benar') ? 'checked' : ''); ?>>
                             <label for="pernyataan_benar" class="checkbox-label">Saya menyetujui dan menyatakan bahwa semua data yang saya isi adalah benar dan sesuai dengan kondisi satpen</label>
                         </div>
-                        <?php $__errorArgs = ['pernyataan_benar'];
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['pernyataan_benar'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -1549,7 +1549,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                         <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <div class="signature-section">

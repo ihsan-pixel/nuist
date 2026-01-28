@@ -423,12 +423,12 @@
                         <div class="col-md-4">
                             <label for="tahun" class="form-label">Tahun Anggaran</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = date('Y') - 2; $i <= date('Y') + 1; $i++): ?>
                                     <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>>
                                         <?php echo e($i); ?>
 
                                     </option>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
 
@@ -466,7 +466,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <?php if(count($data) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($data) > 0): ?>
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
@@ -481,7 +481,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td><?php echo e($index + 1); ?></td>
                                     <td>
@@ -516,7 +516,7 @@
                                         </a>
                                     </td>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -528,7 +528,7 @@
                         <h5>Tidak Ada Data Tagihan</h5>
                         <p class="text-muted">Belum ada data tagihan untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>

@@ -24,14 +24,14 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Alert Messages -->
-        <?php if(session('success')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
             <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
                 ✅ <?php echo e(session('success')); ?>
 
             </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if($pendaftars->isEmpty()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftars->isEmpty()): ?>
             <div class="bg-white rounded-lg shadow p-12 text-center">
                 <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -41,7 +41,7 @@
             </div>
         <?php else: ?>
             <div class="space-y-6">
-                <?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $pendaftars; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pendaftar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="bg-white rounded-lg shadow p-6">
                         <!-- Header Pendaftar -->
                         <div class="flex items-start justify-between mb-6 pb-4 border-b">
@@ -81,7 +81,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p class="text-sm text-gray-600 mb-2">Kartu Keluarga</p>
-                                    <?php if($pendaftar->berkas_kk): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_kk): ?>
                                         <a href="<?php echo e(asset('storage/' . $pendaftar->berkas_kk)); ?>" target="_blank"
                                            class="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                                             <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -91,11 +91,11 @@
                                         </a>
                                     <?php else: ?>
                                         <span class="text-gray-500 text-sm">Tidak ada file</span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-600 mb-2">Ijazah/SKHUN</p>
-                                    <?php if($pendaftar->berkas_ijazah): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftar->berkas_ijazah): ?>
                                         <a href="<?php echo e(asset('storage/' . $pendaftar->berkas_ijazah)); ?>" target="_blank"
                                            class="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                                             <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -105,7 +105,7 @@
                                         </a>
                                     <?php else: ?>
                                         <span class="text-gray-500 text-sm">Tidak ada file</span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -149,17 +149,17 @@
                             </div>
                         </form>
                     </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             <!-- Pagination -->
-            <?php if($pendaftars->hasPages()): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($pendaftars->hasPages()): ?>
                 <div class="mt-8">
                     <?php echo e($pendaftars->links()); ?>
 
                 </div>
-            <?php endif; ?>
-        <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </div>
 <?php $__env->stopSection(); ?>

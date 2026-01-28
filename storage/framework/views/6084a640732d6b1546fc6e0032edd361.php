@@ -198,7 +198,7 @@
     $isAllowed = in_array($userRole, ['super_admin', 'admin', 'pengurus']);
 ?>
 
-<?php if($isAllowed): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAllowed): ?>
     <?php $__env->startComponent('components.breadcrumb'); ?>
         <?php $__env->slot('li_1'); ?> Master Data <?php $__env->endSlot(); ?>
         <?php $__env->slot('title'); ?> Madrasah/Sekolah <?php $__env->endSlot(); ?>
@@ -216,21 +216,21 @@
                 </button>
             </div>
 
-            <?php if(session('success')): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
 
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <?php if(session('error')): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
 
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <div class="table-responsive">
                 <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
@@ -247,11 +247,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $__empty_1 = true; $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                             <tr>
                                 <td><?php echo e($loop->iteration); ?></td>
                                 <td>
-                                    <?php if($madrasah->logo): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
                                         <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>"
                                             alt="Logo <?php echo e($madrasah->name); ?>"
                                             width="50" class="img-thumbnail" style="object-fit: contain;">
@@ -259,21 +259,21 @@
                                         <span class="text-muted">
                                             <i class="bx bx-image-alt"></i> Tidak ada logo
                                         </span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td><?php echo e($madrasah->name); ?></td>
                                 <td><?php echo e($madrasah->kabupaten ?? '-'); ?></td>
                                 <td><?php echo e($madrasah->alamat ?? '-'); ?></td>
                                 <td><?php echo e($madrasah->hari_kbm ? $madrasah->hari_kbm . ' hari' : '-'); ?></td>
                                 <td>
-                                    <?php if($madrasah->latitude && $madrasah->longitude): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->latitude && $madrasah->longitude): ?>
                                         <small><?php echo e($madrasah->latitude); ?>, <?php echo e($madrasah->longitude); ?></small>
-                                        <?php if($madrasah->map_link): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->map_link): ?>
                                             <br><a href="<?php echo e($madrasah->map_link); ?>" target="_blank" class="btn btn-sm btn-info">Lihat Map</a>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <?php else: ?>
                                         -
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-warning btn-edit" data-id="<?php echo e($madrasah->id); ?>">Edit</button>
@@ -295,7 +295,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -429,7 +429,7 @@
     </div>
 
     
-    <?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
     <div class="modal fade" id="modalEditMadrasah<?php echo e($madrasah->id); ?>" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <form action="<?php echo e(route('madrasah.update', $madrasah->id)); ?>" method="POST" enctype="multipart/form-data" class="form-edit-madrasah">
@@ -487,12 +487,12 @@
                                     <label>Logo</label>
                                     <input type="file" name="logo" id="editLogoInput<?php echo e($madrasah->id); ?>" class="form-control edit-logo-input" accept="image/*">
                                     <small class="text-muted">Kosongkan jika tidak ingin diubah. Maks 2MB.</small>
-                                    <?php if($madrasah->logo): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
                                         <div class="mt-2">
                                             <label class="form-label">Logo Saat Ini:</label><br>
                                             <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="Current Logo" class="img-thumbnail" style="max-width:200px; max-height:200px;">
                                         </div>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <div id="editLogoPreview<?php echo e($madrasah->id); ?>" class="mt-2" style="display:none;">
                                         <label class="form-label">Preview Logo Baru:</label><br>
                                         <img id="editPreviewImage<?php echo e($madrasah->id); ?>" src="" alt="Preview Logo" class="img-thumbnail" style="max-width:200px; max-height:200px;">
@@ -518,7 +518,7 @@
                                     </div>
                                     <div class="polygon-info mt-2">
                                         <div id="polygon-display-<?php echo e($madrasah->id); ?>">
-                                            <?php if($madrasah->polygon_koordinat): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->polygon_koordinat): ?>
                                                 <?php
                                                     $coords = json_decode($madrasah->polygon_koordinat, true);
                                                     $pointCount = isset($coords['coordinates'][0]) ? count($coords['coordinates'][0]) : 0;
@@ -529,13 +529,13 @@
                                                 
                                             <?php else: ?>
                                                 <small class="text-muted">Belum ada poligon. Gunakan tool drawing untuk menambahkan.</small>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
                                     <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi utama.</small>
                                 </div>
 
-                                <?php if($madrasah->polygon_koordinat_2 || in_array($madrasah->id, [24, 26, 33])): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->polygon_koordinat_2 || in_array($madrasah->id, [24, 26, 33])): ?>
                                 
                                 <div class="mb-3">
                                     <div class="form-check">
@@ -560,7 +560,7 @@
                                     </div>
                                     <div class="polygon-info mt-2">
                                         <div id="polygon2-display-<?php echo e($madrasah->id); ?>">
-                                            <?php if($madrasah->polygon_koordinat_2): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->polygon_koordinat_2): ?>
                                                 <?php
                                                     $coords2 = json_decode($madrasah->polygon_koordinat_2, true);
                                                     $pointCount2 = isset($coords2['coordinates'][0]) ? count($coords2['coordinates'][0]) : 0;
@@ -571,7 +571,7 @@
                                                 
                                             <?php else: ?>
                                                 <small class="text-muted">Belum ada poligon kedua. Gunakan tool drawing untuk menambahkan.</small>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                         <div class="polygon-checklist" id="polygon2-checklist-<?php echo e($madrasah->id); ?>">
                                             <div class="polygon-checklist-item <?php echo e($madrasah->enable_dual_polygon ? 'success' : 'warning'); ?>">
@@ -586,7 +586,7 @@
                                     </div>
                                     <small class="text-muted">Gunakan toolbar pada peta untuk menggambar, mengedit, atau menghapus area polygon presensi kedua.</small>
                                 </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -598,14 +598,14 @@
             </form>
         </div>
     </div>
-    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php else: ?>
 <div class="alert alert-danger text-center">
     <h4>Akses Ditolak</h4>
     <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

@@ -14,12 +14,12 @@
                         <div class="col-md-4">
                             <select id="madrasah-filter" class="form-select">
                                 <option value="">Semua Madrasah</option>
-                                <?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($madrasah->id); ?>" <?php echo e(request('madrasah_id') == $madrasah->id ? 'selected' : ''); ?>>
                                     <?php echo e($madrasah->nama); ?>
 
                                 </option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -48,46 +48,46 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td><?php echo e($loop->iteration); ?></td>
                                 <td>
                                     <strong><?php echo e($u->name); ?></strong>
-                                    <?php if($u->face_verification_required): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($u->face_verification_required): ?>
                                     <br><small class="text-muted">Verifikasi wajah aktif</small>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td><?php echo e($u->nip ?? $u->nuptk ?? '-'); ?></td>
                                 <td><?php echo e($u->madrasah->nama ?? '-'); ?></td>
                                 <td>
-                                    <?php if($u->face_registered_at): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($u->face_registered_at): ?>
                                         <span class="badge bg-success">Terdaftar</span>
                                     <?php else: ?>
                                         <span class="badge bg-warning">Belum Terdaftar</span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td><?php echo e($u->face_registered_at ? $u->face_registered_at->format('d/m/Y H:i') : '-'); ?></td>
                                 <td>
-                                    <?php if($u->face_verification_required): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($u->face_verification_required): ?>
                                         <span class="badge bg-info">Ya</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary">Tidak</span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="<?php echo e(route('face.enrollment', ['user_id' => $u->id])); ?>" class="btn btn-sm btn-primary">
                                             <i class="bx bx-camera me-1"></i>Daftar / Re-enroll
                                         </a>
-                                        <?php if($u->face_registered_at): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($u->face_registered_at): ?>
                                         <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteFace(<?php echo e($u->id); ?>, '<?php echo e($u->name); ?>')">
                                             <i class="bx bx-trash me-1"></i>Hapus
                                         </button>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
 

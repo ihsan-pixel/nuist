@@ -101,12 +101,12 @@
                                         </div>
 
                                         <div class="mt-4">
-                                            <?php if(session('status')): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('status')): ?>
                                                 <div class="alert alert-success text-center mb-4" role="alert">
                                                     <?php echo e(session('status')); ?>
 
                                                 </div>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             <form class="form-horizontal" method="POST"
                                                 action="<?php echo e(route('password.email')); ?>">
                                                 <?php echo csrf_field(); ?>
@@ -123,7 +123,7 @@ endif;
 unset($__errorArgs, $__bag); ?>"
                                                         id="useremail" name="email" placeholder="Enter email"
                                                         value="<?php echo e(old('email')); ?>" id="email">
-                                                    <?php $__errorArgs = ['email'];
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -134,7 +134,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                                                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </div>
 
                                                 <div class="text-end">

@@ -95,7 +95,7 @@
 <!-- Main Content -->
 <div class="row">
     <div class="col-12">
-        <?php if($schedules->isEmpty()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedules->isEmpty()): ?>
             <!-- Empty State -->
             <div class="card empty-state shadow-sm border-0">
                 <div class="card-body text-center py-5">
@@ -111,16 +111,16 @@
         <?php else: ?>
             <!-- Schedule Cards - Mobile Optimized -->
             <div class="row g-3">
-                <?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-12">
                     <div class="card schedule-card h-100 position-relative <?php echo e($schedule->attendance ? 'attendance-success' : 'attendance-pending'); ?>">
                         <!-- Status Badge -->
                         <div class="status-badge <?php echo e($schedule->attendance ? 'bg-success' : 'bg-warning'); ?>">
-                            <?php if($schedule->attendance): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
                                 <i class="bx bx-check text-white"></i>
                             <?php else: ?>
                                 <i class="bx bx-time text-white"></i>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
                         <div class="card-body p-4">
@@ -170,7 +170,7 @@
                             </div>
 
                             <!-- Attendance Status -->
-                            <?php if($schedule->attendance): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
                                 <div class="alert alert-success border-0 rounded-3 p-3 mb-0">
                                     <div class="d-flex align-items-center">
                                         <i class="bx bx-check-circle fs-4 me-3"></i>
@@ -187,7 +187,7 @@
                                     $endTime = \Carbon\Carbon::createFromFormat('H:i:s', $schedule->end_time, 'Asia/Jakarta');
                                     $isWithinTime = $currentTime->between($startTime, $endTime);
                                 ?>
-                                <?php if($isWithinTime): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isWithinTime): ?>
                                     <button type="button" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-semibold"
                                             onclick="markAttendance(<?php echo e($schedule->id); ?>, '<?php echo e(addslashes($schedule->subject)); ?>', '<?php echo e(addslashes($schedule->class_name)); ?>', '<?php echo e(addslashes($schedule->school->name ?? 'N/A')); ?>', '<?php echo e($schedule->start_time); ?>', '<?php echo e($schedule->end_time); ?>')">
                                         <i class="bx bx-check-circle me-2 fs-5"></i> Lakukan Presensi
@@ -202,14 +202,14 @@
 
                                         </small>
                                     </div>
-                                <?php endif; ?>
-                            <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </div>
 

@@ -548,23 +548,23 @@
                             <label for="type" class="form-label">Tipe</label>
                             <select class="form-select" id="type" name="type">
                                 <option value="">Semua Tipe</option>
-                                <?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($key); ?>" <?php echo e(request('type') == $key ? 'selected' : ''); ?>>
                                         <?php echo e($label); ?>
 
                                     </option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="source" class="form-label">Sumber</label>
                             <select class="form-select" id="source" name="source">
-                                <?php $__currentLoopData = $sources; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sources; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($key); ?>" <?php echo e(request('source') == $key ? 'selected' : ''); ?>>
                                         <?php echo e($label); ?>
 
                                     </option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -584,11 +584,11 @@
                                 <a href="<?php echo e(route('development-history.index')); ?>" class="btn btn-secondary">
                                     <i class="bx bx-refresh me-1"></i> Reset
                                 </a>
-                                <?php if(auth()->user()->role === 'super_admin'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'super_admin'): ?>
                                 <a href="#" class="btn btn-success" onclick="runCommitTracking()">
                                     <i class="bx bx-git-commit me-1"></i> Track Commits
                                 </a>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -609,11 +609,11 @@
                 <a href="<?php echo e(route('development-history.sync')); ?>" class="btn btn-success" onclick="return confirm('Sinkronisasi file migration dengan riwayat pengembangan?')">
                     <i class="bx bx-sync me-1"></i> Sinkronisasi Migration
                 </a>
-                <?php if(auth()->user()->role === 'super_admin'): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'super_admin'): ?>
                 <button type="button" class="btn btn-warning" onclick="regenerateDocumentation()">
                     <i class="bx bx-refresh me-1"></i> Regenerasi Dokumentasi
                 </button>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
@@ -650,26 +650,26 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <?php if($histories->count() > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($histories->count() > 0): ?>
                     <div class="row g-4">
-                        <?php $__currentLoopData = $histories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $history): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $histories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $history): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-xl-4 col-lg-6 col-md-6">
                             <div class="history-card <?php echo e($history->type); ?>">
                                 <div class="card-icon <?php echo e($history->type); ?>">
-                                    <?php if($history->details && isset($history->details['commit_hash'])): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->details && isset($history->details['commit_hash'])): ?>
                                         <i class="bx bx-git-commit"></i>
                                     <?php else: ?>
                                         <i class="bx <?php echo e($history->getTypeIcon()); ?>"></i>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
 
                                 <div class="card-header">
                                     <h3 class="card-title">
                                         <?php echo e($history->title); ?>
 
-                                        <?php if($history->details && isset($history->details['commit_hash'])): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->details && isset($history->details['commit_hash'])): ?>
                                             <i class="bx bx-git-commit text-info ms-2" title="Git Commit"></i>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </h3>
                                     <div class="card-meta">
                                         <div class="card-date">
@@ -686,21 +686,21 @@
                                 </div>
 
                                 <div class="card-badges mb-3">
-                                    <?php if($history->version): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->version): ?>
                                         <span class="badge badge-modern bg-info">v<?php echo e($history->version); ?></span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     <span class="badge badge-modern <?php echo e($history->getTypeBadgeClass()); ?>">
                                         <?php echo e($types[$history->type] ?? $history->type); ?>
 
                                     </span>
-                                    <?php if($history->details && isset($history->details['commit_hash'])): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->details && isset($history->details['commit_hash'])): ?>
                                         <span class="badge badge-modern bg-success">
                                             <i class="bx bx-git-commit me-1"></i>Git Commit
                                         </span>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
 
-                                <?php if($history->migration_file): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->migration_file): ?>
                                     <div class="card-details">
                                         <small>
                                             <i class="bx bx-file me-1"></i>
@@ -708,32 +708,32 @@
 
                                         </small>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                                <?php if($history->details && isset($history->details['commit_hash'])): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->details && isset($history->details['commit_hash'])): ?>
                                     <div class="commit-info">
                                         <small>
                                             <i class="bx bx-hash me-1"></i>
                                             <strong>Commit:</strong> <code><?php echo e(substr($history->details['commit_hash'], 0, 7)); ?></code>
-                                            <?php if(isset($history->details['commit_author'])): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($history->details['commit_author'])): ?>
                                                 | <strong>Author:</strong> <?php echo e($history->details['commit_author']); ?>
 
-                                            <?php endif; ?>
-                                            <?php if(isset($history->details['webhook_processed']) && $history->details['webhook_processed']): ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($history->details['webhook_processed']) && $history->details['webhook_processed']): ?>
                                                 <span class="badge bg-light text-dark ms-2">Auto-tracked</span>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </small>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <!-- Custom Pagination -->
                     <div class="custom-pagination">
-                        <?php if($histories->hasPages()): ?>
-                            <?php if($histories->onFirstPage()): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($histories->hasPages()): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($histories->onFirstPage()): ?>
                                 <span class="page-item-custom disabled">
                                     <i class="bx bx-chevron-left"></i>
                                 </span>
@@ -741,7 +741,7 @@
                                 <a href="<?php echo e($histories->previousPageUrl()); ?>" class="page-item-custom">
                                     <i class="bx bx-chevron-left"></i>
                                 </a>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             <div class="page-info">
                                 Halaman <?php echo e($histories->currentPage()); ?> dari <?php echo e($histories->lastPage()); ?>
@@ -750,7 +750,7 @@
                                 <small class="text-muted">Menampilkan <?php echo e($histories->count()); ?> dari <?php echo e($histories->total()); ?> item</small>
                             </div>
 
-                            <?php if($histories->hasMorePages()): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($histories->hasMorePages()): ?>
                                 <a href="<?php echo e($histories->nextPageUrl()); ?>" class="page-item-custom">
                                     <i class="bx bx-chevron-right"></i>
                                 </a>
@@ -758,8 +758,8 @@
                                 <span class="page-item-custom disabled">
                                     <i class="bx bx-chevron-right"></i>
                                 </span>
-                            <?php endif; ?>
-                        <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="empty-state">
@@ -769,7 +769,7 @@
                         <h5>Belum Ada Riwayat Pengembangan</h5>
                         <p class="text-muted">Klik tombol "Sinkronisasi Migration" untuk memuat riwayat dari file migration.</p>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>

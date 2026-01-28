@@ -158,15 +158,15 @@
     </style>
 
     <!-- Mark All as Read Button -->
-    <?php if($notifications->count() > 0): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($notifications->count() > 0): ?>
     <button id="markAllReadBtn" class="mark-all-read">
         <i class="bx bx-check-double me-2"></i>Tandai Semua Sudah Dibaca
     </button>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Notifications List -->
     <div id="notificationsContainer">
-        <?php $__empty_1 = true; $__currentLoopData = $notifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $notifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
         <div class="notification-item <?php echo e($notification->is_read ? 'read' : 'unread'); ?>"
              data-id="<?php echo e($notification->id); ?>">
             <div class="d-flex">
@@ -179,11 +179,11 @@
                         <small class="notification-time"><?php echo e($notification->created_at->diffForHumans()); ?></small>
                     </div>
                     <p class="notification-message"><?php echo e($notification->message); ?></p>
-                    <?php if(!$notification->is_read): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$notification->is_read): ?>
                     <button class="mark-read-btn mt-2" onclick="markAsRead(<?php echo e($notification->id); ?>)">
                         <i class="bx bx-check"></i> Tandai Dibaca
                     </button>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -192,16 +192,16 @@
             <i class="bx bx-bell-off"></i>
             <p>Belum ada notifikasi</p>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     <!-- Pagination -->
-    <?php if($notifications->hasPages()): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($notifications->hasPages()): ?>
     <div class="d-flex justify-content-center mt-4">
         <?php echo e($notifications->links()); ?>
 
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 

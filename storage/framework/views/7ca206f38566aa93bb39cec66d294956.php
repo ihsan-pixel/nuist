@@ -188,7 +188,7 @@
 
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <?php switch(Session::get('lang')):
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php switch(Session::get('lang')):
                     case ('ru'): ?>
                     <img src="<?php echo e(asset('build/images/flags/russia.jpg')); ?>" alt="Header Language" height="16"> <span class="align-middle">Russian</span>
                     <?php break; ?>
@@ -203,7 +203,7 @@
                     <?php break; ?>
                     <?php default: ?>
                     <img src="<?php echo e(asset('build/images/flags/us.jpg')); ?>" alt="Header Language" height="16"> <span class="align-middle">English</span>
-                    <?php endswitch; ?>
+                    <?php endswitch; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
 

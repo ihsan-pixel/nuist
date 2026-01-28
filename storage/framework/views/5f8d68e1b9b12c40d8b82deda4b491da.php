@@ -21,7 +21,7 @@
     $userRole = trim(strtolower(auth()->user()->role));
     $isAllowed = in_array($userRole, ['super_admin', 'admin', 'pengurus']);
 ?>
-<?php if($isAllowed): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isAllowed): ?>
 <?php $__env->startComponent('components.breadcrumb'); ?>
     <?php $__env->slot('li_1'); ?> Master Data <?php $__env->endSlot(); ?>
     <?php $__env->slot('title'); ?> Pengurus <?php $__env->endSlot(); ?>
@@ -37,21 +37,21 @@
             </button>
         </div>
 
-        <?php if(session('success')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bx bx-check-circle me-2"></i><?php echo e(session('success')); ?>
 
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if(session('error')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bx bx-error-circle me-2"></i><?php echo e(session('error')); ?>
 
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <div class="table-responsive">
             <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
@@ -65,7 +65,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $__empty_1 = true; $__currentLoopData = $penguruses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pengurus): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $penguruses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $pengurus): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td><?php echo e($index + 1); ?></td>
                         <td><?php echo e($pengurus->name); ?></td>
@@ -133,7 +133,7 @@
                             </div>
                         </td>
                     </tr>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -181,7 +181,7 @@
     <h4>Akses Ditolak</h4>
     <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>

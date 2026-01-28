@@ -122,45 +122,57 @@
     </div>
 
     <!-- History List -->
-    <?php if($presensiHistory->count() > 0): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiHistory->count() > 0): ?>
         <?php
             $groupedPresensi = $presensiHistory->groupBy('tanggal');
         ?>
-        <?php $__currentLoopData = $groupedPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $presensis): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $groupedPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $presensis): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="history-item">
                 <div class="history-date">
                     <?php echo e(\Carbon\Carbon::parse($date)->format('d M Y')); ?>
 
                     <span class="text-muted">(<?php echo e(\Carbon\Carbon::parse($date)->locale('id')->dayName); ?>)</span>
                 </div>
-                <?php $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="history-details mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">
                         <div class="time-info">
-                            <small class="fw-bold text-primary"><?php echo e($presensi->madrasah->name ?? 'Madrasah'); ?></small>
-                            <?php if($presensi->waktu_masuk): ?>
-                                <div>Masuk: <?php echo e(\Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i')); ?></div>
-                            <?php endif; ?>
-                            <?php if($presensi->waktu_keluar): ?>
-                                <div>Keluar: <?php echo e(\Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i')); ?></div>
-                            <?php endif; ?>
-                            <?php if($presensi->keterangan): ?>
-                                <div class="text-muted small"><?php echo e($presensi->keterangan); ?></div>
-                            <?php endif; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->model_type == 'presensi'): ?>
+                                <small class="fw-bold text-primary"><?php echo e($presensi->madrasah->name ?? 'Madrasah'); ?></small>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_masuk): ?>
+                                    <div>Masuk: <?php echo e(\Carbon\Carbon::parse($presensi->waktu_masuk)->format('H:i')); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->waktu_keluar): ?>
+                                    <div>Keluar: <?php echo e(\Carbon\Carbon::parse($presensi->waktu_keluar)->format('H:i')); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->keterangan): ?>
+                                    <div class="text-muted small"><?php echo e($presensi->keterangan); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php else: ?>
+                                <div>Jenis Izin: <?php echo e(ucfirst(str_replace('_', ' ', $presensi->type))); ?></div>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->deskripsi_tugas): ?>
+                                    <div class="text-muted small"><?php echo e($presensi->deskripsi_tugas); ?></div>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
-                        <div class="status-badge status-<?php echo e($presensi->status); ?>">
-                            <?php echo e(ucfirst($presensi->status)); ?>
+                        <div class="status-badge status-<?php echo e($presensi->model_type == 'presensi' ? $presensi->status : $presensi->status); ?>">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->model_type == 'presensi'): ?>
+                                <?php echo e(ucfirst($presensi->status)); ?>
 
+                            <?php else: ?>
+                                <?php echo e(ucfirst($presensi->status)); ?>
+
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php else: ?>
         <div class="no-history">
             <i class="bx bx-calendar-x"></i>
             <p>Belum ada riwayat presensi bulan ini</p>
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 

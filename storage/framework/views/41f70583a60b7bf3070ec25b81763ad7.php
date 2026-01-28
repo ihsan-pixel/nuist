@@ -184,111 +184,102 @@
         </a>
     </div>
 
-    <?php if($izinRequests->isEmpty()): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izinRequests->isEmpty()): ?>
         <div class="empty-state">
             <i class="bx bx-file-blank"></i>
             <p>Tidak ada pengajuan izin <?php echo e(request('status') === 'all' ? '' : 'pending'); ?></p>
         </div>
     <?php else: ?>
-        <?php $__currentLoopData = $izinRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $izin): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $izinRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $izin): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="izin-card">
             <div class="izin-header">
                 <div>
                     <div class="izin-user"><?php echo e($izin->user->name); ?></div>
                     <div class="izin-date"><?php echo e($izin->tanggal->format('d M Y')); ?></div>
+                    <?php
+                        $jenisIzin = 'Izin';
+                        if ($izin->type === 'sakit') {
+                            $jenisIzin = 'Izin Sakit';
+                        } elseif ($izin->type === 'tidak_masuk') {
+                            $jenisIzin = 'Izin Tidak Masuk';
+                        } elseif ($izin->type === 'terlambat') {
+                            $jenisIzin = 'Izin Terlambat';
+                        } elseif ($izin->type === 'tugas_luar') {
+                            $jenisIzin = 'Izin Tugas Luar';
+                        } elseif ($izin->type === 'cuti') {
+                            $jenisIzin = 'Izin Cuti';
+                        }
+                    ?>
+                    <div class="izin-type"><?php echo e($jenisIzin); ?></div>
                 </div>
                 <div>
-                    <?php if(isset($izin->status_izin)): ?>
-                        <span class="status-badge status-<?php echo e($izin->status_izin); ?>">
-                            <?php echo e(ucfirst($izin->status_izin)); ?>
+                    <span class="status-badge status-<?php echo e($izin->status); ?>">
+                        <?php echo e(ucfirst($izin->status)); ?>
 
-                        </span>
-                    <?php else: ?>
-                        <span class="status-badge status-<?php echo e($izin->status); ?>">
-                            <?php echo e(ucfirst($izin->status)); ?>
-
-                        </span>
-                    <?php endif; ?>
+                    </span>
                 </div>
             </div>
 
             <div class="izin-description">
-                <?php if(isset($izin->type) && $izin->type === 'tugas_luar'): ?>
-                    <strong>Tugas Luar:</strong> <?php echo e($izin->deskripsi_tugas); ?><br>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->type === 'tugas_luar'): ?>
+                    <strong>Deskripsi:</strong> <?php echo e($izin->deskripsi_tugas); ?><br>
                     <strong>Lokasi:</strong> <?php echo e($izin->lokasi_tugas); ?><br>
                     <strong>Waktu:</strong> <?php echo e($izin->waktu_masuk); ?> - <?php echo e($izin->waktu_keluar); ?>
 
                 <?php else: ?>
-                    <?php echo e($izin->keterangan); ?>
+                    <?php echo e($izin->alasan); ?>
 
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            <?php if((isset($izin->surat_izin_path) && $izin->surat_izin_path) || (isset($izin->file_path) && $izin->file_path)): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->file_path): ?>
             <div class="mb-3">
-                <a href="<?php echo e(asset('storage/' . ($izin->surat_izin_path ?? $izin->file_path))); ?>"
+                <a href="<?php echo e(asset('storage/' . $izin->file_path)); ?>"
                    target="_blank"
                    class="text-decoration-none"
                    style="color: #0e8549; font-size: 12px;">
                     <i class="bx bx-file"></i> Lihat Surat Izin
                 </a>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <?php if((isset($izin->status_izin) && $izin->status_izin === 'pending') || (isset($izin->status) && $izin->status === 'pending')): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izin->status === 'pending'): ?>
             <div class="izin-actions">
-                <?php if($izin->model_type === 'presensi'): ?>
-                    <!-- Izin dari tabel presensis -->
-                    <form action="<?php echo e(route('izin.approve', $izin->id)); ?>" method="POST" style="flex: 1;">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn-approve">
-                            <i class="bx bx-check"></i> Setujui
-                        </button>
-                    </form>
+                <!-- Izin dari tabel izins -->
+                <form action="<?php echo e(route('izin.model.approve', $izin->id)); ?>" method="POST" style="flex: 1;">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="btn-approve">
+                        <i class="bx bx-check"></i> Setujui
+                    </button>
+                </form>
 
-                    <form action="<?php echo e(route('izin.reject', $izin->id)); ?>" method="POST" style="flex: 1;">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn-reject">
-                            <i class="bx bx-x"></i> Tolak
-                        </button>
-                    </form>
-
-                <?php elseif($izin->model_type === 'izin'): ?>
-                    <!-- Izin tugas luar dari tabel izins -->
-                    <form action="<?php echo e(route('izin.model.approve', $izin->id)); ?>" method="POST" style="flex: 1;">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn-approve">
-                            <i class="bx bx-check"></i> Setujui
-                        </button>
-                    </form>
-
-                    <form action="<?php echo e(route('izin.model.reject', $izin->id)); ?>" method="POST" style="flex: 1;">
-                        <?php echo csrf_field(); ?>
-                        <button type="submit" class="btn-reject">
-                            <i class="bx bx-x"></i> Tolak
-                        </button>
-                    </form>
-                <?php endif; ?>
+                <form action="<?php echo e(route('izin.model.reject', $izin->id)); ?>" method="POST" style="flex: 1;">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="btn-reject">
+                        <i class="bx bx-x"></i> Tolak
+                    </button>
+                </form>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- Pagination -->
-        <?php if($izinRequests->hasPages()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($izinRequests->hasPages()): ?>
         <div class="d-flex justify-content-center mt-3">
             <?php echo e($izinRequests->appends(request()->query())->links()); ?>
 
         </div>
-        <?php endif; ?>
-    <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('script'); ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle approve/reject actions with confirmation
+    // Handle approve/reject actions with SweetAlert confirmation
     document.querySelectorAll('form[action*="approve"], form[action*="reject"]').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -297,19 +288,52 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmMessage = isApprove ?
                 'Apakah Anda yakin ingin menyetujui pengajuan izin ini?' :
                 'Apakah Anda yakin ingin menolak pengajuan izin ini?';
+            const confirmTitle = isApprove ? 'Setujui Izin' : 'Tolak Izin';
 
-            if (confirm(confirmMessage)) {
-                // Show loading state
-                const button = this.querySelector('button');
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
-                button.disabled = true;
+            Swal.fire({
+                title: confirmTitle,
+                text: confirmMessage,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: isApprove ? '#0e8549' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    const button = this.querySelector('button');
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i>';
+                    button.disabled = true;
 
-                // Submit form
-                this.submit();
-            }
+                    // Submit form
+                    this.submit();
+                }
+            });
         });
     });
+
+    // Show success/error alerts from session
+    <?php if(session('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '<?php echo e(session("success")); ?>',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    <?php endif; ?>
+
+    <?php if(session('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: '<?php echo e(session("error")); ?>',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    <?php endif; ?>
 });
 </script>
 <?php $__env->stopSection(); ?>

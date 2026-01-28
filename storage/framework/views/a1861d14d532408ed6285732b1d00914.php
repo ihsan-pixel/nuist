@@ -237,25 +237,25 @@
             <i class="bx bx-check-circle text-success"></i>
             Sudah Presensi (<?php echo e($presensis->total()); ?>)
         </h6>
-        <?php if($presensis->isEmpty()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensis->isEmpty()): ?>
             <div class="empty-state">
                 <i class="bx bx-calendar-x"></i>
                 <p>Belum ada presensi pada tanggal ini.</p>
             </div>
         <?php else: ?>
             <ul class="presensi-list">
-                <?php $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $presensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li class="presensi-item">
                         <div class="presensi-info">
                             <div class="name">
                                 <?php echo e($p->user->name ?? '-'); ?>
 
-                                <?php if($p->status === 'izin'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($p->status === 'izin'): ?>
                                     <span class="izin-badge">IZIN</span>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="status"><?php echo e($p->user->statusKepegawaian?->name ?? '-'); ?></div>
-                            <?php if($p->selfie_masuk_path || $p->selfie_keluar_path): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($p->selfie_masuk_path || $p->selfie_keluar_path): ?>
                                 <button class="foto-btn"
                                     onclick="showFoto(
                                         '<?php echo e(url("/foto/masuk/".$p->id)); ?>',
@@ -263,31 +263,31 @@
                                     )">
                                     📷 Lihat Foto
                                 </button>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                         <div class="presensi-time">
-                            <?php if($p->status === 'izin'): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($p->status === 'izin'): ?>
                                 <div class="time">Izin</div>
                                 <div class="sub-time"><?php echo e($p->keterangan ? Str::limit($p->keterangan, 20) : 'Tanpa keterangan'); ?></div>
                             <?php else: ?>
                                 <div class="time"><?php echo e($p->waktu_masuk?->format('H:i') ?? '-'); ?></div>
-                                <?php if($p->waktu_keluar): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($p->waktu_keluar): ?>
                                     <div class="sub-time">Keluar <?php echo e($p->waktu_keluar->format('H:i')); ?></div>
                                 <?php else: ?>
                                     <div class="sub-time">Belum keluar</div>
-                                <?php endif; ?>
-                            <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </ul>
-            <?php if($presensis->hasPages()): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensis->hasPages()): ?>
                 <div class="pagination-custom">
                     <?php echo e($presensis->appends(request()->query())->links()); ?>
 
                 </div>
-            <?php endif; ?>
-        <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     <!-- Belum Presensi -->
@@ -296,14 +296,14 @@
             <i class="bx bx-x-circle text-warning"></i>
             Belum Presensi (<?php echo e($belumPresensi->total()); ?>)
         </h6>
-        <?php if($belumPresensi->isEmpty()): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($belumPresensi->isEmpty()): ?>
             <div class="empty-state">
                 <i class="bx bx-check-circle"></i>
                 <p>Semua tenaga pendidik telah melakukan presensi.</p>
             </div>
         <?php else: ?>
             <ul class="presensi-list">
-                <?php $__currentLoopData = $belumPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $belumPresensi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li class="presensi-item">
                         <div class="presensi-info">
                             <div class="name"><?php echo e($u->name); ?></div>
@@ -314,15 +314,15 @@
                             <div class="sub-time">Belum presensi</div>
                         </div>
                     </li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </ul>
-            <?php if($belumPresensi->hasPages()): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($belumPresensi->hasPages()): ?>
                 <div class="pagination-custom">
                     <?php echo e($belumPresensi->appends(request()->query())->links()); ?>
 
                 </div>
-            <?php endif; ?>
-        <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </div>
 

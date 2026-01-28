@@ -771,7 +771,7 @@
 
         <!-- Tombol Kanan -->
         <div class="d-none d-lg-block">
-            <?php if(isset($ppdb->id)): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($ppdb->id)): ?>
                 <a href="<?php echo e(route('ppdb.daftar', $ppdb->slug)); ?>" class="btn btn-orange px-4">
                     <i class="fas fa-edit me-1"></i>Daftar
                 </a>
@@ -779,7 +779,7 @@
                 <a href="<?php echo e(route('ppdb.index')); ?>" class="btn btn-outline-primary px-4">
                     <i class="fas fa-arrow-left me-1"></i>Kembali ke Beranda
                 </a>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </nav>
@@ -910,26 +910,26 @@
             <!-- Text Kiri -->
             <div class="col-lg-6 animate-slide-in-left">
                 <div class="d-flex align-items-center mb-4">
-                    <?php if($ppdb->logo ?? $madrasah->logo): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->logo ?? $madrasah->logo): ?>
                         <img src="<?php echo e(asset('storage/' . ($ppdb->logo ?? $madrasah->logo))); ?>" alt="<?php echo e($ppdb->nama_sekolah); ?>" class="school-logo me-4">
                     <?php else: ?>
                         <div class="school-logo bg-light d-flex align-items-center justify-content-center me-4">
                             <i class="fas fa-school fa-2x text-muted"></i>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <div>
                         <h1 class="display-4 fw-bold mb-2"><?php echo e($ppdb->nama_sekolah); ?></h1>
-                        <?php if($ppdb->tagline): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->tagline): ?>
                             <p class="h4 text-warning mb-0"><?php echo e($ppdb->tagline); ?></p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
-                <?php if($ppdb->deskripsi_singkat): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->deskripsi_singkat): ?>
                     <p class="lead mb-4"><?php echo e($ppdb->deskripsi_singkat); ?></p>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 <div class="d-flex gap-3 flex-wrap">
                     <?php $currentSlug = request()->route('slug'); ?>
-                    <?php if($currentSlug): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($currentSlug): ?>
                         <a href="<?php echo e(route('ppdb.daftar', $currentSlug)); ?>" class="btn btn-ppdb">
                             <i class="fas fa-edit me-2"></i>Daftar Sekarang
                         </a>
@@ -948,13 +948,13 @@
                         <a href="<?php echo e(route('ppdb.index')); ?>" class="btn btn-outline-light btn-lg px-4">
                             <i class="fas fa-user-plus me-2"></i>Daftar
                         </a>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
 
             <!-- Image Kanan -->
             <div class="col-lg-6 text-center animate-slide-in-right">
-                <?php if($ppdb): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb): ?>
                     <div class="card-custom p-4 animate-bounce-in">
                         <h5 class="text-primary mb-3">
                             <i class="fas fa-calendar-alt me-2"></i>PPDB <?php echo e($ppdb->tahun); ?>
@@ -974,7 +974,7 @@
                             <i class="fas fa-hourglass-half me-1"></i>Sisa waktu: <?php echo e(method_exists($ppdb, 'remainingDays') ? $ppdb->remainingDays() : 'N/A'); ?> hari
                         </p>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
@@ -987,7 +987,7 @@
     $akreditasi = $ppdb->akreditasi;
     $nilaiNilai = $ppdb->nilai_nilai;
 ?>
-<?php if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai)): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($ppdb->tahun_berdiri) || !empty($ppdb->sejarah) || !empty($ppdb->akreditasi) || !empty($ppdb->nilai_nilai)): ?>
 <section id="profile" class="about-section">
     <div class="container">
         <div class="row">
@@ -1000,39 +1000,39 @@
         </div>
         <div class="row">
             <div class="col-lg-8">
-                <?php if($ppdb->tahun_berdiri): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->tahun_berdiri): ?>
                     <div class="timeline">
                         <div class="timeline-item">
                             <h5 class="text-warning"><?php echo e($ppdb->tahun_berdiri); ?></h5>
                             <p class="text-white">Tahun berdiri <?php echo e($ppdb->nama_sekolah ?? $ppdb->name); ?></p>
                         </div>
-                        <?php if($ppdb->sejarah): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->sejarah): ?>
                             <div class="timeline-item">
                                 <h5 class="text-warning">Perjalanan</h5>
                                 <p class="text-white"><?php echo e($ppdb->sejarah); ?></p>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
             <div class="col-lg-4">
                 <div class="card-custom p-4" style="background: white; color: #004b4c;">
                     <h5 class="mb-3" style="color: #004b4c;">Informasi Sekolah</h5>
-                    <?php if($ppdb->akreditasi): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->akreditasi): ?>
                         <p class="mb-2" style="color: #004b4c;"><strong>Akreditasi:</strong> <?php echo e($ppdb->akreditasi); ?></p>
-                    <?php endif; ?>
-                    <?php if($ppdb->nilai_nilai): ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->nilai_nilai): ?>
                         <p class="mb-2" style="color: #004b4c;"><strong>Nilai-Nilai:</strong> <?php echo e($ppdb->nilai_nilai); ?></p>
-                    <?php endif; ?>
-                    <?php if($ppdb->tahun_berdiri): ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->tahun_berdiri): ?>
                         <p class="mb-0" style="color: #004b4c;"><strong>Tahun Berdiri:</strong> <?php echo e($ppdb->tahun_berdiri); ?></p>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- Jurusan/Program Studi -->
 <section id="jurusan" class="section-padding">
@@ -1053,32 +1053,32 @@
                     $jurusanData = [];
                 }
             ?>
-            <?php if($jurusanData && count($jurusanData) > 0): ?>
-                <?php $__currentLoopData = $jurusanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($jurusanData && count($jurusanData) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $jurusanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
-                        <?php if(isset($jurusan['image']) && $jurusan['image']): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($jurusan['image']) && $jurusan['image']): ?>
                             <img src="<?php echo e(asset('storage/' . $jurusan['image'])); ?>" alt="<?php echo e($jurusan['name'] ?? $jurusan['nama'] ?? ''); ?>" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <h5 class="text-primary mb-3">
                             <i class="fas fa-book me-2"></i>
-                            <?php if(is_array($jurusan)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($jurusan)): ?>
                                 <?php echo e($jurusan['name'] ?? $jurusan['nama'] ?? ''); ?>
 
                             <?php else: ?>
                                 <?php echo e($jurusan); ?>
 
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </h5>
-                        <?php if(is_array($jurusan)): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($jurusan)): ?>
                             <p class="text-muted mb-3"><?php echo e($jurusan['description'] ?? $jurusan['deskripsi'] ?? ''); ?></p>
-                            <?php if(isset($jurusan['prospek_karir']) && !empty($jurusan['prospek_karir'])): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($jurusan['prospek_karir']) && !empty($jurusan['prospek_karir'])): ?>
                                 <div class="mb-3">
                                     <strong><i class="fas fa-briefcase me-2"></i>Prospek Karir:</strong>
                                     <p class="text-muted small"><?php echo e($jurusan['prospek_karir']); ?></p>
                                 </div>
-                            <?php endif; ?>
-                            <?php if(isset($jurusan['skill_dipelajari']) && !empty($jurusan['skill_dipelajari'])): ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($jurusan['skill_dipelajari']) && !empty($jurusan['skill_dipelajari'])): ?>
                                 <div>
                                     <strong><i class="fas fa-tools me-2"></i>Skill yang Dipelajari:</strong>
                                     <ul class="text-muted small">
@@ -1090,18 +1090,18 @@
                                                 $skills = [$skills];
                                             }
                                         ?>
-                                        <?php $__currentLoopData = $skills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $skills; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $skill): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <li><?php echo e($skill); ?></li>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </ul>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <?php else: ?>
                             <p class="text-muted mb-3"><?php echo e($jurusan); ?></p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php else: ?>
                 <div class="col-12 text-center">
                     <div class="card-custom p-5">
@@ -1110,7 +1110,7 @@
                         <p class="text-muted">Informasi jurusan/program studi sedang dalam proses penyusunan.</p>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </section>
@@ -1135,15 +1135,15 @@
             </div>
         </div>
         <div class="row">
-            <?php if($fasilitasData && count($fasilitasData) > 0): ?>
-                <?php $__currentLoopData = $fasilitasData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($fasilitasData && count($fasilitasData) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $fasilitasData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="card-custom p-4 text-center h-100" style="background: white; color: #004b4c;">
-                        <?php if(isset($fasilitas['foto']) && $fasilitas['foto']): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($fasilitas['foto']) && $fasilitas['foto']): ?>
                             <img src="<?php echo e(asset('images/madrasah/galeri/' . $fasilitas['foto'])); ?>" alt="<?php echo e($fasilitas['name']); ?>" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
                         <?php else: ?>
                             <img src="<?php echo e(asset('images/default-facility.jpg')); ?>" alt="<?php echo e($fasilitas['name']); ?>" class="w-100 rounded mb-3" style="height: 150px; object-fit: cover;">
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <h6 class="mb-2" style="color: #004b4c;">
                             <?php echo e($fasilitas['name'] ?? ''); ?>
 
@@ -1151,7 +1151,7 @@
                         <p class="small mb-0" style="color: #004b4c;"><?php echo e($fasilitas['description'] ?? ''); ?></p>
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php else: ?>
                 <div class="col-12 text-center">
                     <div class="card-custom p-5" style="background: white; color: #004b4c;">
@@ -1160,7 +1160,7 @@
                         <p style="color: #004b4c;">Informasi fasilitas sekolah sedang dalam proses penyusunan.</p>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </section>
@@ -1181,7 +1181,7 @@
         $ekstrakurikulerData = [];
     }
 ?>
-<?php if($programUnggulanData || $ekstrakurikulerData): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($programUnggulanData || $ekstrakurikulerData): ?>
 <section id="program-ekstra" class="section-padding">
     <div class="container">
         <div class="row">
@@ -1192,53 +1192,53 @@
             </div>
         </div>
         <div class="row">
-            <?php if($programUnggulanData && count($programUnggulanData) > 0): ?>
-                <?php $__currentLoopData = $programUnggulanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($programUnggulanData && count($programUnggulanData) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $programUnggulanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         <h5 class="text-primary mb-3">
                             <i class="fas fa-award me-2"></i>
-                            <?php if(is_array($program)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($program)): ?>
                                 <?php echo e($program['name'] ?? $program['nama'] ?? ''); ?>
 
                             <?php else: ?>
                                 <?php echo e($program); ?>
 
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </h5>
                         <?php if(is_array($program) && isset($program['description']) && !empty($program['description'])): ?>
                             <p class="text-muted mb-3"><?php echo e($program['description']); ?></p>
                         <?php else: ?>
                             <p class="text-muted mb-3">Program unggulan yang menjadi keunggulan sekolah kami.</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <?php endif; ?>
-            <?php if($ekstrakurikulerData && count($ekstrakurikulerData) > 0): ?>
-                <?php $__currentLoopData = $ekstrakurikulerData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ekstra): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ekstrakurikulerData && count($ekstrakurikulerData) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ekstrakurikulerData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ekstra): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="major-card">
                         <h5 class="text-primary mb-3">
                             <i class="fas fa-futbol me-2"></i>
-                            <?php if(is_array($ekstra)): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($ekstra)): ?>
                                 <?php echo e($ekstra['name'] ?? $ekstra['nama'] ?? ''); ?>
 
                             <?php else: ?>
                                 <?php echo e($ekstra); ?>
 
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </h5>
                         <?php if(is_array($ekstra) && isset($ekstra['description']) && !empty($ekstra['description'])): ?>
                             <p class="text-muted mb-3"><?php echo e($ekstra['description']); ?></p>
                         <?php else: ?>
                             <p class="text-muted mb-3">Kegiatan ekstrakurikuler untuk mengembangkan bakat siswa.</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <?php endif; ?>
-            <?php if((!$programUnggulanData || count($programUnggulanData) == 0) && (!$ekstrakurikulerData || count($ekstrakurikulerData) == 0)): ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if((!$programUnggulanData || count($programUnggulanData) == 0) && (!$ekstrakurikulerData || count($ekstrakurikulerData) == 0)): ?>
                 <div class="col-12 text-center">
                     <div class="card-custom p-5">
                         <i class="fas fa-star fa-3x text-muted mb-3"></i>
@@ -1246,11 +1246,11 @@
                         <p class="text-muted">Informasi program unggulan dan ekstrakurikuler sedang dalam proses penyusunan.</p>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- Prestasi Sekolah -->
 <?php
@@ -1261,7 +1261,7 @@
         $prestasiData = [];
     }
 ?>
-<?php if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($prestasiData && is_array($prestasiData) && count($prestasiData) > 0): ?>
 <section id="prestasi" class="about-section">
     <div class="container">
         <div class="row">
@@ -1273,7 +1273,7 @@
             </div>
         </div>
         <div class="row">
-            <?php $__currentLoopData = $prestasiData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prestasi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $prestasiData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prestasi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="achievement-badge">
                     <div class="mb-2">
@@ -1281,16 +1281,16 @@
                     </div>
                     <h6 class="mb-2"><?php echo e($prestasi['title'] ?? ''); ?></h6>
                     <p class="small mb-0"><?php echo e($prestasi['description'] ?? ''); ?></p>
-                    <?php if(isset($prestasi['year'])): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($prestasi['year'])): ?>
                         <small class="text-warning"><?php echo e($prestasi['year']); ?></small>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- About Section -->
 <section id="about" class="section-padding">
@@ -1305,9 +1305,9 @@
         </div>
 
         <!-- Visi & Misi -->
-        <?php if($ppdb->visi || $ppdb->misi): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->visi || $ppdb->misi): ?>
         <div class="row mb-5">
-            <?php if($ppdb->visi): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->visi): ?>
             <div class="col-lg-6 mb-4">
                 <div class="major-card text-center">
                     <div class="advantage-icon mb-4">
@@ -1317,8 +1317,8 @@
                     <p class="text-muted"><?php echo e($ppdb->visi); ?></p>
                 </div>
             </div>
-            <?php endif; ?>
-            <?php if($ppdb->misi): ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->misi): ?>
             <div class="col-lg-6 mb-4">
                 <div class="major-card text-center">
                     <div class="advantage-icon mb-4">
@@ -1334,18 +1334,18 @@
                                 $misiData = [];
                             }
                         ?>
-                        <?php $__currentLoopData = $misiData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $misi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $misiData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $misi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li class="mb-3">
                                 <i class="fas fa-check-circle text-warning me-2"></i>
                                 <span class="text-dark"><?php echo e($misi); ?></span>
                             </li>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </ul>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- Keunggulan Sekolah -->
         <?php
@@ -1356,14 +1356,14 @@
                 $keunggulanData = [];
             }
         ?>
-        <?php if($keunggulanData && count($keunggulanData) > 0): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($keunggulanData && count($keunggulanData) > 0): ?>
         <div class="row mb-5">
             <div class="col-12 text-center mb-4">
                 <h3 class="text-primary">
                     <i class="fas fa-star text-warning me-2"></i>Keunggulan Sekolah
                 </h3>
             </div>
-            <?php $__currentLoopData = $keunggulanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keunggulan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $keunggulanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keunggulan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="major-card text-center">
                     <div class="advantage-icon mb-3">
@@ -1373,9 +1373,9 @@
                     <p class="text-muted"><?php echo e($keunggulan['description'] ?? ''); ?></p>
                 </div>
             </div>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 
     </div>
@@ -1424,7 +1424,7 @@
 
 
 <!-- Kepala Sekolah -->
-<?php if($kepalaSekolah): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah): ?>
 <section class="section-padding">
     <div class="container">
         <div class="row">
@@ -1434,27 +1434,27 @@
         </div>
         <div class="row align-items-center">
             <div class="col-lg-4 text-center mb-4">
-                <?php if($kepalaSekolah->avatar): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah->avatar): ?>
                     <img src="<?php echo e(asset('storage/' . $kepalaSekolah->avatar)); ?>" alt="<?php echo e($kepalaSekolah->name); ?>" class="rounded-3" style="width: 180px; height: 240px; object-fit: cover; border: 5px solid #0f854a; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <?php else: ?>
                     <div class="rounded-3 bg-primary d-flex align-items-center justify-content-center mx-auto" style="width: 180px; height: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                         <span class="text-white display-4"><?php echo e(substr($kepalaSekolah->name, 0, 1)); ?></span>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
             <div class="col-lg-8">
                 <h4 class="text-primary mb-2"><?php echo e($kepalaSekolah->name); ?></h4>
-                <?php if($kepalaSekolah->jabatan): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah->jabatan): ?>
                     <p class="text-muted mb-3"><?php echo e($kepalaSekolah->jabatan); ?></p>
-                <?php endif; ?>
-                <?php if($ppdb->kepala_sekolah_sambutan): ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->kepala_sekolah_sambutan): ?>
                     <p class="lead"><?php echo e($ppdb->kepala_sekolah_sambutan); ?></p>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- Galeri & Media Sekolah -->
 <?php
@@ -1513,7 +1513,7 @@
         </div>
 
         <!-- Video Section -->
-        <?php if($hasVideo): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasVideo): ?>
         <div class="row mb-5">
             <div class="col-lg-8">
                 <div class="card-custom p-4">
@@ -1523,13 +1523,13 @@
                     <div class="video-container">
                         <iframe src="<?php echo e($videoUrl); ?>" frameborder="0" allowfullscreen></iframe>
                     </div>
-                    <?php if(strpos($ppdb->video_profile, 'youtube.com') !== false || strpos($ppdb->video_profile, 'youtu.be') !== false): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(strpos($ppdb->video_profile, 'youtube.com') !== false || strpos($ppdb->video_profile, 'youtu.be') !== false): ?>
                         <div class="text-center mt-3">
                             <a href="<?php echo e($ppdb->video_profile); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
                                 <i class="fab fa-youtube me-2"></i>Tonton di YouTube
                             </a>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -1537,7 +1537,7 @@
                     <h4 class="text-primary mb-4 text-center">
                         <i class="fas fa-download me-2"></i>Download Brosur
                     </h4>
-                    <?php if($ppdb->brosur_pdf): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->brosur_pdf): ?>
                         <div class="text-center">
                             <p class="text-muted mb-3">Dapatkan informasi lengkap tentang sekolah kami dalam format PDF.</p>
                             <a href="<?php echo e(asset('uploads/brosur/' . $ppdb->brosur_pdf)); ?>" target="_blank" class="btn btn-primary btn-lg">
@@ -1552,14 +1552,14 @@
                             <i class="fas fa-file-pdf fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Brosur sedang dalam proses penyusunan.</p>
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- Standalone Brosur Section (if no video) -->
-        <?php if(!$hasVideo && $ppdb->brosur_pdf): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$hasVideo && $ppdb->brosur_pdf): ?>
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card-custom p-4 text-center">
@@ -1580,7 +1580,7 @@
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
         <!-- Photo Gallery -->
         <?php
@@ -1591,35 +1591,35 @@
                 $galeriFotoData = [];
             }
         ?>
-        <?php if($galeriFotoData && count($galeriFotoData) > 0 || $facilityPhotos && count($facilityPhotos) > 0): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($galeriFotoData && count($galeriFotoData) > 0 || $facilityPhotos && count($facilityPhotos) > 0): ?>
         <div class="row">
             <!-- Galeri Foto PPDB -->
-            <?php if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->galeri_foto && count($ppdb->galeri_foto) > 0): ?>
             <div class="col-12 mb-4">
                 <h4 class="text-primary mb-3">
                     <i class="fas fa-images me-2"></i>Galeri Foto PPDB
                 </h4>
                 <p class="text-muted mb-3">Koleksi foto-foto kegiatan dan fasilitas sekolah dari pengaturan PPDB</p>
                 <div class="row">
-                    <?php $__currentLoopData = $galeriFotoData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $foto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $galeriFotoData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $foto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="gallery-item">
                             <img src="<?php echo e(asset('images/madrasah/galeri/' . $foto)); ?>" alt="Galeri Foto PPDB" class="gallery-img w-100">
                         </div>
                     </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <!-- Foto Fasilitas -->
-            <?php if($facilityPhotos && count($facilityPhotos) > 0): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($facilityPhotos && count($facilityPhotos) > 0): ?>
             <div class="col-12">
                 <h4 class="text-primary mb-3">
                     <i class="fas fa-building me-2"></i>Foto Fasilitas Sekolah
                 </h4>
                 <div class="row">
-                    <?php $__currentLoopData = $facilityPhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $facilityPhotos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                         <div class="text-center">
                             <div class="facility-gallery-item mb-2">
@@ -1628,12 +1628,12 @@
                             <h6 class="text-primary"><?php echo e($fasilitas['name'] ?? ''); ?></h6>
                         </div>
                     </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </section>
 
@@ -1647,7 +1647,7 @@
         $faqData = [];
     }
 ?>
-<?php if($faqData): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($faqData): ?>
 <section class="section-padding bg-light">
     <div class="container">
         <div class="row">
@@ -1657,7 +1657,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <?php $__currentLoopData = $faqData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $faqData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="faq-item">
                     <button class="faq-question">
                         <i class="fas fa-chevron-down me-2"></i>
@@ -1669,12 +1669,12 @@
 
                     </div>
                 </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- Alur Pendaftaran -->
 <?php
@@ -1685,7 +1685,7 @@
         $alurPendaftaranData = [];
     }
 ?>
-<?php if($alurPendaftaranData && count($alurPendaftaranData) > 0): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($alurPendaftaranData && count($alurPendaftaranData) > 0): ?>
 <section class="section-padding">
     <div class="container">
         <div class="row">
@@ -1696,18 +1696,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="timeline">
-                    <?php $__currentLoopData = $alurPendaftaranData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $alurPendaftaranData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="timeline-item">
                         <h5 class="text-primary">Langkah <?php echo e($index + 1); ?></h5>
                         <p><?php echo e($step['description'] ?? $step); ?></p>
                     </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- CTA Section -->
 <section class="section-padding bg-primary text-white">
@@ -1717,13 +1717,13 @@
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <?php if(isset($ppdb->id) && $ppdb->isPembukaan()): ?>
                 <a href="<?php echo e(route('ppdb.daftar', $ppdb->slug)); ?>" class="btn btn-ppdb btn-lg">Daftar PPDB Sekarang</a>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <?php
                 $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
             ?>
-            <?php if($brosurData): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($brosurData): ?>
                 <a href="<?php echo e(asset('uploads/brosur/' . $brosurData)); ?>" target="_blank" class="btn btn-outline-light btn-lg">Download Brosur</a>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <a href="https://wa.me/<?php echo e(str_replace(['+', '-', ' '], '', $ppdb->telepon ?? '6281234567890')); ?>?text=Halo,%20saya%20ingin%20bertanya%20tentang%20PPDB%20<?php echo e(urlencode($ppdb->nama_sekolah ?? $ppdb->name)); ?>" target="_blank" class="btn btn-outline-light btn-lg">
                 <i class="fas fa-whatsapp me-2"></i>Hubungi Admin
             </a>
@@ -1738,22 +1738,22 @@
             <!-- Logo dan Deskripsi Sekolah -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center mb-3">
-                    <?php if($ppdb->logo): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->logo): ?>
                         <img src="<?php echo e(asset('storage/' . $ppdb->logo)); ?>" alt="<?php echo e($ppdb->nama_sekolah ?? $ppdb->name); ?>" class="me-2" style="height: 40px; width: auto; border-radius: 5px;">
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <span class="fw-bold text-primary"><?php echo e($ppdb->nama_sekolah ?? $ppdb->name); ?></span>
                 </div>
                 <p class="mb-3"><?php echo e($ppdb->deskripsi_singkat ?? 'Sekolah unggul di bawah naungan LP. Ma\'arif NU PWNU D.I. Yogyakarta'); ?></p>
                 <div class="social-links">
-                    <?php if($ppdb->facebook): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->facebook): ?>
                         <a href="<?php echo e($ppdb->facebook); ?>" class="text-light me-3" target="_blank"><i class="bi bi-facebook"></i></a>
-                    <?php endif; ?>
-                    <?php if($ppdb->instagram): ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->instagram): ?>
                         <a href="<?php echo e($ppdb->instagram); ?>" class="text-light me-3" target="_blank"><i class="bi bi-instagram"></i></a>
-                    <?php endif; ?>
-                    <?php if($ppdb->youtube): ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->youtube): ?>
                         <a href="<?php echo e($ppdb->youtube); ?>" class="text-light" target="_blank"><i class="bi bi-youtube"></i></a>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
 
@@ -1781,9 +1781,9 @@
                     <?php
                         $brosurData = $ppdb->brosur_pdf ?? $madrasah->brosur_pdf;
                     ?>
-                    <?php if($brosurData): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($brosurData): ?>
                         <li class="mb-2"><a href="<?php echo e(asset('storage/' . $brosurData)); ?>" class="text-light text-decoration-none" target="_blank">Download Brosur</a></li>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     <li class="mb-2"><a href="#kontak" class="text-light text-decoration-none">Kontak</a></li>
                 </ul>
             </div>
@@ -1805,12 +1805,12 @@
                     <i class="bi bi-envelope-fill text-primary me-3"></i>
                     <p class="mb-0"><?php echo e($ppdb->email ?? 'Email belum ditentukan'); ?></p>
                 </div>
-                <?php if($ppdb->website): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdb->website): ?>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-globe text-primary me-3"></i>
                     <a href="<?php echo e($ppdb->website); ?>" class="text-light text-decoration-none" target="_blank"><?php echo e($ppdb->website); ?></a>
                 </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
 

@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Laporan Presensi Mengajar Mingguan'); ?>
+<?php $__env->startSection('title', 'Teaching Progress'); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="container-fluid">
@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Laporan Presensi Mengajar Mingguan</h3>
+                    <h3 class="card-title">Teaching Progress</h3>
                     <div class="card-tools">
                         <form method="GET" class="d-inline">
                             <div class="input-group input-group-sm">
@@ -26,8 +26,8 @@
                             <tr>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 0; background: #f8f9fa; z-index: 10;">SCOD</th>
                                 <th rowspan="2" class="text-center align-middle" style="position: sticky; left: 60px; background: #f8f9fa; z-index: 10;">Nama Sekolah / Madrasah</th>
-                                <th rowspan="2" class="text-center align-middle">Jumlah Tenaga Pendidik</th>
                                 <th rowspan="2" class="text-center align-middle">Hari KBM</th>
+                                <th colspan="3" class="text-center">Jumlah Tenaga Pendidik</th>
                                 <th colspan="2" class="text-center">Senin</th>
                                 <th colspan="2" class="text-center">Selasa</th>
                                 <th colspan="2" class="text-center">Rabu</th>
@@ -37,40 +37,47 @@
                                 <th rowspan="2" class="text-center align-middle">Persentase Kehadiran (%)</th>
                             </tr>
                             <tr>
-                                <?php for($i = 0; $i < 6; $i++): ?>
+                                <th class="text-center">Sudah</th>
+                                <th class="text-center">Belum</th>
+                                <th class="text-center">Total</th>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < 6; $i++): ?>
                                 <th class="text-center">Hadir</th>
                                 <th class="text-center">Alpha</th>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $__currentLoopData = $laporanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $laporanData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr class="bg-info">
-                                <td colspan="21" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td colspan="22" class="font-weight-bold text-center"><?php echo e($kabupaten['kabupaten']); ?></td>
                             </tr>
-                            <?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = collect($kabupaten['madrasahs'])->sortBy(function($madrasah) { return (int)$madrasah['scod']; }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td class="text-center" style="position: sticky; left: 0; background: white;"><?php echo e($madrasah['scod']); ?></td>
                                 <td style="position: sticky; left: 60px; background: white;"><?php echo e($madrasah['nama']); ?></td>
-                                <td class="text-center"><?php echo e($madrasah['jumlah_tenaga_pendidik']); ?></td>
                                 <td class="text-center"><?php echo e($madrasah['hari_kbm']); ?></td>
-                                <?php $__currentLoopData = $madrasah['presensi']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <td class="text-center"><?php echo e($madrasah['sudah']); ?></td>
+                                <td class="text-center"><?php echo e($madrasah['belum']); ?></td>
+                                <td class="text-center"><?php echo e($madrasah['total']); ?></td>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah['presensi']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <td class="text-center"><?php echo e($presensi['hadir']); ?></td>
                                 <td class="text-center"><?php echo e($presensi['alpha']); ?></td>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <td class="text-center font-weight-bold"><?php echo e(number_format($madrasah['persentase_kehadiran'], 2)); ?>%</td>
                             </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             <tr class="bg-warning font-weight-bold">
-                                <td colspan="2" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL <?php echo e($kabupaten['kabupaten']); ?></td>
-                                <td></td>
-                                <?php for($i = 0; $i < 6; $i++): ?>
+                                <td colspan="3" class="text-center" style="position: sticky; left: 0; background: #fff3cd;">TOTAL <?php echo e($kabupaten['kabupaten']); ?></td>
+                                <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('sudah')); ?></td>
+                                <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('belum')); ?></td>
+                                <td class="text-center"><?php echo e(collect($kabupaten['madrasahs'])->sum('total')); ?></td>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < 6; $i++): ?>
                                 <td class="text-center"><?php echo e($kabupaten['total_hadir']); ?></td>
                                 <td class="text-center"><?php echo e($kabupaten['total_alpha']); ?></td>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <td class="text-center"><?php echo e(number_format($kabupaten['persentase_kehadiran'], 2)); ?>%</td>
                             </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>

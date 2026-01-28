@@ -2,12 +2,12 @@
 <div class="container">
     <h1>Daftar Pengajuan Izin</h1>
 
-    <?php if(session('success')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="alert alert-success">
             <?php echo e(session('success')); ?>
 
         </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <table class="table">
         <thead>
@@ -21,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            <?php $__currentLoopData = $izinRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $izinRequests; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $presensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
                     <td><?php echo e($presensi->user->name); ?></td>
                     <td><?php echo e($presensi->tanggal->format('d-m-Y')); ?></td>
@@ -31,7 +31,7 @@
                     </td>
                     <td><?php echo e($presensi->status_izin); ?></td>
                     <td>
-                        <?php if($presensi->status_izin === 'pending'): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensi->status_izin === 'pending'): ?>
                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('approve', $presensi)): ?>
                                 <form action="<?php echo e(route('izin.approve', $presensi)); ?>" method="POST" style="display:inline;">
                                     <?php echo csrf_field(); ?>
@@ -44,10 +44,10 @@
                                     <button type="submit" class="btn btn-danger">Tolak</button>
                                 </form>
                             <?php endif; ?>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </td>
                 </tr>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </tbody>
     </table>
 </div>

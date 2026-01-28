@@ -102,9 +102,21 @@
 <?php $__env->startSection('script'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    var isSubmitting = false;
+
     $('#form-izin-tugas-luar').on('submit', function(e){
         e.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
+
+        isSubmitting = true;
         var fd = new FormData(this);
+        var submitBtn = $(this).find('button[type="submit"]');
+        var originalText = submitBtn.html();
+
+        submitBtn.html('<i class="bx bx-loader-alt bx-spin"></i> Mengirim...').prop('disabled', true);
 
         $.ajax({
             url: '<?php echo e(route("mobile.izin.store")); ?>',
@@ -119,12 +131,16 @@
                     });
                 } else {
                     Swal.fire({ icon: 'error', title: 'Gagal', text: res.message || 'Surat gagal terkirim.' });
+                    submitBtn.html(originalText).prop('disabled', false);
+                    isSubmitting = false;
                 }
             },
             error: function(xhr){
                 var msg = 'Surat gagal terkirim.';
                 if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 Swal.fire({ icon: 'error', title: 'Gagal', text: msg });
+                submitBtn.html(originalText).prop('disabled', false);
+                isSubmitting = false;
             }
         });
     });

@@ -755,7 +755,7 @@
     <?php $__env->slot('title'); ?> Detail Madrasah <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
-<?php if(in_array($user->role, ['super_admin', 'pengurus', 'admin'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus', 'admin'])): ?>
     <!-- Header Section - Modern PPDB Style -->
     <div class="welcome-section mb-4" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%) !important; border-radius: 15px !important; padding: 2rem !important; margin-bottom: 2rem !important; color: white !important; position: relative !important; overflow: hidden !important; box-shadow: 0 4px 15px rgba(0, 75, 76, 0.2) !important;">
         <div class="welcome-content" style="position: relative !important; z-index: 1 !important;">
@@ -936,37 +936,37 @@
                     <div class="info-item">
                         <span class="info-label">Koordinat GPS</span>
                         <span class="info-value">
-                            <?php if($madrasah->latitude && $madrasah->longitude): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->latitude && $madrasah->longitude): ?>
                                 <?php echo e($madrasah->latitude); ?>, <?php echo e($madrasah->longitude); ?>
 
                             <?php else: ?>
                                 -
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Link Peta</span>
                         <span class="info-value">
-                            <?php if($madrasah->map_link): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->map_link): ?>
                                 <a href="<?php echo e($madrasah->map_link); ?>" target="_blank" class="text-primary">
                                     <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
                                 </a>
                             <?php else: ?>
                                 -
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Area Polygon</span>
                         <span class="info-value">
-                            <?php if($madrasah->polygon_koordinat): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->polygon_koordinat): ?>
                                 Ada (Tersimpan)
-                                <?php if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2): ?>
                                     + Dual Polygon
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             <?php else: ?>
                                 Tidak Ada
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </span>
                     </div>
                 </div>
@@ -1059,33 +1059,33 @@
                             </div>
                             <div class="mb-3">
                                 <strong>Koordinat GPS:</strong>
-                                <?php if($madrasah->latitude && $madrasah->longitude): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->latitude && $madrasah->longitude): ?>
                                     <?php echo e($madrasah->latitude); ?>, <?php echo e($madrasah->longitude); ?>
 
                                 <?php else: ?>
                                     -
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="mb-3">
                                 <strong>Link Peta:</strong>
-                                <?php if($madrasah->map_link): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->map_link): ?>
                                     <a href="<?php echo e($madrasah->map_link); ?>" target="_blank" class="text-primary">
                                         <i class="mdi mdi-open-in-new"></i> Lihat di Google Maps
                                     </a>
                                 <?php else: ?>
                                     -
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                             <div class="mb-3">
                                 <strong>Area Polygon:</strong>
-                                <?php if($madrasah->polygon_koordinat): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->polygon_koordinat): ?>
                                     Ada (Tersimpan)
-                                    <?php if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->enable_dual_polygon && $madrasah->polygon_koordinat_2): ?>
                                         + Dual Polygon
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php else: ?>
                                     Tidak Ada
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -1100,18 +1100,18 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="mdi mdi-magnify"></i> Cari
                                 </button>
-                                <?php if($search): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($search): ?>
                                     <a href="<?php echo e(route('presensi_admin.show_detail', $madrasah->id)); ?>?date=<?php echo e($selectedDate->format('Y-m-d')); ?>" class="btn btn-outline-secondary">
                                         <i class="mdi mdi-close"></i> Reset
                                     </a>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <a href="<?php echo e(route('presensi_admin.index')); ?>" class="btn btn-outline-secondary">
                                     <i class="mdi mdi-arrow-left"></i> Kembali
                                 </a>
                             </form>
                         </div>
                     </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <!-- Staff Attendance Data -->
                 <div class="row">
@@ -1145,7 +1145,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $__empty_1 = true; $__currentLoopData = $tenagaPendidikData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tenagaPendidikData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                             <tr>
                                                 <?php
                                                     // If $tenagaPendidik is a paginator use firstItem(), otherwise fall back to simple index+1
@@ -1157,7 +1157,7 @@
                                                 <td><code class="nuptk-code"><?php echo e($tp['nuptk'] ?? '-'); ?></code></td>
                                                 <td><small><?php echo e($tp['status_kepegawaian']); ?></small></td>
                                                 <td>
-                                                    <?php if($tp['status'] == 'hadir'): ?>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tp['status'] == 'hadir'): ?>
                                                         <span class="badge bg-success">Hadir</span>
                                                     <?php elseif($tp['status'] == 'izin'): ?>
                                                         <span class="badge bg-warning text-dark">Izin</span>
@@ -1167,16 +1167,16 @@
                                                         <span class="badge bg-warning text-dark">Terlambat</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-danger">Tidak Hadir</span>
-                                                    <?php endif; ?>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </td>
                                                 <td><small><?php echo e($tp['waktu_masuk'] ?? '-'); ?></small></td>
                                                 <td><small><?php echo e($tp['waktu_keluar'] ?? '-'); ?></small></td>
                                                 <td>
-                                                    <?php if($tp['lokasi']): ?>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tp['lokasi']): ?>
                                                         <small class="text-muted"><?php echo e(Str::limit($tp['lokasi'], 25)); ?></small>
                                                     <?php else: ?>
                                                         <span class="text-muted">-</span>
-                                                    <?php endif; ?>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </td>
                                                 <td><small><?php echo e($tp['keterangan'] ?? '-'); ?></small></td>
                                             </tr>
@@ -1190,7 +1190,7 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1228,9 +1228,9 @@
                     <div class="mb-3" id="bulan-wrapper" style="display:none;">
                         <label class="form-label">Pilih Bulan</label>
                         <select class="form-select" name="bulan">
-                            <?php $__currentLoopData = $bulanTersedia; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $bulanTersedia; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($b->bulan); ?>"><?php echo e($b->nama_bulan); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
 
@@ -1262,9 +1262,9 @@
                     <label class="form-label">Pilih Bulan</label>
                     <select class="form-select" id="pdf-bulan-select" required>
                         <option value="">-- Pilih Bulan --</option>
-                        <?php $__currentLoopData = $bulanTersedia; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $bulanTersedia; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <option value="<?php echo e($b->bulan); ?>"><?php echo e($b->nama_bulan); ?></option>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </select>
                     <small class="form-text text-muted">Pilih bulan yang tersedia berdasarkan data presensi</small>
                 </div>
@@ -1317,7 +1317,7 @@ $(document).ready(function() {
 });
 </script>
 
-<?php if(in_array($user->role, ['super_admin', 'pengurus', 'admin'])): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(in_array($user->role, ['super_admin', 'pengurus', 'admin'])): ?>
 <!-- Leaflet CSS and JS for Map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1482,7 +1482,7 @@ $('#download-pdf-btn').on('click', function() {
     border: none !important;
 }
 </style>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/presensi_admin/detail.blade.php ENDPATH**/ ?>

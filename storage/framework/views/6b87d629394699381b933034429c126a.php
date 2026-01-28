@@ -365,7 +365,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<?php if(isset($tahunList)): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($tahunList)): ?>
     <!-- Statistics untuk Admin - menampilkan data semua tahun -->
     
 <?php else: ?>
@@ -435,13 +435,13 @@
             </div>
         </div>
     </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php
     $userRole = auth()->user()->role;
 ?>
 
-<?php if($userRole !== 'admin'): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole !== 'admin'): ?>
 <!-- Filters -->
 <div class="row mb-4">
     <div class="col-12">
@@ -453,12 +453,12 @@
                         <div class="col-md-4">
                             <label for="tahun" class="form-label">Tahun</label>
                             <select class="form-select" id="tahun" name="tahun">
-                                <?php for($i = 2023; $i <= date('Y') + 1; $i++): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 2023; $i <= date('Y') + 1; $i++): ?>
                                     <option value="<?php echo e($i); ?>" <?php echo e(request('tahun', date('Y')) == $i ? 'selected' : ''); ?>>
                                         <?php echo e($i); ?>
 
                                     </option>
-                                <?php endfor; ?>
+                                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </select>
                         </div>
 
@@ -479,21 +479,21 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <!-- Data Table -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <?php if(count($data) > 0): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($data) > 0): ?>
                     <div class="table-responsive">
                         <table class="table-modern table">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Sekolah</th>
-                                    <?php if(isset($tahunList)): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($tahunList)): ?>
                                         <!-- Header untuk Admin - kolom tahun 2023-2026 -->
                                         
                                         <th>Tahun</th>
@@ -504,13 +504,13 @@
                                         <th>Jumlah Siswa</th>
                                         <th>Tahun</th>
                                         <th>Aksi</th>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <?php if(isset($tahunList)): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($tahunList)): ?>
                                         <!-- Data untuk Admin - kolom tahun 2023-2026 -->
                                         <td><?php echo e($item['no']); ?></td>
                                         <td>
@@ -546,9 +546,9 @@
                                                 <i class="bx bx-edit me-1"></i> Edit
                                             </button>
                                         </td>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -558,13 +558,13 @@
                             <i class="bx bx-group"></i>
                         </div>
                         <h5>Tidak Ada Data Siswa</h5>
-                        <?php if(isset($tahunList)): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($tahunList)): ?>
                             <p class="text-muted">Belum ada data siswa untuk periode 2023-2026.</p>
                         <?php else: ?>
                             <p class="text-muted">Belum ada data siswa untuk tahun <?php echo e(request('tahun', date('Y'))); ?>.</p>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>

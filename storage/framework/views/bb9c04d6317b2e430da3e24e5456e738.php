@@ -598,7 +598,7 @@
                 })->sortKeys();
             ?>
 
-            <?php $__empty_1 = true; $__currentLoopData = $groupedByKabupaten; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten => $sekolahs): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $groupedByKabupaten; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten => $sekolahs): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <?php
                     $kabupatenStats = [
                         'total_madrasah' => $sekolahs->count(),
@@ -684,7 +684,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $__currentLoopData = $sekolahs->sortBy(function($item) {
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $sekolahs->sortBy(function($item) {
                                         return $item['sekolah']->name;
                                     }); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $detail): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr>
@@ -693,7 +693,7 @@
                                             <div class="kabupaten-info"><?php echo e($detail['sekolah']->kabupaten); ?> | Status: <strong><?php echo e($detail['status_ppdb'] ?? 'null'); ?></strong></div>
                                         </td>
                                         <td>
-                                            <?php if($detail['status_ppdb'] === 'buka'): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($detail['status_ppdb'] === 'buka'): ?>
                                                 <span class="badge badge-buka">Buka</span>
                                             <?php elseif($detail['status_ppdb'] === 'tutup'): ?>
                                                 <span class="badge badge-tutup">Tutup</span>
@@ -701,7 +701,7 @@
                                                 <span class="badge badge-belum-buka">Belum Buka</span>
                                             <?php else: ?>
                                                 <span class="badge badge-tidak-aktif">Tidak Aktif</span>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-primary"><?php echo e(number_format($detail['total'])); ?></span>
@@ -726,7 +726,7 @@
                                         <td>
                                             <div class="d-flex gap-1 flex-wrap">
                                                 
-                                                <?php if($detail['status_ppdb'] === 'buka' && !empty($detail['slug'])): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($detail['status_ppdb'] === 'buka' && !empty($detail['slug'])): ?>
                                                     <a href="<?php echo e(route('ppdb.lp.pendaftar', $detail['slug'])); ?>" class="action-btn btn-sm" title="Lihat Data Pendaftar">
                                                         <i class="mdi mdi-eye me-1"></i>Lihat Pendaftar
                                                     </a>
@@ -738,7 +738,7 @@
                                                         <i class="mdi mdi-block-helper me-1"></i><?php echo e(ucfirst($detail['status_ppdb'])); ?>
 
                                                     </span>
-                                                <?php endif; ?>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <a href="<?php echo e(route('ppdb.lp.ppdb-settings', $detail['sekolah']->id)); ?>" class="btn btn-outline-info btn-sm">
                                                     <i class="mdi mdi-cog me-1"></i>Pengaturan
                                                 </a>
@@ -748,7 +748,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -765,7 +765,7 @@
                         <h5 class="text-muted">Belum ada data madrasah</h5>
                     </div>
                 </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 </div>

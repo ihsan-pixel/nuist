@@ -19,14 +19,14 @@
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="chat-user-list" style="max-height: 500px; overflow-y: auto;">
-                                        <?php if(count($availableUsers) > 0): ?>
-                                            <?php $__currentLoopData = $availableUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($availableUsers) > 0): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $availableUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <div class="p-3 border-bottom chat-user-item <?php echo e($selectedUser == $user['id'] ? 'bg-primary bg-opacity-10' : ''); ?>"
                                                      style="cursor: pointer;"
                                                      wire:click="selectUser(<?php echo e($user['id']); ?>)">
                                                     <div class="d-flex align-items-center">
                                                         <div class="avatar-xs me-3">
-                                                            <?php if($user['avatar']): ?>
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user['avatar']): ?>
                                                                 <img src="<?php echo e(asset('storage/app/public/' . $user['avatar'])); ?>"
                                                                      class="img-fluid rounded-circle"
                                                                      alt="<?php echo e($user['name']); ?>">
@@ -37,27 +37,27 @@
 
                                                                     </span>
                                                                 </div>
-                                                            <?php endif; ?>
+                                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         </div>
                                                         <div class="flex-grow-1">
                                                             <h6 class="mb-0"><?php echo e($user['name']); ?></h6>
                                                             <p class="text-muted mb-0 small"><?php echo e($user['email']); ?></p>
                                                         </div>
-                                                        <?php if(isset($unreadCounts[$user['id']]) && $unreadCounts[$user['id']] > 0): ?>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($unreadCounts[$user['id']]) && $unreadCounts[$user['id']] > 0): ?>
                                                             <div class="badge bg-danger rounded-pill">
                                                                 <?php echo e($unreadCounts[$user['id']]); ?>
 
                                                             </div>
-                                                        <?php endif; ?>
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     </div>
                                                 </div>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <?php else: ?>
                                             <div class="p-4 text-center text-muted">
                                                 <i class="bx bx-user-x display-4"></i>
                                                 <p class="mt-2">Tidak ada pengguna tersedia untuk chat</p>
                                             </div>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -65,16 +65,16 @@
 
                         <!-- Chat Area -->
                         <div class="col-lg-8">
-                            <?php if($selectedUser): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedUser): ?>
                                 <div class="card">
                                     <div class="card-header bg-light">
                                         <div class="d-flex align-items-center">
                                             <?php
                                                 $selectedUserData = collect($availableUsers)->firstWhere('id', $selectedUser);
                                             ?>
-                                            <?php if($selectedUserData): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedUserData): ?>
                                                 <div class="avatar-xs me-3">
-                                                    <?php if($selectedUserData['avatar']): ?>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selectedUserData['avatar']): ?>
                                                         <img src="<?php echo e(asset('storage/app/public/' . $selectedUserData['avatar'])); ?>"
                                                              class="img-fluid rounded-circle"
                                                              alt="<?php echo e($selectedUserData['name']); ?>">
@@ -85,20 +85,20 @@
 
                                                             </span>
                                                         </div>
-                                                    <?php endif; ?>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0"><?php echo e($selectedUserData['name']); ?></h6>
                                                     <p class="text-muted mb-0 small"><?php echo e($selectedUserData['email']); ?></p>
                                                 </div>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="card-body">
                                         <!-- Chat Messages -->
                                         <div class="chat-conversation p-3" style="height: 400px; overflow-y: auto; background: #f8f9fa; border-radius: 10px;">
-                                            <?php if(count($chats) > 0): ?>
-                                                <?php $__currentLoopData = $chats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($chats) > 0): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $chats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <div class="chat-message <?php echo e($chat['sender_id'] == auth()->id() ? 'text-end' : ''); ?> mb-3">
                                                         <div class="d-inline-block <?php echo e($chat['sender_id'] == auth()->id() ? 'bg-primary text-white' : 'bg-light'); ?> p-3 rounded-3"
                                                              style="max-width: 70%; word-wrap: break-word;">
@@ -109,13 +109,13 @@
                                                             </small>
                                                         </div>
                                                     </div>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             <?php else: ?>
                                                 <div class="text-center text-muted py-5">
                                                     <i class="bx bx-message-square-dots display-4"></i>
                                                     <p class="mt-2">Belum ada pesan. Mulai percakapan!</p>
                                                 </div>
-                                            <?php endif; ?>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
 
                                         <!-- Message Input -->
@@ -130,7 +130,7 @@
                                                                    placeholder="Ketik pesan Anda..."
                                                                    style="border-radius: 25px; padding: 12px 20px;"
                                                                    wire:keydown.enter="sendMessage">
-                                                            <?php $__errorArgs = ['message'];
+                                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['message'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -139,7 +139,7 @@ $message = $__bag->first($__errorArgs[0]); ?>
                                                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         </div>
                                                     </div>
                                                     <div class="col-auto">
@@ -168,7 +168,7 @@ unset($__errorArgs, $__bag); ?>
                                         <p class="text-muted">Pilih pengguna dari daftar di sebelah kiri untuk memulai percakapan</p>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
                 </div>

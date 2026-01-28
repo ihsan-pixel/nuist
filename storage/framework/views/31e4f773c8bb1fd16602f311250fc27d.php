@@ -58,21 +58,21 @@
     <?php $__env->slot('title'); ?> Pengaturan Aplikasi <?php $__env->endSlot(); ?>
 <?php echo $__env->renderComponent(); ?>
 
-<?php if(session('success')): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
 <div class="alert alert-success alert-dismissible fade show" role="alert">
     <i class="bx bx-check-circle me-2"></i>
     <?php echo e(session('success')); ?>
 
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-<?php if($settings['maintenance_mode']): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($settings['maintenance_mode']): ?>
 <div class="alert maintenance-alert text-white mb-4" role="alert">
     <i class="bx bx-error-circle fs-4 me-2"></i>
     <strong>Mode Maintenance Aktif!</strong> Aplikasi sedang dalam mode maintenance dan tidak dapat diakses oleh pengguna biasa.
 </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <div class="row">
     <!-- App Version & Update Status -->
@@ -99,12 +99,12 @@
                         <small class="text-muted">Terakhir Update:</small>
                     </div>
                     <p class="mb-2 fw-medium">
-                        <?php if($latestHistory): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestHistory): ?>
                             <?php echo e($latestHistory->formatted_date ?? $latestHistory->development_date->format('d M Y')); ?>
 
                         <?php else: ?>
                             Belum ada data
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </p>
                 </div>
 
@@ -264,12 +264,12 @@
                                 <input type="file" class="form-control" id="banner_image" name="banner_image"
                                        accept="image/*">
                                 <div class="form-text">Upload gambar banner yang akan ditampilkan di dashboard mobile (max 2MB, JPG/PNG)</div>
-                                <?php if($settings['banner_image_url']): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($settings['banner_image_url']): ?>
                                     <div class="mt-2">
                                         <img src="<?php echo e($settings['banner_image_url']); ?>" alt="Current Banner" class="img-thumbnail" style="max-width: 200px;">
                                         <p class="text-muted small mt-1">Banner saat ini</p>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
 
                             <div class="mb-3">

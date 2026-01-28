@@ -19,25 +19,25 @@
                         <label for="tenaga_pendidik_id" class="form-label">Tenaga Pendidik</label>
                         <select name="tenaga_pendidik_id" id="tenaga_pendidik_id" class="form-select" required>
                             <option value="">Pilih Tenaga Pendidik</option>
-                            <?php $__currentLoopData = $tenagaPendidiks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $tenagaPendidiks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($tp->id); ?>"><?php echo e($tp->nama); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
 
-                    <?php if(auth()->user()->role === 'super_admin'): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->user()->role === 'super_admin'): ?>
                     <div class="mb-3">
                         <label for="madrasah_id" class="form-label">Madrasah</label>
                         <select name="madrasah_id" id="madrasah_id" class="form-select" required>
                             <option value="">Pilih Madrasah</option>
-                            <?php $__currentLoopData = App\Models\Madrasah::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = App\Models\Madrasah::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($madrasah->id); ?>" <?php echo e((isset($madrasahId) && $madrasahId == $madrasah->id) ? 'selected' : ''); ?>><?php echo e($madrasah->nama); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </select>
                     </div>
                     <?php else: ?>
                     <input type="hidden" name="madrasah_id" value="<?php echo e($madrasahId); ?>">
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="mb-3">
                         <label for="hari" class="form-label">Hari</label>

@@ -1,7 +1,7 @@
 <?php $__env->startSection('title', 'Kelengkapan Data Madrasah'); ?>
 
 <?php $__env->startSection('content'); ?>
-<?php $__currentLoopData = $kabupatenOrder; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $kabupatenOrder; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 <div class="row">
     <div class="col-12">
         <div class="card mb-4">
@@ -29,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $__currentLoopData = $madrasahs[$kabupaten] ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs[$kabupaten] ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td><?php echo e($madrasah->scod); ?></td>
                             <td><?php echo e($madrasah->name); ?></td>
@@ -41,22 +41,22 @@
                             <td style="font-size: 20px; text-align: center;">
                                 <?php echo $madrasah->field_status['polygon_koordinat'] ?? '❌'; ?>
 
-                                <?php if($madrasah->enable_dual_polygon && $madrasah->field_status['polygon_koordinat_2'] === '✅'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->enable_dual_polygon && $madrasah->field_status['polygon_koordinat_2'] === '✅'): ?>
                                     <br><small class="text-success">+ Dual</small>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </td>
                             <td style="font-size: 20px; text-align: center;"><?php echo $madrasah->field_status['hari_kbm'] ?? '❌'; ?></td>
                             <td style="font-size: 20px; text-align: center;"><?php echo $madrasah->field_status['status_guru'] ?? '❌'; ?></td>
                             <td style="font-weight: bold; text-align: center;"><?php echo e($madrasah->completeness_percentage); ?>%</td>
                         </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script>

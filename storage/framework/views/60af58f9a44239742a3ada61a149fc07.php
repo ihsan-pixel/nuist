@@ -40,7 +40,7 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
 
             <!-- Welcome Text (Right-aligned) -->
-            <div class="text-start flex-grow-1">
+            <div class="text-start grow">
                 <small class="text-dark fw-medium" style="font-size: 11px;"><?php echo e($congrat); ?></small>
                 <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;"><?php echo e(Auth::user()->name); ?></h6>
             </div>
@@ -992,7 +992,7 @@ $progressColor = "rgb($red, $green, 0)";
     </style>
 
     <!-- Show banner modal on page load -->
-    <?php if($showBanner): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showBanner): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeBannerModal'), {
@@ -1007,13 +1007,13 @@ $progressColor = "rgb($red, $green, 0)";
             }, 3000);
         });
     </script>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Header -->
     
 
     <!-- Banner Modal -->
-    <?php if($bannerImage): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($bannerImage): ?>
     <div class="modal fade" id="welcomeBannerModal" tabindex="-1" aria-labelledby="welcomeBannerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0" style="background: transparent;">
@@ -1030,7 +1030,7 @@ $progressColor = "rgb($red, $green, 0)";
             </div>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     
 
@@ -1070,8 +1070,8 @@ $progressColor = "rgb($red, $green, 0)";
                     </div>
 
                     <!-- Presensi Mengajar - tampilkan per jadwal -->
-                    <?php if(count($teachingSteps) > 0): ?>
-                        <?php $__currentLoopData = $teachingSteps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($teachingSteps) > 0): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $teachingSteps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="timeline-item-accordion <?php echo e($step['status'] === 'completed' ? 'done' : ''); ?>">
                             <div class="timeline-icon">
                                 <i class="bx bx-chalkboard"></i>
@@ -1081,8 +1081,8 @@ $progressColor = "rgb($red, $green, 0)";
                                 <small><?php echo e($step['status'] === 'completed' ? 'Sudah dilakukan' : 'Belum dilakukan'); ?></small>
                             </div>
                         </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    <?php endif; ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <!-- Presensi Keluar -->
                     <div class="timeline-item-accordion <?php echo e($presensiKeluarStatus === 'sudah' ? 'done' : ''); ?>">
@@ -1219,7 +1219,7 @@ $progressColor = "rgb($red, $green, 0)";
                 <div class="service-label">Pengaturan</div>
             </div>
 
-            <?php if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->role === 'tenaga_pendidik' && Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
             <div class="extra-service service-wrapper">
                 <a href="<?php echo e(route('mobile.kelola-izin')); ?>" class="service-item">
                     <img src="<?php echo e(asset('images/menu_icon/10.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
@@ -1235,7 +1235,7 @@ $progressColor = "rgb($red, $green, 0)";
                 <div class="service-label">Data Presensi</div>
             </div>
 
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
@@ -1305,9 +1305,9 @@ $progressColor = "rgb($red, $green, 0)";
     <!-- Schedule Section -->
     <div class="schedule-section">
         
-        <?php if($todaySchedulesWithAttendance->count() > 0): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($todaySchedulesWithAttendance->count() > 0): ?>
             <div class="schedule-carousel">
-                <?php $__currentLoopData = $todaySchedulesWithAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $todaySchedulesWithAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="schedule-card">
                         <div class="attendance-indicator <?php echo e($schedule->attendance_status == 'sudah' ? 'bg-success' : 'bg-danger'); ?>"></div>
                         <div class="schedule-header">
@@ -1325,14 +1325,14 @@ $progressColor = "rgb($red, $green, 0)";
                             </span>
                         </div>
                     </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         <?php else: ?>
             <div class="no-schedule">
                 <i class="bx bx-calendar-x"></i>
                 <p>Tidak ada jadwal mengajar hari ini</p>
             </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 
     <small>Kalender Presensi Bulan Ini</small>
@@ -1369,11 +1369,11 @@ $progressColor = "rgb($red, $green, 0)";
                     $currentYearCheck = \Carbon\Carbon::now()->year;
                 ?>
 
-                <?php for($i = 0; $i < $firstDayOfMonth; $i++): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < $firstDayOfMonth; $i++): ?>
                     <div class="calendar-day empty"></div>
-                <?php endfor; ?>
+                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php for($day = 1; $day <= $daysInMonth; $day++): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($day = 1; $day <= $daysInMonth; $day++): ?>
                     <?php
                         $dateKey = \Carbon\Carbon::create($currentYear, $currentMonth, $day)->toDateString();
                         $presensiStatus = $monthlyPresensi[$dateKey] ?? null;
@@ -1415,47 +1415,47 @@ $progressColor = "rgb($red, $green, 0)";
 
                     <div class="calendar-day <?php echo e($isToday ? 'today' : ''); ?> <?php echo e(($presensiStatus && !$isHoliday) ? 'status-' . $presensiStatus : ''); ?> <?php echo e(($presensiStatus && !$isHoliday) ? 'has-presensi' : ''); ?> <?php echo e($isHoliday ? 'holiday' : ''); ?>">
                         <div class="day-number"><?php echo e($day); ?></div>
-                        <?php if($isHoliday): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isHoliday): ?>
                             <div class="holiday-indicator">
                                 <i class="bx bx-star"></i>
                             </div>
                         <?php elseif($presensiStatus): ?>
                             <div class="presensi-indicator">
-                                <?php if($presensiStatus == 'hadir'): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($presensiStatus == 'hadir'): ?>
                                     <i class="bx bx-check"></i>
                                 <?php elseif($presensiStatus == 'izin'): ?>
                                     <i class="bx bx-time-five"></i>
                                 <?php elseif($presensiStatus == 'alpha'): ?>
                                     <i class="bx bx-x"></i>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
-                <?php endfor; ?>
+                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                 <?php
                     $totalCells = $firstDayOfMonth + $daysInMonth;
                     $emptyAtEnd = (7 - ($totalCells % 7)) % 7;
                 ?>
 
-                <?php for($i = 0; $i < $emptyAtEnd; $i++): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php for($i = 0; $i < $emptyAtEnd; $i++): ?>
                     <div class="calendar-day empty"></div>
-                <?php endfor; ?>
+                <?php endfor; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            <?php if(count($monthlyHolidays) > 0): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($monthlyHolidays) > 0): ?>
             <div class="holiday-list">
                 <small style="color: #666; font-weight: 500;">Hari Libur Nasional:</small>
                 <div style="margin-top: 4px;">
-                    <?php $__currentLoopData = $monthlyHolidays; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthlyHolidays; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <small style="display: block; color: #d63031; margin-bottom: 2px;">
                             • <?php echo e(\Carbon\Carbon::parse($date)->locale('id')->format('d F Y')); ?> - <?php echo e($name); ?>
 
                         </small>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 

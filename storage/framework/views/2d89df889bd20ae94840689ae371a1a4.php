@@ -9,12 +9,12 @@
             <small class="text-muted" style="font-size: 12px;"><?php echo e(\Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM YYYY')); ?></small>
         </div>
 
-        <?php if(session('success')): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
         <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
             <i class="bx bx-check-circle me-1"></i><?php echo e(session('success')); ?>
 
         </div>
-        <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
     <style>
         body {
@@ -296,13 +296,13 @@
 
     <div class="day-card">
         <div class="schedule-list">
-            <?php if($schedules->isEmpty()): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedules->isEmpty()): ?>
                 <div class="no-schedule">
                     <i class="bx bx-calendar-x"></i>
                     <p>Tidak ada jadwal mengajar hari ini</p>
                 </div>
             <?php else: ?>
-                <?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="schedule-item">
                         <div class="schedule-icon">
                             <i class="bx bx-book"></i>
@@ -322,16 +322,16 @@
                                     </div>
                                 </div>
                                 <div class="text-end">
-                                    <?php if($schedule->attendance): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
                                         <div class="badge bg-success">Hadir</div>
                                     <?php else: ?>
                                         <div class="badge bg-warning text-dark">Belum</div>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
 
                             <div class="mt-3">
-                                <?php if($schedule->attendance): ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->attendance): ?>
                                     <div class="alert alert-success mb-0">
                                         <div class="d-flex align-items-center">
                                             <i class="bx bx-check-circle fs-4 me-2"></i>
@@ -352,7 +352,7 @@
                                             $isAfterEnd = $currentTime->gt($endTime);
                                         ?>
 
-                                        <?php if($isWithinTime): ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($isWithinTime): ?>
                                             <button class="presensi-btn attendance-btn" data-schedule-id="<?php echo e($schedule->id); ?>" onclick="openAttendanceModal(<?php echo e($schedule->id); ?>, '<?php echo e(addslashes($schedule->subject)); ?>', '<?php echo e(addslashes($schedule->class_name)); ?>', '<?php echo e(addslashes($schedule->school->name ?? 'N/A')); ?>', '<?php echo e($schedule->start_time); ?>', '<?php echo e($schedule->end_time); ?>')">
                                                 <i class="bx bx-check-circle me-1"></i> Lakukan Presensi
                                             </button>
@@ -376,14 +376,14 @@
 
                                                 </small>
                                             </div>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 

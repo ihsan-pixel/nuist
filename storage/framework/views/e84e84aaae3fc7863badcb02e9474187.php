@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="row">
-                        <?php if($classesByDay->has($selectedDay)): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($classesByDay->has($selectedDay)): ?>
                             <?php
                                 $dayClasses = $classesByDay[$selectedDay];
                             ?>
@@ -114,26 +114,26 @@
                                         </h5>
                                     </div>
                                     <div class="card-body p-4">
-                                        <?php if($dayClasses->isNotEmpty()): ?>
-                                            <?php $__currentLoopData = $dayClasses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $className => $schedules): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($dayClasses->isNotEmpty()): ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $dayClasses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $className => $schedules): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <div class="mb-4">
                                                 <div class="d-flex align-items-center mb-3">
                                                     <i class="bx bx-group me-2 text-muted" style="font-size: 1.1rem;"></i>
                                                     <strong class="text-success h5 mb-0"><?php echo e($className); ?></strong>
                                                 </div>
                                                 <div class="row">
-                                                    <?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $schedules; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <div class="col-lg-6 col-xl-4 col-md-6 col-sm-12 mb-3">
                                                         <div class="d-flex justify-content-between align-items-start p-3 border rounded bg-light h-100">
                                                             <div class="flex-grow-1 me-3">
                                                                 <div class="d-flex align-items-center flex-wrap mb-2">
-                                                                    <?php if($schedule->teacher): ?>
+                                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->teacher): ?>
                                                                         <span class="badge bg-success me-1">Terisi</span>
                                                                     <?php else: ?>
                                                                         <span class="badge bg-warning me-1">Kosong</span>
-                                                                    <?php endif; ?>
+                                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                                     <span class="badge bg-primary me-1"><?php echo e($schedule->subject); ?></span>
-                                                                    <?php if($schedule->has_attendance_today): ?>
+                                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($schedule->has_attendance_today): ?>
                                                                         <span class="badge bg-info me-1">
                                                                             <i class="bx bx-check me-1"></i>Hadir
                                                                         </span>
@@ -141,7 +141,7 @@
                                                                         <span class="badge bg-secondary me-1">
                                                                             <i class="bx bx-time me-1"></i>Belum Presensi
                                                                         </span>
-                                                                    <?php endif; ?>
+                                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                                 </div>
                                                                 <div>
                                                                     <small class="text-muted">
@@ -158,16 +158,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </div>
                                             </div>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         <?php else: ?>
                                             <div class="text-center py-5">
                                                 <i class="bx bx-calendar-x text-muted" style="font-size: 2rem;"></i>
                                                 <p class="text-muted mb-0 mt-3" style="font-size: 1rem;">Tidak ada kelas pada hari <?php echo e($selectedDay); ?></p>
                                             </div>
-                                        <?php endif; ?>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -188,10 +188,10 @@
                                     </div>
                                 </div>
                             </div>
-                        <?php endif; ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    <?php if($classesByDay->isEmpty()): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($classesByDay->isEmpty()): ?>
                     <div class="text-center py-5">
                         <div class="avatar-md mx-auto mb-3">
                             <div class="avatar-title bg-light rounded-circle">
@@ -201,7 +201,7 @@
                         <h5 class="text-muted">Belum ada kelas berjalan</h5>
                         <p class="text-muted">Belum ada kelas berjalan untuk madrasah ini pada hari <?php echo e($selectedDay); ?>.</p>
                     </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>

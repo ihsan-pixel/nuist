@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<?php if($history->isEmpty()): ?>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($history->isEmpty()): ?>
     <div class="card empty-state shadow-sm border-0">
         <div class="card-body text-center py-5">
             <div class="avatar-xl mx-auto mb-4">
@@ -38,7 +38,7 @@
     </div>
 <?php else: ?>
     <div class="list-group">
-        <?php $__currentLoopData = $history; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $history; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="me-3">
                     <div class="fw-semibold"><?php echo e(optional($item->teachingSchedule)->subject ?? 'Mata Pelajaran'); ?></div>
@@ -50,9 +50,9 @@
                     <div class="text-muted small">Waktu: <?php echo e($item->waktu); ?></div>
                 </div>
             </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
-<?php endif; ?>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 <?php $__env->stopSection(); ?>
 

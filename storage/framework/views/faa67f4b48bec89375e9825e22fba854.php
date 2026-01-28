@@ -27,12 +27,12 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <?php if(session('error')): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
                         <div class="alert alert-danger">
                             <?php echo e(session('error')); ?>
 
                         </div>
-                    <?php endif; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <form action="<?php echo e(route('izin.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>

@@ -198,6 +198,8 @@
     </div>
 </div>
 
+
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 col-sm-6">
@@ -282,6 +284,7 @@
                                 <th>No</th>
                                 <th>Nama Madrasah</th>
                                 <th>Nomor Invoice</th>
+                                <th>Order ID</th>
                                 <th>Jenis Tagihan</th>
                                 <th>Total Tagihan</th>
                                 <th>Status Pembayaran</th>
@@ -291,7 +294,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $__empty_1 = true; $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
+                                $payment = \App\Models\Payment::where('tagihan_id', $item->id)->first();
+                            ?>
                             <tr>
                                 <td><?php echo e($index + 1); ?></td>
                                 <td>
@@ -301,6 +307,13 @@
                                     </div>
                                 </td>
                                 <td><?php echo e($item->nomor_invoice ?? '-'); ?></td>
+                                <td>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment && $payment->order_id): ?>
+                                        <code class="text-primary"><?php echo e($payment->order_id); ?></code>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </td>
                                 <td><?php echo e($item->jenis_tagihan ?? '-'); ?></td>
                                 <td>Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?></td>
                                 <td>
@@ -310,30 +323,30 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if($item->status_pembayaran == 'lunas'): ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->status_pembayaran == 'lunas'): ?>
                                         Rp <?php echo e(number_format($item->total_nominal, 0, ',', '.')); ?>
 
                                     <?php else: ?>
                                         Rp 0
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                                 <td><?php echo e($item->tanggal_pembayaran ? $item->tanggal_pembayaran->format('d/m/Y') : '-'); ?></td>
                                 <td>
-                                    <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>')"
+                                    <button type="button" onclick="checkTagihan(<?php echo e($item->madrasah->id); ?>, <?php echo e($item->tahun_anggaran); ?>, '<?php echo e($item->madrasah->name); ?>')"
                                             class="btn btn-sm btn-primary me-1">
                                         <i class="bx bx-detail me-1"></i>Detail
                                     </button>
-                                    <?php if($item->status_pembayaran != 'lunas'): ?>
-                                    <button type="button" onclick="showPaymentModal(<?php echo e($item->madrasah->id); ?>, <?php echo e($tahun); ?>, '<?php echo e($item->madrasah->name); ?>', <?php echo e($item->total_nominal); ?>)"
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->status_pembayaran != 'lunas'): ?>
+                                    <button type="button" onclick="showPaymentModal(<?php echo e($item->id); ?>, <?php echo e($item->madrasah->id); ?>, <?php echo e($item->tahun_anggaran); ?>, '<?php echo e($item->madrasah->name); ?>', <?php echo e($item->total_nominal); ?>)"
                                             class="btn btn-sm btn-success">
                                         <i class="bx bx-money me-1"></i>Bayar
                                     </button>
-                                    <?php endif; ?>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
-                                <td colspan="8" class="text-center">
+                                <td colspan="9" class="text-center">
                                     <div class="py-4">
                                         <i class="bx bx-info-circle display-4 text-muted"></i>
                                         <h5 class="mt-3">Tidak Ada Data Tagihan</h5>
@@ -341,7 +354,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <?php endif; ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -349,6 +362,8 @@
         </div>
     </div>
 </div>
+
+
 
 <!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -376,7 +391,7 @@
                                 <i class="bx bx-credit-card display-4 text-success"></i>
                                 <h5 class="card-title">Online</h5>
                                 <p class="card-text">Bayar melalui Midtrans</p>
-                                <button type="button" class="btn btn-success" onclick="payOnline(currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
+                                <button type="button" class="btn btn-success" onclick="payOnline(currentTagihanId, currentMadrasahId, currentTahun, currentMadrasahName, currentTotalNominal)">Pilih Online</button>
                             </div>
                         </div>
                     </div>
@@ -397,6 +412,7 @@
             <div class="modal-body">
                 <form id="manualPaymentForm" action="<?php echo e(route('uppm.pembayaran.cash')); ?>" method="POST" onsubmit="return submitManualPayment(event)">
                     <?php echo csrf_field(); ?>
+                    <input type="hidden" name="tagihan_id" id="manual_tagihan_id">
                     <input type="hidden" name="madrasah_id" id="manual_madrasah_id">
                     <input type="hidden" name="tahun" id="manual_tahun">
                     <div class="mb-3">
@@ -491,12 +507,14 @@ function showNoTagihanAlert() {
     });
 }
 
+let currentTagihanId = null;
 let currentMadrasahId = null;
 let currentTahun = null;
 let currentMadrasahName = null;
 let currentTotalNominal = null;
 
-function showPaymentModal(madrasahId, tahun, madrasahName, totalNominal) {
+function showPaymentModal(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
+    currentTagihanId = tagihanId;
     currentMadrasahId = madrasahId;
     currentTahun = tahun;
     currentMadrasahName = madrasahName;
@@ -512,6 +530,7 @@ function showManualPayment() {
     paymentModal.hide();
 
     // Set form values
+    document.getElementById('manual_tagihan_id').value = currentTagihanId;
     document.getElementById('manual_madrasah_id').value = currentMadrasahId;
     document.getElementById('manual_tahun').value = currentTahun;
     document.getElementById('manual_nominal').value = currentTotalNominal;
@@ -521,7 +540,7 @@ function showManualPayment() {
     manualModal.show();
 }
 
-function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
+function payOnline(tagihanId, madrasahId, tahun, madrasahName, totalNominal) {
     // Check if Midtrans Snap.js is loaded
     if (typeof snap === 'undefined') {
         Swal.fire({
@@ -543,7 +562,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
         }
     });
 
-    // Make AJAX request to Midtrans endpoint
+    // Make AJAX request to Midtrans endpoint to get snap token
     fetch('/uppm/pembayaran/midtrans', {
         method: 'POST',
         headers: {
@@ -551,6 +570,7 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
             'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify({
+            tagihan_id: tagihanId,
             madrasah_id: madrasahId,
             tahun: tahun,
             nominal: totalNominal
@@ -560,8 +580,11 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     .then(data => {
         Swal.close();
         if (data.success) {
+            // Simpan order_id di sessionStorage untuk digunakan nanti (misal testing callback)
+            sessionStorage.setItem('midtrans_order_id', data.order_id);
+
             // Open Midtrans Snap popup
-            bayarMidtrans(data.snap_token);
+            bayarMidtrans(data.snap_token, data.payment_id);
         } else {
             Swal.fire({
                 icon: 'error',
@@ -580,15 +603,50 @@ function payOnline(madrasahId, tahun, madrasahName, totalNominal) {
     });
 }
 
-function bayarMidtrans(token) {
+
+
+function bayarMidtrans(token, paymentId) {
     snap.pay(token, {
         onSuccess: function (result) {
-            console.log('Payment success, redirecting to payment page');
-            window.location.href = "/uppm/pembayaran";
+            console.log('Payment success, showing status check prompt');
+            // Show SweetAlert asking user to check payment status
+            Swal.fire({
+                icon: 'info',
+                title: 'Pembayaran Berhasil!',
+                text: 'Silakan klik "Update Pembayaran" untuk mengecek dan memperbarui status pembayaran Anda.',
+                showCancelButton: true,
+                confirmButtonText: 'Update Pembayaran',
+                cancelButtonText: 'Nanti Saja',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Get order_id from sessionStorage and update status
+                    const orderId = sessionStorage.getItem('midtrans_order_id');
+                    if (orderId) {
+                        updatePaymentStatus(orderId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Order ID tidak ditemukan. Silakan refresh halaman.'
+                        });
+                    }
+                } else {
+                    // User chose to do it later
+                    window.location.href = "/uppm/pembayaran";
+                }
+            });
         },
         onPending: function (result) {
-            console.log('Payment pending, redirecting to payment page');
-            window.location.href = "/uppm/pembayaran";
+            console.log('Payment pending');
+            Swal.fire({
+                icon: 'info',
+                title: 'Menunggu Pembayaran',
+                text: 'Silakan selesaikan pembayaran.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/uppm/pembayaran";
+            });
         },
         onError: function () {
             Swal.fire('Gagal', 'Pembayaran gagal', 'error');
@@ -596,54 +654,66 @@ function bayarMidtrans(token) {
     });
 }
 
-function kirimKeBackend(result) {
-    console.log('Sending to backend:', result);
-
-    // Extract only necessary data to avoid JSON serialization issues
-    const dataToSend = {
-        order_id: result.order_id,
-        transaction_status: result.transaction_status,
-        fraud_status: result.fraud_status,
-        payment_type: result.payment_type,
-        transaction_id: result.transaction_id,
-        pdf_url: result.pdf_url,
-        gross_amount: result.gross_amount
-    };
-
-    console.log('Data to send:', dataToSend);
-
-    $.ajax({
-        url: "<?php echo e(route('uppm.pembayaran.midtrans.result')); ?>",
-        method: "POST",
-        data: {
-            _token: "<?php echo e(csrf_token()); ?>",
-            result_data: JSON.stringify(dataToSend)
-        },
-        success: function (res) {
-            console.log('Backend response:', res);
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pembayaran Berhasil',
-                    text: 'Terima kasih, pembayaran berhasil'
-                }).then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Info', res.message || 'Pembayaran sedang diproses', 'info');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('AJAX Error:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-            });
-            Swal.fire('Error', 'Gagal memproses pembayaran: ' + error, 'error');
+function updatePaymentStatus(orderId) {
+    // Show loading
+    Swal.fire({
+        title: 'Updating Payment Status...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+            Swal.showLoading();
         }
     });
+
+    // Make AJAX request
+    fetch('<?php echo e(route("uppm.pembayaran.check-status")); ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            order_id: orderId
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.close();
+
+        if (data.success) {
+            // Show success message and reload page
+            Swal.fire({
+                icon: 'success',
+                title: 'Status Updated!',
+                text: data.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Reload page to show updated status
+                location.reload();
+            });
+        } else {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: data.message || 'Terjadi kesalahan saat update status'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan koneksi. Silakan coba lagi.'
+        });
+    });
 }
+
+
 
 
 
@@ -712,6 +782,8 @@ function submitManualPayment(event) {
         });
     });
 }
+
+
 </script>
 <?php $__env->stopSection(); ?>
 

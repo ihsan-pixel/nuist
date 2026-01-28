@@ -144,12 +144,12 @@
                     </tbody>
                 </table>
 
-                <?php if($setting && $setting->catatan): ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($setting && $setting->catatan): ?>
                 <div class="mt-3">
                     <h6>Catatan:</h6>
                     <p><?php echo e($setting->catatan); ?></p>
                 </div>
-                <?php endif; ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>

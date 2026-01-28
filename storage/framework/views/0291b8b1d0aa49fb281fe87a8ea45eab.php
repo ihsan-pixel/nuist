@@ -377,19 +377,19 @@
         <small class="text-muted" style="font-size: 12px;">Informasi Personal</small>
     </div>
 
-    <?php if(session('success')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
     <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
         <i class="bx bx-check-circle me-1"></i><?php echo e(session('success')); ?>
 
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(session('error')): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
     <div class="alert alert-danger border-0 rounded-3 mb-3" style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border-radius: 12px; padding: 10px;">
         <i class="bx bx-error-circle me-1"></i><?php echo e(session('error')); ?>
 
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Kartu Identitas Digital -->
     <div class="dashboard-header mb-4">
@@ -465,7 +465,7 @@
         </div>
     </div>
 
-    <?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->ketugasan === 'kepala madrasah/sekolah'): ?>
     <!-- Laporan Akhir Tahun -->
     <div class="settings-section">
         <div class="settings-header">
@@ -481,7 +481,7 @@
             </a>
         </div>
     </div>
-    <?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Account Settings -->
     <div class="settings-section">
@@ -489,12 +489,12 @@
             <h6><i class="bx bx-cog me-2"></i>Pengaturan Akun</h6>
         </div>
         <div class="settings-content">
-            <?php if(!$user->password_changed): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$user->password_changed): ?>
             <div class="alert-custom">
                 <i class="bx bx-info-circle"></i>
                 <strong>Password belum diubah!</strong> Anda menggunakan password default. Silakan ubah password untuk keamanan akun.
             </div>
-            <?php endif; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
             <a href="<?php echo e(route('mobile.ubah-akun')); ?>" class="settings-button">
                 <i class="bx bx-cog"></i>
