@@ -41,7 +41,7 @@
 <section id="home" class="hero">
     <div class="container">
         <img src="{{ asset('images/image 1.png') }}" alt="Hero Image 1" class="hero-image animate zoom-soft" style="height: 100px; margin-top: 0px; margin-bottom: 50px;">
-        <h1 class="hero-title animate fade-up">
+        <h1 class="hero-title animate fade-up"">
             Nuist - Sistem Informasi Digital
         </h1>
         <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">LP. Ma'arif NU PWNU DIY</h1>
@@ -53,7 +53,7 @@
 <!-- SEKOLAH/MADRASAH -->
 <section id="sekolah" class="sekolah">
     <div class="container">
-        <h1 class="section-title animate fade-up">Sekolah/Madrasah dibawah naungan kami</h1>
+        <h1 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dibawah naungan kami</h1>
         <div class="carousel-container animate fade-up delay-1">
             <div class="carousel-track">
                 @foreach($madrasahs as $madrasah)
@@ -1224,8 +1224,9 @@
 
 .carousel-container {
     overflow: hidden;
-    width: 100%;
-    margin-top: 80px;
+    width: 2000px;
+    margin: 80px auto 0;
+    margin-left: -440px;
     display: flex;
     justify-content: center;
 }
