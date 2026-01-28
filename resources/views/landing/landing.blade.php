@@ -1124,7 +1124,7 @@
     margin-top: -20px;
     margin-bottom: 40px;
     padding: 60px 20px 160px;
-    background: #ffffff;
+    background: linear-gradient(135deg, #00393a, #005555, #00393a);
     border-radius: 48px;
     max-width: 1600px;
     margin-left: auto;
@@ -1141,7 +1141,6 @@
     font-size: 56px;
     font-weight: 800;
     line-height: 1.15;
-    color: #004b4c;
 }
 
 /* Deskripsi */
@@ -1149,7 +1148,7 @@
     font-size: 18px;
     max-width: 720px;
     margin: 0 auto 40px;
-    color: #333;
+    opacity: 0.9;
 }
 
 /* Tombol hero */
