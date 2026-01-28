@@ -77,23 +77,15 @@
 
 <!-- PROFILE -->
 <section id="about" class="profile">
-    <h2 class="section-title animate fade-up">{{ $landing->title_profile ?? 'Profile Nuist' }}</h2>
-    <div class="container profile-flex animate fade-up delay-1">
-        <div class="profile-content" style="text-align: center">
-            <p>{{ $landing->content_1_profile ?? 'Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.' }}</p>
+    <h2 class="section-title animate fade-up" style="font-size:24px;">Profile Nuist</h2>
+    <div class="container profile-flex animate fade-up delay-1" style="width: 100%;">
+        <div class="profile-content" style="text-align: center;">
+            <p>Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.</p>
         </div>
     </div>
     <div class="container profile-flex animate fade-up delay-2" style="margin-top: 50px;">
-        @if($landing->image_1_profile)
-            <img src="{{ asset('storage/' . $landing->image_1_profile) }}" alt="Profile Image 1" class="hero-image animate fade-left delay-1" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        @else
-            <img src="{{ asset('images/profile-1.png') }}" alt="Logo" class="hero-image animate fade-left delay-1" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        @endif
-        @if($landing->image_2_profile)
-            <img src="{{ asset('storage/' . $landing->image_2_profile) }}" alt="Profile Image 2" class="hero-image animate fade-right delay-2" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        @else
-            <img src="{{ asset('images/profile-2.png') }}" alt="Logo" class="hero-image animate fade-right delay-2" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
-        @endif
+            <img src="{{ asset('images/image 3.png') }}" alt="Profile Image 1" class="hero-image animate fade-left delay-1" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
+            <img src="{{ asset('images/image 4.png') }}" alt="Profile Image 2" class="hero-image animate fade-right delay-2" style="height: 300px; margin-top: 0px; margin-bottom: -0px;">
     </div>
     <div class="container profile-flex animate fade-up delay-3" style="margin-top: 50px;">
         <div class="profile-content animate fade-left">
@@ -622,6 +614,7 @@
         font-size: 18px;
         color: #6d6b7b;
         margin-bottom: 30px;
+        margin-top: 30px;
     }
 
     /* TESTIMONIALS */

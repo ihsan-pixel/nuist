@@ -75,10 +75,10 @@
 
 <!-- PROFILE -->
 <section id="about" class="profile">
-    <h2 class="section-title animate fade-up"><?php echo e($landing->title_profile ?? 'Profile Nuist'); ?></h2>
-    <div class="container profile-flex animate fade-up delay-1">
-        <div class="profile-content" style="text-align: center">
-            <p><?php echo e($landing->content_1_profile ?? 'Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.'); ?></p>
+    <h2 class="section-title animate fade-up" style="font-size:24px;">Profile Nuist</h2>
+    <div class="container profile-flex animate fade-up delay-1" style="width: 100%;">
+        <div class="profile-content" style="text-align: center;">
+            <p>Nuist menghadirkan ekosistem aplikasi terintegrasi yang dirancang untuk mendukung pengelolaan administrasi sekolah secara menyeluruh. Melalui Nuist Desktop dan Nuist Mobile, sekolah dapat mengelola data, aktivitas, dan kehadiran secara terpusat, akurat, serta mudah diakses oleh administrator, tenaga pendidik, dan kepala sekolah dalam satu sistem yang saling terhubung.</p>
         </div>
     </div>
     <div class="container profile-flex animate fade-up delay-2" style="margin-top: 50px;">
@@ -611,6 +611,7 @@
         font-size: 18px;
         color: #6d6b7b;
         margin-bottom: 30px;
+        margin-top: 30px;
     }
 
     /* TESTIMONIALS */
