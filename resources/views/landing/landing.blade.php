@@ -220,13 +220,13 @@
     .navbar {
         background: rgb(255, 255, 255);
         backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        /* box-shadow: 0 4px 20px rgba(0,0,0,0.1); */
         position: fixed;
         top: 20px;
         width: 1400px;
         margin: 0 auto;
         z-index: 1000;
-        border-radius: 40px;
+        border-radius: 20px;
         transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
     }
 
