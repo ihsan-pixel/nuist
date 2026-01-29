@@ -559,7 +559,6 @@
         transition-delay: 0.4s;
     }
 </style>
-@endpush
 
 <script>
     // Back to Top functionality

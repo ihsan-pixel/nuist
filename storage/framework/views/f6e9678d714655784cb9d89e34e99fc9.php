@@ -557,7 +557,6 @@
         transition-delay: 0.4s;
     }
 </style>
-<?php $__env->stopPush(); ?>
 
 <script>
     // Back to Top functionality
