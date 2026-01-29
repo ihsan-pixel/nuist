@@ -11,6 +11,7 @@
             <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
+                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
@@ -23,7 +24,6 @@
                         <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Dukungan 24/7</a></li>
                     </ul>
                 </li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
                 {{-- <li class="login-mobile"><a href="#" class="btn-primary">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a></li> --}}
             </ul>
