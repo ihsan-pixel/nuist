@@ -183,17 +183,17 @@
                 <div class="d-flex align-items-start mb-2">
                     <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
                     <div>
-                        <p class="mb-0">Jl. KH. Wahid Hasyim No. 123</p>
+                        <p class="mb-0">{{ $yayasan->alamat ?? 'Jl. KH. Wahid Hasyim No. 123' }}</p>
                         <p class="mb-0">Yogyakarta, 55281</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-telephone-fill text-primary me-3"></i>
-                    <p class="mb-0">(0274) 123456</p>
+                    <p class="mb-0">0811 2505 5675</p>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-envelope-fill text-primary me-3"></i>
-                    <p class="mb-0">info@lpmnu-pwnu-diy.or.id</p>
+                    <p class="mb-0">nuistnu@gmail.com</p>
                 </div>
             </div>
         </div>

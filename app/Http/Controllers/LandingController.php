@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Landing;
 use App\Models\Madrasah;
+use App\Models\Yayasan;
 
 class LandingController extends Controller
 {
@@ -17,7 +18,8 @@ class LandingController extends Controller
     {
         $landing = Landing::getLanding();
         $madrasahs = Madrasah::all();
+        $yayasan = Yayasan::find(1);
 
-        return view('landing.landing', compact('landing', 'madrasahs'));
+        return view('landing.landing', compact('landing', 'madrasahs', 'yayasan'));
     }
 }
