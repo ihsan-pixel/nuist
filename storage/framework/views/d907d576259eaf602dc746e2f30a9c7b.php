@@ -1,5 +1,5 @@
-<?php $__env->startSection('title', 'CMS Profesional - Kelola Konten dengan Mudah'); ?>
-<?php $__env->startSection('description', 'Platform CMS modern untuk mengelola konten website dengan mudah dan profesional.'); ?>
+<?php $__env->startSection('title', 'Home'); ?>
+<?php $__env->startSection('description', 'Sistem Informasi Digital LPMNU PWNU DIY'); ?>
 
 <?php $__env->startSection('content'); ?>
 <!-- NAVBAR -->

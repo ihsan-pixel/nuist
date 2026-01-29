@@ -1,7 +1,7 @@
 @extends('layouts.master-without-nav')
 
-@section('title', 'CMS Profesional - Kelola Konten dengan Mudah')
-@section('description', 'Platform CMS modern untuk mengelola konten website dengan mudah dan profesional.')
+@section('title', 'Home')
+@section('description', 'Sistem Informasi Digital LPMNU PWNU DIY')
 
 @section('content')
 <!-- NAVBAR -->
