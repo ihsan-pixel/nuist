@@ -142,7 +142,6 @@ hr.my-4 {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    display: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -152,6 +151,15 @@ hr.my-4 {
     border: none;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+#backToTop i {
+    font-size: 24px;
+    line-height: 1;
 }
 
 #backToTop:hover {
@@ -261,7 +269,7 @@ hr.my-4 {
 
 <!-- Back to Top Button -->
 <button id="backToTop" class="btn btn-primary position-fixed" style="bottom: 20px; right: 20px; display: none; border-radius: 50%; width: 50px; height: 50px; z-index: 1050;">
-    <i class="bi bi-arrow-up"></i>
+    <i class='bx bxs-up-arrow'></i>
 </button>
 
 <script>
