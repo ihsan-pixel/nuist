@@ -265,10 +265,13 @@
         position: fixed;
         top: 20px;
         width: 1400px;
-        margin: 0 auto;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
         z-index: 1000;
         border-radius: 50px;
-        transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .navbar.transparent {
@@ -278,9 +281,11 @@
 
     .navbar.full-width {
         width: 100%;
-        left: 0;
-        transform: none;
+        top: 0;
         border-radius: 0 0 28px 28px;
+        position: fixed;
+        left: 0;
+        right: 0;
     }
 
     .navbar.scrolled {
@@ -1048,20 +1053,25 @@
 .navbar {
     background: #ffffff;
     border-radius: 40px;
-    /* box-shadow: 0 10px 30px rgba(0,0,0,0.00); */
     width: 1400px;
-    position: sticky;
-    margin: 0 auto;
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    top: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.full-width {
     width: 100%;
-    margin: 0;
+    top: 0;
     border-radius: 0 0 28px 28px;
-    position: sticky;
+    position: fixed;
+    left: 0;
+    right: 0;
 }
 
-/* Container navbar lebih lebar */
 .navbar .container {
     max-width: 1400px;
     transition: max-width 0.3s ease;
@@ -1069,9 +1079,8 @@
 
 .navbar.transparent .container {
     max-width: 1400px;
-} */
+}
 
-/* Menu spacing & typography */
 .nav-menu a {
     font-weight: 500;
     color: #004b4c;

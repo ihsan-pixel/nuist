@@ -39,9 +39,9 @@
 <!-- HERO -->
 <section id="hero" class="hero">
     <div class="container">
-        <h1 class="hero-title animate fade-up">Sekolah/Madrasah</h1>
-        <h1 class="hero-subtitle animate fade-up delay-1" style="color: #eda711">Dibawah Naungan LPMNU PWNU DIY</h1>
-        <p class="animate fade-up delay-2">Temukan sekolah dan madrasah yang menjadi bagian dari ekosistem pendidikan kami. Klik pada sekolah untuk melihat profil lengkapnya.</p>
+        <h1 class="hero-title">Sekolah/Madrasah</h1>
+        <h1 class="hero-subtitle" style="color: #eda711">Dibawah Naungan LPMNU PWNU DIY</h1>
+        <p>Temukan sekolah dan madrasah yang menjadi bagian dari ekosistem pendidikan kami. Klik pada sekolah untuk melihat profil lengkapnya.</p>
     </div>
 </section>
 
@@ -173,11 +173,12 @@
         backdrop-filter: blur(10px);
         position: fixed;
         top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         width: 1400px;
-        margin: 0 auto;
         z-index: 1000;
         border-radius: 50px;
-        transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, margin 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
+        transition: background 0.3s ease, backdrop-filter 0.3s ease, width 0.3s ease, left 0.3s ease, transform 0.3s ease, border-radius 0.3s ease, top 0.3s ease;
     }
 
     .navbar.transparent {
@@ -187,8 +188,8 @@
 
     .navbar.full-width {
         width: 100%;
-        left: 0;
-        transform: none;
+        left: 50%;
+        transform: translateX(-50%);
         border-radius: 0 0 28px 28px;
     }
 
@@ -319,14 +320,14 @@
 
     /* HERO */
     .hero {
-        padding: 120px 0 80px;
+        padding: 100px 20px;
         color: white;
         text-align: center;
         background: linear-gradient(135deg, #00393a, #005555, #00393a);
         border-radius: 48px;
         max-width: 1600px;
-        margin: 100px auto 0;
-        min-height: 50vh;
+        margin: 60px auto 0;
+        min-height: 350px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -337,6 +338,7 @@
         font-weight: 700;
         margin-bottom: 20px;
         text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: white;
     }
 
     .hero p {
@@ -656,184 +658,14 @@
             );
 
             animateElements.forEach(el => {
-                if (el instanceof Element) {
-                    animateObserver.observe(el);
-                }
-            });
-        }
-    });
-</script>
-<script>
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function smoothScrollToSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-function toggleSubmenu(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dropdown = e.target.closest('.dropdown');
-    const isOpen = dropdown.classList.contains('open');
-
-    document.querySelectorAll('.dropdown').forEach(drop => {
-        drop.classList.remove('open');
-    });
-
-    if (!isOpen) {
-        dropdown.classList.add('open');
-    }
-}
-
-function toggleMobileMenu() {
-    const navMenu = document.getElementById('nav-menu');
-    const hamburger = document.getElementById('hamburger');
-    navMenu.classList.toggle('show');
-    hamburger.classList.toggle('open');
-}
-
-// Close submenu when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown')) {
-        document.querySelectorAll('.dropdown').forEach(drop => {
-            drop.classList.remove('open');
-        });
-    }
-
-    // Close mobile menu when clicking outside
-    if (!e.target.closest('.nav-left') && !e.target.closest('.hamburger')) {
-        const navMenu = document.getElementById('nav-menu');
-        const hamburger = document.getElementById('hamburger');
-        if (navMenu && hamburger) {
-            navMenu.classList.remove('show');
-            hamburger.classList.remove('open');
-        }
-    }
-});
-
-// Navbar scroll effect
-let ticking = false;
-window.addEventListener('scroll', function() {
-    if (!ticking) {
-        requestAnimationFrame(function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('transparent');
-                navbar.classList.add('full-width');
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('transparent');
-                navbar.classList.remove('full-width');
-                navbar.classList.remove('scrolled');
-            }
-            ticking = false;
-        });
-        ticking = true;
-    }
-});
-
-// Custom Cursor Effect
-document.addEventListener('DOMContentLoaded', function() {
-    // Create cursor elements
-    const cursorSmall = document.createElement('div');
-    cursorSmall.className = 'cursor-small';
-    document.body.appendChild(cursorSmall);
-
-    const cursorLarge = document.createElement('div');
-    cursorLarge.className = 'cursor-large';
-    document.body.appendChild(cursorLarge);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorSmallX = 0;
-    let cursorSmallY = 0;
-    let cursorLargeX = 0;
-    let cursorLargeY = 0;
-
-    // Track mouse movement
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    // Animate cursor positions
-    function animateCursor() {
-        // Smooth follow for small cursor
-        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
-        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
-
-        // Slower follow for large cursor
-        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
-        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
-
-        cursorSmall.style.left = cursorSmallX - 5 + 'px';
-        cursorSmall.style.top = cursorSmallY - 5 + 'px';
-
-        cursorLarge.style.left = cursorLargeX - 15 + 'px';
-        cursorLarge.style.top = cursorLargeY - 15 + 'px';
-
-        requestAnimationFrame(animateCursor);
-    }
-
-    animateCursor();
-
-    // Hide cursors on mobile devices
-    if ('ontouchstart' in window) {
-        cursorSmall.style.display = 'none';
-        cursorLarge.style.display = 'none';
-    }
-});
-
-// Section active on scroll and animation trigger
-document.addEventListener('DOMContentLoaded', function () {
-    // Section titles observer
-    const titles = document.querySelectorAll('.section-title');
-    if (titles.length > 0) {
-        const titleObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                } else {
-                    entry.target.classList.remove('active');
-                }
-            });
-        }, { threshold: 0.5 });
-
-        titles.forEach(title => {
-            if (title instanceof Element) {
-                titleObserver.observe(title);
-            }
-        });
-    }
-
-    // Animation elements observer
-    const animateElements = document.querySelectorAll('.animate');
-    if (animateElements.length > 0) {
-        const animateObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                    }
-                });
-            },
-            {
-                threshold: 0.15
-            }
-        );
-
-        animateElements.forEach(el => {
-            if (el instanceof Element) {
                 animateObserver.observe(el);
-            }
-        });
-    }
-});
+
+                // FIX: tampilkan langsung kalau sudah terlihat
+                if (el.getBoundingClientRect().top < window.innerHeight) {
+                    el.classList.add('show');
+                }
+            });
+        }
+    });
 </script>
 @endsection
