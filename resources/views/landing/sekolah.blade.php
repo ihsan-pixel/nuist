@@ -18,7 +18,7 @@
 <!-- SEKOLAH LIST -->
 <section id="sekolah-list" class="sekolah-list">
     <div class="container">
-        <h2 class="section-title animate fade-up">Daftar Sekolah/Madrasah</h2>
+        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Daftar Sekolah/Madrasah</h2>
         <div class="schools-grid animate fade-up delay-1">
             @foreach($madrasahs as $madrasah)
                 <div class="school-card">

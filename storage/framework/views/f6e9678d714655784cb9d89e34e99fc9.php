@@ -16,7 +16,7 @@
 <!-- SEKOLAH LIST -->
 <section id="sekolah-list" class="sekolah-list">
     <div class="container">
-        <h2 class="section-title animate fade-up">Daftar Sekolah/Madrasah</h2>
+        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Daftar Sekolah/Madrasah</h2>
         <div class="schools-grid animate fade-up delay-1">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="school-card">
