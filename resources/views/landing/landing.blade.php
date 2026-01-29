@@ -202,7 +202,7 @@
         <hr class="my-4">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0">&copy; 2024 NUIST. All rights reserved.</p>
+                <p class="mb-0">&copy; {{ date('Y') }} NUIST. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="mb-0">Powered by <a href="#" class="text-primary text-decoration-none">Tim NUIST Developer</a></p>
