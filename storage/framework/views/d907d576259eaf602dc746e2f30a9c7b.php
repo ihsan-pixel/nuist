@@ -2,38 +2,7 @@
 <?php $__env->startSection('description', 'Sistem Informasi Digital LPMNU PWNU DIY'); ?>
 
 <?php $__env->startSection('content'); ?>
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="container nav-flex">
-        <div class="nav-left">
-            <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
-                <li><a href="<?php echo e(route('landing.sekolah')); ?>">Sekolah</a></li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
-                    <ul class="submenu">
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Performa Tinggi</a></li>
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Responsif Penuh</a></li>
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Keamanan Terjamin</a></li>
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Template Modern</a></li>
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Analytics Terintegrasi</a></li>
-                        <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Dukungan 24/7</a></li>
-                    </ul>
-                </li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
-                
-            </ul>
-            <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-        <a href="#" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
-    </div>
-</nav>
+<?php echo $__env->make('landing.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <!-- HERO -->
 <section id="home" class="hero">
@@ -50,7 +19,7 @@
 
 <!-- SEKOLAH/MADRASAH -->
 <section id="sekolah" class="sekolah">
-        <h2 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dibawah naungan kami</h2>
+        <h2 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dessous naungan kami</h2>
         <div class="carousel-container animate fade-up delay-1">
             <div class="carousel-track">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -135,104 +104,7 @@
     </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="bg-dark text-light py-5 mt-5">
-    <div class="container">
-        <div class="row g-4">
-            <!-- Logo dan Deskripsi -->
-            <div class="col-lg-4">
-                <div class="d-flex align-items-center mb-3">
-                    <span class="fw-bold text-primary">NUIST</span>
-                </div>
-                <p class="mb-3">Sistem Informasi Digital LPMNU PWNU DIY untuk pengelolaan data sekolah, tenaga pendidik, dan aktivitas madrasah secara terintegrasi.</p>
-                <div class="social-links">
-                    <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-light me-3"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-light me-3"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-light"><i class="bi bi-youtube"></i></a>
-                </div>
-            </div>
-
-            <!-- Link Cepat -->
-            <div class="col-lg-2 col-md-4">
-                <h5 class="fw-bold mb-3">Link Cepat</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#home" class="text-light text-decoration-none">Beranda</a></li>
-                    <li class="mb-2"><a href="#sekolah" class="text-light text-decoration-none">Sekolah</a></li>
-                    <li class="mb-2"><a href="#about" class="text-light text-decoration-none">Tentang</a></li>
-                    <li class="mb-2"><a href="#features" class="text-light text-decoration-none">Fitur</a></li>
-                </ul>
-            </div>
-
-            <!-- Bantuan -->
-            <div class="col-lg-2 col-md-4">
-                <h5 class="fw-bold mb-3">Bantuan</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Panduan</a></li>
-                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">FAQ</a></li>
-                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Kontak Support</a></li>
-                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Status</a></li>
-                </ul>
-            </div>
-
-            <!-- Kontak -->
-            <div class="col-lg-4 col-md-4">
-                <h5 class="fw-bold mb-3">Hubungi Kami</h5>
-                <div class="d-flex align-items-start mb-2">
-                    <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
-                    <div>
-                        <p class="mb-0"><?php echo e($yayasan->alamat ?? 'Jl. KH. Wahid Hasyim No. 123'); ?></p>
-                        <p class="mb-0">Yogyakarta, 55281</p>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-telephone-fill text-primary me-3"></i>
-                    <p class="mb-0">0811 2505 5675</p>
-                </div>
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-envelope-fill text-primary me-3"></i>
-                    <p class="mb-0">nuistnu@gmail.com</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Copyright -->
-        <hr class="my-4">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <p class="mb-0">&copy; <?php echo e(date('Y')); ?> NUIST. All rights reserved.</p>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <p class="mb-0">Powered by <a href="#" class="text-primary text-decoration-none">Tim NUIST Developer</a></p>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<!-- Back to Top Button -->
-<button id="backToTop" class="btn btn-primary position-fixed" style="bottom: 20px; right: 20px; display: none; border-radius: 50%; width: 50px; height: 50px; z-index: 1050;">
-    <i class="bi bi-arrow-up"></i>
-</button>
-
-<script>
-    // Back to Top functionality
-    const backToTopBtn = document.getElementById('backToTop');
-
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            backToTopBtn.style.display = 'block';
-        } else {
-            backToTopBtn.style.display = 'none';
-        }
-    });
-
-    backToTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-</script>
+<?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <?php $__env->stopSection(); ?>
 
@@ -257,201 +129,67 @@
         padding: 0 20px;
     }
 
-    /* NAVBAR */
-    .navbar {
-        background: rgb(255, 255, 255);
-        backdrop-filter: blur(10px);
-        /* box-shadow: 0 4px 20px rgba(0,0,0,0.1); */
-        position: fixed;
-        top: 20px;
-        width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        border-radius: 50px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .navbar.transparent {
-        background: rgb(255, 255, 255);
-        backdrop-filter: blur(20px);
-    }
-
-    .navbar.full-width {
-        width: 100%;
-        top: 0;
-        border-radius: 0 0 28px 28px;
-        position: fixed;
-        left: 0;
-        right: 0;
-    }
-
-    .navbar.scrolled {
-        top: 0px;
-    }
-
-    .navbar.centered .nav-flex {
-        justify-content: center;
-    }
-
-    .navbar.centered .nav-left {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .nav-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 80px;
-        transition: justify-content 0.3s ease;
-    }
-
-    .nav-left {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .logo {
-        font-size: 28px;
-        font-weight: 700;
-        color: #004b4c;
-    }
-
-    .nav-menu {
-        list-style: none;
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        margin-top: 20px;
-    }
-
-    .nav-menu a {
-        text-decoration: none;
-        color: #004b4c;
-        font-weight: 500;
-        font-size: 18px;
-        padding: 8px 16px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
-        transform: translateY(0) scale(1);
-        box-shadow: 0 0 0 rgba(0, 75, 76, 0);
-    }
-
-    .nav-menu a:hover {
-        color: #eda711;
-        background: rgba(255, 95, 95, 0.1);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #004b4c, #004b4c);
-        color: white;
-        padding: 12px 24px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        /* transition: transform 0.3s; */
-    }
-
-    .btn-primary:hover {
-        /* transform: translateY(-2px); */
-    }
-
-    /* DROPDOWN SUBMENU */
-    .dropdown {
-        position: relative;
-    }
-
-    .dropdown:hover .submenu,
-    .dropdown.open .submenu {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .arrow {
-        display: inline-block;
-        transition: transform 0.3s;
-        transform: rotate(0deg);
-        font-size: 20px;
-        vertical-align: middle;
-    }
-
-    .dropdown:hover .arrow,
-    .dropdown.open .arrow {
-        transform: rotate(-180deg);
-    }
-
-    .submenu {
-        position: absolute;
-        top: 110%;
-        left: 0;
-        min-width: 240px;
-        background: #ffffff;
-        border-radius: 14px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        padding: 12px;
-        display: none;
-        opacity: 0;
-        transform: translateY(10px);
-        transition: all 0.3s ease;
-        z-index: 999;
-    }
-
-    .dropdown:hover .submenu,
-    .dropdown.open .submenu {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .submenu li {
-        list-style: none;
-    }
-
-    .submenu li a {
-        display: block;
-        padding: 12px 14px;
-        border-radius: 10px;
-        font-size: 14px;
-        color: #004b4c;
-        text-decoration: none;
-        transition: all 0.25s ease;
-    }
-
-    .submenu li a:hover {
-        background: #f1f5ff;
-        color: #eda711;
-        padding-left: 18px;
-    }
-
     /* HERO */
     .hero {
-        padding: 120px 0 80px;
-        color: white;
+        position: relative;
+        margin-top: -20px;
+        margin-bottom: 40px;
+        padding: 60px 20px 160px;
+        background: linear-gradient(135deg, #00393a, #005555, #00393a);
+        border-radius: 48px;
+        max-width: 1600px;
+        margin-left: auto;
+        margin-right: auto;
+        min-height: 87vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
     }
 
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+        background-size: 60px 60px;
+        border-radius: 48px;
+        pointer-events: none;
+    }
+
     .hero h1 {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 20px;
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1.15;
+        color: white;
         text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    .hero p {
-        font-size: 20px;
-        margin-bottom: 40px;
-        opacity: 0.9;
+    .hero-subtitle {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #eda711;
     }
 
-    .hero .btn-primary {
-        display: inline-block;
-        margin-top: 20px;
+    .hero p {
+        font-size: 18px;
+        max-width: 720px;
+        margin: 0 auto 40px;
+        opacity: 0.9;
+        color: white;
+    }
+
+    .hero-image {
+        transition: transform 0.3s ease, filter 0.3s ease;
+        cursor: pointer;
+    }
+
+    .hero-image:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
     }
 
     /* FEATURES */
@@ -566,18 +304,6 @@
         margin: 0 auto;
     }
 
-    .card.active .dot {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 12px;
-        height: 12px;
-        background: #7c3aed;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.15);
-    }
-
     .status-ribbon {
         position: absolute;
         top: -3px;
@@ -593,50 +319,6 @@
         box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
         z-index: 10;
         border-radius: 4px;
-    }
-
-    .status-ribbon::before {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 10px solid rgba(255, 107, 107, 0.8);
-    }
-
-    /* ABOUT */
-    .about {
-        padding: 80px 0;
-        background: #f1f5f9;
-    }
-
-    .about-flex {
-        display: flex;
-        align-items: center;
-        gap: 60px;
-    }
-
-    .about img {
-        width: 100%;
-        max-width: 500px;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .about-content h2 {
-        font-size: 36px;
-        font-weight: 700;
-        margin-bottom: 20px;
-        color: #1f2937;
-    }
-
-    .about-content p {
-        font-size: 18px;
-        color: #6b7280;
-        margin-bottom: 30px;
     }
 
     /* PROFILE */
@@ -673,202 +355,124 @@
         margin-top: 60px;
     }
 
-    /* TESTIMONIALS */
-    .testimonials {
-        padding: 80px 0;
-        background: white;
-    }
-
-    .testimonial-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 40px;
-    }
-
-    .testimonial {
-        background: #f8fafc;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        text-align: center;
-    }
-
-    .testimonial p {
-        font-style: italic;
-        color: #6b7280;
-        margin-bottom: 20px;
-    }
-
-    .testimonial-author {
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    /* PRICING */
-    .pricing {
-        padding: 80px 0;
-        background: #f1f5f9;
-    }
-
-    .pricing-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 40px;
-    }
-
-    .pricing-card {
-        background: white;
-        padding: 40px 30px;
-        text-align: center;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        transition: transform 0.3s;
-    }
-
-    .pricing-card:hover {
-        transform: translateY(-10px);
-    }
-
-    .pricing-card h3 {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #1f2937;
-    }
-
-    .price {
-        font-size: 48px;
-        font-weight: 700;
-        color: #004b4c;
-        margin-bottom: 20px;
-    }
-
-    .pricing-card ul {
-        list-style: none;
-        margin-bottom: 30px;
-    }
-
-    .pricing-card li {
-        margin-bottom: 10px;
-        color: #6b7280;
-    }
-
-    /* CONTACT */
-    .contact {
-        padding: 80px 0;
-        background: white;
-    }
-
-    .contact-flex {
+    .title-with-dot {
         display: flex;
-        gap: 60px;
-    }
-
-    .contact-form {
-        flex: 1;
-    }
-
-    .contact-form h2 {
+        align-items: center;
+        gap: 16px;
         font-size: 36px;
-        font-weight: 700;
-        margin-bottom: 30px;
-        color: #1f2937;
+        font-weight: 800;
+        color: #004b4c;
+        letter-spacing: 1px;
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    .title-with-dot .dot {
+        width: 18px;
+        height: 18px;
+        background: linear-gradient(135deg, #004b4c, #006666);
+        border-radius: 50%;
+        flex-shrink: 0;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 15px;
-        border: 1px solid #d1d5db;
+    /* SEKOLAH/MADRASAH CAROUSEL */
+    .sekolah {
+        padding: 80px 0;
+        background: #ffffff;
+        margin-top: 150px;
+    }
+
+    .carousel-container {
+        overflow: hidden;
+        width: 1600px;
+        margin: 80px auto 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .carousel-track {
+        display: flex;
+        width: max-content;
+        animation: infiniteScroll 100s linear infinite;
+        justify-content: center;
+    }
+
+    .carousel-track img {
+        height: 75px;
+        width: 150px;
+        object-fit: contain;
+        flex-shrink: 0;
         border-radius: 8px;
-        font-size: 16px;
+        transition: transform 0.3s ease;
     }
 
-    .contact-info {
-        flex: 1;
+    .carousel-track img:hover {
+        transform: scale(1.05);
     }
 
-    .contact-info h3 {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #1f2937;
+    .madrasah-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-right: 40px;
+        flex-shrink: 0;
+        min-height: 140px;
+        gap: 5px;
     }
 
-    .contact-info p {
-        margin-bottom: 15px;
-        color: #6b7280;
+    .madrasah-item p {
+        font-size: 12px;
+        margin: 0;
+        text-align: center;
+        line-height: 1.3;
+        max-width: 150px;
+        word-wrap: break-word;
+        color: #333;
     }
 
-    /* RESPONSIVE */
+    @keyframes infiniteScroll {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .carousel-track:hover,
+    .madrasah-item:hover {
+        animation-play-state: paused;
+    }
+
+    /* ANIMATION */
+    .animate {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease;
+    }
+
+    .animate.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .fade-left {
+        transform: translateX(-40px);
+    }
+
+    .fade-right {
+        transform: translateX(40px);
+    }
+
+    .zoom-soft {
+        transform: scale(0.9);
+    }
+
+    .zoom-soft.show {
+        transform: scale(1);
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .navbar {
-            width: 95%;
-            margin: 10px auto;
-            padding: 0 15px;
-        }
-
-        .navbar.full-width {
-            width: 100%;
-            margin: 0;
-            border-radius: 0;
-        }
-
-        .nav-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: #ffffff;
-            flex-direction: column;
-            gap: 0;
-            padding: 20px 0;
-            border-radius: 0 0 28px 28px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .nav-menu.show {
-            display: flex;
-        }
-
-        .nav-menu a {
-            padding: 15px 20px;
-            border-radius: 0;
-            text-align: center;
-        }
-
-        .hamburger {
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            gap: 4px;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: #004b4c;
-            transition: 0.3s;
-        }
-
-        .hamburger.open span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
-        }
-
-        .hamburger.open span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.open span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
-        }
-
         .hero {
             padding: 40px 20px 120px;
             min-height: auto;
@@ -907,6 +511,10 @@
 
         .carousel-container {
             margin-top: 40px;
+        }
+
+        .carousel-track {
+            animation-duration: 25s;
         }
 
         .madrasah-item {
@@ -980,44 +588,11 @@
         .card p {
             font-size: 15px;
         }
-
-        .testimonials {
-            padding: 60px 0;
-        }
-
-        .testimonial-grid {
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-
-        .testimonial {
-            padding: 25px;
-        }
-
-        .about-flex,
-        .contact-flex {
-            flex-direction: column;
-            gap: 40px;
-        }
-
-        .pricing-grid {
-            grid-template-columns: 1fr;
-        }
     }
 
     @media (max-width: 480px) {
         .container {
             padding: 0 15px;
-        }
-
-        .navbar {
-            width: 98%;
-            margin: 5px auto;
-            height: 60px;
-        }
-
-        .nav-flex {
-            height: 60px;
         }
 
         .hero h1 {
@@ -1049,517 +624,9 @@
             padding: 25px 15px;
         }
     }
-
-.navbar {
-    background: #ffffff;
-    border-radius: 40px;
-    width: 1400px;
-    position: fixed;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    top: 20px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.navbar.full-width {
-    width: 100%;
-    top: 0;
-    border-radius: 0 0 28px 28px;
-    position: fixed;
-    left: 0;
-    right: 0;
-}
-
-.navbar .container {
-    max-width: 1400px;
-    transition: max-width 0.3s ease;
-}
-
-.navbar.transparent .container {
-    max-width: 1400px;
-}
-
-.nav-menu a {
-    font-weight: 500;
-    color: #004b4c;
-    padding: 10px 18px;
-}
-
-.nav-menu a:hover {
-    color: #fefefe;
-    background: linear-gradient(135deg, #004b4c, #006666);
-    transform: translateY(-3px) scale(1.05);
-}
-
-.btn-primary {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 26px;
-    border-radius: 999px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(135deg, #004b4c, #006666);
-    overflow: hidden;
-    z-index: 1;
-}
-
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    min-width: 0;
-    min-height: 0;
-    background: rgba(2, 2, 2, 0.976);
-    border-radius: 50%;
-
-    /* start lebih keluar */
-    bottom: -60%;
-    right: -60%;
-
-    transition:
-        width 0.55s ease-out,
-        height 0.55s ease-out;
-
-    z-index: -1;
-}
-
-.btn-primary:hover::before {
-    width: 380%;
-    height: 380%;
-}
-
-.btn-primary:hover {
-    /* No position animation */
-}
-
-/* Hero container */
-.hero {
-    position: relative;
-    margin-top: -20px;
-    margin-bottom: 40px;
-    padding: 60px 20px 160px;
-    background: linear-gradient(135deg, #00393a, #005555, #00393a);
-    border-radius: 48px;
-    max-width: 1600px;
-    margin-left: auto;
-    margin-right: auto;
-    min-height: 87vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-/* Judul hero */
-.hero h1 {
-    font-size: 56px;
-    font-weight: 800;
-    line-height: 1.15;
-}
-
-/* Deskripsi */
-.hero p {
-    font-size: 18px;
-    max-width: 720px;
-    margin: 0 auto 40px;
-    opacity: 0.9;
-}
-
-/* Tombol hero */
-.hero .btn-primary {
-    background: #ffffff;
-    color: #004b4c;
-    padding: 14px 30px;
-    border-radius: 999px;
-    font-weight: 700;
-    box-shadow: none;
-}
-
-/* Efek hover tombol hero */
-.hero .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(255,255,255,0.35);
-}
-
-/* Background grid halus seperti Cloudly */
-.hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
-    background-size: 60px 60px;
-    border-radius: 48px;
-    pointer-events: none;
-}
-
-/* Hero image hover effect */
-.hero-image {
-    transition: transform 0.3s ease, filter 0.3s ease;
-    cursor: pointer;
-}
-
-.hero-image:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
-
-/* Custom Cursor Effect */
-.cursor-small {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background-color: #00ff00;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: transform 0.1s ease;
-}
-
-.cursor-large {
-    position: fixed;
-    width: 30px;
-    height: 30px;
-    background-color: #00ff88;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
-    transition: transform 0.15s ease;
-    opacity: 0.5;
-}
-
-/* SEKOLAH/MADRASAH CAROUSEL */
-.sekolah {
-    padding: 80px 0;
-    background: #ffffff;
-    margin-top: 150px;
-}
-
-.carousel-container {
-    overflow: hidden;
-    width: 1600px;
-    margin: 80px auto 0;
-    /* margin-left: -400px; */
-    display: flex;
-    justify-content: center;
-}
-
-.carousel-track {
-    display: flex;
-    width: max-content;
-    animation: infiniteScroll 100s linear infinite;
-    justify-content: center;
-}
-
-.carousel-track img {
-    height: 75px;
-    width: 150px;
-    object-fit: contain;
-    flex-shrink: 0;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
-}
-
-.carousel-track img:hover {
-    transform: scale(1.05);
-}
-
-.madrasah-item p {
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #004b4c;
-    text-align: center;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
-    max-height: 2.4em;
-}
-
-/* INFINITE LOOP TANPA JEDA */
-@keyframes infiniteScroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
-
-.madrasah-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-right: 40px;
-    flex-shrink: 0;
-    min-height: 140px;
-    gap: 5px;
-}
-
-.madrasah-item p {
-    font-size: 12px;
-    margin: 0;
-    text-align: center;
-    line-height: 1.3;
-    max-width: 150px;
-    word-wrap: break-word;
-    color: #333;
-}
-
-/* Optional: Pause saat hover */
-.carousel-track:hover {
-    animation-play-state: paused;
-}
-
-.madrasah-item:hover {
-    animation-play-state: paused;
-}
-
-/* Optional: Versi Mobile Lebih Cepat */
-@media (max-width: 768px) {
-    .carousel-track {
-        animation-duration: 25s;
-    }
-
-    .madrasah-item {
-        margin-right: 20px;
-    }
-
-    .madrasah-item img {
-        height: 60px;
-        width: 120px;
-    }
-
-    .madrasah-item p {
-        font-size: 12px;
-        max-height: 2em;
-    }
-}
-
-/* TITLE WITH DOT (ABOUT STYLE) */
-.title-with-dot {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 36px;
-    font-weight: 800;
-    color: #004b4c; /* ungu seperti contoh */
-    letter-spacing: 1px;
-}
-
-.title-with-dot .dot {
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(135deg, #004b4c, #006666);
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-.hero-form {
-    display: flex;
-    gap: 40px;
-    margin-top: 30px;
-}
-
-.form-column {
-    flex: 1;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    font-size: 14px;
-}
-
-.form-group input,
-.form-group textarea {
-    padding: 12px 14px;
-    border-radius: 8px;
-    border: 1px solid #dcdcdc;
-    font-size: 14px;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #2563eb;
-}
-
-/* === BASE ANIMATION === */
-.animate {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease;
-}
-
-.animate.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* VARIANTS */
-.fade-left {
-    transform: translateX(-40px);
-}
-
-.fade-right {
-    transform: translateX(40px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero-form {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .fade-in-up, .fade-in-left, .fade-in-right {
-        animation-duration: 0.6s;
-    }
-}
 </style>
+
 <script>
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function smoothScrollToSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-function toggleSubmenu(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dropdown = e.target.closest('.dropdown');
-    const isOpen = dropdown.classList.contains('open');
-
-    document.querySelectorAll('.dropdown').forEach(drop => {
-        drop.classList.remove('open');
-    });
-
-    if (!isOpen) {
-        dropdown.classList.add('open');
-    }
-}
-
-function toggleMobileMenu() {
-    const navMenu = document.getElementById('nav-menu');
-    const hamburger = document.getElementById('hamburger');
-    navMenu.classList.toggle('show');
-    hamburger.classList.toggle('open');
-}
-
-// Close submenu when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown')) {
-        document.querySelectorAll('.dropdown').forEach(drop => {
-            drop.classList.remove('open');
-        });
-    }
-
-    // Close mobile menu when clicking outside
-    if (!e.target.closest('.nav-left') && !e.target.closest('.hamburger')) {
-        const navMenu = document.getElementById('nav-menu');
-        const hamburger = document.getElementById('hamburger');
-        if (navMenu && hamburger) {
-            navMenu.classList.remove('show');
-            hamburger.classList.remove('open');
-        }
-    }
-});
-
-// Navbar scroll effect
-let ticking = false;
-window.addEventListener('scroll', function() {
-    if (!ticking) {
-        requestAnimationFrame(function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('transparent');
-                navbar.classList.add('full-width');
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('transparent');
-                navbar.classList.remove('full-width');
-                navbar.classList.remove('scrolled');
-            }
-            ticking = false;
-        });
-        ticking = true;
-    }
-});
-
-// Custom Cursor Effect
-document.addEventListener('DOMContentLoaded', function() {
-    // Create cursor elements
-    const cursorSmall = document.createElement('div');
-    cursorSmall.className = 'cursor-small';
-    document.body.appendChild(cursorSmall);
-
-    const cursorLarge = document.createElement('div');
-    cursorLarge.className = 'cursor-large';
-    document.body.appendChild(cursorLarge);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorSmallX = 0;
-    let cursorSmallY = 0;
-    let cursorLargeX = 0;
-    let cursorLargeY = 0;
-
-    // Track mouse movement
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    });
-
-    // Animate cursor positions
-    function animateCursor() {
-        // Smooth follow for small cursor
-        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
-        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
-
-        // Slower follow for large cursor
-        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
-        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
-
-        cursorSmall.style.left = cursorSmallX - 5 + 'px';
-        cursorSmall.style.top = cursorSmallY - 5 + 'px';
-
-        cursorLarge.style.left = cursorLargeX - 15 + 'px';
-        cursorLarge.style.top = cursorLargeY - 15 + 'px';
-
-        requestAnimationFrame(animateCursor);
-    }
-
-    animateCursor();
-
-    // Hide cursors on mobile devices
-    if ('ontouchstart' in window) {
-        cursorSmall.style.display = 'none';
-        cursorLarge.style.display = 'none';
-    }
-});
-
 // Section active on scroll and animation trigger
 document.addEventListener('DOMContentLoaded', function () {
     // Section titles observer
@@ -1606,5 +673,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/landing.blade.php ENDPATH**/ ?>
