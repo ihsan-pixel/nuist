@@ -249,6 +249,30 @@
             margin-bottom: 40px;
         }
     }
+
+    /* Custom Cursor Effect */
+    .cursor-small {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background-color: #00ff00;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.1s ease;
+    }
+
+    .cursor-large {
+        position: fixed;
+        width: 30px;
+        height: 30px;
+        background-color: #00ff88;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transition: transform 0.15s ease;
+        opacity: 0.5;
+    }
 </style>
 
 <script>
@@ -277,6 +301,55 @@ document.addEventListener('DOMContentLoaded', function () {
                 el.classList.add('show');
             }
         });
+    }
+
+    // Custom Cursor Effect
+    const cursorSmall = document.createElement('div');
+    cursorSmall.className = 'cursor-small';
+    document.body.appendChild(cursorSmall);
+
+    const cursorLarge = document.createElement('div');
+    cursorLarge.className = 'cursor-large';
+    document.body.appendChild(cursorLarge);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let cursorSmallX = 0;
+    let cursorSmallY = 0;
+    let cursorLargeX = 0;
+    let cursorLargeY = 0;
+
+    // Track mouse movement
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Animate cursor positions
+    function animateCursor() {
+        // Smooth follow for small cursor
+        cursorSmallX += (mouseX - cursorSmallX) * 0.2;
+        cursorSmallY += (mouseY - cursorSmallY) * 0.2;
+
+        // Slower follow for large cursor
+        cursorLargeX += (mouseX - cursorLargeX) * 0.1;
+        cursorLargeY += (mouseY - cursorLargeY) * 0.1;
+
+        cursorSmall.style.left = cursorSmallX - 5 + 'px';
+        cursorSmall.style.top = cursorSmallY - 5 + 'px';
+
+        cursorLarge.style.left = cursorLargeX - 15 + 'px';
+        cursorLarge.style.top = cursorLargeY - 15 + 'px';
+
+        requestAnimationFrame(animateCursor);
+    }
+
+    animateCursor();
+
+    // Hide cursors on mobile devices
+    if ('ontouchstart' in window) {
+        cursorSmall.style.display = 'none';
+        cursorLarge.style.display = 'none';
     }
 });
 </script>
