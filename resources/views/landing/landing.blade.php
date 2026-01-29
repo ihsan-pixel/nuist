@@ -113,8 +113,8 @@
 
 <!-- FEATURES -->
 <section id="features" class="features">
-        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px;">Fitur Unggulan</h2>
-        <p class="section-description animate fade-up delay-1" style="color:aliceblue">{{ $landing->content_features ?? 'Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.' }}</p>
+        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
+        <p class="section-description animate fade-up delay-1" style="color:aliceblue">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
         <div class="grid animate fade-up delay-2">
             @if($landing->features)
                 @foreach($landing->features as $index => $feature)

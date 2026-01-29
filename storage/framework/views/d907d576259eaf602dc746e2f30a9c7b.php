@@ -111,8 +111,8 @@
 
 <!-- FEATURES -->
 <section id="features" class="features">
-        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px;">Fitur Unggulan</h2>
-        <p class="section-description animate fade-up delay-1" style="color:aliceblue"><?php echo e($landing->content_features ?? 'Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.'); ?></p>
+        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px; margin-bottom:30px:">Fitur Unggulan</h2>
+        <p class="section-description animate fade-up delay-1" style="color:aliceblue">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
         <div class="grid animate fade-up delay-2">
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
