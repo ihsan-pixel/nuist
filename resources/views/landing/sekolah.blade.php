@@ -343,7 +343,6 @@
 
     .hero p {
         font-size: 20px;
-        margin-bottom: 40px;
         opacity: 0.9;
         max-width: 720px;
         margin-left: auto;
