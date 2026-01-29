@@ -9,6 +9,7 @@
             <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
+                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
@@ -21,7 +22,6 @@
                         <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('features')">Dukungan 24/7</a></li>
                     </ul>
                 </li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
                 
             </ul>
@@ -111,61 +111,129 @@
 
 <!-- FEATURES -->
 <section id="features" class="features">
-        <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
-        <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
-        <div class="grid animate fade-up delay-2">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="card animate fade-up <?php echo e($feature['status'] == 'coming_soon' ? 'coming-soon' : ''); ?>" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
-                        
-                        <h3><?php echo e($feature['name']); ?></h3>
-                        <p><?php echo e($feature['content']); ?></p>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'coming_soon'): ?>
-                            <div class="status-ribbon">Coming Soon</div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            <?php else: ?>
-                <div class="card animate fade-up delay-3">
-                    <div class="card-icon">⚡</div>
-                    <h3>Performa Tinggi</h3>
-                    <p>Website loading cepat dengan optimasi SEO otomatis untuk meningkatkan visibilitas.</p>
-                </div>
+    <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
+    <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
+    <div class="grid animate fade-up delay-2">
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="card animate fade-up <?php echo e($feature['status'] == 'coming_soon' ? 'coming-soon' : ''); ?>" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
+            
+            <h3><?php echo e($feature['name']); ?></h3>
+            <p><?php echo e($feature['content']); ?></p>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'coming_soon'): ?>
+            <div class="status-ribbon">Coming Soon</div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-</section>
-
-<!-- ABOUT -->
-
-
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-        <h2 class="section-title animate fade-up">Apa Kata Pengguna Kami</h2>
-        <div class="testimonial-grid animate fade-up delay-1">
-            <div class="testimonial animate fade-up delay-1">
-                <p>"CMS Pro sangat mudah digunakan. Dalam hitungan jam, website saya sudah online dan terlihat profesional."</p>
-                <div class="testimonial-author">- Ahmad S., Pemilik Toko Online</div>
-            </div>
-            <div class="testimonial animate fade-up delay-2">
-                <p>"Fitur analytics-nya sangat membantu. Saya bisa melihat performa website secara real-time."</p>
-                <div class="testimonial-author">- Siti R., Konsultan Bisnis</div>
-            </div>
-            <div class="testimonial animate fade-up delay-3">
-                <p>"Dukungan teknisnya luar biasa. Setiap pertanyaan saya dijawab dengan cepat dan jelas."</p>
-                <div class="testimonial-author">- Budi K., Developer Freelance</div>
-            </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php else: ?>
+        <div class="card animate fade-up delay-3">
+            <div class="card-icon">⚡</div>
+            <h3>Performa Tinggi</h3>
+            <p>Website loading cepat dengan optimasi SEO otomatis untuk meningkatkan visibilitas.</p>
         </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
-        <p>&copy; 2025 CMS Pro. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Support</a>
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Logo dan Deskripsi -->
+            <div class="col-lg-4">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="fw-bold text-primary">NUIST</span>
+                </div>
+                <p class="mb-3">Sistem Informasi Digital LPMNU PWNU DIY untuk pengelolaan data sekolah, tenaga pendidik, dan aktivitas madrasah secara terintegrasi.</p>
+                <div class="social-links">
+                    <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-light me-3"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-light me-3"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Link Cepat -->
+            <div class="col-lg-2 col-md-4">
+                <h5 class="fw-bold mb-3">Link Cepat</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#home" class="text-light text-decoration-none">Beranda</a></li>
+                    <li class="mb-2"><a href="#sekolah" class="text-light text-decoration-none">Sekolah</a></li>
+                    <li class="mb-2"><a href="#about" class="text-light text-decoration-none">Tentang</a></li>
+                    <li class="mb-2"><a href="#features" class="text-light text-decoration-none">Fitur</a></li>
+                </ul>
+            </div>
+
+            <!-- Bantuan -->
+            <div class="col-lg-2 col-md-4">
+                <h5 class="fw-bold mb-3">Bantuan</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Panduan</a></li>
+                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">FAQ</a></li>
+                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Kontak Support</a></li>
+                    <li class="mb-2"><a href="#" class="text-light text-decoration-none">Status</a></li>
+                </ul>
+            </div>
+
+            <!-- Kontak -->
+            <div class="col-lg-4 col-md-4">
+                <h5 class="fw-bold mb-3">Hubungi Kami</h5>
+                <div class="d-flex align-items-start mb-2">
+                    <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
+                    <div>
+                        <p class="mb-0">Jl. KH. Wahid Hasyim No. 123</p>
+                        <p class="mb-0">Yogyakarta, 55281</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-telephone-fill text-primary me-3"></i>
+                    <p class="mb-0">(0274) 123456</p>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-envelope-fill text-primary me-3"></i>
+                    <p class="mb-0">info@lpmnu-pwnu-diy.or.id</p>
+                </div>
+            </div>
         </div>
+
+        <!-- Copyright -->
+        <hr class="my-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="mb-0">&copy; 2024 NUIST. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">Powered by <a href="#" class="text-primary text-decoration-none">Tim NUIST Developer</a></p>
+            </div>
+        </div>
+    </div>
 </footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-primary position-fixed" style="bottom: 20px; right: 20px; display: none; border-radius: 50%; width: 50px; height: 50px; z-index: 1050;">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<script>
+    // Back to Top functionality
+    const backToTopBtn = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            backToTopBtn.style.display = 'block';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
+    });
+
+    backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+</script>
+
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('styles'); ?>
@@ -383,10 +451,13 @@
 
     /* FEATURES */
     .features {
-        padding: 120px 0;
-        background: linear-gradient(135deg, #00393a, #005555, #00393a);
         position: relative;
+        background: linear-gradient(135deg, #00393a, #005555, #00393a);
+        border-radius: 48px;
+        max-width: 1600px;
+        margin: 80px auto;
         overflow: hidden;
+        padding: 120px 0 120px;
     }
 
     .features::before {
@@ -394,10 +465,9 @@
         position: absolute;
         inset: 0;
         background-image:
-            linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-        background-size: 60px 60px;
-        border-radius: 48px;
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
         pointer-events: none;
     }
 
@@ -729,30 +799,6 @@
         color: #6b7280;
     }
 
-    /* FOOTER */
-    .footer {
-        background: #1f2937;
-        color: #9ca3af;
-        text-align: center;
-        padding: 40px 0;
-    }
-
-    .footer .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .footer-links {
-        display: flex;
-        gap: 30px;
-    }
-
-    .footer-links a {
-        color: #9ca3af;
-        text-decoration: none;
-    }
-
     /* RESPONSIVE */
     @media (max-width: 768px) {
         .navbar {
@@ -951,16 +997,6 @@
 
         .pricing-grid {
             grid-template-columns: 1fr;
-        }
-
-        .footer .container {
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .footer-links {
-            flex-direction: column;
-            gap: 15px;
         }
     }
 
@@ -1354,8 +1390,6 @@
     outline: none;
     border-color: #2563eb;
 }
-
-
 
 /* === BASE ANIMATION === */
 .animate {
