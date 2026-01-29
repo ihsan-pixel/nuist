@@ -50,8 +50,7 @@
 
 <!-- SEKOLAH/MADRASAH -->
 <section id="sekolah" class="sekolah">
-    <div class="container">
-        <h1 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dibawah naungan kami</h1>
+        <h2 class="section-title animate fade-up" style="font-size: 24px;">Sekolah/Madrasah dibawah naungan kami</h2>
         <div class="carousel-container animate fade-up delay-1">
             <div class="carousel-track">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -70,7 +69,6 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
-    </div>
 </section>
 
 <!-- PROFILE -->
@@ -113,7 +111,6 @@
 
 <!-- FEATURES -->
 <section id="features" class="features">
-    <div class="container">
         <h1 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px;"><?php echo e($landing->title_features ?? 'Fitur Unggulan'); ?></h1>
         <p class="section-description animate fade-up delay-1" style="color:aliceblue"><?php echo e($landing->content_features ?? 'Nikmati berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.'); ?></p>
         <div class="grid animate fade-up delay-2">
@@ -136,7 +133,6 @@
                 </div>
             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
-    </div>
 </section>
 
 <!-- ABOUT -->
@@ -144,7 +140,6 @@
 
 <!-- TESTIMONIALS -->
 <section class="testimonials">
-    <div class="container">
         <h2 class="section-title animate fade-up">Apa Kata Pengguna Kami</h2>
         <div class="testimonial-grid animate fade-up delay-1">
             <div class="testimonial animate fade-up delay-1">
@@ -160,19 +155,16 @@
                 <div class="testimonial-author">- Budi K., Developer Freelance</div>
             </div>
         </div>
-    </div>
 </section>
 
 <!-- FOOTER -->
 <footer class="footer">
-    <div class="container">
         <p>&copy; 2025 CMS Pro. All rights reserved.</p>
         <div class="footer-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
             <a href="#">Support</a>
         </div>
-    </div>
 </footer>
 <?php $__env->stopSection(); ?>
 
@@ -1206,9 +1198,9 @@
 
 .carousel-container {
     overflow: hidden;
-    width: 1800px;
+    width: 1600px;
     margin: 80px auto 0;
-    margin-left: -400px;
+    /* margin-left: -400px; */
     display: flex;
     justify-content: center;
 }
