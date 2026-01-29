@@ -324,7 +324,7 @@
         background: linear-gradient(135deg, #00393a, #005555, #00393a);
         border-radius: 48px;
         max-width: 1600px;
-        margin: 60px auto 0;
+        margin: 65px auto 0;
         min-height: 350px;
         display: flex;
         align-items: center;
