@@ -22,4 +22,17 @@ class LandingController extends Controller
 
         return view('landing.landing', compact('landing', 'madrasahs', 'yayasan'));
     }
+
+    /**
+     * Show the sekolah page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function sekolah()
+    {
+        $madrasahs = Madrasah::all();
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.sekolah', compact('madrasahs', 'yayasan'));
+    }
 }

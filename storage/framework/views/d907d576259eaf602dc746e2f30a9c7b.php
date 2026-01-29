@@ -9,7 +9,7 @@
             <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
+                <li><a href="<?php echo e(route('landing.sekolah')); ?>">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
@@ -181,17 +181,17 @@
                 <div class="d-flex align-items-start mb-2">
                     <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
                     <div>
-                        <p class="mb-0">Jl. KH. Wahid Hasyim No. 123</p>
+                        <p class="mb-0"><?php echo e($yayasan->alamat ?? 'Jl. KH. Wahid Hasyim No. 123'); ?></p>
                         <p class="mb-0">Yogyakarta, 55281</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-telephone-fill text-primary me-3"></i>
-                    <p class="mb-0">(0274) 123456</p>
+                    <p class="mb-0">0811 2505 5675</p>
                 </div>
                 <div class="d-flex align-items-center mb-2">
                     <i class="bi bi-envelope-fill text-primary me-3"></i>
-                    <p class="mb-0">info@lpmnu-pwnu-diy.or.id</p>
+                    <p class="mb-0">nuistnu@gmail.com</p>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@
         <hr class="my-4">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0">&copy; 2024 NUIST. All rights reserved.</p>
+                <p class="mb-0">&copy; <?php echo e(date('Y')); ?> NUIST. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="mb-0">Powered by <a href="#" class="text-primary text-decoration-none">Tim NUIST Developer</a></p>

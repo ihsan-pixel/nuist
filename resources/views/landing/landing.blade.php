@@ -11,7 +11,7 @@
             <img src="{{ asset('images/logo1.png') }}" alt="Logo" style="height: 50px; margin-left: 20px;">
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#" onclick="event.preventDefault(); scrollToTop()">Beranda</a></li>
-                <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('sekolah')">Sekolah</a></li>
+                <li><a href="{{ route('landing.sekolah') }}">Sekolah</a></li>
                 <li><a href="#" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
