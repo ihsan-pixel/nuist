@@ -134,7 +134,7 @@
     /* HERO */
     .hero {
         position: relative;
-        margin-top: -20px;
+        margin-top: 65px;
         margin-bottom: 40px;
         padding: 60px 20px 160px;
         background: linear-gradient(135deg, #00393a, #005555, #00393a);
