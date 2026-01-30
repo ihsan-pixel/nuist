@@ -66,15 +66,15 @@
     </div>
     <div class="container profile-flex animate fade-up delay-1" style="margin-top: 50px; justify-content: center;">
         <div class="profile-content animate fade-up delay-1" style="text-align: center">
-            <h1 id="count1" style="text-align:center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">36</h1>
+            <h1 id="count1" style="text-align:center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">{{ $countMadrasah }}</h1>
             <p>Sekolah/Madrasah</p>
         </div>
         <div class="profile-content animate fade-up delay-2" style="text-align: center">
-            <h1 id="count2" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">750+</h1>
+            <h1 id="count2" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">{{ $countTenagaPendidik }}+</h1>
             <P>Tenaga Pendidik Aktif</P>
         </div>
         <div class="profile-content animate fade-up delay-3" style="text-align: center">
-            <h1 id="count3" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">36</h1>
+            <h1 id="count3" style="text-align: center; background: linear-gradient(135deg, #004b4c, #006666); color: white; padding: 12px 24px; border-radius: 50px; display: inline-block;">{{ $countAdmin }}</h1>
             <p>Admin Operator Aktif</p>
         </div>
     </div>

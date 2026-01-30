@@ -20,7 +20,19 @@ class LandingController extends Controller
         $madrasahs = Madrasah::all();
         $yayasan = Yayasan::find(1);
 
-        return view('landing.landing', compact('landing', 'madrasahs', 'yayasan'));
+        // Dynamic counts from database
+        $countMadrasah = Madrasah::count();
+        $countTenagaPendidik = \App\Models\User::where('role', 'tenaga_pendidik')->whereNotNull('madrasah_id')->count();
+        $countAdmin = \App\Models\User::whereIn('role', ['admin', 'operator'])->count();
+
+        return view('landing.landing', compact(
+            'landing',
+            'madrasahs',
+            'yayasan',
+            'countMadrasah',
+            'countTenagaPendidik',
+            'countAdmin'
+        ));
     }
 
     /**
