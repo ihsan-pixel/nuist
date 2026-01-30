@@ -613,8 +613,8 @@
             <div class="kepala-sekolah-section">
                 <div class="ks-title">Kepala Sekolah</div>
                 <div class="ks-photo-container">
-                    @if($kepalaSekolah && $kepalaSekolah->foto)
-                        <img src="{{ asset('storage/' . $kepalaSekolah->foto) }}" alt="Foto Kepala Sekolah" class="ks-photo-img">
+                    @if($kepalaSekolah && $kepalaSekolah->avatar)
+                        <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="Foto Kepala Sekolah" class="ks-photo-img">
                     @else
                         <div class="ks-photo-placeholder">
                             <i class="bi bi-person-fill"></i>
