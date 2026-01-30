@@ -84,24 +84,44 @@
 <section id="features" class="features">
     <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
     <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
-    <div class="grid animate fade-up delay-2">
+
+    <div class="features-section animate fade-up delay-2">
+        <div class="features-section-header">
+            <span class="features-badge sudah-jadi">✨ Fitur yang Sudah Jadi</span>
+        </div>
+    </div>
+
+    <div class="grid animate fade-up delay-3">
         @if($landing->features)
         @foreach($landing->features as $index => $feature)
-        <div class="card animate fade-up {{ $feature['status'] == 'coming_soon' ? 'coming-soon' : '' }}" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;">
-            {{-- <div class="card-icon">{{ $feature['status'] == 'coming_soon' ? '⏳' : '⚡' }}</div> --}}
+        @if($feature['status'] == 'active')
+        <div class="card animate fade-up active-feature" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;">
+            {{-- <div class="card-icon">⚡</div> --}}
             <h3>{{ $feature['name'] }}</h3>
             <p>{{ $feature['content'] }}</p>
-            @if($feature['status'] == 'coming_soon')
-            <div class="status-ribbon">Coming Soon</div>
-            @endif
         </div>
+        @endif
         @endforeach
-        @else
-        <div class="card animate fade-up delay-3">
-            <div class="card-icon">⚡</div>
-            <h3>Performa Tinggi</h3>
-            <p>Website loading cepat dengan optimasi SEO otomatis untuk meningkatkan visibilitas.</p>
+        @endif
+    </div>
+
+    <div class="features-section animate fade-up" style="margin-top: 60px;">
+        <div class="features-section-header">
+            <span class="features-badge coming-soon">🔜 Coming Soon</span>
         </div>
+    </div>
+
+    <div class="grid animate fade-up delay-1">
+        @if($landing->features)
+        @foreach($landing->features as $index => $feature)
+        @if($feature['status'] == 'coming_soon')
+        <div class="card animate fade-up coming-soon-card" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;">
+            <h3>{{ $feature['name'] }}</h3>
+            <p>{{ $feature['content'] }}</p>
+            <div class="status-ribbon">Coming Soon</div>
+        </div>
+        @endif
+        @endforeach
         @endif
     </div>
 </section>
@@ -204,6 +224,36 @@
         padding: 120px 0 120px;
     }
 
+    /* Features Section Badge Styles */
+    .features-section {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .features-section-header {
+        display: inline-block;
+    }
+
+    .features-badge {
+        display: inline-block;
+        padding: 12px 28px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .features-badge.sudah-jadi {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .features-badge.coming-soon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
     /* .features::before {
         content: '';
         position: absolute;
@@ -274,7 +324,17 @@
     }
 
     .card.active {
-        border-color: #7c3aed;
+        border-color: #10b981;
+    }
+
+    .card.active-feature {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #ffffff, #f0fdf4);
+    }
+
+    .card.coming-soon-card {
+        border-color: #f59e0b;
+        background: linear-gradient(135deg, #ffffff, #fffbeb);
     }
 
     .card-icon {
@@ -309,7 +369,7 @@
         position: absolute;
         top: -3px;
         right: -20px;
-        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        background: linear-gradient(135deg, #f59e0b, #d97706);
         color: white;
         padding: 8px 16px;
         font-size: 12px;
@@ -317,7 +377,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         transform: rotate(30deg);
-        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         z-index: 10;
         border-radius: 4px;
     }

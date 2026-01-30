@@ -48,35 +48,67 @@ class Landing extends Model
             'title_features' => 'Fitur Unggulan',
             'content_features' => 'Nikmati berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.',
             'features' => [
+                // FITUR YANG SUDAH JADI
                 [
-                    'name' => 'Performa Tinggi',
-                    'content' => 'Website loading cepat dengan optimasi SEO otomatis untuk meningkatkan visibilitas.',
+                    'name' => 'Presensi Kehadiran Guru & Pegawai',
+                    'content' => 'Sistem presensi real-time dengan tracking lokasi dan foto untuk memastikan kehadiran guru dan pegawai tercatat dengan akurat.',
                     'status' => 'active'
                 ],
                 [
-                    'name' => 'Responsif Penuh',
-                    'content' => 'Tampilan yang sempurna di semua perangkat, dari desktop hingga mobile.',
+                    'name' => 'Presensi Mengajar Guru',
+                    'content' => 'Monitoring kehadiran mengajar berdasarkan jadwal yang ditetapkan, lengkap dengan laporan keterlambatan dan ketidakhadiran.',
                     'status' => 'active'
                 ],
                 [
-                    'name' => 'Keamanan Terjamin',
-                    'content' => 'Sistem keamanan tingkat tinggi dengan enkripsi data dan backup otomatis.',
+                    'name' => 'Hak Akses Kepala Sekolah',
+                    'content' => 'Akses lengkap untuk kepala sekolah dalam monitoring, approve data presensi, tenaga pendidik, dan laporan sekolah.',
                     'status' => 'active'
                 ],
                 [
-                    'name' => 'Template Modern',
-                    'content' => 'Koleksi template yang elegan dan mudah dikustomisasi sesuai kebutuhan.',
+                    'name' => 'Kelola Data Tenaga Pendidik',
+                    'content' => 'Pengelolaan data tenaga pendidik secara komprehensif dengan fitur CRUD, import/export, dan pencarian cepat.',
                     'status' => 'active'
                 ],
                 [
-                    'name' => 'Analytics Terintegrasi',
-                    'content' => 'Laporan analitik mendalam untuk memahami performa dan pengunjung.',
+                    'name' => 'SPMB Online',
+                    'content' => 'Sistem penerimaan peserta didik baru secara online dengan pendaftaran, verifikasi, dan pengumuman terintegrasi.',
                     'status' => 'active'
                 ],
                 [
-                    'name' => 'Dukungan 24/7',
-                    'content' => 'Tim support profesional siap membantu kapan saja Anda butuhkan.',
+                    'name' => 'Laporan Rekap Kehadiran Bulanan',
+                    'content' => 'Otomatisasi pembuatan laporan kehadiran dengan filter per bulan, guru, dan sekolah. Support export PDF dan Excel.',
                     'status' => 'active'
+                ],
+                [
+                    'name' => 'Simfoni Update',
+                    'content' => 'Sinkronisasi otomatis data sekolah dan tenaga pendidik dengan sistem Simfoni LPMNU DIY untuk memastikan data valid.',
+                    'status' => 'active'
+                ],
+                [
+                    'name' => 'Laporan Akhir Tahun Kepala Sekolah',
+                    'content' => 'Template laporan tahunan terintegrasi dengan data sekolah, presensi, dan tenaga pendidik untuk memudahkan pelaporan.',
+                    'status' => 'active'
+                ],
+                [
+                    'name' => 'UPPM',
+                    'content' => 'Dashboard pengelolaan iuran, tagihan dan pembayaran UPPM per sekolah dengan sistem invoice dan laporan keuangan.',
+                    'status' => 'active'
+                ],
+                // FITUR COMING SOON
+                [
+                    'name' => 'MGMP',
+                    'content' => 'Musyawarah Guru Mata Pelajaran - Platform kolaborasi dan diskusi antar guru mata pelajaran di lingkungan LP Ma\'arif.',
+                    'status' => 'coming_soon'
+                ],
+                [
+                    'name' => 'MKKSM',
+                    'content' => 'Musyawarah Kepala Sekolah Madrasah - Forum komunikasi dan koordinasi antar kepala sekolah untuk pengembangan madrasah.',
+                    'status' => 'coming_soon'
+                ],
+                [
+                    'name' => 'DPS',
+                    'content' => 'Dana Pendidikan Sekolah - Sistem pengelolaan dan transparansi dana pendidikan dari berbagai sumber untuk setiap sekolah.',
+                    'status' => 'coming_soon'
                 ]
             ],
         ]);
