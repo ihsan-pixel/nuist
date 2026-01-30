@@ -1,4 +1,7 @@
 <style>
+/* Bootstrap Icons */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+
 /* FOOTER Styles */
 .bg-dark {
     background-color: #1f2937;
@@ -158,6 +161,12 @@ hr.my-4 {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    color: #ffffff;
+}
+
+.social-links a i {
+    color: #ffffff;
+    font-size: 18px;
 }
 
 .social-links a:hover {
@@ -230,14 +239,16 @@ hr.my-4 {
                     <div class="footer-logo-button">
                         <img src="<?php echo e(asset('images/logo1.png')); ?>" alt="NUIST Logo">
                     </div>
-                    <span>NUIST</span>
+                    
                 </div>
                 <p class="mb-3">Sistem Informasi Digital LPMNU PWNU DIY untuk pengelolaan data sekolah, tenaga pendidik, dan aktivitas madrasah secara terintegrasi.</p>
                 <div class="social-links">
-                    <a href="#" class="text-light me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-light me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-light me-2"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-light"><i class="bi bi-youtube"></i></a>
+                    <a href="https://lpmnudiy.id/" class="text-light me-2"><i class="bi bi-globe"></i></a>
+                    <a href="https://web.facebook.com/@maarifnudiy/?_rdc=1&_rdr#" class="text-align me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="https://wa.me/6281125055675?text=Halo%20Admin%20Nuist%20LPMNU%20PWNU%20DIY" class="text-light me-2"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/maarifnudiy/profilecard/?igsh=MTZzOXVzOHYyNHlibQ%3D%3D" class="text-light me-2"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.youtube.com/@lpmaarifnupwnudiyogyakarta9092" class="text-light"><i class="bi bi-youtube"></i></a>
+                    
                 </div>
             </div>
 
