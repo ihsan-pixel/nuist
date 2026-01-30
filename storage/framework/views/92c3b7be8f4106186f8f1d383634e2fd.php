@@ -147,47 +147,8 @@
         margin-bottom: 40px;
     }
 
-    .school-info-grid {
-        display: grid;
-        grid-template-columns: 200px 1fr;
-        gap: 40px;
-        align-items: start;
-    }
-
-    .kepala-sekolah-photo {
-        text-align: center;
-    }
-
-    .ks-photo-img {
-        width: 180px;
-        height: 220px;
-        object-fit: cover;
-        border-radius: 16px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .ks-photo-placeholder {
-        width: 180px;
-        height: 220px;
-        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-        border-radius: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    .ks-photo-placeholder i {
-        font-size: 60px;
-        color: #94a3b8;
-    }
-
-    .ks-photo-placeholder span {
-        font-size: 14px;
-        color: #64748b;
-        font-weight: 500;
+    .school-details-full {
+        max-width: 800px;
     }
 
     .school-details {
@@ -266,6 +227,49 @@
     }
 
     .detail-value a:hover {
+        text-decoration: underline;
+    }
+
+    /* Detail List (tanpa card) */
+    .detail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .detail-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label-text {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value-text {
+        font-size: 15px;
+        color: #1e293b;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .detail-value-text a {
+        color: #00393a;
+        text-decoration: none;
+    }
+
+    .detail-value-text a:hover {
         text-decoration: underline;
     }
 
@@ -503,8 +507,12 @@
             text-align: center;
         }
 
-        .detail-items {
-            grid-template-columns: 1fr;
+        .detail-list {
+            gap: 8px;
+        }
+
+        .detail-row {
+            padding: 10px 0;
         }
 
         .stats-grid {
@@ -572,114 +580,57 @@
 
 <!-- CONTENT -->
 <section class="content">
-    <h2 class="section-title">Informasi Sekolah/Madrasah</h2>
+    
 
-    <!-- School Info with Photo -->
+    <!-- School Info Section -->
     <div class="school-info-section">
-        <div class="school-info-grid">
-            <!-- Foto Kepala Sekolah -->
-            <div class="kepala-sekolah-photo">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah && $kepalaSekolah->avatar): ?>
-                    <img src="<?php echo e(asset('storage/' . $kepalaSekolah->avatar)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
-                <?php else: ?>
-                    <div class="ks-photo-placeholder">
-                        <i class="bi bi-person-fill"></i>
-                        <span>Foto Kepala Sekolah</span>
-                    </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            </div>
-
-            <!-- Detail Sekolah -->
-            <div class="school-details">
-                <h3 class="school-name-main"><?php echo e($madrasah->name); ?></h3>
-
-                <div class="detail-items">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->alamat): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-geo-alt-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Alamat</div>
-                            <div class="detail-value"><?php echo e($madrasah->alamat); ?></div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-patch-check-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Akreditasi</div>
-                            <div class="detail-value"><?php echo e($madrasah->akreditasi); ?></div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-telephone-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Telepon</div>
-                            <div class="detail-value"><?php echo e($madrasah->telepon); ?></div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-envelope-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">
-                                <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-globe"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Website</div>
-                            <div class="detail-value">
-                                <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Kepala Sekolah</div>
-                            <div class="detail-value"><?php echo e($kepalaSekolah->name); ?></div>
-                        </div>
-                    </div>
-                    <?php elseif($madrasah->kepala_sekolah_nama): ?>
-                    <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                        <div class="detail-content">
-                            <div class="detail-label">Kepala Sekolah</div>
-                            <div class="detail-value"><?php echo e($madrasah->kepala_sekolah_gelar ?? ''); ?> <?php echo e($madrasah->kepala_sekolah_nama); ?></div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <div class="school-details-full">
+            <div class="detail-list">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">NPSN / SCOD</div>
+                    <div class="detail-value-text"><?php echo e($madrasah->scod); ?></div>
                 </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">Akreditasi</div>
+                    <div class="detail-value-text"><?php echo e($madrasah->akreditasi); ?></div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->alamat): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">Alamat Lengkap</div>
+                    <div class="detail-value-text"><?php echo e($madrasah->alamat); ?></div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">Nomor Telepon</div>
+                    <div class="detail-value-text"><?php echo e($madrasah->telepon); ?></div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">Email</div>
+                    <div class="detail-value-text">
+                        <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
+                    </div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
+                <div class="detail-row">
+                    <div class="detail-label-text">Website</div>
+                    <div class="detail-value-text">
+                        <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
+                    </div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
