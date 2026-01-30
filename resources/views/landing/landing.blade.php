@@ -150,14 +150,13 @@
     }
 
     .hero::before {
-        content: "";
+        content: '';
         position: absolute;
         inset: 0;
         background-image:
-            linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
-        background-size: 60px 60px;
-        border-radius: 48px;
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
         pointer-events: none;
     }
 

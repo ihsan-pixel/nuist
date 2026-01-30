@@ -4,6 +4,17 @@
     background-color: #1f2937;
 }
 
+.bg-dark::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        pointer-events: none;
+    }
+
 .text-light {
     color: #f3f4f6;
 }
