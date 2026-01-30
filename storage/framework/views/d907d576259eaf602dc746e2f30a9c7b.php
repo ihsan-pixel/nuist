@@ -83,36 +83,15 @@
     <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
     <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
 
-    <div class="features-section animate fade-up delay-2">
-        <div class="features-section-header">
-            <span class="features-badge sudah-jadi">✨ Fitur yang Sudah Jadi</span>
-        </div>
-    </div>
-
     <div class="grid animate fade-up delay-3">
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'active'): ?>
         <div class="card animate fade-up active-feature" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
-            
             <h3><?php echo e($feature['name']); ?></h3>
             <p><?php echo e($feature['content']); ?></p>
         </div>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    </div>
-
-    <div class="features-section animate fade-up" style="margin-top: 60px;">
-        <div class="features-section-header">
-            <span class="features-badge coming-soon">🔜 Coming Soon</span>
-        </div>
-    </div>
-
-    <div class="grid animate fade-up delay-1">
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($landing->features): ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $landing->features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($feature['status'] == 'coming_soon'): ?>
+        <?php elseif($feature['status'] == 'coming_soon'): ?>
         <div class="card animate fade-up coming-soon-card" style="animation-delay: <?php echo e(0.3 + ($index * 0.1)); ?>s;">
             <h3><?php echo e($feature['name']); ?></h3>
             <p><?php echo e($feature['content']); ?></p>

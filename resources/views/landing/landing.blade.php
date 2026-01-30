@@ -85,36 +85,15 @@
     <h2 class="section-title animate fade-up" style="color:aliceblue; margin-top: -60px; font-size: 24px;">Fitur Unggulan</h2>
     <p class="section-description animate fade-up delay-1" style="color:aliceblue; margin-top:60px;">Berbagai fitur canggih yang dirancang untuk memaksimalkan efisiensi dan keamanan dalam pengelolaan sekolah Anda.</p>
 
-    <div class="features-section animate fade-up delay-2">
-        <div class="features-section-header">
-            <span class="features-badge sudah-jadi">✨ Fitur yang Sudah Jadi</span>
-        </div>
-    </div>
-
     <div class="grid animate fade-up delay-3">
         @if($landing->features)
         @foreach($landing->features as $index => $feature)
         @if($feature['status'] == 'active')
         <div class="card animate fade-up active-feature" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;">
-            {{-- <div class="card-icon">⚡</div> --}}
             <h3>{{ $feature['name'] }}</h3>
             <p>{{ $feature['content'] }}</p>
         </div>
-        @endif
-        @endforeach
-        @endif
-    </div>
-
-    <div class="features-section animate fade-up" style="margin-top: 60px;">
-        <div class="features-section-header">
-            <span class="features-badge coming-soon">🔜 Coming Soon</span>
-        </div>
-    </div>
-
-    <div class="grid animate fade-up delay-1">
-        @if($landing->features)
-        @foreach($landing->features as $index => $feature)
-        @if($feature['status'] == 'coming_soon')
+        @elseif($feature['status'] == 'coming_soon')
         <div class="card animate fade-up coming-soon-card" style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;">
             <h3>{{ $feature['name'] }}</h3>
             <p>{{ $feature['content'] }}</p>
