@@ -41,7 +41,7 @@
     .hero-content {
         position: relative;
         z-index: 1;
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
     }
 
@@ -130,7 +130,7 @@
 
     /* CONTENT */
     .content {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
         padding: 50px 40px;
     }
@@ -200,7 +200,7 @@
     }
 
     .info-value {
-        font-size: 16px;
+        font-size: 14px;
         color: #1e293b;
         font-weight: 700;
         line-height: 1.4;
@@ -380,9 +380,11 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-content">
-        <a href="{{ route('landing.sekolah') }}" class="back-btn">
-            <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
-        </a>
+        <div style="text-align: left;">
+            <a href="{{ route('landing.sekolah') }}" class="back-btn">
+                <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
+            </a>
+        </div>
         <div class="hero-header">
             <div class="school-logo-large">
                 <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
@@ -411,7 +413,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Alamat</div>
-                <div class="info-value">{{ $madrasah->alamat ?? 'Belum ada data alamat' }}</div>
+                <div class="info-value" style="text-align: left;">{{ $madrasah->alamat ?? 'Belum ada data alamat' }}</div>
             </div>
         </div>
 
@@ -421,7 +423,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Kode SCOD</div>
-                <div class="info-value">{{ $madrasah->scod ?? '-' }}</div>
+                <div class="info-value" style="text-align: left;">{{ $madrasah->scod ?? '-' }}</div>
             </div>
         </div>
 
@@ -431,7 +433,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Email</div>
-                <div class="info-value">{{ $madrasah->email ?? '-' }}</div>
+                <div class="info-value" style="text-align: left;">{{ $madrasah->email ?? '-' }}</div>
             </div>
         </div>
 
@@ -441,39 +443,10 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Telepon</div>
-                <div class="info-value">{{ $madrasah->telepon ?? '-' }}</div>
+                <div class="info-value" style="text-align: left;">{{ $madrasah->telepon ?? '-' }}</div>
             </div>
         </div>
     </div>
-{{--
-    <div class="action-section">
-        <h2 class="section-title">Aksi</h2>
-        <div class="action-buttons">
-            <a href="{{ route('ppdb.sekolah', $madrasah->slug) }}" class="btn-action">
-                <i class="bi bi-pencil-square"></i> PPDB Sekolah Ini
-            </a>
-            <a href="#" class="btn-action secondary">
-                <i class="bi bi-telephone-fill"></i> Hubungi Sekolah
-            </a>
-        </div>
-    </div>
-
-    <div class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number">{{ \App\Models\User::where('madrasah_id', $madrasah->id)->where('role', 'tenaga_pendidik')->count() }}</div>
-                <div class="stat-label">Tenaga Pendidik</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">{{ \App\Models\User::where('madrasah_id', $madrasah->id)->whereIn('role', ['admin', 'operator'])->count() }}</div>
-                <div class="stat-label">Admin Operator</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">{{ \App\Models\PPDBPendent::where('madrasah_id', $madrasah->id)->count() }}</div>
-                <div class="stat-label">Calon Siswa</div>
-            </div>
-        </div>
-    </div> --}}
 </section>
 
 @include('landing.footer')

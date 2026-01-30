@@ -39,7 +39,7 @@
     .hero-content {
         position: relative;
         z-index: 1;
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
     }
 
@@ -128,7 +128,7 @@
 
     /* CONTENT */
     .content {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
         padding: 50px 40px;
     }
@@ -198,7 +198,7 @@
     }
 
     .info-value {
-        font-size: 16px;
+        font-size: 14px;
         color: #1e293b;
         font-weight: 700;
         line-height: 1.4;
@@ -378,9 +378,11 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-content">
-        <a href="<?php echo e(route('landing.sekolah')); ?>" class="back-btn">
-            <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
-        </a>
+        <div style="text-align: left;">
+            <a href="<?php echo e(route('landing.sekolah')); ?>" class="back-btn">
+                <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
+            </a>
+        </div>
         <div class="hero-header">
             <div class="school-logo-large">
                 <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
@@ -410,7 +412,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Alamat</div>
-                <div class="info-value"><?php echo e($madrasah->alamat ?? 'Belum ada data alamat'); ?></div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->alamat ?? 'Belum ada data alamat'); ?></div>
             </div>
         </div>
 
@@ -420,7 +422,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Kode SCOD</div>
-                <div class="info-value"><?php echo e($madrasah->scod ?? '-'); ?></div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->scod ?? '-'); ?></div>
             </div>
         </div>
 
@@ -430,7 +432,7 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Email</div>
-                <div class="info-value"><?php echo e($madrasah->email ?? '-'); ?></div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->email ?? '-'); ?></div>
             </div>
         </div>
 
@@ -440,11 +442,10 @@
             </div>
             <div class="info-content">
                 <div class="info-label">Telepon</div>
-                <div class="info-value"><?php echo e($madrasah->telepon ?? '-'); ?></div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->telepon ?? '-'); ?></div>
             </div>
         </div>
     </div>
-
 </section>
 
 <?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
