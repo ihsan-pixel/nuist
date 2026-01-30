@@ -19,21 +19,34 @@
 <section id="sekolah-list" class="sekolah-list">
     <div class="container">
         <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Daftar Sekolah/Madrasah</h2>
-        <div class="schools-grid animate fade-up delay-1">
-            @foreach($madrasahs as $madrasah)
-                <div class="school-card">
-                    <a href="{{ route('ppdb.sekolah', $madrasah->slug ?? '#') }}" class="school-link">
-                        <div class="school-logo">
-                            <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
+
+        @foreach($groupedMadrasahs as $kabupaten => $madrasahList)
+            <div class="kabupaten-section animate fade-up">
+                <h3 class="kabupaten-header">
+                    <span class="kabupaten-icon">📍</span>
+                    {{ $kabupaten }}
+                    <span class="kabupaten-count">({{ count($madrasahList) }} sekolah)</span>
+                </h3>
+                <div class="schools-grid">
+                    @foreach($madrasahList as $madrasah)
+                        <div class="school-card">
+                            <a href="{{ route('ppdb.sekolah', $madrasah->slug ?? '#') }}" class="school-link">
+                                <div class="school-logo">
+                                    <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
+                                </div>
+                                <div class="school-info">
+                                    <h3>{{ $madrasah->name }}</h3>
+                                    <p>{{ $madrasah->kabupaten }}</p>
+                                    @if($madrasah->scod)
+                                        <span class="scod-badge">SCOD: {{ $madrasah->scod }}</span>
+                                    @endif
+                                </div>
+                            </a>
                         </div>
-                        <div class="school-info">
-                            <h3>{{ $madrasah->name }}</h3>
-                            <p>{{ $madrasah->kabupaten }}</p>
-                        </div>
-                    </a>
+                    @endforeach
                 </div>
-            @endforeach
-        </div>
+            </div>
+        @endforeach
     </div>
 </section>
 
@@ -113,6 +126,44 @@
     .sekolah-list {
         padding: 80px 0;
         background: #f8fafc;
+    }
+
+    .kabupaten-section {
+        margin-bottom: 60px;
+    }
+
+    .kabupaten-header {
+        font-size: 24px;
+        font-weight: 700;
+        color: #004b4c;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #eda711;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .kabupaten-icon {
+        font-size: 28px;
+    }
+
+    .kabupaten-count {
+        font-size: 16px;
+        font-weight: 400;
+        color: #6b7280;
+        margin-left: auto;
+    }
+
+    .scod-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 12px;
+        background: #004b4c;
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .schools-grid {

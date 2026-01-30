@@ -17,21 +17,35 @@
 <section id="sekolah-list" class="sekolah-list">
     <div class="container">
         <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Daftar Sekolah/Madrasah</h2>
-        <div class="schools-grid animate fade-up delay-1">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <div class="school-card">
-                    <a href="<?php echo e(route('ppdb.sekolah', $madrasah->slug ?? '#')); ?>" class="school-link">
-                        <div class="school-logo">
-                            <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $groupedMadrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kabupaten => $madrasahList): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="kabupaten-section animate fade-up">
+                <h3 class="kabupaten-header">
+                    <span class="kabupaten-icon">📍</span>
+                    <?php echo e($kabupaten); ?>
+
+                    <span class="kabupaten-count">(<?php echo e(count($madrasahList)); ?> sekolah)</span>
+                </h3>
+                <div class="schools-grid">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="school-card">
+                            <a href="<?php echo e(route('ppdb.sekolah', $madrasah->slug ?? '#')); ?>" class="school-link">
+                                <div class="school-logo">
+                                    <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
+                                </div>
+                                <div class="school-info">
+                                    <h3><?php echo e($madrasah->name); ?></h3>
+                                    <p><?php echo e($madrasah->kabupaten); ?></p>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
+                                        <span class="scod-badge">SCOD: <?php echo e($madrasah->scod); ?></span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
+                            </a>
                         </div>
-                        <div class="school-info">
-                            <h3><?php echo e($madrasah->name); ?></h3>
-                            <p><?php echo e($madrasah->kabupaten); ?></p>
-                        </div>
-                    </a>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        </div>
+            </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </section>
 
@@ -111,6 +125,44 @@
     .sekolah-list {
         padding: 80px 0;
         background: #f8fafc;
+    }
+
+    .kabupaten-section {
+        margin-bottom: 60px;
+    }
+
+    .kabupaten-header {
+        font-size: 24px;
+        font-weight: 700;
+        color: #004b4c;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #eda711;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .kabupaten-icon {
+        font-size: 28px;
+    }
+
+    .kabupaten-count {
+        font-size: 16px;
+        font-weight: 400;
+        color: #6b7280;
+        margin-left: auto;
+    }
+
+    .scod-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 12px;
+        background: #004b4c;
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .schools-grid {
