@@ -29,19 +29,27 @@
                 </h3>
                 <div class="schools-grid">
                     @foreach($madrasahList as $madrasah)
-                        <div class="school-card">
-                            <a href="{{ route('ppdb.sekolah', $madrasah->slug ?? '#') }}" class="school-link">
-                                <div class="school-logo">
-                                    <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
-                                </div>
-                                <div class="school-info">
-                                    <h3>{{ $madrasah->name }}</h3>
-                                    <p>{{ $madrasah->kabupaten }}</p>
-                                    @if($madrasah->scod)
-                                        <span class="scod-badge">SCOD: {{ $madrasah->scod }}</span>
-                                    @endif
-                                </div>
-                            </a>
+                        <div class="school-card"
+                             data-id="{{ $madrasah->id }}"
+                             data-name="{{ $madrasah->name }}"
+                             data-logo="{{ asset('storage/' . $madrasah->logo) }}"
+                             data-kabupaten="{{ $madrasah->kabupaten }}"
+                             data-scod="{{ $madrasah->scod ?? '-' }}"
+                             data-slug="{{ $madrasah->slug ?? '#' }}"
+                             data-alamat="{{ $madrasah->alamat ?? 'Belum ada data alamat' }}"
+                             data-email="{{ $madrasah->email ?? '-' }}"
+                             data-telepon="{{ $madrasah->telepon ?? '-' }}"
+                             onclick="openSchoolModal(this)">
+                            <div class="school-logo">
+                                <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
+                            </div>
+                            <div class="school-info">
+                                <h3>{{ $madrasah->name }}</h3>
+                                <p>{{ $madrasah->kabupaten }}</p>
+                                @if($madrasah->scod)
+                                    <span class="scod-badge">SCOD: {{ $madrasah->scod }}</span>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -52,7 +60,370 @@
 
 @include('landing.footer')
 
+<!-- MODAL PROFILE SEKOLAH -->
+<div id="schoolModal" class="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal-container">
+        <button class="modal-close" onclick="closeSchoolModal()">&times;</button>
+        <div class="modal-header">
+            <div class="modal-logo">
+                <img id="modalLogo" src="" alt="Logo Sekolah">
+            </div>
+            <div class="modal-title-group">
+                <h2 id="modalName">Nama Sekolah</h2>
+                <span id="modalKabupaten" class="modal-subtitle">Kabupaten</span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-info-grid">
+                <div class="modal-info-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <div>
+                        <span class="modal-label">Alamat</span>
+                        <span id="modalAlamat" class="modal-value">Alamat sekolah</span>
+                    </div>
+                </div>
+                <div class="modal-info-item">
+                    <i class="bi bi-award-fill"></i>
+                    <div>
+                        <span class="modal-label">Kode SCOD</span>
+                        <span id="modalScod" class="modal-value">SCOD</span>
+                    </div>
+                </div>
+                <div class="modal-info-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <div>
+                        <span class="modal-label">Email</span>
+                        <span id="modalEmail" class="modal-value">email@sekolah.sch.id</span>
+                    </div>
+                </div>
+                <div class="modal-info-item">
+                    <i class="bi bi-telephone-fill"></i>
+                    <div>
+                        <span class="modal-label">Telepon</span>
+                        <span id="modalTelepon" class="modal-value">081234567890</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <a id="modalPpdbLink" href="#" class="btn-modal-primary">
+                    <i class="bi bi-pencil-square"></i> PPDB Sekolah Ini
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+<style>
+    /* MODAL STYLES */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 28px;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+        transform: scale(0.8) translateY(20px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+    }
+
+    .modal-overlay.active .modal-container {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        font-size: 24px;
+        font-weight: 700;
+        color: #dc3545;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-close:hover {
+        background: #dc3545;
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #00393a, #005555, #00393a);
+        padding: 40px 30px 30px;
+        text-align: center;
+        position: relative;
+    }
+
+    .modal-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+        pointer-events: none;
+    }
+
+    .modal-logo {
+        width: 90px;
+        height: 90px;
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal-logo img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .modal-title-group {
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal-header h2 {
+        color: white;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-subtitle {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-info-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .modal-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 14px;
+        background: #f8fafc;
+        border-radius: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .modal-info-item:hover {
+        background: #f1f5f9;
+        transform: translateX(5px);
+    }
+
+    .modal-info-item i {
+        font-size: 22px;
+        color: #004b4c;
+        margin-top: 2px;
+    }
+
+    .modal-info-item > div {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .modal-label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-value {
+        font-size: 15px;
+        color: #1f2937;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .modal-actions {
+        margin-top: 25px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-modal-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #004b4c, #006666);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
+    }
+
+    .btn-modal-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 75, 76, 0.4);
+        background: linear-gradient(135deg, #005555, #007777);
+    }
+
+    /* Responsive Modal */
+    @media (max-width: 480px) {
+        .modal-container {
+            width: 95%;
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            padding: 30px 20px 25px;
+        }
+
+        .modal-logo {
+            width: 70px;
+            height: 70px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-info-item {
+            padding: 12px;
+        }
+
+        .btn-modal-primary {
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<script>
+    function openSchoolModal(element) {
+        const modal = document.getElementById('schoolModal');
+
+        // Get data from attributes
+        const name = element.getAttribute('data-name');
+        const logo = element.getAttribute('data-logo');
+        const kabupaten = element.getAttribute('data-kabupaten');
+        const scod = element.getAttribute('data-scod');
+        const slug = element.getAttribute('data-slug');
+        const alamat = element.getAttribute('data-alamat');
+        const email = element.getAttribute('data-email');
+        const telepon = element.getAttribute('data-telepon');
+
+        // Populate modal
+        document.getElementById('modalName').textContent = name;
+        document.getElementById('modalLogo').src = logo;
+        document.getElementById('modalKabupaten').textContent = '📍 ' + kabupaten;
+        document.getElementById('modalScod').textContent = scod;
+        document.getElementById('modalAlamat').textContent = alamat;
+        document.getElementById('modalEmail').textContent = email;
+        document.getElementById('modalTelepon').textContent = telepon;
+
+        // Set PPDB link
+        document.getElementById('modalPpdbLink').href = '/ppdb/sekolah/' + slug;
+
+        // Show modal with animation
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+
+        // Disable body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSchoolModal() {
+        const modal = document.getElementById('schoolModal');
+        modal.classList.remove('active');
+
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+
+        // Enable body scroll
+        document.body.style.overflow = 'auto';
+    }
+
+    function closeModalOutside(event) {
+        const modalContainer = document.querySelector('.modal-container');
+        if (event.target === event.currentTarget) {
+            closeSchoolModal();
+        }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSchoolModal();
+        }
+    });
+
+    // Prevent modal close when clicking inside container
+    document.querySelector('.modal-container').addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+</script>
 
 <style>
     * {
