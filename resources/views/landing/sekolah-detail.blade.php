@@ -440,20 +440,21 @@
         padding: 10px;
         margin-bottom: 40px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        overflow-x: auto;
     }
 
     .tab-buttons {
         display: flex;
         gap: 8px;
-        min-width: max-content;
+        width: 100%;
     }
 
     .tab-btn {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 10px;
-        padding: 16px 28px;
+        flex: 1;
+        padding: 16px 20px;
         background: transparent;
         border: none;
         border-radius: 16px;
@@ -462,7 +463,6 @@
         color: #64748b;
         cursor: pointer;
         transition: all 0.3s ease;
-        white-space: nowrap;
     }
 
     .tab-btn:hover {
@@ -473,7 +473,7 @@
     .tab-btn.active {
         background: linear-gradient(135deg, #00393a, #005555);
         color: white;
-        box-shadow: 0 4px 15px rgba(0, 57, 58, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 57, 58, 0.0);
     }
 
     .tab-btn i {
@@ -1063,17 +1063,22 @@
             text-align: center;
         }
 
-        .tab-buttons {
-            padding-bottom: 10px;
+        .tab-navigation {
+            padding: 8px;
         }
 
         .tab-btn {
-            padding: 12px 20px;
-            font-size: 13px;
+            padding: 12px 10px;
+            font-size: 11px;
+            gap: 6px;
         }
 
         .tab-btn i {
-            font-size: 18px;
+            font-size: 16px;
+        }
+
+        .tab-buttons {
+            gap: 6px;
         }
 
         .stats-detailed-grid {
