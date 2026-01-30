@@ -75,6 +75,11 @@ class LandingController extends Controller
             $ppdbSetting = PPDBSetting::where('sekolah_id', $id)->latest()->first();
         }
 
-        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting'));
+        // Get kepala sekolah from users table based on ketugasan
+        $kepalaSekolah = \App\Models\User::where('madrasah_id', $id)
+            ->where('ketugasan', 'kepala madrasah/sekolah')
+            ->first();
+
+        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah'));
     }
 }

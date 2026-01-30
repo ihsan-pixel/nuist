@@ -73,166 +73,16 @@
         flex-wrap: wrap;
     }
 
-    /* School Header Grid */
-    .school-header-grid {
-        display: grid;
-        grid-template-columns: 180px 1fr;
-        gap: 40px;
-        align-items: center;
-        margin-top: 20px;
-    }
-
-    .school-info {
-        text-align: left;
-    }
-
-    .school-info-header {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .school-logo-small {
-        width: 60px;
-        height: 60px;
-        background: white;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px;
-        flex-shrink: 0;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .school-logo-small img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-
-    .school-name {
-        font-size: 32px;
-        font-weight: 800;
-        margin-bottom: 20px;
-        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-        line-height: 1.2;
-    }
-
-    .school-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 25px;
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        opacity: 0.95;
-    }
-
-    .meta-item i {
-        font-size: 18px;
-        color: #eda711;
-    }
-
-    .meta-item a:hover {
-        text-decoration: underline !important;
-    }
-
-    /* Stats Section Wrapper */
-    .stats-section-wrapper {
-        max-width: 1400px;
-        margin: -40px auto 50px;
-        padding: 0 40px;
-        position: relative;
-        z-index: 10;
-    }
-
-    .stats-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-    }
-
-    .stat-card {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        background: white;
-        padding: 25px 30px;
-        border-radius: 18px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-    }
-
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .stat-icon i {
-        font-size: 28px;
-        color: white;
-    }
-
-    .stat-icon.guru {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    }
-
-    .stat-icon.siswa {
-        background: linear-gradient(135deg, #10b981, #059669);
-    }
-
-    .stat-icon.jurusan {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-    }
-
-    .stat-content {
-        flex: 1;
-    }
-
-    .stat-number {
-        font-size: 32px;
-        font-weight: 800;
-        color: #1e293b;
-        line-height: 1;
-        margin-bottom: 5px;
-    }
-
-    .stat-label {
-        font-size: 13px;
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
     .school-logo-large {
-        width: 160px;
-        height: 160px;
+        width: 120px;
+        height: 120px;
         background: white;
-        border-radius: 20px;
+        border-radius: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 15px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-        margin: 0 auto;
     }
 
     .school-logo-large img {
@@ -242,7 +92,7 @@
     }
 
     .school-logo-large i {
-        font-size: 60px;
+        font-size: 50px;
         color: #00393a;
     }
 
@@ -288,6 +138,213 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 50px 40px;
+    }
+
+    /* School Info Section */
+    .school-info-section {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 40px;
+    }
+
+    .school-info-grid {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+
+    .kepala-sekolah-photo {
+        text-align: center;
+    }
+
+    .ks-photo-img {
+        width: 180px;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .ks-photo-placeholder {
+        width: 180px;
+        height: 220px;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .ks-photo-placeholder i {
+        font-size: 60px;
+        color: #94a3b8;
+    }
+
+    .ks-photo-placeholder span {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .school-details {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .school-name-main {
+        font-size: 28px;
+        font-weight: 800;
+        color: #00393a;
+        line-height: 1.3;
+    }
+
+    .detail-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover {
+        background: #f1f5f9;
+        transform: translateY(-2px);
+    }
+
+    .detail-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #00393a, #005555);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .detail-icon i {
+        font-size: 20px;
+        color: white;
+    }
+
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-label {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 15px;
+        color: #1e293b;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .detail-value a {
+        color: #00393a;
+        text-decoration: none;
+    }
+
+    .detail-value a:hover {
+        text-decoration: underline;
+    }
+
+    /* Stats Cards */
+    .stats-section {
+        margin-bottom: 40px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: white;
+        padding: 28px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        border-color: rgba(0, 75, 76, 0.1);
+    }
+
+    .stat-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-icon i {
+        font-size: 30px;
+        color: white;
+    }
+
+    .stat-icon.guru {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+
+    .stat-icon.siswa {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .stat-icon.jurusan {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-size: 36px;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .section-title {
@@ -359,95 +416,7 @@
         color: #1e293b;
         font-weight: 700;
         line-height: 1.4;
-    }
-
-    /* ACTION BUTTONS */
-    .action-section {
-        margin-top: 50px;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        padding: 18px 36px;
-        background: linear-gradient(135deg, #00393a, #005555, #004b4c);
-        color: white;
-        text-decoration: none;
-        border-radius: 16px;
-        font-weight: 700;
-        font-size: 17px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 25px rgba(0, 75, 76, 0.35);
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-action:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 40px rgba(0, 75, 76, 0.45);
-        background: linear-gradient(135deg, #004b4c, #006666, #005555);
-    }
-
-    .btn-action.secondary {
-        background: white;
-        color: #004b4c;
-        border: 2px solid #004b4c;
-        box-shadow: none;
-    }
-
-    .btn-action.secondary:hover {
-        background: #f0fdf4;
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 75, 76, 0.15);
-    }
-
-    .btn-action i {
-        font-size: 22px;
-    }
-
-    /* STATS SECTION */
-    .stats-section {
-        background: white;
-        border-radius: 24px;
-        padding: 40px;
-        margin-top: 50px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 30px;
-        text-align: center;
-    }
-
-    .stat-item {
-        padding: 20px;
-    }
-
-    .stat-number {
-        font-size: 42px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #00393a, #005555);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 8px;
-    }
-
-    .stat-label {
-        font-size: 14px;
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        text-align: left;
     }
 
     /* FOOTER */
@@ -508,49 +477,41 @@
             font-size: 28px;
         }
 
-        /* School Header Grid Mobile */
-        .school-header-grid {
+        .content {
+            padding: 30px 20px;
+        }
+
+        .school-info-grid {
             grid-template-columns: 1fr;
-            gap: 25px;
+            gap: 30px;
+        }
+
+        .kepala-sekolah-photo {
+            order: -1;
+        }
+
+        .ks-photo-img {
+            width: 150px;
+            height: 180px;
+        }
+
+        .ks-photo-placeholder {
+            width: 150px;
+            height: 180px;
+        }
+
+        .school-name-main {
+            font-size: 24px;
             text-align: center;
         }
 
-        .school-info {
-            text-align: center;
-        }
-
-        .school-info-header {
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .school-logo-small {
-            width: 55px;
-            height: 55px;
-        }
-
-        .school-name {
-            font-size: 26px;
-        }
-
-        .school-meta {
-            justify-content: center;
-        }
-
-        .meta-item {
-            width: 100%;
-            justify-content: center;
-        }
-
-        /* Stats Mobile */
-        .stats-section-wrapper {
-            padding: 0 20px;
-            margin-top: -30px;
-        }
-
-        .stats-container {
+        .detail-items {
             grid-template-columns: 1fr;
-            gap: 15px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
 
         .stat-card {
@@ -562,25 +523,12 @@
         }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
+            width: 56px;
+            height: 56px;
         }
 
         .stat-icon i {
-            font-size: 24px;
-        }
-
-        .content {
-            padding: 30px 20px;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-action {
-            width: 100%;
-            justify-content: center;
+            font-size: 26px;
         }
 
         .info-card {
@@ -602,9 +550,7 @@
                 <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
             </a>
         </div>
-
-        <div class="school-header-grid">
-            <!-- Logo Sekolah -->
+        <div class="hero-header">
             <div class="school-logo-large">
                 @if($madrasah->logo)
                     <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="{{ $madrasah->name }}">
@@ -612,83 +558,14 @@
                     <i class="bi bi-building"></i>
                 @endif
             </div>
-
-            <!-- Info Sekolah -->
-            <div class="school-info">
-                <div class="school-info-header">
-                    @if($madrasah->logo)
-                    <div class="school-logo-small">
-                        <img src="{{ asset('storage/' . $madrasah->logo) }}" alt="Logo {{ $madrasah->name }}">
-                    </div>
-                    @endif
-                    <h1 class="school-name">{{ $madrasah->name }}</h1>
-                </div>
-
-                <div class="school-meta">
-                    <div class="meta-item">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>{{ $madrasah->alamat ?? 'Belum ada data alamat' }}</span>
-                    </div>
-                    @if($madrasah->akreditasi)
-                    <div class="meta-item">
-                        <i class="bi bi-patch-check-fill"></i>
-                        <span>Akreditasi: {{ $madrasah->akreditasi }}</span>
-                    </div>
-                    @endif
-                    @if($madrasah->telepon)
-                    <div class="meta-item">
-                        <i class="bi bi-telephone-fill"></i>
-                        <span>{{ $madrasah->telepon }}</span>
-                    </div>
-                    @endif
-                    @if($madrasah->email)
-                    <div class="meta-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        <span>{{ $madrasah->email }}</span>
-                    </div>
-                    @endif
-                    @if($madrasah->website)
-                    <div class="meta-item">
-                        <i class="bi bi-globe"></i>
-                        <a href="{{ $madrasah->website }}" target="_blank" style="color: white; text-decoration: none;">{{ $madrasah->website }}</a>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- STATS SECTION -->
-<section class="stats-section-wrapper">
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-icon guru">
-                <i class="bi bi-person-badge-fill"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ $madrasah->jumlah_guru ?? ($ppdbSetting->jumlah_guru ?? '-') }}</div>
-                <div class="stat-label">Jumlah Guru</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon siswa">
-                <i class="bi bi-people-fill"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ $madrasah->jumlah_siswa ?? ($ppdbSetting->jumlah_siswa ?? '-') }}</div>
-                <div class="stat-label">Jumlah Siswa</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon jurusan">
-                <i class="bi bi-book-fill"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-number">{{ $madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-') }}</div>
-                <div class="stat-label">Jumlah Jurusan</div>
+            <div class="school-title">
+                <h1>{{ $madrasah->name }}</h1>
+                <span class="badge">
+                    <i class="bi bi-geo-alt-fill"></i> {{ $madrasah->kabupaten }}
+                </span>
+                @if($madrasah->scod)
+                    <span class="scod">SCOD: {{ $madrasah->scod }}</span>
+                @endif
             </div>
         </div>
     </div>
@@ -696,72 +573,151 @@
 
 <!-- CONTENT -->
 <section class="content">
-    <h2 class="section-title">Informasi Sekolah</h2>
+    <h2 class="section-title">Informasi Sekolah/Madrasah</h2>
 
-    <div class="info-grid">
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-geo-alt-fill"></i>
+    <!-- School Info with Photo -->
+    <div class="school-info-section">
+        <div class="school-info-grid">
+            <!-- Foto Kepala Sekolah -->
+            <div class="kepala-sekolah-photo">
+                @if($kepalaSekolah && $kepalaSekolah->avatar)
+                    <img src="{{ asset('storage/' . $kepalaSekolah->avatar) }}" alt="Foto Kepala Sekolah" class="ks-photo-img">
+                @else
+                    <div class="ks-photo-placeholder">
+                        <i class="bi bi-person-fill"></i>
+                        <span>Foto Kepala Sekolah</span>
+                    </div>
+                @endif
             </div>
-            <div class="info-content">
-                <div class="info-label">Alamat</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->alamat ?? 'Belum ada data alamat' }}</div>
+
+            <!-- Detail Sekolah -->
+            <div class="school-details">
+                <h3 class="school-name-main">{{ $madrasah->name }}</h3>
+
+                <div class="detail-items">
+                    @if($madrasah->alamat)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Alamat</div>
+                            <div class="detail-value">{{ $madrasah->alamat }}</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($madrasah->akreditasi)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Akreditasi</div>
+                            <div class="detail-value">{{ $madrasah->akreditasi }}</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($madrasah->telepon)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Telepon</div>
+                            <div class="detail-value">{{ $madrasah->telepon }}</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($madrasah->email)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">
+                                <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($madrasah->website)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-globe"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Website</div>
+                            <div class="detail-value">
+                                <a href="{{ $madrasah->website }}" target="_blank">{{ $madrasah->website }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($kepalaSekolah)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Kepala Sekolah</div>
+                            <div class="detail-value">{{ $kepalaSekolah->name }}</div>
+                        </div>
+                    </div>
+                    @elseif($madrasah->kepala_sekolah_nama)
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Kepala Sekolah</div>
+                            <div class="detail-value">{{ $madrasah->kepala_sekolah_gelar ?? '' }} {{ $madrasah->kepala_sekolah_nama }}</div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
         </div>
+    </div>
 
-        @if($madrasah->kepala_sekolah_nama)
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-person-badge-fill"></i>
+    <!-- Stats Cards -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon guru">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ $madrasah->jumlah_guru ?? ($ppdbSetting->jumlah_guru ?? '-') }}</div>
+                    <div class="stat-label">Jumlah Guru</div>
+                </div>
             </div>
-            <div class="info-content">
-                <div class="info-label">Kepala Sekolah</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->kepala_sekolah_gelar ?? '' }} {{ $madrasah->kepala_sekolah_nama }}</div>
+
+            <div class="stat-card">
+                <div class="stat-icon siswa">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ $madrasah->jumlah_siswa ?? ($ppdbSetting->jumlah_siswa ?? '-') }}</div>
+                    <div class="stat-label">Jumlah Siswa</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon jurusan">
+                    <i class="bi bi-book-fill"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">{{ $madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-') }}</div>
+                    <div class="stat-label">Jumlah Jurusan</div>
+                </div>
             </div>
         </div>
-        @endif
-
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-award-fill"></i>
-            </div>
-            <div class="info-content">
-                <div class="info-label">Kode SCOD</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->scod ?? '-' }}</div>
-            </div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-envelope-fill"></i>
-            </div>
-            <div class="info-content">
-                <div class="info-label">Email</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->email ?? '-' }}</div>
-            </div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-telephone-fill"></i>
-            </div>
-            <div class="info-content">
-                <div class="info-label">Telepon</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->telepon ?? '-' }}</div>
-            </div>
-        </div>
-
-        @if($madrasah->akreditasi)
-        <div class="info-card">
-            <div class="info-icon">
-                <i class="bi bi-patch-check-fill"></i>
-            </div>
-            <div class="info-content">
-                <div class="info-label">Akreditasi</div>
-                <div class="info-value" style="text-align: left;">{{ $madrasah->akreditasi }}</div>
-            </div>
-        </div>
-        @endif
     </div>
 </section>
 
