@@ -592,7 +592,7 @@
 
             <!-- Detail Sekolah -->
             <div class="school-details">
-                <h3 class="school-name-main">{{ $madrasah->name }}</h3>
+                {{-- <h3 class="school-name-main">{{ $madrasah->name }}</h3> --}}
 
                 <div class="detail-items">
                     @if($madrasah->alamat)
