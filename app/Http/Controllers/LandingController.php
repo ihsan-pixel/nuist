@@ -80,6 +80,9 @@ class LandingController extends Controller
             ->where('ketugasan', 'kepala madrasah/sekolah')
             ->first();
 
-        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah'));
+        // Get PPDB slug for button link
+        $ppdbSlug = $ppdbSetting ? $ppdbSetting->slug : null;
+
+        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah', 'ppdbSlug'));
     }
 }

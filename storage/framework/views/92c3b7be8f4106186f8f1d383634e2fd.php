@@ -147,130 +147,173 @@
         margin-bottom: 40px;
     }
 
-    .school-details-full {
-        max-width: 800px;
+    .school-info-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
     }
 
     .school-details {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+        border-right: 1px solid #e2e8f0;
+        padding-right: 30px;
     }
 
-    .school-name-main {
-        font-size: 28px;
-        font-weight: 800;
-        color: #00393a;
-        line-height: 1.3;
-    }
-
-    .detail-items {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 16px;
-    }
-
-    .detail-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-    }
-
-    .detail-item:hover {
-        background: #f1f5f9;
-        transform: translateY(-2px);
-    }
-
-    .detail-icon {
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, #00393a, #005555);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .detail-icon i {
+    .section-title {
         font-size: 20px;
-        color: white;
-    }
-
-    .detail-content {
-        flex: 1;
-    }
-
-    .detail-label {
-        font-size: 11px;
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-    }
-
-    .detail-value {
-        font-size: 15px;
-        color: #1e293b;
-        font-weight: 600;
-        line-height: 1.4;
-    }
-
-    .detail-value a {
+        font-weight: 700;
         color: #00393a;
-        text-decoration: none;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 3px solid #eda711;
+        display: inline-block;
     }
 
-    .detail-value a:hover {
-        text-decoration: underline;
-    }
-
-    /* Detail List (tanpa card) */
     .detail-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
     }
 
     .detail-row {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        padding: 12px 0;
+        padding: 16px 20px;
         border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
     }
 
-    .detail-row:last-child {
+    .detail-row:nth-child(2n) {
+        border-right: none;
+    }
+
+    .detail-row:nth-last-child(-n+2) {
         border-bottom: none;
     }
 
     .detail-label-text {
-        font-size: 12px;
+        font-size: 11px;
         color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-bottom: 6px;
     }
 
     .detail-value-text {
-        font-size: 15px;
+        font-size: 14px;
         color: #1e293b;
         font-weight: 600;
-        line-height: 1.4;
+        line-height: 1.5;
     }
 
     .detail-value-text a {
         color: #00393a;
         text-decoration: none;
+        transition: all 0.2s ease;
     }
 
     .detail-value-text a:hover {
+        color: #005555;
         text-decoration: underline;
+    }
+
+    /* Kepala Sekolah Section */
+    .kepala-sekolah-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .ks-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #00393a;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .ks-photo-container {
+        width: 160px;
+        height: 180px;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ks-photo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ks-photo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #00393a, #005555);
+    }
+
+    .ks-photo-placeholder i {
+        font-size: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ks-name {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1e293b;
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    .ks-gelar {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 600;
+        margin-top: 4px;
+        text-align: center;
+    }
+
+    /* PPDB Button */
+    .ppdb-button-row .detail-value-text {
+        padding-top: 4px;
+    }
+
+    .ppdb-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #00393a 0%, #005555 50%, #00393a 100%);
+        color: white !important;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 57, 58, 0.3);
+    }
+
+    .ppdb-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 57, 58, 0.4);
+        color: white !important;
+        text-decoration: none;
+    }
+
+    .ppdb-btn i {
+        font-size: 18px;
     }
 
     /* Stats Cards */
@@ -349,78 +392,6 @@
         letter-spacing: 0.5px;
     }
 
-    .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #004b4c;
-        margin-bottom: 30px;
-        padding-bottom: 15px;
-        border-bottom: 3px solid #eda711;
-        display: inline-block;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 50px;
-    }
-
-    .info-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 18px;
-        padding: 24px;
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-    }
-
-    .info-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-        border-color: rgba(0, 75, 76, 0.1);
-    }
-
-    .info-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #004b4c, #006666);
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .info-icon i {
-        font-size: 24px;
-        color: white;
-    }
-
-    .info-content {
-        flex: 1;
-    }
-
-    .info-label {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-bottom: 5px;
-    }
-
-    .info-value {
-        font-size: 14px;
-        color: #1e293b;
-        font-weight: 700;
-        line-height: 1.4;
-        text-align: left;
-    }
-
     /* FOOTER */
     .footer {
         background: linear-gradient(135deg, #1f2937, #374151);
@@ -461,6 +432,19 @@
     }
 
     /* Responsive */
+    @media (max-width: 992px) {
+        .school-info-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .school-details {
+            border-right: none;
+            border-bottom: 1px solid #e2e8f0;
+            padding-right: 0;
+            padding-bottom: 30px;
+        }
+    }
+
     @media (max-width: 768px) {
         .hero {
             padding: 50px 20px;
@@ -483,36 +467,21 @@
             padding: 30px 20px;
         }
 
-        .school-info-grid {
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-
-        .kepala-sekolah-photo {
-            order: -1;
-        }
-
-        .ks-photo-img {
-            width: 150px;
-            height: 180px;
-        }
-
-        .ks-photo-placeholder {
-            width: 150px;
-            height: 180px;
-        }
-
-        .school-name-main {
-            font-size: 24px;
-            text-align: center;
-        }
-
         .detail-list {
-            gap: 8px;
+            grid-template-columns: 1fr;
         }
 
         .detail-row {
-            padding: 10px 0;
+            border-right: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row:nth-last-child(-n+1) {
+            border-bottom: none;
         }
 
         .stats-grid {
@@ -535,10 +504,6 @@
 
         .stat-icon i {
             font-size: 26px;
-        }
-
-        .info-card {
-            padding: 18px;
         }
 
         .footer-content {
@@ -580,56 +545,88 @@
 
 <!-- CONTENT -->
 <section class="content">
-    
-
     <!-- School Info Section -->
     <div class="school-info-section">
-        <div class="school-details-full">
-            <div class="detail-list">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">NPSN / SCOD</div>
-                    <div class="detail-value-text"><?php echo e($madrasah->scod); ?></div>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">Akreditasi</div>
-                    <div class="detail-value-text"><?php echo e($madrasah->akreditasi); ?></div>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->alamat): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">Alamat Lengkap</div>
-                    <div class="detail-value-text"><?php echo e($madrasah->alamat); ?></div>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">Nomor Telepon</div>
-                    <div class="detail-value-text"><?php echo e($madrasah->telepon); ?></div>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">Email</div>
-                    <div class="detail-value-text">
-                        <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
+        <div class="school-info-layout">
+            <!-- Left Side: Informasi Sekolah (2/3) -->
+            <div class="school-details">
+                <h3 class="section-title">Informasi Sekolah/Madrasah</h3>
+                <div class="detail-list">
+                    <div class="detail-row">
+                        <div class="detail-label-text">Akreditasi</div>
+                        <div class="detail-value-text"><?php echo e($ppdbSetting->akreditasi ?? ($madrasah->akreditasi ?? '-')); ?></div>
                     </div>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
-                <div class="detail-row">
-                    <div class="detail-label-text">Website</div>
-                    <div class="detail-value-text">
-                        <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
+                    <div class="detail-row">
+                        <div class="detail-label-text">Nomor Telepon</div>
+                        <div class="detail-value-text"><?php echo e($ppdbSetting->telepon ?? ($madrasah->telepon ?? '-')); ?></div>
                     </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label-text">Email</div>
+                        <div class="detail-value-text">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->email): ?>
+                                <a href="mailto:<?php echo e($ppdbSetting->email); ?>"><?php echo e($ppdbSetting->email); ?></a>
+                            <?php elseif($madrasah->email): ?>
+                                <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label-text">Website</div>
+                        <div class="detail-value-text">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->website): ?>
+                                <a href="<?php echo e($ppdbSetting->website); ?>" target="_blank"><?php echo e($ppdbSetting->website); ?></a>
+                            <?php elseif($madrasah->website): ?>
+                                <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                    </div>
+
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->alamat): ?>
+                    <div class="detail-row" style="grid-column: span 2;">
+                        <div class="detail-label-text">Alamat Lengkap</div>
+                        <div class="detail-value-text"><?php echo e($madrasah->alamat); ?></div>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSlug): ?>
+                    <div class="detail-row ppdb-button-row" style="grid-column: span 2;">
+                        <div class="detail-label-text">SPMB</div>
+                        <div class="detail-value-text">
+                            <a href="<?php echo e(route('ppdb.sekolah', $ppdbSlug)); ?>" class="ppdb-btn">
+                                <i class="bi bi-pencil-square"></i> Halaman SPMB
+                            </a>
+                        </div>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
+            </div>
+
+            <!-- Right Side: Kepala Sekolah (1/3) -->
+            <div class="kepala-sekolah-section">
+                <div class="ks-title">Kepala Sekolah</div>
+                <div class="ks-photo-container">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah && $kepalaSekolah->foto): ?>
+                        <img src="<?php echo e(asset('storage/' . $kepalaSekolah->foto)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
+                    <?php else: ?>
+                        <div class="ks-photo-placeholder">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah): ?>
+                    <div class="ks-name"><?php echo e($kepalaSekolah->name); ?></div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah->gelar_depan || $kepalaSekolah->gelar_belakang): ?>
+                        <div class="ks-gelar"><?php echo e($kepalaSekolah->gelar_depan ?? ''); ?> <?php echo e($kepalaSekolah->name); ?> <?php echo e($kepalaSekolah->gelar_belakang ?? ''); ?></div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php else: ?>
+                    <div class="ks-name">-</div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
@@ -674,6 +671,5 @@
 <?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <?php $__env->stopSection(); ?>
-
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/landing/sekolah-detail.blade.php ENDPATH**/ ?>
