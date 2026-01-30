@@ -1,5 +1,5 @@
 <?php $__env->startSection('title', 'Sekolah/Madrasah - NUIST'); ?>
-<?php $__env->startSection('description', 'Daftar Sekolah/Madrasah dessous naungan LPMNU PWNU DIY'); ?>
+<?php $__env->startSection('description', 'Daftar Sekolah/Madrasah Dibawah Naungan LPMNU PWNU DIY'); ?>
 
 <?php $__env->startSection('content'); ?>
 <?php echo $__env->make('landing.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -28,28 +28,20 @@
                 </h3>
                 <div class="schools-grid">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="school-card"
-                             data-id="<?php echo e($madrasah->id); ?>"
-                             data-name="<?php echo e($madrasah->name); ?>"
-                             data-logo="<?php echo e(asset('storage/' . $madrasah->logo)); ?>"
-                             data-kabupaten="<?php echo e($madrasah->kabupaten); ?>"
-                             data-scod="<?php echo e($madrasah->scod ?? '-'); ?>"
-                             data-slug="<?php echo e($madrasah->slug ?? '#'); ?>"
-                             data-alamat="<?php echo e($madrasah->alamat ?? 'Belum ada data alamat'); ?>"
-                             data-email="<?php echo e($madrasah->email ?? '-'); ?>"
-                             data-telepon="<?php echo e($madrasah->telepon ?? '-'); ?>"
-                             onclick="openSchoolModal(this)">
-                            <div class="school-logo">
-                                <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
+                        <a href="<?php echo e(route('landing.sekolah.detail', $madrasah->id)); ?>" class="school-card-link">
+                            <div class="school-card">
+                                <div class="school-logo">
+                                    <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
+                                </div>
+                                <div class="school-info">
+                                    <h3><?php echo e($madrasah->name); ?></h3>
+                                    <p><?php echo e($madrasah->kabupaten); ?></p>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
+                                        <span class="scod-badge">SCOD: <?php echo e($madrasah->scod); ?></span>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </div>
                             </div>
-                            <div class="school-info">
-                                <h3><?php echo e($madrasah->name); ?></h3>
-                                <p><?php echo e($madrasah->kabupaten); ?></p>
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
-                                    <span class="scod-badge">SCOD: <?php echo e($madrasah->scod); ?></span>
-                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                        </div>
+                        </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
@@ -59,417 +51,7 @@
 
 <?php echo $__env->make('landing.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-<!-- MODAL PROFILE SEKOLAH -->
-<div id="schoolModal" class="modal-overlay" onclick="closeModalOutside(event)">
-    <div class="modal-container">
-        <button class="modal-close" onclick="closeSchoolModal()">&times;</button>
-        <div class="modal-header">
-            <div class="modal-header-content">
-                <div class="modal-logo" style="margin-top: 20px; margin-left: 20px; margin-bottom: 20px;">
-                    <img id="modalLogo" src="" alt="Logo Sekolah">
-                </div>
-                <div class="modal-title-group" style="margin-left:20px;">
-                    <h2 id="modalName">Nama Sekolah</h2>
-                    <span id="modalKabupaten" class="modal-subtitle">📍 Kabupaten</span>
-                </div>
-            </div>
-        </div>
-        <div class="modal-body">
-            <div class="modal-info-grid">
-                <div class="modal-info-item">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <div>
-                        <span class="modal-label">Alamat</span>
-                        <span id="modalAlamat" class="modal-value">Alamat sekolah</span>
-                    </div>
-                </div>
-                <div class="modal-info-item">
-                    <i class="bi bi-award-fill"></i>
-                    <div>
-                        <span class="modal-label">Kode SCOD</span>
-                        <span id="modalScod" class="modal-value">SCOD</span>
-                    </div>
-                </div>
-                <div class="modal-info-item">
-                    <i class="bi bi-envelope-fill"></i>
-                    <div>
-                        <span class="modal-label">Email</span>
-                        <span id="modalEmail" class="modal-value">email@sekolah.sch.id</span>
-                    </div>
-                </div>
-                <div class="modal-info-item">
-                    <i class="bi bi-telephone-fill"></i>
-                    <div>
-                        <span class="modal-label">Telepon</span>
-                        <span id="modalTelepon" class="modal-value">081234567890</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <a id="modalPpdbLink" href="#" class="btn-modal-primary">
-                    <i class="bi bi-pencil-square"></i> PPDB Sekolah Ini
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <?php $__env->stopSection(); ?>
-
-<style>
-    /* MODAL STYLES */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        z-index: 9999;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 1;
-    }
-
-    .modal-container {
-        background: white;
-        border-radius: 32px;
-        max-width: 1000px;
-        width: 95%;
-        position: relative;
-        box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
-        transform: scale(0.85) translateY(20px);
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        overflow: hidden;
-        margin: 20px;
-    }
-
-    .modal-overlay.active .modal-container {
-        transform: scale(1) translateY(0);
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.95);
-        border: none;
-        font-size: 28px;
-        font-weight: 700;
-        color: #dc3545;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        z-index: 10;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .modal-close:hover {
-        background: #dc3545;
-        color: white;
-        transform: rotate(90deg) scale(1.1);
-    }
-
-    .modal-header {
-        background: linear-gradient(135deg, #00393a 0%, #005555 50%, #00393a 100%);
-        padding: 30px;
-        text-align: left;
-        position: relative;
-    }
-
-    .modal-header::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-        background-size: 25px 25px;
-        pointer-events: none;
-    }
-
-    .modal-header-content {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .modal-logo {
-        width: 90px;
-        height: 90px;
-        background: white;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-        padding: 10px;
-    }
-
-    .modal-logo img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-
-    .modal-title-group {
-        flex: 1;
-    }
-
-    .modal-header h2 {
-        color: white;
-        font-size: 24px;
-        font-weight: 800;
-        margin-bottom: 8px;
-        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-        line-height: 1.3;
-    }
-
-    .modal-subtitle {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255, 255, 255, 0.25);
-        color: white;
-        padding: 6px 16px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 600;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .modal-body {
-        padding: 35px 40px 40px;
-    }
-
-    .modal-info-grid {
-        display: grid;
-        gap: 18px;
-    }
-
-    .modal-info-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 18px 20px;
-        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-        border-radius: 16px;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-    }
-
-    .modal-info-item:hover {
-        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-        transform: translateX(8px);
-        border-color: rgba(0, 75, 76, 0.1);
-    }
-
-    .modal-info-item i {
-        font-size: 26px;
-        color: #004b4c;
-        margin-top: 3px;
-        min-width: 26px;
-    }
-
-    .modal-info-item > div {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .modal-label {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }
-
-    .modal-value {
-        font-size: 16px;
-        color: #1e293b;
-        font-weight: 700;
-        word-break: break-word;
-        line-height: 1.4;
-    }
-
-    .modal-actions {
-        margin-top: 30px;
-        display: flex;
-        justify-content: center;
-    }
-
-    .btn-modal-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px 36px;
-        background: linear-gradient(135deg, #00393a, #005555, #004b4c);
-        color: white;
-        text-decoration: none;
-        border-radius: 14px;
-        font-weight: 700;
-        font-size: 17px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 25px rgba(0, 75, 76, 0.35);
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-modal-primary:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 40px rgba(0, 75, 76, 0.45);
-        background: linear-gradient(135deg, #004b4c, #006666, #005555);
-    }
-
-    /* Responsive Modal */
-    @media (max-width: 600px) {
-        .modal-container {
-            max-width: 100%;
-            width: 100%;
-            border-radius: 24px 24px 0 0;
-            margin: 0;
-            position: fixed;
-            bottom: 0;
-            top: auto;
-            transform: translateY(100%);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-overlay.active .modal-container {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            padding: 35px 25px 30px;
-            border-radius: 24px 24px 0 0;
-        }
-
-        .modal-logo {
-            width: 85px;
-            height: 85px;
-        }
-
-        .modal-header h2 {
-            font-size: 22px;
-        }
-
-        .modal-subtitle {
-            font-size: 14px;
-            padding: 6px 16px;
-        }
-
-        .modal-body {
-            padding: 25px;
-            padding-bottom: 40px;
-        }
-
-        .modal-info-item {
-            padding: 14px 16px;
-        }
-
-        .modal-info-item i {
-            font-size: 22px;
-        }
-
-        .modal-value {
-            font-size: 15px;
-        }
-
-        .btn-modal-primary {
-            width: 100%;
-            justify-content: center;
-            padding: 14px 24px;
-            font-size: 16px;
-        }
-    }
-</style>
-
-<script>
-    function openSchoolModal(element) {
-        const modal = document.getElementById('schoolModal');
-
-        // Get data from attributes
-        const name = element.getAttribute('data-name');
-        const logo = element.getAttribute('data-logo');
-        const kabupaten = element.getAttribute('data-kabupaten');
-        const scod = element.getAttribute('data-scod');
-        const slug = element.getAttribute('data-slug');
-        const alamat = element.getAttribute('data-alamat');
-        const email = element.getAttribute('data-email');
-        const telepon = element.getAttribute('data-telepon');
-
-        // Populate modal
-        document.getElementById('modalName').textContent = name;
-        document.getElementById('modalLogo').src = logo;
-        document.getElementById('modalKabupaten').textContent = '📍 ' + kabupaten;
-        document.getElementById('modalScod').textContent = scod;
-        document.getElementById('modalAlamat').textContent = alamat;
-        document.getElementById('modalEmail').textContent = email;
-        document.getElementById('modalTelepon').textContent = telepon;
-
-        // Set PPDB link
-        document.getElementById('modalPpdbLink').href = '/ppdb/sekolah/' + slug;
-
-        // Show modal with animation
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 10);
-
-        // Disable body scroll
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeSchoolModal() {
-        const modal = document.getElementById('schoolModal');
-        modal.classList.remove('active');
-
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-
-        // Enable body scroll
-        document.body.style.overflow = 'auto';
-    }
-
-    function closeModalOutside(event) {
-        const modalContainer = document.querySelector('.modal-container');
-        if (event.target === event.currentTarget) {
-            closeSchoolModal();
-        }
-    }
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeSchoolModal();
-        }
-    });
-
-    // Prevent modal close when clicking inside container
-    document.querySelector('.modal-container').addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-</script>
 
 <style>
     * {
@@ -591,6 +173,11 @@
         margin: 0 auto;
     }
 
+    .school-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
     .school-card {
         background: white;
         border-radius: 16px;
@@ -602,12 +189,6 @@
     .school-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-
-    .school-link {
-        display: block;
-        text-decoration: none;
-        color: inherit;
     }
 
     .school-logo {

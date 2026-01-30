@@ -151,6 +151,7 @@ Route::get('/', function () {
 // Landing page - public access
 Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 Route::get('/sekolah', [App\Http\Controllers\LandingController::class, 'sekolah'])->name('landing.sekolah');
+Route::get('/sekolah/{id}', [App\Http\Controllers\LandingController::class, 'sekolahDetail'])->name('landing.sekolah.detail');
 
 // Jika akses link nuist.id/index maka akan tertuju halaman login
 Route::get('/index', function () {
