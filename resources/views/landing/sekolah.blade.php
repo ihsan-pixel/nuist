@@ -37,9 +37,6 @@
                                 <div class="school-info">
                                     <h3>{{ $madrasah->name }}</h3>
                                     <p>{{ $madrasah->kabupaten }}</p>
-                                    @if($madrasah->scod)
-                                        <span class="scod-badge">SCOD: {{ $madrasah->scod }}</span>
-                                    @endif
                                 </div>
                             </div>
                         </a>

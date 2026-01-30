@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Landing;
 use App\Models\Madrasah;
 use App\Models\Yayasan;
+use App\Models\PPDBSetting;
 
 class LandingController extends Controller
 {
@@ -64,6 +65,16 @@ class LandingController extends Controller
         $madrasah = Madrasah::findOrFail($id);
         $yayasan = Yayasan::find(1);
 
-        return view('landing.sekolah-detail', compact('madrasah', 'yayasan'));
+        // Get active PPDB setting (current year)
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $id)
+            ->where('tahun', date('Y'))
+            ->first();
+
+        // Fallback to any available setting if no current year setting
+        if (!$ppdbSetting) {
+            $ppdbSetting = PPDBSetting::where('sekolah_id', $id)->latest()->first();
+        }
+
+        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting'));
     }
 }

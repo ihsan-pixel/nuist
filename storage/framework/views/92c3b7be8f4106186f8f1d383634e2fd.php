@@ -71,6 +71,208 @@
         flex-wrap: wrap;
     }
 
+    /* School Header Grid */
+    .school-header-grid {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 40px;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .kepala-sekolah-photo {
+        display: flex;
+        justify-content: center;
+    }
+
+    .ks-photo-img {
+        width: 160px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .ks-photo-placeholder {
+        width: 160px;
+        height: 180px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .ks-photo-placeholder i {
+        font-size: 60px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .school-info {
+        text-align: left;
+    }
+
+    .school-info-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .school-logo-small {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .school-logo-small img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .school-name {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        line-height: 1.2;
+    }
+
+    .school-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        opacity: 0.95;
+    }
+
+    .meta-item i {
+        font-size: 18px;
+        color: #eda711;
+    }
+
+    .meta-item a:hover {
+        text-decoration: underline !important;
+    }
+
+    .kepala-sekolah-info {
+        display: inline-flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 15px 25px;
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ks-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
+
+    .ks-name {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    /* Stats Section Wrapper */
+    .stats-section-wrapper {
+        max-width: 1400px;
+        margin: -40px auto 50px;
+        padding: 0 40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: white;
+        padding: 25px 30px;
+        border-radius: 18px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-icon i {
+        font-size: 28px;
+        color: white;
+    }
+
+    .stat-icon.guru {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+
+    .stat-icon.siswa {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .stat-icon.jurusan {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .school-logo-large {
         width: 120px;
         height: 120px;
@@ -351,6 +553,91 @@
             font-size: 28px;
         }
 
+        /* School Header Grid Mobile */
+        .school-header-grid {
+            grid-template-columns: 1fr;
+            gap: 25px;
+            text-align: center;
+        }
+
+        .kepala-sekolah-photo {
+            margin-bottom: 10px;
+        }
+
+        .ks-photo-img {
+            width: 140px;
+            height: 160px;
+        }
+
+        .ks-photo-placeholder {
+            width: 140px;
+            height: 160px;
+        }
+
+        .ks-photo-placeholder i {
+            font-size: 50px;
+        }
+
+        .school-info {
+            text-align: center;
+        }
+
+        .school-info-header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .school-logo-small {
+            width: 55px;
+            height: 55px;
+        }
+
+        .school-name {
+            font-size: 26px;
+        }
+
+        .school-meta {
+            justify-content: center;
+        }
+
+        .meta-item {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .kepala-sekolah-info {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Stats Mobile */
+        .stats-section-wrapper {
+            padding: 0 20px;
+            margin-top: -30px;
+        }
+
+        .stats-container {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        .stat-icon i {
+            font-size: 24px;
+        }
+
         .content {
             padding: 30px 20px;
         }
@@ -383,19 +670,102 @@
                 <i class="bi bi-arrow-left"></i> Kembali ke Daftar Sekolah
             </a>
         </div>
-        <div class="hero-header">
-            <div class="school-logo-large">
-                <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
-            </div>
-            <div class="school-title">
-                <h1><?php echo e($madrasah->name); ?></h1>
-                <span class="badge">
-                    <i class="bi bi-geo-alt-fill"></i> <?php echo e($madrasah->kabupaten); ?>
 
-                </span>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
-                    <span class="scod">SCOD: <?php echo e($madrasah->scod); ?></span>
+        <div class="school-header-grid">
+            <!-- Foto Kepala Sekolah -->
+            <div class="kepala-sekolah-photo">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_foto): ?>
+                    <img src="<?php echo e(asset('storage/' . $madrasah->kepala_sekolah_foto)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
+                <?php else: ?>
+                    <div class="ks-photo-placeholder">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+
+            <!-- Info Sekolah & Kepala Sekolah -->
+            <div class="school-info">
+                <div class="school-info-header">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
+                    <div class="school-logo-small">
+                        <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="Logo <?php echo e($madrasah->name); ?>">
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <h1 class="school-name"><?php echo e($madrasah->name); ?></h1>
+                </div>
+
+                <div class="school-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span><?php echo e($madrasah->alamat ?? 'Belum ada data alamat'); ?></span>
+                    </div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
+                    <div class="meta-item">
+                        <i class="bi bi-patch-check-fill"></i>
+                        <span>Akreditasi: <?php echo e($madrasah->akreditasi); ?></span>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
+                    <div class="meta-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span><?php echo e($madrasah->telepon); ?></span>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
+                    <div class="meta-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <span><?php echo e($madrasah->email); ?></span>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
+                    <div class="meta-item">
+                        <i class="bi bi-globe"></i>
+                        <a href="<?php echo e($madrasah->website); ?>" target="_blank" style="color: white; text-decoration: none;"><?php echo e($madrasah->website); ?></a>
+                    </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_nama): ?>
+                <div class="kepala-sekolah-info">
+                    <span class="ks-label">Kepala Sekolah</span>
+                    <span class="ks-name"><?php echo e($madrasah->kepala_sekolah_gelar ?? ''); ?> <?php echo e($madrasah->kepala_sekolah_nama); ?></span>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS SECTION -->
+<section class="stats-section-wrapper">
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon guru">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number"><?php echo e($madrasah->jumlah_guru ?? ($ppdbSetting->jumlah_guru ?? '-')); ?></div>
+                <div class="stat-label">Jumlah Guru</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon siswa">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number"><?php echo e($madrasah->jumlah_siswa ?? ($ppdbSetting->jumlah_siswa ?? '-')); ?></div>
+                <div class="stat-label">Jumlah Siswa</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon jurusan">
+                <i class="bi bi-book-fill"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number"><?php echo e($madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-')); ?></div>
+                <div class="stat-label">Jumlah Jurusan</div>
             </div>
         </div>
     </div>

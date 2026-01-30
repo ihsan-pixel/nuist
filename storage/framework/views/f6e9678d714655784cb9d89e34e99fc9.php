@@ -36,9 +36,6 @@
                                 <div class="school-info">
                                     <h3><?php echo e($madrasah->name); ?></h3>
                                     <p><?php echo e($madrasah->kabupaten); ?></p>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
-                                        <span class="scod-badge">SCOD: <?php echo e($madrasah->scod); ?></span>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </div>
                             </div>
                         </a>
