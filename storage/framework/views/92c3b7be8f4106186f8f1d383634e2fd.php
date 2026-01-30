@@ -80,36 +80,6 @@
         margin-top: 20px;
     }
 
-    .kepala-sekolah-photo {
-        display: flex;
-        justify-content: center;
-    }
-
-    .ks-photo-img {
-        width: 160px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 12px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    .ks-photo-placeholder {
-        width: 160px;
-        height: 180px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .ks-photo-placeholder i {
-        font-size: 60px;
-        color: rgba(255, 255, 255, 0.6);
-    }
-
     .school-info {
         text-align: left;
     }
@@ -170,29 +140,6 @@
 
     .meta-item a:hover {
         text-decoration: underline !important;
-    }
-
-    .kepala-sekolah-info {
-        display: inline-flex;
-        flex-direction: column;
-        background: rgba(255, 255, 255, 0.15);
-        padding: 15px 25px;
-        border-radius: 12px;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .ks-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        opacity: 0.8;
-        margin-bottom: 5px;
-    }
-
-    .ks-name {
-        font-size: 18px;
-        font-weight: 700;
     }
 
     /* Stats Section Wrapper */
@@ -274,21 +221,27 @@
     }
 
     .school-logo-large {
-        width: 120px;
-        height: 120px;
+        width: 160px;
+        height: 160px;
         background: white;
-        border-radius: 24px;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 15px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        margin: 0 auto;
     }
 
     .school-logo-large img {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+    }
+
+    .school-logo-large i {
+        font-size: 60px;
+        color: #00393a;
     }
 
     .school-title {
@@ -560,24 +513,6 @@
             text-align: center;
         }
 
-        .kepala-sekolah-photo {
-            margin-bottom: 10px;
-        }
-
-        .ks-photo-img {
-            width: 140px;
-            height: 160px;
-        }
-
-        .ks-photo-placeholder {
-            width: 140px;
-            height: 160px;
-        }
-
-        .ks-photo-placeholder i {
-            font-size: 50px;
-        }
-
         .school-info {
             text-align: center;
         }
@@ -603,11 +538,6 @@
         .meta-item {
             width: 100%;
             justify-content: center;
-        }
-
-        .kepala-sekolah-info {
-            width: 100%;
-            text-align: center;
         }
 
         /* Stats Mobile */
@@ -672,18 +602,16 @@
         </div>
 
         <div class="school-header-grid">
-            <!-- Foto Kepala Sekolah -->
-            <div class="kepala-sekolah-photo">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_foto): ?>
-                    <img src="<?php echo e(asset('storage/' . $madrasah->kepala_sekolah_foto)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
+            <!-- Logo Sekolah -->
+            <div class="school-logo-large">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
+                    <img src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>" alt="<?php echo e($madrasah->name); ?>">
                 <?php else: ?>
-                    <div class="ks-photo-placeholder">
-                        <i class="bi bi-person-fill"></i>
-                    </div>
+                    <i class="bi bi-building"></i>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
-            <!-- Info Sekolah & Kepala Sekolah -->
+            <!-- Info Sekolah -->
             <div class="school-info">
                 <div class="school-info-header">
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
@@ -724,13 +652,6 @@
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_nama): ?>
-                <div class="kepala-sekolah-info">
-                    <span class="ks-label">Kepala Sekolah</span>
-                    <span class="ks-name"><?php echo e($madrasah->kepala_sekolah_gelar ?? ''); ?> <?php echo e($madrasah->kepala_sekolah_nama); ?></span>
-                </div>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         </div>
     </div>
@@ -786,6 +707,18 @@
             </div>
         </div>
 
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_nama): ?>
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label">Kepala Sekolah</div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->kepala_sekolah_gelar ?? ''); ?> <?php echo e($madrasah->kepala_sekolah_nama); ?></div>
+            </div>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
         <div class="info-card">
             <div class="info-icon">
                 <i class="bi bi-award-fill"></i>
@@ -815,6 +748,18 @@
                 <div class="info-value" style="text-align: left;"><?php echo e($madrasah->telepon ?? '-'); ?></div>
             </div>
         </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
+        <div class="info-card">
+            <div class="info-icon">
+                <i class="bi bi-patch-check-fill"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label">Akreditasi</div>
+                <div class="info-value" style="text-align: left;"><?php echo e($madrasah->akreditasi); ?></div>
+            </div>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
 </section>
 
