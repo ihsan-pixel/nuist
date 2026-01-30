@@ -117,8 +117,25 @@ hr.my-4 {
     gap: 12px;
 }
 
-.footer-logo img {
-    height: 50px;
+.footer-logo-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.footer-logo-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.footer-logo-button img {
+    height: 45px;
+    width: auto;
 }
 
 .footer-logo span {
@@ -210,8 +227,10 @@ hr.my-4 {
             <!-- Logo dan Deskripsi -->
             <div class="footer-col">
                 <div class="footer-logo mb-3">
-                    <img src="{{ asset('images/logo1.png') }}" alt="NUIST Logo">
-                    <span>NUIST</span>
+                    <div class="footer-logo-button">
+                        <img src="{{ asset('images/logo1.png') }}" alt="NUIST Logo">
+                    </div>
+                    {{-- <span>NUIST</span> --}}
                 </div>
                 <p class="mb-3">Sistem Informasi Digital LPMNU PWNU DIY untuk pengelolaan data sekolah, tenaga pendidik, dan aktivitas madrasah secara terintegrasi.</p>
                 <div class="social-links">

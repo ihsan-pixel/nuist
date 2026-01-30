@@ -7,7 +7,7 @@ Mengelompokkan tampilan sekolah per kabupaten dan mengurutkan dengan scod nya di
 
 - [x] 1. Update LandingController.php - ubah query untuk group by kabupaten dan order by scod
 - [x] 2. Update sekolah.blade.php - tampilkan sekolah grouped by kabupaten dengan header
-- [ ] 3. Test perubahan dengan membuka halaman sekolah
+- [x] 3. Update footer.blade.php - buat logo berada pada div button dengan background putih
 
 ## Details
 
@@ -27,8 +27,12 @@ $groupedMadrasahs = $madrasahs->groupBy('kabupaten');
 - Tampilkan header kabupaten
 - Tampilkan cards sekolah di bawah header masing-masing
 
+### Step 3: footer.blade.php
+- Logo dibungkus dalam div `.footer-logo-button` dengan background putih
+- Border-radius 12px dan box-shadow
+- Hover effect dengan transformasi
+
 ## Status
 - [x] Plan confirmed by user
-- [x] In Progress
-- [ ] Completed - waiting for testing
+- [x] All tasks completed
 
