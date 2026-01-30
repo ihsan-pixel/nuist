@@ -170,7 +170,7 @@ hr.my-4 {
 }
 
 .social-links a:hover {
-    background: #004b4c;
+    background: #eda711;
     transform: translateY(-3px);
 }
 
@@ -278,18 +278,18 @@ hr.my-4 {
             <div class="footer-col">
                 <h5 class="fw-bold mb-3">Hubungi Kami</h5>
                 <div class="d-flex align-items-start mb-2">
-                    <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
+                    <i class="bi bi-geo-alt-fill me-3 mt-1" style="color: #eda711"></i>
                     <div>
                         <p class="mb-0">{{ $yayasan->alamat ?? 'Jl. KH. Wahid Hasyim No. 123' }}</p>
                         <p class="mb-0">Yogyakarta, 55281</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-telephone-fill text-primary me-3"></i>
+                    <i class="bi bi-telephone-fill me-3" style="color: #eda711"></i>
                     <p class="mb-0">0811 2505 5675</p>
                 </div>
                 <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-envelope-fill text-primary me-3"></i>
+                    <i class="bi bi-envelope-fill me-3" style="color: #eda711"></i>
                     <p class="mb-0">nuistnu@gmail.com</p>
                 </div>
             </div>
@@ -299,10 +299,10 @@ hr.my-4 {
         <hr class="my-4">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <p class="mb-0">&copy; {{ date('Y') }} NUIST. All rights reserved.</p>
+                <p class="mb-0" style="color: #eda711">&copy; {{ date('Y') }} NUIST. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-md-end">
-                <p class="mb-0">Powered by <a href="#" class="text-primary text-decoration-none">Tim NUIST Developer</a></p>
+                <p class="mb-0">Powered by <a href="#" class="text-decoration-none" style="color: #eda711">Tim NUIST Developer</a></p>
             </div>
         </div>
     </div>
