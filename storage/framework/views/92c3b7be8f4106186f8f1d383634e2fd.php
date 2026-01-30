@@ -589,7 +589,7 @@
                     </div>
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->alamat): ?>
-                    <div class="detail-row" style="grid-column: span 2;">
+                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
                         <div class="detail-label-text">Alamat Lengkap</div>
                         <div class="detail-value-text"><?php echo e($madrasah->alamat); ?></div>
                     </div>
@@ -612,8 +612,8 @@
             <div class="kepala-sekolah-section">
                 <div class="ks-title">Kepala Sekolah</div>
                 <div class="ks-photo-container">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah && $kepalaSekolah->foto): ?>
-                        <img src="<?php echo e(asset('storage/' . $kepalaSekolah->foto)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($kepalaSekolah && $kepalaSekolah->avatar): ?>
+                        <img src="<?php echo e(asset('storage/' . $kepalaSekolah->avatar)); ?>" alt="Foto Kepala Sekolah" class="ks-photo-img">
                     <?php else: ?>
                         <div class="ks-photo-placeholder">
                             <i class="bi bi-person-fill"></i>

@@ -590,7 +590,7 @@
                     </div>
 
                     @if($madrasah->alamat)
-                    <div class="detail-row" style="grid-column: span 2;">
+                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
                         <div class="detail-label-text">Alamat Lengkap</div>
                         <div class="detail-value-text">{{ $madrasah->alamat }}</div>
                     </div>
@@ -601,7 +601,7 @@
                         <div class="detail-label-text">SPMB</div>
                         <div class="detail-value-text">
                             <a href="{{ route('ppdb.sekolah', $ppdbSlug) }}" class="ppdb-btn">
-                                <i class="bi bi-pencil-square"></i> Halaman SPMB
+                                Halaman SPMB
                             </a>
                         </div>
                     </div>
