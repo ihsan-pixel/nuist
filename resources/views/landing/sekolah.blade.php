@@ -65,12 +65,14 @@
     <div class="modal-container">
         <button class="modal-close" onclick="closeSchoolModal()">&times;</button>
         <div class="modal-header">
-            <div class="modal-logo">
-                <img id="modalLogo" src="" alt="Logo Sekolah">
-            </div>
-            <div class="modal-title-group">
-                <h2 id="modalName">Nama Sekolah</h2>
-                <span id="modalKabupaten" class="modal-subtitle">Kabupaten</span>
+            <div class="modal-header-content">
+                <div class="modal-logo" style="margin-top: 20px; margin-left: 20px; margin-bottom: 20px;">
+                    <img id="modalLogo" src="" alt="Logo Sekolah">
+                </div>
+                <div class="modal-title-group" style="margin-left:20px;">
+                    <h2 id="modalName">Nama Sekolah</h2>
+                    <span id="modalKabupaten" class="modal-subtitle">📍 Kabupaten</span>
+                </div>
             </div>
         </div>
         <div class="modal-body">
@@ -140,14 +142,15 @@
 
     .modal-container {
         background: white;
-        border-radius: 28px;
-        max-width: 500px;
-        width: 90%;
+        border-radius: 32px;
+        max-width: 1000px;
+        width: 95%;
         position: relative;
-        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
-        transform: scale(0.8) translateY(20px);
+        box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
+        transform: scale(0.85) translateY(20px);
         transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
+        margin: 20px;
     }
 
     .modal-overlay.active .modal-container {
@@ -156,14 +159,14 @@
 
     .modal-close {
         position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 36px;
-        height: 36px;
+        top: 20px;
+        right: 20px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         border: none;
-        font-size: 24px;
+        font-size: 28px;
         font-weight: 700;
         color: #dc3545;
         cursor: pointer;
@@ -172,19 +175,19 @@
         justify-content: center;
         transition: all 0.3s ease;
         z-index: 10;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
     .modal-close:hover {
         background: #dc3545;
         color: white;
-        transform: rotate(90deg);
+        transform: rotate(90deg) scale(1.1);
     }
 
     .modal-header {
-        background: linear-gradient(135deg, #00393a, #005555, #00393a);
-        padding: 40px 30px 30px;
-        text-align: center;
+        background: linear-gradient(135deg, #00393a 0%, #005555 50%, #00393a 100%);
+        padding: 30px;
+        text-align: left;
         position: relative;
     }
 
@@ -192,25 +195,31 @@
         content: '';
         position: absolute;
         inset: 0;
-        background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-size: 30px 30px;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 25px 25px;
         pointer-events: none;
+    }
+
+    .modal-header-content {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        z-index: 1;
     }
 
     .modal-logo {
         width: 90px;
         height: 90px;
         background: white;
-        border-radius: 20px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 15px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        padding: 12px;
-        position: relative;
-        z-index: 1;
+        flex-shrink: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        padding: 10px;
     }
 
     .modal-logo img {
@@ -220,83 +229,90 @@
     }
 
     .modal-title-group {
-        position: relative;
-        z-index: 1;
+        flex: 1;
     }
 
     .modal-header h2 {
         color: white;
         font-size: 24px;
-        font-weight: 700;
+        font-weight: 800;
         margin-bottom: 8px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        line-height: 1.3;
     }
 
     .modal-subtitle {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.25);
         color: white;
         padding: 6px 16px;
-        border-radius: 20px;
+        border-radius: 25px;
         font-size: 14px;
-        font-weight: 500;
-        backdrop-filter: blur(5px);
+        font-weight: 600;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .modal-body {
-        padding: 30px;
+        padding: 35px 40px 40px;
     }
 
     .modal-info-grid {
         display: grid;
-        gap: 16px;
+        gap: 18px;
     }
 
     .modal-info-item {
         display: flex;
         align-items: flex-start;
-        gap: 14px;
-        padding: 14px;
-        background: #f8fafc;
-        border-radius: 14px;
+        gap: 16px;
+        padding: 18px 20px;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
         transition: all 0.3s ease;
+        border: 1px solid transparent;
     }
 
     .modal-info-item:hover {
-        background: #f1f5f9;
-        transform: translateX(5px);
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        transform: translateX(8px);
+        border-color: rgba(0, 75, 76, 0.1);
     }
 
     .modal-info-item i {
-        font-size: 22px;
+        font-size: 26px;
         color: #004b4c;
-        margin-top: 2px;
+        margin-top: 3px;
+        min-width: 26px;
     }
 
     .modal-info-item > div {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
     }
 
     .modal-label {
         font-size: 12px;
-        color: #6b7280;
-        font-weight: 500;
+        color: #64748b;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
     }
 
     .modal-value {
-        font-size: 15px;
-        color: #1f2937;
-        font-weight: 600;
+        font-size: 16px;
+        color: #1e293b;
+        font-weight: 700;
         word-break: break-word;
+        line-height: 1.4;
     }
 
     .modal-actions {
-        margin-top: 25px;
+        margin-top: 30px;
         display: flex;
         justify-content: center;
     }
@@ -304,55 +320,86 @@
     .btn-modal-primary {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 14px 28px;
-        background: linear-gradient(135deg, #004b4c, #006666);
+        gap: 12px;
+        padding: 16px 36px;
+        background: linear-gradient(135deg, #00393a, #005555, #004b4c);
         color: white;
         text-decoration: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 17px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 75, 76, 0.3);
+        box-shadow: 0 6px 25px rgba(0, 75, 76, 0.35);
+        border: none;
+        cursor: pointer;
     }
 
     .btn-modal-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 75, 76, 0.4);
-        background: linear-gradient(135deg, #005555, #007777);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(0, 75, 76, 0.45);
+        background: linear-gradient(135deg, #004b4c, #006666, #005555);
     }
 
     /* Responsive Modal */
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
         .modal-container {
-            width: 95%;
-            border-radius: 20px;
+            max-width: 100%;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            margin: 0;
+            position: fixed;
+            bottom: 0;
+            top: auto;
+            transform: translateY(100%);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
         }
 
         .modal-header {
-            padding: 30px 20px 25px;
+            padding: 35px 25px 30px;
+            border-radius: 24px 24px 0 0;
         }
 
         .modal-logo {
-            width: 70px;
-            height: 70px;
+            width: 85px;
+            height: 85px;
         }
 
         .modal-header h2 {
-            font-size: 20px;
+            font-size: 22px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            padding: 6px 16px;
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 25px;
+            padding-bottom: 40px;
         }
 
         .modal-info-item {
-            padding: 12px;
+            padding: 14px 16px;
+        }
+
+        .modal-info-item i {
+            font-size: 22px;
+        }
+
+        .modal-value {
+            font-size: 15px;
         }
 
         .btn-modal-primary {
-            padding: 12px 20px;
-            font-size: 14px;
+            width: 100%;
+            justify-content: center;
+            padding: 14px 24px;
+            font-size: 16px;
         }
     }
 </style>
