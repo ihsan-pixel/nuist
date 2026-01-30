@@ -74,6 +74,17 @@
         justify-content: center;
     }
 
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 50px 50px;
+        pointer-events: none;
+    }
+
     .hero h1 {
         font-size: 48px;
         font-weight: 700;
