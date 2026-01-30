@@ -641,7 +641,7 @@
                     <i class="bi bi-person-badge-fill"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-number">{{ $madrasah->jumlah_guru ?? ($ppdbSetting->jumlah_guru ?? '-') }}</div>
+                    <div class="stat-number">{{ $jumlahGuru }}</div>
                     <div class="stat-label">Jumlah Guru</div>
                 </div>
             </div>
@@ -650,8 +650,8 @@
                 <div class="stat-icon siswa">
                     <i class="bi bi-people-fill"></i>
                 </div>
-                <div class="stat-info">
-                    <div class="stat-number">{{ $madrasah->jumlah_siswa ?? ($ppdbSetting->jumlah_siswa ?? '-') }}</div>
+                 <div class="stat-info">
+                    <div class="stat-number">{{ $jumlahSiswa }}</div>
                     <div class="stat-label">Jumlah Siswa</div>
                 </div>
             </div>

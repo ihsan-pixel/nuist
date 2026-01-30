@@ -7,6 +7,7 @@ use App\Models\Landing;
 use App\Models\Madrasah;
 use App\Models\Yayasan;
 use App\Models\PPDBSetting;
+use App\Models\DataSekolah;
 
 class LandingController extends Controller
 {
@@ -80,9 +81,20 @@ class LandingController extends Controller
             ->where('ketugasan', 'kepala madrasah/sekolah')
             ->first();
 
+// Get jumlah guru from users table with same madrasah_id
+        $jumlahGuru = \App\Models\User::where('madrasah_id', $id)
+            ->where('role', 'tenaga_pendidik')
+            ->count();
+
+// Get jumlah siswa from data_sekolah table with latest year
+        $dataSekolah = DataSekolah::where('madrasah_id', $id)
+            ->orderBy('tahun', 'desc')
+            ->first();
+        $jumlahSiswa = $dataSekolah ? $dataSekolah->jumlah_siswa : 0;
+
         // Get PPDB slug for button link
         $ppdbSlug = $ppdbSetting ? $ppdbSetting->slug : null;
 
-        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah', 'ppdbSlug'));
+        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah', 'ppdbSlug', 'jumlahGuru', 'jumlahSiswa'));
     }
 }
