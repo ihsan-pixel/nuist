@@ -573,7 +573,7 @@
 
 <!-- CONTENT -->
 <section class="content">
-    <h2 class="section-title">Informasi Sekolah/Madrasah</h2>
+    {{-- <h2 class="section-title">Informasi Sekolah/Madrasah</h2> --}}
 
     <!-- School Info with Photo -->
     <div class="school-info-section">
