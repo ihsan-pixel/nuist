@@ -621,10 +621,6 @@
         background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     }
 
-    .stat-detailed-card.rombel .stat-detailed-icon {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    }
-
     .stat-detailed-card.jurusan .stat-detailed-icon {
         background: linear-gradient(135deg, #f59e0b, #d97706);
     }
@@ -1306,7 +1302,15 @@
                     <p>{{ $ppdbSetting && $ppdbSetting->visi ? $ppdbSetting->visi : '-' }}</p>
 
                     <h3 style="margin-top: 30px;">Misi</h3>
-                    <p>{{ $ppdbSetting && $ppdbSetting->misi ? $ppdbSetting->misi : '-' }}</p>
+                    @if($ppdbSetting && is_array($ppdbSetting->misi))
+                        <ul>
+                            @foreach($ppdbSetting->misi as $item)
+                                <li>{{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p>-</p>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1331,19 +1335,11 @@
                 <div class="stat-detailed-label">Jumlah Guru</div>
             </div>
 
-            <div class="stat-detailed-card rombel">
-                <div class="stat-detailed-icon">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                </div>
-                <div class="stat-detailed-number">{{ $madrasah->jumlah_rombel ?? '-' }}</div>
-                <div class="stat-detailed-label">Jumlah Rombel</div>
-            </div>
-
             <div class="stat-detailed-card jurusan">
                 <div class="stat-detailed-icon">
                     <i class="bi bi-book-fill"></i>
                 </div>
-                <div class="stat-detailed-number">{{ $madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-') }}</div>
+                <div class="stat-detailed-number">{{ $ppdbSetting && $ppdbSetting->jumlah_jurusan ? $ppdbSetting->jumlah_jurusan : '-' }}</div>
                 <div class="stat-detailed-label">Jumlah Jurusan</div>
             </div>
 
@@ -1351,7 +1347,7 @@
                 <div class="stat-detailed-icon">
                     <i class="bi bi-building-fill"></i>
                 </div>
-                <div class="stat-detailed-number">12</div>
+                <div class="stat-detailed-number">{{ $ppdbSetting && $ppdbSetting->jumlah_sarana ? $ppdbSetting->jumlah_sarana : '-' }}</div>
                 <div class="stat-detailed-label">Fasilitas Utama</div>
             </div>
         </div>

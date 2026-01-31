@@ -619,10 +619,6 @@
         background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     }
 
-    .stat-detailed-card.rombel .stat-detailed-icon {
-        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    }
-
     .stat-detailed-card.jurusan .stat-detailed-icon {
         background: linear-gradient(135deg, #f59e0b, #d97706);
     }
@@ -1305,7 +1301,15 @@
                     <p><?php echo e($ppdbSetting && $ppdbSetting->visi ? $ppdbSetting->visi : '-'); ?></p>
 
                     <h3 style="margin-top: 30px;">Misi</h3>
-                    <p><?php echo e($ppdbSetting && $ppdbSetting->misi ? $ppdbSetting->misi : '-'); ?></p>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && is_array($ppdbSetting->misi)): ?>
+                        <ul>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ppdbSetting->misi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <li><?php echo e($item); ?></li>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </ul>
+                    <?php else: ?>
+                        <p>-</p>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
         </div>
@@ -1330,19 +1334,11 @@
                 <div class="stat-detailed-label">Jumlah Guru</div>
             </div>
 
-            <div class="stat-detailed-card rombel">
-                <div class="stat-detailed-icon">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                </div>
-                <div class="stat-detailed-number"><?php echo e($madrasah->jumlah_rombel ?? '-'); ?></div>
-                <div class="stat-detailed-label">Jumlah Rombel</div>
-            </div>
-
             <div class="stat-detailed-card jurusan">
                 <div class="stat-detailed-icon">
                     <i class="bi bi-book-fill"></i>
                 </div>
-                <div class="stat-detailed-number"><?php echo e($madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-')); ?></div>
+                <div class="stat-detailed-number"><?php echo e($ppdbSetting && $ppdbSetting->jumlah_jurusan ? $ppdbSetting->jumlah_jurusan : '-'); ?></div>
                 <div class="stat-detailed-label">Jumlah Jurusan</div>
             </div>
 
@@ -1350,7 +1346,7 @@
                 <div class="stat-detailed-icon">
                     <i class="bi bi-building-fill"></i>
                 </div>
-                <div class="stat-detailed-number">12</div>
+                <div class="stat-detailed-number"><?php echo e($ppdbSetting && $ppdbSetting->jumlah_sarana ? $ppdbSetting->jumlah_sarana : '-'); ?></div>
                 <div class="stat-detailed-label">Fasilitas Utama</div>
             </div>
         </div>
