@@ -260,6 +260,7 @@ hr.my-4 {
                     <li class="mb-2"><a href="<?php echo e(route('landing.sekolah')); ?>" class="text-light text-decoration-none">Sekolah</a></li>
                     <li class="mb-2"><a href="<?php echo e(route('landing')); ?>#about" class="text-light text-decoration-none">Tentang</a></li>
                     <li class="mb-2"><a href="<?php echo e(route('landing')); ?>#features" class="text-light text-decoration-none">Fitur</a></li>
+                    <li class="mb-2"><a href="<?php echo e(route('mobile.dashboard')); ?>" class="text-light text-decoration-none">Download Aplikasi Nuist (PWA)</a></li>
                 </ul>
             </div>
 

@@ -282,7 +282,7 @@
                 <span></span>
             </div>
         </div>
-        <a href="#" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
+        <a href="<?php echo e(route('login')); ?>" class="btn-primary desktop-login" style="margin-right: 20px;">Login<i class='bx bx-arrow-back bx-rotate-180'></i></a>
     </div>
 </nav>
 
