@@ -1257,41 +1257,6 @@
                     </div>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->jurusan && count($ppdbSetting->jurusan) > 0): ?>
-                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
-                        <div class="detail-label-text">Program Keahlian</div>
-                        <div class="detail-value-text">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 8px;">
-                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ppdbSetting->jurusan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 57, 58, 0.08); transition: all 0.3s ease;">
-                                        <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #00393a, #005555); display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
-                                                <i class="bi bi-book-fill" style="color: white; font-size: 18px;"></i>
-                                            </div>
-                                            <h4 style="margin: 0; color: #00393a; font-size: 16px; font-weight: 700; line-height: 1.3;"><?php echo e($jurusan['nama']); ?></h4>
-                                        </div>
-                                        <div style="margin-bottom: 12px;">
-                                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
-                                                <i class="bi bi-briefcase-fill" style="color: #eda711; margin-right: 8px; margin-top: 2px; font-size: 14px;"></i>
-                                                <div>
-                                                    <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Prospek Karir</small>
-                                                    <p style="margin: 4px 0 0 0; color: #1e293b; font-size: 13px; line-height: 1.4;"><?php echo e($jurusan['prospek_karir']); ?></p>
-                                                </div>
-                                            </div>
-                                            <div style="display: flex; align-items: flex-start;">
-                                                <i class="bi bi-tools" style="color: #eda711; margin-right: 8px; margin-top: 2px; font-size: 14px;"></i>
-                                                <div>
-                                                    <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Skill Dipelajari</small>
-                                                    <p style="margin: 4px 0 0 0; color: #1e293b; font-size: 13px; line-height: 1.4;"><?php echo e(implode(' • ', $jurusan['skill_dipelajari'])); ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
             </div>
 
@@ -1319,6 +1284,43 @@
         </div>
     </div>
 
+    <!-- Program Keahlian Section -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->jurusan && count($ppdbSetting->jurusan) > 0): ?>
+    <div class="school-info-section">
+        <h3 class="section-title" style="margin-bottom: 24px;">Program Keahlian</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ppdbSetting->jurusan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 16px rgba(0, 57, 58, 0.08); transition: all 0.3s ease; height: fit-content;">
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #00393a, #005555); display: flex; align-items: center; justify-content: center; margin-right: 16px; flex-shrink: 0;">
+                            <i class="bi bi-book-fill" style="color: white; font-size: 20px;"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0; color: #00393a; font-size: 18px; font-weight: 700; line-height: 1.3;"><?php echo e($jurusan['nama']); ?></h4>
+                            <small style="color: #64748b; font-weight: 500;">Program Keahlian</small>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
+                            <i class="bi bi-briefcase-fill" style="color: #eda711; margin-right: 10px; margin-top: 3px; font-size: 16px; flex-shrink: 0;"></i>
+                            <div>
+                                <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Prospek Karir</small>
+                                <p style="margin: 6px 0 0 0; color: #1e293b; font-size: 14px; line-height: 1.5;"><?php echo e($jurusan['prospek_karir']); ?></p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: flex-start;">
+                            <i class="bi bi-tools" style="color: #eda711; margin-right: 10px; margin-top: 3px; font-size: 16px; flex-shrink: 0;"></i>
+                            <div>
+                                <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Skill Dipelajari</small>
+                                <p style="margin: 6px 0 0 0; color: #1e293b; font-size: 14px; line-height: 1.5;"><?php echo e(implode(' • ', $jurusan['skill_dipelajari'])); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <div class="tab-navigation">
         <div class="tab-buttons">
