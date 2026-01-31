@@ -1,4 +1,3 @@
-php
 <?php
 
 use Illuminate\Support\Facades\Auth;
@@ -153,9 +152,11 @@ Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])
 Route::get('/sekolah', [App\Http\Controllers\LandingController::class, 'sekolah'])->name('landing.sekolah');
 Route::get('/sekolah/{id}', [App\Http\Controllers\LandingController::class, 'sekolahDetail'])->name('landing.sekolah.detail');
 Route::get('/tentang', [App\Http\Controllers\LandingController::class, 'tentang'])->name('landing.tentang');
+Route::get('/kontak', [App\Http\Controllers\LandingController::class, 'kontak'])->name('landing.kontak');
 
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
+Route::post('/kontak', [App\Http\Controllers\LandingController::class, 'sendContactMessageGeneral'])->name('landing.kontak.submit');
 
 // Jika akses link nuist.id/index maka akan tertuju halaman login
 Route::get('/index', function () {

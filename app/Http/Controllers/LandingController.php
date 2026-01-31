@@ -71,6 +71,18 @@ class LandingController extends Controller
     }
 
     /**
+     * Show the kontak page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function kontak()
+    {
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.kontak', compact('yayasan'));
+    }
+
+    /**
      * Show the sekolah detail page.
      *
      * @param int $id
@@ -168,6 +180,49 @@ class LandingController extends Controller
         ];
 
         // Send email to admin(s)
+        if (!empty($adminEmails)) {
+            Mail::to($adminEmails)->send(new ContactFormNotification($details));
+
+            return redirect()->back()->with('success', 'Pesan berhasil dikirim! Terima kasih atas pesan Anda.');
+        }
+
+        return redirect()->back()->with('error', 'Tidak ada penerima pesan. Silakan coba lagi nanti.');
+    }
+
+    /**
+     * Send general contact message to super admins.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function sendContactMessageGeneral(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Get super admin emails
+        $adminEmails = Admin::where('role', 'super_admin')
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->pluck('email')
+            ->toArray();
+
+        // Prepare email details
+        $details = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'school_name' => 'LPMNU PWNU DIY',
+            'school_id' => null,
+            'created_at' => now()->format('d/m/Y H:i:s'),
+        ];
+
+        // Send email to super admins
         if (!empty($adminEmails)) {
             Mail::to($adminEmails)->send(new ContactFormNotification($details));
 

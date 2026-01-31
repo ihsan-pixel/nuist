@@ -274,18 +274,7 @@
                 <li><a href="<?php echo e(route('landing')); ?>" class="<?php echo e(request()->routeIs('landing') ? 'active' : ''); ?>">Beranda</a></li>
                 <li><a href="<?php echo e(route('landing.sekolah')); ?>" class="<?php echo e(request()->routeIs('landing.sekolah') ? 'active' : ''); ?>">Sekolah</a></li>
                 <li><a href="<?php echo e(route('landing.tentang')); ?>" class="<?php echo e(request()->routeIs('landing.tentang') ? 'active' : ''); ?>">Tentang</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
-                    <ul class="submenu">
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Performa Tinggi</a></li>
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Responsif Penuh</a></li>
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Keamanan Terjamin</a></li>
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Template Modern</a></li>
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Analytics Terintegrasi</a></li>
-                        <li><a href="<?php echo e(route('landing')); ?>#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Dukungan 24/7</a></li>
-                    </ul>
-                </li>
-                <li><a href="<?php echo e(route('landing')); ?>#contact" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
+                <li><a href="<?php echo e(route('landing.kontak')); ?>" class="<?php echo e(request()->routeIs('landing.kontak') ? 'active' : ''); ?>">Kontak</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>

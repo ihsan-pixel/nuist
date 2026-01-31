@@ -274,18 +274,7 @@
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
                 <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
-                    <ul class="submenu">
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Performa Tinggi</a></li>
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Responsif Penuh</a></li>
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Keamanan Terjamin</a></li>
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Template Modern</a></li>
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Analytics Terintegrasi</a></li>
-                        <li><a href="{{ route('landing') }}#features" onclick="event.preventDefault(); smoothScrollToSection('features')">Dukungan 24/7</a></li>
-                    </ul>
-                </li>
-                <li><a href="{{ route('landing') }}#contact" onclick="event.preventDefault(); smoothScrollToSection('contact')">Kontak</a></li>
+                <li><a href="{{ route('landing.kontak') }}" class="{{ request()->routeIs('landing.kontak') ? 'active' : '' }}">Kontak</a></li>
             </ul>
             <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
                 <span></span>
