@@ -153,6 +153,9 @@ Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])
 Route::get('/sekolah', [App\Http\Controllers\LandingController::class, 'sekolah'])->name('landing.sekolah');
 Route::get('/sekolah/{id}', [App\Http\Controllers\LandingController::class, 'sekolahDetail'])->name('landing.sekolah.detail');
 
+// Contact form submission
+Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');
+
 // Jika akses link nuist.id/index maka akan tertuju halaman login
 Route::get('/index', function () {
     return redirect()->route('login');

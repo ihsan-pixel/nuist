@@ -3,6 +3,12 @@
 @section('title', $madrasah->name . ' - NUIST')
 @section('description', 'Profil ' . $madrasah->name . ' Dibawah Naungan LPMNU PWNU DIY')
 
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 @section('content')
 <style>
     * {
@@ -12,11 +18,34 @@
         font-family: 'Inter', sans-serif;
     }
 
+
     body {
         background: #f8fafc;
         color: #333;
         line-height: 1.6;
     }
+
+    /* LEAFLET MAP STYLES */
+    .map-wrapper {
+        height: 350px;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #school-map {
+        height: 350px;
+        width: 100%;
+        border-radius: 12px;
+        z-index: 1;
+    }
+
+    /* Fix for Leaflet in tabs */
+    .tab-content.active #school-map {
+        height: 350px;
+    }
+
 
     /* HERO */
     .hero {
@@ -1186,7 +1215,9 @@
                     <div class="detail-row">
                         <div class="detail-label-text">Email</div>
                         <div class="detail-value-text">
-                            @if($ppdbSetting && $ppdbSetting->email)
+                            @if($adminEmail)
+                                <a href="mailto:{{ $adminEmail }}">{{ $adminEmail }}</a>
+                            @elseif($ppdbSetting && $ppdbSetting->email)
                                 <a href="mailto:{{ $ppdbSetting->email }}">{{ $ppdbSetting->email }}</a>
                             @elseif($madrasah->email)
                                 <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
@@ -1483,12 +1514,79 @@
                         <i class="bi bi-geo-alt"></i> {{ $madrasah->alamat ?? 'Jl. Raya Km. 5, Yogyakarta' }}
                     </p>
                 </div>
-                <!-- Google Maps Embed Placeholder -->
-                <div style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); height: 300px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b;">
-                    <i class="bi bi-map" style="font-size: 48px; margin-bottom: 12px;"></i>
-                    <p style="font-size: 14px; font-weight: 600;">Google Maps Embed</p>
-                    <p style="font-size: 12px; opacity: 0.7;">(Silakan tambahkan embed code Google Maps)</p>
+                <!-- Google Maps Embed - Leaflet with OpenStreetMap -->
+                <div style="background: #f8fafc; border-radius: 12px; overflow: hidden; width: 100%;">
+                    <div id="school-map" style="width: 100%; height: 350px;"></div>
                 </div>
+
+                <!-- Open in Google Maps Button -->
+                <div style="margin-top: 12px; text-align: center;">
+                    <a href="{{ $madrasah && $madrasah->map_link ? $madrasah->map_link : '#' }}"
+                       target="_blank"
+                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #00393a; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.3s ease;">
+                        <i class="bi bi-google" style="font-size: 16px;"></i>
+                        Buka di Google Maps
+                    </a>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Initialize map with default coordinates
+                        var defaultLat = -7.75;
+                        var defaultLng = 110.35;
+
+                        @if($madrasah && $madrasah->map_link)
+                            @php
+                                $mapUrl = trim($madrasah->map_link);
+                                // Try to extract coordinates from URL
+                                if (preg_match('/@(-?\d+\.?\d*),(-?\d+\.?\d*)/', $mapUrl, $matches)) {
+                                    $lat = (float)$matches[1];
+                                    $lng = (float)$matches[2];
+                                    echo 'defaultLat = ' . $lat . ';';
+                                    echo 'defaultLng = ' . $lng . ';';
+                                }
+                            @endphp
+                        @endif
+
+                        // Create map and ensure it renders properly
+                        var map = L.map('school-map', {
+                            center: [defaultLat, defaultLng],
+                            zoom: 15,
+                            zoomControl: true,
+                            scrollWheelZoom: true
+                        });
+
+                        // Force map to invalidate size and render correctly
+                        setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
+
+                        // Add OpenStreetMap tile layer
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }).addTo(map);
+
+                        // Add marker at center
+                        var marker = L.marker([defaultLat, defaultLng], {
+                            draggable: false
+                        }).addTo(map);
+
+                        // Add popup with school info
+                        @if($madrasah)
+                        marker.bindPopup('<div style="text-align: center;"><strong>{{ $madrasah->name }}</strong><br>{{ $madrasah->alamat ?? "" }}</div>').openPopup();
+                        @else
+                        marker.bindPopup('<strong>Lokasi Sekolah</strong>');
+                        @endif
+
+                        // When tab is shown, fix map size
+                        document.querySelector('[data-tab="kontak"]').addEventListener('click', function() {
+                            setTimeout(function() {
+                                map.invalidateSize();
+                            }, 300);
+                        });
+                    });
+                </script>
             </div>
 
             <!-- Contact Form -->
@@ -1496,25 +1594,39 @@
                 <h3 class="contact-form-title">
                     <i class="bi bi-send"></i> Kirim Pesan
                 </h3>
-                <form>
+
+                @if(session('success'))
+                    <div style="background: #dcfce7; border: 1px solid #16a34a; border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #16a34a; font-weight: 500;">
+                        <i class="bi bi-check-circle"></i> {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div style="background: #fee2e2; border: 1px solid #dc2626; border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #dc2626; font-weight: 500;">
+                        <i class="bi bi-x-circle"></i> {{ session('error') }}
+                    </div>
+                @endif
+
+                <form action="{{ route('landing.sekolah.contact', $madrasah->id) }}" method="POST">
+                    @csrf
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" placeholder="Masukkan nama Anda">
+                        <input type="text" name="name" class="form-control" placeholder="Masukkan nama Anda" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="Masukkan email Anda">
+                        <input type="email" name="email" class="form-control" placeholder="Masukkan email Anda" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Subjek</label>
-                        <input type="text" class="form-control" placeholder="Masukkan subjek pesan">
+                        <input type="text" name="subject" class="form-control" placeholder="Masukkan subjek pesan" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Pesan</label>
-                        <textarea class="form-control" placeholder="Tuliskan pesan Anda..."></textarea>
+                        <textarea name="message" class="form-control" placeholder="Tuliskan pesan Anda..." required></textarea>
                     </div>
 
                     <button type="submit" class="submit-btn">
@@ -1537,12 +1649,14 @@
                             <i class="bi bi-envelope-fill"></i>
                         </div>
                         <div class="contact-info-text">
-                            @if($ppdbSetting && $ppdbSetting->email)
+                            @if($adminEmail)
+                                <a href="mailto:{{ $adminEmail }}">{{ $adminEmail }}</a>
+                            @elseif($ppdbSetting && $ppdbSetting->email)
                                 <a href="mailto:{{ $ppdbSetting->email }}">{{ $ppdbSetting->email }}</a>
                             @elseif($madrasah->email)
                                 <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
                             @else
-                                info@sekolah.sch.id
+                                -
                             @endif
                         </div>
                     </div>

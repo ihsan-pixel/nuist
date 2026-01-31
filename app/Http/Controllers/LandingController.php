@@ -8,6 +8,9 @@ use App\Models\Madrasah;
 use App\Models\Yayasan;
 use App\Models\PPDBSetting;
 use App\Models\DataSekolah;
+use App\Models\Admin;
+use App\Mail\ContactFormNotification;
+use Illuminate\Support\Facades\Mail;
 
 class LandingController extends Controller
 {
@@ -95,6 +98,70 @@ class LandingController extends Controller
         // Get PPDB slug for button link
         $ppdbSlug = $ppdbSetting ? $ppdbSetting->slug : null;
 
-        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah', 'ppdbSlug', 'jumlahGuru', 'jumlahSiswa'));
+        // Get admin email for this madrasah (from users table)
+        $adminEmail = Admin::where('madrasah_id', $id)
+            ->where('role', 'admin')
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->value('email');
+
+        return view('landing.sekolah-detail', compact('madrasah', 'yayasan', 'ppdbSetting', 'kepalaSekolah', 'ppdbSlug', 'jumlahGuru', 'jumlahSiswa', 'adminEmail'));
+    }
+
+    /**
+     * Send contact message to admin(s) with matching madrasah_id.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function sendContactMessage(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Get madrasah
+        $madrasah = Madrasah::findOrFail($id);
+
+        // Get admin(s) with matching madrasah_id and role admin
+        $adminEmails = Admin::where('madrasah_id', $id)
+            ->where('role', 'admin')
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->pluck('email')
+            ->toArray();
+
+        // If no admin found for this madrasah, send to super_admin(s)
+        if (empty($adminEmails)) {
+            $adminEmails = Admin::where('role', 'super_admin')
+                ->whereNotNull('email')
+                ->where('email', '!=', '')
+                ->pluck('email')
+                ->toArray();
+        }
+
+        // Prepare email details
+        $details = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'school_name' => $madrasah->name,
+            'school_id' => $madrasah->id,
+            'created_at' => now()->format('d/m/Y H:i:s'),
+        ];
+
+        // Send email to admin(s)
+        if (!empty($adminEmails)) {
+            Mail::to($adminEmails)->send(new ContactFormNotification($details));
+
+            return redirect()->back()->with('success', 'Pesan berhasil dikirim! Terima kasih atas pesan Anda.');
+        }
+
+        return redirect()->back()->with('error', 'Tidak ada penerima pesan. Silakan coba lagi nanti.');
     }
 }

@@ -1,6 +1,12 @@
 <?php $__env->startSection('title', $madrasah->name . ' - NUIST'); ?>
 <?php $__env->startSection('description', 'Profil ' . $madrasah->name . ' Dibawah Naungan LPMNU PWNU DIY'); ?>
 
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <?php $__env->startSection('content'); ?>
 <style>
     * {
@@ -10,11 +16,34 @@
         font-family: 'Inter', sans-serif;
     }
 
+
     body {
         background: #f8fafc;
         color: #333;
         line-height: 1.6;
     }
+
+    /* LEAFLET MAP STYLES */
+    .map-wrapper {
+        height: 350px;
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #school-map {
+        height: 350px;
+        width: 100%;
+        border-radius: 12px;
+        z-index: 1;
+    }
+
+    /* Fix for Leaflet in tabs */
+    .tab-content.active #school-map {
+        height: 350px;
+    }
+
 
     /* HERO */
     .hero {
@@ -1185,7 +1214,9 @@
                     <div class="detail-row">
                         <div class="detail-label-text">Email</div>
                         <div class="detail-value-text">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->email): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminEmail): ?>
+                                <a href="mailto:<?php echo e($adminEmail); ?>"><?php echo e($adminEmail); ?></a>
+                            <?php elseif($ppdbSetting && $ppdbSetting->email): ?>
                                 <a href="mailto:<?php echo e($ppdbSetting->email); ?>"><?php echo e($ppdbSetting->email); ?></a>
                             <?php elseif($madrasah->email): ?>
                                 <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
@@ -1399,7 +1430,7 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $galeriData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="gallery-item">
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($url)): ?>
-                                <img src="<?php echo e(asset('storage/' . $url)); ?>" alt="Foto Galeri">
+                                <img src="<?php echo e(asset('images/madrasah/galeri/' . $url)); ?>" alt="Foto Galeri">
                             <?php else: ?>
                                 <div class="gallery-placeholder">
                                     <i class="bi bi-image"></i>
@@ -1425,76 +1456,49 @@
         </div>
     </div>
 
+
     <!-- PRESTASI -->
     <div class="tab-content" id="prestasi">
         <div class="achievements-grid">
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Lomba MTQ Tingkat Kabupaten</div>
-                <div class="achievement-desc">Prestasi gemilang siswa dalam cabang Musabaqah Tilawatil Quran</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->prestasi): ?>
+                <?php
+                    // Decode prestasi if it's JSON, otherwise use as is
+                    $prestasiData = is_string($ppdbSetting->prestasi) ? json_decode($ppdbSetting->prestasi, true) : $ppdbSetting->prestasi;
+                ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($prestasiData) && count($prestasiData) > 0): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $prestasiData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="achievement-card">
+                            <span class="achievement-badge <?php echo e(strtolower($item['tingkat'] ?? 'kabupaten')); ?>">
+                                <i class="bi bi-geo-alt"></i> <?php echo e($item['tingkat'] ?? 'Kabupaten'); ?>
 
-            <div class="achievement-card">
-                <span class="achievement-badge provinsi">
-                    <i class="bi bi-globe"></i> Provinsi
-                </span>
-                <div class="achievement-title">Juara 2 Olympiade Matematika</div>
-                <div class="achievement-desc">Siswa berhasil menempati posisi kedua dalam olympiade matematika se-DIY</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
+                            </span>
+                            <div class="achievement-title"><?php echo e($item['title'] ?? '-'); ?></div>
+                            <div class="achievement-desc"><?php echo e($item['description'] ?? ''); ?></div>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($item['year'])): ?>
+                            <div class="achievement-year">
+                                <i class="bi bi-calendar3"></i> <?php echo e($item['year']); ?>
 
-            <div class="achievement-card">
-                <span class="achievement-badge nasional">
-                    <i class="bi bi-star"></i> Nasional
-                </span>
-                <div class="achievement-title">Juara 3 Lomba Debat Bahasa Indonesia</div>
-                <div class="achievement-desc">Tim debat sekolah meraih peringkat nasional</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2023
+                            </div>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="bi bi-trophy"></i>
+                        <h4>Tidak Ada Data Prestasi</h4>
+                        <p>Data prestasi belum tersedia</p>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php else: ?>
+                <div class="empty-state">
+                    <i class="bi bi-trophy"></i>
+                    <h4>Tidak Ada Data Prestasi</h4>
+                    <p>Data prestasi belum tersedia</p>
                 </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Voli Putri</div>
-                <div class="achievement-desc">Tim voli putri memenangkan kompetisi tingkat kabupaten</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge provinsi">
-                    <i class="bi bi-globe"></i> Provinsi
-                </span>
-                <div class="achievement-title">Akreditasi A</div>
-                <div class="achievement-desc">Sekolah berhasil mempertahankan akreditasi dengan nilai excellent</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2023
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Pidato Bahasa Arab</div>
-                <div class="achievement-desc">Siswa terbaik dalam kompetisi pidato bahasa arab</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
+
 
     <!-- KONTAK & LOKASI -->
     <div class="tab-content" id="kontak">
@@ -1513,12 +1517,79 @@
 
                     </p>
                 </div>
-                <!-- Google Maps Embed Placeholder -->
-                <div style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); height: 300px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b;">
-                    <i class="bi bi-map" style="font-size: 48px; margin-bottom: 12px;"></i>
-                    <p style="font-size: 14px; font-weight: 600;">Google Maps Embed</p>
-                    <p style="font-size: 12px; opacity: 0.7;">(Silakan tambahkan embed code Google Maps)</p>
+                <!-- Google Maps Embed - Leaflet with OpenStreetMap -->
+                <div style="background: #f8fafc; border-radius: 12px; overflow: hidden; width: 100%;">
+                    <div id="school-map" style="width: 100%; height: 350px;"></div>
                 </div>
+
+                <!-- Open in Google Maps Button -->
+                <div style="margin-top: 12px; text-align: center;">
+                    <a href="<?php echo e($madrasah && $madrasah->map_link ? $madrasah->map_link : '#'); ?>"
+                       target="_blank"
+                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #00393a; color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.3s ease;">
+                        <i class="bi bi-google" style="font-size: 16px;"></i>
+                        Buka di Google Maps
+                    </a>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Initialize map with default coordinates
+                        var defaultLat = -7.75;
+                        var defaultLng = 110.35;
+
+                        <?php if($madrasah && $madrasah->map_link): ?>
+                            <?php
+                                $mapUrl = trim($madrasah->map_link);
+                                // Try to extract coordinates from URL
+                                if (preg_match('/@(-?\d+\.?\d*),(-?\d+\.?\d*)/', $mapUrl, $matches)) {
+                                    $lat = (float)$matches[1];
+                                    $lng = (float)$matches[2];
+                                    echo 'defaultLat = ' . $lat . ';';
+                                    echo 'defaultLng = ' . $lng . ';';
+                                }
+                            ?>
+                        <?php endif; ?>
+
+                        // Create map and ensure it renders properly
+                        var map = L.map('school-map', {
+                            center: [defaultLat, defaultLng],
+                            zoom: 15,
+                            zoomControl: true,
+                            scrollWheelZoom: true
+                        });
+
+                        // Force map to invalidate size and render correctly
+                        setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
+
+                        // Add OpenStreetMap tile layer
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }).addTo(map);
+
+                        // Add marker at center
+                        var marker = L.marker([defaultLat, defaultLng], {
+                            draggable: false
+                        }).addTo(map);
+
+                        // Add popup with school info
+                        <?php if($madrasah): ?>
+                        marker.bindPopup('<div style="text-align: center;"><strong><?php echo e($madrasah->name); ?></strong><br><?php echo e($madrasah->alamat ?? ""); ?></div>').openPopup();
+                        <?php else: ?>
+                        marker.bindPopup('<strong>Lokasi Sekolah</strong>');
+                        <?php endif; ?>
+
+                        // When tab is shown, fix map size
+                        document.querySelector('[data-tab="kontak"]').addEventListener('click', function() {
+                            setTimeout(function() {
+                                map.invalidateSize();
+                            }, 300);
+                        });
+                    });
+                </script>
             </div>
 
             <!-- Contact Form -->
@@ -1526,25 +1597,41 @@
                 <h3 class="contact-form-title">
                     <i class="bi bi-send"></i> Kirim Pesan
                 </h3>
-                <form>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
+                    <div style="background: #dcfce7; border: 1px solid #16a34a; border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #16a34a; font-weight: 500;">
+                        <i class="bi bi-check-circle"></i> <?php echo e(session('success')); ?>
+
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('error')): ?>
+                    <div style="background: #fee2e2; border: 1px solid #dc2626; border-radius: 8px; padding: 16px; margin-bottom: 20px; color: #dc2626; font-weight: 500;">
+                        <i class="bi bi-x-circle"></i> <?php echo e(session('error')); ?>
+
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                <form action="<?php echo e(route('landing.sekolah.contact', $madrasah->id)); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
                     <div class="form-group">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" placeholder="Masukkan nama Anda">
+                        <input type="text" name="name" class="form-control" placeholder="Masukkan nama Anda" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="Masukkan email Anda">
+                        <input type="email" name="email" class="form-control" placeholder="Masukkan email Anda" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Subjek</label>
-                        <input type="text" class="form-control" placeholder="Masukkan subjek pesan">
+                        <input type="text" name="subject" class="form-control" placeholder="Masukkan subjek pesan" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Pesan</label>
-                        <textarea class="form-control" placeholder="Tuliskan pesan Anda..."></textarea>
+                        <textarea name="message" class="form-control" placeholder="Tuliskan pesan Anda..." required></textarea>
                     </div>
 
                     <button type="submit" class="submit-btn">
@@ -1568,12 +1655,14 @@
                             <i class="bi bi-envelope-fill"></i>
                         </div>
                         <div class="contact-info-text">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->email): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($adminEmail): ?>
+                                <a href="mailto:<?php echo e($adminEmail); ?>"><?php echo e($adminEmail); ?></a>
+                            <?php elseif($ppdbSetting && $ppdbSetting->email): ?>
                                 <a href="mailto:<?php echo e($ppdbSetting->email); ?>"><?php echo e($ppdbSetting->email); ?></a>
                             <?php elseif($madrasah->email): ?>
                                 <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
                             <?php else: ?>
-                                info@sekolah.sch.id
+                                -
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
                     </div>
