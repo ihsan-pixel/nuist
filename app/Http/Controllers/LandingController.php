@@ -59,6 +59,18 @@ class LandingController extends Controller
     }
 
     /**
+     * Show the tentang page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function tentang()
+    {
+        $yayasan = Yayasan::find(1);
+
+        return view('landing.tentang', compact('yayasan'));
+    }
+
+    /**
      * Show the sekolah detail page.
      *
      * @param int $id

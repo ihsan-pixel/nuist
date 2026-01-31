@@ -1,4 +1,4 @@
-
+php
 <?php
 
 use Illuminate\Support\Facades\Auth;
@@ -152,6 +152,7 @@ Route::get('/', function () {
 Route::get('/landing', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 Route::get('/sekolah', [App\Http\Controllers\LandingController::class, 'sekolah'])->name('landing.sekolah');
 Route::get('/sekolah/{id}', [App\Http\Controllers\LandingController::class, 'sekolahDetail'])->name('landing.sekolah.detail');
+Route::get('/tentang', [App\Http\Controllers\LandingController::class, 'tentang'])->name('landing.tentang');
 
 // Contact form submission
 Route::post('/sekolah/{id}/contact', [App\Http\Controllers\LandingController::class, 'sendContactMessage'])->name('landing.sekolah.contact');

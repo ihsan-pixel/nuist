@@ -273,7 +273,7 @@
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('landing.sekolah') }}" class="{{ request()->routeIs('landing.sekolah') ? 'active' : '' }}">Sekolah</a></li>
-                <li><a href="{{ route('landing') }}#about" onclick="event.preventDefault(); smoothScrollToSection('about')">Tentang</a></li>
+                <li><a href="{{ route('landing.tentang') }}" class="{{ request()->routeIs('landing.tentang') ? 'active' : '' }}">Tentang</a></li>
                 <li class="dropdown">
                     <a href="#" onclick="toggleSubmenu(event)">Fitur <i class="bx bx-chevron-down arrow"></i></a>
                     <ul class="submenu">
