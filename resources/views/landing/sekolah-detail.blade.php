@@ -1240,21 +1240,6 @@
                         </div>
                     </div>
 
-                    @if($ppdbSetting && $ppdbSetting->jurusan && count($ppdbSetting->jurusan) > 0)
-                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
-                        <div class="detail-label-text">Jurusan</div>
-                        <div class="detail-value-text">
-                            @foreach($ppdbSetting->jurusan as $jurusan)
-                                <div style="margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #00393a;">
-                                    <strong style="color: #00393a; font-size: 14px;">{{ $jurusan['nama'] }}</strong><br>
-                                    <small style="color: #64748b; font-weight: 500;">Prospek Karir: {{ $jurusan['prospek_karir'] }}</small><br>
-                                    <small style="color: #64748b; font-weight: 500;">Skill Dipelajari: {{ implode(', ', $jurusan['skill_dipelajari']) }}</small>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-
                     @if($madrasah->alamat)
                     <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
                         <div class="detail-label-text">Alamat Lengkap</div>
@@ -1269,6 +1254,42 @@
                             <a href="{{ route('ppdb.sekolah', $ppdbSlug) }}" class="ppdb-btn">
                                 Halaman SPMB
                             </a>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($ppdbSetting && $ppdbSetting->jurusan && count($ppdbSetting->jurusan) > 0)
+                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
+                        <div class="detail-label-text">Program Keahlian</div>
+                        <div class="detail-value-text">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 8px;">
+                                @foreach($ppdbSetting->jurusan as $jurusan)
+                                    <div style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 57, 58, 0.08); transition: all 0.3s ease;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #00393a, #005555); display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                                <i class="bi bi-book-fill" style="color: white; font-size: 18px;"></i>
+                                            </div>
+                                            <h4 style="margin: 0; color: #00393a; font-size: 16px; font-weight: 700; line-height: 1.3;">{{ $jurusan['nama'] }}</h4>
+                                        </div>
+                                        <div style="margin-bottom: 12px;">
+                                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
+                                                <i class="bi bi-briefcase-fill" style="color: #eda711; margin-right: 8px; margin-top: 2px; font-size: 14px;"></i>
+                                                <div>
+                                                    <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Prospek Karir</small>
+                                                    <p style="margin: 4px 0 0 0; color: #1e293b; font-size: 13px; line-height: 1.4;">{{ $jurusan['prospek_karir'] }}</p>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; align-items: flex-start;">
+                                                <i class="bi bi-tools" style="color: #eda711; margin-right: 8px; margin-top: 2px; font-size: 14px;"></i>
+                                                <div>
+                                                    <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">Skill Dipelajari</small>
+                                                    <p style="margin: 4px 0 0 0; color: #1e293b; font-size: 13px; line-height: 1.4;">{{ implode(' • ', $jurusan['skill_dipelajari']) }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                     @endif
