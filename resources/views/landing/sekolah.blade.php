@@ -15,6 +15,14 @@
     </div>
 </section>
 
+<!-- MAP SECTION -->
+<section id="map-section" class="map-section">
+    <div class="container">
+        <h2 class="section-title animate fade-up" style="margin-bottom:50px; font-size:24px;">Peta Lokasi Madrasah di Yogyakarta</h2>
+        <div id="map"></div>
+    </div>
+</section>
+
 <!-- SEKOLAH LIST -->
 <section id="sekolah-list" class="sekolah-list">
     <div class="container">
@@ -117,6 +125,20 @@
         max-width: 720px;
         margin-left: auto;
         margin-right: auto;
+    }
+
+    /* MAP SECTION */
+    .map-section {
+        padding: 80px 0;
+        background: #ffffff;
+    }
+
+    #map {
+        height: 500px;
+        width: 1400px;
+        margin: 0 auto;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
     /* SEKOLAH LIST */
@@ -335,6 +357,12 @@
     }
 </style>
 
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <script>
 // Section active on scroll and animation trigger
 document.addEventListener('DOMContentLoaded', function () {
@@ -411,6 +439,22 @@ document.addEventListener('DOMContentLoaded', function () {
         cursorSmall.style.display = 'none';
         cursorLarge.style.display = 'none';
     }
+
+    // Initialize Leaflet Map
+    const map = L.map('map').setView([-7.7956, 110.3695], 10); // Yogyakarta coordinates
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add markers for each madrasah
+    @foreach($madrasahs as $madrasah)
+        @if($madrasah->latitude && $madrasah->longitude)
+            L.marker([{{ $madrasah->latitude }}, {{ $madrasah->longitude }}])
+                .addTo(map)
+                .bindPopup('<b>{{ $madrasah->name }}</b><br>{{ $madrasah->kabupaten }}<br><a href="{{ route("landing.sekolah.detail", $madrasah->id) }}">Lihat Detail</a>');
+        @endif
+    @endforeach
 });
 </script>
 
