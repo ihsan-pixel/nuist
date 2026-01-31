@@ -1426,76 +1426,47 @@
         </div>
     </div>
 
+
     <!-- PRESTASI -->
     <div class="tab-content" id="prestasi">
         <div class="achievements-grid">
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Lomba MTQ Tingkat Kabupaten</div>
-                <div class="achievement-desc">Prestasi gemilang siswa dalam cabang Musabaqah Tilawatil Quran</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
+            @if($ppdbSetting && $ppdbSetting->prestasi)
+                @php
+                    // Decode prestasi if it's JSON, otherwise use as is
+                    $prestasiData = is_string($ppdbSetting->prestasi) ? json_decode($ppdbSetting->prestasi, true) : $ppdbSetting->prestasi;
+                @endphp
+                @if(is_array($prestasiData) && count($prestasiData) > 0)
+                    @foreach($prestasiData as $item)
+                        <div class="achievement-card">
+                            <span class="achievement-badge {{ strtolower($item['tingkat'] ?? 'kabupaten') }}">
+                                <i class="bi bi-geo-alt"></i> {{ $item['tingkat'] ?? 'Kabupaten' }}
+                            </span>
+                            <div class="achievement-title">{{ $item['title'] ?? '-' }}</div>
+                            <div class="achievement-desc">{{ $item['description'] ?? '' }}</div>
+                            @if(!empty($item['year']))
+                            <div class="achievement-year">
+                                <i class="bi bi-calendar3"></i> {{ $item['year'] }}
+                            </div>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <i class="bi bi-trophy"></i>
+                        <h4>Tidak Ada Data Prestasi</h4>
+                        <p>Data prestasi belum tersedia</p>
+                    </div>
+                @endif
+            @else
+                <div class="empty-state">
+                    <i class="bi bi-trophy"></i>
+                    <h4>Tidak Ada Data Prestasi</h4>
+                    <p>Data prestasi belum tersedia</p>
                 </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge provinsi">
-                    <i class="bi bi-globe"></i> Provinsi
-                </span>
-                <div class="achievement-title">Juara 2 Olympiade Matematika</div>
-                <div class="achievement-desc">Siswa berhasil menempati posisi kedua dalam olympiade matematika se-DIY</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge nasional">
-                    <i class="bi bi-star"></i> Nasional
-                </span>
-                <div class="achievement-title">Juara 3 Lomba Debat Bahasa Indonesia</div>
-                <div class="achievement-desc">Tim debat sekolah meraih peringkat nasional</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2023
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Voli Putri</div>
-                <div class="achievement-desc">Tim voli putri memenangkan kompetisi tingkat kabupaten</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge provinsi">
-                    <i class="bi bi-globe"></i> Provinsi
-                </span>
-                <div class="achievement-title">Akreditasi A</div>
-                <div class="achievement-desc">Sekolah berhasil mempertahankan akreditasi dengan nilai excellent</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2023
-                </div>
-            </div>
-
-            <div class="achievement-card">
-                <span class="achievement-badge kabupaten">
-                    <i class="bi bi-geo-alt"></i> Kabupaten
-                </span>
-                <div class="achievement-title">Juara 1 Pidato Bahasa Arab</div>
-                <div class="achievement-desc">Siswa terbaik dalam kompetisi pidato bahasa arab</div>
-                <div class="achievement-year">
-                    <i class="bi bi-calendar3"></i> 2024
-                </div>
-            </div>
+            @endif
         </div>
     </div>
+
 
     <!-- KONTAK & LOKASI -->
     <div class="tab-content" id="kontak">
