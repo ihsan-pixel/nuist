@@ -28,7 +28,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="logo">
                 </div>
                 <h1 class="login-title">REGISTER</h1>
-                <p class="login-subtitle">Create your account to get started.</p>
+                <p class="login-subtitle">Create your account to get started</p>
 
                 @if (session('status'))
                     <div class="alert alert-success">
