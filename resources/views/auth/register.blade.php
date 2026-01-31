@@ -28,7 +28,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="logo">
                 </div>
                 <h1 class="login-title">REGISTER</h1>
-                <p class="login-subtitle">Create your account to get started</p>
+                <p class="login-subtitle">Create your account to get started.</p>
 
                 @if (session('status'))
                     <div class="alert alert-success">
@@ -45,6 +45,47 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                 <form class="login-form" method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
+                        <label for="user_type" class="form-label">Pilih Jenis Pendaftaran <span class="text-danger">*</span></label>
+                        <select class="form-control @error('user_type') is-invalid @enderror" id="user_type" name="user_type" required>
+                            <option value="">Pilih Jenis Pendaftaran</option>
+                            <option value="pengurus" {{ old('user_type') == 'pengurus' ? 'selected' : '' }}>Pengurus</option>
+                            <option value="staff" {{ old('user_type') == 'staff' ? 'selected' : '' }}>Kepala Sekolah/Tenaga Pendidik</option>
+                        </select>
+                        @error('user_type')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group registration-fields" id="jabatan_field" style="display: none;">
+                        <label for="jabatan" class="form-label">Jabatan <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('jabatan') is-invalid @enderror"
+                               value="{{ old('jabatan') }}" id="jabatan" name="jabatan"
+                               placeholder="Masukkan Jabatan">
+                        @error('jabatan')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group registration-fields" id="sekolah_field" style="display: none;">
+                        <label for="sekolah_asal" class="form-label">Sekolah Asal <span class="text-danger">*</span></label>
+                        <select class="form-control @error('sekolah_asal') is-invalid @enderror" id="sekolah_asal" name="sekolah_asal">
+                            <option value="">Pilih Sekolah Asal</option>
+                            @foreach(\App\Models\Madrasah::all() as $madrasah)
+                            <option value="{{ $madrasah->id }}" {{ old('sekolah_asal') == $madrasah->id ? 'selected' : '' }}>{{ $madrasah->nama_madrasah }}</option>
+                            @endforeach
+                        </select>
+                        @error('sekolah_asal')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
                         <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
                                value="{{ old('email') }}" id="useremail"
@@ -56,7 +97,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
                                value="{{ old('name') }}" id="name" name="name"
@@ -68,7 +109,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password"
@@ -86,7 +127,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="confirmpassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password_confirmation"
@@ -106,7 +147,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 
 
-                    <button class="btn btn-primary login-btn" type="submit">Register</button>
+                    <button class="btn btn-primary login-btn registration-fields" type="submit" style="display: none;">Register</button>
                 </form>
 
                 <div class="mt-3 text-center">
@@ -465,6 +506,96 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // User type selection handler
+    const userTypeSelect = document.getElementById('user_type');
+    const jabatanField = document.getElementById('jabatan_field');
+    const sekolahField = document.getElementById('sekolah_field');
+    const jabatanInput = document.getElementById('jabatan');
+    const sekolahSelect = document.getElementById('sekolah_asal');
+
+    // Get all registration fields individually
+    const emailField = document.querySelector('[for="useremail"]').closest('.form-group');
+    const nameField = document.querySelector('[for="name"]').closest('.form-group');
+    const passwordField = document.querySelector('[for="userpassword"]').closest('.form-group');
+    const confirmPasswordField = document.querySelector('[for="confirmpassword"]').closest('.form-group');
+    const registerButton = document.querySelector('.login-btn[type="submit"]');
+
+    // Form inputs that need to be checked
+    const emailInput = document.getElementById('useremail');
+    const nameInput = document.getElementById('name');
+    const passwordInput = document.getElementById('userpassword');
+    const confirmPasswordInput = document.getElementById('confirmpassword');
+
+    function checkFormCompletion() {
+        const userType = userTypeSelect.value;
+        if (!userType) return false;
+
+        const email = emailInput.value.trim();
+        const name = nameInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        let isComplete = email && name && password && confirmPassword;
+
+        if (userType === 'pengurus') {
+            const jabatan = jabatanInput.value.trim();
+            isComplete = isComplete && jabatan;
+        } else if (userType === 'staff') {
+            const sekolah = sekolahSelect.value;
+            isComplete = isComplete && sekolah;
+        }
+
+        return isComplete;
+    }
+
+    function toggleRegisterButton() {
+        if (checkFormCompletion()) {
+            registerButton.style.display = 'block';
+        } else {
+            registerButton.style.display = 'none';
+        }
+    }
+
+    function toggleFields() {
+        const selectedValue = userTypeSelect.value;
+        console.log('Selected value:', selectedValue);
+
+        if (selectedValue === 'pengurus') {
+            jabatanField.style.display = 'block';
+            sekolahField.style.display = 'none';
+            jabatanInput.required = true;
+            sekolahSelect.required = false;
+            console.log('Showing jabatan field for pengurus');
+        } else if (selectedValue === 'staff') {
+            jabatanField.style.display = 'none';
+            sekolahField.style.display = 'block';
+            jabatanInput.required = false;
+            sekolahSelect.required = true;
+            console.log('Showing sekolah field for staff');
+        } else {
+            // Hide specific fields when no type selected
+            jabatanField.style.display = 'none';
+            sekolahField.style.display = 'none';
+            jabatanInput.required = false;
+            sekolahSelect.required = false;
+            console.log('Hiding specific fields - no selection');
+        }
+    }
+
+    if (userTypeSelect) {
+        userTypeSelect.addEventListener('change', toggleFields);
+        // Initial check in case of form validation errors
+        toggleFields();
+    }
+
+    // Add event listeners to form inputs to check completion
+    [emailInput, nameInput, passwordInput, confirmPasswordInput, jabatanInput, sekolahSelect].forEach(input => {
+        if (input) {
+            input.addEventListener('input', toggleRegisterButton);
+            input.addEventListener('change', toggleRegisterButton);
+        }
+    });
+
     // Password toggle for password field
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('userpassword');
