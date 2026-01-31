@@ -1356,101 +1356,35 @@
     <!-- FASILITAS -->
     <div class="tab-content" id="fasilitas">
         <div class="facilities-grid">
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-house-door-fill"></i>
-                </div>
-                <div class="facility-name">Ruang Kelas</div>
-                <div class="facility-count">24 Ruang</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-pc-display"></i>
-                </div>
-                <div class="facility-name">Lab Komputer</div>
-                <div class="facility-count">3 Lab</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-book-half"></i>
-                </div>
-                <div class="facility-name">Perpustakaan</div>
-                <div class="facility-count">1 Unit</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
+            @if($ppdbSetting && $ppdbSetting->fasilitas)
+                @php
+                    // Decode fasilitas if it's JSON, otherwise use as is
+                    $fasilitasData = is_string($ppdbSetting->fasilitas) ? json_decode($ppdbSetting->fasilitas, true) : $ppdbSetting->fasilitas;
+                @endphp
+                @if(is_array($fasilitasData))
+                    @foreach($fasilitasData as $fasilitas)
+                        <div class="facility-card">
+                            <div class="facility-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="facility-name">{{ $fasilitas['name'] ?? 'Fasilitas' }}</div>
+                            <div class="facility-count">{{ $fasilitas['description'] ?? '' }}</div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <i class="bi bi-building"></i>
+                        <h4>Tidak Ada Data Fasilitas</h4>
+                        <p>Data fasilitas belum tersedia</p>
+                    </div>
+                @endif
+            @else
+                <div class="empty-state">
                     <i class="bi bi-building"></i>
+                    <h4>Tidak Ada Data Fasilitas</h4>
+                    <p>Data fasilitas belum tersedia</p>
                 </div>
-                <div class="facility-name">Masjid/Musholla</div>
-                <div class="facility-count">1 Unit</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-tree"></i>
-                </div>
-                <div class="facility-name">Lapangan</div>
-                <div class="facility-count">2 Lapangan</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-heart-pulse"></i>
-                </div>
-                <div class="facility-name">UKS</div>
-                <div class="facility-count">1 Unit</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-cup-hot"></i>
-                </div>
-                <div class="facility-name">Kantin</div>
-                <div class="facility-count">2 Unit</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-person-workspace"></i>
-                </div>
-                <div class="facility-name">Lab Bahasa</div>
-                <div class="facility-count">1 Lab</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-flask"></i>
-                </div>
-                <div class="facility-name">Lab IPA</div>
-                <div class="facility-count">2 Lab</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-bus-front"></i>
-                </div>
-                <div class="facility-name">Parkiran</div>
-                <div class="facility-count">Area Luas</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-wifi"></i>
-                </div>
-                <div class="facility-name">WiFi</div>
-                <div class="facility-count">全 Area</div>
-            </div>
-
-            <div class="facility-card">
-                <div class="facility-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <div class="facility-name">Keamanan</div>
-                <div class="facility-count">24/7</div>
-            </div>
+            @endif
         </div>
     </div>
 
