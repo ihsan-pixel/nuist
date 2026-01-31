@@ -1240,6 +1240,21 @@
                         </div>
                     </div>
 
+                    @if($ppdbSetting && $ppdbSetting->jurusan && count($ppdbSetting->jurusan) > 0)
+                    <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
+                        <div class="detail-label-text">Jurusan</div>
+                        <div class="detail-value-text">
+                            @foreach($ppdbSetting->jurusan as $jurusan)
+                                <div style="margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #00393a;">
+                                    <strong style="color: #00393a; font-size: 14px;">{{ $jurusan['nama'] }}</strong><br>
+                                    <small style="color: #64748b; font-weight: 500;">Prospek Karir: {{ $jurusan['prospek_karir'] }}</small><br>
+                                    <small style="color: #64748b; font-weight: 500;">Skill Dipelajari: {{ implode(', ', $jurusan['skill_dipelajari']) }}</small>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                     @if($madrasah->alamat)
                     <div class="detail-row" style="grid-column: span 2; border-right: none; border-bottom: 1px solid #e2e8f0;">
                         <div class="detail-label-text">Alamat Lengkap</div>
