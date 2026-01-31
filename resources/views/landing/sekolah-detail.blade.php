@@ -1391,126 +1391,38 @@
     <!-- GALERI FOTO -->
     <div class="tab-content" id="galeri">
         <div class="gallery-grid">
-            <!-- Placeholder Gallery Items -->
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
+            @if($ppdbSetting && $ppdbSetting->galeri_foto)
+                @php
+                    // Decode galeri_foto if it's JSON, otherwise use as is
+                    $galeriData = is_string($ppdbSetting->galeri_foto) ? json_decode($ppdbSetting->galeri_foto, true) : $ppdbSetting->galeri_foto;
+                @endphp
+                @if(is_array($galeriData) && count($galeriData) > 0)
+                    @foreach($galeriData as $url)
+                        <div class="gallery-item">
+                            @if(!empty($url))
+                                <img src="{{ asset('storage/' . $url) }}" alt="Foto Galeri">
+                            @else
+                                <div class="gallery-placeholder">
+                                    <i class="bi bi-image"></i>
+                                    <span>Foto Kegiatan</span>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state">
+                        <i class="bi bi-image"></i>
+                        <h4>Tidak Ada Foto Galeri</h4>
+                        <p>Foto galeri belum tersedia</p>
+                    </div>
+                @endif
+            @else
+                <div class="empty-state">
                     <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
+                    <h4>Tidak Ada Foto Galeri</h4>
+                    <p>Foto galeri belum tersedia</p>
                 </div>
-                <div class="gallery-overlay">
-                    <span>Upacara Bendera</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span> Pembelajaran di Kelas</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Lab Komputer</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Perpustakaan</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Olahraga</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Kegiatan Rohis</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Praktikum</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Perayaan Hari Besar</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Extrakurikuler</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Wisuda</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Kunjungan Studi</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Lomba Tingkat Sekolah</span>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 

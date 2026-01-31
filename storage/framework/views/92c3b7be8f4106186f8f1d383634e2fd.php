@@ -1390,126 +1390,38 @@
     <!-- GALERI FOTO -->
     <div class="tab-content" id="galeri">
         <div class="gallery-grid">
-            <!-- Placeholder Gallery Items -->
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($ppdbSetting && $ppdbSetting->galeri_foto): ?>
+                <?php
+                    // Decode galeri_foto if it's JSON, otherwise use as is
+                    $galeriData = is_string($ppdbSetting->galeri_foto) ? json_decode($ppdbSetting->galeri_foto, true) : $ppdbSetting->galeri_foto;
+                ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($galeriData) && count($galeriData) > 0): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $galeriData; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="gallery-item">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($url)): ?>
+                                <img src="<?php echo e(asset('storage/' . $url)); ?>" alt="Foto Galeri">
+                            <?php else: ?>
+                                <div class="gallery-placeholder">
+                                    <i class="bi bi-image"></i>
+                                    <span>Foto Kegiatan</span>
+                                </div>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="bi bi-image"></i>
+                        <h4>Tidak Ada Foto Galeri</h4>
+                        <p>Foto galeri belum tersedia</p>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <?php else: ?>
+                <div class="empty-state">
                     <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
+                    <h4>Tidak Ada Foto Galeri</h4>
+                    <p>Foto galeri belum tersedia</p>
                 </div>
-                <div class="gallery-overlay">
-                    <span>Upacara Bendera</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span> Pembelajaran di Kelas</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Lab Komputer</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Perpustakaan</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Olahraga</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Kegiatan Rohis</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Praktikum</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Perayaan Hari Besar</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Extrakurikuler</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Wisuda</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Kunjungan Studi</span>
-                </div>
-            </div>
-
-            <div class="gallery-item">
-                <div class="gallery-placeholder">
-                    <i class="bi bi-image"></i>
-                    <span>Foto Kegiatan</span>
-                </div>
-                <div class="gallery-overlay">
-                    <span>Lomba Tingkat Sekolah</span>
-                </div>
-            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
     </div>
 
