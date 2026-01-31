@@ -1256,42 +1256,7 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon guru">
-                    <i class="bi bi-person-badge-fill"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number"><?php echo e($jumlahGuru); ?></div>
-                    <div class="stat-label">Jumlah Guru</div>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon siswa">
-                    <i class="bi bi-people-fill"></i>
-                </div>
-                 <div class="stat-info">
-                    <div class="stat-number"><?php echo e($jumlahSiswa); ?></div>
-                    <div class="stat-label">Jumlah Siswa</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon jurusan">
-                    <i class="bi bi-book-fill"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number"><?php echo e($madrasah->jumlah_jurusan ?? ($ppdbSetting->jumlah_jurusan ?? '-')); ?></div>
-                    <div class="stat-label">Jumlah Jurusan</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Navigation Section -->
     <div class="tab-navigation">
         <div class="tab-buttons">
             <button class="tab-btn active" data-tab="tentang">
@@ -1323,15 +1288,13 @@
             <div class="sub-tab-navigation">
                 <button class="sub-tab-btn active" data-subtab="sejarah">Sejarah Singkat</button>
                 <button class="sub-tab-btn" data-subtab="visi">Visi & Misi</button>
-                <button class="sub-tab-btn" data-subtab="motto">Motto Sekolah</button>
             </div>
 
             <!-- Sejarah -->
             <div class="sub-tab-content active" id="sejarah">
                 <div class="about-content">
                     <h3>Sejarah Singkat <?php echo e($madrasah->name); ?></h3>
-                    <p><?php echo e($madrasah->sejarah ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'); ?></p>
-                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p><?php echo e($ppdbSetting && $ppdbSetting->sejarah ? $ppdbSetting->sejarah : '-'); ?></p>
                 </div>
             </div>
 
@@ -1339,27 +1302,10 @@
             <div class="sub-tab-content" id="visi">
                 <div class="about-content">
                     <h3>Visi</h3>
-                    <p><?php echo e($madrasah->visi ?? 'Terwujudnya lembaga pendidikan yang bermutu, berakhlakul karimah, dan mampu bersaing di era global.'); ?></p>
+                    <p><?php echo e($ppdbSetting && $ppdbSetting->visi ? $ppdbSetting->visi : '-'); ?></p>
 
                     <h3 style="margin-top: 30px;">Misi</h3>
-                    <ul style="list-style: disc; padding-left: 24px; margin-bottom: 20px;">
-                        <li>Meningkatkan kualitas pembelajaran yang efektif dan efisien</li>
-                        <li>Mengembangkan potensi siswa secara optimal</li>
-                        <li>Membudayakan akhlakul karimah dalam kehidupan sehari-hari</li>
-                        <li>Membangun kerjasama dengan orang tua dan masyarakat</li>
-                        <li>Menfasilitasi pengembangan bakat dan minat siswa</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Motto -->
-            <div class="sub-tab-content" id="motto">
-                <div class="about-content">
-                    <h3>Motto Sekolah</h3>
-                    <div style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 16px; margin-top: 20px;">
-                        <p style="font-size: 24px; font-weight: 700; color: #00393a; margin-bottom: 10px;">"BERPRESTASI, BERAKHLAK, BERMANFAAT"</p>
-                        <p style="font-size: 16px; color: #64748b;"><?php echo e($madrasah->motto ?? 'Motto ini mencerminkan komitmen sekolah dalam membentuk generasi yang berprestasi, berakhlak mulia, dan memberikan manfaat bagi masyarakat.'); ?></p>
-                    </div>
+                    <p><?php echo e($ppdbSetting && $ppdbSetting->misi ? $ppdbSetting->misi : '-'); ?></p>
                 </div>
             </div>
         </div>
