@@ -104,33 +104,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="userdob" class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                        <div class="input-group" id="datepicker1">
-                            <input type="text" class="form-control @error('dob') is-invalid @enderror" placeholder="dd-mm-yyyy"
-                                data-date-format="dd-mm-yyyy" data-date-container='#datepicker1' data-date-end-date="0d" value="{{ old('dob') }}"
-                                data-provide="datepicker" name="dob" id="userdob" required>
-                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                            @error('dob')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="avatar" class="form-label">Profile Picture <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="file" class="form-control @error('avatar') is-invalid @enderror" id="inputGroupFile02" name="avatar" required>
-                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
-                        </div>
-                        @error('avatar')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
 
                     <button class="btn btn-primary login-btn" type="submit">Register</button>
                 </form>
