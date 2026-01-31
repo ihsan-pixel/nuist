@@ -1400,7 +1400,7 @@
                     @foreach($galeriData as $url)
                         <div class="gallery-item">
                             @if(!empty($url))
-                                <img src="{{ asset('storage/' . $url) }}" alt="Foto Galeri">
+                                <img src="{{ asset('images/madrasah/galeri/' . $url) }}" alt="Foto Galeri">
                             @else
                                 <div class="gallery-placeholder">
                                     <i class="bi bi-image"></i>
