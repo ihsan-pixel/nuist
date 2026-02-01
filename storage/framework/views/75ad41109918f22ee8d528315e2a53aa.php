@@ -98,69 +98,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
-                    <div class="form-group">
-                        <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
-                        <div class="password-input-container">
-                            <input type="password" name="password"
-                                class="form-control password-input <?php $__errorArgs = ['password'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                                id="userpassword" placeholder="Enter password"
-                                aria-label="Password" autocomplete="new-password" required>
-                            <button type="button" class="btn password-toggle-btn" id="togglePassword" aria-label="Lihat password">
-                                <i class="mdi mdi-eye-outline"></i>
-                            </button>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <span class="invalid-feedback" role="alert">
-                                <strong><?php echo e($message); ?></strong>
-                            </span>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                        <div class="password-input-container">
-                            <input type="password" name="password_confirmation"
-                                class="form-control password-input <?php $__errorArgs = ['password_confirmation'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                                id="password_confirmation" placeholder="Confirm password"
-                                aria-label="Confirm Password" autocomplete="new-password" required>
-                            <button type="button" class="btn password-toggle-btn" id="toggleConfirmPassword" aria-label="Lihat password">
-                                <i class="mdi mdi-eye-outline"></i>
-                            </button>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password_confirmation'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <span class="invalid-feedback" role="alert">
-                                <strong><?php echo e($message); ?></strong>
-                            </span>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <label class="form-label">Daftar sebagai <span class="text-danger">*</span></label>
@@ -611,37 +549,6 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Password toggle for password field
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('userpassword');
-
-    if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            // Toggle icon
-            icon.classList.toggle('mdi-eye-outline', !isPassword);
-            icon.classList.toggle('mdi-eye-off-outline', isPassword);
-        });
-    }
-
-    // Password toggle for confirm password field
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    const confirmPasswordInput = document.getElementById('password_confirmation');
-
-    if (toggleConfirmPassword && confirmPasswordInput) {
-        toggleConfirmPassword.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            const isPassword = confirmPasswordInput.type === 'password';
-            confirmPasswordInput.type = isPassword ? 'text' : 'password';
-
-            // Toggle icon
-            icon.classList.toggle('mdi-eye-outline', !isPassword);
-            icon.classList.toggle('mdi-eye-off-outline', isPassword);
-        });
-    }
 
     // Role selection logic
     const roleRadios = document.querySelectorAll('input[name="role"]');

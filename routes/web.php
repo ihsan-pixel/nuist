@@ -173,6 +173,18 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobi
     Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');
     Route::get('/dashboard/stats-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getStatsData'])->name('dashboard.stats-data');
 
+    // Pengurus routes
+    Route::prefix('pengurus')->name('pengurus.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dashboard'])->name('dashboard');
+        Route::get('/data-presensi-mengajar', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dataPresensiMengajar'])->name('data-presensi-mengajar');
+        Route::get('/presensi-kehadiran', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'presensiKehadiran'])->name('presensi-kehadiran');
+        Route::get('/uppm', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'uppm'])->name('uppm');
+        Route::get('/data-sekolah', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'dataSekolah'])->name('data-sekolah');
+        Route::get('/riwayat-pengembangan', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'riwayatPengembangan'])->name('riwayat-pengembangan');
+        Route::get('/pengguna-aktif', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'penggunaAktif'])->name('pengguna-aktif');
+        Route::get('/profile', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'profile'])->name('profile');
+    });
+
     // Presensi
     Route::get('/presensi', [App\Http\Controllers\Mobile\Presensi\PresensiController::class, 'presensi'])->name('presensi');
     // Backwards-compatible route names used by some mobile views

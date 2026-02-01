@@ -349,17 +349,59 @@
 
     <!-- Mobile Bottom Navigation -->
     <?php
-        $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
-        $showNav = false;
-        foreach ($menuRoutes as $route) {
-            if (request()->routeIs($route)) {
-                $showNav = true;
-                break;
+        $user = auth()->user();
+        $userRole = $user ? $user->role : '';
+
+        if ($userRole === 'pengurus') {
+            $menuRoutes = ['mobile.dashboard'];
+            $showNav = request()->routeIs('mobile.dashboard');
+        } else {
+            $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
+            $showNav = false;
+            foreach ($menuRoutes as $route) {
+                if (request()->routeIs($route)) {
+                    $showNav = true;
+                    break;
+                }
             }
         }
     ?>
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
-    
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus'): ?>
+    <!-- Navigation for Pengurus -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
+                <i class="bx bx-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="<?php echo e(route('yayasan.index')); ?>" class="nav-link">
+                <i class="bx bx-building"></i>
+                <span>Yayasan</span>
+            </a>
+            <a href="">
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
+            </a>
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="<?php echo e(route('madrasah.index')); ?>" class="center-action">
+                    <i class="bx bx-school"></i>
+                </a>
+            </div>
+
+            <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="nav-link">
+                <i class="bx bx-user-check"></i>
+                <span>Tenaga Pendidik</span>
+            </a>
+            <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
+                <i class="bx bx-desktop"></i>
+                <span>Desktop</span>
+            </a>
+        </div>
+    </nav>
+    <?php else: ?>
+    <!-- Navigation for Tenaga Pendidik -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
             <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
@@ -391,7 +433,7 @@
             </a>
         </div>
     </nav>
-
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- JAVASCRIPT -->

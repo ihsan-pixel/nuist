@@ -39,9 +39,9 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // Redirect pengurus users to mobile dashboard
+        // Redirect pengurus users to mobile pengurus dashboard
         if ($user->role === 'pengurus') {
-            return redirect()->route('mobile.dashboard');
+            return redirect()->route('mobile.pengurus.dashboard');
         }
 
         // For other roles, use default redirect
