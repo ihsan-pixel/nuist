@@ -11,6 +11,7 @@
     <link href="{{ asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('build/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" />
 @endsection
 
 @section('content')
@@ -66,19 +67,13 @@
                                 <td>{{ $registration->jabatan ?: '-' }}</td>
                                 <td>{{ optional($registration->madrasah)->name ?? '-' }}</td>
                                 <td>
-                                    <form action="{{ route('admin.pending-registrations.approve', $registration->id) }}" method="POST" style="display:inline-block;">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-sm btn-success"
-                                            onclick="return confirm('Are you sure you want to approve this registration?')">Approve</button>
-                                    </form>
+                                    <button type="button" class="btn btn-sm btn-success approve-btn"
+                                        data-id="{{ $registration->id }}"
+                                        data-name="{{ $registration->name }}">Approve</button>
 
-                                    <form action="{{ route('admin.pending-registrations.reject', $registration->id) }}" method="POST" style="display:inline-block;">
-                                        @csrf
-                                        @method('POST')
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Are you sure you want to reject this registration?')">Reject</button>
-                                    </form>
+                                    <button type="button" class="btn btn-sm btn-danger reject-btn"
+                                        data-id="{{ $registration->id }}"
+                                        data-name="{{ $registration->name }}">Reject</button>
                                 </td>
                             </tr>
 
@@ -120,6 +115,8 @@
         <script src="{{ asset('build/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
         <script src="{{ asset('build/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 
+        <script src="{{ asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+
         <script>
             $(document).ready(function () {
                 if ($('#datatable-buttons tbody tr').not('.empty-row').length > 0) {
@@ -131,6 +128,86 @@
                         buttons: ["copy", "excel", "pdf", "print", "colvis"]
                     });
                 }
+
+                // Handle approve button click
+                $('.approve-btn').on('click', function() {
+                    let id = $(this).data('id');
+                    let name = $(this).data('name');
+
+                    Swal.fire({
+                        title: 'Approve Registration?',
+                        text: `Are you sure you want to approve the registration for ${name}? An email with login credentials will be sent to the user.`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, Approve',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Create and submit form
+                            let form = $('<form>', {
+                                'method': 'POST',
+                                'action': '{{ url("admin/pending-registrations") }}/' + id + '/approve'
+                            });
+
+                            form.append($('<input>', {
+                                'type': 'hidden',
+                                'name': '_token',
+                                'value': '{{ csrf_token() }}'
+                            }));
+
+                            form.append($('<input>', {
+                                'type': 'hidden',
+                                'name': '_method',
+                                'value': 'POST'
+                            }));
+
+                            $('body').append(form);
+                            form.submit();
+                        }
+                    });
+                });
+
+                // Handle reject button click
+                $('.reject-btn').on('click', function() {
+                    let id = $(this).data('id');
+                    let name = $(this).data('name');
+
+                    Swal.fire({
+                        title: 'Reject Registration?',
+                        text: `Are you sure you want to reject the registration for ${name}? This action cannot be undone.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, Reject',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Create and submit form
+                            let form = $('<form>', {
+                                'method': 'POST',
+                                'action': '{{ url("admin/pending-registrations") }}/' + id + '/reject'
+                            });
+
+                            form.append($('<input>', {
+                                'type': 'hidden',
+                                'name': '_token',
+                                'value': '{{ csrf_token() }}'
+                            }));
+
+                            form.append($('<input>', {
+                                'type': 'hidden',
+                                'name': '_method',
+                                'value': 'POST'
+                            }));
+
+                            $('body').append(form);
+                            form.submit();
+                        }
+                    });
+                });
             });
         </script>
     @endsection
