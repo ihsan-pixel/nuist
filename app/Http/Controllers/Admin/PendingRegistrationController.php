@@ -7,6 +7,8 @@ use App\Models\PendingRegistration;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistrationApprovedNotification;
 
 class PendingRegistrationController extends Controller
 {
@@ -35,21 +37,32 @@ class PendingRegistrationController extends Controller
     {
         $pendingRegistration = PendingRegistration::findOrFail($id);
 
-        // Create the user
-        User::create([
+        // Generate an 8-digit password
+        $plainPassword = str_pad(mt_rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+
+        // Create the user with the new password
+        $user = User::create([
             'name' => $pendingRegistration->name,
             'email' => $pendingRegistration->email,
-            'password' => $pendingRegistration->password, // Already hashed
+            'password' => Hash::make($plainPassword),
             'role' => $pendingRegistration->role,
             'jabatan' => $pendingRegistration->jabatan,
             'madrasah_id' => $pendingRegistration->asal_sekolah,
         ]);
 
+        // Send approval email with the plain password
+        try {
+            Mail::to($user->email)->send(new RegistrationApprovedNotification($user, $plainPassword));
+        } catch (\Exception $e) {
+            // Log the error but don't fail the approval process
+            \Log::error('Failed to send approval email: ' . $e->getMessage());
+        }
+
         // Delete the pending registration
         $pendingRegistration->delete();
 
         return redirect()->route('admin.pending-registrations.index')
-            ->with('success', 'Registration approved successfully.');
+            ->with('success', 'Registration approved successfully. An email with login credentials has been sent to the user.');
     }
 
     /**
