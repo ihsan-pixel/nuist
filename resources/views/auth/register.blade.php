@@ -85,7 +85,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
                         <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
                                value="{{ old('email') }}" id="useremail"
@@ -97,7 +97,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
                                value="{{ old('name') }}" id="name" name="name"
@@ -109,7 +109,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password"
@@ -127,7 +127,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         </div>
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="confirmpassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password_confirmation"
@@ -147,7 +147,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 
 
-                    <button class="btn btn-primary login-btn registration-fields" type="submit" style="display: none;">Register</button>
+                    <button class="btn btn-primary login-btn" type="submit" style="display: none;">Register</button>
                 </form>
 
                 <div class="mt-3 text-center">
@@ -512,12 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sekolahField = document.getElementById('sekolah_field');
     const jabatanInput = document.getElementById('jabatan');
     const sekolahSelect = document.getElementById('sekolah_asal');
-
-    // Get all registration fields individually
-    const emailField = document.querySelector('[for="useremail"]').closest('.form-group');
-    const nameField = document.querySelector('[for="name"]').closest('.form-group');
-    const passwordField = document.querySelector('[for="userpassword"]').closest('.form-group');
-    const confirmPasswordField = document.querySelector('[for="confirmpassword"]').closest('.form-group');
+    const registrationFields = document.querySelectorAll('.registration-fields');
     const registerButton = document.querySelector('.login-btn[type="submit"]');
 
     // Form inputs that need to be checked
@@ -558,28 +553,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function toggleFields() {
         const selectedValue = userTypeSelect.value;
-        console.log('Selected value:', selectedValue);
 
-        if (selectedValue === 'pengurus') {
-            jabatanField.style.display = 'block';
-            sekolahField.style.display = 'none';
-            jabatanInput.required = true;
-            sekolahSelect.required = false;
-            console.log('Showing jabatan field for pengurus');
-        } else if (selectedValue === 'staff') {
-            jabatanField.style.display = 'none';
-            sekolahField.style.display = 'block';
-            jabatanInput.required = false;
-            sekolahSelect.required = true;
-            console.log('Showing sekolah field for staff');
+        if (selectedValue) {
+            // Show all registration fields
+            registrationFields.forEach(field => {
+                if (!field.classList.contains('login-btn')) {
+                    field.style.display = 'block';
+                }
+            });
+
+            if (selectedValue === 'pengurus') {
+                jabatanField.style.display = 'block';
+                sekolahField.style.display = 'none';
+                jabatanInput.required = true;
+                sekolahSelect.required = false;
+            } else if (selectedValue === 'staff') {
+                jabatanField.style.display = 'none';
+                sekolahField.style.display = 'block';
+                jabatanInput.required = false;
+                sekolahSelect.required = true;
+            }
         } else {
-            // Hide specific fields when no type selected
+            // Hide all registration fields
+            registrationFields.forEach(field => {
+                field.style.display = 'none';
+            });
             jabatanField.style.display = 'none';
             sekolahField.style.display = 'none';
             jabatanInput.required = false;
             sekolahSelect.required = false;
-            console.log('Hiding specific fields - no selection');
         }
+
+        toggleRegisterButton();
     }
 
     if (userTypeSelect) {
