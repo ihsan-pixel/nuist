@@ -1,0 +1,1 @@
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/emails/registration_pending.blade.php ENDPATH**/ ?>
