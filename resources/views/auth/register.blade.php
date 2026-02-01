@@ -85,7 +85,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
                         <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
                                value="{{ old('email') }}" id="useremail"
@@ -97,7 +97,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
                                value="{{ old('name') }}" id="name" name="name"
@@ -109,7 +109,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password"
@@ -127,7 +127,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group registration-fields" style="display: none;">
                         <label for="confirmpassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password_confirmation"
@@ -147,7 +147,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 
 
-                    <button class="btn btn-primary login-btn" type="submit" style="display: none;">Register</button>
+                    <button class="btn btn-primary login-btn registration-fields" type="submit" style="display: none;">Register</button>
                 </form>
 
                 <div class="mt-3 text-center">
