@@ -58,6 +58,32 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
+                    <div class="form-group" id="jabatan_field" style="display: none;">
+                        <label for="jabatan" class="form-label">Jabatan <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('jabatan') is-invalid @enderror"
+                               value="{{ old('jabatan') }}" id="jabatan" name="jabatan"
+                               placeholder="Masukkan Jabatan">
+                        @error('jabatan')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group" id="sekolah_field" style="display: none;">
+                        <label for="sekolah_asal" class="form-label">Sekolah Asal <span class="text-danger">*</span></label>
+                        <select class="form-control @error('sekolah_asal') is-invalid @enderror" id="sekolah_asal" name="sekolah_asal">
+                            <option value="">Pilih Sekolah Asal</option>
+                            @foreach(\App\Models\Madrasah::all() as $madrasah)
+                            <option value="{{ $madrasah->id }}" {{ old('sekolah_asal') == $madrasah->id ? 'selected' : '' }}>{{ $madrasah->nama_madrasah }}</option>
+                            @endforeach
+                        </select>
+                        @error('sekolah_asal')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
 
                     <div class="form-group registration-fields" style="display: none;">
                         <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
