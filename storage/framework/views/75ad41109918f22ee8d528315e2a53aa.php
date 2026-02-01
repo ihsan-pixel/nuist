@@ -597,5 +597,113 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     }
 </style>
 <?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>
+<script src="<?php echo e(asset('build/libs/jquery/jquery.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/metismenu/metisMenu.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/simplebar/simplebar.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/node-waves/waves.min.js')); ?>"></script>
+<script src="<?php echo e(asset('build/libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle for password field
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('userpassword');
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            // Toggle icon
+            icon.classList.toggle('mdi-eye-outline', !isPassword);
+            icon.classList.toggle('mdi-eye-off-outline', isPassword);
+        });
+    }
+
+    // Password toggle for confirm password field
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const confirmPasswordInput = document.getElementById('password_confirmation');
+
+    if (toggleConfirmPassword && confirmPasswordInput) {
+        toggleConfirmPassword.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const isPassword = confirmPasswordInput.type === 'password';
+            confirmPasswordInput.type = isPassword ? 'text' : 'password';
+
+            // Toggle icon
+            icon.classList.toggle('mdi-eye-outline', !isPassword);
+            icon.classList.toggle('mdi-eye-off-outline', isPassword);
+        });
+    }
+
+    // Role selection logic
+    const roleRadios = document.querySelectorAll('input[name="role"]');
+    const jabatanGroup = document.getElementById('jabatan-group');
+    const asalSekolahGroup = document.getElementById('asal_sekolah-group');
+    const jabatanInput = document.getElementById('jabatan');
+    const asalSekolahInput = document.getElementById('asal_sekolah');
+
+    function toggleConditionalFields() {
+        const selectedRole = document.querySelector('input[name="role"]:checked');
+        if (selectedRole) {
+            if (selectedRole.value === 'pengurus') {
+                jabatanGroup.style.display = 'block';
+                asalSekolahGroup.style.display = 'none';
+                jabatanInput.required = true;
+                asalSekolahInput.required = false;
+                asalSekolahInput.value = '';
+            } else if (selectedRole.value === 'tenaga_pendidik') {
+                jabatanGroup.style.display = 'none';
+                asalSekolahGroup.style.display = 'block';
+                jabatanInput.required = false;
+                asalSekolahInput.required = true;
+                jabatanInput.value = '';
+            }
+        } else {
+            jabatanGroup.style.display = 'none';
+            asalSekolahGroup.style.display = 'none';
+            jabatanInput.required = false;
+            asalSekolahInput.required = false;
+        }
+    }
+
+    roleRadios.forEach(radio => {
+        radio.addEventListener('change', toggleConditionalFields);
+    });
+
+    // Initial check
+    toggleConditionalFields();
+});
+
+// ==== Force reload register page if cached by Service Worker ====
+if ('serviceWorker' in navigator) {
+    // Ensure register page is not taken from cache
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+            registration.active?.postMessage({ type: 'CLEAR_REGISTER_CACHE' });
+        }
+    });
+
+    // If SW is still active and trying to take cache for register
+    caches.keys().then(function(names) {
+        for (let name of names) {
+            caches.delete(name);
+        }
+    });
+}
+
+// ==== Disable browser back cache (bypass 419 issue) ====
+if (window.history && window.history.pushState) {
+    window.history.pushState('forward', null, '');
+    window.onpopstate = function () {
+        window.location.href = '/register';
+    };
+}
+</script>
+<?php $__env->stopSection(); ?>
+
 
 <?php echo $__env->make('layouts.master-without-nav', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/auth/register.blade.php ENDPATH**/ ?>
