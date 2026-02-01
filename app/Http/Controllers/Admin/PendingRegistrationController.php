@@ -42,7 +42,7 @@ class PendingRegistrationController extends Controller
             'password' => $pendingRegistration->password, // Already hashed
             'role' => $pendingRegistration->role,
             'jabatan' => $pendingRegistration->jabatan,
-            'asal_sekolah' => $pendingRegistration->asal_sekolah,
+            'madrasah_id' => $pendingRegistration->asal_sekolah,
         ]);
 
         // Delete the pending registration

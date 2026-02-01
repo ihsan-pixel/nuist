@@ -9,6 +9,8 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('body'); ?>
@@ -604,6 +606,8 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 <script src="<?php echo e(asset('build/libs/simplebar/simplebar.min.js')); ?>"></script>
 <script src="<?php echo e(asset('build/libs/node-waves/waves.min.js')); ?>"></script>
 <script src="<?php echo e(asset('build/libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -676,6 +680,95 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial check
     toggleConditionalFields();
+
+    // Handle form submission with AJAX
+    const registerForm = document.querySelector('.login-form');
+    registerForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        // Show loading
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Please wait while we process your registration',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch('<?php echo e(route("register")); ?>', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw err;
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Registration Successful!',
+                    text: data.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Redirect to login page
+                    window.location.href = '<?php echo e(route("login")); ?>';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registration Failed',
+                    text: data.message || 'An error occurred during registration',
+                    confirmButtonText: 'Try Again'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+
+            // Handle validation errors
+            if (error.errors) {
+                let errorMessages = [];
+                for (let field in error.errors) {
+                    errorMessages.push(error.errors[field].join(', '));
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: errorMessages.join('<br>'),
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
 });
 
 // ==== Force reload register page if cached by Service Worker ====

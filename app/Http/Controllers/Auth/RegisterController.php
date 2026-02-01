@@ -46,6 +46,29 @@ class RegisterController extends Controller
     }
 
     /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $pendingRegistration = $this->create($request->all());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration submitted successfully. Please wait for admin approval.',
+                'data' => $pendingRegistration
+            ]);
+        }
+
+        return redirect($this->redirectPath());
+    }
+
+    /**
      * Show the application registration form.
      *
      * @return \Illuminate\View\View
@@ -64,13 +87,39 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'dob' => ['required', 'date', 'before:today'],
-            'avatar' => ['required', 'image' ,'mimes:jpg,jpeg,png','max:1024'],
-        ]);
+            'role' => ['required', 'in:pengurus,tenaga_pendidik'],
+        ];
+
+        // Bidirectional validation: role determines required fields and vice versa
+        if ($data['role'] === 'pengurus') {
+            $rules['jabatan'] = ['required', 'string', 'max:255'];
+            // If role is pengurus, asal_sekolah should not be provided
+            if (!empty($data['asal_sekolah'])) {
+                $rules['asal_sekolah'] = ['prohibited'];
+            }
+        } elseif ($data['role'] === 'tenaga_pendidik') {
+            $rules['asal_sekolah'] = ['required', 'exists:madrasahs,id'];
+            // If role is tenaga_pendidik, jabatan should not be provided
+            if (!empty($data['jabatan'])) {
+                $rules['jabatan'] = ['prohibited'];
+            }
+        }
+
+        // Additional validation: if jabatan is provided, role must be pengurus
+        if (!empty($data['jabatan']) && $data['role'] !== 'pengurus') {
+            $rules['role'] = ['required', 'in:pengurus'];
+        }
+
+        // Additional validation: if asal_sekolah is provided, role must be tenaga_pendidik
+        if (!empty($data['asal_sekolah']) && $data['role'] !== 'tenaga_pendidik') {
+            $rules['role'] = ['required', 'in:tenaga_pendidik'];
+        }
+
+        return Validator::make($data, $rules);
     }
 
     /**
