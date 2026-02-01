@@ -47,7 +47,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     <div class="form-group">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
-                               value="{{ old('name') }}" id="name"
+                               value="{{ old('name') }}" id="name" name="name"
                                placeholder="Enter Name" autocomplete="name" autofocus required>
                         @error('name')
                         <span class="invalid-feedback" role="alert">
