@@ -45,6 +45,15 @@
                 </li>
                 @endif
 
+                @if($userRole === 'super_admin')
+                <li>
+                    <a href="{{ route('admin.pending-registrations.index') }}" class="waves-effect">
+                        <i class="bx bx-user-plus"></i>
+                        <span>Pending Registrations</span>
+                    </a>
+                </li>
+                @endif
+
                 <li class="menu-title">INFORMATION</li>
 
                 @if(in_array($userRole, ['super_admin', 'pengurus']))
