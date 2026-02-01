@@ -141,9 +141,14 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
                     <div class="form-group" id="asal_sekolah-group" style="display: none;">
                         <label for="asal_sekolah" class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('asal_sekolah') is-invalid @enderror"
-                               value="{{ old('asal_sekolah') }}" id="asal_sekolah" name="asal_sekolah"
-                               placeholder="Enter Asal Sekolah">
+                        <select class="form-control @error('asal_sekolah') is-invalid @enderror" id="asal_sekolah" name="asal_sekolah">
+                            <option value="">Pilih Asal Sekolah</option>
+                            @foreach($madrasahs as $madrasah)
+                                <option value="{{ $madrasah->id }}" {{ old('asal_sekolah') == $madrasah->id ? 'selected' : '' }}>
+                                    {{ $madrasah->name }}
+                                </option>
+                            @endforeach
+                        </select>
                         @error('asal_sekolah')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

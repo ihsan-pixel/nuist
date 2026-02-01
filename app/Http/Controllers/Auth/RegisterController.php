@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\PendingRegistration;
+use App\Mail\RegistrationPendingNotification;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -43,6 +46,17 @@ class RegisterController extends Controller
     }
 
     /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showRegistrationForm()
+    {
+        $madrasahs = \App\Models\Madrasah::orderBy('scod')->get();
+        return view('auth.register', compact('madrasahs'));
+    }
+
+    /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
@@ -67,19 +81,18 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        if (request()->has('avatar')) {            
-            $avatar = request()->file('avatar');
-            $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
-            $avatarPath = public_path('/images/');
-            $avatar->move($avatarPath, $avatarName);
-        }
-        
-        return User::create([
+        $pendingRegistration = PendingRegistration::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'dob' => date('Y-m-d', strtotime($data['dob'])),
-            'avatar' => "/images/" . $avatarName,
+            'role' => $data['role'],
+            'jabatan' => $data['jabatan'] ?? null,
+            'asal_sekolah' => $data['asal_sekolah'] ?? null,
         ]);
+
+        // Send email notification
+        Mail::to($data['email'])->send(new RegistrationPendingNotification($pendingRegistration));
+
+        return $pendingRegistration;
     }
 }

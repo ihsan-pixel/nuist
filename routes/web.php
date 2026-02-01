@@ -517,4 +517,11 @@ if (env('APP_DEBUG') === true) {
 // Midtrans Webhook Callback - TANPA AUTH & CSRF
 Route::post('/midtrans/callback', [App\Http\Controllers\PembayaranController::class, 'midtransCallback'])->name('midtrans.callback');
 
+// Pending Registration Routes - Super Admin Only
+Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/pending-registrations', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'index'])->name('pending-registrations.index');
+    Route::post('/pending-registrations/{id}/approve', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'approve'])->name('pending-registrations.approve');
+    Route::post('/pending-registrations/{id}/reject', [App\Http\Controllers\Admin\PendingRegistrationController::class, 'reject'])->name('pending-registrations.reject');
+});
+
 

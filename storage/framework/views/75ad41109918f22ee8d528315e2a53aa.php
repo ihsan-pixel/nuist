@@ -218,16 +218,22 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
                     <div class="form-group" id="asal_sekolah-group" style="display: none;">
                         <label for="asal_sekolah" class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control <?php $__errorArgs = ['asal_sekolah'];
+                        <select class="form-control <?php $__errorArgs = ['asal_sekolah'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"
-                               value="<?php echo e(old('asal_sekolah')); ?>" id="asal_sekolah" name="asal_sekolah"
-                               placeholder="Enter Asal Sekolah">
+unset($__errorArgs, $__bag); ?>" id="asal_sekolah" name="asal_sekolah">
+                            <option value="">Pilih Asal Sekolah</option>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasahs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($madrasah->id); ?>" <?php echo e(old('asal_sekolah') == $madrasah->id ? 'selected' : ''); ?>>
+                                    <?php echo e($madrasah->name); ?>
+
+                                </option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </select>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['asal_sekolah'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
