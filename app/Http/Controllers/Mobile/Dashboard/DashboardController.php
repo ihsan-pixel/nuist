@@ -14,15 +14,22 @@ use App\Models\Holiday;
 
 class DashboardController extends \App\Http\Controllers\Controller
 {
-    // Mobile dashboard for tenaga_pendidik
+    // Mobile dashboard for tenaga_pendidik and pengurus
     public function dashboard(Request $request)
     {
         $user = Auth::user();
 
         // simple role check (middleware already restricts but keep safe-guard)
-        if ($user->role !== 'tenaga_pendidik') {
+        if (!in_array($user->role, ['tenaga_pendidik', 'pengurus'])) {
             abort(403, 'Unauthorized.');
         }
+
+        // Handle different roles
+        if ($user->role === 'pengurus') {
+            return $this->pengurusDashboard($request);
+        }
+
+        // Continue with tenaga_pendidik dashboard
 
 
 
@@ -354,5 +361,43 @@ class DashboardController extends \App\Http\Controllers\Controller
             'izin' => $izin,
             'alpha' => $alpha,
         ]);
+    }
+
+    // Mobile dashboard for pengurus
+    private function pengurusDashboard(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get banner image from app settings
+        $appSettings = AppSetting::getSettings();
+        $bannerImage = $appSettings->banner_image_url;
+
+        // Check if banner should be shown (only once per session)
+        $showBanner = false;
+        if ($bannerImage && !session('banner_shown')) {
+            $showBanner = true;
+            session(['banner_shown' => true]);
+        }
+
+        // Get current month and year
+        $currentMonth = $request->get('month', Carbon::now()->month);
+        $currentYear = $request->get('year', Carbon::now()->year);
+
+        // Validate month and year
+        $currentMonth = max(1, min(12, (int)$currentMonth));
+        $currentYear = max(2020, min(2030, (int)$currentYear));
+
+        // For pengurus, show general statistics
+        $totalMadrasah = \App\Models\Madrasah::count();
+        $totalTenagaPendidik = \App\Models\DataTenagaPendidik::count();
+        $totalPengurus = \App\Models\User::where('role', 'pengurus')->count();
+
+        // Get recent activities or notifications
+        $recentActivities = []; // You can populate this with relevant data
+
+        return view('mobile.dashboard-pengurus', compact(
+            'bannerImage', 'showBanner', 'currentMonth', 'currentYear',
+            'totalMadrasah', 'totalTenagaPendidik', 'totalPengurus', 'recentActivities'
+        ));
     }
 }

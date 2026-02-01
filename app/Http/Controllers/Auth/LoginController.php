@@ -31,6 +31,24 @@ class LoginController extends Controller
     protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        // Redirect pengurus users to mobile dashboard
+        if ($user->role === 'pengurus') {
+            return redirect()->route('mobile.dashboard');
+        }
+
+        // For other roles, use default redirect
+        return redirect()->intended($this->redirectPath());
+    }
+
+    /**
      * Create a new controller instance.
      *
      * @return void

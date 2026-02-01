@@ -166,8 +166,8 @@ Route::get('/index', function () {
 // dashboard route - accessible by super_admin, admin, tenaga_pendidik
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
-// Mobile routes for tenaga_pendidik and admin (some pages are accessible to admin when they are kepala madrasah)
-Route::middleware(['auth', 'role:tenaga_pendidik,admin'])->prefix('mobile')->name('mobile.')->group(function () {
+// Mobile routes for tenaga_pendidik, admin, and pengurus
+Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobile')->name('mobile.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/dashboard/calendar-data', [App\Http\Controllers\Mobile\Dashboard\DashboardController::class, 'getCalendarData'])->name('dashboard.calendar-data');

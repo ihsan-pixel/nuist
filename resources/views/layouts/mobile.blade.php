@@ -361,52 +361,59 @@
 
     <!-- Mobile Bottom Navigation -->
     @php
-        $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
-        $showNav = false;
-        foreach ($menuRoutes as $route) {
-            if (request()->routeIs($route)) {
-                $showNav = true;
-                break;
+        $user = auth()->user();
+        $userRole = $user ? $user->role : '';
+
+        if ($userRole === 'pengurus') {
+            $menuRoutes = ['mobile.dashboard'];
+            $showNav = request()->routeIs('mobile.dashboard');
+        } else {
+            $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
+            $showNav = false;
+            foreach ($menuRoutes as $route) {
+                if (request()->routeIs($route)) {
+                    $showNav = true;
+                    break;
+                }
             }
         }
     @endphp
     @if($showNav)
-    {{-- <nav class="mobile-nav d-md-none">
-        <div class="container-fluid">
-            <div class="row g-0">
-                <div class="col">
-                    <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
-                        <i class="bx bx-home"></i>
-                        <span>Beranda</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('mobile.presensi') }}" class="nav-link {{ request()->routeIs('mobile.presensi*') ? 'active' : '' }}">
-                        <i class="bx bx-check-square"></i>
-                        <span>Presensi</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('mobile.jadwal') }}" class="nav-link {{ request()->routeIs('mobile.jadwal*') ? 'active' : '' }}">
-                        <i class="bx bx-calendar"></i>
-                        <span>Jadwal</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('mobile.teaching-attendances') }}" class="nav-link {{ request()->routeIs('mobile.teaching-attendances*') ? 'active' : '' }}">
-                        <i class="bx bx-chalkboard"></i>
-                        <span>Mengajar</span>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('mobile.profile') }}" class="nav-link {{ request()->routeIs('mobile.profile') ? 'active' : '' }}">
-                        <i class="bx bx-user"></i>
-                        <span>Profil</span>
-                    </a>
-                </div>
+    @if($userRole === 'pengurus')
+    <!-- Navigation for Pengurus -->
+    <nav class="mobile-nav d-md-none custom-bottom-nav">
+        <div class="nav-container">
+            <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
+                <i class="bx bx-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('yayasan.index') }}" class="nav-link">
+                <i class="bx bx-building"></i>
+                <span>Yayasan</span>
+            </a>
+            <a href="">
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
+            </a>
+            <!-- Tombol Tengah -->
+            <div class="nav-center-btn">
+                <a href="{{ route('madrasah.index') }}" class="center-action">
+                    <i class="bx bx-school"></i>
+                </a>
             </div>
+
+            <a href="{{ route('tenaga-pendidik.index') }}" class="nav-link">
+                <i class="bx bx-user-check"></i>
+                <span>Tenaga Pendidik</span>
+            </a>
+            <a href="{{ route('dashboard') }}" class="nav-link">
+                <i class="bx bx-desktop"></i>
+                <span>Desktop</span>
+            </a>
         </div>
-    </nav> --}}
+    </nav>
+    @else
+    <!-- Navigation for Tenaga Pendidik -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
             <a href="{{ route('mobile.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}">
@@ -438,7 +445,7 @@
             </a>
         </div>
     </nav>
-
+    @endif
     @endif
 
     <!-- JAVASCRIPT -->
