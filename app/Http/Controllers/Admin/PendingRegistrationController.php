@@ -37,8 +37,12 @@ class PendingRegistrationController extends Controller
     {
         $pendingRegistration = PendingRegistration::findOrFail($id);
 
-        // Generate an 8-digit password
-        $plainPassword = str_pad(mt_rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+        // Generate an 8-character password with mixed letters and numbers
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $plainPassword = '';
+        for ($i = 0; $i < 8; $i++) {
+            $plainPassword .= $characters[rand(0, strlen($characters) - 1)];
+        }
 
         // Create the user with the new password
         $user = User::create([
@@ -46,7 +50,7 @@ class PendingRegistrationController extends Controller
             'email' => $pendingRegistration->email,
             'password' => Hash::make($plainPassword),
             'role' => $pendingRegistration->role,
-            'jabatan' => $pendingRegistration->jabatan,
+            'ketugasan' => $pendingRegistration->jabatan,
             'madrasah_id' => $pendingRegistration->asal_sekolah,
         ]);
 
