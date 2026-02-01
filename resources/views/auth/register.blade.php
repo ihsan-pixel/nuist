@@ -85,7 +85,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
                         <input name="email" type="email" class="form-control @error('email') is-invalid @enderror"
                                value="{{ old('email') }}" id="useremail"
@@ -97,7 +97,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror"
                                value="{{ old('name') }}" id="name" name="name"
@@ -109,7 +109,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         @enderror
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="userpassword" class="form-label">Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password"
@@ -127,7 +127,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                         </div>
                     </div>
 
-                    <div class="form-group registration-fields" style="display: none;">
+                    <div class="form-group">
                         <label for="confirmpassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password_confirmation"
@@ -147,7 +147,7 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 
 
-                    <button class="btn btn-primary login-btn registration-fields" type="submit" style="display: none;">Register</button>
+                    <button class="btn btn-primary login-btn" type="submit">Register</button>
                 </form>
 
                 <div class="mt-3 text-center">
@@ -506,101 +506,6 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // User type selection handler
-    const userTypeSelect = document.getElementById('user_type');
-    const jabatanField = document.getElementById('jabatan_field');
-    const sekolahField = document.getElementById('sekolah_field');
-    const jabatanInput = document.getElementById('jabatan');
-    const sekolahSelect = document.getElementById('sekolah_asal');
-    const registrationFields = document.querySelectorAll('.registration-fields');
-    const registerButton = document.querySelector('.login-btn[type="submit"]');
-
-    // Form inputs that need to be checked
-    const emailInput = document.getElementById('useremail');
-    const nameInput = document.getElementById('name');
-    const passwordInput = document.getElementById('userpassword');
-    const confirmPasswordInput = document.getElementById('confirmpassword');
-
-    function checkFormCompletion() {
-        const userType = userTypeSelect.value;
-        if (!userType) return false;
-
-        const email = emailInput.value.trim();
-        const name = nameInput.value.trim();
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        let isComplete = email && name && password && confirmPassword;
-
-        if (userType === 'pengurus') {
-            const jabatan = jabatanInput.value.trim();
-            isComplete = isComplete && jabatan;
-        } else if (userType === 'staff') {
-            const sekolah = sekolahSelect.value;
-            isComplete = isComplete && sekolah;
-        }
-
-        return isComplete;
-    }
-
-    function toggleRegisterButton() {
-        if (checkFormCompletion()) {
-            registerButton.style.display = 'block';
-        } else {
-            registerButton.style.display = 'none';
-        }
-    }
-
-    function toggleFields() {
-        const selectedValue = userTypeSelect.value;
-
-        if (selectedValue) {
-            // Show all registration fields
-            registrationFields.forEach(field => {
-                if (!field.classList.contains('login-btn')) {
-                    field.style.display = 'block';
-                }
-            });
-
-            if (selectedValue === 'pengurus') {
-                jabatanField.style.display = 'block';
-                sekolahField.style.display = 'none';
-                jabatanInput.required = true;
-                sekolahSelect.required = false;
-            } else if (selectedValue === 'staff') {
-                jabatanField.style.display = 'none';
-                sekolahField.style.display = 'block';
-                jabatanInput.required = false;
-                sekolahSelect.required = true;
-            }
-        } else {
-            // Hide all registration fields
-            registrationFields.forEach(field => {
-                field.style.display = 'none';
-            });
-            jabatanField.style.display = 'none';
-            sekolahField.style.display = 'none';
-            jabatanInput.required = false;
-            sekolahSelect.required = false;
-        }
-
-        toggleRegisterButton();
-    }
-
-    if (userTypeSelect) {
-        userTypeSelect.addEventListener('change', toggleFields);
-        // Initial check in case of form validation errors
-        toggleFields();
-    }
-
-    // Add event listeners to form inputs to check completion
-    [emailInput, nameInput, passwordInput, confirmPasswordInput, jabatanInput, sekolahSelect].forEach(input => {
-        if (input) {
-            input.addEventListener('input', toggleRegisterButton);
-            input.addEventListener('change', toggleRegisterButton);
-        }
-    });
-
     // Password toggle for password field
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('userpassword');
