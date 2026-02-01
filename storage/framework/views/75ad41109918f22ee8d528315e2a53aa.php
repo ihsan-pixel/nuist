@@ -9,12 +9,12 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="<?php echo e(asset('build/libs/bootstrap-datepicker/bootstrap-datepicker.min.css')); ?>" rel="stylesheet" type="text/css">
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('body'); ?>
-<body class="auth-body-bg">
-<?php $__env->stopSection(); ?>
+
+    <body class="auth-body-bg">
+    <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="login-container">
@@ -42,117 +42,8 @@ Register - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-                <form class="login-form" method="POST" action="<?php echo e(route('register')); ?>" enctype="multipart/form-data">
+                <form class="login-form" method="POST" action="<?php echo e(route('register')); ?>">
                     <?php echo csrf_field(); ?>
-                    <div class="form-group">
-                        <label for="user_type" class="form-label">Pilih Jenis Pendaftaran <span class="text-danger">*</span></label>
-                        <select class="form-control <?php $__errorArgs = ['user_type'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" id="user_type" name="user_type" required>
-                            <option value="">Pilih Jenis Pendaftaran</option>
-                            <option value="pengurus" <?php echo e(old('user_type') == 'pengurus' ? 'selected' : ''); ?>>Pengurus</option>
-                            <option value="staff" <?php echo e(old('user_type') == 'staff' ? 'selected' : ''); ?>>Kepala Sekolah/Tenaga Pendidik</option>
-                        </select>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['user_type'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <span class="invalid-feedback" role="alert">
-                            <strong><?php echo e($message); ?></strong>
-                        </span>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
-                    <div class="form-group registration-fields" id="jabatan_field" style="display: none;">
-                        <label for="jabatan" class="form-label">Jabatan <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control <?php $__errorArgs = ['jabatan'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                               value="<?php echo e(old('jabatan')); ?>" id="jabatan" name="jabatan"
-                               placeholder="Masukkan Jabatan">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jabatan'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <span class="invalid-feedback" role="alert">
-                            <strong><?php echo e($message); ?></strong>
-                        </span>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
-                    <div class="form-group registration-fields" id="sekolah_field" style="display: none;">
-                        <label for="sekolah_asal" class="form-label">Sekolah Asal <span class="text-danger">*</span></label>
-                        <select class="form-control <?php $__errorArgs = ['sekolah_asal'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" id="sekolah_asal" name="sekolah_asal">
-                            <option value="">Pilih Sekolah Asal</option>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = \App\Models\Madrasah::all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $madrasah): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($madrasah->id); ?>" <?php echo e(old('sekolah_asal') == $madrasah->id ? 'selected' : ''); ?>><?php echo e($madrasah->nama_madrasah); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                        </select>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['sekolah_asal'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <span class="invalid-feedback" role="alert">
-                            <strong><?php echo e($message); ?></strong>
-                        </span>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="useremail" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input name="email" type="email" class="form-control <?php $__errorArgs = ['email'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>"
-                               value="<?php echo e(old('email')); ?>" id="useremail"
-                               placeholder="Enter Email" autocomplete="email" autofocus required>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                        <span class="invalid-feedback" role="alert">
-                            <strong><?php echo e($message); ?></strong>
-                        </span>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
                     <div class="form-group">
                         <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control <?php $__errorArgs = ['name'];
@@ -163,9 +54,35 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                               value="<?php echo e(old('name')); ?>" id="name" name="name"
-                               placeholder="Enter Name" autocomplete="name" required>
+                               value="<?php echo e(old('name')); ?>" id="name"
+                               placeholder="Enter Name" autocomplete="name" autofocus required>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback" role="alert">
+                            <strong><?php echo e($message); ?></strong>
+                        </span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input name="email" type="email" class="form-control <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                               value="<?php echo e(old('email')); ?>" id="email"
+                               placeholder="Enter Email" autocomplete="email" required>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['email'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -212,7 +129,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     </div>
 
                     <div class="form-group">
-                        <label for="confirmpassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                        <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
                         <div class="password-input-container">
                             <input type="password" name="password_confirmation"
                                 class="form-control password-input <?php $__errorArgs = ['password_confirmation'];
@@ -223,7 +140,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                id="confirmpassword" placeholder="Confirm password"
+                                id="password_confirmation" placeholder="Confirm password"
                                 aria-label="Confirm Password" autocomplete="new-password" required>
                             <button type="button" class="btn password-toggle-btn" id="toggleConfirmPassword" aria-label="Lihat password">
                                 <i class="mdi mdi-eye-outline"></i>
@@ -243,13 +160,93 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label">Daftar sebagai <span class="text-danger">*</span></label>
+                        <div class="role-selection">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="role" id="pengurus" value="pengurus" <?php echo e(old('role') == 'pengurus' ? 'checked' : ''); ?> required>
+                                <label class="form-check-label" for="pengurus">
+                                    Pengurus
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="role" id="tenaga_pendidik" value="tenaga_pendidik" <?php echo e(old('role') == 'tenaga_pendidik' ? 'checked' : ''); ?> required>
+                                <label class="form-check-label" for="tenaga_pendidik">
+                                    Tenaga Pendidik
+                                </label>
+                            </div>
+                        </div>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['role'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback" role="alert" style="display: block;">
+                            <strong><?php echo e($message); ?></strong>
+                        </span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
 
+                    <div class="form-group" id="jabatan-group" style="display: none;">
+                        <label for="jabatan" class="form-label">Jabatan <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['jabatan'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                               value="<?php echo e(old('jabatan')); ?>" id="jabatan" name="jabatan"
+                               placeholder="Enter Jabatan">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['jabatan'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback" role="alert">
+                            <strong><?php echo e($message); ?></strong>
+                        </span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
 
-                    <button class="btn btn-primary login-btn" type="submit" style="display: none;">Register</button>
+                    <div class="form-group" id="asal_sekolah-group" style="display: none;">
+                        <label for="asal_sekolah" class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <?php $__errorArgs = ['asal_sekolah'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                               value="<?php echo e(old('asal_sekolah')); ?>" id="asal_sekolah" name="asal_sekolah"
+                               placeholder="Enter Asal Sekolah">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['asal_sekolah'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="invalid-feedback" role="alert">
+                            <strong><?php echo e($message); ?></strong>
+                        </span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+
+                    <button class="btn btn-primary login-btn" type="submit">Register</button>
                 </form>
 
                 <div class="mt-3 text-center">
-                    <p class="mb-0">Already have an account? <a href="<?php echo e(url('login')); ?>" class="text-primary">Login</a></p>
+                    <p class="mb-0">Already have an account? <a href="<?php echo e(url('login')); ?>" class="text-primary">Login here</a></p>
                 </div>
 
                 <div class="footer-text">
@@ -261,8 +258,8 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         <!-- Illustration Section -->
         <div class="illustration-section">
             <div class="illustration-content">
-                <h2>Welcome!</h2>
-                <p>Join Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
+                <h2>Join Our Platform!</h2>
+                <p>Sistem Informasi Digital LP. Ma'arif NU PWNU DIY</p>
                 <div class="illustration-placeholder">
                     <img src="<?php echo e(asset('images/verification-img.png')); ?>" alt="Register Illustration" class="illustration-image">
                 </div>
@@ -408,17 +405,18 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         color: #004b4c;
     }
 
-    .input-group-text {
-        background: #f8f9fa;
-        border-left: none;
+    .role-selection {
+        display: flex;
+        gap: 20px;
     }
 
-    .input-group .form-control {
-        border-right: none;
+    .form-check {
+        margin-bottom: 0;
     }
 
-    .input-group .form-control:focus {
-        border-right: 1px solid #dee2e6;
+    .form-check-input:checked {
+        background-color: #6C63FF;
+        border-color: #6C63FF;
     }
 
     .login-btn {
@@ -505,10 +503,6 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         border-color: #dc3545;
     }
 
-    .text-primary {
-        color: #004b4c !important;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
         .login-wrapper {
@@ -557,6 +551,11 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         .logo {
             height: 60px;
         }
+
+        .role-selection {
+            flex-direction: column;
+            gap: 10px;
+        }
     }
 
     @media (max-width: 480px) {
@@ -592,7 +591,6 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     }
 </style>
 <?php $__env->stopSection(); ?>
-
 <?php $__env->startSection('script'); ?>
 <script src="<?php echo e(asset('build/libs/jquery/jquery.min.js')); ?>"></script>
 <script src="<?php echo e(asset('build/libs/bootstrap/js/bootstrap.bundle.min.js')); ?>"></script>
@@ -600,105 +598,9 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 <script src="<?php echo e(asset('build/libs/simplebar/simplebar.min.js')); ?>"></script>
 <script src="<?php echo e(asset('build/libs/node-waves/waves.min.js')); ?>"></script>
 <script src="<?php echo e(asset('build/libs/owl.carousel/owl.carousel.min.js')); ?>"></script>
-<script src="<?php echo e(asset('build/libs/bootstrap-datepicker/bootstrap-datepicker.min.js')); ?>"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // User type selection handler
-    const userTypeSelect = document.getElementById('user_type');
-    const jabatanField = document.getElementById('jabatan_field');
-    const sekolahField = document.getElementById('sekolah_field');
-    const jabatanInput = document.getElementById('jabatan');
-    const sekolahSelect = document.getElementById('sekolah_asal');
-    const registrationFields = document.querySelectorAll('.registration-fields');
-    const registerButton = document.querySelector('.login-btn[type="submit"]');
-
-    // Form inputs that need to be checked
-    const emailInput = document.getElementById('useremail');
-    const nameInput = document.getElementById('name');
-    const passwordInput = document.getElementById('userpassword');
-    const confirmPasswordInput = document.getElementById('confirmpassword');
-
-    function checkFormCompletion() {
-        const userType = userTypeSelect.value;
-        if (!userType) return false;
-
-        const email = emailInput.value.trim();
-        const name = nameInput.value.trim();
-        const password = passwordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        let isComplete = email && name && password && confirmPassword;
-
-        if (userType === 'pengurus') {
-            const jabatan = jabatanInput.value.trim();
-            isComplete = isComplete && jabatan;
-        } else if (userType === 'staff') {
-            const sekolah = sekolahSelect.value;
-            isComplete = isComplete && sekolah;
-        }
-
-        return isComplete;
-    }
-
-    function toggleRegisterButton() {
-        if (checkFormCompletion()) {
-            registerButton.style.display = 'block';
-        } else {
-            registerButton.style.display = 'none';
-        }
-    }
-
-    function toggleFields() {
-        const selectedValue = userTypeSelect.value;
-
-        if (selectedValue) {
-            // Show all registration fields
-            registrationFields.forEach(field => {
-                if (!field.classList.contains('login-btn')) {
-                    field.style.display = 'block';
-                }
-            });
-
-            if (selectedValue === 'pengurus') {
-                jabatanField.style.display = 'block';
-                sekolahField.style.display = 'none';
-                jabatanInput.required = true;
-                sekolahSelect.required = false;
-            } else if (selectedValue === 'staff') {
-                jabatanField.style.display = 'none';
-                sekolahField.style.display = 'block';
-                jabatanInput.required = false;
-                sekolahSelect.required = true;
-            }
-        } else {
-            // Hide all registration fields
-            registrationFields.forEach(field => {
-                field.style.display = 'none';
-            });
-            jabatanField.style.display = 'none';
-            sekolahField.style.display = 'none';
-            jabatanInput.required = false;
-            sekolahSelect.required = false;
-        }
-
-        toggleRegisterButton();
-    }
-
-    if (userTypeSelect) {
-        userTypeSelect.addEventListener('change', toggleFields);
-        // Initial check in case of form validation errors
-        toggleFields();
-    }
-
-    // Add event listeners to form inputs to check completion
-    [emailInput, nameInput, passwordInput, confirmPasswordInput, jabatanInput, sekolahSelect].forEach(input => {
-        if (input) {
-            input.addEventListener('input', toggleRegisterButton);
-            input.addEventListener('change', toggleRegisterButton);
-        }
-    });
-
     // Password toggle for password field
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('userpassword');
@@ -717,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Password toggle for confirm password field
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    const confirmPasswordInput = document.getElementById('confirmpassword');
+    const confirmPasswordInput = document.getElementById('password_confirmation');
 
     if (toggleConfirmPassword && confirmPasswordInput) {
         toggleConfirmPassword.addEventListener('click', function() {
@@ -730,6 +632,44 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.classList.toggle('mdi-eye-off-outline', isPassword);
         });
     }
+
+    // Role selection logic
+    const roleRadios = document.querySelectorAll('input[name="role"]');
+    const jabatanGroup = document.getElementById('jabatan-group');
+    const asalSekolahGroup = document.getElementById('asal_sekolah-group');
+    const jabatanInput = document.getElementById('jabatan');
+    const asalSekolahInput = document.getElementById('asal_sekolah');
+
+    function toggleConditionalFields() {
+        const selectedRole = document.querySelector('input[name="role"]:checked');
+        if (selectedRole) {
+            if (selectedRole.value === 'pengurus') {
+                jabatanGroup.style.display = 'block';
+                asalSekolahGroup.style.display = 'none';
+                jabatanInput.required = true;
+                asalSekolahInput.required = false;
+                asalSekolahInput.value = '';
+            } else if (selectedRole.value === 'tenaga_pendidik') {
+                jabatanGroup.style.display = 'none';
+                asalSekolahGroup.style.display = 'block';
+                jabatanInput.required = false;
+                asalSekolahInput.required = true;
+                jabatanInput.value = '';
+            }
+        } else {
+            jabatanGroup.style.display = 'none';
+            asalSekolahGroup.style.display = 'none';
+            jabatanInput.required = false;
+            asalSekolahInput.required = false;
+        }
+    }
+
+    roleRadios.forEach(radio => {
+        radio.addEventListener('change', toggleConditionalFields);
+    });
+
+    // Initial check
+    toggleConditionalFields();
 });
 
 // ==== Force reload register page if cached by Service Worker ====
