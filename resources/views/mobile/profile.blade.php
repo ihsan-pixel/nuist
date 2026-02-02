@@ -473,7 +473,7 @@
         </div>
     </div> --}}
     <!-- Simfoni Data SK -->
-    <div class="settings-section">
+    {{-- <div class="settings-section">
         <div class="settings-header">
             <h6><i class="bx bx-file-blank me-2"></i>Data SIMFONI Guru & Pegawai</h6>
         </div>
@@ -486,7 +486,7 @@
                 Update Data Simfoni
             </a>
         </div>
-    </div>
+    </div> --}}
 
     @if(Auth::user()->ketugasan === 'kepala madrasah/sekolah')
     <!-- Laporan Akhir Tahun -->

@@ -140,27 +140,29 @@
 
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
 
         .stat-item {
             background: #f8f9fa;
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px 6px;
             text-align: center;
         }
 
         .stat-item h4 {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
             color: #004b4c;
             margin-bottom: 2px;
         }
 
         .stat-item small {
-            font-size: 10px;
+            font-size: 9px;
             color: #6c757d;
+            display: block;
+            line-height: 1.2;
         }
 
         .badge-info {
@@ -209,6 +211,85 @@
             background: #004b4c;
             margin-right: 10px;
             flex-shrink: 0;
+        }
+
+        .nav-menu-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 12px;
+        }
+
+        .nav-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .nav-menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 8px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .nav-menu-item:hover {
+            background: #e9ecef;
+        }
+
+        .nav-menu-item.active {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-color: #004b4c;
+        }
+
+        .nav-menu-item.active i,
+        .nav-menu-item.active span {
+            color: white !important;
+        }
+
+        .nav-menu-item i {
+            font-size: 22px;
+            margin-bottom: 6px;
+            transition: color 0.2s ease;
+        }
+
+        .nav-menu-item span {
+            font-size: 10px;
+            font-weight: 600;
+            color: #004b4c;
+            text-align: center;
+            transition: color 0.2s ease;
+        }
+
+        .nav-menu-item .badge-count {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #dc3545;
+            color: white;
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 8px;
+        }
+
+        .nav-menu-item {
+            position: relative;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
         }
     </style>
 
@@ -262,315 +343,345 @@
         </div>
     </div>
 
-    <!-- Basic Info -->
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-info-circle"></i>
-            <h6>Informasi Dasar</h6>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Kabupaten</span>
-            <span class="info-value">{{ $madrasah->kabupaten ?: '-' }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Alamat</span>
-            <span class="info-value">{{ $madrasah->alamat ?: '-' }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Tahun Berdiri</span>
-            <span class="info-value">{{ $madrasah->tahun_berdiri ?: '-' }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Akreditasi</span>
-            <span class="info-value">
-                @if($madrasah->akreditasi)
-                <span class="badge badge-blue">{{ $madrasah->akreditasi }}</span>
-                @else
-                <span class="empty-value">-</span>
-                @endif
-            </span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">SCOD</span>
-            <span class="info-value">{{ $madrasah->scod ?: '-' }}</span>
+    <!-- Navigation Menu -->
+    <div class="nav-menu-card">
+        <div class="nav-menu-grid">
+            <a href="javascript:void(0)" class="nav-menu-item active" data-tab="informasi">
+                <i class="bx bx-info-circle" style="color: #004b4c;"></i>
+                <span>Informasi</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-menu-item" data-tab="tenaga-pendidik">
+                <i class="bx bx-user-voice" style="color: #0e8549;"></i>
+                <span>Tenaga<br>Pendidik</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-menu-item" data-tab="presensi">
+                <i class="bx bx-check-circle" style="color: #6c5ce7;"></i>
+                <span>Presensi</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-menu-item" data-tab="presensi-mengajar">
+                <i class="bx bx-chalkboard" style="color: #f5576c;"></i>
+                <span>Presensi<br>Mengajar</span>
+            </a>
         </div>
     </div>
 
-    <!-- Contact Info -->
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-phone"></i>
-            <h6>Informasi Kontak</h6>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Telepon</span>
-            <span class="info-value">
-                @if($madrasah->telepon)
-                <a href="tel:{{ $madrasah->telepon }}">{{ $madrasah->telepon }}</a>
-                @else
-                <span class="empty-value">-</span>
-                @endif
-            </span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value">
-                @if($madrasah->email)
-                <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
-                @else
-                <span class="empty-value">-</span>
-                @endif
-            </span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Website</span>
-            <span class="info-value">
-                @if($madrasah->website)
-                <a href="{{ $madrasah->website }}" target="_blank">{{ $madrasah->website }}</a>
-                @else
-                <span class="empty-value">-</span>
-                @endif
-            </span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Jam Operasi</span>
-            <span class="info-value">
-                @if($madrasah->jam_operasional_buka && $madrasah->jam_operasional_tutup)
-                {{ \Carbon\Carbon::parse($madrasah->jam_operasional_buka)->format('H:i') }} - {{ \Carbon\Carbon::parse($madrasah->jam_operasional_tutup)->format('H:i') }}
-                @else
-                <span class="empty-value">-</span>
-                @endif
-            </span>
-        </div>
-    </div>
-
-    <!-- Kepala Sekolah -->
-    @if($madrasah->kepala_sekolah_nama)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-user"></i>
-            <h6>Kepala Sekolah</h6>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Nama</span>
-            <span class="info-value">
-                {{ $madrasah->kepala_sekolah_nama }}
-                @if($madrasah->kepala_sekolah_gelar)
-                <small class="text-muted">, {{ $madrasah->kepala_sekolah_gelar }}</small>
-                @endif
-            </span>
-        </div>
-    </div>
-    @endif
-
-    <!-- Tagline & Deskripsi -->
-    @if($madrasah->tagline || $madrasah->deskripsi_singkat)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-text"></i>
-            <h6>Tentang</h6>
-        </div>
-
-        @if($madrasah->tagline)
-        <div class="info-row">
-            <span class="info-label">Tagline</span>
-            <span class="info-value">{{ $madrasah->tagline }}</span>
-        </div>
-        @endif
-
-        @if($madrasah->deskripsi_singkat)
-        <div class="info-row" style="flex-direction: column;">
-            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Deskripsi</span>
-            <span class="info-value" style="width: 100%;">{{ $madrasah->deskripsi_singkat }}</span>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    <!-- Visi Misi -->
-    @if($madrasah->visi || $madrasah->misi)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-bullseye"></i>
-            <h6>Visi & Misi</h6>
-        </div>
-
-        @if($madrasah->visi)
-        <div class="info-row" style="flex-direction: column;">
-            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Visi</span>
-            <span class="info-value" style="width: 100%;">{{ $madrasah->visi }}</span>
-        </div>
-        @endif
-
-        @if($madrasah->misi)
-        <div class="info-row" style="flex-direction: column;">
-            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Misi</span>
-            <span class="info-value" style="width: 100%;">
-                @if(is_array($madrasah->misi))
-                <ul style="margin: 0; padding-left: 18px;">
-                    @foreach($madrasah->misi as $misi)
-                    <li style="margin-bottom: 4px;">{{ $misi }}</li>
-                    @endforeach
-                </ul>
-                @else
-                {{ $madrasah->misi }}
-                @endif
-            </span>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    <!-- Jurusan -->
-    @if($madrasah->jurusan && (is_array($madrasah->jurusan) && count($madrasah->jurusan) > 0))
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-book"></i>
-            <h6>Jurusan</h6>
-        </div>
-
-        @if(is_array($madrasah->jurusan))
-        @foreach($madrasah->jurusan as $jurusan)
-        <div class="list-item">
-            <span class="list-bullet"></span>
-            <span style="font-size: 12px;">{{ $jurusan }}</span>
-        </div>
-        @endforeach
-        @else
-        <span class="info-value">{{ $madrasah->jurusan }}</span>
-        @endif
-    </div>
-    @endif
-
-    <!-- Fasilitas -->
-    @if($fasilitasList && count($fasilitasList) > 0)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-building"></i>
-            <h6>Fasilitas ({{ count($fasilitasList) }})</h6>
-        </div>
-
-        @foreach($fasilitasList as $fasilitas)
-        <div class="list-item" style="flex-direction: column; align-items: flex-start;">
-            <div class="d-flex align-items-center w-100">
-                <span class="list-bullet" style="background: #0e8549;"></span>
-                <span style="font-size: 13px; font-weight: 600; color: #004b4c;">{{ $fasilitas['name'] }}</span>
+    <!-- Content Sections -->
+    <!-- Informasi Section -->
+    <div class="content-section active" id="section-informasi">
+        <!-- Basic Info -->
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-info-circle"></i>
+                <h6>Informasi Dasar</h6>
             </div>
-            @if(isset($fasilitas['description']) && $fasilitas['description'])
-            <p style="font-size: 11px; color: #6c757d; margin: 6px 0 0 16px; line-height: 1.4;">{{ $fasilitas['description'] }}</p>
+
+            <div class="info-row">
+                <span class="info-label">Kabupaten</span>
+                <span class="info-value">{{ $madrasah->kabupaten ?: '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Alamat</span>
+                <span class="info-value">{{ $madrasah->alamat ?: '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tahun Berdiri</span>
+                <span class="info-value">{{ $madrasah->tahun_berdiri ?: '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Akreditasi</span>
+                <span class="info-value">
+                    @if($madrasah->akreditasi)
+                    <span class="badge badge-blue">{{ $madrasah->akreditasi }}</span>
+                    @else
+                    <span class="empty-value">-</span>
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">SCOD</span>
+                <span class="info-value">{{ $madrasah->scod ?: '-' }}</span>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-phone"></i>
+                <h6>Informasi Kontak</h6>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Telepon</span>
+                <span class="info-value">
+                    @if($madrasah->telepon)
+                    <a href="tel:{{ $madrasah->telepon }}">{{ $madrasah->telepon }}</a>
+                    @else
+                    <span class="empty-value">-</span>
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">
+                    @if($madrasah->email)
+                    <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
+                    @else
+                    <span class="empty-value">-</span>
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Website</span>
+                <span class="info-value">
+                    @if($madrasah->website)
+                    <a href="{{ $madrasah->website }}" target="_blank">{{ $madrasah->website }}</a>
+                    @else
+                    <span class="empty-value">-</span>
+                    @endif
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Jam Operasi</span>
+                <span class="info-value">
+                    @if($madrasah->jam_operasional_buka && $madrasah->jam_operasional_tutup)
+                    {{ \Carbon\Carbon::parse($madrasah->jam_operasional_buka)->format('H:i') }} - {{ \Carbon\Carbon::parse($madrasah->jam_operasional_tutup)->format('H:i') }}
+                    @else
+                    <span class="empty-value">-</span>
+                    @endif
+                </span>
+            </div>
+        </div>
+
+        <!-- Kepala Sekolah -->
+        @if($madrasah->kepala_sekolah_nama)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-user"></i>
+                <h6>Kepala Sekolah</h6>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Nama</span>
+                <span class="info-value">
+                    {{ $madrasah->kepala_sekolah_nama }}
+                    @if($madrasah->kepala_sekolah_gelar)
+                    <small class="text-muted">, {{ $madrasah->kepala_sekolah_gelar }}</small>
+                    @endif
+                </span>
+            </div>
+        </div>
+        @endif
+
+        <!-- Tagline & Deskripsi -->
+        @if($madrasah->tagline || $madrasah->deskripsi_singkat)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-text"></i>
+                <h6>Tentang</h6>
+            </div>
+
+            @if($madrasah->tagline)
+            <div class="info-row">
+                <span class="info-label">Tagline</span>
+                <span class="info-value">{{ $madrasah->tagline }}</span>
+            </div>
+            @endif
+
+            @if($madrasah->deskripsi_singkat)
+            <div class="info-row" style="flex-direction: column;">
+                <span class="info-label" style="width: 100%; margin-bottom: 6px;">Deskripsi</span>
+                <span class="info-value" style="width: 100%;">{{ $madrasah->deskripsi_singkat }}</span>
+            </div>
             @endif
         </div>
-        @endforeach
-    </div>
-    @endif
-
-    <!-- Keunggulan -->
-    @if($madrasah->keunggulan && (is_array($madrasah->keunggulan) && count($madrasah->keunggulan) > 0))
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-star"></i>
-            <h6>Keunggulan</h6>
-        </div>
-
-        @if(is_array($madrasah->keunggulan))
-        @foreach($madrasah->keunggulan as $keunggulan)
-        <div class="list-item">
-            <span class="list-bullet" style="background: #f5576c;"></span>
-            <span style="font-size: 12px;">{{ $keunggulan }}</span>
-        </div>
-        @endforeach
-        @else
-        <span class="info-value">{{ $madrasah->keunggulan }}</span>
         @endif
-    </div>
-    @endif
 
-    <!-- PPDB Info -->
-    @if($madrasah->ppdb_status)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-user-plus"></i>
-            <h6>Informasi PPDB</h6>
+        <!-- Visi Misi -->
+        @if($madrasah->visi || $madrasah->misi)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-bullseye"></i>
+                <h6>Visi & Misi</h6>
+            </div>
+
+            @if($madrasah->visi)
+            <div class="info-row" style="flex-direction: column;">
+                <span class="info-label" style="width: 100%; margin-bottom: 6px;">Visi</span>
+                <span class="info-value" style="width: 100%;">{{ $madrasah->visi }}</span>
+            </div>
+            @endif
+
+            @if($madrasah->misi)
+            <div class="info-row" style="flex-direction: column;">
+                <span class="info-label" style="width: 100%; margin-bottom: 6px;">Misi</span>
+                <span class="info-value" style="width: 100%;">
+                    @if(is_array($madrasah->misi))
+                    <ul style="margin: 0; padding-left: 18px;">
+                        @foreach($madrasah->misi as $misi)
+                        <li style="margin-bottom: 4px;">{{ $misi }}</li>
+                        @endforeach
+                    </ul>
+                    @else
+                    {{ $madrasah->misi }}
+                    @endif
+                </span>
+            </div>
+            @endif
         </div>
+        @endif
 
-        <div class="info-row">
-            <span class="info-label">Status</span>
-            <span class="info-value">
-                @if($madrasah->ppdb_status == 'buka')
-                <span class="badge badge-green">Pendaftaran Dibuka</span>
-                @else
-                <span class="badge badge-info" style="background: #f8d7da; color: #721c24;">Pendaftaran Ditutup</span>
+        <!-- Jurusan -->
+        @if($madrasah->jurusan && (is_array($madrasah->jurusan) && count($madrasah->jurusan) > 0))
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-book"></i>
+                <h6>Jurusan</h6>
+            </div>
+
+            @if(is_array($madrasah->jurusan))
+            @foreach($madrasah->jurusan as $jurusan)
+            <div class="list-item">
+                <span class="list-bullet"></span>
+                <span style="font-size: 12px;">{{ $jurusan }}</span>
+            </div>
+            @endforeach
+            @else
+            <span class="info-value">{{ $madrasah->jurusan }}</span>
+            @endif
+        </div>
+        @endif
+
+        <!-- Fasilitas -->
+        @if($fasilitasList && count($fasilitasList) > 0)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-building"></i>
+                <h6>Fasilitas ({{ count($fasilitasList) }})</h6>
+            </div>
+
+            @foreach($fasilitasList as $fasilitas)
+            <div class="list-item" style="flex-direction: column; align-items: flex-start;">
+                <div class="d-flex align-items-center w-100">
+                    <span class="list-bullet" style="background: #0e8549;"></span>
+                    <span style="font-size: 13px; font-weight: 600; color: #004b4c;">{{ $fasilitas['name'] }}</span>
+                </div>
+                @if(isset($fasilitas['description']) && $fasilitas['description'])
+                <p style="font-size: 11px; color: #6c757d; margin: 6px 0 0 16px; line-height: 1.4;">{{ $fasilitas['description'] }}</p>
                 @endif
-            </span>
-        </div>
-
-        @if($madrasah->ppdb_jadwal_buka && $madrasah->ppdb_jadwal_tutup)
-        <div class="info-row">
-            <span class="info-label">Periode</span>
-            <span class="info-value">
-                {{ \Carbon\Carbon::parse($madrasah->ppdb_jadwal_buka)->format('d M Y') }} - {{ \Carbon\Carbon::parse($madrasah->ppdb_jadwal_tutup)->format('d M Y') }}
-            </span>
+            </div>
+            @endforeach
         </div>
         @endif
 
-        @if($madrasah->ppdb_kuota_total)
-        <div class="info-row">
-            <span class="info-label">Kuota</span>
-            <span class="info-value">{{ number_format($madrasah->ppdb_kuota_total) }} Siswa</span>
+        <!-- Keunggulan -->
+        @if($madrasah->keunggulan && (is_array($madrasah->keunggulan) && count($madrasah->keunggulan) > 0))
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-star"></i>
+                <h6>Keunggulan</h6>
+            </div>
+
+            @if(is_array($madrasah->keunggulan))
+            @foreach($madrasah->keunggulan as $keunggulan)
+            <div class="list-item">
+                <span class="list-bullet" style="background: #f5576c;"></span>
+                <span style="font-size: 12px;">{{ $keunggulan }}</span>
+            </div>
+            @endforeach
+            @else
+            <span class="info-value">{{ $madrasah->keunggulan }}</span>
+            @endif
         </div>
         @endif
 
-        @if($madrasah->ppdb_biaya_pendaftaran)
-        <div class="info-row">
-            <span class="info-label">Biaya Daftar</span>
-            <span class="info-value">Rp {{ number_format($madrasah->ppdb_biaya_pendaftaran, 0, ',', '.') }}</span>
+        <!-- Lokasi -->
+        @if($madrasah->latitude && $madrasah->longitude)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-map"></i>
+                <h6>Lokasi</h6>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Koordinat</span>
+                <span class="info-value">
+                    {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
+                </span>
+            </div>
+
+            @if($madrasah->map_link)
+            <div class="info-row">
+                <span class="info-label">Google Maps</span>
+                <span class="info-value">
+                    <a href="{{ $madrasah->map_link }}" target="_blank">Buka di Google Maps</a>
+                </span>
+            </div>
+            @endif
+        </div>
+        @endif
+
+        <!-- Hari KBM -->
+        @if($madrasah->hari_kbm)
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-calendar"></i>
+                <h6>Jadwal KBM</h6>
+            </div>
+
+            <div class="info-row">
+                <span class="info-value">{{ $madrasah->hari_kbm }}</span>
+            </div>
         </div>
         @endif
     </div>
-    @endif
 
-    <!-- Lokasi -->
-    @if($madrasah->latitude && $madrasah->longitude)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-map"></i>
-            <h6>Lokasi</h6>
-        </div>
-
-        <div class="info-row">
-            <span class="info-label">Koordinat</span>
-            <span class="info-value">
-                {{ $madrasah->latitude }}, {{ $madrasah->longitude }}
-            </span>
-        </div>
-
-        @if($madrasah->map_link)
-        <div class="info-row">
-            <span class="info-label">Google Maps</span>
-            <span class="info-value">
-                <a href="{{ $madrasah->map_link }}" target="_blank">Buka di Google Maps</a>
-            </span>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    <!-- Hari KBM -->
-    @if($madrasah->hari_kbm)
-    <div class="info-card">
-        <div class="info-card-header">
-            <i class="bx bx-calendar"></i>
-            <h6>Jadwal KBM</h6>
-        </div>
-
-        <div class="info-row">
-            <span class="info-value">{{ $madrasah->hari_kbm }}</span>
+    <!-- Tenaga Pendidik Section -->
+    <div class="content-section" id="section-tenaga-pendidik">
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-user-voice"></i>
+                <h6>Tenaga Pendidik ({{ $jumlahGuru }})</h6>
+            </div>
+            <div class="text-center py-2">
+                <p class="text-muted mb-2" style="font-size: 12px;">Total tenaga pendidik di madrasah ini</p>
+                <a href="#" class="btn btn-sm" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 8px;">
+                    Lihat Semua
+                </a>
+            </div>
         </div>
     </div>
-    @endif
+
+    <!-- Presensi Section -->
+    <div class="content-section" id="section-presensi">
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-check-circle"></i>
+                <h6>Presensi Kehadiran</h6>
+            </div>
+            <div class="text-center py-2">
+                <p class="text-muted mb-2" style="font-size: 12px;">Data presensi kehadiran tenaga pendidik</p>
+                <a href="#" class="btn btn-sm" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); color: white; border-radius: 8px;">
+                    Lihat Data
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presensi Mengajar Section -->
+    <div class="content-section" id="section-presensi-mengajar">
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-chalkboard"></i>
+                <h6>Presensi Mengajar</h6>
+            </div>
+            <div class="text-center py-2">
+                <p class="text-muted mb-2" style="font-size: 12px;">Data presensi mengajar tenaga pendidik</p>
+                <a href="#" class="btn btn-sm" style="background: linear-gradient(135deg, #f5576c 0%, #fa709a 100%); color: white; border-radius: 8px;">
+                    Lihat Data
+                </a>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -592,6 +703,37 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error fetching notifications:', error);
         }
     }
+
+    // Tab switching functionality
+    const navItems = document.querySelectorAll('.nav-menu-item');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+
+            // Remove active class from all nav items
+            navItems.forEach(nav => nav.classList.remove('active'));
+
+            // Add active class to clicked nav item
+            this.classList.add('active');
+
+            // Hide all content sections
+            contentSections.forEach(section => section.classList.remove('active'));
+
+            // Show the corresponding content section
+            const targetSection = document.getElementById('section-' + tabName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+
+                // Scroll back to top of content area
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
 });
 </script>
 @endsection

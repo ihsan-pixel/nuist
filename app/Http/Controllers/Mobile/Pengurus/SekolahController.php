@@ -35,6 +35,32 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Get jumlah guru total from all schools
+     */
+    private function getTotalGuru()
+    {
+        return User::where('role', 'tenaga_pendidik')
+            ->whereNotNull('madrasah_id')
+            ->count();
+    }
+
+    /**
+     * Get jumlah siswa total from all schools
+     */
+    private function getTotalSiswa()
+    {
+        // Get latest data_sekolah per madrasah and sum jumlah_siswa
+        $latestData = DataSekolah::select('madrasah_id', 'jumlah_siswa')
+            ->whereIn('id', function($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('data_sekolah')
+                    ->groupBy('madrasah_id');
+            });
+
+        return $latestData->sum('jumlah_siswa');
+    }
+
+    /**
      * Get jumlah jurusan from ppdb_settings table
      */
     private function getJumlahJurusan($madrasahId)
@@ -131,7 +157,9 @@ class SekolahController extends \App\Http\Controllers\Controller
 
         // Get statistics
         $totalSekolah = Madrasah::count();
-        $sekolahAktif = Madrasah::count();
+        $sekolahAktif = $totalSekolah; // Assume all schools are active
+        $totalGuru = $this->getTotalGuru();
+        $totalSiswa = $this->getTotalSiswa();
 
         // Get jumlah siswa from data_sekolah for each madrasah
         $jumlahSiswaData = [];
@@ -139,7 +167,9 @@ class SekolahController extends \App\Http\Controllers\Controller
             $jumlahSiswaData[$madrasah->id] = $this->getJumlahSiswa($madrasah->id);
         }
 
-        return view('mobile.pengurus.sekolah', compact('madrasahs', 'search', 'totalSekolah', 'sekolahAktif', 'jumlahSiswaData'));
+        return view('mobile.pengurus.sekolah', compact(
+            'madrasahs', 'search', 'totalSekolah', 'sekolahAktif', 'totalGuru', 'totalSiswa', 'jumlahSiswaData'
+        ));
     }
 
     /**
