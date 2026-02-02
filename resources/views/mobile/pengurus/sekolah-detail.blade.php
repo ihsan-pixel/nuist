@@ -450,13 +450,18 @@
     <div class="info-card">
         <div class="info-card-header">
             <i class="bx bx-building"></i>
-            <h6>Fasilitas</h6>
+            <h6>Fasilitas ({{ count($fasilitasList) }})</h6>
         </div>
 
         @foreach($fasilitasList as $fasilitas)
-        <div class="list-item">
-            <span class="list-bullet" style="background: #0e8549;"></span>
-            <span style="font-size: 12px;">{{ $fasilitas }}</span>
+        <div class="list-item" style="flex-direction: column; align-items: flex-start;">
+            <div class="d-flex align-items-center w-100">
+                <span class="list-bullet" style="background: #0e8549;"></span>
+                <span style="font-size: 13px; font-weight: 600; color: #004b4c;">{{ $fasilitas['name'] }}</span>
+            </div>
+            @if(isset($fasilitas['description']) && $fasilitas['description'])
+            <p style="font-size: 11px; color: #6c757d; margin: 6px 0 0 16px; line-height: 1.4;">{{ $fasilitas['description'] }}</p>
+            @endif
         </div>
         @endforeach
     </div>

@@ -51,7 +51,7 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * Get jumlah sarana from ppdb_settings table (fasilitas column)
+     * Get jumlah sarana from ppdb_settings table (fasilitas column - count objects with name)
      */
     private function getJumlahSarana($madrasahId)
     {
@@ -60,7 +60,11 @@ class SekolahController extends \App\Http\Controllers\Controller
             ->first();
 
         if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
-            return count($ppdbSetting->fasilitas);
+            // Filter hanya objek yang memiliki 'name'
+            $fasilitasWithName = array_filter($ppdbSetting->fasilitas, function($item) {
+                return is_array($item) && isset($item['name']) && !empty($item['name']);
+            });
+            return count($fasilitasWithName);
         }
 
         return 0;
@@ -76,7 +80,11 @@ class SekolahController extends \App\Http\Controllers\Controller
             ->first();
 
         if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
-            return $ppdbSetting->fasilitas;
+            // Filter dan return hanya fasilitas yang memiliki name
+            $fasilitasList = array_filter($ppdbSetting->fasilitas, function($item) {
+                return is_array($item) && isset($item['name']) && !empty($item['name']);
+            });
+            return array_values($fasilitasList);
         }
 
         return [];

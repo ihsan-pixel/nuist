@@ -451,13 +451,18 @@
     <div class="info-card">
         <div class="info-card-header">
             <i class="bx bx-building"></i>
-            <h6>Fasilitas</h6>
+            <h6>Fasilitas (<?php echo e(count($fasilitasList)); ?>)</h6>
         </div>
 
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $fasilitasList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <div class="list-item">
-            <span class="list-bullet" style="background: #0e8549;"></span>
-            <span style="font-size: 12px;"><?php echo e($fasilitas); ?></span>
+        <div class="list-item" style="flex-direction: column; align-items: flex-start;">
+            <div class="d-flex align-items-center w-100">
+                <span class="list-bullet" style="background: #0e8549;"></span>
+                <span style="font-size: 13px; font-weight: 600; color: #004b4c;"><?php echo e($fasilitas['name']); ?></span>
+            </div>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($fasilitas['description']) && $fasilitas['description']): ?>
+            <p style="font-size: 11px; color: #6c757d; margin: 6px 0 0 16px; line-height: 1.4;"><?php echo e($fasilitas['description']); ?></p>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
