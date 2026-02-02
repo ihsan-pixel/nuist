@@ -410,55 +410,58 @@ if ($hour >= 0 && $hour <= 11) {
     </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <!-- Performance Card for Pengurus -->
-    <div class="performance-card">
-        <div class="performance-level">
-            <span class="level-badge">DASHBOARD PENGURUS</span>
-            <strong>LP. Ma'arif NU PWNU DIY</strong>
-        </div>
-
-        <div class="performance-progress">
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-            <div class="progress-text">
-                <strong>100%</strong>
+    <!-- Info Cards Section -->
+    <div class="row g-2 mb-3">
+        <div class="col-4">
+            <div class="info-card text-center h-100" style="background: linear-gradient(135deg, #004b4c 0%, #006666 100%); border-radius: 10px; padding: 10px 6px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <i class="bx bx-building fs-4 mb-1"></i>
+                <div class="fw-bold" style="font-size: 18px;"><?php echo e(number_format($jumlahSekolah)); ?></div>
+                <small style="font-size: 9px;">Sekolah</small>
             </div>
         </div>
-
-        <div class="text-center mt-2" style="font-size: 10px">
-            <small class="text-light">Selamat datang di Dashboard Mobile Pengurus</small>
+        <div class="col-4">
+            <div class="info-card text-center h-100" style="background: linear-gradient(135deg, #0e8549 0%, #28a745 100%); border-radius: 10px; padding: 10px 6px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <i class="bx bx-user-voice fs-4 mb-1"></i>
+                <div class="fw-bold" style="font-size: 18px;"><?php echo e(number_format($jumlahTenagaPendidik)); ?></div>
+                <small style="font-size: 9px;">Tenaga Pendidik</small>
+            </div>
         </div>
-    </div>
-
-    <small>Statistik Sistem</small>
-
-    <!-- Stats Form -->
-    <div class="stats-form">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="icon-container">
-                    <i class="bx bx-building text-primary"></i>
-                </div>
-                <h6><?php echo e($totalMadrasah); ?></h6>
-                <small>Madrasah</small>
-            </div>
-            <div class="stat-item">
-                <div class="icon-container">
-                    <i class="bx bx-user text-success"></i>
-                </div>
-                <h6><?php echo e($totalTenagaPendidik); ?></h6>
-                <small>Tenaga Pendidik</small>
-            </div>
-            <div class="stat-item">
-                <div class="icon-container">
-                    <i class="bx bx-group text-warning"></i>
-                </div>
-                <h6><?php echo e($totalPengurus); ?></h6>
-                <small>Pengurus</small>
+        <div class="col-4">
+            <div class="info-card text-center h-100" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); border-radius: 10px; padding: 10px 6px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <i class="bx bx-group fs-4 mb-1"></i>
+                <div class="fw-bold" style="font-size: 18px;"><?php echo e(number_format($jumlahSiswa)); ?></div>
+                <small style="font-size: 9px;">Siswa</small>
             </div>
         </div>
     </div>
+
+    <!-- Chart Section: Tenaga Pendidik by Status Kepegawaian -->
+    <div class="mb-3">
+        
+        <div class="card border-0 shadow-sm" style="border-radius: 12px; background: #fff;">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 text-dark" style="font-size: 13px; font-weight: 600;">
+                        <i class="bx bx-bar-chart me-1" style="color: #004b4c;"></i>
+                        Berdasarkan Status Kepegawaian
+                    </h6>
+                </div>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tenagaPendidikByStatus->count() > 0): ?>
+                <div id="tenaga-pendidik-chart" data-colors='["#004b4c", "#0e8549", "#6c5ce7", "#f5576c", "#fa709a", "#4facfe", "#ffecd2"]' class="apex-charts" style="height: 220px;"></div>
+                <?php else: ?>
+                <div class="text-center py-4">
+                    <div class="avatar-md mx-auto mb-2">
+                        <div class="avatar-title bg-light text-muted rounded-circle">
+                            <i class="bx bx-bar-chart-alt-2 fs-4"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0" style="font-size: 12px;">Belum ada data tenaga pendidik</p>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    </div>
+
 
     <small>Menu Pengurus</small>
 
@@ -466,80 +469,152 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="services-form">
         <div class="services-grid" id="servicesGrid">
             <div class="service-wrapper">
-                <a href="<?php echo e(route('yayasan.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/yayasan.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('mobile.pengurus.sekolah')); ?>" class="service-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="bx bx-building" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
-                <div class="service-label">Data Yayasan</div>
+                <div class="service-label">Data Sekolah</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('pengurus.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/pengurus.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Data Pengurus</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('madrasah.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/madrasah.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Data Madrasah</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/tenaga_pendidik.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="service-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="bx bx-user-voice" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Tenaga Pendidik</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('status-kepegawaian.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/status_kepegawaian.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Status Kepegawaian</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('tahun-pelajaran.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/tahun_pelajaran.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Tahun Pelajaran</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('admin.teaching_progress')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/teaching_progress.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('admin.teaching_progress')); ?>" class="service-item" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                    <i class="bx bx-chalkboard" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Progres Mengajar</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('admin.data_madrasah')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/data_madrasah.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('admin.data_madrasah')); ?>" class="service-item" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">
+                    <i class="bx bx-data" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">Kelengkapan Data</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('uppm.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/uppm.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('uppm.index')); ?>" class="service-item" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                    <i class="bx bx-certification" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">UPPM</div>
             </div>
             <div class="service-wrapper">
-                <a href="<?php echo e(route('ppdb.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/ppdb.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
+                <a href="<?php echo e(route('ppdb.index')); ?>" class="service-item" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                    <i class="bx bx-user-plus" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">PPDB</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('development-history.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/development.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Riwayat Pengembangan</div>
-            </div>
-            <div class="service-wrapper">
-                <a href="<?php echo e(route('active-users.index')); ?>" class="service-item">
-                    <img src="<?php echo e(asset('images/menu_icon/active_users.png')); ?>" alt="Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; z-index: 0;">
-                </a>
-                <div class="service-label">Pengguna Aktif</div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Chart Initialization Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tenagaPendidikData = <?php echo json_encode($tenagaPendidikByStatus, 15, 512) ?>;
+
+    if (tenagaPendidikData && tenagaPendidikData.length > 0) {
+        var chartElement = document.querySelector("#tenaga-pendidik-chart");
+
+        if (chartElement) {
+            var colors = JSON.parse(chartElement.getAttribute('data-colors')) || ["#004b4c"];
+            var labels = tenagaPendidikData.map(function(item) { return item.status_name; });
+            var series = tenagaPendidikData.map(function(item) { return item.count; });
+
+            var options = {
+                chart: {
+                    type: 'bar',
+                    height: 220,
+                    fontFamily: "'Poppins', sans-serif",
+                    toolbar: {
+                        show: false
+                    },
+                    stacked: false
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '50%',
+                        borderRadius: 4,
+                        distributed: true,
+                        dataLabels: {
+                            position: 'top'
+                        }
+                    }
+                },
+                colors: colors,
+                series: [{
+                    name: 'Jumlah',
+                    data: series
+                }],
+                xaxis: {
+                    categories: labels,
+                    labels: {
+                        show: false,
+                        style: {
+                            fontSize: '10px',
+                            fontFamily: "'Poppins', sans-serif",
+                            colors: '#495057'
+                        },
+                        rotate: -45,
+                        rotateAlways: false
+                    }
+                },
+                yaxis: {
+                    show: false,
+                    labels: {
+                        show: false
+                    }
+                },
+                legend: {
+                    show: false
+                },
+                dataLabels: {
+                    enabled: true,
+                    textAnchor: 'end',
+                    offsetY: -20,
+                    offsetX: 8,
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        fontFamily: "'Poppins', sans-serif",
+                        colors: ['#495057']
+                    },
+                    formatter: function(val, opts) {
+                        return val;
+                    }
+                },
+                stroke: {
+                    width: 0
+                },
+                tooltip: {
+                    enabled: true,
+                    y: {
+                        formatter: function(val) {
+                            return val + " tenaga pendidik";
+                        }
+                    }
+                },
+                grid: {
+                    show: false,
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 0,
+                        right: 0
+                    }
+                },
+                fill: {
+                    opacity: 1
+                }
+            };
+
+            var chart = new ApexCharts(chartElement, options);
+            chart.render();
+        }
+    }
+});
+</script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/dashboard.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.mobile-pengurus', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/dashboard.blade.php ENDPATH**/ ?>

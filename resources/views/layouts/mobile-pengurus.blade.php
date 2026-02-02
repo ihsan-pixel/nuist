@@ -1,48 +1,48 @@
 <!doctype html>
-<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8" />
-    <title><?php echo $__env->yieldContent('title'); ?> | NUIST Mobile</title>
-    <base href="<?php echo e(url('/')); ?>/">
+    <title>@yield('title') | NUIST Mobile - Pengurus</title>
+    <base href="{{ url('/') }}/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta name="keywords" content="nuist, ma'arif, nu, pwnu diy, sistem informasi, mobile, pwa" />
     <meta name="author" content="LP. Ma'arif NU PWNU DIY" />
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#004b4c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="NUIST Mobile">
     <meta name="mobile-web-app-capable" content="yes">
 
     <!-- CSRF Token -->
-    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="<?php echo e(asset('manifest.json')); ?>">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
 
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="152x152" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="144x144" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="120x120" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="114x114" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="76x76" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="72x72" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="60x60" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
-    <link rel="apple-touch-icon" sizes="57x57" href="<?php echo e(asset('build/images/logo-light.png')); ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ asset('build/images/logo-light.png') }}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ asset('build/images/logo-light.png') }}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="<?php echo e(asset('build/images/favicon.ico')); ?>">
+    <link rel="shortcut icon" href="{{ asset('build/images/favicon.ico') }}">
 
     <!-- Open Graph for better social sharing -->
-    <meta property="og:title" content="<?php echo $__env->yieldContent('title'); ?> | NUIST Mobile" />
+    <meta property="og:title" content="@yield('title') | NUIST Mobile" />
     <meta property="og:description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
-    <meta property="og:url" content="<?php echo e(url()->current()); ?>" />
+    <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="<?php echo e(asset('build/images/logo-light.png')); ?>" />
+    <meta property="og:image" content="{{ asset('build/images/logo-light.png') }}" />
 
-    <?php echo $__env->make('layouts.head-css', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    @include('layouts.head-css')
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -53,6 +53,8 @@
         body {
             font-size: 14px;
             line-height: 1.4;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fb;
         }
 
         /* Bottom navigation */
@@ -295,7 +297,7 @@
         }
 
         .custom-bottom-nav .nav-link.active {
-            color: #ffffff;
+            color: #004b4c;
         }
 
         /* Tombol tengah melingkar */
@@ -310,7 +312,7 @@
         .center-action {
             width: 65px;
             height: 65px;
-            background: linear-gradient(135deg, #0e8549, #004b4c);
+            background: linear-gradient(135deg, #004b4c, #0e8549);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -325,6 +327,26 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.25);
         }
+
+        /* Primary color scheme */
+        .text-primary-custom {
+            color: #004b4c !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #004b4c !important;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #003838 0%, #0a6b3d 100%);
+            color: white;
+        }
     </style>
 </head>
 
@@ -335,174 +357,64 @@
         Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
     </div>
 
-    <!-- PWA Install Prompt -->
-    
-
-
-
     <!-- Main Content -->
     <main class="mobile-content">
         <div class="container-fluid px-1 py-3">
-            <?php echo $__env->yieldContent('content'); ?>
+            @yield('content')
         </div>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <?php
-        $user = auth()->user();
-        $userRole = $user ? $user->role : '';
-
-        if ($userRole === 'pengurus') {
-            // Routes for pengurus mobile navigation
-            $menuRoutes = [
-                'mobile.pengurus.dashboard',
-                'mobile.pengurus.data-sekolah',
-                'mobile.pengurus.pengguna-aktif',
-                'mobile.pengurus.uppm',
-                'mobile.pengurus.data-presensi-mengajar',
-                'yayasan.index',
-                'madrasah.index',
-                'tenaga-pendidik.index',
-                'active-users.index',
-            ];
-            $showNav = false;
-            foreach ($menuRoutes as $route) {
-                if (request()->routeIs($route)) {
-                    $showNav = true;
-                    break;
-                }
-            }
-        } else {
-            $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
-            $showNav = false;
-            foreach ($menuRoutes as $route) {
-                if (request()->routeIs($route)) {
-                    $showNav = true;
-                    break;
-                }
-            }
-        }
-    ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus'): ?>
-    <!-- Navigation for Pengurus -->
+    <!-- Mobile Bottom Navigation for Pengurus -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
-            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
+            <a href="{{ route('mobile.pengurus.dashboard') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.dashboard') ? 'active' : '' }}">
                 <i class="bx bx-home"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="<?php echo e(route('yayasan.index')); ?>" class="nav-link">
-                <i class="bx bx-building"></i>
-                <span>Yayasan</span>
+            <a href="{{ route('mobile.pengurus.sekolah') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.sekolah') ? 'active' : '' }}">
+                <i class="bx bx-school"></i>
+                <span>Madrasah</span>
             </a>
-            <a href="">
+            <a>
                 <i></i>
                 <span style="color: #ffffff !important;">|---------|</span>
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="<?php echo e(route('madrasah.index')); ?>" class="center-action">
-                    <i class="bx bx-school"></i>
+                <a href="{{ route('tenaga-pendidik.index') }}" class="center-action">
+                    <i class="bx bx-user-voice"></i>
                 </a>
             </div>
 
-            <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="nav-link">
-                <i class="bx bx-user-check"></i>
-                <span>Tenaga Pendidik</span>
-            </a>
-            <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
+            <a href="{{ route('dashboard') }}" class="nav-link">
                 <i class="bx bx-desktop"></i>
                 <span>Desktop</span>
             </a>
-        </div>
-    </nav>
-    <?php else: ?>
-    <!-- Navigation for Tenaga Pendidik -->
-    <nav class="mobile-nav d-md-none custom-bottom-nav">
-        <div class="nav-container">
-            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
-                <i class="bx bx-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="<?php echo e(route('mobile.jadwal')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.jadwal*') ? 'active' : ''); ?>">
-                <i class="bx bx-history"></i>
-                <span>Jadwal</span>
-            </a>
-            <a href="">
-                <i></i>
-                <span style="color: #ffffff !important;">|---------|</span>
-            </a>
-            <!-- Tombol Tengah -->
-            <div class="nav-center-btn">
-                <a href="<?php echo e(route('mobile.presensi')); ?>" class="center-action">
-                    <i class="bx bx-scan"></i>
-                </a>
-            </div>
-
-            <a href="<?php echo e(route('mobile.teaching-attendances')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.teaching-attendances*') ? 'active' : ''); ?>">
-                <i class="bx bx-bar-chart"></i>
-                <span>Mengajar</span>
-            </a>
-            <a href="<?php echo e(route('mobile.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.profile') ? 'active' : ''); ?>">
-                <i class="bx bx-user"></i>
-                <span>Profile</span>
+            <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="bx bx-log-out"></i>
+                <span>Logout</span>
             </a>
         </div>
     </nav>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 
     <!-- JAVASCRIPT -->
-    <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    @include('layouts.vendor-scripts')
 
     <!-- ApexCharts -->
-    <script src="<?php echo e(asset('build/libs/apexcharts/apexcharts.min.js')); ?>"></script>
+    <script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
     <!-- Face Recognition Scripts -->
     <script>
-        window.MODEL_PATH = "<?php echo e(asset('models')); ?>";
+        window.MODEL_PATH = "{{ asset('models') }}";
     </script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    <script src="<?php echo e(asset('js/face-recognition.js')); ?>"></script>
+    <script src="{{ asset('js/face-recognition.js') }}"></script>
 
     <!-- Mobile-specific scripts -->
     <script>
-        // PWA Install Prompt
-        // let deferredPrompt;
-        // const installPrompt = document.getElementById('pwa-install-prompt');
-
-        // window.addEventListener('beforeinstallprompt', (e) => {
-        //     e.preventDefault();
-        //     deferredPrompt = e;
-        // });
-
-        // document.getElementById('install-pwa').addEventListener('click', () => {
-        //     installPrompt.style.display = 'none';
-        //     if (deferredPrompt) {
-        //         deferredPrompt.prompt();
-        //         deferredPrompt.userChoice.then((choiceResult) => {
-        //             if (choiceResult.outcome === 'accepted') {
-        //                 console.log('User accepted the install prompt');
-        //                 localStorage.setItem('pwa-install-dismissed', 'true');
-        //             }
-        //             deferredPrompt = null;
-        //         });
-        //     }
-        // });
-
-        // document.getElementById('dismiss-pwa').addEventListener('click', () => {
-        //     installPrompt.style.display = 'none';
-        //     localStorage.setItem('pwa-install-dismissed', 'true');
-        // });
-
-        // Show install prompt if not dismissed before
-        if (!localStorage.getItem('pwa-install-dismissed')) {
-            setTimeout(() => {
-                installPrompt.style.display = 'block';
-            }, 3000);
-        }
-
         // Offline detection
         const offlineIndicator = document.getElementById('offline-indicator');
 
@@ -514,7 +426,7 @@
             offlineIndicator.style.display = 'block';
         });
 
-        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw-v2.js?v=1').then(reg => {
                 console.log("SW loaded:", reg.scope);
@@ -536,7 +448,6 @@
 
             if (diff > 50 && window.scrollY === 0) {
                 isPulling = true;
-                // Add visual feedback for pull to refresh
             }
         });
 
@@ -546,24 +457,6 @@
             }
             isPulling = false;
         });
-
-        // Notification badge functionality
-        function updateNotificationBadge() {
-            fetch('/mobile/notifications/unread-count')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.getElementById('notificationBadge');
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                })
-                .catch(error => console.error('Error updating notification badge:', error));
-        }
-
-
 
         // Mobile optimizations
         document.addEventListener('DOMContentLoaded', () => {
@@ -586,12 +479,6 @@
                 });
             });
 
-            // Update notification badge on page load
-            updateNotificationBadge();
-
-            // Update badge every 30 seconds
-            setInterval(updateNotificationBadge, 30000);
-
             // Show SweetAlert success message if present
             const successMessage = document.getElementById('success-message');
             if (successMessage) {
@@ -609,13 +496,10 @@
                         }
                     });
                 }
-            } else {
-                console.log('Success message element not found');
             }
         });
-    </script>
-    <script>
-        // Tambahkan efek shadow saat user scroll
+
+        // Add shadow effect on scroll
         document.addEventListener('scroll', () => {
             const header = document.querySelector('.mobile-header');
             if (window.scrollY > 10) {
@@ -626,8 +510,8 @@
         });
     </script>
 
-    <?php echo $__env->yieldContent('script'); ?>
+    @yield('script')
 </body>
 
 </html>
-<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/layouts/mobile.blade.php ENDPATH**/ ?>
+

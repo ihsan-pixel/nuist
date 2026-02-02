@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <title><?php echo $__env->yieldContent('title'); ?> | NUIST Mobile</title>
+    <title><?php echo $__env->yieldContent('title'); ?> | NUIST Mobile - Pengurus</title>
     <base href="<?php echo e(url('/')); ?>/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="NUIST Mobile - Sistem Informasi Digital LP. Ma'arif NU PWNU DIY" />
     <meta name="keywords" content="nuist, ma'arif, nu, pwnu diy, sistem informasi, mobile, pwa" />
     <meta name="author" content="LP. Ma'arif NU PWNU DIY" />
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#004b4c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="NUIST Mobile">
@@ -53,6 +53,8 @@
         body {
             font-size: 14px;
             line-height: 1.4;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fb;
         }
 
         /* Bottom navigation */
@@ -295,7 +297,7 @@
         }
 
         .custom-bottom-nav .nav-link.active {
-            color: #ffffff;
+            color: #004b4c;
         }
 
         /* Tombol tengah melingkar */
@@ -310,7 +312,7 @@
         .center-action {
             width: 65px;
             height: 65px;
-            background: linear-gradient(135deg, #0e8549, #004b4c);
+            background: linear-gradient(135deg, #004b4c, #0e8549);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -325,6 +327,26 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(0,0,0,0.25);
         }
+
+        /* Primary color scheme */
+        .text-primary-custom {
+            color: #004b4c !important;
+        }
+
+        .bg-primary-custom {
+            background-color: #004b4c !important;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #003838 0%, #0a6b3d 100%);
+            color: white;
+        }
     </style>
 </head>
 
@@ -335,11 +357,6 @@
         Anda sedang offline. Beberapa fitur mungkin tidak tersedia.
     </div>
 
-    <!-- PWA Install Prompt -->
-    
-
-
-
     <!-- Main Content -->
     <main class="mobile-content">
         <div class="container-fluid px-1 py-3">
@@ -347,111 +364,41 @@
         </div>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <?php
-        $user = auth()->user();
-        $userRole = $user ? $user->role : '';
-
-        if ($userRole === 'pengurus') {
-            // Routes for pengurus mobile navigation
-            $menuRoutes = [
-                'mobile.pengurus.dashboard',
-                'mobile.pengurus.data-sekolah',
-                'mobile.pengurus.pengguna-aktif',
-                'mobile.pengurus.uppm',
-                'mobile.pengurus.data-presensi-mengajar',
-                'yayasan.index',
-                'madrasah.index',
-                'tenaga-pendidik.index',
-                'active-users.index',
-            ];
-            $showNav = false;
-            foreach ($menuRoutes as $route) {
-                if (request()->routeIs($route)) {
-                    $showNav = true;
-                    break;
-                }
-            }
-        } else {
-            $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
-            $showNav = false;
-            foreach ($menuRoutes as $route) {
-                if (request()->routeIs($route)) {
-                    $showNav = true;
-                    break;
-                }
-            }
-        }
-    ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showNav): ?>
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($userRole === 'pengurus'): ?>
-    <!-- Navigation for Pengurus -->
+    <!-- Mobile Bottom Navigation for Pengurus -->
     <nav class="mobile-nav d-md-none custom-bottom-nav">
         <div class="nav-container">
-            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('mobile.pengurus.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.pengurus.dashboard') ? 'active' : ''); ?>">
                 <i class="bx bx-home"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="<?php echo e(route('yayasan.index')); ?>" class="nav-link">
-                <i class="bx bx-building"></i>
-                <span>Yayasan</span>
+            <a href="<?php echo e(route('mobile.pengurus.sekolah')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.pengurus.sekolah') ? 'active' : ''); ?>">
+                <i class="bx bx-school"></i>
+                <span>Madrasah</span>
             </a>
-            <a href="">
+            <a>
                 <i></i>
                 <span style="color: #ffffff !important;">|---------|</span>
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
-                <a href="<?php echo e(route('madrasah.index')); ?>" class="center-action">
-                    <i class="bx bx-school"></i>
+                <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="center-action">
+                    <i class="bx bx-user-voice"></i>
                 </a>
             </div>
 
-            <a href="<?php echo e(route('tenaga-pendidik.index')); ?>" class="nav-link">
-                <i class="bx bx-user-check"></i>
-                <span>Tenaga Pendidik</span>
-            </a>
             <a href="<?php echo e(route('dashboard')); ?>" class="nav-link">
                 <i class="bx bx-desktop"></i>
                 <span>Desktop</span>
             </a>
-        </div>
-    </nav>
-    <?php else: ?>
-    <!-- Navigation for Tenaga Pendidik -->
-    <nav class="mobile-nav d-md-none custom-bottom-nav">
-        <div class="nav-container">
-            <a href="<?php echo e(route('mobile.dashboard')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.dashboard') ? 'active' : ''); ?>">
-                <i class="bx bx-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="<?php echo e(route('mobile.jadwal')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.jadwal*') ? 'active' : ''); ?>">
-                <i class="bx bx-history"></i>
-                <span>Jadwal</span>
-            </a>
-            <a href="">
-                <i></i>
-                <span style="color: #ffffff !important;">|---------|</span>
-            </a>
-            <!-- Tombol Tengah -->
-            <div class="nav-center-btn">
-                <a href="<?php echo e(route('mobile.presensi')); ?>" class="center-action">
-                    <i class="bx bx-scan"></i>
-                </a>
-            </div>
-
-            <a href="<?php echo e(route('mobile.teaching-attendances')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.teaching-attendances*') ? 'active' : ''); ?>">
-                <i class="bx bx-bar-chart"></i>
-                <span>Mengajar</span>
-            </a>
-            <a href="<?php echo e(route('mobile.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.profile') ? 'active' : ''); ?>">
-                <i class="bx bx-user"></i>
-                <span>Profile</span>
+            <a href="<?php echo e(route('logout')); ?>" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="bx bx-log-out"></i>
+                <span>Logout</span>
             </a>
         </div>
     </nav>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" style="display: none;">
+        <?php echo csrf_field(); ?>
+    </form>
 
     <!-- JAVASCRIPT -->
     <?php echo $__env->make('layouts.vendor-scripts', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -468,41 +415,6 @@
 
     <!-- Mobile-specific scripts -->
     <script>
-        // PWA Install Prompt
-        // let deferredPrompt;
-        // const installPrompt = document.getElementById('pwa-install-prompt');
-
-        // window.addEventListener('beforeinstallprompt', (e) => {
-        //     e.preventDefault();
-        //     deferredPrompt = e;
-        // });
-
-        // document.getElementById('install-pwa').addEventListener('click', () => {
-        //     installPrompt.style.display = 'none';
-        //     if (deferredPrompt) {
-        //         deferredPrompt.prompt();
-        //         deferredPrompt.userChoice.then((choiceResult) => {
-        //             if (choiceResult.outcome === 'accepted') {
-        //                 console.log('User accepted the install prompt');
-        //                 localStorage.setItem('pwa-install-dismissed', 'true');
-        //             }
-        //             deferredPrompt = null;
-        //         });
-        //     }
-        // });
-
-        // document.getElementById('dismiss-pwa').addEventListener('click', () => {
-        //     installPrompt.style.display = 'none';
-        //     localStorage.setItem('pwa-install-dismissed', 'true');
-        // });
-
-        // Show install prompt if not dismissed before
-        if (!localStorage.getItem('pwa-install-dismissed')) {
-            setTimeout(() => {
-                installPrompt.style.display = 'block';
-            }, 3000);
-        }
-
         // Offline detection
         const offlineIndicator = document.getElementById('offline-indicator');
 
@@ -514,7 +426,7 @@
             offlineIndicator.style.display = 'block';
         });
 
-        //<!-- Service Worker Auto-Refresh & Cache Cleanup -->
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw-v2.js?v=1').then(reg => {
                 console.log("SW loaded:", reg.scope);
@@ -536,7 +448,6 @@
 
             if (diff > 50 && window.scrollY === 0) {
                 isPulling = true;
-                // Add visual feedback for pull to refresh
             }
         });
 
@@ -546,24 +457,6 @@
             }
             isPulling = false;
         });
-
-        // Notification badge functionality
-        function updateNotificationBadge() {
-            fetch('/mobile/notifications/unread-count')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.getElementById('notificationBadge');
-                    if (data.count > 0) {
-                        badge.textContent = data.count > 99 ? '99+' : data.count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                })
-                .catch(error => console.error('Error updating notification badge:', error));
-        }
-
-
 
         // Mobile optimizations
         document.addEventListener('DOMContentLoaded', () => {
@@ -586,12 +479,6 @@
                 });
             });
 
-            // Update notification badge on page load
-            updateNotificationBadge();
-
-            // Update badge every 30 seconds
-            setInterval(updateNotificationBadge, 30000);
-
             // Show SweetAlert success message if present
             const successMessage = document.getElementById('success-message');
             if (successMessage) {
@@ -609,13 +496,10 @@
                         }
                     });
                 }
-            } else {
-                console.log('Success message element not found');
             }
         });
-    </script>
-    <script>
-        // Tambahkan efek shadow saat user scroll
+
+        // Add shadow effect on scroll
         document.addEventListener('scroll', () => {
             const header = document.querySelector('.mobile-header');
             if (window.scrollY > 10) {
@@ -630,4 +514,5 @@
 </body>
 
 </html>
-<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/layouts/mobile.blade.php ENDPATH**/ ?>
+
+<?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/layouts/mobile-pengurus.blade.php ENDPATH**/ ?>

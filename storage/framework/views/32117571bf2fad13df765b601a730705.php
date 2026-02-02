@@ -1,0 +1,655 @@
+<?php $__env->startSection('title', 'Detail Sekolah'); ?>
+<?php $__env->startSection('subtitle', $madrasah->name); ?>
+
+<?php $__env->startSection('content'); ?>
+<?php
+
+date_default_timezone_set('Asia/Jakarta');
+
+$b = time();
+$hour = date('G', $b);
+
+if ($hour >= 0 && $hour <= 11) {
+    $congrat = 'Selamat Pagi';
+} elseif ($hour >= 12 && $hour <= 14) {
+    $congrat = 'Selamat Siang ';
+} elseif ($hour >= 15 && $hour <= 17) {
+    $congrat = 'Selamat Sore ';
+} elseif ($hour >= 17 && $hour <= 18) {
+    $congrat = 'Selamat Petang ';
+} elseif ($hour >= 19 && $hour <= 23) {
+    $congrat = 'Selamat Malam ';
+}
+
+?>
+<header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
+    <div class="container-fluid px-0 py-0" style="background: transparent;">
+        <div class="d-flex align-items-center justify-content-between">
+            <!-- Back Button -->
+            <a href="<?php echo e(route('mobile.pengurus.sekolah')); ?>" class="btn btn-link text-decoration-none p-0 me-2">
+                <i class="bx bx-arrow-back" style="font-size: 22px; color: #000000;"></i>
+            </a>
+
+            <!-- Welcome Text -->
+            <div class="text-start grow">
+                <small class="text-dark fw-medium" style="font-size: 11px;"><?php echo e($congrat); ?></small>
+                <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;"><?php echo e(Auth::user()->name); ?></h6>
+            </div>
+
+            <!-- Notification and Menu Buttons -->
+            <div class="d-flex align-items-center">
+                <a href="<?php echo e(route('mobile.notifications')); ?>" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
+                    <i class="bx bx-bell" style="font-size: 22px; color: #db3434;"></i>
+                    <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 9px; padding: 2px 5px; top: -4px; right: -4px; display: none;">0</span>
+                </a>
+
+                <div class="dropdown">
+                    <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
+                        <i class="bx bx-dots-vertical-rounded" style="font-size: 22px; color: #000000;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item py-2" href="<?php echo e(route('mobile.notifications')); ?>"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2" href="<?php echo e(route('dashboard')); ?>"><i class="bx bx-home me-2"></i>Dashboard</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item py-2 text-danger" href="<?php echo e(route('logout')); ?>" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="bx bx-log-out me-2"></i>Logout
+                            </a>
+                        </li>
+                        <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" style="display: none;">
+                            <?php echo csrf_field(); ?>
+                        </form>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container py-3" style="max-width: 520px; margin: auto;">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background-color: #f8f9fb;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(248,249,251,0), #f8f9fb);
+            z-index: -1;
+        }
+
+        .mobile-header,
+        .mobile-header .container-fluid {
+            background: transparent !important;
+        }
+
+        .mobile-header {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(0, 75, 76, 0.3);
+        }
+
+        .profile-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-school-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .profile-school-code {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .info-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 12px;
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-card-header i {
+            font-size: 20px;
+            color: #004b4c;
+            margin-right: 10px;
+        }
+
+        .info-card-header h6 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #004b4c;
+            margin: 0;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            width: 110px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            font-size: 12px;
+            color: #212529;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .info-value a {
+            color: #004b4c;
+            text-decoration: none;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #004b4c;
+            margin-bottom: 2px;
+        }
+
+        .stat-item small {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        .badge-info {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-blue {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .empty-value {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 16px 0;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-bullet {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #004b4c;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+    </style>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="d-flex align-items-start">
+            <div class="me-3">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->logo): ?>
+                <img
+                    src="<?php echo e(asset('storage/' . $madrasah->logo)); ?>"
+                    alt="<?php echo e($madrasah->name); ?>"
+                    class="profile-logo"
+                    onerror="this.src='<?php echo e(asset('build/images/logo-light.png')); ?>'"
+                >
+                <?php else: ?>
+                <img
+                    src="<?php echo e(asset('build/images/logo-light.png')); ?>"
+                    alt="<?php echo e($madrasah->name); ?>"
+                    class="profile-logo"
+                >
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+            <div class="flex-grow-1">
+                <h4 class="profile-school-name mb-2"><?php echo e($madrasah->name); ?></h4>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
+                <span class="profile-school-code"><?php echo e($madrasah->scod); ?></span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="info-card">
+        <div class="stat-grid">
+            <div class="stat-item">
+                <h4><?php echo e(number_format($madrasah->jumlah_siswa ?? 0)); ?></h4>
+                <small>Siswa</small>
+            </div>
+            <div class="stat-item">
+                <h4><?php echo e(number_format($madrasah->jumlah_guru ?? 0)); ?></h4>
+                <small>Guru</small>
+            </div>
+            <div class="stat-item">
+                <h4><?php echo e(number_format($madrasah->jumlah_jurusan ?? 0)); ?></h4>
+                <small>Jurusan</small>
+            </div>
+            <div class="stat-item">
+                <h4><?php echo e(number_format($madrasah->jumlah_sarana ?? 0)); ?></h4>
+                <small>Sarana</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Info -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-info-circle"></i>
+            <h6>Informasi Dasar</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Kabupaten</span>
+            <span class="info-value"><?php echo e($madrasah->kabupaten ?: '-'); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Alamat</span>
+            <span class="info-value"><?php echo e($madrasah->alamat ?: '-'); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Tahun Berdiri</span>
+            <span class="info-value"><?php echo e($madrasah->tahun_berdiri ?: '-'); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Akreditasi</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
+                <span class="badge badge-blue"><?php echo e($madrasah->akreditasi); ?></span>
+                <?php else: ?>
+                <span class="empty-value">-</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">SCOD</span>
+            <span class="info-value"><?php echo e($madrasah->scod ?: '-'); ?></span>
+        </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-phone"></i>
+            <h6>Informasi Kontak</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Telepon</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
+                <a href="tel:<?php echo e($madrasah->telepon); ?>"><?php echo e($madrasah->telepon); ?></a>
+                <?php else: ?>
+                <span class="empty-value">-</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
+                <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
+                <?php else: ?>
+                <span class="empty-value">-</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Website</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
+                <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
+                <?php else: ?>
+                <span class="empty-value">-</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Jam Operasi</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->jam_operasional_buka && $madrasah->jam_operasional_tutup): ?>
+                <?php echo e(\Carbon\Carbon::parse($madrasah->jam_operasional_buka)->format('H:i')); ?> - <?php echo e(\Carbon\Carbon::parse($madrasah->jam_operasional_tutup)->format('H:i')); ?>
+
+                <?php else: ?>
+                <span class="empty-value">-</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+    </div>
+
+    <!-- Kepala Sekolah -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_nama): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-user"></i>
+            <h6>Kepala Sekolah</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Nama</span>
+            <span class="info-value">
+                <?php echo e($madrasah->kepala_sekolah_nama); ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->kepala_sekolah_gelar): ?>
+                <small class="text-muted">, <?php echo e($madrasah->kepala_sekolah_gelar); ?></small>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Tagline & Deskripsi -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->tagline || $madrasah->deskripsi_singkat): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-text"></i>
+            <h6>Tentang</h6>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->tagline): ?>
+        <div class="info-row">
+            <span class="info-label">Tagline</span>
+            <span class="info-value"><?php echo e($madrasah->tagline); ?></span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->deskripsi_singkat): ?>
+        <div class="info-row" style="flex-direction: column;">
+            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Deskripsi</span>
+            <span class="info-value" style="width: 100%;"><?php echo e($madrasah->deskripsi_singkat); ?></span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Visi Misi -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->visi || $madrasah->misi): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-bullseye"></i>
+            <h6>Visi & Misi</h6>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->visi): ?>
+        <div class="info-row" style="flex-direction: column;">
+            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Visi</span>
+            <span class="info-value" style="width: 100%;"><?php echo e($madrasah->visi); ?></span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->misi): ?>
+        <div class="info-row" style="flex-direction: column;">
+            <span class="info-label" style="width: 100%; margin-bottom: 6px;">Misi</span>
+            <span class="info-value" style="width: 100%;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($madrasah->misi)): ?>
+                <ul style="margin: 0; padding-left: 18px;">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah->misi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $misi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li style="margin-bottom: 4px;"><?php echo e($misi); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </ul>
+                <?php else: ?>
+                <?php echo e($madrasah->misi); ?>
+
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Jurusan -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->jurusan && (is_array($madrasah->jurusan) && count($madrasah->jurusan) > 0)): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-book"></i>
+            <h6>Jurusan</h6>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($madrasah->jurusan)): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah->jurusan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $jurusan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="list-item">
+            <span class="list-bullet"></span>
+            <span style="font-size: 12px;"><?php echo e($jurusan); ?></span>
+        </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php else: ?>
+        <span class="info-value"><?php echo e($madrasah->jurusan); ?></span>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Fasilitas -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->fasilitas && (is_array($madrasah->fasilitas) && count($madrasah->fasilitas) > 0)): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-building"></i>
+            <h6>Fasilitas</h6>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($madrasah->fasilitas)): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah->fasilitas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="list-item">
+            <span class="list-bullet" style="background: #0e8549;"></span>
+            <span style="font-size: 12px;"><?php echo e($fasilitas); ?></span>
+        </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php else: ?>
+        <span class="info-value"><?php echo e($madrasah->fasilitas); ?></span>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Keunggulan -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->keunggulan && (is_array($madrasah->keunggulan) && count($madrasah->keunggulan) > 0)): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-star"></i>
+            <h6>Keunggulan</h6>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($madrasah->keunggulan)): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah->keunggulan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $keunggulan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="list-item">
+            <span class="list-bullet" style="background: #f5576c;"></span>
+            <span style="font-size: 12px;"><?php echo e($keunggulan); ?></span>
+        </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        <?php else: ?>
+        <span class="info-value"><?php echo e($madrasah->keunggulan); ?></span>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- PPDB Info -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->ppdb_status): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-user-plus"></i>
+            <h6>Informasi PPDB</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Status</span>
+            <span class="info-value">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->ppdb_status == 'buka'): ?>
+                <span class="badge badge-green">Pendaftaran Dibuka</span>
+                <?php else: ?>
+                <span class="badge badge-info" style="background: #f8d7da; color: #721c24;">Pendaftaran Ditutup</span>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </span>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->ppdb_jadwal_buka && $madrasah->ppdb_jadwal_tutup): ?>
+        <div class="info-row">
+            <span class="info-label">Periode</span>
+            <span class="info-value">
+                <?php echo e(\Carbon\Carbon::parse($madrasah->ppdb_jadwal_buka)->format('d M Y')); ?> - <?php echo e(\Carbon\Carbon::parse($madrasah->ppdb_jadwal_tutup)->format('d M Y')); ?>
+
+            </span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->ppdb_kuota_total): ?>
+        <div class="info-row">
+            <span class="info-label">Kuota</span>
+            <span class="info-value"><?php echo e(number_format($madrasah->ppdb_kuota_total)); ?> Siswa</span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->ppdb_biaya_pendaftaran): ?>
+        <div class="info-row">
+            <span class="info-label">Biaya Daftar</span>
+            <span class="info-value">Rp <?php echo e(number_format($madrasah->ppdb_biaya_pendaftaran, 0, ',', '.')); ?></span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Lokasi -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->latitude && $madrasah->longitude): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-map"></i>
+            <h6>Lokasi</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Koordinat</span>
+            <span class="info-value">
+                <?php echo e($madrasah->latitude); ?>, <?php echo e($madrasah->longitude); ?>
+
+            </span>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->map_link): ?>
+        <div class="info-row">
+            <span class="info-label">Google Maps</span>
+            <span class="info-value">
+                <a href="<?php echo e($madrasah->map_link); ?>" target="_blank">Buka di Google Maps</a>
+            </span>
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <!-- Hari KBM -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->hari_kbm): ?>
+    <div class="info-card">
+        <div class="info-card-header">
+            <i class="bx bx-calendar"></i>
+            <h6>Jadwal KBM</h6>
+        </div>
+
+        <div class="info-row">
+            <span class="info-value"><?php echo e($madrasah->hari_kbm); ?></span>
+        </div>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize notification badge
+    fetchUnreadNotifications();
+
+    async function fetchUnreadNotifications() {
+        try {
+            const response = await fetch('<?php echo e(route("mobile.notifications.unread-count")); ?>');
+            const data = await response.json();
+            const badge = document.getElementById('notificationBadge');
+            if (data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
+    }
+});
+</script>
+<?php $__env->stopSection(); ?>
+
+
+<?php echo $__env->make('layouts.mobile-pengurus', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/sekolah-detail.blade.php ENDPATH**/ ?>

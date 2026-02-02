@@ -468,6 +468,9 @@
     <!-- JAVASCRIPT -->
     @include('layouts.vendor-scripts')
 
+    <!-- ApexCharts -->
+    <script src="{{ asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+
     <!-- Face Recognition Scripts -->
     <script>
         window.MODEL_PATH = "{{ asset('models') }}";
