@@ -652,6 +652,15 @@
         </div>
 
         @foreach($tenagaPendidik as $guru)
+        <?php
+        $isKepalaSekolah = false;
+        if ($madrasah->kepala_sekolah_nama && strtolower(trim($guru->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
+            $isKepalaSekolah = true;
+        }
+        if ($guru->role === 'kepala_madrasah') {
+            $isKepalaSekolah = true;
+        }
+        ?>
         <div class="info-card">
             <div class="d-flex align-items-center">
                 <div class="avatar-sm me-3">
@@ -668,8 +677,15 @@
                     </div>
                     @endif
                 </div>
-                <div class="flex-grow-1">
-                    <h6 class="mb-1 fw-semibold text-dark" style="font-size: 13px;">{{ $guru->name }}</h6>
+                <div class="grow">
+                    <div class="d-flex align-items-center flex-wrap gap-1">
+                        <h6 class="mb-1 fw-semibold text-dark" style="font-size: 13px;">{{ $guru->name }}</h6>
+                        @if($isKepalaSekolah)
+                        <span class="badge" style="background: linear-gradient(135deg, #f5576c 0%, #fa709a 100%); color: white; font-size: 9px;">
+                            <i class="bx bx-star me-1"></i>Kepala Sekolah
+                        </span>
+                        @endif
+                    </div>
                     @if($guru->statusKepegawaian)
                     <span class="badge" style="background: #d4edda; color: #155724; font-size: 10px;">
                         {{ $guru->statusKepegawaian->name }}

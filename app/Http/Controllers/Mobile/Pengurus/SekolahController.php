@@ -186,14 +186,50 @@ class SekolahController extends \App\Http\Controllers\Controller
 
     /**
      * Get list of tenaga pendidik with their status kepegawaian
+     * Kepala sekolah will be sorted to the top
      */
     private function getTenagaPendidik($madrasahId)
     {
-        return User::where('madrasah_id', $madrasahId)
+        $tenagaPendidik = User::where('madrasah_id', $madrasahId)
             ->where('role', 'tenaga_pendidik')
             ->with('statusKepegawaian')
-            ->orderBy('name', 'asc')
             ->get();
+
+        // Sort: kepala sekolah first, then by name
+        $tenagaPendidik = $tenagaPendidik->sortByDesc(function($user) {
+            // Check if user is kepala sekolah (by matching name with kepala_sekolah_nama from madrasah)
+            $madrasah = Madrasah::find($user->madrasah_id);
+            if ($madrasah && $madrasah->kepala_sekolah_nama) {
+                // Check by name comparison (case insensitive)
+                if (strtolower(trim($user->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
+                    return 1; // Put at top
+                }
+            }
+            // Also check if user has role kepala_madrasah
+            if ($user->role === 'kepala_madrasah') {
+                return 1;
+            }
+            return 0;
+        });
+
+        return $tenagaPendidik->values();
+    }
+
+    /**
+     * Check if a user is kepala sekolah
+     */
+    private function isKepalaSekolah($userId, $madrasahId)
+    {
+        $madrasah = Madrasah::find($madrasahId);
+        if ($madrasah && $madrasah->kepala_sekolah_nama) {
+            $user = User::find($userId);
+            if ($user && strtolower(trim($user->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
+                return true;
+            }
+        }
+
+        $user = User::find($userId);
+        return $user && $user->role === 'kepala_madrasah';
     }
 
     /**
