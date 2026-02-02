@@ -339,7 +339,7 @@
     {{-- <div id="pwa-install-prompt" class="pwa-install-prompt">
         <div class="d-flex align-items-center">
             <img src="{{ asset('build/images/logo-light.png') }}" alt="NUIST" width="40" height="40" class="me-3 rounded">
-            <div class="flex-grow-1">
+            <div class="grow">
                 <h6 class="mb-1">Install NUIST Mobile</h6>
                 <small class="text-muted">Akses lebih cepat dan offline</small>
             </div>

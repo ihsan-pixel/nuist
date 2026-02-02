@@ -284,7 +284,7 @@ if ($hour >= 0 && $hour <= 11) {
                 >
                 @endif
             </div>
-            <div class="flex-grow-1">
+            <div class="grow">
                 <h4 class="profile-school-name mb-2">{{ $madrasah->name }}</h4>
                 @if($madrasah->scod)
                 <span class="profile-school-code">{{ $madrasah->scod }}</span>
