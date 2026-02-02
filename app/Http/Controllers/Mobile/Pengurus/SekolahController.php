@@ -185,8 +185,25 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Check if user is kepala sekolah based on ketugasan column
+     */
+    private function isKepalaSekolah($user)
+    {
+        if (!$user->ketugasan) {
+            return false;
+        }
+
+        $ketugasanLower = strtolower(trim($user->ketugasan));
+
+        // Check for various patterns of kepala madrasah/sekolah
+        return $ketugasanLower === 'kepala madrasah' ||
+               $ketugasanLower === 'kepala sekolah' ||
+               strpos($ketugasanLower, 'kepala') !== false;
+    }
+
+    /**
      * Get list of tenaga pendidik with their status kepegawaian
-     * Kepala sekolah will be sorted to the top
+     * Kepala sekolah will be sorted to the top based on ketugasan column
      */
     private function getTenagaPendidik($madrasahId)
     {
@@ -195,41 +212,12 @@ class SekolahController extends \App\Http\Controllers\Controller
             ->with('statusKepegawaian')
             ->get();
 
-        // Sort: kepala sekolah first, then by name
+        // Sort: kepala sekolah first (based on ketugasan column), then by name
         $tenagaPendidik = $tenagaPendidik->sortByDesc(function($user) {
-            // Check if user is kepala sekolah (by matching name with kepala_sekolah_nama from madrasah)
-            $madrasah = Madrasah::find($user->madrasah_id);
-            if ($madrasah && $madrasah->kepala_sekolah_nama) {
-                // Check by name comparison (case insensitive)
-                if (strtolower(trim($user->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
-                    return 1; // Put at top
-                }
-            }
-            // Also check if user has role kepala_madrasah
-            if ($user->role === 'kepala_madrasah') {
-                return 1;
-            }
-            return 0;
+            return $this->isKepalaSekolah($user) ? 1 : 0;
         });
 
         return $tenagaPendidik->values();
-    }
-
-    /**
-     * Check if a user is kepala sekolah
-     */
-    private function isKepalaSekolah($userId, $madrasahId)
-    {
-        $madrasah = Madrasah::find($madrasahId);
-        if ($madrasah && $madrasah->kepala_sekolah_nama) {
-            $user = User::find($userId);
-            if ($user && strtolower(trim($user->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
-                return true;
-            }
-        }
-
-        $user = User::find($userId);
-        return $user && $user->role === 'kepala_madrasah';
     }
 
     /**

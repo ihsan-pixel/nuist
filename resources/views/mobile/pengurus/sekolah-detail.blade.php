@@ -654,10 +654,8 @@
         @foreach($tenagaPendidik as $guru)
         <?php
         $isKepalaSekolah = false;
-        if ($madrasah->kepala_sekolah_nama && strtolower(trim($guru->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
-            $isKepalaSekolah = true;
-        }
-        if ($guru->ketugasan === 'kepala sekolah/madrasah') {
+        $ketugasan = $guru->ketugasan ? strtolower(trim($guru->ketugasan)) : '';
+        if ($ketugasan === 'kepala sekolah/madrasah' || strpos($ketugasan, 'kepala') !== false) {
             $isKepalaSekolah = true;
         }
         ?>

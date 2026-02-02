@@ -655,10 +655,8 @@
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $tenagaPendidik; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <?php
         $isKepalaSekolah = false;
-        if ($madrasah->kepala_sekolah_nama && strtolower(trim($guru->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
-            $isKepalaSekolah = true;
-        }
-        if ($guru->role === 'kepala_madrasah') {
+        $ketugasan = $guru->ketugasan ? strtolower(trim($guru->ketugasan)) : '';
+        if ($ketugasan === 'kepala sekolah/madrasah' || strpos($ketugasan, 'kepala') !== false) {
             $isKepalaSekolah = true;
         }
         ?>
