@@ -4,26 +4,7 @@
 @section('subtitle', $madrasah->name)
 
 @section('content')
-<?php
 
-date_default_timezone_set('Asia/Jakarta');
-
-$b = time();
-$hour = date('G', $b);
-
-if ($hour >= 0 && $hour <= 11) {
-    $congrat = 'Selamat Pagi';
-} elseif ($hour >= 12 && $hour <= 14) {
-    $congrat = 'Selamat Siang ';
-} elseif ($hour >= 15 && $hour <= 17) {
-    $congrat = 'Selamat Sore ';
-} elseif ($hour >= 17 && $hour <= 18) {
-    $congrat = 'Selamat Petang ';
-} elseif ($hour >= 19 && $hour <= 23) {
-    $congrat = 'Selamat Malam ';
-}
-
-?>
 <header class="mobile-header d-md-none" style="position: sticky; top: 0; z-index: 1050;">
     <div class="container-fluid px-0 py-0" style="background: transparent;">
         <div class="d-flex align-items-center justify-content-between">
@@ -31,40 +12,6 @@ if ($hour >= 0 && $hour <= 11) {
             <a href="{{ route('mobile.pengurus.sekolah') }}" class="btn btn-link text-decoration-none p-0 me-2">
                 <i class="bx bx-arrow-back" style="font-size: 22px; color: #000000;"></i>
             </a>
-
-            <!-- Welcome Text -->
-            <div class="text-start grow">
-                <small class="text-dark fw-medium" style="font-size: 11px;">{{ $congrat }}</small>
-                <h6 class="mb-0 fw-semibold text-dark" style="font-size: 14px;">{{ Auth::user()->name }}</h6>
-            </div>
-
-            <!-- Notification and Menu Buttons -->
-            <div class="d-flex align-items-center">
-                <a href="{{ route('mobile.notifications') }}" class="btn btn-link text-decoration-none p-0 me-2 position-relative">
-                    <i class="bx bx-bell" style="font-size: 22px; color: #db3434;"></i>
-                    <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" style="font-size: 9px; padding: 2px 5px; top: -4px; right: -4px; display: none;">0</span>
-                </a>
-
-                <div class="dropdown">
-                    <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="dropdown">
-                        <i class="bx bx-dots-vertical-rounded" style="font-size: 22px; color: #000000;"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li><a class="dropdown-item py-2" href="{{ route('mobile.notifications') }}"><i class="bx bx-bell me-2"></i>Notifikasi</a></li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('dashboard') }}"><i class="bx bx-home me-2"></i>Dashboard</a></li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li>
-                            <a class="dropdown-item py-2 text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bx bx-log-out me-2"></i>Logout
-                            </a>
-                        </li>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
 </header>
@@ -297,12 +244,12 @@ if ($hour >= 0 && $hour <= 11) {
     <div class="info-card">
         <div class="stat-grid">
             <div class="stat-item">
-                <h4>{{ number_format($madrasah->jumlah_siswa ?? 0) }}</h4>
-                <small>Siswa</small>
+                <h4>{{ number_format($dataSekolah->jumlah_siswa ?? 0) }}</h4>
+                <small>Siswa {{ $dataSekolah ? '(' . $dataSekolah->tahun . ')' : '' }}</small>
             </div>
             <div class="stat-item">
-                <h4>{{ number_format($madrasah->jumlah_guru ?? 0) }}</h4>
-                <small>Guru</small>
+                <h4>{{ number_format($jumlahGuru) }}</h4>
+                <small>Guru {{ $dataSekolah ? '(' . $dataSekolah->tahun . ')' : '' }}</small>
             </div>
             <div class="stat-item">
                 <h4>{{ number_format($madrasah->jumlah_jurusan ?? 0) }}</h4>

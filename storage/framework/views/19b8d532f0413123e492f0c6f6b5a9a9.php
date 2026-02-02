@@ -372,7 +372,7 @@
                 <span>Dashboard</span>
             </a>
             <a href="<?php echo e(route('mobile.pengurus.sekolah')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.pengurus.sekolah') ? 'active' : ''); ?>">
-                <i class="bx bx-school"></i>
+                <i class="bx bx-building"></i>
                 <span>Madrasah</span>
             </a>
             <a>

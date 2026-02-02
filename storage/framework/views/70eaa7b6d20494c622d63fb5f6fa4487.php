@@ -224,7 +224,7 @@
                     >
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-                <div class="grow min-width-0">
+                <div class="flex-grow-1 min-width-0">
                     <div class="d-flex align-items-center mb-1">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
                         <span class="badge bg-primary me-2" style="font-size: 9px;"><?php echo e($madrasah->scod); ?></span>
@@ -239,6 +239,14 @@
                         <?php echo e($madrasah->kabupaten ?: 'Kabupaten belum diisi'); ?>
 
                     </p>
+                    <p class="mb-0 text-muted" style="font-size: 11px; line-height: 1.3;">
+                        <i class="bx bx-group me-1" style="color: #6c5ce7;"></i>
+                        Siswa: <?php echo e(number_format($jumlahSiswaData[$madrasah->id] ?? 0)); ?>
+
+                    </p>
+                </div>
+                <div class="ms-2">
+                    <i class="bx bx-chevron-right text-muted" style="font-size: 18px;"></i>
                 </div>
             </div>
         </a>

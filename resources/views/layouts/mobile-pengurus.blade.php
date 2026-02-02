@@ -372,7 +372,7 @@
                 <span>Dashboard</span>
             </a>
             <a href="{{ route('mobile.pengurus.sekolah') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.sekolah') ? 'active' : '' }}">
-                <i class="bx bx-school"></i>
+                <i class="bx bx-building"></i>
                 <span>Madrasah</span>
             </a>
             <a>

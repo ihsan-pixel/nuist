@@ -6,9 +6,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Madrasah;
+use App\Models\DataSekolah;
+use App\Models\User;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
+    /**
+     * Get jumlah siswa from data_sekolah based on latest year
+     */
+    private function getJumlahSiswa($madrasahId)
+    {
+        $dataSekolah = DataSekolah::where('madrasah_id', $madrasahId)
+            ->orderBy('tahun', 'desc')
+            ->first();
+
+        return $dataSekolah ? $dataSekolah->jumlah_siswa : 0;
+    }
+
+    /**
+     * Get jumlah guru from users table (users with madrasah_id and role tenaga_pendidik)
+     */
+    private function getJumlahGuru($madrasahId)
+    {
+        return User::where('madrasah_id', $madrasahId)
+            ->where('role', 'tenaga_pendidik')
+            ->count();
+    }
+
+    /**
+     * Get tahun terbaru from data_sekolah
+     */
+    private function getLatestYear($madrasahId)
+    {
+        $dataSekolah = DataSekolah::where('madrasah_id', $madrasahId)
+            ->orderBy('tahun', 'desc')
+            ->first();
+
+        return $dataSekolah ? $dataSekolah->tahun : null;
+    }
+
     /**
      * Menampilkan daftar sekolah (madrasah)
      */
@@ -42,7 +78,13 @@ class SekolahController extends \App\Http\Controllers\Controller
         $totalSekolah = Madrasah::count();
         $sekolahAktif = Madrasah::count();
 
-        return view('mobile.pengurus.sekolah', compact('madrasahs', 'search', 'totalSekolah', 'sekolahAktif'));
+        // Get jumlah siswa from data_sekolah for each madrasah
+        $jumlahSiswaData = [];
+        foreach ($madrasahs as $madrasah) {
+            $jumlahSiswaData[$madrasah->id] = $this->getJumlahSiswa($madrasah->id);
+        }
+
+        return view('mobile.pengurus.sekolah', compact('madrasahs', 'search', 'totalSekolah', 'sekolahAktif', 'jumlahSiswaData'));
     }
 
     /**
@@ -58,7 +100,18 @@ class SekolahController extends \App\Http\Controllers\Controller
 
         $madrasah = Madrasah::findOrFail($id);
 
-        return view('mobile.pengurus.sekolah-detail', compact('madrasah'));
+        // Get data_sekolah data for siswa
+        $dataSekolah = DataSekolah::where('madrasah_id', $id)
+            ->orderBy('tahun', 'desc')
+            ->first();
+
+        // Get jumlah guru from users table
+        $jumlahGuru = $this->getJumlahGuru($id);
+
+        // Get jumlah siswa from data_sekolah
+        $jumlahSiswa = $this->getJumlahSiswa($id);
+
+        return view('mobile.pengurus.sekolah-detail', compact('madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa'));
     }
 }
 
