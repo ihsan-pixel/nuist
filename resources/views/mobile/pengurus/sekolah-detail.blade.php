@@ -385,13 +385,13 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Tahun Berdiri</span>
-                <span class="info-value">{{ $madrasah->tahun_berdiri ?: '-' }}</span>
+                <span class="info-value">{{ $tahunBerdiri ?: '-' }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Akreditasi</span>
                 <span class="info-value">
-                    @if($madrasah->akreditasi)
-                    <span class="badge badge-blue">{{ $madrasah->akreditasi }}</span>
+                    @if($akreditasi)
+                    <span class="badge badge-blue">{{ $akreditasi }}</span>
                     @else
                     <span class="empty-value">-</span>
                     @endif

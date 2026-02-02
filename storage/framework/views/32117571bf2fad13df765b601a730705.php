@@ -383,13 +383,13 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Tahun Berdiri</span>
-                <span class="info-value"><?php echo e($madrasah->tahun_berdiri ?: '-'); ?></span>
+                <span class="info-value"><?php echo e($tahunBerdiri ?: '-'); ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Akreditasi</span>
                 <span class="info-value">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->akreditasi): ?>
-                    <span class="badge badge-blue"><?php echo e($madrasah->akreditasi); ?></span>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($akreditasi): ?>
+                    <span class="badge badge-blue"><?php echo e($akreditasi); ?></span>
                     <?php else: ?>
                     <span class="empty-value">-</span>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>

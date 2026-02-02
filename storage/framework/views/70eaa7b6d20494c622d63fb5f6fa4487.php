@@ -224,7 +224,7 @@
                     >
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </div>
-                <div class="flex-grow-1 min-width-0">
+                <div class="grow min-width-0">
                     <div class="d-flex align-items-center mb-1">
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->scod): ?>
                         <span class="badge bg-primary me-2" style="font-size: 9px;"><?php echo e($madrasah->scod); ?></span>

@@ -49,7 +49,6 @@ class SekolahController extends \App\Http\Controllers\Controller
      */
     private function getTotalSiswa()
     {
-        // Get latest data_sekolah per madrasah and sum jumlah_siswa
         $latestData = DataSekolah::select('madrasah_id', 'jumlah_siswa')
             ->whereIn('id', function($query) {
                 $query->select(DB::raw('MAX(id)'))
@@ -86,7 +85,6 @@ class SekolahController extends \App\Http\Controllers\Controller
             ->first();
 
         if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
-            // Filter hanya objek yang memiliki 'name'
             $fasilitasWithName = array_filter($ppdbSetting->fasilitas, function($item) {
                 return is_array($item) && isset($item['name']) && !empty($item['name']);
             });
@@ -106,7 +104,6 @@ class SekolahController extends \App\Http\Controllers\Controller
             ->first();
 
         if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
-            // Filter dan return hanya fasilitas yang memiliki name
             $fasilitasList = array_filter($ppdbSetting->fasilitas, function($item) {
                 return is_array($item) && isset($item['name']) && !empty($item['name']);
             });
@@ -127,21 +124,42 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Get tahun_berdiri from ppdb_settings
+     */
+    private function getTahunBerdiri($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return $ppdbSetting && $ppdbSetting->tahun_berdiri ? $ppdbSetting->tahun_berdiri : null;
+    }
+
+    /**
+     * Get akreditasi from ppdb_settings
+     */
+    private function getAkreditasi($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return $ppdbSetting && $ppdbSetting->akreditasi ? $ppdbSetting->akreditasi : null;
+    }
+
+    /**
      * Menampilkan daftar sekolah (madrasah)
      */
     public function index(Request $request)
     {
         $user = Auth::user();
 
-        // Check if user is pengurus
         if ($user->role !== 'pengurus') {
             abort(403, 'Unauthorized.');
         }
 
-        // Get search query
         $search = $request->get('search', '');
 
-        // Get madrasah data with search functionality
         $query = Madrasah::query();
 
         if ($search) {
@@ -155,13 +173,11 @@ class SekolahController extends \App\Http\Controllers\Controller
         $madrasahs = $query->orderBy('scod', 'asc')
                           ->paginate(10);
 
-        // Get statistics
         $totalSekolah = Madrasah::count();
-        $sekolahAktif = $totalSekolah; // Assume all schools are active
+        $sekolahAktif = $totalSekolah;
         $totalGuru = $this->getTotalGuru();
         $totalSiswa = $this->getTotalSiswa();
 
-        // Get jumlah siswa from data_sekolah for each madrasah
         $jumlahSiswaData = [];
         foreach ($madrasahs as $madrasah) {
             $jumlahSiswaData[$madrasah->id] = $this->getJumlahSiswa($madrasah->id);
@@ -185,32 +201,23 @@ class SekolahController extends \App\Http\Controllers\Controller
 
         $madrasah = Madrasah::findOrFail($id);
 
-        // Get data_sekolah data for siswa
         $dataSekolah = DataSekolah::where('madrasah_id', $id)
             ->orderBy('tahun', 'desc')
             ->first();
 
-        // Get jumlah guru from users table
         $jumlahGuru = $this->getJumlahGuru($id);
-
-        // Get jumlah siswa from data_sekolah
         $jumlahSiswa = $this->getJumlahSiswa($id);
-
-        // Get jumlah jurusan from ppdb_settings
         $jumlahJurusan = $this->getJumlahJurusan($id);
-
-        // Get jumlah sarana from ppdb_settings (fasilitas)
         $jumlahSarana = $this->getJumlahSarana($id);
-
-        // Get fasilitas list from ppdb_settings
         $fasilitasList = $this->getFasilitas($id);
-
-        // Get ppdb_setting for additional data
         $ppdbSetting = $this->getPpdbSetting($id);
+        $tahunBerdiri = $this->getTahunBerdiri($id);
+        $akreditasi = $this->getAkreditasi($id);
 
         return view('mobile.pengurus.sekolah-detail', compact(
             'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
-            'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting'
+            'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting',
+            'tahunBerdiri', 'akreditasi'
         ));
     }
 }
