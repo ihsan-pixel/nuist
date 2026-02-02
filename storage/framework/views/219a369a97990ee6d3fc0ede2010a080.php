@@ -353,8 +353,25 @@
         $userRole = $user ? $user->role : '';
 
         if ($userRole === 'pengurus') {
-            $menuRoutes = ['mobile.dashboard'];
-            $showNav = request()->routeIs('mobile.dashboard');
+            // Routes for pengurus mobile navigation
+            $menuRoutes = [
+                'mobile.pengurus.dashboard',
+                'mobile.pengurus.data-sekolah',
+                'mobile.pengurus.pengguna-aktif',
+                'mobile.pengurus.uppm',
+                'mobile.pengurus.data-presensi-mengajar',
+                'yayasan.index',
+                'madrasah.index',
+                'tenaga-pendidik.index',
+                'active-users.index',
+            ];
+            $showNav = false;
+            foreach ($menuRoutes as $route) {
+                if (request()->routeIs($route)) {
+                    $showNav = true;
+                    break;
+                }
+            }
         } else {
             $menuRoutes = ['mobile.dashboard', 'mobile.presensi*', 'mobile.jadwal*', 'mobile.teaching-attendances*', 'mobile.profile'];
             $showNav = false;
