@@ -9,6 +9,7 @@ use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\User;
 use App\Models\PPDBSetting;
+use App\Models\StatusKepegawaian;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
@@ -184,6 +185,18 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Get list of tenaga pendidik with their status kepegawaian
+     */
+    private function getTenagaPendidik($madrasahId)
+    {
+        return User::where('madrasah_id', $madrasahId)
+            ->where('role', 'tenaga_pendidik')
+            ->with('statusKepegawaian')
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
+    /**
      * Menampilkan daftar sekolah (madrasah)
      */
     public function index(Request $request)
@@ -252,11 +265,13 @@ class SekolahController extends \App\Http\Controllers\Controller
         $telepon = $this->getTelepon($id);
         $email = $this->getEmail($id);
         $website = $this->getWebsite($id);
+        $tenagaPendidik = $this->getTenagaPendidik($id);
 
         return view('mobile.pengurus.sekolah-detail', compact(
             'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
             'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting',
-            'tahunBerdiri', 'akreditasi', 'telepon', 'email', 'website'
+            'tahunBerdiri', 'akreditasi', 'telepon', 'email', 'website',
+            'tenagaPendidik'
         ));
     }
 }

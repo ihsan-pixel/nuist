@@ -291,6 +291,22 @@
         .content-section.active {
             display: block;
         }
+
+        .avatar-sm {
+            width: 45px;
+            height: 45px;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            font-size: 16px;
+            font-weight: 600;
+        }
     </style>
 
     <!-- Profile Header -->
@@ -627,18 +643,56 @@
 
     <!-- Tenaga Pendidik Section -->
     <div class="content-section" id="section-tenaga-pendidik">
+        @if($tenagaPendidik && count($tenagaPendidik) > 0)
         <div class="info-card">
             <div class="info-card-header">
                 <i class="bx bx-user-voice"></i>
-                <h6>Tenaga Pendidik ({{ $jumlahGuru }})</h6>
-            </div>
-            <div class="text-center py-2">
-                <p class="text-muted mb-2" style="font-size: 12px;">Total tenaga pendidik di madrasah ini</p>
-                <a href="#" class="btn btn-sm" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); color: white; border-radius: 8px;">
-                    Lihat Semua
-                </a>
+                <h6>Tenaga Pendidik ({{ count($tenagaPendidik) }})</h6>
             </div>
         </div>
+
+        @foreach($tenagaPendidik as $guru)
+        <div class="info-card">
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3">
+                    @if($guru->avatar)
+                    <img
+                        src="{{ asset('storage/' . $guru->avatar) }}"
+                        alt="{{ $guru->name }}"
+                        class="avatar-img rounded-circle"
+                        style="width: 45px; height: 45px;"
+                    >
+                    @else
+                    <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%);">
+                        <span class="text-white fw-bold" style="font-size: 16px;">{{ substr($guru->name, 0, 1) }}</span>
+                    </div>
+                    @endif
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-semibold text-dark" style="font-size: 13px;">{{ $guru->name }}</h6>
+                    @if($guru->statusKepegawaian)
+                    <span class="badge" style="background: #d4edda; color: #155724; font-size: 10px;">
+                        {{ $guru->statusKepegawaian->name }}
+                    </span>
+                    @else
+                    <span class="badge bg-secondary" style="font-size: 10px;">Status belum diisi</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endforeach
+        @else
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="bx bx-user-voice"></i>
+                <h6>Tenaga Pendidik</h6>
+            </div>
+            <div class="empty-state py-3">
+                <i class="bx bx-user-x" style="font-size: 36px; color: #dee2e6;"></i>
+                <p class="mb-0 mt-2 text-muted" style="font-size: 12px;">Belum ada tenaga pendidik</p>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Presensi Section -->
