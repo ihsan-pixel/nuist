@@ -657,7 +657,7 @@
         if ($madrasah->kepala_sekolah_nama && strtolower(trim($guru->name)) === strtolower(trim($madrasah->kepala_sekolah_nama))) {
             $isKepalaSekolah = true;
         }
-        if ($guru->role === 'kepala_madrasah') {
+        if ($guru->ketugasan === 'kepala sekolah/madrasah') {
             $isKepalaSekolah = true;
         }
         ?>
