@@ -252,11 +252,11 @@
                 <small>Guru {{ $dataSekolah ? '(' . $dataSekolah->tahun . ')' : '' }}</small>
             </div>
             <div class="stat-item">
-                <h4>{{ number_format($madrasah->jumlah_jurusan ?? 0) }}</h4>
+                <h4>{{ number_format($jumlahJurusan) }}</h4>
                 <small>Jurusan</small>
             </div>
             <div class="stat-item">
-                <h4>{{ number_format($madrasah->jumlah_sarana ?? 0) }}</h4>
+                <h4>{{ number_format($jumlahSarana) }}</h4>
                 <small>Sarana</small>
             </div>
         </div>
@@ -446,23 +446,19 @@
     @endif
 
     <!-- Fasilitas -->
-    @if($madrasah->fasilitas && (is_array($madrasah->fasilitas) && count($madrasah->fasilitas) > 0))
+    @if($fasilitasList && count($fasilitasList) > 0)
     <div class="info-card">
         <div class="info-card-header">
             <i class="bx bx-building"></i>
             <h6>Fasilitas</h6>
         </div>
 
-        @if(is_array($madrasah->fasilitas))
-        @foreach($madrasah->fasilitas as $fasilitas)
+        @foreach($fasilitasList as $fasilitas)
         <div class="list-item">
             <span class="list-bullet" style="background: #0e8549;"></span>
             <span style="font-size: 12px;">{{ $fasilitas }}</span>
         </div>
         @endforeach
-        @else
-        <span class="info-value">{{ $madrasah->fasilitas }}</span>
-        @endif
     </div>
     @endif
 

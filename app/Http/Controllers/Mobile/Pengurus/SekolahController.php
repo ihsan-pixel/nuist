@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Madrasah;
 use App\Models\DataSekolah;
 use App\Models\User;
+use App\Models\PPDBSetting;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
@@ -34,15 +35,61 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
-     * Get tahun terbaru from data_sekolah
+     * Get jumlah jurusan from ppdb_settings table
      */
-    private function getLatestYear($madrasahId)
+    private function getJumlahJurusan($madrasahId)
     {
-        $dataSekolah = DataSekolah::where('madrasah_id', $madrasahId)
-            ->orderBy('tahun', 'desc')
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
             ->first();
 
-        return $dataSekolah ? $dataSekolah->tahun : null;
+        if ($ppdbSetting && $ppdbSetting->jurusan && is_array($ppdbSetting->jurusan)) {
+            return count($ppdbSetting->jurusan);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get jumlah sarana from ppdb_settings table (fasilitas column)
+     */
+    private function getJumlahSarana($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
+            return count($ppdbSetting->fasilitas);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get fasilitas list from ppdb_settings table
+     */
+    private function getFasilitas($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        if ($ppdbSetting && $ppdbSetting->fasilitas && is_array($ppdbSetting->fasilitas)) {
+            return $ppdbSetting->fasilitas;
+        }
+
+        return [];
+    }
+
+    /**
+     * Get ppdb_setting for current year
+     */
+    private function getPpdbSetting($madrasahId)
+    {
+        return PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
     }
 
     /**
@@ -111,7 +158,22 @@ class SekolahController extends \App\Http\Controllers\Controller
         // Get jumlah siswa from data_sekolah
         $jumlahSiswa = $this->getJumlahSiswa($id);
 
-        return view('mobile.pengurus.sekolah-detail', compact('madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa'));
+        // Get jumlah jurusan from ppdb_settings
+        $jumlahJurusan = $this->getJumlahJurusan($id);
+
+        // Get jumlah sarana from ppdb_settings (fasilitas)
+        $jumlahSarana = $this->getJumlahSarana($id);
+
+        // Get fasilitas list from ppdb_settings
+        $fasilitasList = $this->getFasilitas($id);
+
+        // Get ppdb_setting for additional data
+        $ppdbSetting = $this->getPpdbSetting($id);
+
+        return view('mobile.pengurus.sekolah-detail', compact(
+            'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
+            'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting'
+        ));
     }
 }
 

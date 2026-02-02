@@ -250,11 +250,11 @@
                 <small>Guru <?php echo e($dataSekolah ? '(' . $dataSekolah->tahun . ')' : ''); ?></small>
             </div>
             <div class="stat-item">
-                <h4><?php echo e(number_format($madrasah->jumlah_jurusan ?? 0)); ?></h4>
+                <h4><?php echo e(number_format($jumlahJurusan)); ?></h4>
                 <small>Jurusan</small>
             </div>
             <div class="stat-item">
-                <h4><?php echo e(number_format($madrasah->jumlah_sarana ?? 0)); ?></h4>
+                <h4><?php echo e(number_format($jumlahSarana)); ?></h4>
                 <small>Sarana</small>
             </div>
         </div>
@@ -447,23 +447,19 @@
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- Fasilitas -->
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->fasilitas && (is_array($madrasah->fasilitas) && count($madrasah->fasilitas) > 0)): ?>
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($fasilitasList && count($fasilitasList) > 0): ?>
     <div class="info-card">
         <div class="info-card-header">
             <i class="bx bx-building"></i>
             <h6>Fasilitas</h6>
         </div>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(is_array($madrasah->fasilitas)): ?>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $madrasah->fasilitas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $fasilitasList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fasilitas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="list-item">
             <span class="list-bullet" style="background: #0e8549;"></span>
             <span style="font-size: 12px;"><?php echo e($fasilitas); ?></span>
         </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        <?php else: ?>
-        <span class="info-value"><?php echo e($madrasah->fasilitas); ?></span>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
