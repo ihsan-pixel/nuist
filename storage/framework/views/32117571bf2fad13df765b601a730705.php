@@ -411,8 +411,8 @@
             <div class="info-row">
                 <span class="info-label">Telepon</span>
                 <span class="info-value">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->telepon): ?>
-                    <a href="tel:<?php echo e($madrasah->telepon); ?>"><?php echo e($madrasah->telepon); ?></a>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($telepon): ?>
+                    <a href="tel:<?php echo e($telepon); ?>"><?php echo e($telepon); ?></a>
                     <?php else: ?>
                     <span class="empty-value">-</span>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -421,8 +421,8 @@
             <div class="info-row">
                 <span class="info-label">Email</span>
                 <span class="info-value">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->email): ?>
-                    <a href="mailto:<?php echo e($madrasah->email); ?>"><?php echo e($madrasah->email); ?></a>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($email): ?>
+                    <a href="mailto:<?php echo e($email); ?>"><?php echo e($email); ?></a>
                     <?php else: ?>
                     <span class="empty-value">-</span>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -431,19 +431,8 @@
             <div class="info-row">
                 <span class="info-label">Website</span>
                 <span class="info-value">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->website): ?>
-                    <a href="<?php echo e($madrasah->website); ?>" target="_blank"><?php echo e($madrasah->website); ?></a>
-                    <?php else: ?>
-                    <span class="empty-value">-</span>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Jam Operasi</span>
-                <span class="info-value">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($madrasah->jam_operasional_buka && $madrasah->jam_operasional_tutup): ?>
-                    <?php echo e(\Carbon\Carbon::parse($madrasah->jam_operasional_buka)->format('H:i')); ?> - <?php echo e(\Carbon\Carbon::parse($madrasah->jam_operasional_tutup)->format('H:i')); ?>
-
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($website): ?>
+                    <a href="<?php echo e($website); ?>" target="_blank"><?php echo e($website); ?></a>
                     <?php else: ?>
                     <span class="empty-value">-</span>
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -627,7 +616,7 @@
         <div class="info-card">
             <div class="info-card-header">
                 <i class="bx bx-calendar"></i>
-                <h6>Jadwal KBM</h6>
+                <h6>Hari KBM</h6>
             </div>
 
             <div class="info-row">

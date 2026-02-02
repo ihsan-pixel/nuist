@@ -148,6 +148,42 @@ class SekolahController extends \App\Http\Controllers\Controller
     }
 
     /**
+     * Get telepon from ppdb_settings
+     */
+    private function getTelepon($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return $ppdbSetting && $ppdbSetting->telepon ? $ppdbSetting->telepon : null;
+    }
+
+    /**
+     * Get email from ppdb_settings
+     */
+    private function getEmail($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return $ppdbSetting && $ppdbSetting->email ? $ppdbSetting->email : null;
+    }
+
+    /**
+     * Get website from ppdb_settings
+     */
+    private function getWebsite($madrasahId)
+    {
+        $ppdbSetting = PPDBSetting::where('sekolah_id', $madrasahId)
+            ->where('tahun', now()->year)
+            ->first();
+
+        return $ppdbSetting && $ppdbSetting->website ? $ppdbSetting->website : null;
+    }
+
+    /**
      * Menampilkan daftar sekolah (madrasah)
      */
     public function index(Request $request)
@@ -213,11 +249,14 @@ class SekolahController extends \App\Http\Controllers\Controller
         $ppdbSetting = $this->getPpdbSetting($id);
         $tahunBerdiri = $this->getTahunBerdiri($id);
         $akreditasi = $this->getAkreditasi($id);
+        $telepon = $this->getTelepon($id);
+        $email = $this->getEmail($id);
+        $website = $this->getWebsite($id);
 
         return view('mobile.pengurus.sekolah-detail', compact(
             'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
             'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting',
-            'tahunBerdiri', 'akreditasi'
+            'tahunBerdiri', 'akreditasi', 'telepon', 'email', 'website'
         ));
     }
 }

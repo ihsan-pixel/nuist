@@ -413,8 +413,8 @@
             <div class="info-row">
                 <span class="info-label">Telepon</span>
                 <span class="info-value">
-                    @if($madrasah->telepon)
-                    <a href="tel:{{ $madrasah->telepon }}">{{ $madrasah->telepon }}</a>
+                    @if($telepon)
+                    <a href="tel:{{ $telepon }}">{{ $telepon }}</a>
                     @else
                     <span class="empty-value">-</span>
                     @endif
@@ -423,8 +423,8 @@
             <div class="info-row">
                 <span class="info-label">Email</span>
                 <span class="info-value">
-                    @if($madrasah->email)
-                    <a href="mailto:{{ $madrasah->email }}">{{ $madrasah->email }}</a>
+                    @if($email)
+                    <a href="mailto:{{ $email }}">{{ $email }}</a>
                     @else
                     <span class="empty-value">-</span>
                     @endif
@@ -433,18 +433,8 @@
             <div class="info-row">
                 <span class="info-label">Website</span>
                 <span class="info-value">
-                    @if($madrasah->website)
-                    <a href="{{ $madrasah->website }}" target="_blank">{{ $madrasah->website }}</a>
-                    @else
-                    <span class="empty-value">-</span>
-                    @endif
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Jam Operasi</span>
-                <span class="info-value">
-                    @if($madrasah->jam_operasional_buka && $madrasah->jam_operasional_tutup)
-                    {{ \Carbon\Carbon::parse($madrasah->jam_operasional_buka)->format('H:i') }} - {{ \Carbon\Carbon::parse($madrasah->jam_operasional_tutup)->format('H:i') }}
+                    @if($website)
+                    <a href="{{ $website }}" target="_blank">{{ $website }}</a>
                     @else
                     <span class="empty-value">-</span>
                     @endif
@@ -625,7 +615,7 @@
         <div class="info-card">
             <div class="info-card-header">
                 <i class="bx bx-calendar"></i>
-                <h6>Jadwal KBM</h6>
+                <h6>Hari KBM</h6>
             </div>
 
             <div class="info-row">
