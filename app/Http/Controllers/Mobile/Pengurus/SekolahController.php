@@ -935,6 +935,14 @@ class SekolahController extends \App\Http\Controllers\Controller
                 ->where('madrasah_id', $m->id)
                 ->first();
 
+            if ($laporan && $laporan->status === 'published') {
+                $lap = 100;
+            } elseif ($laporan && $laporan->status === 'draft') {
+                $lap = 50;
+            } else {
+                $lap = 0;
+            }
+
             // Hitung ppdb
             $ppdb = PPDBSetting::where('sekolah_id', $m->id)->where('tahun', now()->year)->first();
             $ppdbFields = ['tagline', 'deskripsi_singkat', 'tahun_berdiri', 'akreditasi', 'visi', 'misi', 'keunggulan', 'fasilitas', 'jurusan', 'ekstrakurikuler', 'telepon', 'email', 'website', 'video_profile'];
