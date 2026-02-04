@@ -398,9 +398,9 @@
                 <i class="bx bx-desktop"></i>
                 <span>Desktop</span>
             </a>
-            <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="bx bx-log-out"></i>
-                <span>Logout</span>
+            <a href="{{ route('mobile.pengurus.profile') }}" class="nav-link {{ request()->routeIs('mobile.pengurus.profile') ? 'active' : '' }}">
+                <i class="bx bx-user"></i>
+                <span>Profile</span>
             </a>
         </div>
     </nav>
@@ -516,6 +516,27 @@
                 header.classList.remove('scrolled');
             }
         });
+
+        // Logout confirmation with SweetAlert
+        function logoutConfirm() {
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Apakah Anda yakin ingin keluar dari aplikasi?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#004b4c',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'swal-mobile'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
     </script>
 
     @yield('script')

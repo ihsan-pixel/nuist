@@ -1,0 +1,465 @@
+<?php $__env->startSection('title', 'Jadwal Mengajar'); ?>
+<?php $__env->startSection('subtitle', 'Jadwal Mengajar Saya'); ?>
+
+<?php $__env->startSection('content'); ?>
+<div class="container py-3" style="max-width: 600px; margin: auto;">
+    <div class="text-center mb-4">
+        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">Jadwal Mengajar</h5>
+        <small class="text-muted" style="font-size: 12px;">Minggu Ini</small>
+    </div>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            background-color: #f8f9fb;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, rgba(248,249,251,0), #f8f9fb);
+            z-index: -1;
+        }
+
+        .mobile-header,
+        .mobile-header .container-fluid {
+            background: transparent !important;
+        }
+
+        .mobile-header {
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        body {
+            background-color: transparent !important;
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .avatar-sm .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .schedule-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 60px;
+        }
+
+        .schedule-carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 0 12px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .schedule-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fb;
+            padding-bottom: 16px;
+        }
+
+        .day-indicator {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .day-indicator::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-indicator-container {
+            display: flex;
+            justify-content: center;
+            min-width: max-content;
+        }
+
+        .day-indicator-item {
+            width: 36px;
+            height: 36px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .day-indicator-item:not(.active) {
+            border-radius: 50%;
+        }
+
+        @media (max-width: 576px) {
+            .day-indicator-item {
+                min-width: 32px;
+                height: 32px;
+                margin: 0 2px;
+                padding: 0 6px;
+            }
+        }
+
+        .day-indicator-item::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #fdbd57, #f89a3c);
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .day-indicator-item.active::after {
+            width: 20px;
+        }
+
+        .day-indicator-item.active {
+            background: linear-gradient(135deg, #fdbd57, #f89a3c);
+            color: white;
+            border-color: rgba(253, 189, 87, 0.5);
+            box-shadow: 0 2px 8px rgba(253, 189, 87, 0.4);
+            border-radius: 8px;
+            width: auto;
+            min-width: 60px;
+            padding: 0 8px;
+        }
+
+        @media (max-width: 576px) {
+            .day-indicator-item.active {
+                min-width: 50px;
+                padding: 0 6px;
+            }
+        }
+
+        .day-indicator-item span {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .day-indicator-item.active span {
+            color: white;
+        }
+
+        .day-indicator-item.active span::after {
+            content: attr(data-full-name);
+        }
+
+        .day-indicator-item:not(.active) span::after {
+            content: attr(data-short-name);
+        }
+
+        .day-card {
+            max-width: 520px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #fdbd57 0%, #f89a3c 50%, #e67e22 100%);
+            border-radius: 0;
+            min-height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 16px;
+            box-shadow: none;
+            border: none;
+            display: none;
+        }
+
+        .day-card.active {
+            display: flex;
+        }
+
+        @media (max-width: 576px) {
+            .day-card {
+                min-height: 200px;
+                padding: 12px;
+            }
+        }
+
+        .day-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .day-header strong {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 700;
+        }
+
+        .day-header small {
+            font-size: 12px;
+            color: white;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 576px) {
+            .day-header strong {
+                font-size: 16px;
+            }
+        }
+
+        .schedule-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .schedule-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .schedule-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #0e8549, #0f9d58);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(14, 133, 73, 0.3);
+        }
+
+        .schedule-icon i {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .schedule-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .schedule-info strong {
+            font-size: 14px;
+            color: #2d3748;
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .schedule-info small {
+            font-size: 12px;
+            color: #718096;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .schedule-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 0;
+            font-weight: 500;
+        }
+
+        .school-badge {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .no-schedule {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .no-schedule i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .no-schedule p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .week-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 12px;
+        }
+
+        .week-nav-btn {
+            background: transparent;
+            border: none;
+            color: #004b4c;
+            font-size: 18px;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .week-nav-btn:hover {
+            background: rgba(0, 75, 76, 0.1);
+        }
+
+        .week-nav-btn:focus {
+            outline: none;
+        }
+
+        .week-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+
+    <div class="sticky-header">
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session('success')): ?>
+        <div class="alert alert-success border-0 rounded-3 mb-3" style="background: rgba(25, 135, 84, 0.1); color: #198754; border-radius: 12px; padding: 10px;">
+            <i class="bx bx-check-circle me-1"></i><?php echo e(session('success')); ?>
+
+        </div>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <!-- Day Indicator -->
+        <div class="day-indicator">
+            <div class="day-indicator-container">
+                <?php
+                $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $days; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $day): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="day-indicator-item <?php echo e($index === 0 ? 'active' : ''); ?>" data-day="<?php echo e($day); ?>">
+                        <span data-full-name="<?php echo e($day); ?>" data-short-name="<?php echo e(substr($day, 0, 1)); ?>"></span>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Cards -->
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $days; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $day): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="day-card <?php echo e($index === 0 ? 'active' : ''); ?>" data-day="<?php echo e($day); ?>">
+            
+            <div class="schedule-list">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($schedules[$day]) && $schedules[$day]->count() > 0): ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $schedules[$day]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $schedule): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="schedule-item">
+                            <div class="schedule-icon">
+                                <i class="bx bx-book"></i>
+                            </div>
+                            <div class="schedule-info">
+                                <strong><?php echo e($schedule->subject); ?></strong>
+                                <small><?php echo e($schedule->class_name); ?></small>
+                                <div class="schedule-time">
+                                    <i class="bx bx-time-five"></i> <?php echo e($schedule->start_time); ?> - <?php echo e($schedule->end_time); ?>
+
+                                </div>
+                                <div class="school-badge">
+                                    <?php echo e(Str::limit($schedule->school->name ?? 'N/A', 100)); ?>
+
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php else: ?>
+                    <div class="no-schedule">
+                        <i class="bx bx-calendar-x"></i>
+                        <p>Tidak ada jadwal</p>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const indicatorItems = document.querySelectorAll('.day-indicator-item');
+            const dayCards = document.querySelectorAll('.day-card');
+
+            indicatorItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const day = this.getAttribute('data-day');
+
+                    // Remove active class from all items
+                    indicatorItems.forEach(i => i.classList.remove('active'));
+                    dayCards.forEach(c => c.classList.remove('active'));
+
+                    // Add active class to clicked item and corresponding card
+                    this.classList.add('active');
+                    document.querySelector(`.day-card[data-day="${day}"]`).classList.add('active');
+                });
+            });
+        });
+    </script>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/jadwal.blade.php ENDPATH**/ ?>

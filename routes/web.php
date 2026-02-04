@@ -187,6 +187,8 @@ Route::middleware(['auth', 'role:tenaga_pendidik,admin,pengurus'])->prefix('mobi
         Route::get('/riwayat-pengembangan', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'riwayatPengembangan'])->name('riwayat-pengembangan');
         Route::get('/pengguna-aktif', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'penggunaAktif'])->name('pengguna-aktif');
         Route::get('/profile', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'profile'])->name('profile');
+        Route::get('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'ubahPassword'])->name('ubah-password');
+        Route::post('/ubah-password', [App\Http\Controllers\Mobile\Pengurus\PengurusController::class, 'updatePassword'])->name('update-password');
     });
 
     // Presensi

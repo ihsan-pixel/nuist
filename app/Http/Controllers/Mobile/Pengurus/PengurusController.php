@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile\Pengurus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use App\Models\Presensi;
 use App\Models\User;
@@ -206,5 +207,44 @@ class PengurusController extends \App\Http\Controllers\Controller
         }
 
         return view('mobile.pengurus.profile', compact('user'));
+    }
+
+    // Ubah Password
+    public function ubahPassword(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'pengurus') {
+            abort(403, 'Unauthorized.');
+        }
+
+        return view('mobile.pengurus.ubah-password', compact('user'));
+    }
+
+    // Update Password
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'pengurus') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'password_lama' => 'required',
+            'password_baru' => 'required|min:6|confirmed',
+        ]);
+
+        // Check old password
+        if (!Hash::check($request->password_lama, $user->password)) {
+            return redirect()->back()->with('error', 'Password lama tidak cocok.');
+        }
+
+        // Update password
+        $user->password = Hash::make($request->password_baru);
+        $user->password_changed = true;
+        $user->save();
+
+        return redirect()->route('mobile.pengurus.profile')->with('success', 'Password berhasil diperbarui.');
     }
 }
