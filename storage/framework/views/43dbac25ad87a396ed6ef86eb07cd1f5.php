@@ -84,9 +84,14 @@
 <div class="container py-3" style="max-width: 540px; margin: auto;">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0" style="font-size: 16px; font-weight: 600; color: #004b4c;">
-            <i class="bx bx-data me-2"></i>Kelengkapan Data
-        </h5>
+        <div class="d-flex align-items-center">
+            <button onclick="window.history.back()" class="btn btn-link p-0 me-3" style="color: #004b4c;">
+                <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
+            </button>
+            <h5 class="mb-0" style="font-size: 16px; font-weight: 600; color: #004b4c;">
+                <i class="bx bx-data me-2"></i>Kelengkapan Data
+            </h5>
+        </div>
         <span class="badge bg-secondary badge-custom"><?php echo e($totalSekolah); ?> Sekolah</span>
     </div>
 
