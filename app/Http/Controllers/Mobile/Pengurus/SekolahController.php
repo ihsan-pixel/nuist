@@ -932,17 +932,14 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
-            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('madrasah_id', $m->id)
+            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
+                ->where('madrasah_id', $m->id)
                 ->first();
 
-            if ($laporan) {
-                $lapFilled = 0;
-                foreach ($laporanFields as $f) {
-                    if (!is_null($laporan->$f) && $laporan->$f !== '' && $laporan->$f !== 0) {
-                        $lapFilled++;
-                    }
-                }
-                $lap = round(($lapFilled / count($laporanFields)) * 100);
+            if ($laporan && $laporan->status === 'published') {
+                $lap = 100;
+            } elseif ($laporan && $laporan->status === 'draft') {
+                $lap = 50;
             } else {
                 $lap = 0;
             }
