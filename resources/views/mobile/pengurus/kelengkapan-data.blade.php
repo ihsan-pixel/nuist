@@ -237,7 +237,7 @@
 
                 <div class="mb-2">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="section-label">Laporan Akhir Tahun</span>
+                        <span class="section-label">Laporan Akhir Tahun ({{ $madrasah->laporan_akhir_tahun_details['status'] }})</span>
                         <span class="badge bg-secondary badge-custom" style="font-size: 10px;">{{ $madrasah->laporan_akhir_tahun_percentage }}%</span>
                     </div>
                     <div class="progress">
