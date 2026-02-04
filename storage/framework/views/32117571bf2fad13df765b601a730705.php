@@ -717,7 +717,7 @@
             <div class="info-card-header">
                 <i class="bx bx-check-circle"></i>
                 <h6>Rekap Presensi Bulanan</h6>
-                <small class="text-muted" id="currentMonthDisplay"><?php echo e($monthlyAttendance['month_info']['month_name']); ?></small>
+                <small class="text-muted" style="text-align: right" id="currentMonthDisplay"><?php echo e($monthlyAttendance['month_info']['month_name']); ?></small>
             </div>
 
             <!-- Month Selector -->
