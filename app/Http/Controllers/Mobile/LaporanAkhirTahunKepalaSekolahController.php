@@ -239,6 +239,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
             $data = [
                 'user_id' => $user->id,
+                'madrasah_id' => $user->madrasah_id,
                 'status' => 'draft',
                 'nama_satpen' => $request->nama_satpen,
                 'alamat' => $request->alamat,
@@ -486,6 +487,7 @@ class LaporanAkhirTahunKepalaSekolahController extends Controller
 
         $laporan = LaporanAkhirTahunKepalaSekolah::create([
             'user_id' => $user->id,
+            'madrasah_id' => $user->madrasah_id,
             'status' => $request->input('status', 'draft'),
             'nama_satpen' => $request->nama_satpen,
             'alamat' => $request->alamat,

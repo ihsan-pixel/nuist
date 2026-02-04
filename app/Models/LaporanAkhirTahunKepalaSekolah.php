@@ -13,6 +13,7 @@ class LaporanAkhirTahunKepalaSekolah extends Model
 
     protected $fillable = [
         'user_id',
+        'madrasah_id',
         'status',
         'nama_satpen',
         'alamat',
