@@ -798,12 +798,21 @@ class SekolahController extends \App\Http\Controllers\Controller
                 ->latest()
                 ->first();
 
-            if ($laporan) {
+            if ($laporan && $laporan->status === 'published') {
                 $madrasah->laporan_akhir_tahun_percentage = 100;
                 $madrasah->laporan_akhir_tahun_details = [
                     'filled' => count($laporanFields),
                     'total' => count($laporanFields),
-                    'status' => $laporan->status ?? 'draft',
+                    'status' => $laporan->status,
+                    'tahun' => $laporan->tahun_pelaporan,
+                    'madrasah_id' => $laporan->madrasah_id
+                ];
+            } elseif ($laporan && $laporan->status === 'draft') {
+                $madrasah->laporan_akhir_tahun_percentage = 50;
+                $madrasah->laporan_akhir_tahun_details = [
+                    'filled' => count($laporanFields),
+                    'total' => count($laporanFields),
+                    'status' => $laporan->status,
                     'tahun' => $laporan->tahun_pelaporan,
                     'madrasah_id' => $laporan->madrasah_id
                 ];
