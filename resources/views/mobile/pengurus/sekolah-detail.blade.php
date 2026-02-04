@@ -869,7 +869,7 @@
                     </div>
                     @foreach($day['teachers'] as $teacher)
                     <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
-                        <div class="flex-grow-1">
+                        <div class="grow">
                             <div class="fw-medium" style="font-size: 11px; color: #212529;">{{ $teacher['teacher_name'] }}</div>
                             <small class="text-muted" style="font-size: 10px;">{{ $teacher['subject'] }} • {{ $teacher['time'] }}</small>
                         </div>
@@ -881,7 +881,7 @@
                 </div>
                 @elseif($day['is_working_day'])
                 <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">{{ $day['day_name'] }}</div>
                         <small class="text-muted" style="font-size: 10px;">{{ \Carbon\Carbon::parse($day['date'])->format('d/m/y') }}</small>
                     </div>
@@ -1019,7 +1019,7 @@ function changeMonth(monthValue) {
         data.monthly_data.forEach(day => {
             detailsHtml += `
                 <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">
                             ${day.day_name}
                             ${day.is_holiday ? '<span class="badge" style="background: #ffc107; color: #000; font-size: 8px;">Libur</span>' : ''}
@@ -1126,7 +1126,7 @@ function changeTeachingMonth(monthValue) {
                     day.teachers.forEach(teacher => {
                         teachersHtml += `
                             <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <div class="fw-medium" style="font-size: 11px; color: #212529;">${teacher.teacher_name}</div>
                                     <small class="text-muted" style="font-size: 10px;">${teacher.subject} • ${teacher.time}</small>
                                 </div>
@@ -1154,7 +1154,7 @@ function changeTeachingMonth(monthValue) {
                 } else if (day.is_working_day) {
                     detailsHtml += `
                         <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">${day.day_name}</div>
                                 <small class="text-muted" style="font-size: 10px;">${new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</small>
                             </div>
