@@ -776,10 +776,7 @@ class SekolahController extends \App\Http\Controllers\Controller
                 ];
             }
 
-            // ========== 4. Persentase Pengisian Laporan Akhir Tahun ==========
-            $laporanFields = [
-                'nama_satpen', 'alamat', 'nama_kepala_sekolah_madrasah', 'gelar',
-                'tmt_ks_kamad_pertama', 'tmt_ks_kamad_terakhir', 'tahun_pelaporan',
+
                 'jumlah_siswa_2023', 'jumlah_siswa_2024', 'jumlah_siswa_2025',
                 'model_layanan_pendidikan', 'capaian_layanan_menonjol', 'masalah_layanan_utama',
                 'pns_sertifikasi', 'pns_non_sertifikasi', 'gty_sertifikasi_inpassing',
