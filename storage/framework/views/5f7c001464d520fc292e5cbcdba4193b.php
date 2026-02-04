@@ -27,11 +27,17 @@ if ($hour >= 0 && $hour <= 11) {
         <div class="d-flex align-items-center justify-content-between">
             <!-- User Avatar (Left) -->
             <div class="avatar-sm me-3 ms-3">
-                <img
-                    src="<?php echo e(Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('build/images/users/avatar-11.jpg')); ?>"
-                    class="avatar-img rounded-circle"
-                    alt="User"
-                >
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->avatar): ?>
+                    <img
+                        src="<?php echo e(asset('storage/' . Auth::user()->avatar)); ?>"
+                        class="avatar-img rounded-circle"
+                        alt="User"
+                    >
+                <?php else: ?>
+                    <div class="avatar-img rounded-circle d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #ff9a56, #ff6b35); width: 40px; height: 40px; border-radius: 50%;">
+                        <i class="bx bx-user" style="font-size: 20px; color: white;"></i>
+                    </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
 
             <!-- Welcome Text (Right-aligned) -->

@@ -95,6 +95,9 @@
         margin-right: 18px;
         box-shadow: 0 8px 25px rgba(255,154,86,0.3);
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .user-avatar::after {
@@ -374,8 +377,14 @@
     <div class="card-body">
         <!-- User Profile -->
         <div class="user-profile">
-            <img src="<?php echo e($currentUser->avatar ? asset('storage/app/public/' . $currentUser->avatar) : asset('build/images/users/avatar-11.jpg')); ?>"
-                 alt="Avatar" class="user-avatar">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($currentUser->avatar): ?>
+                <img src="<?php echo e(asset('storage/app/public/' . $currentUser->avatar)); ?>"
+                     alt="Avatar" class="user-avatar">
+            <?php else: ?>
+                <div class="user-avatar user-avatar-icon">
+                    <i class="bx bx-user" style="font-size: 40px; color: #ff9a56;"></i>
+                </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             <div class="user-details">
                 <div class="user-name"><?php echo e($currentUser->name); ?></div>
                 

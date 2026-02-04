@@ -97,6 +97,9 @@
         margin-right: 18px;
         box-shadow: 0 8px 25px rgba(255,154,86,0.3);
         position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .user-avatar::after {
@@ -376,8 +379,14 @@
     <div class="card-body">
         <!-- User Profile -->
         <div class="user-profile">
-            <img src="{{ $currentUser->avatar ? asset('storage/app/public/' . $currentUser->avatar) : asset('build/images/users/avatar-11.jpg') }}"
-                 alt="Avatar" class="user-avatar">
+            @if($currentUser->avatar)
+                <img src="{{ asset('storage/app/public/' . $currentUser->avatar) }}"
+                     alt="Avatar" class="user-avatar">
+            @else
+                <div class="user-avatar user-avatar-icon">
+                    <i class="bx bx-user" style="font-size: 40px; color: #ff9a56;"></i>
+                </div>
+            @endif
             <div class="user-details">
                 <div class="user-name">{{ $currentUser->name }}</div>
                 {{-- <div class="user-role">{{ ucfirst($currentUser->role) }}</div> --}}
