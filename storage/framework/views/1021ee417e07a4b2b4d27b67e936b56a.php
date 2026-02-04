@@ -212,8 +212,8 @@
     }
 
     .qr-image {
-        width: 280px;
-        height: 280px;
+        width: 100px;
+        height: 100px;
         display: block;
         border-radius: 8px;
     }
