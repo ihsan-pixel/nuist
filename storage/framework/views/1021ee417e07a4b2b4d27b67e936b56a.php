@@ -174,7 +174,7 @@
                     <div class="d-flex align-items-center mb-3">
                         <img src="<?php echo e($user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg')); ?>"
                              alt="Avatar" class="user-avatar me-3">
-                        <div class="flex-grow-1">
+                        <div class="grow">
                             <div class="user-name"><?php echo e($user->name); ?></div>
                             <div class="user-role"><?php echo e(ucfirst($user->role)); ?></div>
                             <small class="text-muted">NUIST ID: <?php echo e($user->nuist_id); ?></small>

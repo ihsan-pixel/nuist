@@ -974,4 +974,3 @@ class SekolahController extends \App\Http\Controllers\Controller
         ));
     }
 }
-

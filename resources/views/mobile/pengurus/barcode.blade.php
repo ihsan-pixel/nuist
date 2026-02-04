@@ -176,7 +176,7 @@
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ $user->avatar ? asset('storage/app/public/' . $user->avatar) : asset('build/images/users/avatar-11.jpg') }}"
                              alt="Avatar" class="user-avatar me-3">
-                        <div class="flex-grow-1">
+                        <div class="grow">
                             <div class="user-name">{{ $user->name }}</div>
                             <div class="user-role">{{ ucfirst($user->role) }}</div>
                             <small class="text-muted">NUIST ID: {{ $user->nuist_id }}</small>
