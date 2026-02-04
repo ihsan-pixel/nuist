@@ -494,7 +494,7 @@ if ($hour >= 0 && $hour <= 11) {
                 </a>
                 <div class="service-label">Kelengkapan Data</div>
             </div>
-            <div class="service-wrapper">
+            {{-- <div class="service-wrapper">
                 <a href="{{ route('uppm.index') }}" class="service-item" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
                     <i class="bx bx-certification" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
@@ -505,7 +505,7 @@ if ($hour >= 0 && $hour <= 11) {
                     <i class="bx bx-user-plus" style="color: white; font-size: 28px; position: relative; z-index: 1;"></i>
                 </a>
                 <div class="service-label">PPDB</div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>
