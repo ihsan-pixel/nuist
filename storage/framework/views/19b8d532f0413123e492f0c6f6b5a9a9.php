@@ -383,9 +383,9 @@
                 <i class="bx bx-building"></i>
                 <span>Madrasah</span>
             </a>
-            <a href="<?php echo e(route('mobile.pengurus.kelengkapan-data')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.pengurus.kelengkapan-data') ? 'active' : ''); ?>">
-                <i class="bx bx-data"></i>
-                <span>Kelengkapan</span>
+            <a>
+                <i></i>
+                <span style="color: #ffffff !important;">|---------|</span>
             </a>
             <!-- Tombol Tengah -->
             <div class="nav-center-btn">
@@ -395,7 +395,7 @@
             </div>
 
             <a href="<?php echo e(route('mobile.pengurus.kelengkapan-data')); ?>" class="nav-link">
-                <i class="bx bx-checklist"></i>
+                <i class="bx bx-book"></i>
                 <span>Kelengkapan</span>
             </a>
             <a href="<?php echo e(route('mobile.pengurus.profile')); ?>" class="nav-link <?php echo e(request()->routeIs('mobile.pengurus.profile') ? 'active' : ''); ?>">

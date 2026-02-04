@@ -85,9 +85,6 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
-            <button href="<?php echo e(route('mobile.pengurus.dashboard')); ?>" class="btn btn-link p-0 me-3" style="color: #004b4c;">
-                <i class="bx bx-arrow-back" style="font-size: 20px;"></i>
-            </button>
             <h5 class="mb-0" style="font-size: 16px; font-weight: 600; color: #004b4c;">
                 <i class="bx bx-data me-2"></i>Kelengkapan Data
             </h5>
@@ -280,4 +277,4 @@
 <?php $__env->stopSection(); ?>
 
 
-<?php echo $__env->make('layouts.mobile', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/kelengkapan-data.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.mobile-pengurus', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/lpmnudiymacpro/Documents/nuist/resources/views/mobile/pengurus/kelengkapan-data.blade.php ENDPATH**/ ?>

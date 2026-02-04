@@ -1,4 +1,4 @@
-@extends('layouts.mobile')
+@extends('layouts.mobile-pengurus')
 
 @section('title', 'Kelengkapan Data')
 
