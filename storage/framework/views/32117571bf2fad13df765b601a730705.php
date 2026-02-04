@@ -816,13 +816,102 @@
         <div class="info-card">
             <div class="info-card-header">
                 <i class="bx bx-chalkboard"></i>
-                <h6>Presensi Mengajar</h6>
+                <h6>Rekap Presensi Mengajar</h6>
+                <small class="text-muted" style="text-align: right" id="teachingCurrentMonthDisplay"><?php echo e($teachingAttendance['month_info']['month_name']); ?></small>
             </div>
-            <div class="text-center py-2">
-                <p class="text-muted mb-2" style="font-size: 12px;">Data presensi mengajar tenaga pendidik</p>
-                <a href="#" class="btn btn-sm" style="background: linear-gradient(135deg, #f5576c 0%, #fa709a 100%); color: white; border-radius: 8px;">
-                    Lihat Data
-                </a>
+
+            <!-- Month Selector -->
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($teachingAttendance['month_info']['available_months']) > 0): ?>
+            <div class="mb-3">
+                <select class="form-select form-select-sm" id="teachingMonthSelector" onchange="changeTeachingMonth(this.value)" style="font-size: 12px;">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $teachingAttendance['month_info']['available_months']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $monthOption): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($monthOption->month_year); ?>" <?php echo e($monthOption->month_year == $selectedMonth ? 'selected' : ''); ?>>
+                        <?php echo e($monthOption->month_name); ?>
+
+                    </option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </select>
+            </div>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+            <!-- Summary Stats -->
+            <div class="row g-2 mb-3" id="teachingSummaryStats">
+                <div class="col-6">
+                    <div class="text-center p-2" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 8px; color: white;">
+                        <div class="fw-bold" style="font-size: 16px;" id="totalTeachers"><?php echo e($teachingAttendance['summary']['total_teachers']); ?></div>
+                        <small style="font-size: 10px;">Guru</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); border-radius: 8px; color: white;">
+                        <div class="fw-bold" style="font-size: 16px;" id="totalScheduled"><?php echo e($teachingAttendance['summary']['total_scheduled_classes']); ?></div>
+                        <small style="font-size: 10px;">Jadwal</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 8px; color: white;">
+                        <div class="fw-bold" style="font-size: 16px;" id="totalConducted"><?php echo e($teachingAttendance['summary']['total_conducted_classes']); ?></div>
+                        <small style="font-size: 10px;">Terlaksana</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2" style="background: linear-gradient(135deg, #f5576c 0%, #fa709a 100%); border-radius: 8px; color: white;">
+                        <div class="fw-bold" style="font-size: 16px;" id="persentasePelaksanaan"><?php echo e($teachingAttendance['summary']['persentase_pelaksanaan']); ?>%</div>
+                        <small style="font-size: 10px;">Pelaksanaan</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teaching Attendance Details -->
+            <div class="teaching-attendance-list" id="teachingDetails" style="max-height: 400px; overflow-y: auto;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $teachingAttendance['monthly_data']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $day): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($day['is_working_day'] && count($day['teachers']) > 0): ?>
+                <div class="mb-3 p-2" style="background: #f8f9fa; border-radius: 8px;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-semibold" style="font-size: 12px; color: #004b4c;"><?php echo e($day['day_name']); ?></div>
+                        <small class="text-muted" style="font-size: 10px;"><?php echo e(\Carbon\Carbon::parse($day['date'])->format('d/m/y')); ?></small>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge" style="background: #e3f2fd; color: #0d47a1; font-size: 9px;">
+                            <i class="bx bx-calendar-check me-1"></i><?php echo e($day['total_conducted']); ?>/<?php echo e($day['total_scheduled']); ?> kelas
+                        </span>
+                    </div>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $day['teachers']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
+                        <div class="flex-grow-1">
+                            <div class="fw-medium" style="font-size: 11px; color: #212529;"><?php echo e($teacher['teacher_name']); ?></div>
+                            <small class="text-muted" style="font-size: 10px;"><?php echo e($teacher['subject']); ?> • <?php echo e($teacher['time']); ?></small>
+                        </div>
+                        <span class="badge bg-success" style="font-size: 8px;">
+                            <i class="bx bx-check me-1"></i>Hadir
+                        </span>
+                    </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                </div>
+                <?php elseif($day['is_working_day']): ?>
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold" style="font-size: 12px; color: #004b4c;"><?php echo e($day['day_name']); ?></div>
+                        <small class="text-muted" style="font-size: 10px;"><?php echo e(\Carbon\Carbon::parse($day['date'])->format('d/m/y')); ?></small>
+                    </div>
+                    <div class="text-muted" style="font-size: 11px;">Belum ada presensi</div>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <div class="text-center py-4">
+                    <i class="bx bx-calendar-x" style="font-size: 36px; color: #dee2e6;"></i>
+                    <p class="mb-0 mt-2 text-muted" style="font-size: 12px;">Tidak ada data presensi mengajar</p>
+                </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+
+            <div class="text-center mt-3">
+                <small class="text-muted" style="font-size: 10px;" id="teachingSummaryInfo">
+                    Total Guru: <?php echo e($teachingAttendance['summary']['total_teachers']); ?> |
+                    Hari KBM: <?php echo e($teachingAttendance['summary']['hari_kbm']); ?> |
+                    Hari Kerja: <?php echo e($teachingAttendance['summary']['total_working_days']); ?>
+
+                </small>
             </div>
         </div>
     </div>
@@ -978,6 +1067,143 @@ function changeMonth(monthValue) {
         console.error('Error fetching attendance data:', error);
         summaryStats.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
         monthlyDetails.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
+    });
+}
+
+// Teaching Attendance Month change functionality
+function changeTeachingMonth(monthValue) {
+    const schoolId = '<?php echo e($madrasah->id); ?>';
+
+    // Show loading state
+    const teachingSummaryStats = document.getElementById('teachingSummaryStats');
+    const teachingDetails = document.getElementById('teachingDetails');
+    const teachingCurrentMonthDisplay = document.getElementById('teachingCurrentMonthDisplay');
+    const teachingSummaryInfo = document.getElementById('teachingSummaryInfo');
+
+    teachingSummaryStats.innerHTML = '<div class="text-center py-3 col-12"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
+    teachingDetails.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
+
+    // Fetch new data via AJAX
+    fetch(`<?php echo e(url('mobile/pengurus/sekolah')); ?>/${schoolId}/monthly-teaching-attendance-data?month=${monthValue}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update month display
+        teachingCurrentMonthDisplay.textContent = data.month_info.month_name;
+
+        // Update summary stats
+        const summaryHtml = `
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #004b4c 0%, #0e8549 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalTeachers">${data.summary.total_teachers}</div>
+                    <small style="font-size: 10px;">Guru</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalScheduled">${data.summary.total_scheduled_classes}</div>
+                    <small style="font-size: 10px;">Jadwal</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalConducted">${data.summary.total_conducted_classes}</div>
+                    <small style="font-size: 10px;">Terlaksana</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #f5576c 0%, #fa709a 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="persentasePelaksanaan">${data.summary.persentase_pelaksanaan}%</div>
+                    <small style="font-size: 10px;">Pelaksanaan</small>
+                </div>
+            </div>
+        `;
+        teachingSummaryStats.innerHTML = summaryHtml;
+
+        // Update monthly details
+        let detailsHtml = '';
+        if (data.monthly_data && data.monthly_data.length > 0) {
+            let hasData = false;
+            data.monthly_data.forEach(day => {
+                if (day.is_working_day && day.teachers && day.teachers.length > 0) {
+                    hasData = true;
+                    let teachersHtml = '';
+                    day.teachers.forEach(teacher => {
+                        teachersHtml += `
+                            <div class="d-flex align-items-center py-1 border-top" style="border-color: #e9ecef !important;">
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium" style="font-size: 11px; color: #212529;">${teacher.teacher_name}</div>
+                                    <small class="text-muted" style="font-size: 10px;">${teacher.subject} • ${teacher.time}</small>
+                                </div>
+                                <span class="badge bg-success" style="font-size: 8px;">
+                                    <i class="bx bx-check me-1"></i>Hadir
+                                </span>
+                            </div>
+                        `;
+                    });
+
+                    detailsHtml += `
+                        <div class="mb-3 p-2" style="background: #f8f9fa; border-radius: 8px;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">${day.day_name}</div>
+                                <small class="text-muted" style="font-size: 10px;">${new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</small>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge" style="background: #e3f2fd; color: #0d47a1; font-size: 9px;">
+                                    <i class="bx bx-calendar-check me-1"></i>${day.total_conducted}/${day.total_scheduled} kelas
+                                </span>
+                            </div>
+                            ${teachersHtml}
+                        </div>
+                    `;
+                } else if (day.is_working_day) {
+                    detailsHtml += `
+                        <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">${day.day_name}</div>
+                                <small class="text-muted" style="font-size: 10px;">${new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</small>
+                            </div>
+                            <div class="text-muted" style="font-size: 11px;">Belum ada presensi</div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (!hasData) {
+                detailsHtml = `
+                    <div class="text-center py-4">
+                        <i class="bx bx-calendar-x" style="font-size: 36px; color: #dee2e6;"></i>
+                        <p class="mb-0 mt-2 text-muted" style="font-size: 12px;">Tidak ada data presensi mengajar</p>
+                    </div>
+                `;
+            }
+        } else {
+            detailsHtml = `
+                <div class="text-center py-4">
+                    <i class="bx bx-calendar-x" style="font-size: 36px; color: #dee2e6;"></i>
+                    <p class="mb-0 mt-2 text-muted" style="font-size: 12px;">Tidak ada data presensi mengajar</p>
+                </div>
+            `;
+        }
+        teachingDetails.innerHTML = detailsHtml;
+
+        // Update summary info
+        teachingSummaryInfo.innerHTML = `Total Guru: ${data.summary.total_teachers} | Hari KBM: ${data.summary.hari_kbm} | Hari Kerja: ${data.summary.total_working_days}`;
+
+        // Update URL without page reload
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('month', monthValue);
+        window.history.pushState({}, '', currentUrl.toString());
+    })
+    .catch(error => {
+        console.error('Error fetching teaching attendance data:', error);
+        teachingSummaryStats.innerHTML = '<div class="text-center py-3 text-danger col-12">Error loading data</div>';
+        teachingDetails.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
     });
 }
 </script>

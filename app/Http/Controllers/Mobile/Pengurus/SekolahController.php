@@ -13,6 +13,8 @@ use App\Models\PPDBSetting;
 use App\Models\StatusKepegawaian;
 use App\Models\Presensi;
 use App\Models\Holiday;
+use App\Models\TeachingAttendance;
+use App\Models\TeachingSchedule;
 
 class SekolahController extends \App\Http\Controllers\Controller
 {
@@ -298,11 +300,15 @@ class SekolahController extends \App\Http\Controllers\Controller
         $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
         $monthlyAttendance = $this->getMonthlyAttendanceSummary($id, $selectedMonth);
 
+        // Get teaching attendance data
+        $teachingAttendance = $this->getTeachingAttendanceSummary($id, $selectedMonth);
+
         return view('mobile.pengurus.sekolah-detail', compact(
             'madrasah', 'dataSekolah', 'jumlahGuru', 'jumlahSiswa',
             'jumlahJurusan', 'jumlahSarana', 'fasilitasList', 'ppdbSetting',
             'tahunBerdiri', 'akreditasi', 'telepon', 'email', 'website',
-            'tenagaPendidik', 'monthlyAttendance', 'selectedMonth'
+            'tenagaPendidik', 'monthlyAttendance', 'selectedMonth',
+            'teachingAttendance'
         ));
     }
 
@@ -442,6 +448,184 @@ class SekolahController extends \App\Http\Controllers\Controller
                 'month_name' => $selectedMonth->locale('id')->isoFormat('MMMM YYYY'),
                 'available_months' => $availableMonths
             ]
+        ];
+    }
+
+    /**
+     * API endpoint to get monthly teaching attendance data for AJAX requests
+     */
+    public function getMonthlyTeachingAttendanceData(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'pengurus') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $madrasah = Madrasah::findOrFail($id);
+
+        // Get selected month or default to current month
+        $selectedMonth = $request->input('month', Carbon::now()->format('Y-m'));
+        $teachingAttendance = $this->getTeachingAttendanceSummary($id, $selectedMonth);
+
+        return response()->json($teachingAttendance);
+    }
+
+    /**
+     * Get teaching attendance summary for a specific school
+     */
+    private function getTeachingAttendanceSummary($madrasahId, $month = null, $year = null)
+    {
+        // Get selected month or current month
+        $selectedMonth = $month ? Carbon::createFromFormat('Y-m', $month) : Carbon::now();
+        $year = $year ?: $selectedMonth->year;
+        $month = $selectedMonth->month;
+
+        // Get madrasah to determine hari_kbm
+        $madrasah = Madrasah::find($madrasahId);
+        $hariKbm = $madrasah ? $madrasah->hari_kbm : 5;
+
+        // Get teaching schedules for this school
+        $teachingSchedules = TeachingSchedule::where('school_id', $madrasahId)->get();
+
+        // Get all teachers in this school
+        $teacherIds = $teachingSchedules->pluck('teacher_id')->unique()->filter();
+        $tenagaPendidik = User::whereIn('id', $teacherIds)->get();
+
+        // Get teaching attendances for the selected month
+        $startOfMonth = Carbon::create($year, $month, 1)->startOfDay();
+        $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth()->endOfDay();
+
+        $teachingAttendances = TeachingAttendance::with(['teachingSchedule', 'teachingSchedule.teacher', 'user'])
+            ->whereHas('teachingSchedule', function($q) use ($madrasahId) {
+                $q->where('school_id', $madrasahId);
+            })
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        // Group attendances by date
+        $attendancesByDate = $teachingAttendances->groupBy(function($item) {
+            return Carbon::parse($item->tanggal)->toDateString();
+        });
+
+        // Get available months for history (from teaching attendances)
+        $availableMonths = DB::table('teaching_attendances')
+            ->join('teaching_schedules', 'teaching_attendances.teaching_schedule_id', '=', 'teaching_schedules.id')
+            ->selectRaw("DISTINCT DATE_FORMAT(teaching_attendances.tanggal, '%Y-%m') as month_year, DATE_FORMAT(teaching_attendances.tanggal, '%M %Y') as month_name")
+            ->where('teaching_schedules.school_id', $madrasahId)
+            ->orderBy('month_year', 'desc')
+            ->get();
+
+        // Calculate summary statistics
+        $totalScheduledClasses = 0;
+        $totalConductedClasses = 0;
+        $totalAttendanceRecords = $teachingAttendances->count();
+
+        // Count scheduled classes per day
+        $scheduledByDate = [];
+        foreach ($teachingSchedules as $schedule) {
+            $dayOfWeek = $schedule->day;
+            $startOfMonthDay = $startOfMonth->copy();
+            $endOfMonthDay = $endOfMonth->copy();
+
+            $currentDate = $startOfMonthDay->copy();
+            while ($currentDate <= $endOfMonthDay) {
+                if ($currentDate->dayOfWeek == $dayOfWeek) {
+                    $dateStr = $currentDate->toDateString();
+                    if (!isset($scheduledByDate[$dateStr])) {
+                        $scheduledByDate[$dateStr] = 0;
+                    }
+                    $scheduledByDate[$dateStr]++;
+                    $totalScheduledClasses++;
+                }
+                $currentDate->addDay();
+            }
+        }
+
+        // Build monthly data
+        $monthlyData = [];
+        $currentDate = $startOfMonth->copy();
+
+        while ($currentDate <= $endOfMonth) {
+            $dayOfWeek = $currentDate->dayOfWeek;
+            $dateStr = $currentDate->toDateString();
+            $dayName = $currentDate->locale('id')->isoFormat('dddd');
+            $isHoliday = Holiday::where('date', $dateStr)->exists();
+
+            // Check if it's a working day
+            $isWorkingDay = false;
+            if ($hariKbm == 5) {
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+            } elseif ($hariKbm == 6) {
+                $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 6);
+            }
+
+            // Get attendances for this date
+            $dateAttendances = $attendancesByDate->get($dateStr, collect([]));
+
+            // Get daily teacher attendances
+            $dailyTeachers = [];
+            foreach ($dateAttendances as $attendance) {
+                $teacherName = $attendance->user ? $attendance->user->name :
+                               ($attendance->teachingSchedule && $attendance->teachingSchedule->teacher ?
+                                $attendance->teachingSchedule->teacher->name : '-');
+
+                $subject = $attendance->teachingSchedule ? $attendance->teachingSchedule->subject : '-';
+                $startTime = $attendance->teachingSchedule ? $attendance->teachingSchedule->start_time : '-';
+                $endTime = $attendance->teachingSchedule ? $attendance->teachingSchedule->end_time : '-';
+
+                $dailyTeachers[] = [
+                    'teacher_name' => $teacherName,
+                    'subject' => $subject,
+                    'time' => $startTime . ' - ' . $endTime,
+                    'status' => $attendance->status ?? 'hadir'
+                ];
+            }
+
+            $dayData = [
+                'date' => $dateStr,
+                'day_name' => $dayName,
+                'is_holiday' => $isHoliday,
+                'is_working_day' => $isWorkingDay && !$isHoliday,
+                'total_scheduled' => $scheduledByDate[$dateStr] ?? 0,
+                'total_conducted' => $dateAttendances->count(),
+                'teachers' => $dailyTeachers
+            ];
+
+            if ($dateAttendances->count() > 0) {
+                $totalConductedClasses += $dateAttendances->count();
+            }
+
+            $monthlyData[] = $dayData;
+            $currentDate->addDay();
+        }
+
+        $persentasePelaksanaan = $totalScheduledClasses > 0 ? round(($totalAttendanceRecords / $totalScheduledClasses) * 100, 1) : 0;
+
+        return [
+            'monthly_data' => $monthlyData,
+            'summary' => [
+                'total_teachers' => $tenagaPendidik->count(),
+                'total_scheduled_classes' => $totalScheduledClasses,
+                'total_conducted_classes' => $totalAttendanceRecords,
+                'total_working_days' => collect($monthlyData)->where('is_working_day', true)->count(),
+                'persentase_pelaksanaan' => $persentasePelaksanaan,
+                'hari_kbm' => $hariKbm
+            ],
+            'month_info' => [
+                'current_month' => $selectedMonth->format('Y-m'),
+                'month_name' => $selectedMonth->locale('id')->isoFormat('MMMM YYYY'),
+                'available_months' => $availableMonths
+            ],
+            'teachers_list' => $tenagaPendidik->map(function($teacher) {
+                return [
+                    'id' => $teacher->id,
+                    'name' => $teacher->name,
+                    'avatar' => $teacher->avatar
+                ];
+            })->toArray()
         ];
     }
 }
