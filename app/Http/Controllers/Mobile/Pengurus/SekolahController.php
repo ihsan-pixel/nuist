@@ -929,8 +929,7 @@ class SekolahController extends \App\Http\Controllers\Controller
             }
 
             // Hitung laporan dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
-            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan')
-                ->where('madrasah_id', $m->id)
+            $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('madrasah_id', $m->id)
                 ->first();
 
             if ($laporan) {
