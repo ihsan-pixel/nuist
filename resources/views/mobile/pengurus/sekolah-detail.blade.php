@@ -763,7 +763,7 @@
             <div class="monthly-attendance" id="monthlyDetails" style="max-height: 300px; overflow-y: auto;">
                 @foreach($monthlyAttendance['monthly_data'] as $day)
                 <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">
                             {{ $day['day_name'] }}
                             @if($day['is_holiday'])
@@ -772,7 +772,7 @@
                                 <span class="badge" style="background: #e9ecef; color: #6c757d; font-size: 8px;">Non-KBM</span>
                             @endif
                         </div>
-                        <small class="text-muted" style="font-size: 10px;">{{ \Carbon\Carbon::parse($day['date'])->format('d/m') }}</small>
+                        <small class="text-muted" style="font-size: 10px;">{{ \Carbon\Carbon::parse($day['date'])->format('d/m/y') }}</small>
                     </div>
                     @if($day['is_working_day'])
                     <div class="d-flex gap-2">
@@ -870,108 +870,108 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
 
-    // Month change functionality
-    function changeMonth(monthValue) {
-        const schoolId = '{{ $madrasah->id }}';
+// Month change functionality - defined globally so it can be called from HTML onchange
+function changeMonth(monthValue) {
+    const schoolId = '{{ $madrasah->id }}';
 
-        // Show loading state
-        const summaryStats = document.getElementById('summaryStats');
-        const monthlyDetails = document.getElementById('monthlyDetails');
-        const currentMonthDisplay = document.getElementById('currentMonthDisplay');
-        const summaryInfo = document.getElementById('summaryInfo');
+    // Show loading state
+    const summaryStats = document.getElementById('summaryStats');
+    const monthlyDetails = document.getElementById('monthlyDetails');
+    const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+    const summaryInfo = document.getElementById('summaryInfo');
 
-        summaryStats.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
-        monthlyDetails.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
+    summaryStats.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
+    monthlyDetails.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</div>';
 
-        // Fetch new data via AJAX
-        fetch(`/mobile/pengurus/sekolah/${schoolId}/monthly-attendance-data?month=${monthValue}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Update month display
-            currentMonthDisplay.textContent = data.month_info.month_name;
+    // Fetch new data via AJAX
+    fetch(`{{ url('mobile/pengurus/sekolah') }}/${schoolId}/monthly-attendance-data?month=${monthValue}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update month display
+        currentMonthDisplay.textContent = data.month_info.month_name;
 
-            // Update summary stats
-            const summaryHtml = `
-                <div class="col-6">
-                    <div class="text-center p-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 8px; color: white;">
-                        <div class="fw-bold" style="font-size: 16px;" id="totalHadir">${data.summary.total_hadir}</div>
-                        <small style="font-size: 10px;">Hadir</small>
-                    </div>
+        // Update summary stats
+        const summaryHtml = `
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalHadir">${data.summary.total_hadir}</div>
+                    <small style="font-size: 10px;">Hadir</small>
                 </div>
-                <div class="col-6">
-                    <div class="text-center p-2" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border-radius: 8px; color: white;">
-                        <div class="fw-bold" style="font-size: 16px;" id="totalIzin">${data.summary.total_izin}</div>
-                        <small style="font-size: 10px;">Izin</small>
-                    </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalIzin">${data.summary.total_izin}</div>
+                    <small style="font-size: 10px;">Izin</small>
                 </div>
-                <div class="col-6">
-                    <div class="text-center p-2" style="background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%); border-radius: 8px; color: white;">
-                        <div class="fw-bold" style="font-size: 16px;" id="totalAlpha">${data.summary.total_alpha}</div>
-                        <small style="font-size: 10px;">Alpha</small>
-                    </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="totalAlpha">${data.summary.total_alpha}</div>
+                    <small style="font-size: 10px;">Alpha</small>
                 </div>
-                <div class="col-6">
-                    <div class="text-center p-2" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); border-radius: 8px; color: white;">
-                        <div class="fw-bold" style="font-size: 16px;" id="persentaseKehadiran">${data.summary.persentase_kehadiran}%</div>
-                        <small style="font-size: 10px;">Kehadiran</small>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-2" style="background: linear-gradient(135deg, #6c5ce7 0%, #8c7ae6 100%); border-radius: 8px; color: white;">
+                    <div class="fw-bold" style="font-size: 16px;" id="persentaseKehadiran">${data.summary.persentase_kehadiran}%</div>
+                    <small style="font-size: 10px;">Kehadiran</small>
+                </div>
+            </div>
+        `;
+        summaryStats.innerHTML = summaryHtml;
+
+        // Update monthly details
+        let detailsHtml = '';
+        data.monthly_data.forEach(day => {
+            detailsHtml += `
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">
+                            ${day.day_name}
+                            ${day.is_holiday ? '<span class="badge" style="background: #ffc107; color: #000; font-size: 8px;">Libur</span>' : ''}
+                            ${!day.is_working_day && !day.is_holiday ? '<span class="badge" style="background: #e9ecef; color: #6c757d; font-size: 8px;">Non-KBM</span>' : ''}
+                        </div>
+                        <small class="text-muted" style="font-size: 10px;">${new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</small>
                     </div>
+                    ${day.is_working_day ? `
+                    <div class="d-flex gap-2">
+                        <span class="badge" style="background: #d4edda; color: #155724; font-size: 10px; padding: 4px 6px;">
+                            <i class="bx bx-check me-1"></i>${day.hadir}
+                        </span>
+                        <span class="badge" style="background: #fff3cd; color: #856404; font-size: 10px; padding: 4px 6px;">
+                            <i class="bx bx-time me-1"></i>${day.izin}
+                        </span>
+                        <span class="badge" style="background: #f8d7da; color: #721c24; font-size: 10px; padding: 4px 6px;">
+                            <i class="bx bx-x me-1"></i>${day.alpha}
+                        </span>
+                    </div>
+                    ` : '<div class="text-muted" style="font-size: 12px;">-</div>'}
                 </div>
             `;
-            summaryStats.innerHTML = summaryHtml;
-
-            // Update monthly details
-            let detailsHtml = '';
-            data.monthly_data.forEach(day => {
-                detailsHtml += `
-                    <div class="d-flex align-items-center justify-content-between py-2 border-bottom" style="border-color: #f0f0f0 !important;">
-                        <div class="flex-grow-1">
-                            <div class="fw-semibold" style="font-size: 12px; color: #004b4c;">
-                                ${day.day_name}
-                                ${day.is_holiday ? '<span class="badge" style="background: #ffc107; color: #000; font-size: 8px;">Libur</span>' : ''}
-                                ${!day.is_working_day && !day.is_holiday ? '<span class="badge" style="background: #e9ecef; color: #6c757d; font-size: 8px;">Non-KBM</span>' : ''}
-                            </div>
-                            <small class="text-muted" style="font-size: 10px;">${new Date(day.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</small>
-                        </div>
-                        ${day.is_working_day ? `
-                        <div class="d-flex gap-2">
-                            <span class="badge" style="background: #d4edda; color: #155724; font-size: 10px; padding: 4px 6px;">
-                                <i class="bx bx-check me-1"></i>${day.hadir}
-                            </span>
-                            <span class="badge" style="background: #fff3cd; color: #856404; font-size: 10px; padding: 4px 6px;">
-                                <i class="bx bx-time me-1"></i>${day.izin}
-                            </span>
-                            <span class="badge" style="background: #f8d7da; color: #721c24; font-size: 10px; padding: 4px 6px;">
-                                <i class="bx bx-x me-1"></i>${day.alpha}
-                            </span>
-                        </div>
-                        ` : '<div class="text-muted" style="font-size: 12px;">-</div>'}
-                    </div>
-                `;
-            });
-            monthlyDetails.innerHTML = detailsHtml;
-
-            // Update summary info
-            summaryInfo.innerHTML = `Total Guru: ${data.summary.total_guru} | Hari KBM: ${data.summary.hari_kbm} | Hari Kerja: ${data.summary.total_working_days}`;
-
-            // Update URL without page reload
-            const currentUrl = new URL(window.location);
-            currentUrl.searchParams.set('month', monthValue);
-            window.history.pushState({}, '', currentUrl.toString());
-        })
-        .catch(error => {
-            console.error('Error fetching attendance data:', error);
-            summaryStats.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
-            monthlyDetails.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
         });
-    }
-});
+        monthlyDetails.innerHTML = detailsHtml;
+
+        // Update summary info
+        summaryInfo.innerHTML = `Total Guru: ${data.summary.total_guru} | Hari KBM: ${data.summary.hari_kbm} | Hari Kerja: ${data.summary.total_working_days}`;
+
+        // Update URL without page reload
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('month', monthValue);
+        window.history.pushState({}, '', currentUrl.toString());
+    })
+    .catch(error => {
+        console.error('Error fetching attendance data:', error);
+        summaryStats.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
+        monthlyDetails.innerHTML = '<div class="text-center py-3 text-danger">Error loading data</div>';
+    });
+}
 </script>
 @endsection
 
