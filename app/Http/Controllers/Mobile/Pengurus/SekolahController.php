@@ -814,7 +814,8 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'filled' => $laporanFilled,
                     'total' => count($laporanFields),
                     'status' => $laporan->status ?? 'draft',
-                    'tahun' => $laporan->tahun_pelaporan
+                    'tahun' => $laporan->tahun_pelaporan,
+                    'madrasah_id' => $laporan->madrasah_id
                 ];
             } else {
                 $madrasah->laporan_akhir_tahun_percentage = 0;
@@ -822,7 +823,8 @@ class SekolahController extends \App\Http\Controllers\Controller
                     'filled' => 0,
                     'total' => count($laporanFields),
                     'status' => 'belum_isi',
-                    'tahun' => now()->year
+                    'tahun' => now()->year,
+                    'madrasah_id' => null
                 ];
             }
 
