@@ -795,6 +795,7 @@ class SekolahController extends \App\Http\Controllers\Controller
             // Cek dari tabel laporan_akhir_tahun_kepala_sekolah berdasarkan madrasah_id
             $laporan = \App\Models\LaporanAkhirTahunKepalaSekolah::where('tahun_pelaporan', now()->year)
                 ->where('madrasah_id', $madrasah->id)
+                ->latest()
                 ->first();
 
             if ($laporan) {
